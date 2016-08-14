@@ -1,32 +1,28 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import { Router, IndexRoute, Route, Link, browserHistory } from 'react-router'
+
+import Index from './views/index.tsx'
+import Search from './views/search.tsx'
+import Station from './views/station.tsx'
 
 interface IAppProps extends React.Props<App> {}
 
-interface IAppState {
-	name: String
-}
+class App extends React.Component<IAppProps, {}> {
 
-class App extends React.Component<IAppProps, IAppState> {
-	
-	public state: IAppState
-
-	constructor(props: IAppProps) {
-		super(props)
-
-		this.state = {
-			name: 'Jono the Cooper'
-		}
-	}
-
-	public render() {
-		return (
-			<div>
-				{this.state.name} was finally able to create his Hello World React + Typescript App
-			</div>
-		)
-	}
+  public render() {
+    return (
+      <Router history={browserHistory}>
+        <Route path="/" component={Index}>
+          <Route path="s">
+            <IndexRoute component={Search} />
+            <Route path=":station" component={Station} />
+          </Route>
+        </Route>
+      </Router>
+    )
+  }
 }
 document.addEventListener("DOMContentLoaded", function(event) {
-	ReactDOM.render(<App />, document.getElementById('app'))
+  ReactDOM.render(<App />, document.getElementById('app'))
 })
