@@ -1,3 +1,14 @@
-body {
-	background: lightblue;
+@import "_normalize";
+
+html, body, #app {
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
 }
+
+.panes {
+  display: flex;
+  height: 100%;
+}
+
+@import "_navigation";
+@import "_content";

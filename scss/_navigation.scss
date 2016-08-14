@@ -1,0 +1,73 @@
+.navigation {
+	background: #283d51;
+	height: 100%;
+	width: 100%;
+	max-width: 300px;
+
+	ul {
+		margin: 0;
+		padding: 0;
+	}
+	li {
+    display: block;
+		padding: 5px 10px;
+
+    &:hover {
+      background: rgba(0,0,0,0.2);
+    }
+
+    &:first-child {
+      padding: 13px 10px;
+
+      .icon {
+        background: url("logo.png") 50% 50% no-repeat;
+        background-size: 34px;
+        height: 36px;
+        width: 36px;
+      }
+      
+      .name {
+        font-size: 22px;
+        line-height: 24px;
+        font-weight: 300;
+        text-indent: 4px;
+      }
+    }
+	}
+
+  hr {
+    border-bottom: 0;
+    margin: 0;
+    border-top: 1px solid rgba(0,0,0,0.2);
+  }
+
+  // the emoji
+  .icon {
+    font-size: 26px;
+    padding-top: 1px;
+    margin-right: 7px;
+    width: 36px;
+    text-align: center;
+  }
+
+  .text-wrapper {
+    padding: 5px 0;
+  }
+
+  .name {
+    letter-spacing: -0.5px;
+    line-height: 1;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .description {
+    font-size: 11px;
+  }
+
+	a {
+		color: #fff;
+		text-decoration: none;
+    width: 100%;
+    display: flex;
+	}
+}
