@@ -7,6 +7,7 @@ var cb = function(req, res) {
 }
 app.use('/a', require('./server'));
 app.use('/', express.static(__dirname + '/dist'))
+app.use('/dist/maps', express.static(__dirname + '/dist/maps'))
 app.get('/*', cb)
  
 // the router routes stuff through this port

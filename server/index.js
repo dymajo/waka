@@ -1,8 +1,10 @@
 var router = require('express').Router()
 var station = require('./station')
 var cache = require('./cache')
+var map = require('./map')
 
-console.log('using AT api key: ' + process.env.atApiKey)
+console.log('using AT API Key: ' + process.env.atApiKey)
+console.log('using Google Maps API Key: ' + process.env.mapsApiKey)
 router.get('/cache-get', function(req, res) {
   cache.get()
   res.send({
@@ -15,7 +17,7 @@ router.get('/cache-build', function(req, res) {
     'status': 'building'
   })
 })
-
+router.get('/map/:map', map.getMap)
 router.get('/station', station)
 router.get('/station/:station', station)
 module.exports = router;

@@ -39,4 +39,4 @@ jspm_packages
 typings
 dist/*.css
 dist/*.js
-cache/*.json
+cache/*
