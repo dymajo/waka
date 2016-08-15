@@ -36,7 +36,7 @@ class Index extends React.Component<IAppProps, {}> {
         <nav className="navigation">
           <ul>
             <SidebarItem url="/s" name="Search for a Station" />
-            <hr />
+            <h2>Stations</h2>
             <SidebarItem url="/s/8439" icon="🚍" name="Youth Street" description="Stop 8439 / 1153 Dominion Road" />
             <SidebarItem url="/s/8439" icon="🚆" name="Britomart" description="Britomart Train Station, Auckland Central" />
             <SidebarItem url="/s/7058" icon="🚍" name="Civic" description="Stop 7058 / Queen Street outside St James" />

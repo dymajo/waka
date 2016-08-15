@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "react": "registry:npm/react#15.0.1+20160601175240"
+    "react": "registry:npm/react#15.0.1+20160601175240",
+    "react-dom": "registry:npm/react-dom#15.0.1+20160705210405",
+    "react-router": "registry:npm/react-router#2.4.0+20160811060709"
   }
 }
