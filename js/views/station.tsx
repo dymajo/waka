@@ -9,7 +9,16 @@ interface IAppProps extends React.Props<Station> {
 class Station extends React.Component<IAppProps, {}> {
   public render() {
     return (
-      <div>This is {this.props.routeParams.station} station</div>
+      <div>
+        <header>
+          <div>
+            <span className="icon">🚆</span>
+            <h1>Britomart</h1>
+            <h2>Britomart Train Station, Auckland Central</h2>
+          </div>
+        </header>
+        
+      </div>
     )
   }
 }

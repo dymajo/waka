@@ -1,0 +1,45 @@
+.content {
+	flex: 1;
+
+	header {
+		background-color: #eee;
+		background-image: url('header.png');
+		background-size: cover;
+		background-position: 50% 50%;
+		background-repeat: no-repeat;
+		padding: 25px;
+		height: 25vh;
+		position: relative;
+
+		div {
+			position: absolute;
+			bottom: 0;
+			padding-bottom: 20px;
+			left: 20px;
+			right: 20px;
+		}
+
+		.icon {
+			font-size: 48px;
+			float: left;
+			margin-right: 7px;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: 3em;
+			letter-spacing: -3px;
+			color: #283a51;
+			line-height: 1;
+			text-shadow: 0 1px 3px #fff;
+		}
+		h2 {
+			margin: 0;
+			font-size: 16px;
+			color: #444;
+			text-shadow: 0 1px 1px #fff;
+			text-indent: 3px;
+			line-height: 1;
+		}
+	}
+}
