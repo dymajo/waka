@@ -17,7 +17,15 @@ router.get('/cache-build', function(req, res) {
     'status': 'building'
   })
 })
+router.get('/cache-upload', function(req, res) {
+  cache.upload()
+  res.send({
+    'status': 'building'
+  })
+})
+
 router.get('/map/:map', map.getMap)
 router.get('/station', station)
 router.get('/station/:station', station)
 module.exports = router;
+

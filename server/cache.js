@@ -1,6 +1,9 @@
+var azure = require('azure-storage');
 var request = require('request')
 var moment = require('moment-timezone')
 var fs = require('fs')
+
+var tableSvc = azure.createTableService();
 
 var options = {
   headers: {
@@ -112,6 +115,78 @@ var cache = {
         fs.writeFile('cache/tripsLookup.json', JSON.stringify(trips))
       })
     })
+  },
+  upload: function() {
+    var promises = []
+
+    promises[0] = new Promise(function(resolve, reject) {
+      tableSvc.createTableIfNotExists('stops', function(error, result, response){
+        if(!error){
+          resolve()
+        }
+      });
+    })
+
+    promises[1] = new Promise(function(resolve, reject) {
+      tableSvc.createTableIfNotExists('trips', function(error, result, response){
+        if(!error){
+          resolve()
+        }
+      });
+    })
+
+    Promise.all(promises).then(function() {
+      fs.readFile('cache/tripsLookup.json', function(err, data) {
+        if (err) throw err;
+        var tripsData = JSON.parse(data)
+        var batch = new azure.TableBatch();
+        var arrayOfEntityArrays = []
+        var count = 0
+        for (var key in tripsData) {
+          arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
+          if (arrayOfEntityArrays[count].operations.length > 99) {
+            count++
+            arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch();
+          } 
+          arrayOfEntityArrays[count].insertOrReplaceEntity({
+            PartitionKey: {'_': 'alltrips'},
+            RowKey: {'_': key},
+            route_id: {'_': tripsData[key].route_id},
+            service_id: {'_': tripsData[key].service_id},
+            trip_headsign: {'_': tripsData[key].trip_headsign},
+            direction_id: {'_': tripsData[key].direction_id},
+            block_id: {'_': tripsData[key].block_id},
+            shape_id: {'_': tripsData[key].shape_id},
+            agency_id: {'_': tripsData[key].agency_id},
+            route_short_name: {'_': tripsData[key].route_short_name},
+            route_long_name: {'_': tripsData[key].route_long_name},
+            route_type: {'_': tripsData[key].route_type},
+            frequency: {'_': tripsData[key].frequency},
+            start_date: {'_': tripsData[key].start_date},
+            end_date: {'_': tripsData[key].end_date}
+          })
+        }
+        var batchUpload = function(n) {
+          if (n < arrayOfEntityArrays.length) {
+            console.log(`uploading batch ${n}`)
+            tableSvc.executeBatch('trips', arrayOfEntityArrays[n], function (error, result, response) {
+              if(!error) {
+                batchUpload(n+1)
+              } else {
+                console.log(error)
+              }
+            });
+          } else {
+            console.log('finishing uploading')
+          }
+        }
+        batchUpload(0)
+      })
+
+    })
+
+
+
   }
 }
 module.exports = cache
