@@ -13,8 +13,12 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
     super(props)
   }
   public render() {
+    var classname
+    if (window.location.pathname == this.props.url) {
+      classname = 'selected'
+    }
     return (
-      <li>
+      <li className={classname}>
         <Link to={this.props.url}>
           <div className="icon">{this.props.icon}</div>
           <div className="text-wrapper">

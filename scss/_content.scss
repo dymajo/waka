@@ -10,6 +10,8 @@
 		height: 25vh;
 		position: relative;
 
+		border-bottom: 1px solid #ccc;
+
 		div {
 			position: absolute;
 			bottom: 0;
@@ -39,6 +41,58 @@
 			text-shadow: 0 1px 1px #fff;
 			text-indent: 3px;
 			line-height: 1;
+		}
+	}
+	ul {
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
+
+		ul {
+			width: 100%;
+			border-bottom: 1px solid #ddd;
+			&:hover {
+				background: #eee;
+			}
+		}
+	}
+
+	li li {
+		display: inline-block;
+		padding: 10px 5px;
+		font-size: 18px;
+		vertical-align: top;
+		line-height: 28px;
+
+
+
+		&:nth-child(1) {
+			width: 76px;
+			text-align: right;
+			padding-left: 10px;
+			padding-right: 7px;
+
+			div {
+
+				font-weight: bold;
+				display: inline-block;
+				border: 2px solid rgba(0,0,0,0.2);
+				text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
+				border-radius: 2px;
+				line-height: 1;
+				padding: 4px;
+				color: #fff;
+				font-size: 16px;
+			}
+		}
+		&:nth-child(2) {
+			font-weight: bold;
+		}
+		&:nth-child(3) {
+			width: 350px;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
 		}
 	}
 }
