@@ -135,6 +135,63 @@ var cache = {
       });
     })
 
+    Promise.all(promises).then(function(){
+      fs.readFile('cache/stops.json', function(err, data){
+        if (err) throw err;
+        var stopsData = JSON.parse(data)
+        var batch = new azure.TableBatch()
+        var arrayOfEntityArrays = []
+        var count = 0
+        stopsData.response.forEach(function(stop){
+          arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
+          if (arrayOfEntityArrays[count].operations.length > 99){
+            count++
+            arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
+          }
+          arrayOfEntityArrays[count].insertOrReplaceEntity({
+            PartitionKey: {'_': 'allstops'},
+            RowKey: {'_': stop.stop_id.toString()},
+            stop_name: {'_': stop.stop_name},
+            stop_desc: {'_': stop.stop_desc},
+            stop_lat: {'_': stop.stop_lat},
+            stop_lon: {'_': stop.stop_lon},
+            zone_id: {'_': stop.zone_id},
+            stop_url: {'_': stop.stop_url},
+            stop_code: {'_': stop.stop_code},
+            stop_street: {'_': stop.stop_street},
+            stop_city: {'_': stop.stop_city},
+            stop_region: {'_': stop.stop_region},
+            stop_postcode: {'_': stop.stop_postcode},
+            stop_country: {'_': stop.stop_country},
+            location_type : {'_': stop.location_type },
+            parent_station: {'_': stop.parent_station},
+            stop_timezone: {'_': stop.stop_timezone},
+            wheelchair_boarding: {'_': stop.wheelchair_boarding},
+            direction: {'_': stop.direction},
+            position: {'_': stop.position},
+            the_geom: {'_': stop.the_geom}
+          })
+        })
+        console.log(arrayOfEntityArrays[0])
+        console.log(arrayOfEntityArrays.length)
+        var batchUpload = function(n){
+          if (n < arrayOfEntityArrays.length) {
+            console.log(`uploading batch ${n+1}`)
+            tableSvc.executeBatch('stops', arrayOfEntityArrays[n], function(error, result, response){
+              if(!error){
+                batchUpload(n+1)
+              } else {
+                console.log(error)
+              }
+              });
+          } else {
+            console.log('finished uploading stops')
+          }
+        }
+        batchUpload(0)
+      })
+    })
+
     Promise.all(promises).then(function() {
       fs.readFile('cache/tripsLookup.json', function(err, data) {
         if (err) throw err;
@@ -168,7 +225,7 @@ var cache = {
         }
         var batchUpload = function(n) {
           if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading batch ${n}`)
+            console.log(`uploading trips batch ${n+1}`)
             tableSvc.executeBatch('trips', arrayOfEntityArrays[n], function (error, result, response) {
               if(!error) {
                 batchUpload(n+1)
@@ -177,7 +234,7 @@ var cache = {
               }
             });
           } else {
-            console.log('finishing uploading')
+            console.log('finished uploading trips')
           }
         }
         batchUpload(0)
