@@ -1,5 +1,8 @@
 var fs = require('fs')
 var request = require('request')
+var azure = require('azure-storage')
+
+var tableSvc = azure.createTableService()
 
 var url =
 `https://maps.googleapis.com/maps/api/staticmap?zoom=16&size=600x350&scale=2&maptype=roadmap
@@ -20,39 +23,25 @@ var url =
 &key=${process.env.mapsApiKey}`.replace(/\r?\n|\r/g, '')
 
 var map = {
-  table: {},
-  inited: false,
-  init: function() {
-    try {
-      fs.statSync('cache/stops.json')
-    } catch(err) {
-      return false
-    }
-    fs.readFile('cache/stops.json', function(err, data) {
-      if (err) throw err;
-      JSON.parse(data).response.forEach(function(s) {
-        var center = `&center=${s.stop_lat},${s.stop_lon}`
-        map.table[s.stop_id] = url + center
-      })
-      map.inited = true
-    })
-  },
   getMap: function(req, res) {
-    if (map.inited == false) {
-      map.init()
-      res.send('')
-    }
     var fileName = 'cache/maps/'+req.params.map+'.png'
     try {
       fs.statSync(fileName)
       fs.createReadStream(fileName).pipe(res)
     } catch(err) {
-      var req = request(map.table[req.params.map]||map.table[3389]).pipe(fs.createWriteStream(fileName))
-      req.on('finish', function() {
-        fs.createReadStream(fileName).pipe(res)
-      })
+      // goes to azure and gets the lat long of where the stop is
+      tableSvc.retrieveEntity('stops', 'allstops', req.params.map, function(error, result, response){
+        if (error) {
+          fs.createReadStream('dist/error.png').pipe(res)
+          return
+        }
+        var center = `&center=${result.stop_lat._},${result.stop_lon._}`
+        var req = request(url + center).pipe(fs.createWriteStream(fileName))
+        req.on('finish', function() {
+          fs.createReadStream(fileName).pipe(res)
+        })
+      })   
     }
   }
 }
-map.init()
 module.exports = map
