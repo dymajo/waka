@@ -27,7 +27,7 @@ var station = {
       var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
 
       var trips = JSON.parse(body).response
-      var filteredTrips = {}
+      var filteredTrips = []
       var arrayOfEntityArrays = []
       var count = 0
       trips.forEach(function(trip) {
@@ -47,10 +47,11 @@ var station = {
         // filter for the immediate return because we do it in a query on the db side
         if (trip.arrival_time_seconds < (currentTime + 7200) && trip.arrival_time_seconds > (currentTime - 1200)) {
           // this is for the normal at return
-          filteredTrips[trip.trip_id] = {
+          filteredTrips.push({
+            trip_id: trip.trip_id,
             arrival_time_seconds: trip.arrival_time_seconds,
             stop_sequence: trip.stop_sequence
-          }
+          })
         }
       })
 
@@ -118,12 +119,13 @@ var station = {
               resolve()
             })
           } else {
-            var data = {}
+            var data = []
             result.entries.forEach(function(trip) {
-              data[trip.RowKey._] = {
+              data.push({
+                trip_id: trip.RowKey._,
                 arrival_time_seconds: trip.arrival_time_seconds._,
                 stop_sequence: trip.stop_sequence._
-              }
+              })
             })
             sending.provider = 'azure' // just for debugging purposes
             sending.trips = data
@@ -137,21 +139,33 @@ var station = {
       // when the stop lookup and the stoptimes lookup is done
       Promise.all(promises).then(function() {
 
-        var query = new azure.TableQuery()
-        var filteredTripsLength = 0
-        for (var key in sending.trips) {
-          if (filteredTripsLength === 0) {
-            query.where('RowKey eq ?', key)
-          } else {
-            query.or('RowKey eq ?', key)
-          }
-          filteredTripsLength++
+        var sortByTime = function(a, b) {
+          return a.arrival_time_seconds - b.arrival_time_seconds
         }
+        sending.trips.sort(sortByTime)
+
+        // only gonna send 75 trips back
+        var maxTrips = sending.trips.length
+        if (maxTrips > 75) {
+          maxTrips = 75
+        }
+
         // if there are no trips, don't do a query duh
-        if (filteredTripsLength === 0) {
+        if (maxTrips === 0) {
           sending.trips = {}
           res.send(sending)
           return
+        }
+
+        var tmpTripStore = {}
+        var query = new azure.TableQuery()
+        for (var i=0; i<maxTrips; i++) {
+          if (i === 0) {
+            query.where('RowKey eq ?', sending.trips[i].trip_id)
+          } else {
+            query.or('RowKey eq ?', sending.trips[i].trip_id)
+          }
+          tmpTripStore[sending.trips[i].trip_id] = {a: sending.trips[i].arrival_time_seconds, s: sending.trips[i].stop_sequence}
         }
 
         tableSvc.queryEntities('trips',query, null, function(error, result, response) {
@@ -161,8 +175,8 @@ var station = {
           result.entries.forEach(function(trip) {
             // TODO: Only push the ones that are available today!
             finalTripsArray.push({
-              arrival_time_seconds: sending.trips[trip.RowKey._].arrival_time_seconds,
-              stop_sequence: sending.trips[trip.RowKey._].stop_sequence,
+              arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
+              stop_sequence: tmpTripStore[trip.RowKey._].s,
               trip_id: trip.RowKey._,
               route_long_name: trip.route_long_name._,
               agency_id: trip.agency_id._,
