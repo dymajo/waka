@@ -1,4 +1,6 @@
 import * as React from 'react'
+declare function require(name: string): any;
+let request = require('reqwest')
 
 interface ITripItemProps extends React.Props<TripItem> {
   code: string,
@@ -13,6 +15,18 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     super(props)
   }
   public render() {
+    var arrival = new Date()
+    arrival.setHours(0)
+    arrival.setMinutes(0)
+    arrival.setSeconds(parseInt(this.props.time))
+
+    // makes times like 4:9 -> 4:09
+    var minutes = arrival.getMinutes().toString()
+    if (arrival.getMinutes() < 10) {
+      minutes = '0' + minutes.toString()
+    }
+    var timestring = arrival.getHours() + ':' + minutes
+
     return (
       <li><ul>
         <li>
@@ -20,7 +34,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
             {this.props.code}
           </div>
         </li>
-        <li>{this.props.time}</li>
+        <li>{timestring}</li>
         <li>{this.props.name}</li>
         <li>{this.props.eta}</li>
       </ul></li>
@@ -28,30 +42,97 @@ class TripItem extends React.Component<ITripItemProps, {}> {
   }
 }
 
-interface IAppProps extends React.Props<Station> {
-  routeParams: {
-    station: String
-  }
+interface ServerTripItem {
+  arrival_time_seconds: string,
+  stop_sequence: string,
+  trip_id: string,
+  route_long_name: string,
+  agency_id: string,
+  direction_id: string,
+  end_date: string,
+  frequency: string,
+  route_short_name: string,
+  route_type: string,
+  start_date: string,
+  trip_headsign: string
 }
 
-class Station extends React.Component<IAppProps, {}> {
+interface IAppProps extends React.Props<Station> {
+  routeParams: {
+    station: string
+  }
+}
+interface IAppState {
+  name: string,
+  stop: string,
+  trips: Array<ServerTripItem>
+}
+
+class Station extends React.Component<IAppProps, IAppState> {
+  public state : IAppState
+
+  constructor(props: IAppProps) {
+    super(props)
+    this.state = {
+      name: '',
+      stop: '',
+      trips: []
+    }
+  }
+  private getData(newProps) {
+    var tripsSort = function(a,b) {
+      return a.arrival_time_seconds - b.arrival_time_seconds
+    }
+    request(`/a/station/${newProps.routeParams.station}`).then((data) => {
+      data.trips.sort(tripsSort)
+      console.log(data)
+      this.setState({
+        name: data.stop_name,
+        stop: this.props.routeParams.station,
+        trips: data.trips
+      })
+    })
+  }
+  public componentDidMount() {
+    console.log('component mounted')
+    this.getData(this.props)
+  }
+  public componentWillReceiveProps(newProps) {
+    console.log('component new props')
+    this.getData(newProps)
+    this.setState({
+      name: '',
+      stop: '',
+      trips: []
+    })
+  }
   public render() {
     var bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + ')'}
+    var slug
+    if (this.state.stop != '') {
+      slug = 'Stop ' + this.state.stop + ' / ' + this.state.name
+    }
+
     return (
       <div>
         <header style={bgImage}>
           <div>
             <span className="icon">🚆</span>
-            <h1>Britomart</h1>
-            <h2>Britomart Train Station, Auckland Central</h2>
+            <h1>{this.state.name}</h1>
+            <h2>{slug}</h2>
           </div>
         </header>
         <ul>
-          <TripItem color="#27ae60" code="WEST" time="9:25" name="Swanson" eta="Due" />
-          <TripItem color="#9b59b6" code="STH" time="9:25" name="Papakura" eta="Due" />
-          <TripItem color="#27ae60" code="WEST" time="9:25" name="Mt Roskill" eta="2 Minutes" />
-          <TripItem color="#f39c12" code="ONE" time="9:25" name="Onehunga" eta="4 Minutes" />
-          <TripItem color="#27ae60" code="EAST" time="9:25" name="Manakau" eta="" />
+          {this.state.trips.map(function(trip) {
+            return <TripItem 
+              color="#27ae60"
+              code={trip.route_short_name}
+              time={trip.arrival_time_seconds}
+              name={trip.trip_headsign}
+              key={trip.trip_id}
+              eta=""
+             />
+          })}
         </ul>
       </div>
     )
