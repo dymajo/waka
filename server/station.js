@@ -77,26 +77,30 @@ var station = {
       if (cb) cb(null, filteredTrips)
     })
   },
-  api: function(req, res) {
+  stopInfo: function(req, res) {
     if (req.params.station) {
-      var promises = []
+      var sending = {}
+      tableSvc.retrieveEntity('stops', 'allstops', req.params.station, function(err, result, response) {
+        if (err) {
+          return reject(err)
+        }
+        sending.stop_name = result.stop_name._
+        sending.stop_lat = result.stop_lat._
+        sending.stop_lon = result.stop_lon._
+        res.send(sending)
+      })
+    } else {
+      res.send({
+        'error': 'please specify a station'
+      })
+    }
+  },
+  stopTimes: function(req, res) {
+    if (req.params.station) {
       var sending = {}
 
-      // hit azure, asking for the stop info
-      promises[0] = new Promise(function(resolve, reject) {
-        tableSvc.retrieveEntity('stops', 'allstops', req.params.station, function(err, result, response) {
-          if (err) {
-            return reject(err)
-          }
-          sending.stop_name = result.stop_name._
-          sending.stop_lat = result.stop_lat._
-          sending.stop_lon = result.stop_lon._
-          resolve()
-        })
-      })
-
       // ask for trips in real time
-      promises[1] = new Promise(function(resolve, reject) {
+      var promise = new Promise(function(resolve, reject) {
         // we going to query the things
         var time = moment().tz('Pacific/Auckland')
         var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
@@ -134,10 +138,7 @@ var station = {
             // TODO: A cache check!
           }         
         })
-      })
-      
-      // when the stop lookup and the stoptimes lookup is done
-      Promise.all(promises).then(function() {
+      }).then(function() {
 
         var sortByTime = function(a, b) {
           return a.arrival_time_seconds - b.arrival_time_seconds

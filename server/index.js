@@ -25,7 +25,9 @@ router.get('/cache-upload', function(req, res) {
 })
 
 router.get('/map/:map', map.getMap)
-router.get('/station', station.api)
-router.get('/station/:station', station.api)
+router.get('/station', station.stopInfo)
+router.get('/station/:station', station.stopInfo)
+router.get('/station/:station/times', station.stopTimes)
+
 module.exports = router;
 

@@ -84,11 +84,20 @@ class Station extends React.Component<IAppProps, IAppState> {
       return a.arrival_time_seconds - b.arrival_time_seconds
     }
     request(`/a/station/${newProps.routeParams.station}`).then((data) => {
+      this.setState({
+        // because typescript is dumb, you have to repass
+        name: data.stop_name,
+        stop: this.props.routeParams.station,
+        trips: this.state.trips
+      })
+    })
+    request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
       data.trips.sort(tripsSort)
       console.log(data)
       this.setState({
-        name: data.stop_name,
-        stop: this.props.routeParams.station,
+        // because typescript is dumb, you have to repass
+        name: this.state.name,
+        stop: this.state.stop,
         trips: data.trips
       })
     })
