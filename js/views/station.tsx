@@ -122,11 +122,21 @@ class Station extends React.Component<IAppProps, IAppState> {
       slug = 'Stop ' + this.state.stop + ' / ' + this.state.name
     }
 
+    var time = new Date()
+
+    // makes times like 4:9 -> 4:09
+    var minutes = time.getMinutes().toString()
+    if (time.getMinutes() < 10) {
+      minutes = '0' + minutes.toString()
+    }
+    var timestring = <time><span>{time.getHours()}</span><span className="blink">:</span><span>{minutes}</span></time>
+
     return (
       <div>
         <header style={bgImage}>
           <div>
             <span className="icon">🚆</span>
+            {timestring}
             <h1>{this.state.name}</h1>
             <h2>{slug}</h2>
           </div>

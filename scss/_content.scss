@@ -43,6 +43,30 @@
 			text-indent: 3px;
 			line-height: 1;
 		}
+
+		time {
+			right: 5px;
+			position: absolute;
+			font-weight: bold;
+			letter-spacing: -1px;
+			font-size: 32px;
+			bottom: 25px;
+			padding: 3px 5px;
+			background: #283a51;
+			color: #fff;
+		}
+		@keyframes blink {
+			0% {
+				color: #fff;
+			}
+			50% {
+				color: transparent;
+			}
+		}
+		.blink {
+			animation: blink 2s steps(1, end) infinite;
+			font-weight: normal;
+		}
 	}
 	ul {
 		list-style-type: none;
