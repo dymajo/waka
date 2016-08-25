@@ -170,25 +170,35 @@ var station = {
         }
 
         tableSvc.queryEntities('trips',query, null, function(error, result, response) {
+          var today = moment().tz('Pacific/Auckland')
+
           if (error) throw error
           // query was successful
           var finalTripsArray = []
           result.entries.forEach(function(trip) {
-            // TODO: Only push the ones that are available today!
-            finalTripsArray.push({
-              arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
-              stop_sequence: tmpTripStore[trip.RowKey._].s,
-              trip_id: trip.RowKey._,
-              route_long_name: trip.route_long_name._,
-              agency_id: trip.agency_id._,
-              direction_id: trip.direction_id._,
-              end_date: trip.end_date._,
-              frequency: trip.frequency._,
-              route_short_name: trip.route_short_name._,
-              route_type: trip.route_type._,
-              start_date: trip.start_date._,
-              trip_headsign: trip.trip_headsign._,
-            })
+            // check day of week
+            if (parseInt(trip.frequency._[(today.day()+6) % 7]) === 1 &&
+              // check end date
+              moment.tz(trip.end_date._, 'Pacific/Auckland').isAfter(today) &&
+              // check start date
+              moment.tz(trip.start_date._, 'Pacific/Auckland').isBefore(today)
+              ) {
+              // TODO: Only push the ones that haven't already ended
+              finalTripsArray.push({
+                arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
+                stop_sequence: tmpTripStore[trip.RowKey._].s,
+                trip_id: trip.RowKey._,
+                route_long_name: trip.route_long_name._,
+                agency_id: trip.agency_id._,
+                direction_id: trip.direction_id._,
+                end_date: trip.end_date._,
+                frequency: trip.frequency._,
+                route_short_name: trip.route_short_name._,
+                route_type: trip.route_type._,
+                start_date: trip.start_date._,
+                trip_headsign: trip.trip_headsign._,
+              })
+            }
           })
           sending.trips = finalTripsArray
           res.send(sending)
