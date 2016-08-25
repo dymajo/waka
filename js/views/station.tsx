@@ -37,13 +37,41 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       minutes = '0' + minutes.toString()
     }
     var timestring = arrival.getHours() + ':' + minutes
+
+    // works out how many stops away the bus is
     var stops_away = ''
+    var stops_away_no
     if (this.props.realtime) {
-      stops_away = (this.props.stop_sequence - this.props.realtime.stop_sequence).toString() + ' stops away'
+      stops_away_no = this.props.stop_sequence - this.props.realtime.stop_sequence
+      if (stops_away_no === -1) {
+        stops_away = 'Departed' // let the rider down :(
+      } else if (stops_away_no === 0) {
+        stops_away = 'Arrived'
+      } else if (stops_away_no === 1) {
+        stops_away = stops_away_no + ' stop away'
+      } else {
+        stops_away = stops_away_no + ' stops away'
+      }
+    }
+
+    // logic for visibility
+    var visibility = true
+    // date check
+    if (new Date().getTime() > arrival.getTime()) {
+      visibility = false
+    }
+    // but if there's a stops away
+    if (stops_away_no > -2) {
+      visibility = true
+    }
+    // not sure if we need to do other checks?
+    var className = ''
+    if (!visibility) {
+      className = 'hidden'
     }
 
     return (
-      <li><ul>
+      <li className={className}><ul>
         <li>
           <div style={{backgroundColor: this.props.color}}>
             {this.props.code}
@@ -152,7 +180,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public componentDidMount() {
-    console.log('component mounted')
     this.getData(this.props)
   }
   public componentWillReceiveProps(newProps) {
