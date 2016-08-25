@@ -25,8 +25,19 @@ var realtime = {
       	})
       	return
       }
-
-      res.send(body)	
+      body = JSON.parse(body)
+      var sending = {}
+      if (body.response.entity) {
+        body.response.entity.forEach(function(trip) {
+          var timeUpdate = trip.trip_update.stop_time_update.departure || trip.trip_update.stop_time_update.arrival || {}
+          sending[trip.trip_update.trip.trip_id] = {
+            stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
+            delay: timeUpdate.delay,
+            timestamp: timeUpdate.time
+          }
+        })
+      }
+      res.send(sending)	
     })
 	}	
 }
