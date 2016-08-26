@@ -41,3 +41,4 @@ dist/*.css
 dist/*.js
 cache/*.json
 cache/maps/*.png
+cache/maps/*.webp

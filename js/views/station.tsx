@@ -3,6 +3,7 @@ import { browserHistory } from 'react-router'
 
 declare function require(name: string): any;
 let request = require('reqwest')
+let webp = require('../models/webp')
 
 interface RealTimeItem {
   delay: number,
@@ -141,7 +142,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     request(`/a/station/${newProps.routeParams.station}`).then((data) => {
       this.setState({
-        // because typescript is dumb, you have to repass
+        // because typescript is dumb and no partial typing
         name: data.stop_name,
         stop: this.props.routeParams.station,
         trips: this.state.trips,
@@ -194,7 +195,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.getData(this.props)
   }
   public componentWillReceiveProps(newProps) {
-    console.log('component new props')
     this.getData(newProps)
     this.setState({
       name: '',
@@ -204,7 +204,12 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public render() {
-    var bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + ')'}
+    var bgImage = {}
+    if (webp.support === false) {
+      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.png)'}
+    } else if (webp.support === true) {
+      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.webp)'}
+    }
     var slug
     if (this.state.stop != '') {
       slug = 'Stop ' + this.state.stop + ' / ' + this.state.name

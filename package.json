@@ -38,6 +38,8 @@
     "azure-storage": "^1.2.0",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "imagemin": "^5.2.2",
+    "imagemin-webp": "^4.0.0",
     "moment": "^2.14.1",
     "moment-timezone": "^0.5.5",
     "react": "^15.3.0",

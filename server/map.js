@@ -1,6 +1,8 @@
-var fs = require('fs')
-var request = require('request')
-var azure = require('azure-storage')
+const fs = require('fs')
+const request = require('request')
+const azure = require('azure-storage')
+const imagemin = require('imagemin')
+const webp = require('imagemin-webp')
 
 var tableSvc = azure.createTableService()
 
@@ -24,21 +26,28 @@ var url =
 
 var map = {
   getMap: function(req, res) {
-    var fileName = 'cache/maps/'+req.params.map+'.png'
+    var fileName = 'cache/maps/'+req.params.map
     try {
       fs.statSync(fileName)
       fs.createReadStream(fileName).pipe(res)
     } catch(err) {
       // goes to azure and gets the lat long of where the stop is
-      tableSvc.retrieveEntity('stops', 'allstops', req.params.map, function(error, result, response){
+      var stopId = req.params.map.replace('.png', '').replace('.webp', '')
+      tableSvc.retrieveEntity('stops', 'allstops', stopId, function(error, result, response){
         if (error) {
           fs.createReadStream('dist/error.png').pipe(res)
           return
         }
         var center = `&center=${result.stop_lat._},${result.stop_lon._}`
-        var req = request(url + center).pipe(fs.createWriteStream(fileName))
+        var req = request(url + center).pipe(fs.createWriteStream('cache/maps/' + stopId + '.png'))
         req.on('finish', function() {
-          fs.createReadStream(fileName).pipe(res)
+          imagemin(['cache/maps/' + stopId + '.png'], 'cache/maps', {
+            plugins: [
+              webp({lossless: true})
+            ]
+          }).then(function() {
+            fs.createReadStream(fileName).pipe(res)
+          })
         })
       })   
     }
