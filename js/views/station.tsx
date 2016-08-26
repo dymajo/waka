@@ -52,6 +52,8 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       } else {
         stops_away = stops_away_no + ' stops away'
       }
+    } else {
+      stops_away = <span>Scheduled <time>{timestring}</time></span>
     }
 
     // logic for visibility
@@ -79,7 +81,6 @@ class TripItem extends React.Component<ITripItemProps, {}> {
             {this.props.code}
           </div>
         </li>
-        <li>{timestring}</li>
         <li>{this.props.name}</li>
         <li>{stops_away}</li>
       </ul></li>
@@ -223,7 +224,7 @@ class Station extends React.Component<IAppProps, IAppState> {
         <ul>
           <li className="header">
             <ul>
-              <li>Scheduled</li>
+              <li>Route</li>
               <li>Destination</li>
               <li>Status</li>
             </ul>
