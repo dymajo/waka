@@ -11,14 +11,15 @@
 		height: 25vh;
 		position: relative;
 
-		border-bottom: 1px solid #ccc;
+		// border-bottom: 1px solid #ccc;
 
 		div {
 			position: absolute;
 			bottom: 0;
-			padding-bottom: 20px;
-			left: 20px;
-			right: 20px;
+			left: 0;
+			right: 0;
+			background: linear-gradient(transparent,#fff);
+			padding: 0 20px 20px;
 		}
 
 		.icon {
@@ -31,7 +32,7 @@
 			margin: 0;
 			font-size: 3em;
 			letter-spacing: -3px;
-			color: #283a51;
+			color: $atblue;
 			line-height: 1;
 			text-shadow: 0 1px 3px #fff;
 		}
@@ -45,14 +46,14 @@
 		}
 
 		time {
-			right: 5px;
+			right: 25px;
 			position: absolute;
 			font-weight: bold;
 			letter-spacing: -1px;
 			font-size: 32px;
 			bottom: 25px;
 			padding: 3px 5px;
-			background: #283a51;
+			background: $atblue;
 			color: #fff;
 		}
 		@keyframes blink {
@@ -75,9 +76,43 @@
 
 		ul {
 			width: 100%;
-			border-bottom: 1px solid #ddd;
+			// border-bottom: 3px solid #fff;
+			background: darken(#f7f8fb,1);
+			transition: 250ms ease all;
+
+			&.active {
+				background: #fff;
+			}
+
 			&:hover {
-				background: #eee;
+				background: #f4f4f4;
+			}
+		}
+		.header {
+			ul {
+				background: $atblue;
+			}
+			li {
+				font-size: 14px;
+				letter-spacing: -0.5px;
+				font-weight: bold;
+				text-transform: uppercase;
+				color: #fff;
+				padding-top:3px;
+				padding-bottom:3px;
+			}
+
+			li:nth-child(1) {
+				width: 138px;
+				padding-right: 5px;
+			}
+			li:nth-child(2) {
+				padding-left: 10px;
+				width: 295px;
+				text-align: left;
+			}
+			li:nth-child(3) {
+				font-weight: bold;
 			}
 		}
 	}
@@ -88,12 +123,10 @@
 
 	li li {
 		display: inline-block;
-		padding: 10px 5px;
+		padding: 12px 5px;
 		font-size: 18px;
 		vertical-align: top;
 		line-height: 28px;
-
-
 
 		&:nth-child(1) {
 			width: 76px;
@@ -102,7 +135,6 @@
 			padding-right: 7px;
 
 			div {
-
 				font-weight: bold;
 				display: inline-block;
 				border: 2px solid rgba(0,0,0,0.2);
@@ -115,13 +147,23 @@
 			}
 		}
 		&:nth-child(2) {
+			width: 50px;
+			text-align: right;
 			font-weight: bold;
 		}
 		&:nth-child(3) {
-			width: 350px;
+			padding-left: 10px;
+			width: 300px;
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;
+		}
+		&:nth-child(4) {
+			font-weight: bold;
+			text-transform: uppercase;
+			font-size: 15px;
+			letter-spacing: -0.25px;
+			color: #555;
 		}
 	}
 }

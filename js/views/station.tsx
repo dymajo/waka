@@ -61,8 +61,10 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       visibility = false
     }
     // but if there's a stops away
+    var active
     if (stops_away_no > -2) {
       visibility = true
+      active = 'active'
     }
     // not sure if we need to do other checks?
     var className = ''
@@ -71,7 +73,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
 
     return (
-      <li className={className}><ul>
+      <li className={className}><ul className={active}>
         <li>
           <div style={{backgroundColor: this.props.color}}>
             {this.props.code}
@@ -219,6 +221,13 @@ class Station extends React.Component<IAppProps, IAppState> {
           </div>
         </header>
         <ul>
+          <li className="header">
+            <ul>
+              <li>Scheduled</li>
+              <li>Destination</li>
+              <li>Status</li>
+            </ul>
+          </li>
           {this.state.trips.map((trip) => {
             return <TripItem 
               color="#27ae60"
