@@ -4,6 +4,10 @@ $atblue: #273D52;
 html, body, #app {
   height: 100%;
   font-family: 'Open Sans', sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select:  none;
 }
 
 .panes {

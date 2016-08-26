@@ -77,15 +77,26 @@
 		ul {
 			width: 100%;
 			// border-bottom: 3px solid #fff;
-			background: darken(#f7f8fb,1);
-			transition: 250ms ease all;
+			background: darken(#f7f8fb,1.5);
 
 			&.active {
 				background: #fff;
-			}
 
-			&:hover {
-				background: #f4f4f4;
+				&:hover {
+					background: #f7f8fb;
+				}
+
+				&:active {
+					background: darken(#f7f8fb,4);
+				}
+
+				li:nth-child(4) {
+					display: inline-block;
+					float: right;
+					font-size: 48px;
+					padding: 5px 15px 10px;
+					color: #777;	
+				}
 			}
 		}
 		.header {
@@ -137,6 +148,7 @@
 		font-size: 18px;
 		vertical-align: top;
 		line-height: 28px;
+		cursor: default;
 
 		&:nth-child(1) {
 			width: 76px;
@@ -181,6 +193,9 @@
 			time {
 				color: #27ae60;
 			}
+		}
+		&:nth-child(4) {
+			display: none;
 		}
 	}
 }

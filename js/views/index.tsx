@@ -46,6 +46,7 @@ class Index extends React.Component<IAppProps, {}> {
             <SidebarItem url="/s/7058" icon="🚍" name="Civic" description="Stop 7058 / Queen Street outside St James" />
             <SidebarItem url="/s/7056" icon="🚍" name="Civic Express" description="Stop 7056 / Queen Street outside St James" />
             <SidebarItem url="/s/9630" icon="🛳" name="Downtown Ferry Terminal" description="To Devonport" />
+            <SidebarItem url="/s/7148" icon="🚍" name="Upper Symonds" description="Stop 7148 / 36 Symonds Street" />
            </ul>
         </nav>
         <div className="content">

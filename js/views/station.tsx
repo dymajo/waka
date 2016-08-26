@@ -1,4 +1,6 @@
 import * as React from 'react'
+import { browserHistory } from 'react-router'
+
 declare function require(name: string): any;
 let request = require('reqwest')
 
@@ -24,6 +26,11 @@ interface ITripItemProps extends React.Props<TripItem> {
 class TripItem extends React.Component<ITripItemProps, {}> {
   constructor(props: ITripItemProps) {
     super(props)
+    this.triggerClick = this.triggerClick.bind(this)
+  }
+  public triggerClick() {
+    console.log('navigating to', this.props.trip_id)
+    // browserHistory.push(this.props.trip_id)
   }
   public render() {
     var arrival = new Date()
@@ -75,7 +82,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
 
     return (
-      <li className={className}><ul className={active}>
+      <li className={className} onClick={this.triggerClick}><ul className={active}>
         <li>
           <div style={{backgroundColor: this.props.color}}>
             {this.props.code}
@@ -83,6 +90,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
         </li>
         <li>{this.props.name}</li>
         <li>{stops_away}</li>
+        <li>›</li>
       </ul></li>
     )
   }
