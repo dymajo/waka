@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Link } from 'react-router'
+import { StationStore } from '../stores/stationStore.ts'
 
 interface ISidebarItemProps extends React.Props<SidebarItem> {
   url: string,
@@ -35,18 +36,22 @@ interface IAppProps extends React.Props<Index> {}
 
 class Index extends React.Component<IAppProps, {}> {
   public render() {
+    var stations = StationStore.getData()
     return (
       <div className="panes">
         <nav className="navigation">
           <ul>
             <SidebarItem url="/s" name="Search for a Station" />
             <h2>Stations</h2>
-            <SidebarItem url="/s/8439" icon="🚍" name="Youth Street" description="Stop 8439 / 1153 Dominion Road" />
-            <SidebarItem url="/s/0133" icon="🚆" name="Britomart" description="Britomart Train Station, Auckland Central" />
-            <SidebarItem url="/s/7058" icon="🚍" name="Civic" description="Stop 7058 / Queen Street outside St James" />
-            <SidebarItem url="/s/7056" icon="🚍" name="Civic Express" description="Stop 7056 / Queen Street outside St James" />
-            <SidebarItem url="/s/9630" icon="🛳" name="Downtown Ferry Terminal" description="To Devonport" />
-            <SidebarItem url="/s/7148" icon="🚍" name="Upper Symonds" description="Stop 7148 / 36 Symonds Street" />
+            {StationStore.getOrder().map(function(station) {
+              return <SidebarItem
+                key={station}
+                url={`/s/${station}`}
+                name={stations[station].name} 
+                icon={stations[station].icon} 
+                description={stations[station].description} 
+              />
+            })}
            </ul>
         </nav>
         <div className="content">

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { browserHistory } from 'react-router'
+import { StationStore } from '../stores/stationStore.ts'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -121,7 +122,8 @@ interface IAppState {
   name: string,
   stop: string,
   trips: Array<ServerTripItem>,
-  realtime: RealTimeMap
+  realtime: RealTimeMap,
+  icon: string
 }
 
 class Station extends React.Component<IAppProps, IAppState> {
@@ -133,22 +135,39 @@ class Station extends React.Component<IAppProps, IAppState> {
       name: '',
       stop: '',
       trips: [],
-      realtime: {}
+      realtime: {},
+      icon: ''
     }
   }
   private getData(newProps) {
     var tripsSort = function(a,b) {
       return a.arrival_time_seconds - b.arrival_time_seconds
     }
-    request(`/a/station/${newProps.routeParams.station}`).then((data) => {
+    var cachedName = StationStore.getData()[newProps.routeParams.station]
+    if (typeof(cachedName) !== 'undefined') {
       this.setState({
         // because typescript is dumb and no partial typing
-        name: data.stop_name,
-        stop: this.props.routeParams.station,
-        trips: this.state.trips,
-        realtime: this.state.realtime
+        name: cachedName.name,
+        stop: newProps.routeParams.station,
+        trips: [],
+        realtime: {},
+        icon: cachedName.icon
       })
-    })
+
+    // If it's not cached, we'll just ask the server
+    } else {
+      request(`/a/station/${newProps.routeParams.station}`).then((data) => {
+        this.setState({
+          // because typescript is dumb and no partial typing
+          name: data.stop_name,
+          stop: this.props.routeParams.station,
+          trips: this.state.trips,
+          realtime: this.state.realtime,
+          icon: this.state.icon
+        })
+      })
+    }
+
     request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
       data.trips.sort(tripsSort)
       console.log(data)
@@ -157,7 +176,8 @@ class Station extends React.Component<IAppProps, IAppState> {
         name: this.state.name,
         stop: this.state.stop,
         trips: data.trips,
-        realtime: this.state.realtime
+        realtime: this.state.realtime,
+        icon: this.state.icon
       })
 
       var queryString = []
@@ -186,7 +206,8 @@ class Station extends React.Component<IAppProps, IAppState> {
           name: this.state.name,
           stop: this.state.stop,
           trips: this.state.trips,
-          realtime: rtData
+          realtime: rtData,
+          icon: this.state.icon
         })        
       })
     })
@@ -195,13 +216,14 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.getData(this.props)
   }
   public componentWillReceiveProps(newProps) {
-    this.getData(newProps)
     this.setState({
       name: '',
       stop: '',
       trips: [],
-      realtime: {}
+      realtime: {},
+      icon: ''
     })
+    this.getData(newProps)
   }
   public render() {
     var bgImage = {}
@@ -224,8 +246,8 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     var timestring = <time><span>{time.getHours()}</span><span className="blink">:</span><span>{minutes}</span></time>
 
-    var icon = ''
-    if (this.state.trips.length > 0) {
+    var icon = this.state.icon
+    if (icon === '' && this.state.trips.length > 0) {
       var rt = parseInt(this.state.trips[0].route_type)
       // tram / LRT
       // wow auckland maybe you should build LRT hint hint
@@ -245,7 +267,6 @@ class Station extends React.Component<IAppProps, IAppState> {
       } else if (rt === 4) {
         icon = '🛳'
       }
-      console.log(this.state.trips[0])
     }
 
     return (

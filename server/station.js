@@ -78,6 +78,7 @@ var station = {
     })
   },
   stopInfo: function(req, res) {
+    req.params.station = req.params.station.trim()
     if (req.params.station) {
       var sending = {}
       tableSvc.retrieveEntity('stops', 'allstops', req.params.station, function(err, result, response) {
@@ -96,6 +97,7 @@ var station = {
     }
   },
   stopTimes: function(req, res) {
+    req.params.station = req.params.station.trim()
     if (req.params.station) {
       var sending = {}
 
