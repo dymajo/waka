@@ -224,11 +224,35 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     var timestring = <time><span>{time.getHours()}</span><span className="blink">:</span><span>{minutes}</span></time>
 
+    var icon = ''
+    if (this.state.trips.length > 0) {
+      var rt = parseInt(this.state.trips[0].route_type)
+      // tram / LRT
+      // wow auckland maybe you should build LRT hint hint
+      if (rt === 0) {
+        icon ='🚉'
+      // subway / metro
+      // no this is not the same as AT metro
+      } else if (rt === 1) {
+        icon = '🚇'
+      // commuter rail
+      } else if (rt === 2) {
+        icon = '🚆'
+      // bus
+      } else if (rt === 3) {
+        icon = '🚍'
+      // ferry
+      } else if (rt === 4) {
+        icon = '🛳'
+      }
+      console.log(this.state.trips[0])
+    }
+
     return (
       <div>
         <header style={bgImage}>
           <div>
-            <span className="icon">🚆</span>
+            <span className="icon">{icon}</span>
             {timestring}
             <h1>{this.state.name}</h1>
             <h2>{slug}</h2>
