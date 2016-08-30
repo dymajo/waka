@@ -351,18 +351,6 @@ var station = {
           })
           sending.trips = finalTripsArray
           res.send(sending)
-
-          // if greater than 2 days
-          // going to move this somewhere else
-          /* 
-          if (new Date().getTime() - result.entries[0].Timestamp._.getTime() > 86400000*2) {
-            console.log('getting the cache')
-            cache.get(function() {
-              console.log('uploading the cache')
-              cache.upload()
-            })
-          }
-          */
         })
       })
 

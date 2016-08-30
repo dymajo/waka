@@ -12,6 +12,29 @@ var options = {
 };
 
 var cache = {
+  check: function(cb) {
+    tableSvc.createTableIfNotExists('meta', function(error) {
+      if (error) cb(error)
+
+      tableSvc.retrieveEntity('meta', 'all', 'last-updated', function(err, result, response) {
+        if (result === null) {
+          console.log('building the cache for the first time')
+          cache.get(function() {
+            console.log('uploading the cache')
+            cache.upload()
+          })
+        } else if (new Date().getTime() - result.date._.getTime() > 86400000*2) {
+          console.log('going to update the cache')
+          cache.get(function() {
+            console.log('uploading the cache')
+            cache.upload()
+          })
+        } else {
+          console.log('cache does not need update at', new Date().toString())
+        }
+      })
+    })
+  },
   get: function(cb) {
     var promises = []
 
@@ -179,7 +202,7 @@ var cache = {
         // console.log(arrayOfEntityArrays.length)
         var batchUpload = function(n){
           if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading stops batch ${n+1}`)
+            console.log(`uploading stops batch ${n+1} / ${arrayOfEntityArrays.length}`)
             tableSvc.executeBatch('stops', arrayOfEntityArrays[n], function(error, result, response){
               if(!error){
                 batchUpload(n+1)
@@ -228,7 +251,7 @@ var cache = {
         }
         var batchUpload = function(n) {
           if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading trips batch ${n+1}`)
+            console.log(`uploading trips batch ${n+1} /  ${arrayOfEntityArrays.length}`)
             tableSvc.executeBatch('trips', arrayOfEntityArrays[n], function (error, result, response) {
               if(!error) {
                 batchUpload(n+1)
@@ -238,6 +261,16 @@ var cache = {
             });
           } else {
             console.log('finished uploading trips')
+
+            var task = {
+              PartitionKey: {'_':'all'},
+              RowKey: {'_': 'last-updated'},
+              date: {'_':new Date(), '$':'Edm.DateTime'}
+            }
+            tableSvc.insertEntity('meta', task, function (error, result, response) {
+              if (error) cb(error)
+              console.log('saved new meta date')
+            })
           }
         }
         batchUpload(0)
