@@ -22,17 +22,80 @@ interface ITripItemProps extends React.Props<TripItem> {
   trip_id: string,
   stop_sequence: number,
   color: string,
-  realtime: RealTimeItem
+  realtime: RealTimeItem,
+  agency_id: string
 }
 
 class TripItem extends React.Component<ITripItemProps, {}> {
   constructor(props: ITripItemProps) {
     super(props)
     this.triggerClick = this.triggerClick.bind(this)
+    this.getColor = this.getColor.bind(this)
   }
   public triggerClick() {
     console.log('navigating to', this.props.trip_id)
     // browserHistory.push(this.props.trip_id)
+  }
+  public getColor(){
+    
+    switch(this.props.agency_id){
+      case 'AM': // Auckland Metro
+        return '#17232f'
+
+      case 'FGL': // Fullers
+        return '#2756a4'
+
+      case 'HE': // Howick and Eastern
+        return '#0096d6'
+
+      case 'NZBGW': // NZ Bus - Go West
+        return '#08ac54'
+
+      case 'NZBML': // NZ Bus - metrolink
+        return '#152a85'
+
+      case 'NZBNS': // NZ Bus - North Star
+        return '#fcba2e'
+
+      case 'NZBWP': // NZ Bus - Waka Pacific
+        return '#0f91ab'
+
+      case 'UE': // Urban Express
+        return '#281260'
+
+      case 'BTL': // Birkenhead Transport
+        return '#b2975b'
+
+      case 'RTH': // Ritchies
+        return '#ff6f2c'
+
+      case 'WBC': // Waiheke Bus Company
+        return '#01bdf2'
+
+      case 'EXPNZ': // Explore Waiheke - supposed to be closed?
+        return '#ffe81c'
+
+      case 'BFL': // Belaire Ferries
+        return '#ffd503'
+
+      case 'ATAPT': // AT Airporter
+        return '#f7931d'
+
+      case 'PHH': // Pine Harbour / Sealink
+        return '#d92732'
+
+      case '360D': // 360 Discovery
+        return '#2756a4'
+
+      case 'ABEXP': //Skybus
+        return '#ee3124'
+
+      default: //MSB, PBC, BAYES - Schools
+        return '#17232f'
+    }
+    
+
+
   }
   public render() {
     var arrival = new Date()
@@ -86,7 +149,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     return (
       <li className={className} onClick={this.triggerClick}><ul className={active}>
         <li>
-          <div style={{backgroundColor: this.props.color}}>
+          <div style={{backgroundColor: this.getColor()}}>
             {this.props.code}
           </div>
         </li>
@@ -96,6 +159,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       </ul></li>
     )
   }
+  
 }
 
 interface ServerTripItem {
@@ -295,6 +359,7 @@ class Station extends React.Component<IAppProps, IAppState> {
               name={trip.trip_headsign}
               key={trip.trip_id}
               trip_id={trip.trip_id}
+              agency_id={trip.agency_id}
               stop_sequence={trip.stop_sequence}
               realtime={this.state.realtime[trip.trip_id]}
              />
