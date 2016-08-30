@@ -313,6 +313,10 @@ var station = {
           tmpTripStore[sending.trips[i].trip_id] = {a: sending.trips[i].arrival_time_seconds, s: sending.trips[i].stop_sequence}
         }
 
+        var deleteTripsQuery = new azure.TableBatch()
+        var deleteTripsStopsQuery = new azure.TableBatch()
+        var deleteCount = 0
+
         tableSvc.queryEntities('trips',query, null, function(error, result, response) {
           var today = moment().tz('Pacific/Auckland')
 
@@ -344,13 +348,35 @@ var station = {
               })
             }
 
-            // check end date
+            // check end date & delete if expired
+            // we don't have to batch because 75 is max
             if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(today)) {
-              console.log('deleting:', trip.RowKey._)
+              deleteTripsQuery.deleteEntity({
+                PartitionKey: {'_': 'alltrips'},
+                RowKey: {'_': trip.RowKey._}
+              })
+              deleteTripsStopsQuery.deleteEntity({
+                PartitionKey: {'_': req.params.station},
+                RowKey: {'_': trip.RowKey._}
+              })
+              deleteCount++
             }
           })
+
           sending.trips = finalTripsArray
           res.send(sending)
+
+          // can't do an empty batch
+          if (deleteCount > 0) {
+            tableSvc.executeBatch('trips', deleteTripsQuery, function(error, result, response) {
+              if (error) console.log(error)
+              //console.log(result)
+            })
+            tableSvc.executeBatch('stoptimes', deleteTripsStopsQuery, function(error, result, response) {
+              if (error) console.log(error)
+              //console.log(result)
+            })
+          }
         })
       })
 
