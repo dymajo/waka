@@ -38,11 +38,22 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     // browserHistory.push(this.props.trip_id)
   }
   public getColor(){
-    
     switch(this.props.agency_id){
       case 'AM': // Auckland Metro
-        return '#17232f'
-
+        switch (this.props.code) {
+          case 'WEST':
+            return '#006553'
+          case 'STH':
+            return '#a60048'
+          case 'EAST':
+            return '#fec132'
+          case 'PUK':
+            return '#a60048'
+          case 'ONE':
+            return '#21b4e3'
+          default:
+            return '#17232f'
+        }
       case 'FGL': // Fullers
         return '#2756a4'
 
@@ -53,7 +64,19 @@ class TripItem extends React.Component<ITripItemProps, {}> {
         return '#08ac54'
 
       case 'NZBML': // NZ Bus - metrolink
-        return '#152a85'
+        switch (this.props.code) {
+          case 'CTY':
+            return '#ef3c34'
+
+          case 'INN':
+            return '#41b649'
+
+          case 'OUT':
+            return '#f7991c'
+          
+          default:
+            return '#152a85'
+        }
 
       case 'NZBNS': // NZ Bus - North Star
         return '#fcba2e'
