@@ -7,6 +7,21 @@ var tripUpdatesOptions = {
   }
 }
 
+var isDoubleDecker = function(vehicle) {
+  // i think we need the id of all the double deckers
+  var doubleDeckers = [
+    '2F6D',
+    'JONO'
+  ]
+  // uncomment this line if you want it to randomly be a double decker
+  // if (Math.ceil(Math.random()*2) >1) {
+  if (doubleDeckers.indexOf(vehicle) !== -1) {
+    return true
+  }
+  return false
+}
+
+
 var realtime = {
 	getTrips: function(req, res) {
 		if (!req.body.trips) {
@@ -33,7 +48,8 @@ var realtime = {
           sending[trip.trip_update.trip.trip_id] = {
             stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
             delay: timeUpdate.delay,
-            timestamp: timeUpdate.time
+            timestamp: timeUpdate.time,
+            double_decker: isDoubleDecker(trip.trip_update.vehicle.id)
           }
         })
       }

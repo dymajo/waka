@@ -9,7 +9,8 @@ let webp = require('../models/webp')
 interface RealTimeItem {
   delay: number,
   stop_sequence: number,
-  timestamp: number 
+  timestamp: number,
+  double_decker: boolean
 }
 interface RealTimeMap {
   [name: string]: RealTimeItem;
@@ -123,6 +124,9 @@ class TripItem extends React.Component<ITripItemProps, {}> {
         stops_away = stops_away_no + ' stop away'
       } else {
         stops_away = stops_away_no + ' stops away'
+      }
+      if (this.props.realtime.double_decker) {
+        stops_away += ' Ⓜ️'
       }
     } else {
       stops_away = <span>Scheduled <time>{timestring}</time></span>
