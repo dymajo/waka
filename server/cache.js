@@ -12,7 +12,7 @@ var options = {
 };
 
 var cache = {
-  get: function() {
+  get: function(cb) {
     var promises = []
 
     // calendar
@@ -52,9 +52,11 @@ var cache = {
     })
 
     // now we build the hashtable things
-    Promise.all(promises).then(cache.build)
+    Promise.all(promises).then(function() {
+      cache.build(cb)
+    })
   },
-  build: function() {
+  build: function(cb) {
     var promises = []
 
     // build a calendar hashtable
@@ -113,6 +115,7 @@ var cache = {
           }
         })
         fs.writeFile('cache/tripsLookup.json', JSON.stringify(trips))
+        if (cb) cb()
       })
     })
   },
@@ -172,11 +175,11 @@ var cache = {
             the_geom: {'_': stop.the_geom}
           })
         })
-        console.log(arrayOfEntityArrays[0])
-        console.log(arrayOfEntityArrays.length)
+        // console.log(arrayOfEntityArrays[0])
+        // console.log(arrayOfEntityArrays.length)
         var batchUpload = function(n){
           if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading batch ${n+1}`)
+            console.log(`uploading stops batch ${n+1}`)
             tableSvc.executeBatch('stops', arrayOfEntityArrays[n], function(error, result, response){
               if(!error){
                 batchUpload(n+1)

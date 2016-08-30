@@ -2,6 +2,7 @@ var fs = require('fs')
 var request = require('request')
 var moment = require('moment-timezone')
 var azure = require('azure-storage')
+var cache = require('./cache')
 
 var tableSvc = azure.createTableService()
 tableSvc.createTableIfNotExists('stoptimes', function(error, result, response) {
@@ -16,6 +17,7 @@ var options = {
 };
 
 var station = {
+  // welp this awesome function that took me ages can't work because rate limiting :(
   getTripDataFromAt(station, cb) {
     var promises = []
     var servicesPromises = []
@@ -269,6 +271,15 @@ var station = {
             resolve()
 
             // TODO: A cache check!
+            var lastUpdated = result.entries[0].Timestamp._ // date
+            // if it was last updated a day ago, redo the caches
+            if(new Date().getTime() - lastUpdated.getTime() > 86400000) {
+              console.log('getting stop times again', req.params.station)
+              station.getTripsFromAt(req.params.station)
+              // can't use because rate limits
+              // station.getTripDataFromAt(req.params.station)
+            }
+            
           }         
         })
       }).then(function() {
@@ -340,6 +351,18 @@ var station = {
           })
           sending.trips = finalTripsArray
           res.send(sending)
+
+          // if greater than 2 days
+          // going to move this somewhere else
+          /* 
+          if (new Date().getTime() - result.entries[0].Timestamp._.getTime() > 86400000*2) {
+            console.log('getting the cache')
+            cache.get(function() {
+              console.log('uploading the cache')
+              cache.upload()
+            })
+          }
+          */
         })
       })
 
