@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from 'react-router'
-import { StationStore } from '../stores/stationStore.ts'
+import { StationStore, StationMap } from '../stores/stationStore.ts'
 
 interface ISidebarItemProps extends React.Props<SidebarItem> {
   url: string,
@@ -33,10 +33,25 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
 }
 
 interface IAppProps extends React.Props<Index> {}
+interface IAppState {
+  stations: StationMap
+}
 
-class Index extends React.Component<IAppProps, {}> {
+class Index extends React.Component<IAppProps, IAppState> {
+  constructor(props) {
+    super(props)
+    this.state = {
+      stations: StationStore.getData()
+    }
+
+    StationStore.bind('change', () => {
+      this.setState({
+        stations: StationStore.getData()
+      })
+    })
+  }
   public render() {
-    var stations = StationStore.getData()
+    var stations = this.state.stations
     return (
       <div className="panes">
         <nav className="navigation">
