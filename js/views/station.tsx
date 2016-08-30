@@ -41,15 +41,15 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     switch(this.props.agency_id){
       case 'AM': // Auckland Metro
         switch (this.props.code) {
-          case 'WEST':
+          case 'WEST': // West Line
             return '#006553'
-          case 'STH':
+          case 'STH': // South Line
             return '#a60048'
-          case 'EAST':
+          case 'EAST': // East Line
             return '#fec132'
-          case 'PUK':
+          case 'PUK': // South Line
             return '#a60048'
-          case 'ONE':
+          case 'ONE': // South Line
             return '#21b4e3'
           default:
             return '#17232f'
@@ -65,13 +65,13 @@ class TripItem extends React.Component<ITripItemProps, {}> {
 
       case 'NZBML': // NZ Bus - metrolink
         switch (this.props.code) {
-          case 'CTY':
+          case 'CTY': // City Link
             return '#ef3c34'
 
-          case 'INN':
+          case 'INN': // Inner Link
             return '#41b649'
 
-          case 'OUT':
+          case 'OUT': // Outer Link
             return '#f7991c'
           
           default:
@@ -91,7 +91,13 @@ class TripItem extends React.Component<ITripItemProps, {}> {
         return '#b2975b'
 
       case 'RTH': // Ritchies
-        return '#ff6f2c'
+        switch (this.props.code) {
+          case "NEX": // Northern Express
+            return '0079c2'
+          
+          default:
+            return '#ff6f2c'
+        }
 
       case 'WBC': // Waiheke Bus Company
         return '#01bdf2'
