@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
 interface IAppProps extends React.Props<Search> {}
 
@@ -22,16 +23,14 @@ class Search extends React.Component<IAppProps, IAppState> {
     })
   }
   private triggerClick() {
-    StationStore.addStop(this.state.station)
-    this.setState({
-      station: ''
-    })
+    //StationStore.addStop(this.state.station)]
+    browserHistory.push(`/s/${this.state.station}`)
   }
   public render() {
     return (
       <div>Add station using this input thing<br />
         <input type="text" placeholder="station number" onChange={this.triggerChange} />
-        <button onClick={this.triggerClick}>add</button>
+        <button onClick={this.triggerClick}>search</button>
       </div>
     )
   }

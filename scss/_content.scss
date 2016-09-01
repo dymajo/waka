@@ -11,6 +11,25 @@
 		height: 25vh;
 		position: relative;
 
+		.save {
+			right: 25px;
+	    position: absolute;
+	    top: 25px;
+	    border: 2px solid green;
+	    padding: 5px 10px;
+	    color: green;
+	    text-transform: uppercase;
+	    font-weight: bold;
+	    border-radius: 3px;
+	    font-size: 14px;
+	    cursor: default;
+
+	    &:hover {
+	    	background: green;
+	    	color: #fff;
+	    }
+		}
+
 		// border-bottom: 1px solid #ccc;
 
 		div {

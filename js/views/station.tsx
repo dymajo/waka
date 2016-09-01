@@ -220,7 +220,8 @@ interface IAppState {
   stop: string,
   trips: Array<ServerTripItem>,
   realtime: RealTimeMap,
-  icon: string
+  icon: string,
+  error: string
 }
 
 class Station extends React.Component<IAppProps, IAppState> {
@@ -233,8 +234,10 @@ class Station extends React.Component<IAppProps, IAppState> {
       stop: '',
       trips: [],
       realtime: {},
-      icon: ''
+      icon: '',
+      error: ''
     }
+    this.triggerSave = this.triggerSave.bind(this)
   }
   private getData(newProps) {
     var tripsSort = function(a,b) {
@@ -248,7 +251,8 @@ class Station extends React.Component<IAppProps, IAppState> {
         stop: newProps.routeParams.station,
         trips: [],
         realtime: {},
-        icon: cachedName.icon
+        icon: cachedName.icon,
+        error: ''
       })
 
     // If it's not cached, we'll just ask the server
@@ -260,21 +264,35 @@ class Station extends React.Component<IAppProps, IAppState> {
           stop: this.props.routeParams.station,
           trips: this.state.trips,
           realtime: this.state.realtime,
-          icon: this.state.icon
+          icon: this.state.icon,
+          error: ''
         })
       })
     }
 
     request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
-      data.trips.sort(tripsSort)
       console.log(data)
+      // Seems like a server bug?
+      if (typeof(data.trips.length) === 'undefined' || data.trips.length === 0) {
+        return this.setState({
+          name: this.state.name,
+          stop: this.state.stop,
+          trips: this.state.trips,
+          realtime: this.state.realtime,
+          icon: this.state.icon,
+          error: 'There are no services in the next two hours.'
+        })
+      }
+
+      data.trips.sort(tripsSort)
       this.setState({
         // because typescript is dumb, you have to repass
         name: this.state.name,
         stop: this.state.stop,
         trips: data.trips,
         realtime: this.state.realtime,
-        icon: this.state.icon
+        icon: this.state.icon,
+        error: ''
       })
 
       var queryString = []
@@ -304,10 +322,18 @@ class Station extends React.Component<IAppProps, IAppState> {
           stop: this.state.stop,
           trips: this.state.trips,
           realtime: rtData,
-          icon: this.state.icon
+          icon: this.state.icon,
+          error: ''
         })        
       })
     })
+  }
+  public triggerSave() {
+    StationStore.addStop(this.props.routeParams.station)
+  }
+  public triggerRemove() {
+    //StationStore.addStop(this.props.routeParams.station)
+    console.log('removing station')
   }
   public componentDidMount() {
     this.getData(this.props)
@@ -318,7 +344,8 @@ class Station extends React.Component<IAppProps, IAppState> {
       stop: '',
       trips: [],
       realtime: {},
-      icon: ''
+      icon: '',
+      error: ''
     })
     this.getData(newProps)
   }
@@ -366,9 +393,18 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }
 
+    var saveButton
+    if (typeof(StationStore.getData()[this.props.routeParams.station]) === 'undefined') {
+      saveButton = <span className="save" onClick={this.triggerSave}>Save</span>  
+    } else {
+      saveButton = <span className="save" onClick={this.triggerRemove}>Remove</span>  
+    }
+    
+
     return (
       <div>
         <header style={bgImage}>
+          {saveButton}
           <div>
             <span className="icon">{icon}</span>
             {timestring}
@@ -384,6 +420,7 @@ class Station extends React.Component<IAppProps, IAppState> {
               <li>Status</li>
             </ul>
           </li>
+          {this.state.error}
           {this.state.trips.map((trip) => {
             return <TripItem 
               color="#27ae60"
