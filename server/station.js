@@ -211,12 +211,14 @@ var station = {
     })
   },
   stopInfo: function(req, res) {
-    req.params.station = req.params.station.trim()
     if (req.params.station) {
+      req.params.station = req.params.station.trim()
       var sending = {}
       tableSvc.retrieveEntity('stops', 'allstops', req.params.station, function(err, result, response) {
         if (err) {
-          return reject(err)
+          return res.status(404).send({
+            'error': 'station not found'
+          })
         }
         sending.stop_name = result.stop_name._
         sending.stop_lat = result.stop_lat._
@@ -224,14 +226,14 @@ var station = {
         res.send(sending)
       })
     } else {
-      res.send({
+      res.status(404).send({
         'error': 'please specify a station'
       })
     }
   },
   stopTimes: function(req, res) {
-    req.params.station = req.params.station.trim()
     if (req.params.station) {
+      req.params.station = req.params.station.trim()
       var sending = {}
 
       // ask for trips in real time
@@ -378,10 +380,14 @@ var station = {
             })
           }
         })
+      }, function(error) {
+        res.status(404).send({
+          'error': 'please specify a station'
+        })
       })
 
     } else {
-      res.send({
+      res.status(404).send({
         'error': 'please specify a station'
       })
     }
