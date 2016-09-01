@@ -40,10 +40,12 @@
     "express": "^4.14.0",
     "imagemin": "^5.2.2",
     "imagemin-webp": "^4.0.0",
+    "leaflet": "^1.0.0-rc.3",
     "moment": "^2.14.1",
     "moment-timezone": "^0.5.5",
     "react": "^15.3.0",
     "react-dom": "^15.3.0",
+    "react-leaflet": "^1.0.0-beta.3",
     "react-router": "^2.6.1",
     "request": "^2.74.0",
     "reqwest": "^2.0.5"
