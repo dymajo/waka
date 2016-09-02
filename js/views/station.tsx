@@ -376,20 +376,20 @@ class Station extends React.Component<IAppProps, IAppState> {
       // tram / LRT
       // wow auckland maybe you should build LRT hint hint
       if (rt === 0) {
-        icon ='🚉'
+        icon ='train'
       // subway / metro
       // no this is not the same as AT metro
       } else if (rt === 1) {
-        icon = '🚇'
+        icon = 'train'
       // commuter rail
       } else if (rt === 2) {
-        icon = '🚆'
+        icon = 'train'
       // bus
       } else if (rt === 3) {
-        icon = '🚍'
+        icon = 'bus'
       // ferry
       } else if (rt === 4) {
-        icon = '🛳'
+        icon = 'ferry'
       }
     }
 
@@ -406,7 +406,7 @@ class Station extends React.Component<IAppProps, IAppState> {
         <header style={bgImage}>
           {saveButton}
           <div>
-            <span className="icon">{icon}</span>
+            <span className="icon"><img src={`/icons/${icon}.svg`} /></span>
             {timestring}
             <h1>{this.state.name}</h1>
             <h2>{slug}</h2>

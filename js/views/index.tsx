@@ -16,7 +16,7 @@ class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
     }
     return (
       <li className={classname}>
-        <Link to={this.props.url}>{this.props.icon}</Link>
+        <Link to={this.props.url}><img src={`/icons/${this.props.icon}.svg`} /></Link>
       </li>
     )
   }
@@ -30,11 +30,11 @@ class Index extends React.Component<IAppProps, {}> {
       <div className="panes">
         <nav className="bignav">
           <ul>
-            <SidebarButton icon="" name="Home" url="/" />
-            <SidebarButton icon="" name="Search" url="/s" />
-            <SidebarButton icon="" name="Saved Stations" url="/ss" />
-            <SidebarButton icon="" name="Send Feedback" url="/feedback" />
-            <SidebarButton icon="" name="Settings" url="/settings" />
+            <SidebarButton icon="home" name="Home" url="/" />
+            <SidebarButton icon="search" name="Search" url="/s" />
+            <SidebarButton icon="map" name="Saved Stations" url="/ss" />
+            <SidebarButton icon="feedback" name="Send Feedback" url="/feedback" />
+            <SidebarButton icon="settings" name="Settings" url="/settings" />
           </ul>
         </nav>
         <div className="content">

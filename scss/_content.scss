@@ -41,9 +41,14 @@
 		}
 
 		.icon {
-			font-size: 48px;
 			float: left;
-			margin-right: 7px;
+			margin-right: 12px;
+			width: 54px;
+			padding-top: 6px;
+
+			img {
+				vertical-align: bottom;
+			}
 		}
 
 		h1 {

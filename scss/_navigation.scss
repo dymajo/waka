@@ -17,6 +17,12 @@ $navsize: 56px;
     font-size: 24px;   
     display: inline-block; 
 
+    img {
+      width: 22px;
+      padding-top: 17px;
+      vertical-align: top;
+    }
+
     &:hover {
       background: rgba(0,0,0,0.15);
     }
@@ -84,10 +90,9 @@ $navsize: 56px;
 
     // the emoji
     .icon {
-      font-size: 26px;
-      padding-top: 1px;
+      padding: 5px 2px 0px 2px;
       margin-right: 7px;
-      width: 36px;
+      width: 30px;
       text-align: center;
     }
 
@@ -128,7 +133,7 @@ $navsize: 56px;
         font-size: 12px;
       }
       .icon {
-        font-size: 28px;
+        width: 34px;
         margin-right: 10px;
       }
     }

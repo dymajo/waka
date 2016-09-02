@@ -21,7 +21,7 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
     return (
       <li className={classname}>
         <Link to={this.props.url}>
-          <div className="icon">{this.props.icon}</div>
+          <div className="icon"><img src={`/icons/${this.props.icon}.svg`} /></div>
           <div className="text-wrapper">
             <div className="name">{this.props.name}</div>
             <div className="description">{this.props.description}</div>

@@ -16,32 +16,32 @@ export namespace StationStore {
   let StationData = <StationMap>{
     '8439': {
       name: 'Youth Street',
-      icon: '🚍',
+      icon: 'bus',
       description: 'Stop 8439 / 1153 Dominion Road'
     },
     '0133': {
       name: 'Britomart',
-      icon: '🚆',
+      icon: 'train',
       description: 'Britomart Train Station, Auckland Central'
     },
     '7058': {
       name: 'Civic',
-      icon: '🚍',
+      icon: 'bus',
       description: 'Stop 7058 / Queen Street outside St James'
     },
     '7056': {
       name: 'Civic Express',
-      icon: '🚍',
+      icon: 'bus',
       description: 'Stop 7056 / Queen Street outside St James'
     },
     '9630': {
       name: 'Downtown Ferry Terminal',
-      icon: '🛳',
+      icon: 'ferry',
       description: 'To Devonport'
     },
     '7148': {
       name: 'Upper Symonds',
-      icon: '🚍',
+      icon: 'bus',
       description: 'Stop 7148 / 36 Symonds Street'
     }
   }
@@ -62,7 +62,7 @@ export namespace StationStore {
       StationData[stopNumber] = {
         name: data.stop_name,
         description: `Stop ${stopNumber} / ${data.stop_name}`,
-        icon: '🚇'
+        icon: 'bus'
       }
       StationStore.trigger('change')
       browserHistory.push(`/s/${stopNumber}`)
