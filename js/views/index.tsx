@@ -55,9 +55,18 @@ class Index extends React.Component<IAppProps, IAppState> {
     return (
       <div className="panes">
         <nav className="navigation">
+          <div className="branding">
+            <Link to="/">
+              <span className="company">Dymajo</span>
+              <span className="product">Transit</span>
+            </Link>
+            <Link to="/s">
+              <span className="searchbutton">
+                <img src="/search.png" alt="Search" title="Search for a Station"/>
+              </span>
+            </Link>
+          </div>
           <ul>
-            <SidebarItem url="/s" name="Search for a Station" />
-            <h2>Stations</h2>
             {StationStore.getOrder().map(function(station) {
               return <SidebarItem
                 key={station}

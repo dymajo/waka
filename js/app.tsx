@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom'
 import { Router, IndexRoute, Route, Link, browserHistory } from 'react-router'
 
 import Index from './views/index.tsx'
+import Splash from './views/splash.tsx'
 import Search from './views/search.tsx'
 import Station from './views/station.tsx'
 
@@ -14,6 +15,7 @@ class App extends React.Component<IAppProps, {}> {
     return (
       <Router history={browserHistory}>
         <Route path="/" component={Index}>
+          <IndexRoute component={Splash} />
           <Route path="s">
             <IndexRoute component={Search} />
             <Route path=":station" component={Station} />

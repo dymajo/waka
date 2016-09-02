@@ -93,7 +93,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       case 'RTH': // Ritchies
         switch (this.props.code) {
           case "NEX": // Northern Express
-            return '0079c2'
+            return '#0079c2'
           
           default:
             return '#ff6f2c'

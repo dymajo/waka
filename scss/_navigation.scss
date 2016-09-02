@@ -5,9 +5,56 @@
 	max-width: 300px;
   position: fixed;
 
+  .branding {
+    background: #3498db;
+    color: #fff;
+    padding-left: 13px;
+    line-height: 48px;
+    font-size: 18px;
+
+    img {
+      width: 24px;
+      height: 24px;
+      padding: 12px 0;
+      vertical-align: top;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .company {
+      text-transform: uppercase;
+      font-weight: bold;
+      
+    }
+
+    .searchbutton {
+      border-left: 1px solid rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.1);
+      float: right;
+      display: inline-block;
+      text-align: center;
+      width: 48px;
+
+      &:hover {
+       background: rgba(0,0,0,0.3);
+      }
+    }
+  }
+
 	ul {
 		margin: 0;
 		padding: 0;
+
+    a {
+      color: #fff;
+      text-decoration: none;
+      width: 100%;
+      display: flex;
+      cursor: default;
+    }
 	}
 
   h2 {
@@ -32,21 +79,21 @@
     
 
     &:first-child {
-      padding: 13px 10px;
+      // padding: 13px 10px;
 
-      .icon {
-        background: url("logo.png") 50% 50% no-repeat;
-        background-size: 34px;
-        height: 36px;
-        width: 36px;
-      }
+      // .icon {
+      //   background: url("logo.png") 50% 50% no-repeat;
+      //   background-size: 34px;
+      //   height: 36px;
+      //   width: 36px;
+      // }
       
-      .name {
-        font-size: 22px;
-        line-height: 24px;
-        // font-weight: 300;
-        text-indent: 4px;
-      }
+      // .name {
+      //   font-size: 22px;
+      //   line-height: 24px;
+      //   // font-weight: 300;
+      //   text-indent: 4px;
+      // }
     }
 	}
 
@@ -78,12 +125,4 @@
   .description {
     font-size: 11px;
   }
-
-	a {
-		color: #fff;
-		text-decoration: none;
-    width: 100%;
-    display: flex;
-    cursor: default;
-	}
 }
