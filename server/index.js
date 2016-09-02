@@ -13,6 +13,7 @@ setInterval(cache.check, 3600000)
 
 router.get('/map/:map', map.getMap)
 router.get('/station', station.stopInfo)
+router.get('/station/search', station.getStopsLatLong)
 router.get('/station/:station', station.stopInfo)
 router.get('/station/:station/times', station.stopTimes)
 router.post('/realtime', realtime.getTrips)

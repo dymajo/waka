@@ -149,6 +149,36 @@ var station = {
       })
     })
   },
+  getStopsLatLong(req, res) {
+    // no caching here, maybe we need it?
+    if (req.query.lat && req.query.lng && req.query.distance) {
+      request({
+        url: `https://api.at.govt.nz/v2/gtfs/stops/geosearch?lat=${req.query.lat}&lng=${req.query.lng}&distance=${req.query.distance}`,
+        headers: {
+          'Ocp-Apim-Subscription-Key': process.env.atApiKey
+        }
+      }, function(err, response, body) {
+        if (err) {
+          return res.status(500).send(err)
+        }
+        var stops = []
+        JSON.parse(body).response.forEach(function(stop) {
+          stops.push({
+            stop_id: stop.stop_id,
+            stop_name: stop.stop_name,
+            stop_lat: stop.stop_lat,
+            stop_lng: stop.stop_lng,
+            location_type: stop.location_type // i don't actually think this reflects bus or train or ferry :/
+          })
+        })
+        res.send(stops)
+      })
+    } else {
+      res.status(400).send({
+        'message': 'please send all required params (lat, lng, distance)'
+      })
+    }
+  },
   getTripsFromAt(station, cb) {
     // we have to go the AT API and store this data
     var newOpts = JSON.parse(JSON.stringify(options))
