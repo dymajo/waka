@@ -202,7 +202,7 @@ var cache = {
         // console.log(arrayOfEntityArrays.length)
         var batchUpload = function(n){
           if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading stops batch ${n+1} / ${arrayOfEntityArrays.length}`)
+            console.log(`uploading stops batch ${n+1}/${arrayOfEntityArrays.length}`)
             tableSvc.executeBatch('stops', arrayOfEntityArrays[n], function(error, result, response){
               if(!error){
                 batchUpload(n+1)
@@ -251,7 +251,7 @@ var cache = {
         }
         var batchUpload = function(n) {
           if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading trips batch ${n+1} /  ${arrayOfEntityArrays.length}`)
+            console.log(`uploading trips batch ${n+1}/${arrayOfEntityArrays.length}`)
             tableSvc.executeBatch('trips', arrayOfEntityArrays[n], function (error, result, response) {
               if(!error) {
                 batchUpload(n+1)
@@ -267,8 +267,10 @@ var cache = {
               RowKey: {'_': 'last-updated'},
               date: {'_':new Date(), '$':'Edm.DateTime'}
             }
-            tableSvc.insertEntity('meta', task, function (error, result, response) {
-              if (error) cb(error)
+            tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
+              if (error) {
+                console.log(error)
+              }
               console.log('saved new meta date')
             })
           }

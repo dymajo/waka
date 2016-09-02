@@ -8,6 +8,7 @@ let Map = leaflet.Map
 let Marker = leaflet.Marker
 let Popup = leaflet.Popup
 let TileLayer = leaflet.TileLayer
+let ZoomControl = leaflet.ZoomControl
 
 console.log(leaflet)
 
@@ -39,13 +40,28 @@ class Search extends React.Component<IAppProps, IAppState> {
   public render() {
     const position = [-36.844229, 174.767823];
 
+    // this is the public key for now
+    let retina
+    if (window.devicePixelRatio > 1) {
+      retina = '@2x'
+    }
+    const token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
+
     return (
-      <div>Add station using this input thing<br />
-        <input type="text" placeholder="station number" onChange={this.triggerChange} />
-        <button onClick={this.triggerClick}>search</button>
-        <Map center={position} zoom={17} touchZoom={true} className="map">
+      <div className="search">
+        <div className="searchbox">
+          <input type="text" placeholder="Search for a Station" onChange={this.triggerChange} />
+          <button onClick={this.triggerClick}>🔍</button>
+        </div>
+        <Map
+          center={position} 
+          zoom={18}
+          minZoom={12}
+          zoomControl={false}
+          className="map">
+          <ZoomControl position="bottomleft" />
           <TileLayer
-            url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+            url={'https://api.mapbox.com/styles/v1/consindo/ciskz7tgd00042xukymayd97g/tiles/256/{z}/{x}/{y}' + retina + token}
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           />
           <Marker position={position}>
