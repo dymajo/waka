@@ -152,6 +152,11 @@ var station = {
   getStopsLatLong(req, res) {
     // no caching here, maybe we need it?
     if (req.query.lat && req.query.lng && req.query.distance) {
+      if (req.query.distance > 1000) {
+        return res.status(400).send({
+          'error': 'too many stops sorry'
+        })
+      }
       request({
         url: `https://api.at.govt.nz/v2/gtfs/stops/geosearch?lat=${req.query.lat}&lng=${req.query.lng}&distance=${req.query.distance}`,
         headers: {
@@ -163,13 +168,15 @@ var station = {
         }
         var stops = []
         JSON.parse(body).response.forEach(function(stop) {
-          stops.push({
-            stop_id: stop.stop_id,
-            stop_name: stop.stop_name,
-            stop_lat: stop.stop_lat,
-            stop_lng: stop.stop_lng,
-            location_type: stop.location_type // i don't actually think this reflects bus or train or ferry :/
-          })
+          if (stop.location_type === 0) {
+            stops.push({
+              stop_id: stop.stop_id,
+              stop_name: stop.stop_name,
+              stop_lat: stop.stop_lat,
+              stop_lng: stop.stop_lon, // wtf why isn't this consistent
+              location_type: stop.location_type // i don't actually think this reflects bus or train or ferry :/
+            })
+          }
         })
         res.send(stops)
       })
