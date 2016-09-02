@@ -1,6 +1,6 @@
 $navsize: 56px;
 .bignav {
-  background: $atblue;
+  background: darken($atblue, 6);
   font-family: 'Segoe MDL2 Assets'; // need fallback
   width: $navsize;
   text-align: center;
@@ -24,7 +24,7 @@ $navsize: 56px;
       background: rgba(0,0,0,0.3);
     }
     &.selected {
-      background: #3498db;
+      background: $lightblue;
     }
   }
   a {
@@ -50,55 +50,62 @@ $navsize: 56px;
   }
 }
 
-.navigation {
-	background: $atblue;
-	height: 100%;
-	width: 100%;
-	max-width: 300px;
-  position: fixed;
+.savedstations {
+  display: flex;
+  height: 100%;
 
-  .branding {
-    background: #3498db;
+  nav {
+    max-width: 300px;
+    width: 100%;
+    background: lighten($atblue, 3);
     color: #fff;
-    padding-left: 13px;
-    line-height: 48px;
-    font-size: 18px;
 
-    img {
-      width: 24px;
-      height: 24px;
-      padding: 12px 0;
-      vertical-align: top;
-    }
-
-    a {
-      color: #fff;
-      text-decoration: none;
-    }
-
-    .company {
+    h2 {
+      color: rgba(255,255,255,0.7);
       text-transform: uppercase;
-      font-weight: bold;
-      
+      font-size: 14px;
+      margin: 20px 0 5px;
+      text-indent: 13px;
     }
 
-    .searchbutton {
-      border-left: 1px solid rgba(0,0,0,0.2);
-      background: rgba(0,0,0,0.1);
-      float: right;
-      display: inline-block;
-      text-align: center;
-      width: 48px;
+    li {
+      display: block;
+      padding: 5px 10px;
 
       &:hover {
-       background: rgba(0,0,0,0.3);
+        background: rgba(0,0,0,0.1);
       }
-    }
-  }
 
-	ul {
-		margin: 0;
-		padding: 0;
+      &.selected, &:active {
+        background: rgba(0,0,0,0.15);
+      }
+
+    }
+
+    // the emoji
+    .icon {
+      font-size: 26px;
+      padding-top: 1px;
+      margin-right: 7px;
+      width: 36px;
+      text-align: center;
+    }
+
+    .text-wrapper {
+      padding: 5px 0;
+    }
+
+    .name {
+      letter-spacing: -0.5px;
+      line-height: 1;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .description {
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+    }
+
 
     a {
       color: #fff;
@@ -107,74 +114,45 @@ $navsize: 56px;
       display: flex;
       cursor: default;
     }
-	}
-
-  h2 {
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
-    font-size: 14px;
-    margin: 5px 0;
-    text-indent: 13px;
   }
-	li {
-    display: block;
-		padding: 5px 10px;
 
-    &:hover {
-      background: rgba(0,0,0,0.1);
+  @media (max-width: 900px) {
+    nav {
+      display: none;
+      max-width: 400px;
+
+      .name {
+        font-size: 18px;
+      }
+      .description {
+        font-size: 12px;
+      }
+      .icon {
+        font-size: 28px;
+        margin-right: 10px;
+      }
     }
-
-    &.selected, &:active {
-      background: rgba(0,0,0,0.2);
+    &.activepane nav {
+      display: block;
     }
+  }
+  @media (max-width: 600px) {
+    nav {
+      max-width: 600px;
 
-    
-
-    &:first-child {
-      // padding: 13px 10px;
-
-      // .icon {
-      //   background: url("logo.png") 50% 50% no-repeat;
-      //   background-size: 34px;
-      //   height: 36px;
-      //   width: 36px;
-      // }
-      
-      // .name {
-      //   font-size: 22px;
-      //   line-height: 24px;
-      //   // font-weight: 300;
-      //   text-indent: 4px;
-      // }
+      h2 {
+        font-size: 18px;
+        background: #1d2e3d;
+        text-transform: none;
+        color: #fff;
+        margin: 0 0 10px;
+        line-height: 48px;
+        padding-top: 4px;
+      }
     }
-	}
+  }
+}
 
-  hr {
-    border-bottom: 0;
-    margin: 0;
-    border-top: 1px solid rgba(0,0,0,0.2);
-  }
-
-  // the emoji
-  .icon {
-    font-size: 26px;
-    padding-top: 1px;
-    margin-right: 7px;
-    width: 36px;
-    text-align: center;
-  }
-
-  .text-wrapper {
-    padding: 5px 0;
-  }
-
-  .name {
-    letter-spacing: -0.5px;
-    line-height: 1;
-    font-size: 16px;
-    font-weight: bold;
-  }
-  .description {
-    font-size: 11px;
-  }
+.station {
+  flex: 1;
 }

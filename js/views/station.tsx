@@ -402,7 +402,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     
 
     return (
-      <div>
+      <div className="station">
         <header style={bgImage}>
           {saveButton}
           <div>
