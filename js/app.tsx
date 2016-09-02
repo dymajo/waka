@@ -6,6 +6,7 @@ import Index from './views/index.tsx'
 import Splash from './views/splash.tsx'
 import Search from './views/search.tsx'
 import Station from './views/station.tsx'
+import NoMatch from './views/nomatch.tsx'
 
 interface IAppProps extends React.Props<App> {}
 
@@ -20,6 +21,7 @@ class App extends React.Component<IAppProps, {}> {
             <IndexRoute component={Search} />
             <Route path=":station" component={Station} />
           </Route>
+          <Route path="*" component={NoMatch}/>
         </Route>
       </Router>
     )

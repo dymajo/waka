@@ -1,3 +1,55 @@
+$navsize: 56px;
+.bignav {
+  background: $atblue;
+  font-family: 'Segoe MDL2 Assets'; // need fallback
+  width: $navsize;
+  text-align: center;
+  color: #fff;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+  li {
+    width: $navsize;
+    line-height: $navsize;
+    font-size: 24px;   
+    display: inline-block; 
+
+    &:hover {
+      background: rgba(0,0,0,0.15);
+    }
+    &:active {
+      background: rgba(0,0,0,0.3);
+    }
+    &.selected {
+      background: #3498db;
+    }
+  }
+  a {
+    color: #fff;
+    text-decoration: none;
+    cursor: default;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    height: $navsize;
+
+    ul {
+      display: flex;
+    }
+
+    li {
+      flex: 1;
+    }
+  }
+}
+
 .navigation {
 	background: $atblue;
 	height: 100%;

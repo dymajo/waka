@@ -32,6 +32,26 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
   }
 }
 
+interface ISidebarButtonProps extends React.Props<SidebarButton> {
+  url: string,
+  name: string,
+  icon: string
+}
+
+class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
+  public render() {
+    var classname
+    if (window.location.pathname == this.props.url) {
+      classname = 'selected'
+    }
+    return (
+      <li className={classname}>
+        <Link to={this.props.url}>{this.props.icon}</Link>
+      </li>
+    )
+  }
+}
+
 interface IAppProps extends React.Props<Index> {}
 interface IAppState {
   stations: StationMap
@@ -54,29 +74,14 @@ class Index extends React.Component<IAppProps, IAppState> {
     var stations = this.state.stations
     return (
       <div className="panes">
-        <nav className="navigation">
-          <div className="branding">
-            <Link to="/">
-              <span className="company">Dymajo</span>
-              <span className="product">Transit</span>
-            </Link>
-            <Link to="/s">
-              <span className="searchbutton">
-                <img src="/search.png" alt="Search" title="Search for a Station"/>
-              </span>
-            </Link>
-          </div>
+        <nav className="bignav">
           <ul>
-            {StationStore.getOrder().map(function(station) {
-              return <SidebarItem
-                key={station}
-                url={`/s/${station}`}
-                name={stations[station].name} 
-                icon={stations[station].icon} 
-                description={stations[station].description} 
-              />
-            })}
-           </ul>
+            <SidebarButton icon="" name="Home" url="/" />
+            <SidebarButton icon="" name="Search" url="/s" />
+            <SidebarButton icon="" name="Saved Stations" url="/ss" />
+            <SidebarButton icon="" name="Send Feedback" url="/feedback" />
+            <SidebarButton icon="" name="Settings" url="/settings" />
+          </ul>
         </nav>
         <div className="content">
         {this.props.children}
