@@ -224,6 +224,10 @@ interface IAppState {
   error: string
 }
 
+// hack
+let liveRefresh = undefined
+let allRequests = [undefined, undefined, undefined]
+
 class Station extends React.Component<IAppProps, IAppState> {
   public state : IAppState
 
@@ -239,38 +243,41 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     this.triggerSave = this.triggerSave.bind(this)
   }
-  private getData(newProps) {
+  private getData(newProps, refreshMode = false) {
     var tripsSort = function(a,b) {
       return a.arrival_time_seconds - b.arrival_time_seconds
     }
-    var cachedName = StationStore.getData()[newProps.routeParams.station]
-    if (typeof(cachedName) !== 'undefined') {
-      this.setState({
-        // because typescript is dumb and no partial typing
-        name: cachedName.name,
-        stop: newProps.routeParams.station,
-        trips: [],
-        realtime: {},
-        icon: cachedName.icon,
-        error: ''
-      })
-
-    // If it's not cached, we'll just ask the server
-    } else {
-      request(`/a/station/${newProps.routeParams.station}`).then((data) => {
+    // don't do this
+    if (!refreshMode) {
+      var cachedName = StationStore.getData()[newProps.routeParams.station]
+      if (typeof(cachedName) !== 'undefined') {
         this.setState({
           // because typescript is dumb and no partial typing
-          name: data.stop_name,
-          stop: this.props.routeParams.station,
-          trips: this.state.trips,
-          realtime: this.state.realtime,
-          icon: this.state.icon,
+          name: cachedName.name,
+          stop: newProps.routeParams.station,
+          trips: [],
+          realtime: {},
+          icon: cachedName.icon,
           error: ''
         })
-      })
+
+      // If it's not cached, we'll just ask the server
+      } else {
+        allRequests[0] = request(`/a/station/${newProps.routeParams.station}`).then((data) => {
+          this.setState({
+            // because typescript is dumb and no partial typing
+            name: data.stop_name,
+            stop: this.props.routeParams.station,
+            trips: this.state.trips,
+            realtime: this.state.realtime,
+            icon: this.state.icon,
+            error: ''
+          })
+        })
+      }
     }
 
-    request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
+    allRequests[1] = request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
       console.log(data)
       // Seems like a server bug?
       if (typeof(data.trips.length) === 'undefined' || data.trips.length === 0) {
@@ -309,7 +316,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       })
 
       // now we do a request to the realtime API
-      request({
+      allRequests[2] = request({
         method: 'post',
         type: 'json',
         contentType: 'application/json',
@@ -337,8 +344,30 @@ class Station extends React.Component<IAppProps, IAppState> {
   }
   public componentDidMount() {
     this.getData(this.props)
+
+    // now we call our function again to get the new times
+    // every 30 seconds
+    liveRefresh = setInterval(() => {
+      this.getData(this.props, true)
+    }, 30000)
+  }
+  public componentWillUnmount() {
+    // cancel all the requests
+    //console.log('unmounting all')
+    allRequests.forEach(function (request) {
+      if (typeof(request) !== 'undefined') {
+        request.abort()
+      }
+    })
+    clearInterval(liveRefresh)
   }
   public componentWillReceiveProps(newProps) {
+    //console.log('new props... killnug old requests')
+    allRequests.forEach(function (request) {
+      if (typeof(request) !== 'undefined') {
+        request.abort()
+      }
+    })
     this.setState({
       name: '',
       stop: '',

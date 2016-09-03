@@ -27,6 +27,8 @@ interface IAppState {
   position: Array<number>
 }
 
+let dataRequest = undefined
+
 class Search extends React.Component<IAppProps, IAppState> {
   constructor(props) {
     super(props)
@@ -49,7 +51,7 @@ class Search extends React.Component<IAppProps, IAppState> {
     this.getData(this.state.position[0], this.state.position[1], 250)
   }
   private getData(lat, lng, dist) {
-    request(`/a/station/search?lat=${lat}&lng=${lng}&distance=${dist}`).then((data) => {
+    dataRequest = request(`/a/station/search?lat=${lat}&lng=${lng}&distance=${dist}`).then((data) => {
       this.setState({
         station: this.state.station,
         stops: data,
@@ -91,6 +93,11 @@ class Search extends React.Component<IAppProps, IAppState> {
 
     var newPos = e.target.getCenter()
     this.getData(newPos.lat, newPos.lng, dist)
+  }
+  public componentWillUnmount() {
+    if (typeof(dataRequest) !== 'undefined') {
+      dataRequest.abort()
+    }
   }
   public render() {
 
