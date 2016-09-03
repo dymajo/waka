@@ -1,7 +1,6 @@
 $navsize: 56px;
 .bignav {
   background: darken($atblue, 6);
-  font-family: 'Segoe MDL2 Assets'; // need fallback
   width: $navsize;
   text-align: center;
   color: #fff;
@@ -14,8 +13,8 @@ $navsize: 56px;
   li {
     width: $navsize;
     line-height: $navsize;
-    font-size: 24px;   
-    display: inline-block; 
+    position: relative;
+    display: inline-block;
 
     img {
       width: 22px;
@@ -25,12 +24,57 @@ $navsize: 56px;
 
     &:hover {
       background: rgba(0,0,0,0.15);
+
+      .tooltip {
+        display: inline-block;
+      }
     }
     &:active {
       background: rgba(0,0,0,0.3);
     }
     &.selected {
       background: $lightblue;
+    }
+
+    @keyframes fade-in {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .tooltip {
+      animation: fade-in 100ms ease 1;
+      background: #000;
+      position: absolute;
+      top: 12px;
+      left: $navsize + 15;
+      text-align: left;
+      line-height: 32px;
+      white-space: nowrap;
+      padding: 0 10px;
+      z-index: 502;
+      font-size: 14px;
+      display: none;
+
+
+      $arrow-size: 7px;
+      &:after {
+        right: 100%;
+        top: 50%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+        border-color: rgba(0, 0, 0, 0);
+        border-right-color: #000;
+        border-width: $arrow-size;
+        margin-top: $arrow-size * -1;
+      }
     }
   }
   a {
@@ -52,13 +96,26 @@ $navsize: 56px;
 
     li {
       flex: 1;
+
+      &:hover .tooltip {
+        display: none;
+      }
     }
+  }
+  // this is my hack to hide the bottom bar when the touch keeyboard is shwon
+  // ok this is a bit of a crappy hack
+  @media (max-width: 480px) and (max-height: 500px) {
+    display: none;
+  }
+  @media (max-width: 400px) and (max-height: 400px) {
+    display: none;
   }
 }
 
 .savedstations {
   display: flex;
   height: 100%;
+  background: #ddd;
 
   nav {
     max-width: 300px;
@@ -98,6 +155,7 @@ $navsize: 56px;
 
     .text-wrapper {
       padding: 5px 0;
+      flex: 1;
     }
 
     .name {
@@ -140,6 +198,12 @@ $navsize: 56px;
     &.activepane nav {
       display: block;
     }
+    a:after {
+      content: "›";
+      font-size: 42px;
+      line-height: 34px;
+      padding-right: 5px;
+    }
   }
   @media (max-width: 600px) {
     nav {
@@ -160,4 +224,5 @@ $navsize: 56px;
 
 .station {
   flex: 1;
+  background: #fff;
 }

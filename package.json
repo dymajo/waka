@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build-js": "browserify js/app.tsx -p [ tsify ] -o dist/app.js",
+    "watch-js": "watchify js/app.tsx -p [ tsify ] -o dist/app.js",
     "build-css": "node-sass scss -o dist",
     "watch-css": "node-sass -w scss -o dist",
     "install-typings": "typings install",
@@ -32,7 +33,8 @@
     "node-sass": "^3.8.0",
     "tsify": "^1.0.3",
     "typescript": "^1.8.10",
-    "typings": "^1.3.2"
+    "typings": "^1.3.2",
+    "watchify": "^3.7.0"
   },
   "dependencies": {
     "azure-storage": "^1.2.0",

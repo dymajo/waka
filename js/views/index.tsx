@@ -17,6 +17,7 @@ class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
     return (
       <li className={classname}>
         <Link to={this.props.url}><img src={`/icons/${this.props.icon}.svg`} /></Link>
+        <span className="tooltip">{this.props.name}</span>
       </li>
     )
   }
