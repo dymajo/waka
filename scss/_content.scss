@@ -1,5 +1,6 @@
 .content {
 	flex: 1;
+	overflow: hidden;
 
 	header {
 		background-color: #f4f4f4;
@@ -91,6 +92,10 @@
 			animation: blink 2s steps(1, end) infinite;
 			font-weight: normal;
 		}
+	}
+	.scrollable {
+		flex: 1;
+		overflow-y: auto;
 	}
 	ul {
 		list-style-type: none;

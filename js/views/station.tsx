@@ -449,6 +449,8 @@ class Station extends React.Component<IAppProps, IAppState> {
               <li>Status</li>
             </ul>
           </li>
+        </ul>
+        <ul className="scrollable">
           {this.state.error}
           {this.state.trips.map((trip) => {
             return <TripItem 
