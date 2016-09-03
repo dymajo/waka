@@ -206,6 +206,9 @@ var station = {
           count++
           arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
         }
+        // midnight fix?
+        trip.arrival_time_seconds = trip.arrival_time_seconds % 86400
+
         // for the azure batch
         arrayOfEntityArrays[count].insertOrReplaceEntity({
           PartitionKey: {'_': station},
@@ -358,6 +361,10 @@ var station = {
 
         tableSvc.queryEntities('trips',query, null, function(error, result, response) {
           var today = moment().tz('Pacific/Auckland')
+          // >5am override (nite rider)
+          if (today.hour() < 5) {
+            today.day(today.day()-1)
+          }
 
           if (error) throw error
           // query was successful
