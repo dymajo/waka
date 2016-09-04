@@ -155,10 +155,10 @@
   }
 .leaflet-fade-anim .leaflet-popup {
   opacity: 0;
-  -webkit-transition: opacity 0.2s linear;
-     -moz-transition: opacity 0.2s linear;
-       -o-transition: opacity 0.2s linear;
-          transition: opacity 0.2s linear;
+  -webkit-transition: opacity 0.1s linear;
+     -moz-transition: opacity 0.1s linear;
+       -o-transition: opacity 0.1s linear;
+          transition: opacity 0.1s linear;
   }
 .leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
   opacity: 1;
@@ -172,10 +172,10 @@
   will-change: transform;
   }
 .leaflet-zoom-anim .leaflet-zoom-animated {
-  -webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
-     -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
-       -o-transition:      -o-transform 0.25s cubic-bezier(0,0,0.25,1);
-          transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+  -webkit-transition: -webkit-transform 0.2s cubic-bezier(0,0,0.25,1);
+     -moz-transition:    -moz-transform 0.2s cubic-bezier(0,0,0.25,1);
+       -o-transition:      -o-transform 0.2s cubic-bezier(0,0,0.25,1);
+          transition:         transform 0.2s cubic-bezier(0,0,0.25,1);
   }
 .leaflet-zoom-anim .leaflet-tile,
 .leaflet-pan-anim .leaflet-tile {
@@ -250,9 +250,9 @@
 
 
 /* general typography */
-.leaflet-container {
-  font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
-  }
+// .leaflet-container {
+//   font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+//   }
 
 
 /* general toolbar styles */
@@ -448,10 +448,10 @@
 .leaflet-popup-content-wrapper {
   padding: 1px;
   text-align: left;
-  border-radius: 12px;
+  // border-radius: 12px;
   }
 .leaflet-popup-content {
-  margin: 13px 19px;
+  margin: 18px;
   line-height: 1.4;
   }
 .leaflet-popup-content p {
@@ -463,7 +463,7 @@
   position: absolute;
   left: 50%;
   margin-left: -20px;
-  overflow: hidden;
+  // overflow: hidden;
   pointer-events: none;
   }
 .leaflet-popup-tip {
@@ -471,7 +471,7 @@
   height: 17px;
   padding: 1px;
 
-  margin: -10px auto 0;
+  margin: -11px auto 0;
 
   -webkit-transform: rotate(45deg);
      -moz-transform: rotate(45deg);
@@ -481,24 +481,25 @@
   }
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
-  background: white;
-  color: #333;
-  box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+  background: $atblue;
+  color: #fff;
+  // box-shadow: 0 3px 14px rgba(0,0,0,0.4);
   }
 .leaflet-container a.leaflet-popup-close-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 4px 4px 0 0;
-  border: none;
-  text-align: center;
-  width: 18px;
-  height: 14px;
-  font: 16px/14px Tahoma, Verdana, sans-serif;
-  color: #c3c3c3;
-  text-decoration: none;
-  font-weight: bold;
-  background: transparent;
+  // position: absolute;
+  // top: 0;
+  // right: 0;
+  // padding: 4px 4px 0 0;
+  // border: none;
+  // text-align: center;
+  // width: 18px;
+  // height: 14px;
+  // font: 16px/14px Tahoma, Verdana, sans-serif;
+  // color: #c3c3c3;
+  // text-decoration: none;
+  // font-weight: bold;
+  // background: transparent;
+  display: none;
   }
 .leaflet-container a.leaflet-popup-close-button:hover {
   color: #999;
@@ -616,3 +617,49 @@
   margin-left: -12px;
   border-right-color: #fff;
   }
+
+// AT REALTIME EXCLUSIVE CSS
+.leaflet-popup-content {
+  span {
+    display: block;
+    width: 180px;
+    text-align: center;
+    font-size: 13px;
+  }
+  img {
+    max-width: 56px;
+  }
+  h2 {
+    line-height: 1.1;
+    margin: 10px 0 5px;
+    letter-spacing: -0.5px;
+  }
+  h3 {
+    color: #ddd;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 1em;
+    letter-spacing: -0.5px;
+    margin: 0 0 10px;
+  }
+  button {
+    border: 0;
+    color: #fff;
+    width: 100%;
+    background: $lightblue;
+    box-sizing: border-box;
+    padding: 7px 10px;
+    font-size: 14px;
+    letter-spacing: -0.5px;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    text-transform: uppercase;
+
+    &:hover {
+      background: darken($lightblue, 5);
+    }
+    &:active {
+      background: darken($lightblue, 10);
+    }
+  }
+}

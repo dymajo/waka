@@ -223,7 +223,6 @@ interface IAppState {
   stop: string,
   trips: Array<ServerTripItem>,
   realtime: RealTimeMap,
-  icon: string,
   error: string
 }
 
@@ -241,7 +240,6 @@ class Station extends React.Component<IAppProps, IAppState> {
       stop: '',
       trips: [],
       realtime: {},
-      icon: '',
       error: ''
     }
     this.triggerSave = this.triggerSave.bind(this)
@@ -260,7 +258,6 @@ class Station extends React.Component<IAppProps, IAppState> {
           stop: newProps.routeParams.station,
           trips: [],
           realtime: {},
-          icon: cachedName.icon,
           error: ''
         })
 
@@ -273,7 +270,6 @@ class Station extends React.Component<IAppProps, IAppState> {
             stop: this.props.routeParams.station,
             trips: this.state.trips,
             realtime: this.state.realtime,
-            icon: this.state.icon,
             error: ''
           })
         })
@@ -289,7 +285,6 @@ class Station extends React.Component<IAppProps, IAppState> {
           stop: this.state.stop,
           trips: this.state.trips,
           realtime: this.state.realtime,
-          icon: this.state.icon,
           error: 'There are no services in the next two hours.'
         })
       }
@@ -301,7 +296,6 @@ class Station extends React.Component<IAppProps, IAppState> {
         stop: this.state.stop,
         trips: data.trips,
         realtime: this.state.realtime,
-        icon: this.state.icon,
         error: ''
       })
 
@@ -332,7 +326,6 @@ class Station extends React.Component<IAppProps, IAppState> {
           stop: this.state.stop,
           trips: this.state.trips,
           realtime: rtData,
-          icon: this.state.icon,
           error: ''
         })        
       })
@@ -376,7 +369,6 @@ class Station extends React.Component<IAppProps, IAppState> {
       stop: '',
       trips: [],
       realtime: {},
-      icon: '',
       error: ''
     })
     this.getData(newProps)
@@ -402,27 +394,12 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     var timestring = <time><span>{time.getHours()}</span><span className="blink">:</span><span>{minutes}</span></time>
 
-    var icon = this.state.icon
-    if (icon === '' && this.state.trips.length > 0) {
-      var rt = parseInt(this.state.trips[0].route_type)
-      // tram / LRT
-      // wow auckland maybe you should build LRT hint hint
-      if (rt === 0) {
-        icon ='train'
-      // subway / metro
-      // no this is not the same as AT metro
-      } else if (rt === 1) {
-        icon = 'train'
-      // commuter rail
-      } else if (rt === 2) {
-        icon = 'train'
-      // bus
-      } else if (rt === 3) {
-        icon = 'bus'
-      // ferry
-      } else if (rt === 4) {
-        icon = 'ferry'
-      }
+    
+    var icon = 'bus'
+    if (StationStore.trainStations.indexOf(this.state.stop) != -1) {
+      icon = 'train'
+    } else if (StationStore.ferryStations.indexOf(this.state.stop) != -1) {
+      icon = 'ferry'
     }
 
     var saveButton
@@ -432,13 +409,17 @@ class Station extends React.Component<IAppProps, IAppState> {
       saveButton = <span className="save" onClick={this.triggerRemove}>Remove</span>  
     }
     
+    var iconString
+    if (this.state.name != '') {
+      iconString = <span className="icon"><img src={`/icons/${icon}.svg`} /></span>
+    }
 
     return (
       <div className="station">
         <header style={bgImage}>
           {saveButton}
           <div>
-            <span className="icon"><img src={`/icons/${icon}.svg`} /></span>
+            {iconString}
             {timestring}
             <h1>{this.state.name}</h1>
             <h2>{slug}</h2>
