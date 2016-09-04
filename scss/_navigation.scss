@@ -88,7 +88,8 @@ $navsize: 56px;
 
   @media (max-width: 480px) {
     width: 100%;
-    height: $navsize;
+    // height: $navsize;
+    height: 48px;
 
     ul {
       display: flex;
@@ -96,6 +97,11 @@ $navsize: 56px;
 
     li {
       flex: 1;
+      line-height: 48px;
+
+      img {
+        padding-top: 13px;
+      }
 
       &:hover .tooltip {
         display: none;

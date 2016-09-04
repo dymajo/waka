@@ -333,9 +333,17 @@ var station = {
 
         // only gonna send 75 trips back
         var maxTrips = sending.trips.length
-        if (maxTrips > 75) {
-          maxTrips = 75
+        if (moment().tz('Pacific/Auckland').day() === 0) {
+          // except on sunday. we send more back on sunday
+          if (maxTrips > 125) {         
+            maxTrips = 125
+          }
+        } else {
+          if (maxTrips > 75) {         
+            maxTrips = 75
+          }
         }
+        
 
         // if there are no trips, don't do a query duh
         if (maxTrips === 0) {

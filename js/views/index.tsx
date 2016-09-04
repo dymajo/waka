@@ -34,7 +34,6 @@ class Index extends React.Component<IAppProps, {}> {
             <SidebarButton icon="home" name="Home" url="/" />
             <SidebarButton icon="search" name="Search" url="/s" />
             <SidebarButton icon="map" name="Saved Stations" url="/ss" />
-            <SidebarButton icon="feedback" name="Send Feedback" url="/feedback" />
             <SidebarButton icon="settings" name="Settings" url="/settings" />
           </ul>
         </nav>

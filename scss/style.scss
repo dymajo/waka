@@ -2,6 +2,10 @@
 $atblue: #273D52;
 $lightblue: #3498db;
 
+html {
+  overflow: hidden;
+}
+
 html, body, #app {
   height: 100%;
   font-family: 'Open Sans', sans-serif;

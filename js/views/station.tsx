@@ -145,7 +145,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     var stops_away_no
     if (this.props.realtime) {
       stops_away_no = this.props.stop_sequence - this.props.realtime.stop_sequence
-      if (stops_away_no === -1) {
+      if (stops_away_no < 0) {
         stops_away = 'Departed' // let the rider down :(
       } else if (stops_away_no === 0) {
         stops_away = 'Arrived'
@@ -178,6 +178,9 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     if (!visibility) {
       className = 'hidden'
     }
+    // remove train station because it's unecessary
+    var name = this.props.name.replace(' Train Station', '')
+    name = name.replace(' Ferry Terminal', '')
 
     return (
       <li className={className} onClick={this.triggerClick}><ul className={active}>
@@ -186,7 +189,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
             {this.props.code}
           </div>
         </li>
-        <li>{this.props.name}</li>
+        <li>{name}</li>
         <li>{stops_away}</li>
         <li>›</li>
       </ul></li>
