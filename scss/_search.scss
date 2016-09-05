@@ -15,14 +15,34 @@
   background: #fff;
   border-radius: 2px;
   max-width: 300px;
+  width: calc(100% - 20px);
+
+  img {
+    width: 20px;
+    padding: 1px 5px;
+    vertical-align: top;
+    opacity: 0.5;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 
   input {
     border: 0;
-    padding: 7px 14px;
+    padding: 10px 15px;
     background: transparent;
+    outline: 0;
+    box-sizing: border-box;
+    width: calc(100% - 42px);
   }
   button {
     background: transparent;
     border: 0;
+  }
+
+  @media (max-width: 480px) {
+    max-width: none;
+    margin-top: 15px;
   }
 }

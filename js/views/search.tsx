@@ -19,18 +19,13 @@ interface StopItem {
   stop_lng: number,
   location_type: number
 }
-interface AutocompleteItem {
-  name: string,
-  id: string
-}
 
 interface IAppProps extends React.Props<Search> {}
 
 interface IAppState {
   station: string,
   stops: Array<StopItem>,
-  position: Array<number>,
-  autocomplete: Array<AutocompleteItem>
+  position: Array<number>
 }
 
 const busIcon = Icon({
@@ -59,11 +54,11 @@ class Search extends React.Component<IAppProps, IAppState> {
     this.state = {
       station: '',
       stops: [],
-      position: [-36.844229, 174.767823],
-      autocomplete: []
+      position: [-36.844229, 174.767823]
     }
 
     this.triggerChange = this.triggerChange.bind(this)
+    this.triggerKeyUp = this.triggerKeyUp.bind(this)
     this.triggerSearch = this.triggerSearch.bind(this)
     this.moveEnd = this.moveEnd.bind(this)
   }
@@ -80,8 +75,7 @@ class Search extends React.Component<IAppProps, IAppState> {
       this.setState({
         station: this.state.station,
         stops: data,
-        position: this.state.position,
-        autocomplete: this.state.autocomplete
+        position: this.state.position
       })
     })
   }
@@ -89,38 +83,19 @@ class Search extends React.Component<IAppProps, IAppState> {
     this.setState({
       station: e.currentTarget.value,
       stops: this.state.stops,
-      position: this.state.position,
-      autocomplete: this.state.autocomplete
+      position: this.state.position
     })
-
-    // trigger a search woo
-    this.triggerSearch()
   }
-  private triggerSearch() {
-    //StationStore.addStop(this.state.station)]
-    let mode = 'mapbox.places'
-    let query = this.state.station
-    let proximity = this.state.position[1] + ',' + this.state.position[0] 
-    /*
-    request(`https://api.mapbox.com/geocoding/v5/${mode}/${query}.json${token}&country=nz&proximity=${proximity}`).then((data) => {
-      var newArray = []
-      console.log(data)
-      data.features.forEach(function(item) {
-        newArray.push({
-          name: item.text,
-          id: item.id
-        })
-      })
-      this.setState({
-        station: this.state.station,
-        stops: this.state.stops,
-        position: this.state.position,
-        autocomplete: newArray
-      })
-
-    })
-    */
-    //browserHistory.push(`/s/${this.state.station}`)
+  private triggerKeyUp(e) {
+    if (e.keyCode === 13) {
+      this.triggerSearch(undefined)
+    }
+  }
+  private triggerSearch(e) {
+    if (e) {
+      e.preventDefault()
+    }
+    browserHistory.push(`/s/${this.state.station}`)
   }
   public viewServices(station) {
     return function() {
@@ -138,8 +113,7 @@ class Search extends React.Component<IAppProps, IAppState> {
       this.setState({
         station: this.state.station,
         stops: [],
-        position: this.state.position,
-        autocomplete: this.state.autocomplete
+        position: this.state.position
       })
       return 
     }
@@ -163,13 +137,10 @@ class Search extends React.Component<IAppProps, IAppState> {
     return (
       <div className="search">
         <div className="searchbox">
-          <input type="text" placeholder="Search for a Station" list="search-autocomplete" onChange={this.triggerChange} />
-          <datalist id="search-autocomplete">
-            {this.state.autocomplete.map(function(item) {
-              return <option key={item.id} value={item.name} />
-            })}
-          </datalist>
-          <button onClick={this.triggerSearch}>🔍</button>
+        <form onSubmit={this.triggerSearch}>
+          <input type="tel" placeholder="Enter Stop Number" onChange={this.triggerChange} />
+          <button type="submit" onClick={this.triggerSearch} onFocus={this.triggerSearch}><img src="icons/search-dark.png" /></button>
+        </form>
         </div>
         <Map
           ref="map"
@@ -182,7 +153,7 @@ class Search extends React.Component<IAppProps, IAppState> {
           <ZoomControl position="bottomleft" />
           <TileLayer
             url={'https://api.mapbox.com/styles/v1/consindo/ciskz7tgd00042xukymayd97g/tiles/256/{z}/{x}/{y}' + retina + token}
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           {this.state.stops.map((stop) => {
             var icon = 'bus'
