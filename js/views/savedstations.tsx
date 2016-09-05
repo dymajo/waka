@@ -61,11 +61,16 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
     if (window.location.pathname === '/ss') {
       classname += ' activepane'
     }
+    var message
+    if (StationStore.getOrder().length === 0) {
+      message = <p>You haven’t saved any stations yet.<br />Save them and they’ll show up here!</p>
+    }
     return (
       <div className={classname}>
         <nav>
           <h2>Saved Stations</h2>
           <ul>
+          {message}
           {StationStore.getOrder().map(function(station) {
             return <SidebarItem
               key={station}

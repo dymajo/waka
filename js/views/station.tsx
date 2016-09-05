@@ -466,7 +466,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     if (this.state.name != '') {
       iconString = <span className="icon"><img src={`/icons/${icon}.svg`} /></span>
     }
-    console.log(this.state.saveModal)
     var saveModal = 'saveModal'
     if (!this.state.saveModal) {
       saveModal += ' hidden'

@@ -123,6 +123,16 @@ $navsize: 56px;
   height: 100%;
   background: #ddd;
 
+  p {
+    padding: 0 15px;
+    font-size: 15px;
+    color: #eee;
+
+    @media (max-width: 480px) {
+      text-align: center;
+    }
+  }
+
   nav {
     max-width: 300px;
     width: 100%;
