@@ -11,23 +11,43 @@
 		height: 25vh;
 		position: relative;
 
-		.save {
+		.save, .remove {
 			right: 25px;
 	    position: absolute;
 	    top: 25px;
-	    border: 2px solid green;
-	    padding: 5px 10px;
-	    color: green;
+	    padding: 6px 14px;
 	    text-transform: uppercase;
 	    font-weight: bold;
-	    border-radius: 3px;
-	    font-size: 14px;
+	    font-size: 13px;
 	    cursor: default;
 
-	    &:hover {
-	    	background: green;
-	    	color: #fff;
+	    @media (max-width: 550px) {
+	    	right: 15px;
+	    	top: 15px;
+	    	padding: 4px 13px;
+	    	font-size: 12px;
 	    }
+		}
+
+		.save {
+	    color: green;
+	    border: 2px solid green;
+	    @media (hover: hover) {
+		    &:hover {
+		    	background: green;
+		    	color: #fff;
+		    }
+		  }
+		}
+		.remove {
+			color: #7f8c8d;
+			border: 2px solid #7f8c8d;
+			@media (hover: hover) {
+				&:hover {
+		    	background: #7f8c8d;
+		    	color: #fff;
+		    }
+		  }
 		}
 
 		// border-bottom: 1px solid #ccc;
@@ -416,5 +436,77 @@
 			padding-left: 5px;
 			padding-right: 12px;
 		}
+	}
+}
+
+.saveModal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0,0,0,0.3);
+	z-index: 5;
+
+	div {
+		background: #fff;
+		padding: 25px;
+		max-width: 250px;
+		margin: 20vh auto 0;
+	}
+
+	h2 {
+		margin: 0 0 15px;
+		font-size: 1.5em;
+		text-align: center;
+		letter-spacing: -1px;
+		font-weight: 600;
+	}
+	input {
+		width: 100%;
+		box-sizing: border-box;
+		border: 2px solid #ccc;
+		margin-bottom: 10px;
+		outline: 0;
+		padding: 7px 10px;
+		font-family: "Open Sans", sans-serif;
+
+		&:focus {
+			border-color: $atblue;
+		}		
+	}
+	button {
+		width: calc(50% - 5px);
+		box-sizing: border-box;
+		border: 2px solid $atblue;
+		color: $atblue;
+		background: transparent;
+		font-family: "Open Sans", sans-serif;
+		padding: 7px 0;
+		font-size: 14px;
+		font-weight: bold;
+		text-transform: uppercase;
+		
+		&.cancel {
+			margin-right: 10px;
+		}
+
+		&:active {
+			background: $atblue;
+			color: #fff;
+		}
+
+		&.submit {
+			background: $atblue;
+			color: #fff;
+
+			&:active {
+				background: darken($atblue, 10);
+			}
+		}
+	}
+
+	&.hidden {
+		display: none;
 	}
 }

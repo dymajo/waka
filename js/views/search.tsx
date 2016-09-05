@@ -156,15 +156,14 @@ class Search extends React.Component<IAppProps, IAppState> {
             attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           {this.state.stops.map((stop) => {
-            var icon = 'bus'
+            var icon = StationStore.getIcon(stop.stop_id)
             var markericon = busIcon
-            if (StationStore.trainStations.indexOf(stop.stop_id) != -1) {
-              icon = 'train'
+            if (icon === 'train') {
               markericon = trainIcon
-            } else if (StationStore.ferryStations.indexOf(stop.stop_id) != -1) {
-              icon = 'ferry'
+            } else if (icon === 'ferry') {
               markericon = ferryIcon
             }
+
 
             return (
               <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, stop.stop_lng]}>

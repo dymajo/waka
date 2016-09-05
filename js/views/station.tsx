@@ -220,10 +220,12 @@ interface IAppProps extends React.Props<Station> {
 }
 interface IAppState {
   name: string,
+  description: string,
   stop: string,
   trips: Array<ServerTripItem>,
   realtime: RealTimeMap,
-  error: string
+  error: string,
+  saveModal: boolean
 }
 
 // hack
@@ -237,12 +239,66 @@ class Station extends React.Component<IAppProps, IAppState> {
     super(props)
     this.state = {
       name: '',
+      description: '',
       stop: '',
       trips: [],
       realtime: {},
-      error: ''
+      error: '',
+      saveModal: false
     }
+    this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerSave = this.triggerSave.bind(this)
+    this.triggerSaveAdd = this.triggerSaveAdd.bind(this)
+    this.triggerSaveCancel = this.triggerSaveCancel.bind(this)
+    this.triggerSaveChange = this.triggerSaveChange.bind(this)
+    this.triggerRemove = this.triggerRemove.bind(this)
+    this.triggerUpdate = this.triggerUpdate.bind(this)
+
+    StationStore.bind('change', this.triggerUpdate)
+  }
+  /* THIS CAN ACTUALLY BE REPLACED WITH:
+  this.setState({
+    editorState: editorState
+  } as MainState);
+  interface MainState {
+    todos?: Todo[];
+    hungry?: Boolean;
+    editorState?: EditorState;
+  }
+  */
+  private setStatePartial(newState) {
+    // ugh i hate the || operator
+    var name = this.state.name
+    if (typeof(newState.name) !== 'undefined') {
+      name = newState.name
+    }
+
+    // annoying because it's a boolean
+    var saveModal = this.state.saveModal
+    if (typeof(newState.saveModal) !== 'undefined') {
+      saveModal = newState.saveModal
+    }
+
+    this.setState({
+      name: name,
+      description: newState.description || this.state.description,
+      stop: newState.stop || this.state.stop,
+      trips: newState.trips || this.state.trips,
+      realtime: newState.realtime || this.state.realtime,
+      error: newState.error || this.state.error,
+      saveModal: saveModal
+    })
+  }
+  private triggerUpdate() {
+    var cachedName = StationStore.getData()[this.props.routeParams.station]
+    if (typeof(cachedName) !== 'undefined') {
+      this.setStatePartial({
+        name: cachedName.name
+      })
+    } else {
+      // too lazy to replicate the above but different :/
+      this.forceUpdate()
+    }
   }
   private getData(newProps, refreshMode = false) {
     var tripsSort = function(a,b) {
@@ -252,25 +308,19 @@ class Station extends React.Component<IAppProps, IAppState> {
     if (!refreshMode) {
       var cachedName = StationStore.getData()[newProps.routeParams.station]
       if (typeof(cachedName) !== 'undefined') {
-        this.setState({
-          // because typescript is dumb and no partial typing
+        this.setStatePartial({
           name: cachedName.name,
-          stop: newProps.routeParams.station,
-          trips: [],
-          realtime: {},
-          error: ''
+          description: cachedName.description,
+          stop: newProps.routeParams.station
         })
 
       // If it's not cached, we'll just ask the server
       } else {
         allRequests[0] = request(`/a/station/${newProps.routeParams.station}`).then((data) => {
-          this.setState({
-            // because typescript is dumb and no partial typing
+          this.setStatePartial({
             name: data.stop_name,
-            stop: this.props.routeParams.station,
-            trips: this.state.trips,
-            realtime: this.state.realtime,
-            error: ''
+            description: `Stop ${this.props.routeParams.station} / ${data.stop_name}`,
+            stop: this.props.routeParams.station
           })
         })
       }
@@ -280,22 +330,14 @@ class Station extends React.Component<IAppProps, IAppState> {
       console.log(data)
       // Seems like a server bug?
       if (typeof(data.trips.length) === 'undefined' || data.trips.length === 0) {
-        return this.setState({
-          name: this.state.name,
-          stop: this.state.stop,
-          trips: this.state.trips,
-          realtime: this.state.realtime,
+        return this.setStatePartial({
           error: 'There are no services in the next two hours.'
         })
       }
 
       data.trips.sort(tripsSort)
-      this.setState({
-        // because typescript is dumb, you have to repass
-        name: this.state.name,
-        stop: this.state.stop,
+      this.setStatePartial({
         trips: data.trips,
-        realtime: this.state.realtime,
         error: ''
       })
 
@@ -320,11 +362,8 @@ class Station extends React.Component<IAppProps, IAppState> {
         url: `/a/realtime`,
         data: JSON.stringify({trips: queryString})
       }).then((rtData) => {
-        this.setState({
+        this.setStatePartial({
           // because typescript is dumb, you have to repass
-          name: this.state.name,
-          stop: this.state.stop,
-          trips: this.state.trips,
           realtime: rtData,
           error: ''
         })        
@@ -332,11 +371,30 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public triggerSave() {
-    StationStore.addStop(this.props.routeParams.station)
+    //var stopName = prompt("Give your station a name")
+    //StationStore.addStop(this.props.routeParams.station, stopName)
+    this.setStatePartial({
+      saveModal: true
+    })
   }
+  public triggerSaveAdd() {
+    this.setStatePartial({
+      saveModal: false
+    })
+    StationStore.addStop(this.props.routeParams.station, this.state.name)
+  }
+  public triggerSaveCancel() {
+    this.setStatePartial({
+      saveModal: false
+    })
+  }
+  public triggerSaveChange(e) {
+    this.setStatePartial({
+      name: e.currentTarget.value
+    })
+  }  
   public triggerRemove() {
-    //StationStore.addStop(this.props.routeParams.station)
-    console.log('removing station')
+    StationStore.removeStop(this.props.routeParams.station)
   }
   public componentDidMount() {
     this.getData(this.props)
@@ -348,6 +406,9 @@ class Station extends React.Component<IAppProps, IAppState> {
     }, 30000)
   }
   public componentWillUnmount() {
+    // unbind our trigger so it doesn't have more updates
+    StationStore.unbind('change', this.triggerUpdate)
+
     // cancel all the requests
     //console.log('unmounting all')
     allRequests.forEach(function (request) {
@@ -364,12 +425,14 @@ class Station extends React.Component<IAppProps, IAppState> {
         request.abort()
       }
     })
-    this.setState({
+    this.setStatePartial({
       name: '',
+      description: '',
       stop: '',
       trips: [],
       realtime: {},
-      error: ''
+      error: '',
+      saveModal: false
     })
     this.getData(newProps)
   }
@@ -379,10 +442,6 @@ class Station extends React.Component<IAppProps, IAppState> {
       bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.png)'}
     } else if (webp.support === true) {
       bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.webp)'}
-    }
-    var slug
-    if (this.state.stop != '') {
-      slug = 'Stop ' + this.state.stop + ' / ' + this.state.name
     }
 
     var time = new Date()
@@ -394,35 +453,42 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     var timestring = <time><span>{time.getHours()}</span><span className="blink">:</span><span>{minutes}</span></time>
 
-    
-    var icon = 'bus'
-    if (StationStore.trainStations.indexOf(this.state.stop) != -1) {
-      icon = 'train'
-    } else if (StationStore.ferryStations.indexOf(this.state.stop) != -1) {
-      icon = 'ferry'
-    }
+    var icon = StationStore.getIcon(this.state.stop)
 
     var saveButton
     if (typeof(StationStore.getData()[this.props.routeParams.station]) === 'undefined') {
       saveButton = <span className="save" onClick={this.triggerSave}>Save</span>  
     } else {
-      saveButton = <span className="save" onClick={this.triggerRemove}>Remove</span>  
+      saveButton = <span className="remove" onClick={this.triggerRemove}>Remove</span>  
     }
     
     var iconString
     if (this.state.name != '') {
       iconString = <span className="icon"><img src={`/icons/${icon}.svg`} /></span>
     }
+    console.log(this.state.saveModal)
+    var saveModal = 'saveModal'
+    if (!this.state.saveModal) {
+      saveModal += ' hidden'
+    }
 
     return (
       <div className="station">
+        <div className={saveModal}>
+          <div>
+            <h2>Choose a Name</h2>
+            <input type="text" value={this.state.name} onChange={this.triggerSaveChange} />
+            <button className="cancel" onClick={this.triggerSaveCancel}>Cancel</button>
+            <button className="submit" onClick={this.triggerSaveAdd}>Add Stop</button>
+          </div>
+        </div>
         <header style={bgImage}>
           {saveButton}
           <div>
             {iconString}
             {timestring}
             <h1>{this.state.name}</h1>
-            <h2>{slug}</h2>
+            <h2>{this.state.description}</h2>
           </div>
         </header>
         <ul>

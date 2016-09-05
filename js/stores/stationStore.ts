@@ -13,7 +13,7 @@ export interface StationMap {
 }
 
 export namespace StationStore {
-  export const trainStations = [
+  const trainStations = [
     '0133','0115', // britomart, newmarket
     '0277','0118','0122','0104','0119','0120','0105','0129','0123','0124','0121','0125','0126','0128','0127', // western line
     '0114','0113','0112','0102','0606','0605', // onehunga line
@@ -21,10 +21,19 @@ export namespace StationStore {
     '0116','0117','0103','0130','0244','9218' // eastern line
   ]
   // not in any order
-  export const ferryStations = [
+  const ferryStations = [
     '9600','9610','9623','9630','9670','9690','9730',
     '9660','9650','9720','9810','9640','9770','9760',
     '9790','9740','9700']
+  export function getIcon(station) {
+    var icon = 'bus'
+    if (trainStations.indexOf(station) != -1) {
+      icon = 'train'
+    } else if (ferryStations.indexOf(station) != -1) {
+      icon = 'ferry'
+    }
+    return icon
+  }
   let StationData = <StationMap>{
     '8439': {
       name: 'Youth Street',
@@ -64,7 +73,7 @@ export namespace StationStore {
   export function getOrder() {
     return StationOrder
   }
-  export function addStop(stopNumber) {
+  export function addStop(stopNumber, stopName) {
     // so we don't have duplicates
     if (typeof(StationData[stopNumber]) === 'undefined') {
       StationOrder.push(stopNumber)
@@ -72,13 +81,21 @@ export namespace StationStore {
     request(`/a/station/${stopNumber}`).then((data) => {
       console.log(data)
       StationData[stopNumber] = {
-        name: data.stop_name,
+        name: stopName,
         description: `Stop ${stopNumber} / ${data.stop_name}`,
-        icon: 'bus'
+        icon: getIcon(stopNumber)
       }
       StationStore.trigger('change')
-      browserHistory.push(`/s/${stopNumber}`)
+      //browserHistory.push(`/s/${stopNumber}`)
     })
+  }
+  export function removeStop(stopNumber) {
+    var index = StationOrder.indexOf(stopNumber)
+    if (index > -1) {
+      StationOrder.splice(index, 1);
+    }
+    delete StationData[stopNumber]
+    StationStore.trigger('change')
   }
   /* THIS IS NOT VERY TYPESCRIPT */
   // But it's so simple I'll fix it later :)

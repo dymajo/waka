@@ -1,5 +1,5 @@
 {
-  "name": "DYMAJO Transit",
+  "name": "Transit",
   "icons": [
     {
       "src": "launcher-icon-0-75x.png",
@@ -39,5 +39,7 @@
     }
   ],
   "start_url": "/",
+  "background_color": "#273D52",
+  "theme_color": "#273D52",
   "display": "standalone"
 }
