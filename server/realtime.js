@@ -49,6 +49,7 @@ var realtime = {
             stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
             delay: timeUpdate.delay,
             timestamp: timeUpdate.time,
+            v_id: trip.trip_update.vehicle.id,
             double_decker: isDoubleDecker(trip.trip_update.vehicle.id)
           }
         })

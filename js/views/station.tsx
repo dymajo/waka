@@ -10,6 +10,7 @@ interface RealTimeItem {
   delay: number,
   stop_sequence: number,
   timestamp: number,
+  v_id: string,
   double_decker: boolean
 }
 interface RealTimeMap {
@@ -156,6 +157,13 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       }
       if (this.props.realtime.double_decker) {
         stops_away += ' Ⓜ️'
+      }
+      if (window.location.hash === '#debug') {
+        var dd
+        if (this.props.realtime.double_decker) {
+          dd = ' Ⓜ️'
+        }
+        stops_away = <span><time>{stops_away_no}</time> {this.props.realtime.v_id}{dd}</span>
       }
     } else {
       stops_away = <span>Scheduled <time>{timestring}</time></span>
