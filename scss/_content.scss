@@ -124,6 +124,25 @@
 	.scrollable {
 		flex: 1;
 		overflow-y: auto;
+		position: relative;
+
+		& > li {
+			position: relative;
+			z-index: 1;
+		}
+	}
+	.error {
+		position: absolute;
+    z-index: 0;
+    line-height: 48px;
+    text-align: center;
+    width: 100%;
+    letter-spacing: -0.5px;
+    font-weight: 600;
+
+    @media (max-width: 450px) {
+    	font-size: 15px;
+    }
 	}
 
 	@media(max-width: 800px) {
@@ -509,4 +528,34 @@
 	&.hidden {
 		display: none;
 	}
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 100px auto;
+  background-color: lighten($atblue, 15);
+
+  border-radius: 100%;  
+  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+  animation: sk-scaleout 1.0s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-scaleout {
+  0% { -webkit-transform: scale(0) }
+  100% {
+    -webkit-transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+@keyframes sk-scaleout {
+  0% { 
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 100% {
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+    opacity: 0;
+  }
 }

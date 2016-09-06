@@ -224,7 +224,7 @@ interface IAppState {
   stop: string,
   trips: Array<ServerTripItem>,
   realtime: RealTimeMap,
-  error: string,
+  loading: boolean,
   saveModal: boolean
 }
 
@@ -243,7 +243,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       stop: '',
       trips: [],
       realtime: {},
-      error: '',
+      loading: true,
       saveModal: false
     }
     this.setStatePartial = this.setStatePartial.bind(this)
@@ -267,26 +267,14 @@ class Station extends React.Component<IAppProps, IAppState> {
   }
   */
   private setStatePartial(newState) {
-    // ugh i hate the || operator
-    var name = this.state.name
-    if (typeof(newState.name) !== 'undefined') {
-      name = newState.name
-    }
-
-    // annoying because it's a boolean
-    var saveModal = this.state.saveModal
-    if (typeof(newState.saveModal) !== 'undefined') {
-      saveModal = newState.saveModal
-    }
-
     this.setState({
-      name: name,
-      description: newState.description || this.state.description,
-      stop: newState.stop || this.state.stop,
-      trips: newState.trips || this.state.trips,
-      realtime: newState.realtime || this.state.realtime,
-      error: newState.error || this.state.error,
-      saveModal: saveModal
+      name: (typeof(newState.name) !== 'undefined' ? newState.name : this.state.name),
+      description:(typeof(newState.description) !== 'undefined' ? newState.description : this.state.description),
+      stop: (typeof(newState.stop) !== 'undefined' ? newState.stop : this.state.stop),
+      trips: (typeof(newState.trips) !== 'undefined' ? newState.trips : this.state.trips),
+      realtime: (typeof(newState.realtime) !== 'undefined' ? newState.realtime : this.state.realtime),
+      loading: (typeof(newState.loading) !== 'undefined' ? newState.loading : this.state.loading),
+      saveModal: (typeof(newState.saveModal) !== 'undefined' ? newState.saveModal : this.state.saveModal)
     })
   }
   private triggerUpdate() {
@@ -331,14 +319,14 @@ class Station extends React.Component<IAppProps, IAppState> {
       // Seems like a server bug?
       if (typeof(data.trips.length) === 'undefined' || data.trips.length === 0) {
         return this.setStatePartial({
-          error: 'There are no services in the next two hours.'
+          loading: false
         })
       }
 
       data.trips.sort(tripsSort)
       this.setStatePartial({
         trips: data.trips,
-        error: ''
+        loading: false
       })
 
       var queryString = []
@@ -364,8 +352,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       }).then((rtData) => {
         this.setStatePartial({
           // because typescript is dumb, you have to repass
-          realtime: rtData,
-          error: ''
+          realtime: rtData
         })        
       })
     })
@@ -425,16 +412,19 @@ class Station extends React.Component<IAppProps, IAppState> {
         request.abort()
       }
     })
-    this.setStatePartial({
+    this.setState({
       name: '',
       description: '',
       stop: '',
       trips: [],
       realtime: {},
-      error: '',
+      loading: true,
       saveModal: false
     })
-    this.getData(newProps)
+    // wait a second :/
+    requestAnimationFrame(() => {
+      this.getData(newProps)
+    })
   }
   public render() {
     var bgImage = {}
@@ -471,6 +461,13 @@ class Station extends React.Component<IAppProps, IAppState> {
       saveModal += ' hidden'
     }
 
+    var loading = <div className="error">There are no services in the next two hours.</div>
+    if (this.state.loading) {
+      loading = (
+        <div className="spinner" />
+      )
+    }
+
     return (
       <div className="station">
         <div className={saveModal}>
@@ -500,7 +497,7 @@ class Station extends React.Component<IAppProps, IAppState> {
           </li>
         </ul>
         <ul className="scrollable">
-          {this.state.error}
+          {loading}
           {this.state.trips.map((trip) => {
             return <TripItem 
               color="#27ae60"
