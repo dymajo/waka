@@ -134,6 +134,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       retina = '@2x'
     }
 
+    var positionMap = {}
+
     return (
       <div className="search">
         <div className="searchbox">
@@ -164,9 +166,21 @@ class Search extends React.Component<IAppProps, IAppState> {
               markericon = ferryIcon
             }
 
+            // jono's awesome collison detection
+            // basically checks if something is already there
+            var lng = stop.stop_lng
+            if(typeof(positionMap[stop.stop_lat]) === 'undefined') {
+              positionMap[stop.stop_lat] = [lng]
+            } else {
+              if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
+                lng = lng + 0.0002
+              } else {
+                positionMap[stop.stop_lat].push(lng)
+              }
+            }
 
             return (
-              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, stop.stop_lng]}>
+              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]}>
                 <Popup>
                   <span>
                     <img src={`/icons/${icon}.svg`} />

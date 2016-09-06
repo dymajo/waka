@@ -24,7 +24,7 @@ export namespace StationStore {
   const ferryStations = [
     '9600','9610','9623','9630','9670','9690','9730',
     '9660','9650','9720','9810','9640','9770','9760',
-    '9790','9740','9700']
+    '9790','9740','9700','9604','9620']
   export function getIcon(station) {
     var icon = 'bus'
     if (trainStations.indexOf(station) != -1) {
