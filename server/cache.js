@@ -245,8 +245,8 @@ var cache = {
             route_long_name: {'_': tripsData[key].route_long_name},
             route_type: {'_': tripsData[key].route_type},
             frequency: {'_': tripsData[key].frequency},
-            start_date: {'_': tripsData[key].start_date},
-            end_date: {'_': tripsData[key].end_date}
+            start_date: {'_': tripsData[key].start_date}, // i would store these as dates, but we have to individually enumerate to delete anyway :/
+            end_date: {'_': tripsData[key].end_date} // i would store these as dates, but we have to individually enumerate to delete anyway :/
           })
         }
         var batchUpload = function(n) {

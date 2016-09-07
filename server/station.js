@@ -363,10 +363,7 @@ var station = {
           tmpTripStore[sending.trips[i].trip_id] = {a: sending.trips[i].arrival_time_seconds, s: sending.trips[i].stop_sequence}
         }
 
-        var deleteTripsQuery = new azure.TableBatch()
-        var deleteTripsStopsQuery = new azure.TableBatch()
         var deleteCount = 0
-
         tableSvc.queryEntities('trips',query, null, function(error, result, response) {
           var today = moment().tz('Pacific/Auckland')
           // >5am override (nite rider)
@@ -405,14 +402,6 @@ var station = {
             // check end date & delete if expired
             // we don't have to batch because 75 is max
             if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(today)) {
-              deleteTripsQuery.deleteEntity({
-                PartitionKey: {'_': 'alltrips'},
-                RowKey: {'_': trip.RowKey._}
-              })
-              deleteTripsStopsQuery.deleteEntity({
-                PartitionKey: {'_': req.params.station},
-                RowKey: {'_': trip.RowKey._}
-              })
               deleteCount++
             }
           })
@@ -422,14 +411,9 @@ var station = {
 
           // can't do an empty batch
           if (deleteCount > 0) {
-            tableSvc.executeBatch('trips', deleteTripsQuery, function(error, result, response) {
-              if (error) console.log(error)
-              //console.log(result)
-            })
-            tableSvc.executeBatch('stoptimes', deleteTripsStopsQuery, function(error, result, response) {
-              if (error) console.log(error)
-              //console.log(result)
-            })
+            // console.log('delete should be run', deleteCount)
+            console.log('deletion should be run')
+            station.clean(req.params.station)
           }
         })
       }, function(error) {
@@ -443,6 +427,192 @@ var station = {
         'error': 'please specify a station'
       })
     }
+  },
+  /* 
+  This is crazy long, and all it does is cleans the trips for all routes at a stop.
+  Needs a refactor. To the days. Help.
+  */
+  clean: function(station) {
+    var allRows = []
+    var deleteCandidates = []
+    var deleteStopCandidates = []
+
+    var stopQuery = function(query, continuationToken, callback) {
+      tableSvc.queryEntities('stoptimes', query, continuationToken, function(err, result, response) {
+        if (err) {
+          return console.log(err)
+        }
+        result.entries.forEach(function(trip) {
+          allRows.push(trip.RowKey._)
+        })
+        if (result.continuationToken) {
+          stopQuery(query, result.continuationToken, callback)
+        } else {
+          callback()
+        }
+      })
+    }
+
+    var stopDeleteQuery = function(query, callback) {
+      tableSvc.queryEntities('stoptimes', query, null, function(err, result, response) {
+        if (err) {
+          return console.log(err)
+        }
+        result.entries.forEach(function(trip) {
+          deleteStopCandidates.push([trip.PartitionKey._, trip.RowKey._])
+        })
+        callback()
+      })
+    }
+
+    var tripQuery = function(query, callback) {
+      tableSvc.queryEntities('trips', query, null, function(err, result, response) {
+        if (err) {
+          return console.log(err)
+        }
+        var today = moment().tz('Pacific/Auckland')
+        result.entries.forEach(function(trip) {
+          var index = allRows.indexOf(trip.RowKey._)
+          if (index > -1) {
+            allRows.splice(index, 1)
+          }
+          if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(today)) {
+            deleteCandidates.push(trip.RowKey._)
+          }
+        })
+        callback()
+      })
+    }
+
+    stopQuery(new azure.TableQuery().where('PartitionKey eq ?', station), null, function(message) {
+      // we got all the trips for a stop
+      console.log('trips found at '+station+':', allRows.length)
+
+      var promises = []
+      // we're going to query in parallel
+      for (var i=0; i<allRows.length; i+=100) {
+        var max = i + 100
+        if (max > allRows.length) {
+          max = allRows.length
+        }
+        // assemble our query
+        var query = new azure.TableQuery().select(['RowKey', 'end_date']).where('RowKey eq ?', allRows[i])
+        // query.and('RowKey eq ?', allRows[i])
+        for (var j=i+1; j<max; j++) {
+          query.or('RowKey eq ?', allRows[j])
+        }
+        promises.push(new Promise(function(resolve, reject) {
+          tripQuery(query, resolve)
+        }))
+      }
+
+      Promise.all(promises).then(function() {
+        // Here's something weird: the query doesn't always work. 
+        // Why? Who knows. It just doesn't return all rows some time.
+        // Makes you think, but it doesn't really matter. It'll be collected at some point hmmm.
+        console.log('trips to delete:', deleteCandidates.length)
+
+        // THIS MIGHT BE DANGEROUS...
+        // console.log('trips to delete:', deleteCandidates.length + '(expired) +', allRows.length + '(not found)')
+        // deleteCandidates = deleteCandidates.concat(allRows)
+
+        // This is a mega nightmare process.
+        // Now we have to build a query with all of the tripId's to be deleted
+        var stopPromises = []
+        // we're going to query in parallel
+        for (var i=0; i<deleteCandidates.length; i+=100) {
+          var max = i + 100
+          if (max > deleteCandidates.length) {
+            max = deleteCandidates.length
+          }
+          // assemble our query
+          var query = new azure.TableQuery().where('RowKey eq ?', deleteCandidates[i])
+          // query.and('RowKey eq ?', allRows[i])
+          for (var j=i+1; j<max; j++) {
+            query.or('RowKey eq ?', deleteCandidates[j])
+          }
+          stopPromises.push(new Promise(function(resolve, reject) {
+            stopDeleteQuery(query, resolve)
+          }))
+        }
+        Promise.all(stopPromises).then(function() {
+          console.log('stoptimes to delete:', deleteStopCandidates.length)
+
+          // maybe we shouldn't delete old trips? for safety? does it hurt us having them?
+          // build the batch functions
+          // trip batch
+          // var tripBatch = []
+          // var tripCount = 0
+          // deleteCandidates.forEach(function(item) {
+          //   tripBatch[tripCount] = tripBatch[tripCount] || new azure.TableBatch()
+          //   if (tripBatch[tripCount].operations.length > 99) {
+          //     tripCount++
+          //     tripBatch[tripCount] = tripBatch[tripCount] || new azure.TableBatch()
+          //   }
+          //   tripBatch[tripCount].deleteEntity({
+          //     PartitionKey: {'_': 'alltrips'},
+          //     RowKey: {'_': item}
+          //   })
+          // })
+          // console.log('trip batch ready!')
+
+          // times batch
+          var timesBatch = {}
+          var timesCount = {}
+
+          deleteStopCandidates.forEach(function(item) {
+            try {
+              if (typeof(timesBatch[item[0]]) === 'undefined') {
+                timesBatch[item[0]] = []
+                timesCount[item[0]] = 0
+              }
+              var b = timesBatch[item[0]]
+              var c = timesCount[item[0]]
+
+              b[c] = b[c] || new azure.TableBatch() 
+              if (b[c].operations.length > 99) {
+                // have to update both the copy, and the pointer
+                timesCount[item[0]]++
+                c++ 
+                // then we can create a new batch
+                b[c] = b[c] || new azure.TableBatch()
+              }
+              b[c].deleteEntity({
+                PartitionKey: {'_': item[0]},
+                RowKey: {'_': item[1]}
+              })
+            } catch(err) {
+              console.log(err)
+            }
+          })
+
+          // save the filtered trips from at
+          var batchExecutor = function(name, batch, n) {
+            try {
+              if (n < batch.length) {
+                console.log(`deleting stoptimes for ${name} batch ${n+1}`)
+                tableSvc.executeBatch('stoptimes', batch[n], function (error, result, response) {
+                  if(!error) {
+                    batchExecutor(name, batch, n+1)
+                  } else {
+                    console.log(error)
+                  }
+                });
+              } else {
+                console.log(`deleting stoptimes for ${name} complete`)
+              }
+            } catch(err) {
+              console.log(err)
+            }
+          }
+          
+          for (var key in timesBatch) {
+            batchExecutor(key, timesBatch[key], 0)
+          }
+
+        })
+      })
+    })
   }
 }
 module.exports = station

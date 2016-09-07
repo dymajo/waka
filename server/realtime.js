@@ -40,7 +40,14 @@ var realtime = {
       	})
       	return
       }
-      body = JSON.parse(body)
+      try {
+        body = JSON.parse(body)  
+      } catch(err) {
+        console.log('rt error', err)
+        return res.send({
+          error: err
+        })
+      }
       var sending = {}
       if (body.response.entity) {
         body.response.entity.forEach(function(trip) {
