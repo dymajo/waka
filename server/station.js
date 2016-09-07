@@ -25,24 +25,25 @@ var station = {
           'error': 'too many stops sorry'
         })
       }
-      request({
-        url: `https://api.at.govt.nz/v2/gtfs/stops/geosearch?lat=${req.query.lat}&lng=${req.query.lng}&distance=${req.query.distance}`,
-        headers: {
-          'Ocp-Apim-Subscription-Key': process.env.atApiKey
-        }
-      }, function(err, response, body) {
-        if (err) {
-          return res.status(500).send(err)
-        }
+
+      var lat = parseFloat(req.query.lat)
+      var lng = parseFloat(req.query.lng)
+      var latDist = req.query.distance / 175000
+      var lngDist = req.query.distance / 75000
+
+      var query = new azure.TableQuery()
+          .where('stop_lat > ? and stop_lat < ?', lat - latDist, lat + latDist)
+          .and('stop_lon > ? and stop_lon < ?', lng -  lngDist, lng + lngDist)
+
+      tableSvc.queryEntities('stops', query, null, function(err, result, response) {
         var stops = []
-        JSON.parse(body).response.forEach(function(stop) {
-          if (stop.location_type === 0) {
+        result.entries.forEach(function(stop) {
+          if (stop.location_type._ === 0) {
             stops.push({
-              stop_id: stop.stop_id,
-              stop_name: stop.stop_name,
-              stop_lat: stop.stop_lat,
-              stop_lng: stop.stop_lon, // wtf why isn't this consistent
-              location_type: stop.location_type // i don't actually think this reflects bus or train or ferry :/
+              stop_id: stop.RowKey._,
+              stop_name: stop.stop_name._,
+              stop_lat: stop.stop_lat._,
+              stop_lng: stop.stop_lon._ // wtf why isn't this consistent
             })
           }
         })
