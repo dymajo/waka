@@ -16,8 +16,7 @@ interface StopItem {
   stop_id: string,
   stop_name: string,
   stop_lat: number,
-  stop_lng: number,
-  location_type: number
+  stop_lng: number
 }
 
 interface IAppProps extends React.Props<Search> {}
@@ -71,7 +70,7 @@ class Search extends React.Component<IAppProps, IAppState> {
     this.getData(this.state.position[0], this.state.position[1], 250)
   }
   private getData(lat, lng, dist) {
-    dataRequest = request(`/a/station/search?lat=${lat}&lng=${lng}&distance=${dist}`).then((data) => {
+    dataRequest = request(`/a/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((data) => {
       this.setState({
         station: this.state.station,
         stops: data,
