@@ -198,10 +198,10 @@ var station = {
         }
         sending.trips.sort(sortByTime)
 
-        // only sending 250 trips back :/ or is that too many?
+        // only sending 200 trips back :/ or is that too many?
         var maxTrips = sending.trips.length
-        if (maxTrips > 250) {         
-          maxTrips = 250
+        if (maxTrips > 200) {         
+          maxTrips = 200
         }        
 
         // if there are no trips, don't do a query duh
@@ -211,61 +211,69 @@ var station = {
           return
         }
 
-        var tmpTripStore = {}
-        var query = new azure.TableQuery()
-        for (var i=0; i<maxTrips; i++) {
-          if (i === 0) {
-            query.where('RowKey eq ?', sending.trips[i].trip_id)
-          } else {
-            query.or('RowKey eq ?', sending.trips[i].trip_id)
-          }
-          tmpTripStore[sending.trips[i].trip_id] = {a: sending.trips[i].arrival_time_seconds, s: sending.trips[i].stop_sequence}
+        var today = moment().tz('Pacific/Auckland')
+        var tomorrow = moment().tz('Pacific/Auckland').add(1, 'day')
+        // >5am override (nite rider)
+        if (today.hour() < 5) {
+          today.day(today.day()-1)
         }
 
+        var tmpTripStore = {}
+        var tripQueries = []
+        var tripQueryPromises = []
+        var finalTripsArray = []
         var deleteCount = 0
-        tableSvc.queryEntities('trips',query, null, function(error, result, response) {
-          var today = moment().tz('Pacific/Auckland')
-          var yesterday = moment().tz('Pacific/Auckland').subtract(1, 'day')
-          // >5am override (nite rider)
-          if (today.hour() < 5) {
-            today.day(today.day()-1)
-          }
 
-          if (error) throw error
-          // query was successful
-          var finalTripsArray = []
-          result.entries.forEach(function(trip) {
-            // check day of week
-            if (parseInt(trip.frequency._[(today.day()+6) % 7]) === 1 &&
-              // check end date
-              moment.tz(trip.end_date._, 'Pacific/Auckland').isAfter(yesterday) &&
-              // check start date
-              moment.tz(trip.start_date._, 'Pacific/Auckland').isBefore(today)
-              ) {
-              // TODO: Only push the ones that haven't already ended
-              finalTripsArray.push({
-                arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
-                stop_sequence: tmpTripStore[trip.RowKey._].s,
-                trip_id: trip.RowKey._,
-                route_long_name: trip.route_long_name._,
-                agency_id: trip.agency_id._,
-                direction_id: trip.direction_id._,
-                end_date: trip.end_date._,
-                frequency: trip.frequency._,
-                route_short_name: trip.route_short_name._,
-                route_type: trip.route_type._,
-                start_date: trip.start_date._,
-                trip_headsign: trip.trip_headsign._,
-              })
-            }
+        for (var i=0; i<maxTrips; i++) {
+          var partitionKey = sending.trips[i].trip_id.split('_').slice(-1)[0]
+          tmpTripStore[sending.trips[i].trip_id] = {a: sending.trips[i].arrival_time_seconds, s: sending.trips[i].stop_sequence}
 
-            // check end date & delete if expired
-            // we don't have to batch because 75 is max
-            if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(yesterday)) {
-              deleteCount++
-            }
-          })
+          // retrieve data
+          tripQueryPromises.push(new Promise(function(resolve, reject) {
+            tableSvc.retrieveEntity('trips', partitionKey, sending.trips[i].trip_id, {maximumExecutionTimeInMs: 1000}, function(error, trip, response) {
+              if (error) {
+                // fail if needed, but still resolve
+                console.log(error)
+                return resolve()
+              }
 
+              // check day of week
+              if (parseInt(trip.frequency._[(today.day()+6) % 7]) === 1 &&
+                // check end date
+                moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isAfter(tomorrow) &&
+                // check start date
+                moment.tz(trip.start_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(today)
+                ) {
+                // TODO: Only push the ones that haven't already ended
+                finalTripsArray.push({
+                  arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
+                  stop_sequence: tmpTripStore[trip.RowKey._].s,
+                  trip_id: trip.RowKey._,
+                  route_long_name: trip.route_long_name._,
+                  agency_id: trip.agency_id._,
+                  direction_id: trip.direction_id._,
+                  end_date: trip.end_date._,
+                  frequency: trip.frequency._,
+                  route_short_name: trip.route_short_name._,
+                  route_type: trip.route_type._,
+                  start_date: trip.start_date._,
+                  trip_headsign: trip.trip_headsign._
+                })
+              }
+
+              // check end date & delete if expired
+              // we don't have to batch because 75 is max
+              if (moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(tomorrow)) {
+                deleteCount++
+              }
+
+              // should have all gone well :)
+              resolve()
+            })
+          }))
+        }
+
+        Promise.all(tripQueryPromises).then(function() {
           sending.trips = finalTripsArray
           res.send(sending)
 
@@ -273,9 +281,10 @@ var station = {
           if (deleteCount > 0) {
             // console.log('delete should be run', deleteCount)
             console.log('deletion should be run')
-            station.clean(req.params.station)
+            // station.clean(req.params.station)
           }
         })
+
       }, function(error) {
         res.status(404).send({
           'error': 'please specify a station'

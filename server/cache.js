@@ -227,17 +227,29 @@ var cache = {
       fs.readFile('cache/tripsLookup.json', function(err, data) {
         if (err) throw err;
         var tripsData = JSON.parse(data)
-        var batch = new azure.TableBatch();
-        var arrayOfEntityArrays = []
-        var count = 0
+        
+        var arrayOfEntityArrays = {}
+        var arrayOfEntityCounts = {}
+
         for (var key in tripsData) {
-          arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
-          if (arrayOfEntityArrays[count].operations.length > 99) {
-            count++
-            arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch();
-          } 
-          arrayOfEntityArrays[count].insertOrReplaceEntity({
-            PartitionKey: {'_': 'alltrips'},
+          var pkey = key.split('_').slice(-1)[0]
+          if (typeof(arrayOfEntityArrays[pkey]) === 'undefined') {
+            arrayOfEntityArrays[pkey] = []
+            arrayOfEntityCounts[pkey] = 0
+          }
+          var b = arrayOfEntityArrays[pkey]
+          var c = arrayOfEntityCounts[pkey]
+
+          b[c] = b[c] || new azure.TableBatch()
+          if (b[c].operations.length > 99) {
+            // have to update both the copy, and the pointer
+            arrayOfEntityCounts[pkey]++
+            c++ 
+            // then we can create a new batch
+            b[c] = b[c] || new azure.TableBatch()
+          }
+          b[c].insertOrReplaceEntity({
+            PartitionKey: {'_': pkey},
             RowKey: {'_': key},
             route_id: {'_': tripsData[key].route_id},
             service_id: {'_': tripsData[key].service_id},
@@ -254,44 +266,46 @@ var cache = {
             end_date: {'_': tripsData[key].end_date} // i would store these as dates, but we have to individually enumerate to delete anyway :/
           })
         }
-        var batchUpload = function(n) {
-          if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading trips batch ${n+1}/${arrayOfEntityArrays.length}`)
-            tableSvc.executeBatch('trips', arrayOfEntityArrays[n], function (error, result, response) {
-              if(!error) {
-                batchUpload(n+1)
-              } else {
-                if (error.code === 'ETIMEDOUT') {
-                  console.log('ETIMEDOUT... retrying')
-                  batchUpload(n)
+        var batchUpload = function(name, batch, n) {
+          try {
+            if (n < batch.length) {
+              console.log(`uploading trips_${name} batch ${n+1}/${batch.length}`)
+              tableSvc.executeBatch('trips', batch[n], function (error, result, response) {
+                if(!error) {
+                  batchUpload(name, batch, n+1)
                 } else {
+                  if (error.code === 'ETIMEDOUT') {
+                    console.log('ETIMEDOUT... retrying')
+                    batchUpload(name, batch, n)
+                  } else {
+                    console.log(error)
+                  }
+                }
+              })
+            } else {
+              console.log('finished uploading trips')
+
+              var task = {
+                PartitionKey: {'_':'all'},
+                RowKey: {'_': 'last-updated'},
+                date: {'_':new Date(), '$':'Edm.DateTime'}
+              }
+              tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
+                if (error) {
                   console.log(error)
                 }
-              }
-            });
-          } else {
-            console.log('finished uploading trips')
-
-            var task = {
-              PartitionKey: {'_':'all'},
-              RowKey: {'_': 'last-updated'},
-              date: {'_':new Date(), '$':'Edm.DateTime'}
+                console.log('saved new meta date')
+              })
             }
-            tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
-              if (error) {
-                console.log(error)
-              }
-              console.log('saved new meta date')
-            })
+          } catch(err) {
+            console.log(err)
           }
         }
-        batchUpload(0)
+        for (var key in arrayOfEntityArrays) {
+          batchUpload(key, arrayOfEntityArrays[key], 0)
+        }
       })
-
     })
-
-
-
   }
 }
 module.exports = cache
