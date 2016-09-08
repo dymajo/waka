@@ -230,7 +230,7 @@ var station = {
 
           // retrieve data
           tripQueryPromises.push(new Promise(function(resolve, reject) {
-            tableSvc.retrieveEntity('trips', partitionKey, sending.trips[i].trip_id, {maximumExecutionTimeInMs: 1000}, function(error, trip, response) {
+            tableSvc.retrieveEntity('trips', partitionKey, sending.trips[i].trip_id, function(error, trip, response) {
               if (error) {
                 // fail if needed, but still resolve
                 console.log(error)
@@ -281,7 +281,7 @@ var station = {
           if (deleteCount > 0) {
             // console.log('delete should be run', deleteCount)
             console.log('deletion should be run')
-            // station.clean(req.params.station)
+            station.clean(req.params.station)
           }
         })
 
@@ -339,7 +339,7 @@ var station = {
         if (err) {
           return console.log(err)
         }
-        var today = moment().tz('Pacific/Auckland').subtract(1, 'day')
+        var today = moment().tz('Pacific/Auckland').add(1, 'day').subtract(12, 'hours')
         result.entries.forEach(function(trip) {
           var index = allRows.indexOf(trip.RowKey._)
           if (index > -1) {
