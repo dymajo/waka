@@ -207,9 +207,14 @@ var cache = {
               if(!error){
                 batchUpload(n+1)
               } else {
-                console.log(error)
+                if (error.code === 'ETIMEDOUT') {
+                  console.log('ETIMEDOUT... retrying')
+                  batchUpload(n)
+                } else {
+                  console.log(error)
+                }
               }
-              });
+            });
           } else {
             console.log('finished uploading stops')
           }
@@ -256,7 +261,12 @@ var cache = {
               if(!error) {
                 batchUpload(n+1)
               } else {
-                console.log(error)
+                if (error.code === 'ETIMEDOUT') {
+                  console.log('ETIMEDOUT... retrying')
+                  batchUpload(n)
+                } else {
+                  console.log(error)
+                }
               }
             });
           } else {

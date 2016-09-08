@@ -28,8 +28,8 @@ var station = {
 
       var lat = parseFloat(req.query.lat)
       var lng = parseFloat(req.query.lng)
-      var latDist = req.query.distance / 175000
-      var lngDist = req.query.distance / 75000
+      var latDist = req.query.distance / 165000
+      var lngDist = req.query.distance / 65000
 
       var query = new azure.TableQuery()
           .where('stop_lat > ? and stop_lat < ?', lat - latDist, lat + latDist)
@@ -162,7 +162,7 @@ var station = {
           }
           // TODO: Fix this
           // Side Effect of this, stations that have no more stops for a night, will init a call to the AT API
-          if (result.entries.length === 0) {
+          if (result.entries.length === 0 || req.query.debug) {
             station.getTripsFromAt(req.params.station, function(err, data) {
               sending.provider = 'at' // just for debugging purposes
               sending.trips = data
@@ -187,8 +187,6 @@ var station = {
             if(new Date().getTime() - lastUpdated.getTime() > 86400000) {
               console.log('getting stop times again', req.params.station)
               station.getTripsFromAt(req.params.station)
-              // can't use because rate limits
-              // station.getTripDataFromAt(req.params.station)
             }
             
           }         
@@ -200,19 +198,11 @@ var station = {
         }
         sending.trips.sort(sortByTime)
 
-        // only gonna send 75 trips back
+        // only sending 250 trips back :/ or is that too many?
         var maxTrips = sending.trips.length
-        if (moment().tz('Pacific/Auckland').day() === 0) {
-          // except on sunday. we send more back on sunday
-          if (maxTrips > 125) {         
-            maxTrips = 125
-          }
-        } else {
-          if (maxTrips > 75) {         
-            maxTrips = 75
-          }
-        }
-        
+        if (maxTrips > 250) {         
+          maxTrips = 250
+        }        
 
         // if there are no trips, don't do a query duh
         if (maxTrips === 0) {
@@ -235,6 +225,7 @@ var station = {
         var deleteCount = 0
         tableSvc.queryEntities('trips',query, null, function(error, result, response) {
           var today = moment().tz('Pacific/Auckland')
+          var yesterday = moment().tz('Pacific/Auckland').subtract(1, 'day')
           // >5am override (nite rider)
           if (today.hour() < 5) {
             today.day(today.day()-1)
@@ -247,7 +238,7 @@ var station = {
             // check day of week
             if (parseInt(trip.frequency._[(today.day()+6) % 7]) === 1 &&
               // check end date
-              moment.tz(trip.end_date._, 'Pacific/Auckland').isAfter(today) &&
+              moment.tz(trip.end_date._, 'Pacific/Auckland').isAfter(yesterday) &&
               // check start date
               moment.tz(trip.start_date._, 'Pacific/Auckland').isBefore(today)
               ) {
@@ -270,7 +261,7 @@ var station = {
 
             // check end date & delete if expired
             // we don't have to batch because 75 is max
-            if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(today)) {
+            if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(yesterday)) {
               deleteCount++
             }
           })
@@ -339,7 +330,7 @@ var station = {
         if (err) {
           return console.log(err)
         }
-        var today = moment().tz('Pacific/Auckland')
+        var today = moment().tz('Pacific/Auckland').subtract(1, 'day')
         result.entries.forEach(function(trip) {
           var index = allRows.indexOf(trip.RowKey._)
           if (index > -1) {

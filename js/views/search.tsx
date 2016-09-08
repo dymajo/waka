@@ -128,7 +128,7 @@ class Search extends React.Component<IAppProps, IAppState> {
   public render() {
 
     // this is the public key for now
-    let retina
+    let retina = ''
     if (window.devicePixelRatio > 1) {
       retina = '@2x'
     }
