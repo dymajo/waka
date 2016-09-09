@@ -200,8 +200,8 @@ var station = {
 
         // only sending 200 trips back :/ or is that too many?
         var maxTrips = sending.trips.length
-        if (maxTrips > 200) {         
-          maxTrips = 200
+        if (maxTrips > 150) {         
+          maxTrips = 150
         }        
 
         // if there are no trips, don't do a query duh
@@ -219,57 +219,89 @@ var station = {
         }
 
         var tmpTripStore = {}
-        var tripQueries = []
+        var tripPartitionQueue = {}
         var tripQueryPromises = []
         var finalTripsArray = []
         var deleteCount = 0
 
-        for (var i=0; i<maxTrips; i++) {
-          var partitionKey = sending.trips[i].trip_id.split('_').slice(-1)[0]
-          tmpTripStore[sending.trips[i].trip_id] = {a: sending.trips[i].arrival_time_seconds, s: sending.trips[i].stop_sequence}
-
-          // retrieve data
-          tripQueryPromises.push(new Promise(function(resolve, reject) {
-            tableSvc.retrieveEntity('trips', partitionKey, sending.trips[i].trip_id, function(error, trip, response) {
-              if (error) {
+        var getTrip = function(queue, index, callback) {
+          // finished
+          if (index === queue.length) {
+            return callback()
+          }
+          var partitionKey = queue[index].trip_id.split('_').slice(-1)[0]
+          tableSvc.retrieveEntity('trips', partitionKey, queue[index].trip_id, function(error, trip, response) {
+            if (error) {
+              // ignore not found trips
+              if (error.statusCode != 404) {
                 // fail if needed, but still resolve
                 console.log(error)
-                return resolve()
               }
+              return getTrip(queue, index+1, callback)
+            }
 
-              // check day of week
-              if (parseInt(trip.frequency._[(today.day()+6) % 7]) === 1 &&
-                // check end date
-                moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isAfter(tomorrow) &&
-                // check start date
-                moment.tz(trip.start_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(today)
-                ) {
-                // TODO: Only push the ones that haven't already ended
-                finalTripsArray.push({
-                  arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
-                  stop_sequence: tmpTripStore[trip.RowKey._].s,
-                  trip_id: trip.RowKey._,
-                  route_long_name: trip.route_long_name._,
-                  agency_id: trip.agency_id._,
-                  direction_id: trip.direction_id._,
-                  end_date: trip.end_date._,
-                  frequency: trip.frequency._,
-                  route_short_name: trip.route_short_name._,
-                  route_type: trip.route_type._,
-                  start_date: trip.start_date._,
-                  trip_headsign: trip.trip_headsign._
-                })
-              }
+            // check day of week
+            if (parseInt(trip.frequency._[(today.day()+6) % 7]) === 1 &&
+              // check end date
+              moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isAfter(tomorrow) &&
+              // check start date
+              moment.tz(trip.start_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(today)
+              ) {
+              // TODO: Only push the ones that haven't already ended
+              finalTripsArray.push({
+                arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
+                stop_sequence: tmpTripStore[trip.RowKey._].s,
+                trip_id: trip.RowKey._,
+                route_long_name: trip.route_long_name._,
+                agency_id: trip.agency_id._,
+                direction_id: trip.direction_id._,
+                end_date: trip.end_date._,
+                frequency: trip.frequency._,
+                route_short_name: trip.route_short_name._,
+                route_type: trip.route_type._,
+                start_date: trip.start_date._,
+                trip_headsign: trip.trip_headsign._
+              })
+            }
 
-              // check end date & delete if expired
-              // we don't have to batch because 75 is max
-              if (moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(tomorrow)) {
-                deleteCount++
-              }
+            // check end date & delete if expired
+            // we don't have to batch because 75 is max
+            if (moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(tomorrow)) {
+              deleteCount++
+            }
 
-              // should have all gone well :)
-              resolve()
-            })
+            // should have all gone well :)
+            return getTrip(queue, index+1, callback)
+          })
+        }
+
+        var maxLength = 5
+        var partitionCount = 0
+        tripPartitionQueue[0] = []
+
+        // divides the trips into partitions
+        for (var i=0; i<maxTrips; i++) {
+          tmpTripStore[sending.trips[i].trip_id] = {a: sending.trips[i].arrival_time_seconds, s: sending.trips[i].stop_sequence}
+
+          // adds partitioned thing to queue
+          if (tripPartitionQueue[partitionCount].length > maxLength) {
+            partitionCount++
+            tripPartitionQueue[partitionCount] = []
+          }
+          tripPartitionQueue[partitionCount].push(sending.trips[i])  
+          
+        }
+
+        for (var key in tripPartitionQueue) {
+          tripQueryPromises.push(new Promise(function(resolve, reject) {
+            try {
+              getTrip(tripPartitionQueue[key], 0, function() {
+                resolve()
+              })
+            } catch(err) {
+              console.log(err)
+            }
+            
           }))
         }
 
