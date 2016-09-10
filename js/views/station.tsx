@@ -233,7 +233,8 @@ interface IAppState {
   trips: Array<ServerTripItem>,
   realtime: RealTimeMap,
   loading: boolean,
-  saveModal: boolean
+  saveModal: boolean,
+  webp: boolean
 }
 
 // hack
@@ -252,7 +253,8 @@ class Station extends React.Component<IAppProps, IAppState> {
       trips: [],
       realtime: {},
       loading: true,
-      saveModal: false
+      saveModal: false,
+      webp: webp.support
     }
     this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerSave = this.triggerSave.bind(this)
@@ -282,7 +284,8 @@ class Station extends React.Component<IAppProps, IAppState> {
       trips: (typeof(newState.trips) !== 'undefined' ? newState.trips : this.state.trips),
       realtime: (typeof(newState.realtime) !== 'undefined' ? newState.realtime : this.state.realtime),
       loading: (typeof(newState.loading) !== 'undefined' ? newState.loading : this.state.loading),
-      saveModal: (typeof(newState.saveModal) !== 'undefined' ? newState.saveModal : this.state.saveModal)
+      saveModal: (typeof(newState.saveModal) !== 'undefined' ? newState.saveModal : this.state.saveModal),
+      webp: this.state.webp
     })
   }
   private triggerUpdate() {
@@ -336,6 +339,11 @@ class Station extends React.Component<IAppProps, IAppState> {
         trips: data.trips,
         loading: false
       })
+
+      // only realtime request for buses
+      if (data.trips[0].route_type !== 3) {
+        return
+      }
 
       var queryString = []
       data.trips.forEach(function(trip) {
@@ -427,7 +435,8 @@ class Station extends React.Component<IAppProps, IAppState> {
       trips: [],
       realtime: {},
       loading: true,
-      saveModal: false
+      saveModal: false,
+      webp: webp.support
     })
     // wait a second :/
     requestAnimationFrame(() => {
@@ -436,9 +445,9 @@ class Station extends React.Component<IAppProps, IAppState> {
   }
   public render() {
     var bgImage = {}
-    if (webp.support === false) {
+    if (this.state.webp === false) {
       bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.png)'}
-    } else if (webp.support === true) {
+    } else if (this.state.webp === true) {
       bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.webp)'}
     }
 

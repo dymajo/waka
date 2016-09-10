@@ -2,7 +2,20 @@
 	flex: 1;
 	overflow: hidden;
 
+	@keyframes head-elem-in {
+		0% {
+			opacity: 0;
+		}
+		60% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
 	header {
+		// animation: 800ms head-elem-in ease 1;
 		background-color: #f4f4f4;
 		background-size: cover;
 		background-position: 50% 50%;
@@ -12,6 +25,8 @@
 		position: relative;
 
 		.save, .remove {
+			// visibility: hidden;
+			// animation: 2000ms content-header-in ease 1;
 			right: 25px;
 	    position: absolute;
 	    top: 25px;
@@ -30,6 +45,7 @@
 		}
 
 		.save {
+
 	    color: green;
 	    border: 2px solid green;
 	    @media (hover: hover) {
@@ -61,7 +77,49 @@
 			padding: 0 20px 20px;
 		}
 
+		@keyframes icon-in {
+			0% {
+				opacity: 0;
+			}
+			70% {
+				opacity: 0;
+				transform: scale(0.5);
+				// transform: translate(25px);
+			}
+			100% {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+		@keyframes header-in {
+			0% {
+				opacity: 0;
+			}
+			80% {
+				opacity: 0;
+				transform: translate3d(-15px, 0, 0);
+			}
+			100% {
+				opacity: 1;
+				transform: translate3d(0, 0, 0);
+			}
+		}
+		@keyframes time-in {
+			0% {
+				opacity: 0;
+			}
+			60% {
+				opacity: 0;
+				// transform: translate(25px);
+			}
+			100% {
+				opacity: 1;
+				// transform: translate(0);
+			}
+		}
 		.icon {
+			// animation: 1000ms icon-in ease 1;
+			// visibility: hidden;
 			float: left;
 			margin-right: 12px;
 			width: 54px;
@@ -71,8 +129,8 @@
 				vertical-align: bottom;
 			}
 		}
-
 		h1 {
+			// animation: 1400ms header-in ease 1;
 			margin: 0;
 			font-size: 3em;
 			letter-spacing: -3px;
@@ -85,6 +143,7 @@
     	width: calc(100% - 50px - 125px)
 		}
 		h2 {
+			// animation: 1400ms header-in ease 1;
 			margin: 0;
 			font-size: 16px;
 			color: #444;
@@ -98,6 +157,7 @@
 		}
 
 		time {
+			// animation: 1500ms time-in ease 1;
 			right: 25px;
 			position: absolute;
 			font-weight: bold;
@@ -122,6 +182,7 @@
 		}
 	}
 	.scrollable {
+		animation: 2000ms content-header-in ease 1;
 		flex: 1;
 		overflow-y: auto;
 		position: relative;
@@ -243,9 +304,34 @@
 				}
 			}
 		}
+		@keyframes content-header-in {
+			0% {
+				opacity: 0;
+			}
+			80% {
+				opacity: 0;
+			}
+			100% {
+				opacity: 1;
+			}
+		}
+		@keyframes content-in {
+			0% {
+				background: transparent;
+			}
+			70% {
+				background: transparent;
+				transform: translate3d(0, 15px, 0);
+			}
+			100% {
+				background: $atblue;
+				transform: translate3d(0, 0px, 0);
+			}
+		}
 		.header {
 			ul {
 				background: $atblue;
+				// animation: 1800ms content-in ease 1;
 			}
 			li {
 				font-size: 14px;

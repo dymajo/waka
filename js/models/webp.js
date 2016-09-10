@@ -1,5 +1,5 @@
 var webpclass = {
-  support: undefined
+  support: false
 }
 function testWebP() {
   var webP = new Image()

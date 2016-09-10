@@ -103,6 +103,7 @@ class Search extends React.Component<IAppProps, IAppState> {
   }
   public moveEnd(e) {
     var zoom = e.target.getZoom()
+    // this should probably be based off screen size
     var dist = 250
     if (zoom === 17) {
       dist = 500

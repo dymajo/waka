@@ -7,12 +7,26 @@ class Splash extends React.Component<IAppProps, {}> {
   public render() {
 
     return (
-      <div>
-        <h2>Transit</h2>
-        <p>This is an app for Auckland Transport. But we're not assoicated with Auckland Transport. Don't even think that for a second.</p>
-        <p>A thing made by <a href="https://twitter.com/consindo">Jono Cooper</a> &amp; <a href="https://twitter.com/MattDavidosn">Matt Davidson</a>.
-          This app is open source - contributions are welcome! <a href="https://github.com/consindo/at-realtime">https://github.com/consindo/at-realtime</a></p>
-        <p>&copy; 2016 DYMAJO Ltd. Made in <a style={{cursor:'default',color:'#000',textDecoration:'none'}} href="#" title="The best city in the world.">Auckland, New Zealand</a>.</p>
+      <div className="splashScreen">
+        <div className="topwrapper">
+          <h1>
+            <span className="company">DYMAJO</span>
+            <span>Transit</span>
+            <sup className="version">β</sup>
+          </h1>
+          
+        </div>
+        <div className="wrapper">
+          <h2>Auckland</h2>
+          <p>I've stolen this piece of artwork from Generation Zero. I should probably ask them for permission.</p>
+          <div className="buttonbox">
+            <button className="primary">Find a Station</button>
+            <button>Send to Phone</button>
+          </div>
+          <footer>
+            <p>&copy; 2016 DYMAJO Ltd &middot; v0.1<small>β</small></p>
+          </footer>
+        </div>
       </div>
     )
   }
