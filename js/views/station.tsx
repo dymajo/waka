@@ -141,22 +141,33 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
     var timestring = arrival.getHours() + ':' + minutes
 
+    if (this.props.realtime) {
+      arrival.setSeconds(arrival.getSeconds() + (this.props.realtime.delay))
+      let time = Math.round((arrival.getTime()-new Date().getTime())/60000)
+      if (time === 0) {
+        timestring = 'due'
+      } else {
+        timestring = time.toString() + 'm'
+      }
+    }
+
     // works out how many stops away the bus is
     var stops_away = ''
     var stops_away_no
     if (this.props.realtime) {
       stops_away_no = this.props.stop_sequence - this.props.realtime.stop_sequence
-      if (stops_away_no < 0) {
-        stops_away = 'Departed' // let the rider down :(
-      } else if (stops_away_no === 0) {
-        stops_away = 'Arrived'
-      } else if (stops_away_no === 1) {
-        stops_away = stops_away_no + ' stop away'
-      } else {
-        stops_away = stops_away_no + ' stops away'
-      }
+      var emoji = ''
       if (this.props.realtime.double_decker) {
-        stops_away += ' Ⓜ️'
+        emoji = ' Ⓜ️'
+      }
+      if (stops_away_no < 0) {
+        stops_away = 'Departed' + emoji // let the rider down :(
+      } else if (stops_away_no === 0) {
+        stops_away = 'Arrived' + emoji
+      } else if (stops_away_no === 1) {
+        stops_away = <span>{stops_away_no} stop away{emoji}</span>
+      } else {
+        stops_away = <span>{stops_away_no} stops away &middot; <time>{timestring}</time>{emoji}</span>
       }
       if (window.location.hash === '#debug') {
         var dd
