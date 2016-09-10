@@ -22,11 +22,12 @@ $navsize: 56px;
       vertical-align: top;
     }
 
-    &:hover {
+    @media (pointer: fine) {
+      &:hover {
       background: rgba(0,0,0,0.15);
-
-      .tooltip {
-        display: inline-block;
+        .tooltip {
+          display: inline-block;
+        }
       }
     }
     &:active {

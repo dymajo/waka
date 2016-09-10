@@ -10,9 +10,8 @@
   // color: #fff;
 
   .wrapper {
-    padding: 25px;
+    padding: 25px 15px;
     margin: 0 auto;
-    max-width: 400px;
     align-items: center;
     justify-content: center;
     display: flex;
@@ -30,6 +29,8 @@
     background-position: 50% 100%;
     background-color: #fff;
     color: #000;
+    max-width: 1050px;
+    margin: 0 auto;
 
     @media (max-width: 500px) {
       background-size: 150%;
@@ -45,21 +46,29 @@
     padding-top: 25px;
     animation: 600ms text-in ease 1;
     font-weight: normal;
-    font-size: 15px;
+    font-size: 14px;
+    img {
+      width: 16px;
+      height: auto;
+      vertical-align: top;
+      margin-top: 2px;
+      margin-right: 3px;
+    }
     .company {
       letter-spacing: -1px;
       font-weight: bold;
-    }
-    .version {
-      font-size: 0.7em;
-      color: $atblue;
     }
   }
 
   h2 {
     font-size: 36px;
     font-weight: 600;
+    letter-spacing: -1px;
     margin: 0;
+
+    @media (max-width: 360px) {
+      font-size: 28px;
+    }
   }
 
   img {
@@ -69,29 +78,88 @@
   button {
     border: 0;
     padding: 10px 30px;
-    color: #fff;
+    color: #444;
     background: transparent;
     letter-spacing: -0.5px;
     font-weight: 600;
     font-size: 17px;
+    border: 1px solid #999;
+    margin: 5px;
 
     &.primary {
+      color:#fff;
       background: darken($lightblue, 10);
-      border-color: lighten($lightblue, 10);
+      border-color: darken($lightblue, 10);
+
+      &:hover {
+        background: darken($lightblue, 15);
+        border-color: darken($lightblue, 15);
+      }
+    }
+    &.pin {
+      display: none;
+
+      img {
+        margin-right: 2px;
+        opacity: 0.8;
+      }
     }
 
-    @media (max-width: 500px), (orientation: landscape) {
-      display: none;
-      &.primary {
+    img {
+      width: 20px;
+      height: auto;
+      vertical-align: top;
+      margin-top: 2px;
+      margin-right: 5px;
+    }
+
+    @media (max-width: 500px) {
+      font-size: 16px;
+      padding: 8px 20px;
+      margin: 4px;
+      img {
+        width: 16px;
+        margin-top: 3px;
+      }
+      &.send {
+        display: none;
+      }
+      &.primary, &.pin {
         display: inline-block;
+      }
+    }
+    @media (max-width: 360px) {
+      font-size: 14px;
+      padding: 7px 17px;
+      margin: 3px;
+
+      img {
+        width: 14px;
+        margin-top: 3px;
+        margin-right: 3px;
+      }
+      &.pin img {
+        margin-right: 2px;
+      }
+    }
+    @media (display-mode: standalone) {
+      &.pin {
+        display: none;
       }
     }
   }
   p {
-    font-size: 16px;
-    margin: 15px 0 0;
+    margin: 15px auto 0;
     color: #333;
     letter-spacing: -0.5px;
+    max-width: 400px;
+    font-size: 16px;
+    padding: 0 10px;
+
+    @media(max-width: 360px) {
+      font-size: 15px;
+      margin-top: 10px;
+    }
   }
   a {
     // color: lighten($lightblue, 20);
@@ -104,17 +172,13 @@
   }
   .buttonbox {
     margin: 25px 0;
-  }
-  .credits p {
-    font-size: 14px;
-
-    @media(max-width: 500px) {
-      font-size: 13px;
+    @media (max-width: 400px) {
+      margin: 15px 0;
     }
   }
   footer {
     p {
-      font-size: 11px;
+      font-size: 12px;
       margin: 0;
       letter-spacing: 0;
 
