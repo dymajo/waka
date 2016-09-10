@@ -5,7 +5,7 @@
   
   height: 100%;
   text-align: center;
-  overflow-y: auto;
+  overflow-y: hidden;
   // background-color: $atblue;
   // color: #fff;
 
@@ -22,6 +22,7 @@
   }
 
   .topwrapper {
+    animation: 1000ms top-animation ease 1;
     height: 45vh;
     background-image: url(splash.jpg);
     background-size: 100%;

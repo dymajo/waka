@@ -55,6 +55,9 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
   private componentWillUnmount() {
     StationStore.unbind('change', this.triggerUpdate)
   }
+  public triggerSearch() {
+    browserHistory.push(`/s`)
+  }
   public render() {
     var stations = this.state.stations
     var classname = 'savedstations'
@@ -63,7 +66,13 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
     }
     var message
     if (StationStore.getOrder().length === 0) {
-      message = <p>You haven’t saved any stations yet.<br />Save them and they’ll show up here!</p>
+      message = <p>
+      You haven’t saved any stations yet.<br />
+      Save them and they’ll show up here!<br />
+      <button onClick={this.triggerSearch} className="primary">
+        <img src="icons/search.png"/>Find a Station
+      </button>
+    </p>
     }
     return (
       <div className={classname}>

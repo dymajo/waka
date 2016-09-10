@@ -165,7 +165,11 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       } else if (stops_away_no === 0) {
         stops_away = 'Arrived' + emoji
       } else if (stops_away_no === 1) {
-        stops_away = <span>{stops_away_no} stop away{emoji}</span>
+        if (timestring === 'due') {
+          stops_away = <span>{stops_away_no} stop away{emoji}</span>
+        } else {
+          stops_away = <span>{stops_away_no} stop away &middot; <time>{timestring}</time>{emoji}</span>
+        }
       } else {
         stops_away = <span>{stops_away_no} stops away &middot; <time>{timestring}</time>{emoji}</span>
       }

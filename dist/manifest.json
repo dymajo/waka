@@ -1,5 +1,6 @@
 {
-  "name": "Transit",
+  "short_name": "Transit",
+  "name": "DYMAJO Transit",
   "icons": [
     {
       "src": "launcher-icon-0-75x.png",

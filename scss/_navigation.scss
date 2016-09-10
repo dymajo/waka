@@ -22,6 +22,12 @@ $navsize: 56px;
       vertical-align: top;
     }
 
+    @media (display-mode: standalone) {
+      &:first-child {
+        display: none;
+      }
+    }
+
     @media (pointer: fine) {
       &:hover {
       background: rgba(0,0,0,0.15);
@@ -122,7 +128,61 @@ $navsize: 56px;
 .savedstations {
   display: flex;
   height: 100%;
+  position: relative;
   background: #ddd;
+
+  button {
+    border: 0;
+    color: #444;
+    background: transparent;
+    letter-spacing: -0.5px;
+    font-weight: 600;
+    border: 1px solid #999;
+    margin-top: 25px;
+    display: none;
+
+    &.primary {
+      color:#fff;
+      background: darken($lightblue, 10);
+      border-color: darken($lightblue, 10);
+
+      &:hover {
+        background: darken($lightblue, 15);
+        border-color: darken($lightblue, 15);
+      }
+    }
+
+    img {
+      width: 20px;
+      height: auto;
+      vertical-align: top;
+      margin-top: 2px;
+      margin-right: 5px;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 16px;
+      padding: 8px 20px;
+      img {
+        width: 16px;
+        margin-top: 3px;
+      }
+      &.primary {
+        display: inline-block;
+      }
+    }
+    @media (max-width: 360px) {
+      font-size: 14px;
+      padding: 7px 17px;
+      margin-top: 15px;
+
+      img {
+        width: 14px;
+        margin-top: 3px;
+        margin-right: 3px;
+      }
+    }
+  }
 
   p {
     padding: 0 15px;
@@ -135,6 +195,7 @@ $navsize: 56px;
   }
 
   nav {
+    position: relative;
     max-width: 300px;
     width: 100%;
     background: lighten($atblue, 3);
@@ -229,9 +290,48 @@ $navsize: 56px;
       padding-right: 5px;
     }
   }
+
+  @keyframes ss-to-stop-nav {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.9);
+      opacity: 0.3;
+    }
+  }
+  @keyframes ss-to-stop-station {
+    0% {
+      transform: translate3d(100vw,0,0);
+    }
+    50% {
+      transform: translate3d(100vw,0,0);
+    }
+    100% {
+      transform: translate(0);
+    }
+  }
+
   @media (max-width: 600px) {
+    &:not(.activepane) {
+      background: #000;
+      nav {
+        animation: 500ms ss-to-stop-nav ease 1;
+      }
+      .station {
+        animation: 500ms ss-to-stop-station ease 1;
+      }
+    }
     nav {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      // bottom: 48px;
       max-width: 600px;
+      z-index: 0;
+      display: flex;
 
       h2 {
         font-size: 18px;
@@ -245,6 +345,13 @@ $navsize: 56px;
       ul {
         padding: 10px 0;
       }
+    }
+    .station {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 1;
     }
   }
 }
