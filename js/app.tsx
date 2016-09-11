@@ -2,6 +2,8 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Router, IndexRoute, Route, Link, browserHistory } from 'react-router'
 
+import { UiStore } from './stores/uiStore.ts'
+
 import Index from './views/index.tsx'
 import Splash from './views/splash.tsx'
 import Search from './views/search.tsx'
@@ -22,7 +24,7 @@ class App extends React.Component<IAppProps, {}> {
             <IndexRoute component={Search} />
             <Route path=":station" component={Station} />
           </Route>
-          <Route path="ss" component={SavedStations}>
+          <Route onChange={UiStore.handleReactChange} path="ss" component={SavedStations}>
             <Route path=":station" component={Station} />
           </Route>
           <Route path="*" component={NoMatch}/>

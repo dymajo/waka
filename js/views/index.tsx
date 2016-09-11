@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Link } from 'react-router'
 import { StationStore, StationMap } from '../stores/stationStore.ts'
+import { UiStore } from '../stores/uiStore.ts'
 
 interface ISidebarButtonProps extends React.Props<SidebarButton> {
   url: string,
@@ -9,6 +10,16 @@ interface ISidebarButtonProps extends React.Props<SidebarButton> {
 }
 
 class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
+  constructor(props: ISidebarButtonProps) {
+    super(props)
+    this.triggerClick = this.triggerClick.bind(this)
+  }
+  public triggerClick(e) {
+    if (this.props.url === '/ss') {
+      e.preventDefault()
+      UiStore.navigateSavedStations()
+    }
+  }
   public render() {
     var classname
     if (window.location.pathname.split('/')[1] == this.props.url.substring(1)) {
@@ -16,7 +27,7 @@ class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
     }
     return (
       <li className={classname}>
-        <Link to={this.props.url}><img src={`/icons/${this.props.icon}.svg`} /></Link>
+        <Link to={this.props.url} onClick={this.triggerClick}><img src={`/icons/${this.props.icon}.svg`} /></Link>
         <span className="tooltip">{this.props.name}</span>
       </li>
     )

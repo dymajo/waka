@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
+import { UiStore } from '../stores/uiStore.ts'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -272,6 +273,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       webp: webp.support
     }
     this.setStatePartial = this.setStatePartial.bind(this)
+    this.triggerBack = this.triggerBack.bind(this)
     this.triggerSave = this.triggerSave.bind(this)
     this.triggerSaveAdd = this.triggerSaveAdd.bind(this)
     this.triggerSaveCancel = this.triggerSaveCancel.bind(this)
@@ -387,6 +389,9 @@ class Station extends React.Component<IAppProps, IAppState> {
         })        
       })
     })
+  }
+  public triggerBack() {
+    UiStore.navigateSavedStations()
   }
   public triggerSave() {
     //var stopName = prompt("Give your station a name")
@@ -511,6 +516,7 @@ class Station extends React.Component<IAppProps, IAppState> {
           </div>
         </div>
         <header style={bgImage}>
+          <span className="back" onClick={this.triggerBack}>Back</span>
           {saveButton}
           <div>
             {iconString}
