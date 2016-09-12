@@ -20,8 +20,7 @@ class App extends React.Component<IAppProps, {}> {
       <Router history={browserHistory}>
         <Route path="/" component={Index}>
           <IndexRoute component={Splash} />
-          <Route path="s">
-            <IndexRoute component={Search} />
+          <Route onChange={UiStore.handleReactChange} path="s" component={Search}>
             <Route path=":station" component={Station} />
           </Route>
           <Route onChange={UiStore.handleReactChange} path="ss" component={SavedStations}>

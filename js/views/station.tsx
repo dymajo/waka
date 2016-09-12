@@ -324,19 +324,23 @@ class Station extends React.Component<IAppProps, IAppState> {
     if (!refreshMode) {
       var cachedName = StationStore.getData()[newProps.routeParams.station]
       if (typeof(cachedName) !== 'undefined') {
-        this.setStatePartial({
-          name: cachedName.name,
-          description: cachedName.description,
-          stop: newProps.routeParams.station
+        requestAnimationFrame(() => {
+          this.setStatePartial({
+            name: cachedName.name,
+            description: cachedName.description,
+            stop: newProps.routeParams.station
+          })
         })
 
       // If it's not cached, we'll just ask the server
       } else {
         allRequests[0] = request(`/a/station/${newProps.routeParams.station}`).then((data) => {
-          this.setStatePartial({
-            name: data.stop_name,
-            description: `Stop ${this.props.routeParams.station} / ${data.stop_name}`,
-            stop: this.props.routeParams.station
+          requestAnimationFrame(() => {
+            this.setStatePartial({
+              name: data.stop_name,
+              description: `Stop ${this.props.routeParams.station} / ${data.stop_name}`,
+              stop: this.props.routeParams.station
+            })
           })
         })
       }
@@ -391,7 +395,8 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public triggerBack() {
-    UiStore.navigateSavedStations()
+    var path = '/' + window.location.pathname.split('/')[1]
+    UiStore.navigateSavedStations(path)
   }
   public triggerSave() {
     //var stopName = prompt("Give your station a name")
@@ -420,7 +425,9 @@ class Station extends React.Component<IAppProps, IAppState> {
     StationStore.removeStop(this.props.routeParams.station)
   }
   public componentDidMount() {
-    this.getData(this.props)
+    requestAnimationFrame(() => {
+      this.getData(this.props)
+    })
 
     // now we call our function again to get the new times
     // every 30 seconds

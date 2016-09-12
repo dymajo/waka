@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
+import { UiStore } from '../stores/uiStore.ts'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -24,7 +25,8 @@ interface IAppProps extends React.Props<Search> {}
 interface IAppState {
   station: string,
   stops: Array<StopItem>,
-  position: Array<number>
+  position: Array<number>,
+  back: boolean
 }
 
 const busIcon = Icon({
@@ -53,13 +55,17 @@ class Search extends React.Component<IAppProps, IAppState> {
     this.state = {
       station: '',
       stops: [],
-      position: [-36.844229, 174.767823]
+      position: [-36.844229, 174.767823],
+      back: false
     }
 
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerKeyUp = this.triggerKeyUp.bind(this)
     this.triggerSearch = this.triggerSearch.bind(this)
     this.moveEnd = this.moveEnd.bind(this)
+    this.triggerBack = this.triggerBack.bind(this)
+
+    UiStore.bind('goingBack', this.triggerBack)
   }
   // hack to get it to work with typescript
   public refs: {
@@ -74,7 +80,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       this.setState({
         station: this.state.station,
         stops: data,
-        position: this.state.position
+        position: this.state.position,
+        back: this.state.back
       })
     })
   }
@@ -82,7 +89,8 @@ class Search extends React.Component<IAppProps, IAppState> {
     this.setState({
       station: e.currentTarget.value,
       stops: this.state.stops,
-      position: this.state.position
+      position: this.state.position,
+      back: this.state.back
     })
   }
   private triggerKeyUp(e) {
@@ -113,7 +121,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       this.setState({
         station: this.state.station,
         stops: [],
-        position: this.state.position
+        position: this.state.position,
+        back: this.state.back
       })
       return 
     }
@@ -125,6 +134,15 @@ class Search extends React.Component<IAppProps, IAppState> {
     if (typeof(dataRequest) !== 'undefined') {
       dataRequest.abort()
     }
+    UiStore.unbind('goingBack', this.triggerBack)
+  }
+  public triggerBack() {
+    this.setState({
+      station: this.state.station,
+      stops: this.state.stops,
+      position: this.state.position,
+      back: UiStore.getState().goingBack
+    })
   }
   public render() {
 
@@ -133,67 +151,77 @@ class Search extends React.Component<IAppProps, IAppState> {
     if (window.devicePixelRatio > 1) {
       retina = '@2x'
     }
+    var classname = 'searchContainer'
+    if (window.location.pathname === '/s') {
+      classname += ' activepane'
+    }
+    if (this.state.back) {
+      classname += ' goingback'
+    }
 
     var positionMap = {}
 
     return (
-      <div className="search">
-        <div className="searchbox">
-        <form onSubmit={this.triggerSearch}>
-          <input type="tel" placeholder="Enter Stop Number" onChange={this.triggerChange} />
-          <button type="submit" onClick={this.triggerSearch} onFocus={this.triggerSearch}><img src="icons/search-dark.png" /></button>
-        </form>
-        </div>
-        <Map
-          ref="map"
-          onMoveend={this.moveEnd}
-          center={this.state.position} 
-          zoom={18}
-          minZoom={12}
-          zoomControl={false}
-          className="map">
-          <ZoomControl position="bottomleft" />
-          <TileLayer
-            url={'https://api.mapbox.com/styles/v1/consindo/ciskz7tgd00042xukymayd97g/tiles/256/{z}/{x}/{y}' + retina + token}
-            attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          />
-          {this.state.stops.map((stop) => {
-            var icon = StationStore.getIcon(stop.stop_id)
-            var markericon = busIcon
-            if (icon === 'train') {
-              markericon = trainIcon
-            } else if (icon === 'ferry') {
-              markericon = ferryIcon
-            }
-
-            // jono's awesome collison detection
-            // basically checks if something is already there
-            var lng = stop.stop_lng
-            if(typeof(positionMap[stop.stop_lat]) === 'undefined') {
-              positionMap[stop.stop_lat] = [lng]
-            } else {
-              if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
-                lng = lng + 0.0002
-              } else {
-                positionMap[stop.stop_lat].push(lng)
+      <div className={classname}>
+        <div className="search">
+          <div className="searchbox">
+          <form onSubmit={this.triggerSearch}>
+            <input type="tel" placeholder="Enter Stop Number" onChange={this.triggerChange} />
+            <button type="submit" onClick={this.triggerSearch} onFocus={this.triggerSearch}><img src="/icons/search-dark.png" /></button>
+          </form>
+          </div>
+          <Map
+            ref="map"
+            onMoveend={this.moveEnd}
+            center={this.state.position} 
+            zoom={18}
+            minZoom={12}
+            zoomControl={false}
+            className="map">
+            <ZoomControl position="bottomleft" />
+            <TileLayer
+              url={'https://api.mapbox.com/styles/v1/consindo/ciskz7tgd00042xukymayd97g/tiles/256/{z}/{x}/{y}' + retina + token}
+              attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            />
+            {this.state.stops.map((stop) => {
+              var icon = StationStore.getIcon(stop.stop_id)
+              var markericon = busIcon
+              if (icon === 'train') {
+                markericon = trainIcon
+              } else if (icon === 'ferry') {
+                markericon = ferryIcon
               }
-            }
 
-            return (
-              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]}>
-                <Popup>
-                  <span>
-                    <img src={`/icons/${icon}.svg`} />
-                    <h2>{stop.stop_name}</h2>
-                    <h3>Stop {stop.stop_id}</h3>
-                    <button onClick={this.viewServices(stop.stop_id)}>View Services</button>
-                  </span>
-                </Popup>
-              </Marker>
-            )
-          })}
-          
-        </Map>
+              // jono's awesome collison detection
+              // basically checks if something is already there
+              var lng = stop.stop_lng
+              if(typeof(positionMap[stop.stop_lat]) === 'undefined') {
+                positionMap[stop.stop_lat] = [lng]
+              } else {
+                if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
+                  lng = lng + 0.0002
+                } else {
+                  positionMap[stop.stop_lat].push(lng)
+                }
+              }
+
+              return (
+                <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]}>
+                  <Popup>
+                    <span>
+                      <img src={`/icons/${icon}.svg`} />
+                      <h2>{stop.stop_name}</h2>
+                      <h3>Stop {stop.stop_id}</h3>
+                      <button onClick={this.viewServices(stop.stop_id)}>View Services</button>
+                    </span>
+                  </Popup>
+                </Marker>
+              )
+            })}
+            
+          </Map>
+        </div>
+        {this.props.children}
       </div>
     )
   }

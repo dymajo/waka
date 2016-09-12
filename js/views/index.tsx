@@ -15,9 +15,9 @@ class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
     this.triggerClick = this.triggerClick.bind(this)
   }
   public triggerClick(e) {
-    if (this.props.url === '/ss') {
+    if (this.props.url === '/ss' || this.props.url === '/s') {
       e.preventDefault()
-      UiStore.navigateSavedStations()
+      UiStore.navigateSavedStations(this.props.url)
     }
   }
   public render() {

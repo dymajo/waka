@@ -8,13 +8,13 @@ export namespace UiStore {
   export function getState() {
     return state
   }
-  export function navigateSavedStations() {
-    if (window.location.pathname === '/ss') {
+  export function navigateSavedStations(path: string) {
+    if (window.location.pathname === path) {
       return
-    } else if (state.lastUrl === '/ss') {
+    } else if (state.lastUrl === path) {
       browserHistory.goBack()  
     } else {
-      browserHistory.push('/ss')
+      browserHistory.push(path)
     }
   }
   export function handleState(e) { 
@@ -22,7 +22,7 @@ export namespace UiStore {
     //console.log(state.lastUrl)
   }
   export function handleReactChange(prevState, nextState, replace, callback) {
-    if (nextState.location.action == 'POP' && nextState.location.pathname == '/ss') {
+    if (nextState.location.action == 'POP' && (nextState.location.pathname == '/ss' || nextState.location.pathname == '/s')) {
       state.goingBack = true
       UiStore.trigger('goingBack')
 
