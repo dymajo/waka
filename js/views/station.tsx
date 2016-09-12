@@ -523,7 +523,7 @@ class Station extends React.Component<IAppProps, IAppState> {
           </div>
         </div>
         <header style={bgImage}>
-          <span className="back" onClick={this.triggerBack}>Back</span>
+          <span className="back" onClick={this.triggerBack}><img src="/icons/back.svg" /></span>
           {saveButton}
           <div>
             {iconString}
