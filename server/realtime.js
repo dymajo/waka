@@ -11,9 +11,17 @@ var isDoubleDecker = function(vehicle) {
   // i think we need the id of all the double deckers
   var doubleDeckers = [
     // Alexander Dennis Enviro500
+    '3A9A',
     '3AA1',
+    '3AA2',
     '3AA3',
+    '3AA5',
+    '3AA6',
+    '3AA7',
+    '3AA9',
+    '3AAC',
     '3AAF'
+    // I think there's a pattern
   ]
   // uncomment this line if you want it to randomly be a double decker
   // if (Math.ceil(Math.random()*2) >1) {

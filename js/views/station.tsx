@@ -154,32 +154,28 @@ class TripItem extends React.Component<ITripItemProps, {}> {
 
     // works out how many stops away the bus is
     var stops_away = ''
+    var emoji = ''
     var stops_away_no
     if (this.props.realtime) {
       stops_away_no = this.props.stop_sequence - this.props.realtime.stop_sequence
-      var emoji = ''
       if (this.props.realtime.double_decker) {
         emoji = ' Ⓜ️'
       }
       if (stops_away_no < 0) {
-        stops_away = 'Departed' + emoji // let the rider down :(
+        stops_away = 'Departed' // let the rider down :(
       } else if (stops_away_no === 0) {
-        stops_away = 'Arrived' + emoji
+        stops_away = 'Arrived'
       } else if (stops_away_no === 1) {
         if (timestring === 'due') {
-          stops_away = <span>{stops_away_no} stop away{emoji}</span>
+          stops_away = <span>{stops_away_no} stop away</span>
         } else {
-          stops_away = <span>{stops_away_no} stop away &middot; <time>{timestring}</time>{emoji}</span>
+          stops_away = <span>{stops_away_no} stop away &middot; <time>{timestring}</time></span>
         }
       } else {
-        stops_away = <span>{stops_away_no} stops away &middot; <time>{timestring}</time>{emoji}</span>
+        stops_away = <span>{stops_away_no} stops away &middot; <time>{timestring}</time></span>
       }
       if (window.location.hash === '#debug') {
-        var dd
-        if (this.props.realtime.double_decker) {
-          dd = ' Ⓜ️'
-        }
-        stops_away = <span><time>{stops_away_no}</time> {this.props.realtime.v_id}{dd}</span>
+        stops_away = <span><time>{stops_away_no}</time> {this.props.realtime.v_id}</span>
       }
     } else {
       stops_away = <span>Scheduled <time>{timestring}</time></span>
@@ -213,7 +209,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
             {this.props.code}
           </div>
         </li>
-        <li>{name}</li>
+        <li>{name}{emoji}</li>
         <li>{stops_away}</li>
         <li>›</li>
       </ul></li>
