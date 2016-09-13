@@ -13,4 +13,3 @@ Web App for Auckland Transport Real Time Board
 - `npm run build-js` to build js
 - `npm run build-css` to build css
 - `node app` to run webserver on `localhost:8000`
-- `localhost:8000/a/cache-get` to build the trips cache
