@@ -26,6 +26,7 @@ interface IAppState {
   station: string,
   stops: Array<StopItem>,
   position: Array<number>,
+  currentPosition: Array<number>,
   back: boolean
 }
 
@@ -56,16 +57,55 @@ class Search extends React.Component<IAppProps, IAppState> {
       station: '',
       stops: [],
       position: [-36.844229, 174.767823],
+      currentPosition: [],
       back: false
     }
+    var that = this
+    //that.getAndSetCurrentPosition()
+    navigator.geolocation.watchPosition(function(position){
+        that.setPosition(position)
+    }, function(error) {
+      alert(error.message)
+    }, {
+      enableHighAccuracy: true,
+      timeout: 5000
+    })
+    
 
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerKeyUp = this.triggerKeyUp.bind(this)
     this.triggerSearch = this.triggerSearch.bind(this)
     this.moveEnd = this.moveEnd.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
+    this.getAndSetCurrentPosition = this.getAndSetCurrentPosition.bind(this)
+
 
     UiStore.bind('goingBack', this.triggerBack)
+  }
+  public getAndSetCurrentPosition() {
+    var that = this
+    if ("geolocation" in navigator){
+      navigator.geolocation.getCurrentPosition(function(pos){
+        console.log(pos)
+        that.setState({
+          station: that.state.station,
+          stops: that.state.stops,
+          position: [pos.coords.latitude, pos.coords.longitude],
+          currentPosition: [pos.coords.latitude, pos.coords.longitude],
+          back: that.state.back
+        }) 
+      })
+    }
+  }
+
+  public setPosition(position) {
+    this.setState({
+          station: this.state.station,
+          stops: this.state.stops,
+          position: [position.coords.latitude, position.coords.longitude],
+          currentPosition: [position.coords.latitude, position.coords.longitude],
+          back: this.state.back
+        })
   }
   // hack to get it to work with typescript
   public refs: {
@@ -81,6 +121,7 @@ class Search extends React.Component<IAppProps, IAppState> {
         station: this.state.station,
         stops: data,
         position: this.state.position,
+        currentPosition: this.state.currentPosition,
         back: this.state.back
       })
     })
@@ -90,6 +131,7 @@ class Search extends React.Component<IAppProps, IAppState> {
       station: e.currentTarget.value,
       stops: this.state.stops,
       position: this.state.position,
+      currentPosition: this.state.currentPosition,
       back: this.state.back
     })
   }
@@ -122,6 +164,7 @@ class Search extends React.Component<IAppProps, IAppState> {
         station: this.state.station,
         stops: [],
         position: this.state.position,
+        currentPosition: this.state.currentPosition,
         back: this.state.back
       })
       return 
@@ -141,6 +184,7 @@ class Search extends React.Component<IAppProps, IAppState> {
       station: this.state.station,
       stops: this.state.stops,
       position: this.state.position,
+      currentPosition: this.state.currentPosition,
       back: UiStore.getState().goingBack
     })
   }
