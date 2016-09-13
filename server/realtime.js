@@ -10,8 +10,10 @@ var tripUpdatesOptions = {
 var isDoubleDecker = function(vehicle) {
   // i think we need the id of all the double deckers
   var doubleDeckers = [
-    '2F6D',
-    'JONO'
+    // Alexander Dennis Enviro500
+    '3AA1',
+    '3AA3',
+    '3AAF'
   ]
   // uncomment this line if you want it to randomly be a double decker
   // if (Math.ceil(Math.random()*2) >1) {
