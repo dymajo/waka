@@ -299,13 +299,14 @@
 			&.active {
 				background: #fff;
 
-				&:hover {
+			/*	&:hover {
 					background: #f7f8fb;
 				}
 
 				&:active {
 					background: darken(#f7f8fb,4);
 				}
+			*/
 
 				li:nth-child(4) {
 					display: inline-block;

@@ -202,6 +202,8 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     var name = this.props.name.replace(' Train Station', '')
     name = name.replace(' Ferry Terminal', '')
 
+    // removed <li>›</li> for now
+
     return (
       <li className={className} onClick={this.triggerClick}><ul className={active}>
         <li>
@@ -211,7 +213,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
         </li>
         <li>{name}{emoji}</li>
         <li>{stops_away}</li>
-        <li>›</li>
+        
       </ul></li>
     )
   }

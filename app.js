@@ -1,11 +1,12 @@
 var http = require('http')
 var express = require('express')
 var bodyParser = require('body-parser')
-var compression = require('compression')
+// var compression = require('compression')
 
 var app = express()
 app.use(bodyParser.json()) // can parse post requests
-app.use(compression()) // compresses all requests
+// going to use nginx for this
+// app.use(compression()) // compresses all requests
 
 var cb = function(req, res) {
   res.sendFile(__dirname + '/dist/index.html')

@@ -8,20 +8,22 @@ var tripUpdatesOptions = {
 }
 
 var isDoubleDecker = function(vehicle) {
-  // i think we need the id of all the double deckers
+  // This information collected by watching Symonds Street #dedication
   var doubleDeckers = [
+    // NZ Bus / Metrolink
     // Alexander Dennis Enviro500
-    '3A9A',
-    '3AA1',
-    '3AA2',
-    '3AA3',
-    '3AA5',
-    '3AA6',
+    '3A99', '3A9A', '3A9B', '3A9C', '3A9D', '3A9E', '3A9F',
+    '3AA0', '3AA1', '3AA2', '3AA3', '3AA4', '3AA5', '3AA6',
     '3AA7',
     '3AA9',
     '3AAC',
-    '3AAF'
-    // I think there's a pattern
+    '3AAD',
+    '3AAF',
+
+    // Howick and Eastern
+    // More Enviro500
+    '5FB5', '5FB6', '5FB7',
+    '5FB9'
   ]
   // uncomment this line if you want it to randomly be a double decker
   // if (Math.ceil(Math.random()*2) >1) {
