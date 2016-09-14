@@ -55,6 +55,37 @@ var station = {
       })
     }
   },
+  cacheCheck(stop) {
+    tableSvc.retrieveEntity('meta', 'stoptimes', stop, function(err, result, response) {
+      if (err) {
+        if (err.statusCode === 404) {
+          // this is mainly to upgrade the database to not break deprecation, so we set last updated to a day ago
+          var date = new Date() 
+          date.setDate(date.getDate() - 1);
+          var task = {
+            PartitionKey: {'_': 'stoptimes'},
+            RowKey: {'_': stop.toString()},
+            date: {'_': date, '$':'Edm.DateTime'}
+          }
+          tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
+            if (error) {
+              console.log(error)
+            }
+            console.log(`saved temp stoptimes date for ${stop}`)
+          })
+        } else {
+          console.log(err)
+        }
+        return
+      }
+      if(new Date().getTime() - result.date._.getTime() > 86400000) {
+        // if it was last updated a day ago, redo the caches
+        console.log(`refreshing stop: ${stop}`)
+        station.getTripsFromAt(stop)
+      }
+    })
+  },
+  // ok whytf did i use station as the variable name ???
   getTripsFromAt(station, cb) {
     // we have to go the AT API and store this data
     var newOpts = JSON.parse(JSON.stringify(options))
@@ -100,7 +131,7 @@ var station = {
       // save the filtered trips from at
       var batchUpload = function(n) {
         if (n < arrayOfEntityArrays.length) {
-          console.log(`uploading stoptimes for ${station} batch ${n+1}`)
+          //console.log(`uploading stoptimes for ${station} batch ${n+1}`)
           tableSvc.executeBatch('stoptimes', arrayOfEntityArrays[n], function (error, result, response) {
             if(!error) {
               batchUpload(n+1)
@@ -110,6 +141,18 @@ var station = {
           });
         } else {
           console.log(`finished uploading stoptimes for ${station}`)
+
+          var task = {
+            PartitionKey: {'_': 'stoptimes'},
+            RowKey: {'_': station.toString()},
+            date: {'_':new Date(), '$':'Edm.DateTime'}
+          }
+          tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
+            if (error) {
+              console.log(error)
+            }
+            console.log(`saved new stoptimes date for ${station}`)
+          })
         }
       }
 
@@ -163,11 +206,28 @@ var station = {
           // TODO: Fix this
           // Side Effect of this, stations that have no more stops for a night, will init a call to the AT API
           if (result.entries.length === 0 || req.query.debug) {
-            station.getTripsFromAt(req.params.station, function(err, data) {
-              sending.provider = 'at' // just for debugging purposes
-              sending.trips = data
-              resolve()
-            })
+            tableSvc.retrieveEntity('meta', 'stoptimes', req.params.station, function(err, result, response) {
+              if (err) {
+                // checks if it exists at all, if not grab the latest data
+                if (err.statusCode === 404) {
+                  console.log('getting trips for the first time for', req.params.station)
+                  station.getTripsFromAt(req.params.station, function(err, data) {
+                    sending.provider = 'at' // just for debugging purposes
+                    sending.trips = data
+                    resolve()
+                  })
+                } else {
+                  console.log(err)
+                }
+              } else {
+                // nope there were just no stoptimes
+                sending.provider = 'azure'
+                sending.trips = []
+                resolve()
+
+                station.cacheCheck(req.params.station)
+              }
+            });
           } else {
             var data = []
             result.entries.forEach(function(trip) {
@@ -181,14 +241,7 @@ var station = {
             sending.trips = data
             resolve()
 
-            // TODO: A cache check!
-            var lastUpdated = result.entries[0].Timestamp._ // date
-            // if it was last updated a day ago, redo the caches
-            if(new Date().getTime() - lastUpdated.getTime() > 86400000) {
-              console.log('getting stop times again', req.params.station)
-              station.getTripsFromAt(req.params.station)
-            }
-            
+            station.cacheCheck(req.params.station)  
           }         
         })
       }).then(function() {
@@ -491,7 +544,7 @@ var station = {
           var batchExecutor = function(name, batch, n) {
             try {
               if (n < batch.length) {
-                console.log(`deleting stoptimes for ${name} batch ${n+1}`)
+                //console.log(`deleting stoptimes for ${name} batch ${n+1}`)
                 tableSvc.executeBatch('stoptimes', batch[n], function (error, result, response) {
                   if(!error) {
                     batchExecutor(name, batch, n+1)

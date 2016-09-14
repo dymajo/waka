@@ -16,6 +16,7 @@ var isDoubleDecker = function(vehicle) {
     '3AA0', '3AA1', '3AA2', '3AA3', '3AA4', '3AA5', '3AA6',
     '3AA7',
     '3AA9',
+    '3AAA',
     '3AAC',
     '3AAD',
     '3AAF',
@@ -23,7 +24,8 @@ var isDoubleDecker = function(vehicle) {
     // Howick and Eastern
     // More Enviro500
     '5FB5', '5FB6', '5FB7',
-    '5FB9'
+    '5FB9',
+    '5FBB'
   ]
   // uncomment this line if you want it to randomly be a double decker
   // if (Math.ceil(Math.random()*2) >1) {
