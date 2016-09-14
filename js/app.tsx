@@ -9,6 +9,7 @@ import Splash from './views/splash.tsx'
 import Search from './views/search.tsx'
 import Station from './views/station.tsx'
 import SavedStations from './views/savedstations.tsx'
+import Settings from './views/settings.tsx'
 import NoMatch from './views/nomatch.tsx'
 
 interface IAppProps extends React.Props<App> {}
@@ -26,6 +27,7 @@ class App extends React.Component<IAppProps, {}> {
           <Route onChange={UiStore.handleReactChange} path="ss" component={SavedStations}>
             <Route path=":station" component={Station} />
           </Route>
+          <Route path="settings" component={Settings}/>
           <Route path="*" component={NoMatch}/>
         </Route>
       </Router>

@@ -1,0 +1,109 @@
+.settingsContainer {
+    position: relative;
+    height: 100%;
+}
+
+.settingsHeader {
+    font-size: 18px;
+    background: #1d2e3d;
+    text-transform: none;
+    color: #fff;
+    margin: 0 0 0;
+    line-height: 48px;
+    padding-top: 4px;
+    text-indent: 13px;
+}
+
+
+.settings {
+    background: lighten($atblue, 3);
+    height: calc(100% - 52px);
+    overflow-y: auto;
+    position: relative;
+    box-sizing: border-box;
+
+    .container {
+        color: #fff;
+    }
+
+    .credits {
+        color: #fff;
+        padding: 13px;
+        font-size: 15px;
+
+        h3 {
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 24px;
+            letter-spacing: -1px;
+        }
+
+        p {
+            margin: 7px 0;
+        }
+
+        a {
+            color: lighten($lightblue, 20);
+            text-decoration: none;
+            font-weight: 600;
+
+            &:hover {
+                text-decoration: underline;
+            }
+
+            &.subtle {
+                color: #fff;
+                font-weight: normal;
+            }
+        }
+
+        .logo {
+            font-size: 24px;
+            .company {
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: -1px;
+            }
+            .version {
+                font-size: 16px;
+                color: lighten($lightblue, 20);
+                font-weight: bold;
+            }
+        }
+        .copyright a {
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        button {
+            border: 2px solid lighten($lightblue, 20);
+            color: #fff;
+            font-weight: 600;
+            padding: 7px 13px;
+            margin-top: 13px;
+            background: transparent; 
+            outline: 0;
+
+            &:active {
+                background: lighten($lightblue, 20);
+            }
+        }
+        .love {
+            padding-top: 13px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sourcecode {
+            font-size: 14px;
+            padding-top: 7px;
+        }
+
+        .creditscontainer {
+            display: none;
+            &.visible {
+                display: block;
+            }
+        }
+    }
+}

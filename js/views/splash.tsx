@@ -27,7 +27,7 @@ class Splash extends React.Component<IAppProps, {}> {
         </div>
         <div className="wrapper">
           <h2>Auckland</h2>
-          <p>I've stolen this piece of artwork from Generation Zero. I should probably ask them for permission.</p>
+          <p>I’ve stolen this piece of artwork from Generation Zero. I should probably ask them for permission.</p>
           <div className="buttonbox">
             <button onClick={this.triggerSearch} className="primary">
               <img src="icons/search.png"/>Find a Station
