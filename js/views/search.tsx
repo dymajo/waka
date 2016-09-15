@@ -61,17 +61,18 @@ class Search extends React.Component<IAppProps, IAppState> {
       back: false
     }
     var that = this
-    //that.getAndSetCurrentPosition()
+    that.getAndSetCurrentPosition()
     navigator.geolocation.watchPosition(function(position){
-        that.setPosition(position)
+        that.setCurrentPosition(position)
     }, function(error) {
+      //will remove for release
       alert(error.message)
     }, {
       enableHighAccuracy: true,
       timeout: 5000
     })
     
-
+    
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerKeyUp = this.triggerKeyUp.bind(this)
     this.triggerSearch = this.triggerSearch.bind(this)
@@ -98,11 +99,11 @@ class Search extends React.Component<IAppProps, IAppState> {
     }
   }
 
-  public setPosition(position) {
+  public setCurrentPosition(position) {
     this.setState({
           station: this.state.station,
           stops: this.state.stops,
-          position: [position.coords.latitude, position.coords.longitude],
+          position: this.state.position,
           currentPosition: [position.coords.latitude, position.coords.longitude],
           back: this.state.back
         })
@@ -201,12 +202,13 @@ class Search extends React.Component<IAppProps, IAppState> {
     }
     if (this.state.back) {
       classname += ' goingback'
-    }
+    }  
 
+    
     var positionMap = {}
 
     return (
-      <div className={classname}>
+       <div className={classname}>
         <div className="search">
           <div className="searchbox">
           <form onSubmit={this.triggerSearch}>
@@ -223,6 +225,9 @@ class Search extends React.Component<IAppProps, IAppState> {
             zoomControl={false}
             className="map">
             <ZoomControl position="bottomleft" />
+           
+            
+            
             <TileLayer
               url={'https://api.mapbox.com/styles/v1/consindo/ciskz7tgd00042xukymayd97g/tiles/256/{z}/{x}/{y}' + retina + token}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -234,7 +239,7 @@ class Search extends React.Component<IAppProps, IAppState> {
                 markericon = trainIcon
               } else if (icon === 'ferry') {
                 markericon = ferryIcon
-              }
+              }              
 
               // jono's awesome collison detection
               // basically checks if something is already there
@@ -260,9 +265,10 @@ class Search extends React.Component<IAppProps, IAppState> {
                     </span>
                   </Popup>
                 </Marker>
-              )
+               )
             })}
-            
+            <Marker position={this.state.currentPosition}/>
+           
           </Map>
         </div>
         {this.props.children}
