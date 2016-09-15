@@ -14,12 +14,8 @@ var isDoubleDecker = function(vehicle) {
     // Alexander Dennis Enviro500
     '3A99', '3A9A', '3A9B', '3A9C', '3A9D', '3A9E', '3A9F',
     '3AA0', '3AA1', '3AA2', '3AA3', '3AA4', '3AA5', '3AA6',
-    '3AA7',
-    '3AA9',
-    '3AAA',
-    '3AAC',
-    '3AAD',
-    '3AAF',
+    '3AA7', '3AA8', '3AA9', '3AAA', '3AAB', '3AAC', '3AAD',
+    '3AAE', '3AAF',
 
     // Howick and Eastern
     // More Enviro500

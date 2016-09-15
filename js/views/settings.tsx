@@ -54,8 +54,8 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                 <li><a target="_blank" href="http://mattdavidson.kiwi">Matt Davidson</a> &ndash; Code</li>
                 <li><a target="_blank" href="https://twitter.com/itemic">Terran Kroft</a> &ndash; Testing, Feedback</li>
                 <li><a target="_blank" href="https://github.com/blackdragon723">Dylan Wragge</a> &ndash; Testing, Feedback</li>
-                <li><a target="_blank" href="http://www.generationzero.org/">Generation Zero</a> &ndash; Artwork (I haven’t actually asked)</li>
-                <li><a target="_blank" href="http://transportblog.co.nz">TransportBlog</a> &ndash; This app probably wouldn’t exist if I didn’t read TransportBlog every day.</li>
+                <li><a target="_blank" href="http://www.generationzero.org/">Generation Zero</a> &ndash; Artwork (We haven’t actually asked)</li>
+                <li><a target="_blank" href="http://transportblog.co.nz">TransportBlog</a> &ndash; This app probably wouldn’t exist if we didn’t read TransportBlog every day.</li>
               </ul>
               <h3>Special Thanks</h3>
               <p>These are great things that are free, and we love them.</p>
@@ -64,7 +64,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                 <li><a target="_blank" href="https://azure.microsoft.com">Microsoft Azure</a> &ndash; Application Server</li>
                 <li><a target="_blank" href="https://github.com">GitHub</a> &ndash; Project Hosting</li>
                 <li><a target="_blank" href="https://www.mapbox.com/">Mapbox</a> &ndash; Map Provider</li>
-                <li><a target="_blank" href="https://github.com/consindo/dymajo-transit">Other Tools & Libraries</a></li>
+                <li><a target="_blank" href="https://github.com/consindo/dymajo-transit">Other Tools &amp; Libraries</a></li>
               </ul>
               <div className="love">Made with 💙 in Auckland NZ</div>
             </div>
