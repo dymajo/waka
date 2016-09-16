@@ -21,7 +21,10 @@ var isDoubleDecker = function(vehicle) {
     // More Enviro500
     '5FB5', '5FB6', '5FB7',
     '5FB9',
-    '5FBB'
+    '5FBB',
+
+    //NEX no name buses
+    '5625', '5626', '5627'
   ]
   // uncomment this line if you want it to randomly be a double decker
   // if (Math.ceil(Math.random()*2) >1) {
