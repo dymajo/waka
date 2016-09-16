@@ -49,6 +49,7 @@ const ferryIcon = Icon({
 // whatever the public can use doesn't really bother me
 const token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
 let dataRequest = undefined
+let geoID = undefined
 
 class Search extends React.Component<IAppProps, IAppState> {
   constructor(props) {
@@ -61,8 +62,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       back: false
     }
     var that = this
-    that.getAndSetCurrentPosition()
-    navigator.geolocation.watchPosition(function(position){
+    //that.getAndSetCurrentPosition()
+    geoID = navigator.geolocation.watchPosition(function(position){
         that.setCurrentPosition(position)
     }, function(error) {
       //will remove for release
@@ -86,20 +87,19 @@ class Search extends React.Component<IAppProps, IAppState> {
   public getAndSetCurrentPosition() {
     var that = this
     if ("geolocation" in navigator){
-      navigator.geolocation.getCurrentPosition(function(pos){
-        console.log(pos)
         that.setState({
           station: that.state.station,
           stops: that.state.stops,
-          position: [pos.coords.latitude, pos.coords.longitude],
-          currentPosition: [pos.coords.latitude, pos.coords.longitude],
+          position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000],
+          currentPosition: this.state.currentPosition,
           back: that.state.back
         }) 
-      })
+      //})
     }
   }
 
   public setCurrentPosition(position) {
+    console.log('getting new position')
     this.setState({
           station: this.state.station,
           stops: this.state.stops,
@@ -178,6 +178,7 @@ class Search extends React.Component<IAppProps, IAppState> {
     if (typeof(dataRequest) !== 'undefined') {
       dataRequest.abort()
     }
+    navigator.geolocation.clearWatch(geoID)
     UiStore.unbind('goingBack', this.triggerBack)
   }
   public triggerBack() {
@@ -216,6 +217,10 @@ class Search extends React.Component<IAppProps, IAppState> {
             <button type="submit" onClick={this.triggerSearch} onFocus={this.triggerSearch}><img src="/icons/search-dark.png" /></button>
           </form>
           </div>
+          <button className="currentLocationButton" onClick={this.getAndSetCurrentPosition}>
+          <img src="/icons/location.png" />
+            
+          </button>
           <Map
             ref="map"
             onMoveend={this.moveEnd}
@@ -268,7 +273,7 @@ class Search extends React.Component<IAppProps, IAppState> {
                )
             })}
             <Marker position={this.state.currentPosition}/>
-           
+            
           </Map>
         </div>
         {this.props.children}
