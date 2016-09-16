@@ -37,3 +37,8 @@ class App extends React.Component<IAppProps, {}> {
 document.addEventListener("DOMContentLoaded", function(event) {
   ReactDOM.render(<App />, document.getElementById('app'))
 })
+
+// iOS scrolling fix
+document.ontouchmove = function(e) {
+  e.preventDefault()
+}

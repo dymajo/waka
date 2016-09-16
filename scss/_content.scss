@@ -590,6 +590,8 @@
 		outline: 0;
 		padding: 7px 10px;
 		font-family: "Open Sans", sans-serif;
+		-webkit-appearance: none;
+		border-radius: 0;
 
 		&:focus {
 			border-color: $atblue;
@@ -606,6 +608,8 @@
 		font-size: 14px;
 		font-weight: bold;
 		text-transform: uppercase;
+		display: inline-block;
+		margin-top: 0;
 		
 		&.cancel {
 			margin-right: 10px;
