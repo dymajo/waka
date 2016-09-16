@@ -58,13 +58,18 @@ class Search extends React.Component<IAppProps, IAppState> {
       station: '',
       stops: [],
       position: [-36.844229, 174.767823],
-      currentPosition: [],
+      currentPosition: [0,0],
       back: false
     }
     var that = this
-    //that.getAndSetCurrentPosition()
     geoID = navigator.geolocation.watchPosition(function(position){
-        that.setCurrentPosition(position)
+        if (that.state.currentPosition[0] === 0){
+          that.setCurrentPosition(position)
+          that.getAndSetCurrentPosition()
+        } else {
+          that.setCurrentPosition(position)
+        }
+          
     }, function(error) {
       //will remove for release
       alert(error.message)
