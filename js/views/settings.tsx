@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Toggle from './toggle.tsx'
 
 interface ISettingsProps extends React.Props<Settings> {}
 interface ISettingsState {
@@ -34,7 +35,9 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
         <h2 className="settingsHeader">Settings</h2>
         <div className="settings">
           <div className="container">
-            Turn off clock
+            <Toggle id="clock" value="clock">
+              Turn off clock
+            </Toggle>
           </div>
           <div className="credits">
             <div className="logo" id="logo">

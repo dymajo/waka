@@ -14,6 +14,15 @@
     text-indent: 13px;
 }
 
+.settingwrap {
+    padding: 14px;
+
+    h3 {
+        font-weight: 400;
+        font-size: 16px;
+        margin-top: 0;
+    }
+}
 
 .settings {
     background: lighten($atblue, 3);
@@ -106,4 +115,87 @@
             }
         }
     }
+}
+
+// TOGGLE
+.tgl {
+  display: none;
+}
+.tgl, .tgl:after, .tgl:before, .tgl *, .tgl *:after, .tgl *:before, .tgl + .tgl-btn {
+  box-sizing: border-box;
+}
+.tgl::-moz-selection, .tgl:after::-moz-selection, .tgl:before::-moz-selection, .tgl *::-moz-selection, .tgl *:after::-moz-selection, .tgl *:before::-moz-selection, .tgl + .tgl-btn::-moz-selection {
+  background: none;
+}
+.tgl::selection, .tgl:after::selection, .tgl:before::selection, .tgl *::selection, .tgl *:after::selection, .tgl *:before::selection, .tgl + .tgl-btn::selection {
+  background: none;
+}
+.tgl + .tgl-btn {
+  outline: 0;
+  display: inline-block;
+  width: 44px;
+  height: 20px;
+  position: relative;
+  box-sizing: border-box;
+  -ms-user-select: none;
+      user-select: none;
+}
+.tgl + .tgl-btn:after, .tgl + .tgl-btn:before {
+  position: relative;
+  display: block;
+  vertical-align: top;
+  content: "";
+  width: 10px;
+  height: 10px;
+  margin: 1px;
+}
+.tgl + .tgl-btn:before {
+  display: none;
+}
+.tgl-flat + .tgl-btn {
+  padding: 2px;
+  transition: background .2s ease, border .2s ease;
+  background: lighten($atblue, 3);
+  border: 2px solid #fff;
+  border-radius: 2em;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+.tgl-flat + .tgl-btn:after {
+  transition: transform .2s ease, background .2s ease;
+  background: #fff;
+  content: "";
+  border-radius: 1em;
+}
+.tgl-flat:checked + .tgl-btn {
+  border: 2px solid white;
+  background: $lightblue;
+  opacity: 1;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+.tgl-flat:checked + .tgl-btn:after {
+  transform: translate(25px);
+  background: #fff;
+}
+// THE ON OFF LABEL AFTER THE TOGGLE. INTERNATIONALIZED.
+.tgl-lbl {
+  vertical-align: top;
+  line-height: 18px;
+  padding-left: 15px;
+  display: inline-block;
+}
+.tgl-lbl span:nth-child(2) {
+  display: none;
+}
+.tgl-flat:checked + .tgl-btn + .tgl-lbl span:nth-child(1) {
+  display: none;
+}
+.tgl-flat:checked + .tgl-btn + .tgl-lbl span:nth-child(2) {
+  display: inline;
 }
