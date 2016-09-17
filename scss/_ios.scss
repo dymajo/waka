@@ -1,0 +1,34 @@
+// android chrome is a lot more predictable than iOS safari
+// i mean, iOS safari doesn't even render the same as macOS safari
+// what's the point of a A10 fusion chip when it can't get the calculations correct?
+
+.ios {
+  .scrollwrap {
+    min-height: 101%;
+  }
+  .enable-scrolling {
+    @media (pointer: coarse) {
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}
+.ios-standalone {
+  $status-bar-height: 20px;
+  .settingsHeader {
+    padding-top: 4px + $status-bar-height;
+  }
+  .settings {
+    top: 52px + $status-bar-height;
+  }
+  .savedstations nav h2 {
+    padding-top: 4px + $status-bar-height;
+  }
+  .savedstations nav ul {
+    top: 52px + $status-bar-height;
+  }
+
+  .bignav li:first-child {
+    display: none;
+  }
+}

@@ -18,7 +18,6 @@ html, body, #app {
 .panes {
   display: flex;
   height: 100%;
-
   @media (max-width: 480px) {
     flex-direction: column-reverse;
   }
@@ -30,3 +29,4 @@ html, body, #app {
 @import "_search";
 @import "_content";
 @import "_settings";
+@import "_ios";

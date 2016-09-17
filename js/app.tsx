@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Router, IndexRoute, Route, Link, browserHistory } from 'react-router'
-
+import { iOS } from './models/ios.ts'
 import { UiStore } from './stores/uiStore.ts'
 
 import Index from './views/index.tsx'
@@ -11,6 +11,10 @@ import Station from './views/station.tsx'
 import SavedStations from './views/savedstations.tsx'
 import Settings from './views/settings.tsx'
 import NoMatch from './views/nomatch.tsx'
+
+declare function require(name: string): any;
+var injectTapEventPlugin = require('react-tap-event-plugin')
+injectTapEventPlugin()
 
 interface IAppProps extends React.Props<App> {}
 
@@ -37,8 +41,4 @@ class App extends React.Component<IAppProps, {}> {
 document.addEventListener("DOMContentLoaded", function(event) {
   ReactDOM.render(<App />, document.getElementById('app'))
 })
-
-// iOS scrolling fix
-document.ontouchmove = function(e) {
-  e.preventDefault()
-}
+document.ontouchmove = iOS.touchMoveFix

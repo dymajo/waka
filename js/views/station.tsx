@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { iOS } from '../models/ios.ts'
 import { browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
 import { UiStore } from '../stores/uiStore.ts'
@@ -503,11 +504,14 @@ class Station extends React.Component<IAppProps, IAppState> {
       saveModal += ' hidden'
     }
 
+    var scrollable = 'scrollable'
     var loading = <div className="error">There are no services in the next two hours.</div>
     if (this.state.loading) {
       loading = (
         <div className="spinner" />
       )
+    } else {
+      scrollable += ' enable-scrolling'
     }
 
     return (
@@ -539,21 +543,23 @@ class Station extends React.Component<IAppProps, IAppState> {
             </ul>
           </li>
         </ul>
-        <ul className="scrollable">
-          {loading}
-          {this.state.trips.map((trip) => {
-            return <TripItem 
-              color="#27ae60"
-              code={trip.route_short_name}
-              time={trip.arrival_time_seconds}
-              name={trip.trip_headsign}
-              key={trip.trip_id}
-              trip_id={trip.trip_id}
-              agency_id={trip.agency_id}
-              stop_sequence={trip.stop_sequence}
-              realtime={this.state.realtime[trip.trip_id]}
-             />
-          })}
+        <ul className={scrollable} onTouchStart={iOS.triggerStart}>
+          <div className="scrollwrap">
+            {loading}
+            {this.state.trips.map((trip) => {
+              return <TripItem 
+                color="#27ae60"
+                code={trip.route_short_name}
+                time={trip.arrival_time_seconds}
+                name={trip.trip_headsign}
+                key={trip.trip_id}
+                trip_id={trip.trip_id}
+                agency_id={trip.agency_id}
+                stop_sequence={trip.stop_sequence}
+                realtime={this.state.realtime[trip.trip_id]}
+               />
+            })}
+          </div>
         </ul>
       </div>
     )

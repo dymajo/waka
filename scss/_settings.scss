@@ -1,5 +1,4 @@
 .settingsContainer {
-    position: relative;
     height: 100%;
 }
 
@@ -26,10 +25,16 @@
 
 .settings {
     background: lighten($atblue, 3);
-    height: calc(100% - 52px);
+    position: absolute;
+    top: 52px;
+    bottom: 48px;
+    width: 100%;
     overflow-y: auto;
-    position: relative;
     box-sizing: border-box;
+
+    @media (min-width: 480px) {
+      bottom: 0;
+    }
 
     .container {
         color: #fff;
@@ -92,6 +97,7 @@
             margin-top: 13px;
             background: transparent; 
             outline: 0;
+            -webkit-tap-highlight-color: transparent;
 
             &:active {
                 background: lighten($lightblue, 20);
@@ -171,7 +177,7 @@
   border-radius: 1em;
 }
 .tgl-flat:checked + .tgl-btn {
-  border: 2px solid white;
+  border: 2px solid $lightblue;
   background: $lightblue;
   opacity: 1;
 

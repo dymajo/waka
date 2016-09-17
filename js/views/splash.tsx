@@ -9,7 +9,7 @@ class Splash extends React.Component<IAppProps, {}> {
   }
   public componentWillMount() {
     // if they've standalone installed it, this page no longer exists
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    if (window.matchMedia('(display-mode: standalone)').matches || (window as any).navigator.standalone) {
       browserHistory.push(`/ss`)
     }
   }
@@ -29,7 +29,7 @@ class Splash extends React.Component<IAppProps, {}> {
           <h2>Auckland</h2>
           <p>I’ve stolen this piece of artwork from Generation Zero. I should probably ask them for permission.</p>
           <div className="buttonbox">
-            <button onClick={this.triggerSearch} className="primary">
+            <button onTouchTap={this.triggerSearch} className="primary">
               <img src="icons/search.png"/>Find a Station
             </button>
             <button className="send">Send to Phone</button>

@@ -194,12 +194,11 @@
 		}
 	}
 	.scrollable {
-		//animation: 2000ms content-header-in ease 1;
 		flex: 1;
 		overflow-y: auto;
 		position: relative;
 
-		& > li {
+		div > li {
 			position: relative;
 			z-index: 1;
 		}
@@ -293,7 +292,6 @@
 
 		ul {
 			width: 100%;
-			// border-bottom: 3px solid #fff;
 			background: darken(#f7f8fb,1.5);
 
 			&.active {
