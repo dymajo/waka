@@ -5,20 +5,7 @@
 	// Safari Fix
 	height: 100%;
 
-	@keyframes head-elem-in {
-		0% {
-			opacity: 0;
-		}
-		60% {
-			opacity: 0;
-		}
-		100% {
-			opacity: 1;
-		}
-	}
-
 	header {
-		// animation: 800ms head-elem-in ease 1;
 		background-color: #f4f4f4;
 		background-size: cover;
 		background-position: 50% 50%;
@@ -38,8 +25,6 @@
 		}
 
 		.save, .remove {
-			// visibility: hidden;
-			// animation: 2000ms content-header-in ease 1;
 			right: 25px;
 	    position: absolute;
 	    top: 25px;
@@ -79,8 +64,6 @@
 		  }
 		}
 
-		// border-bottom: 1px solid #ccc;
-
 		div {
 			position: absolute;
 			bottom: 0;
@@ -89,50 +72,7 @@
 			background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,1));
 			padding: 0 20px 20px;
 		}
-
-		@keyframes icon-in {
-			0% {
-				opacity: 0;
-			}
-			70% {
-				opacity: 0;
-				transform: scale(0.5);
-				// transform: translate(25px);
-			}
-			100% {
-				opacity: 1;
-				transform: scale(1);
-			}
-		}
-		@keyframes header-in {
-			0% {
-				opacity: 0;
-			}
-			80% {
-				opacity: 0;
-				transform: translate3d(-15px, 0, 0);
-			}
-			100% {
-				opacity: 1;
-				transform: translate3d(0, 0, 0);
-			}
-		}
-		@keyframes time-in {
-			0% {
-				opacity: 0;
-			}
-			60% {
-				opacity: 0;
-				// transform: translate(25px);
-			}
-			100% {
-				opacity: 1;
-				// transform: translate(0);
-			}
-		}
 		.icon {
-			// animation: 1000ms icon-in ease 1;
-			// visibility: hidden;
 			float: left;
 			margin-right: 12px;
 			width: 54px;
@@ -143,7 +83,6 @@
 			}
 		}
 		h1 {
-			// animation: 1400ms header-in ease 1;
 			margin: 0;
 			font-size: 3em;
 			letter-spacing: -3px;
@@ -156,7 +95,6 @@
     	width: calc(100% - 50px - 125px);
 		}
 		h2 {
-			// animation: 1400ms header-in ease 1;
 			margin: 0;
 			font-size: 16px;
 			color: #444;
@@ -170,7 +108,6 @@
 		}
 
 		time {
-			// animation: 1500ms time-in ease 1;
 			right: 25px;
 			position: absolute;
 			font-weight: bold;
@@ -186,7 +123,7 @@
 
 			h1, h2 {
 				width: calc(100% - 100px);
-				
+
 				@media(max-width: 550px) {
 					width: calc(100% - 50px);
 				}
@@ -336,34 +273,9 @@
 				}
 			}
 		}
-		@keyframes content-header-in {
-			0% {
-				opacity: 0;
-			}
-			80% {
-				opacity: 0;
-			}
-			100% {
-				opacity: 1;
-			}
-		}
-		@keyframes content-in {
-			0% {
-				background: transparent;
-			}
-			70% {
-				background: transparent;
-				transform: translate3d(0, 15px, 0);
-			}
-			100% {
-				background: $atblue;
-				transform: translate3d(0, 0px, 0);
-			}
-		}
 		.header {
 			ul {
 				background: $atblue;
-				// animation: 1800ms content-in ease 1;
 			}
 			li {
 				font-size: 14px;
@@ -430,11 +342,6 @@
 				font-size: 16px;
 			}
 		}
-		// &:nth-child(2) {
-		// 	width: 50px;
-		// 	text-align: right;
-		// 	font-weight: bold;
-		// }
 		&:nth-child(2) {
 			padding-left: 10px;
 			font-weight: 600;

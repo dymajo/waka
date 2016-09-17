@@ -4,11 +4,16 @@ import { iOS } from '../models/ios.ts'
 import { StationStore, StationMap } from '../stores/stationStore.ts'
 import { UiStore } from '../stores/uiStore.ts'
 
+interface ClickFunc {
+  (): boolean
+}
+
 interface ISidebarItemProps extends React.Props<SidebarItem> {
   url: string,
   name: string,
   description: string,
-  icon: string
+  icon: string,
+  click: ClickFunc
 }
 
 class SidebarItem extends React.Component<ISidebarItemProps, {}> {
@@ -18,6 +23,9 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
   }
   public triggerTap() {
     browserHistory.push(this.props.url)
+    if (iOS.detect() && !(window as any).navigator.standalone) {
+      this.props.click()
+    }
   }
   public render() {
     var classname = 'ss'
@@ -39,7 +47,8 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
 interface IAppProps extends React.Props<SavedSations> {}
 interface IAppState {
   stations: StationMap,
-  back: boolean
+  back: boolean,
+  animate: boolean
 }
 
 class SavedSations extends React.Component<IAppProps, IAppState> {
@@ -47,10 +56,12 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
     super(props)
     this.state = {
       stations: StationStore.getData(),
-      back: false
+      back: false,
+      animate: false
     }
     this.triggerUpdate = this.triggerUpdate.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
+    this.triggerNewState = this.triggerNewState.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
     UiStore.bind('goingBack', this.triggerBack)
@@ -58,8 +69,34 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
   private triggerUpdate() {
     this.setState({
       back: this.state.back,
+      animate: this.state.animate,
       stations: StationStore.getData()
     })
+  }
+  // set it and whatever
+  public componentWillReceiveProps() {
+    if (!iOS.detect() || (window as any).navigator.standalone) {
+      this.setState({
+        back: this.state.back,
+        animate: true,
+        stations: this.state.stations
+      })
+    }
+  }
+  public triggerNewState() {
+    this.setState({
+      back: this.state.back,
+      animate: true,
+      stations: this.state.stations
+    })
+
+    setTimeout(() => {
+      this.setState({
+        back: this.state.back,
+        animate: false,
+        stations: this.state.stations
+      })
+    }, 550)
   }
   private componentWillUnmount() {
     StationStore.unbind('change', this.triggerUpdate)
@@ -71,7 +108,8 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
   public triggerBack() {
     this.setState({
       stations: this.state.stations,
-      back: UiStore.getState().goingBack
+      back: UiStore.getState().goingBack,
+      animate: this.state.animate
     })
   }
   public triggerStart(event) {
@@ -93,6 +131,9 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
     if (this.state.back) {
       classname += ' goingback'
     }
+    if (this.state.animate) {
+      classname += ' animate'
+    }
     var scrolling = ''
     var message
     if (StationStore.getOrder().length === 0) {
@@ -113,12 +154,13 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
           <ul className={scrolling} onTouchStart={iOS.triggerStart}>
             <div className="scrollwrap">
             {message}
-            {StationStore.getOrder().map(function(station) {
+            {StationStore.getOrder().map((station) => {
               return <SidebarItem
                 key={station}
                 url={`/ss/${station}`}
                 name={stations[station].name} 
-                icon={stations[station].icon} 
+                icon={stations[station].icon}
+                click={this.triggerNewState}
                 description={stations[station].description} 
               />
             })}

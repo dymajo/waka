@@ -1,7 +1,9 @@
 import { browserHistory } from 'react-router'
+import { iOS } from '../models/ios.ts'
 
 export namespace UiStore {
   let state = {
+    triggeredBack: false,
     goingBack: false,
     lastUrl: '',
     currentUrl: '/ss'
@@ -23,7 +25,11 @@ export namespace UiStore {
     if (window.location.pathname === path) {
       return
     } else if (state.lastUrl === path) {
-      browserHistory.goBack()  
+      state.triggeredBack = true
+      browserHistory.goBack()
+      setTimeout(function() {
+        state.triggeredBack = false
+      }, 300)
     } else {
       browserHistory.push(path)
     }
@@ -36,6 +42,10 @@ export namespace UiStore {
     localStorage.setItem('CurrentUrl', state.currentUrl)
   }
   export function handleReactChange(prevState, nextState, replace, callback) {
+    // don't run the back animation if it's just in normal ios
+    if (iOS.detect() && !(window as any).navigator.standalone && !state.triggeredBack) {
+      return callback()
+    }
     if (nextState.location.action == 'POP' && (nextState.location.pathname == '/ss' || nextState.location.pathname == '/s')) {
       state.goingBack = true
       UiStore.trigger('goingBack')

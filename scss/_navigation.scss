@@ -386,8 +386,10 @@ $navsize: 56px;
       nav {
         animation: 500ms ss-to-stop-nav ease 1;
       }
-      .station {
-        animation: 500ms ss-to-stop-station ease 1;
+      &.animate {
+        .station {
+          animation: 500ms ss-to-stop-station ease 1;
+        }
       }
     }
     &.goingback {
