@@ -7,12 +7,6 @@ class Splash extends React.Component<IAppProps, {}> {
   public triggerSearch() {
     browserHistory.push(`/s`)
   }
-  public componentWillMount() {
-    // if they've standalone installed it, this page no longer exists
-    if (window.matchMedia('(display-mode: standalone)').matches || (window as any).navigator.standalone) {
-      browserHistory.push(`/ss`)
-    }
-  }
   public render() {
 
     return (

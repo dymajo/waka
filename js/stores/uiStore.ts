@@ -3,8 +3,19 @@ import { browserHistory } from 'react-router'
 export namespace UiStore {
   let state = {
     goingBack: false,
-    lastUrl: ''
+    lastUrl: '',
+    currentUrl: '/ss'
   }
+  // restores history if it's an iphone web clip :/
+  if ((window as any).navigator.standalone) {
+    if (localStorage.getItem('CurrentUrl')) {
+      state.currentUrl = localStorage.getItem('CurrentUrl')
+    }
+  }
+  if (window.matchMedia('(display-mode: standalone)').matches || (window as any).navigator.standalone) {
+    browserHistory.push(state.currentUrl)
+  }
+
   export function getState() {
     return state
   }
@@ -19,7 +30,10 @@ export namespace UiStore {
   }
   export function handleState(e) { 
     state.lastUrl = window.location.pathname
-    //console.log(state.lastUrl)
+  }
+  export function currentState(e) { 
+    state.currentUrl = window.location.pathname
+    localStorage.setItem('CurrentUrl', state.currentUrl)
   }
   export function handleReactChange(prevState, nextState, replace, callback) {
     if (nextState.location.action == 'POP' && (nextState.location.pathname == '/ss' || nextState.location.pathname == '/s')) {
@@ -58,3 +72,4 @@ export namespace UiStore {
   }
 }
 browserHistory.listenBefore(UiStore.handleState)
+browserHistory.listen(UiStore.currentState)
