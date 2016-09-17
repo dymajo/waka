@@ -14,21 +14,23 @@ interface ISidebarItemProps extends React.Props<SidebarItem> {
 class SidebarItem extends React.Component<ISidebarItemProps, {}> {
   constructor(props: ISidebarItemProps) {
     super(props)
+    this.triggerTap = this.triggerTap.bind(this)
+  }
+  public triggerTap() {
+    browserHistory.push(this.props.url)
   }
   public render() {
-    var classname
+    var classname = 'ss'
     if (window.location.pathname == this.props.url) {
-      classname = 'selected'
+      classname += ' selected'
     }
     return (
-      <li className={classname}>
-        <Link to={this.props.url}>
-          <div className="icon"><img src={`/icons/${this.props.icon}.svg`} /></div>
-          <div className="text-wrapper">
-            <div className="name">{this.props.name}</div>
-            <div className="description">{this.props.description}</div>
-           </div>
-        </Link>
+      <li className={classname} onTouchTap={this.triggerTap}>
+        <div className="icon"><img src={`/icons/${this.props.icon}.svg`} /></div>
+        <div className="text-wrapper">
+          <div className="name">{this.props.name}</div>
+          <div className="description">{this.props.description}</div>
+        </div>
       </li>
     )
   }

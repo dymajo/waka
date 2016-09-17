@@ -24,8 +24,9 @@
 		background-position: 50% 50%;
 		background-repeat: no-repeat;
 		padding: 25px;
-		height: 25vh;
+		height: 28vh;
 		position: relative;
+		box-sizing: border-box;
 
 		.back {
 			position: absolute;
@@ -194,9 +195,11 @@
 		}
 	}
 	.scrollable {
-		flex: 1;
 		overflow-y: auto;
-		position: relative;
+		position: absolute;
+		width: 100%;
+		top: calc(28vh + 28px);
+		bottom: 0;
 
 		div > li {
 			position: relative;
@@ -219,7 +222,6 @@
 
 	@media(max-width: 800px) {
 		header {
-			height: 20vh;
 
 			.icon {
 				width: 42px;

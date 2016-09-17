@@ -28,12 +28,14 @@
     position: absolute;
     top: 52px;
     bottom: 48px;
-    width: 100%;
+    left: 0;
+    right: 0;
     overflow-y: auto;
     box-sizing: border-box;
 
     @media (min-width: 480px) {
       bottom: 0;
+      left: $navsize;
     }
 
     .container {

@@ -29,7 +29,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
     if (this.state.credits) {
       className += ' visible'
     } else {
-      button = <button onClick={this.triggerCredits}>View Credits</button>
+      button = <button onTouchTap={this.triggerCredits}>View Credits</button>
     }
     return(
       <div className="settingsContainer">
@@ -38,7 +38,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
           <div className="scrollwrap">
             <div className="container">
               <Toggle id="clock" value="clock">
-                Turn off clock
+                Show Clock
               </Toggle>
             </div>
             <div className="credits">

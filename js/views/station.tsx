@@ -126,9 +126,6 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       default: //MSB, PBC, BAYES - Schools
         return '#17232f'
     }
-    
-
-
   }
   public render() {
     var arrival = new Date()
@@ -206,7 +203,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     // removed <li>›</li> for now
 
     return (
-      <li className={className} onClick={this.triggerClick}><ul className={active}>
+      <li className={className}><ul className={active}>
         <li>
           <div style={{backgroundColor: this.getColor()}}>
             {this.props.code}
@@ -520,12 +517,12 @@ class Station extends React.Component<IAppProps, IAppState> {
           <div>
             <h2>Choose a Name</h2>
             <input type="text" value={this.state.name} onChange={this.triggerSaveChange} />
-            <button className="cancel" onClick={this.triggerSaveCancel}>Cancel</button>
-            <button className="submit" onClick={this.triggerSaveAdd}>Add Stop</button>
+            <button className="cancel" onTouchTap={this.triggerSaveCancel}>Cancel</button>
+            <button className="submit" onTouchTap={this.triggerSaveAdd}>Add Stop</button>
           </div>
         </div>
         <header style={bgImage}>
-          <span className="back" onClick={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
           {saveButton}
           <div>
             {iconString}

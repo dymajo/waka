@@ -90,28 +90,24 @@ class Search extends React.Component<IAppProps, IAppState> {
     UiStore.bind('goingBack', this.triggerBack)
   }
   public getAndSetCurrentPosition() {
-    var that = this
-    if ("geolocation" in navigator){
-        that.setState({
-          station: that.state.station,
-          stops: that.state.stops,
-          position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000],
-          currentPosition: this.state.currentPosition,
-          back: that.state.back
-        }) 
-      //})
-    }
+    this.setState({
+      station: this.state.station,
+      stops: this.state.stops,
+      position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000],
+      currentPosition: this.state.currentPosition,
+      back: this.state.back
+    })
   }
 
   public setCurrentPosition(position) {
     console.log('getting new position')
     this.setState({
-          station: this.state.station,
-          stops: this.state.stops,
-          position: this.state.position,
-          currentPosition: [position.coords.latitude, position.coords.longitude],
-          back: this.state.back
-        })
+      station: this.state.station,
+      stops: this.state.stops,
+      position: this.state.position,
+      currentPosition: [position.coords.latitude, position.coords.longitude],
+      back: this.state.back
+    })
   }
   // hack to get it to work with typescript
   public refs: {
@@ -210,7 +206,6 @@ class Search extends React.Component<IAppProps, IAppState> {
       classname += ' goingback'
     }  
 
-    
     var positionMap = {}
 
     return (
@@ -231,13 +226,9 @@ class Search extends React.Component<IAppProps, IAppState> {
             onMoveend={this.moveEnd}
             center={this.state.position} 
             zoom={18}
-            minZoom={12}
             zoomControl={false}
             className="map">
             <ZoomControl position="bottomleft" />
-           
-            
-            
             <TileLayer
               url={'https://api.mapbox.com/styles/v1/consindo/ciskz7tgd00042xukymayd97g/tiles/256/{z}/{x}/{y}' + retina + token}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'

@@ -1,13 +1,16 @@
 .splashScreen {
-  // background: linear-gradient(-45deg, darken($lightblue, 30), $lightblue);
-  // background: $atblue;
-  // color: #fff;
-  
-  height: 100%;
+  position: absolute;
   text-align: center;
   overflow-y: hidden;
-  // background-color: $atblue;
-  // color: #fff;
+  top: 0;
+  left: $navsize;
+  bottom: 0;
+  right: 0;
+
+  @media (max-width: 480px) {
+    bottom: 48px;
+    left: 0;
+  }
 
   .wrapper {
     padding: 25px 15px;
@@ -16,14 +19,14 @@
     justify-content: center;
     display: flex;
     flex-direction: column;
-    height: calc(100% - 45vh);
+    height: calc(100% - 40vh);
     box-sizing: border-box;
     background: #ecf0f1;
   }
 
   .topwrapper {
     animation: 1000ms top-animation ease 1;
-    height: 45vh;
+    height: 40vh;
     background-image: url(splash.jpg);
     background-size: 100%;
     background-repeat: no-repeat;

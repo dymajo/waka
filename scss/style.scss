@@ -23,10 +23,10 @@ html, body, #app {
   }
 }
 
-@import "_splash";
 @import "_leaflet";
 @import "_navigation";
 @import "_search";
 @import "_content";
 @import "_settings";
+@import "_splash";
 @import "_ios";
