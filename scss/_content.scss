@@ -153,7 +153,7 @@
 			white-space: nowrap;
     	text-overflow: ellipsis;
     	overflow: hidden;
-    	width: calc(100% - 50px - 125px)
+    	width: calc(100% - 50px - 125px);
 		}
 		h2 {
 			// animation: 1400ms header-in ease 1;
@@ -181,6 +181,21 @@
 			background: $atblue;
 			color: #fff;
 		}
+
+		&.disable-clock {
+
+			h1, h2 {
+				width: calc(100% - 100px);
+				
+				@media(max-width: 550px) {
+					width: calc(100% - 50px);
+				}
+			}
+
+			time {
+				display: none;
+			}
+		}
 		@keyframes blink {
 			0% {
 				color: #fff;
@@ -198,8 +213,12 @@
 		overflow-y: auto;
 		position: absolute;
 		width: 100%;
-		top: calc(28vh + 28px);
+		top: calc(28vh + 34px);
 		bottom: 0;
+
+		@media (max-width: 800px) {
+			top: calc(28vh + 28px);
+		}
 
 		div > li {
 			position: relative;

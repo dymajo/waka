@@ -145,6 +145,7 @@
   height: 20px;
   position: relative;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
   -ms-user-select: none;
       user-select: none;
 }

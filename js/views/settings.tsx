@@ -37,14 +37,14 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
         <div className="settings enable-scrolling" onTouchStart={iOS.triggerStart}>
           <div className="scrollwrap">
             <div className="container">
-              <Toggle id="clock" value="clock">
+              <Toggle id="clock">
                 Show Clock
               </Toggle>
             </div>
             <div className="credits">
               <div className="logo" id="logo">
-                <span className="company">Dymajo</span>
-                <span className="app">Transit</span>
+                <span className="company">Dymajo </span>
+                <span className="app">Transit </span>
                 <span className="version">0.1<small>β</small></span>
               </div>
               <div className="copyright"><a className="subtle" href="https://dymajo.com" target="_blank">&copy; 2016 DYMAJO LTD</a></div>

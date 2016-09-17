@@ -3,6 +3,7 @@ import { iOS } from '../models/ios.ts'
 import { browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
 import { UiStore } from '../stores/uiStore.ts'
+import { SettingsStore } from '../stores/settingsStore.ts'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -511,6 +512,11 @@ class Station extends React.Component<IAppProps, IAppState> {
       scrollable += ' enable-scrolling'
     }
 
+    var clockState
+    if (!SettingsStore.getState().clock) {
+      clockState = 'disable-clock'
+    }
+
     return (
       <div className="station">
         <div className={saveModal}>
@@ -521,7 +527,7 @@ class Station extends React.Component<IAppProps, IAppState> {
             <button className="submit" onTouchTap={this.triggerSaveAdd}>Add Stop</button>
           </div>
         </div>
-        <header style={bgImage}>
+        <header className={clockState} style={bgImage}>
           <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
           {saveButton}
           <div>
