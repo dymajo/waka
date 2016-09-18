@@ -107,6 +107,13 @@
         border-color: darken($lightblue, 20);
       }
     }
+
+    &:hover {
+      background: rgba(0,0,0,0.04);
+    }
+    &:active {
+      background: rgba(0,0,0,0.1);
+    }
     &.pin {
       display: none;
 
@@ -199,5 +206,42 @@
     }
     color: #777;
     text-align: center;
+  }
+}
+
+@keyframes showPin {
+  0% {
+    opacity: 0;
+    transform: translate3d(0,48px,0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0,0,0);
+  }
+}
+
+.pincontainer {
+  animation: showPin 300ms ease 1;
+  padding: 25px;
+  text-align: center;
+  background: rgba($atblue, 0.95);
+  color: #fff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+
+  p {
+    color: #fff;
+    margin-bottom: 15px;
+  }
+
+  .ios-safari img {
+    width: 16px;
+    padding: 0 5px;
+  }
+  .android-chrome img {
+    width: 16px;
   }
 }

@@ -26,6 +26,9 @@ class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
     if (window.location.pathname.split('/')[1] == this.props.url.substring(1)) {
       classname = 'selected'
     }
+    if (window.location.pathname === '/pin' && this.props.url === '/') {
+      classname = 'selected'
+    }
     return (
       <li className={classname}>
         <button onTouchTap={this.triggerClick}>{this.props.children}</button>
