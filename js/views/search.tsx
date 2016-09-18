@@ -12,6 +12,8 @@ let Popup = leaflet.Popup
 let TileLayer = leaflet.TileLayer
 let ZoomControl = leaflet.ZoomControl
 let Icon = require('leaflet').icon
+let Circle = leaflet.Circle
+let CircleMarker = leaflet.CircleMarker
 
 interface StopItem {
   stop_id: string,
@@ -27,7 +29,8 @@ interface IAppState {
   stops: Array<StopItem>,
   position: Array<number>,
   currentPosition: Array<number>,
-  back: boolean
+  back: boolean,
+  accuracy: number
 }
 
 const busIcon = Icon({
@@ -59,7 +62,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       stops: [],
       position: [-36.844229, 174.767823],
       currentPosition: [0,0],
-      back: false
+      back: false,
+      accuracy: 0
     }
     var that = this
     geoID = navigator.geolocation.watchPosition(function(position){
@@ -95,18 +99,21 @@ class Search extends React.Component<IAppProps, IAppState> {
       stops: this.state.stops,
       position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000],
       currentPosition: this.state.currentPosition,
-      back: this.state.back
+      back: this.state.back,
+      accuracy: this.state.accuracy
     })
   }
 
   public setCurrentPosition(position) {
     console.log('getting new position')
+    console.log(position.coords.accuracy)
     this.setState({
       station: this.state.station,
       stops: this.state.stops,
       position: this.state.position,
       currentPosition: [position.coords.latitude, position.coords.longitude],
-      back: this.state.back
+      back: this.state.back,
+      accuracy: position.coords.accuracy
     })
   }
   // hack to get it to work with typescript
@@ -124,7 +131,8 @@ class Search extends React.Component<IAppProps, IAppState> {
         stops: data,
         position: this.state.position,
         currentPosition: this.state.currentPosition,
-        back: this.state.back
+        back: this.state.back,
+        accuracy: this.state.accuracy
       })
     })
   }
@@ -134,7 +142,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       stops: this.state.stops,
       position: this.state.position,
       currentPosition: this.state.currentPosition,
-      back: this.state.back
+      back: this.state.back,
+      accuracy: this.state.accuracy
     })
   }
   private triggerKeyUp(e) {
@@ -167,7 +176,8 @@ class Search extends React.Component<IAppProps, IAppState> {
         stops: [],
         position: this.state.position,
         currentPosition: this.state.currentPosition,
-        back: this.state.back
+        back: this.state.back,
+        accuracy: this.state.accuracy
       })
       return 
     }
@@ -188,7 +198,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       stops: this.state.stops,
       position: this.state.position,
       currentPosition: this.state.currentPosition,
-      back: UiStore.getState().goingBack
+      back: UiStore.getState().goingBack,
+      accuracy: this.state.accuracy
     })
   }
   public render() {
@@ -268,7 +279,8 @@ class Search extends React.Component<IAppProps, IAppState> {
                 </Marker>
                )
             })}
-            <Marker position={this.state.currentPosition}/>
+            <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
+            <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
             
           </Map>
         </div>
