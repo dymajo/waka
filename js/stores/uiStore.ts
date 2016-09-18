@@ -31,7 +31,12 @@ export namespace UiStore {
         state.triggeredBack = false
       }, 300)
     } else {
+      // first run maybe?
+      state.triggeredBack = true
       browserHistory.push(path)
+      setTimeout(function() {
+        state.triggeredBack = false
+      }, 300)
     }
   }
   export function handleState(e) { 
@@ -46,7 +51,7 @@ export namespace UiStore {
     if (iOS.detect() && !(window as any).navigator.standalone && !state.triggeredBack) {
       return callback()
     }
-    if (nextState.location.action == 'POP' && (nextState.location.pathname == '/ss' || nextState.location.pathname == '/s')) {
+    if ((nextState.location.action == 'POP' && (nextState.location.pathname == '/ss' || nextState.location.pathname == '/s')) || state.triggeredBack) {
       state.goingBack = true
       UiStore.trigger('goingBack')
 

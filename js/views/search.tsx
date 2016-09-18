@@ -25,12 +25,13 @@ interface StopItem {
 interface IAppProps extends React.Props<Search> {}
 
 interface IAppState {
-  station: string,
-  stops: Array<StopItem>,
-  position: Array<number>,
-  currentPosition: Array<number>,
-  back: boolean,
-  accuracy: number
+  station?: string,
+  stops?: Array<StopItem>,
+  position?: Array<number>,
+  currentPosition?: Array<number>,
+  back?: boolean,
+  accuracy?: number,
+  error?: string
 }
 
 const busIcon = Icon({
@@ -63,58 +64,60 @@ class Search extends React.Component<IAppProps, IAppState> {
       position: [-36.844229, 174.767823],
       currentPosition: [0,0],
       back: false,
-      accuracy: 0
+      accuracy: 0,
+      error: ''
     }
-    var that = this
-    geoID = navigator.geolocation.watchPosition(function(position){
-        if (that.state.currentPosition[0] === 0){
-          that.setCurrentPosition(position)
-          that.getAndSetCurrentPosition()
-        } else {
-          that.setCurrentPosition(position)
-        }
-          
-    }, function(error) {
-      //will remove for release
-      alert(error.message)
-    }, {
-      enableHighAccuracy: true,
-      timeout: 5000
-    })
-    
-    
+  
+    this.watchPosition = this.watchPosition.bind(this)
+    this.getAndSetCurrentPosition = this.getAndSetCurrentPosition.bind(this)
+    this.setCurrentPosition = this.setCurrentPosition.bind(this)
+    this.currentLocateButton = this.currentLocateButton.bind(this)
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerKeyUp = this.triggerKeyUp.bind(this)
     this.triggerSearch = this.triggerSearch.bind(this)
     this.moveEnd = this.moveEnd.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
-    this.getAndSetCurrentPosition = this.getAndSetCurrentPosition.bind(this)
-
 
     UiStore.bind('goingBack', this.triggerBack)
   }
+  public watchPosition() {
+    geoID = navigator.geolocation.watchPosition((position) => {
+      if (this.state.currentPosition[0] === 0){
+        this.setCurrentPosition(position)
+        this.getAndSetCurrentPosition()
+      } else {
+        this.setCurrentPosition(position)
+      }   
+    }, (error) => {
+      //will remove for release
+      this.setState({
+        error: error.message
+      } as IAppState)
+    }, {
+      enableHighAccuracy: true,
+      timeout: 5000
+    })
+  }
   public getAndSetCurrentPosition() {
     this.setState({
-      station: this.state.station,
-      stops: this.state.stops,
-      position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000],
-      currentPosition: this.state.currentPosition,
-      back: this.state.back,
-      accuracy: this.state.accuracy
-    })
+      position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000]
+    } as IAppState)
   }
 
   public setCurrentPosition(position) {
     console.log('getting new position')
     console.log(position.coords.accuracy)
     this.setState({
-      station: this.state.station,
-      stops: this.state.stops,
-      position: this.state.position,
       currentPosition: [position.coords.latitude, position.coords.longitude],
-      back: this.state.back,
       accuracy: position.coords.accuracy
-    })
+    } as IAppState)
+  }
+  public currentLocateButton() {
+    if (this.state.error === '') {
+      this.getAndSetCurrentPosition()
+    } else {
+      alert(this.state.error)
+    }
   }
   // hack to get it to work with typescript
   public refs: {
@@ -123,28 +126,37 @@ class Search extends React.Component<IAppProps, IAppState> {
   }
   public componentDidMount() {
     this.getData(this.state.position[0], this.state.position[1], 250)
+    if (window.location.pathname === '/s') {
+      this.watchPosition()
+    }
+  }
+  // stops requesting location when not in use
+  public componentWillReceiveProps() {
+    if (window.location.pathname === '/s') {
+      this.watchPosition()
+    } else {
+      navigator.geolocation.clearWatch(geoID)
+    }
+
+  }
+  public componentWillUnmount() {
+    if (typeof(dataRequest) !== 'undefined') {
+      dataRequest.abort()
+    }
+    navigator.geolocation.clearWatch(geoID)
+    UiStore.unbind('goingBack', this.triggerBack)
   }
   private getData(lat, lng, dist) {
     dataRequest = request(`/a/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((data) => {
       this.setState({
-        station: this.state.station,
-        stops: data,
-        position: this.state.position,
-        currentPosition: this.state.currentPosition,
-        back: this.state.back,
-        accuracy: this.state.accuracy
-      })
+        stops: data
+      } as IAppState)
     })
   }
   private triggerChange(e) {
     this.setState({
-      station: e.currentTarget.value,
-      stops: this.state.stops,
-      position: this.state.position,
-      currentPosition: this.state.currentPosition,
-      back: this.state.back,
-      accuracy: this.state.accuracy
-    })
+      station: e.currentTarget.value
+    } as IAppState)
   }
   private triggerKeyUp(e) {
     if (e.keyCode === 13) {
@@ -176,13 +188,8 @@ class Search extends React.Component<IAppProps, IAppState> {
       dist = Math.ceil(0.6 * screensize)
     } else if (zoom < 16) {
       this.setState({
-        station: this.state.station,
-        stops: [],
-        position: this.state.position,
-        currentPosition: this.state.currentPosition,
-        back: this.state.back,
-        accuracy: this.state.accuracy
-      })
+        stops: []
+      } as IAppState)
       return 
     }
     // max the api will handle is 1250
@@ -193,22 +200,10 @@ class Search extends React.Component<IAppProps, IAppState> {
     var newPos = e.target.getCenter()
     this.getData(newPos.lat, newPos.lng, dist)
   }
-  public componentWillUnmount() {
-    if (typeof(dataRequest) !== 'undefined') {
-      dataRequest.abort()
-    }
-    navigator.geolocation.clearWatch(geoID)
-    UiStore.unbind('goingBack', this.triggerBack)
-  }
   public triggerBack() {
     this.setState({
-      station: this.state.station,
-      stops: this.state.stops,
-      position: this.state.position,
-      currentPosition: this.state.currentPosition,
-      back: UiStore.getState().goingBack,
-      accuracy: this.state.accuracy
-    })
+      back: UiStore.getState().goingBack
+    } as IAppState)
   }
   public render() {
 
@@ -236,7 +231,7 @@ class Search extends React.Component<IAppProps, IAppState> {
             <button type="submit" onClick={this.triggerSearch} onFocus={this.triggerSearch}><img src="/icons/search-dark.png" /></button>
           </form>
           </div>
-          <button className="currentLocationButton" onClick={this.getAndSetCurrentPosition}>
+          <button className="currentLocationButton" onClick={this.currentLocateButton}>
           <img src="/icons/location.png" />
             
           </button>
