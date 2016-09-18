@@ -164,12 +164,16 @@ class Search extends React.Component<IAppProps, IAppState> {
   }
   public moveEnd(e) {
     var zoom = e.target.getZoom()
-    // this should probably be based off screen size
-    var dist = 250
+    // we're basing this off screensize
+    var screensize = document.body.offsetWidth
+    if (document.body.offsetHeight > screensize) {
+      screensize = document.body.offsetHeight
+    }
+    var dist = Math.ceil(0.2 * screensize)
     if (zoom === 17) {
-      dist = 500
+      dist = Math.ceil(0.35 * screensize)
     } else if (zoom === 16) {
-      dist = 1000
+      dist = Math.ceil(0.6 * screensize)
     } else if (zoom < 16) {
       this.setState({
         station: this.state.station,
@@ -180,6 +184,10 @@ class Search extends React.Component<IAppProps, IAppState> {
         accuracy: this.state.accuracy
       })
       return 
+    }
+    // max the api will handle is 1250
+    if (dist > 1250) {
+      dist = 1250
     }
 
     var newPos = e.target.getCenter()

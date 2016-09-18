@@ -20,7 +20,8 @@ var station = {
   getStopsLatLong(req, res) {
     // no caching here, maybe we need it?
     if (req.query.lat && req.query.lng && req.query.distance) {
-      if (req.query.distance > 1000) {
+      // limit of the distance value
+      if (req.query.distance > 1250) {
         return res.status(400).send({
           'error': 'too many stops sorry'
         })
@@ -28,7 +29,8 @@ var station = {
 
       var lat = parseFloat(req.query.lat)
       var lng = parseFloat(req.query.lng)
-      var latDist = req.query.distance / 165000
+      // var latDist = req.query.distance / 165000
+      var latDist = req.query.distance / 100000
       var lngDist = req.query.distance / 65000
 
       var query = new azure.TableQuery()
