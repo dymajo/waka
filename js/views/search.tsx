@@ -105,8 +105,8 @@ class Search extends React.Component<IAppProps, IAppState> {
   }
 
   public setCurrentPosition(position) {
-    console.log('getting new position')
-    console.log(position.coords.accuracy)
+    //console.log('getting new position')
+    //console.log(position.coords.accuracy)
     this.setState({
       currentPosition: [position.coords.latitude, position.coords.longitude],
       accuracy: position.coords.accuracy
@@ -135,7 +135,9 @@ class Search extends React.Component<IAppProps, IAppState> {
     if (window.location.pathname === '/s') {
       this.watchPosition()
     } else {
-      navigator.geolocation.clearWatch(geoID)
+      requestAnimationFrame(function() {
+        navigator.geolocation.clearWatch(geoID)
+      })
     }
 
   }
@@ -143,7 +145,9 @@ class Search extends React.Component<IAppProps, IAppState> {
     if (typeof(dataRequest) !== 'undefined') {
       dataRequest.abort()
     }
-    navigator.geolocation.clearWatch(geoID)
+    requestAnimationFrame(function() {
+      navigator.geolocation.clearWatch(geoID)
+    })
     UiStore.unbind('goingBack', this.triggerBack)
   }
   private getData(lat, lng, dist) {

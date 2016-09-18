@@ -344,7 +344,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
 
     allRequests[1] = request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
-      console.log(data)
+      //console.log(data)
       // Seems like a server bug?
       if (typeof(data.trips.length) === 'undefined' || data.trips.length === 0) {
         return this.setStatePartial({
