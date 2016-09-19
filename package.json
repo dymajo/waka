@@ -37,6 +37,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "autotrack": "^1.0.3",
     "azure-storage": "^1.2.0",
     "body-parser": "^1.15.2",
     "clipboard": "^1.5.12",

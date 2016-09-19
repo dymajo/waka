@@ -13,6 +13,7 @@ import Settings from './views/settings.tsx'
 import NoMatch from './views/nomatch.tsx'
 
 declare function require(name: string): any;
+require('autotrack') // google analytics
 var injectTapEventPlugin = require('react-tap-event-plugin')
 injectTapEventPlugin()
 
