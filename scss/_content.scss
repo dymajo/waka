@@ -42,26 +42,33 @@
 	    }
 		}
 
-		.save {
-
-	    color: green;
-	    border: 2px solid green;
+		.remove {
+	    color: darken($green, 5);
+	    border: 2px solid darken($green, 5);
 	    @media (hover: hover) {
 		    &:hover {
-		    	background: green;
-		    	color: #fff;
+		    	background: rgba(0,0,0,0.05);
 		    }
+		  }
+		  &:active {
+		  	background: darken($green, 5);
+		  	color: #fff;
 		  }
 		}
-		.remove {
-			color: #7f8c8d;
-			border: 2px solid #7f8c8d;
+		.save {
+			color: #fff;
+			border: 2px solid $green;
+			background: $green;
 			@media (hover: hover) {
 				&:hover {
-		    	background: #7f8c8d;
-		    	color: #fff;
+		    	background: darken($green, 5);
+		    	border-color: darken($green, 5);
 		    }
 		  }
+		  &:active {
+	    	background: darken(green, 10);
+	    	border-color: darken(green, 10);
+	    }
 		}
 
 		div {
@@ -589,4 +596,28 @@
     transform: scale(1.0);
     opacity: 0;
   }
+}
+.savedstations {
+	@media (min-width: 601px) and (max-width: 900px) {
+		&.goingback .station {
+			display: none;	
+		}
+	}
+	@media (min-width: 901px) {
+		.scrollable {
+			right: 0;
+			width: auto;
+			left: 300px + $navsize;
+		}
+		@media (max-width: 1200px) {
+			ul .header li:nth-child(2), li li:nth-child(2) {
+				width: 250px;
+			}
+		}
+		@media (max-width: 1050px) {
+			ul .header li:nth-child(2), li li:nth-child(2) {
+				width: 200px;
+			}
+		}
+	}
 }

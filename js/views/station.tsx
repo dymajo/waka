@@ -487,10 +487,10 @@ class Station extends React.Component<IAppProps, IAppState> {
     var icon = StationStore.getIcon(this.state.stop)
 
     var saveButton
-    if (typeof(StationStore.getData()[this.props.routeParams.station]) === 'undefined') {
+    if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
       saveButton = <span className="save" onClick={this.triggerSave}>Save</span>  
     } else {
-      saveButton = <span className="remove" onClick={this.triggerRemove}>Remove</span>  
+      saveButton = <span className="remove" onClick={this.triggerRemove}>Saved</span>  
     }
     
     var iconString

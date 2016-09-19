@@ -35,28 +35,28 @@
         display: block;
         position: absolute;
         left: 50%;
-        top: 50vh;
+        top: 45vh;
         padding: 0 35px;
 
         h2 {
-          font-size: 28px;
+          font-size: 22px;
         }
 
         button {
-          margin: 25px 0;
+          margin: 15px 0;
         }
       }
       height: calc(100% - 40vh);
       background-image: url(devices.jpg);
       background-size: auto 80%;
       background-repeat: no-repeat;
-      // background-color: #fff;
       background-position: 50% 45%;
       padding-left: 50%;
       text-align: left;
 
       p {
         padding: 0;
+        font-size: 15px;
       }
 
       footer {
@@ -69,7 +69,25 @@
         p {
           margin: 0 auto;
           padding: 0;
+          font-size: 13px;
         }
+      }
+    }
+    @media (min-width: 601px) {
+      .desktop {
+        top: 50vh;
+      }
+      h2 {
+        font-size: 28px;
+      }
+      p {
+        font-size: 16px;
+      }
+    }
+    @media (max-width: 700px) {
+      .desktop button {
+        padding: 7px 20px;
+        margin: 25px 0;
       }
     }
     @media (min-width: 800px) {
@@ -79,6 +97,9 @@
         h2 {
           font-size: 36px;
         }
+      }
+      footer p {
+        font-size: 14px;
       }
     }
     @media (max-width: 320px) {
@@ -382,6 +403,14 @@
     }
     .mobile {
       display: none;
+    }
+  }
+
+  a {
+    color: lighten($lightblue, 15);
+    cursor: default;
+    &:hover {
+      text-decoration: none;
     }
   }
 
