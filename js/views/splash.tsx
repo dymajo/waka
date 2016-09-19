@@ -25,18 +25,28 @@ class Splash extends React.Component<IAppProps, {}> {
             <span className="company">DYMAJO</span>
             <span>Transit</span>
           </h1>
-          
+          <button className="send" onTouchTap={this.triggerPin}>Send to Phone</button>
+          <h2>Your way around Auckland<br />
+          <button onTouchTap={this.triggerSearch} className="primary">
+              <img src="icons/search.png"/>Find a Station
+          </button>
+          </h2>
         </div>
         <div className="wrapper">
-          <h2>Auckland</h2>
-          <p>I’ve stolen this piece of artwork from Generation Zero. I should probably ask them for permission.</p>
-          <div className="buttonbox">
-            <button onTouchTap={this.triggerSearch} className="primary">
-              <img src="icons/search.png"/>Find a Station
-            </button>
-            {//<button className="send">Send to Phone</button>
-            }
-            <button onTouchTap={this.triggerPin} className="pin"><img src="icons/home.png"/>Pin to Home</button>
+          <div className="mobile">
+            <h2>Auckland</h2>
+            <p>I’ve stolen this piece of artwork from Generation Zero. I should probably ask them for permission.</p>
+            <div className="buttonbox">
+              <button onTouchTap={this.triggerSearch} className="primary">
+                <img src="icons/search.png"/>Find a Station
+              </button>
+              <button onTouchTap={this.triggerPin} className="pin"><img src="icons/home.png"/>Pin to Home</button>
+            </div>
+          </div>
+          <div className="desktop">
+            <h2>Works anywhere</h2>
+            <p>Transit works great on both iOS and Android devices! Just head to <Link to="/pin">transit.dymajo.com</Link> on your phone, and pin it to your home screen.</p>
+            <button className="send" onTouchTap={this.triggerPin}>Send to Phone</button>
           </div>
           <footer>
             <p>&copy; {new Date().getUTCFullYear()} DYMAJO Ltd &middot; v0.1<small>β</small></p>
