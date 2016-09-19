@@ -1,5 +1,5 @@
 {
-  "name": "at-realtime",
+  "name": "dymajo-transit",
   "version": "1.0.0",
   "description": "Web App for Auckland Transport Real Time Board",
   "main": "index.js",
@@ -13,20 +13,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/consindo/at-realtime.git"
+    "url": "git+https://github.com/consindo/dymajo-transit.git"
   },
   "keywords": [
     "auckland",
     "transport",
     "at",
-    "hop"
+    "hop",
+    "transit",
+    "dyamjo"
   ],
   "author": "Jono Cooper <jono@jono.nz>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/consindo/at-realtime/issues"
+    "url": "https://github.com/consindo/dymajo-transit/issues"
   },
-  "homepage": "https://github.com/consindo/at-realtime#readme",
+  "homepage": "https://transit.dymajo.com",
   "devDependencies": {
     "browserify": "^13.1.0",
     "concurrently": "^2.2.0",
