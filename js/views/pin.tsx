@@ -7,7 +7,8 @@ let Clipboard = require('clipboard')
 
 interface IPinProps extends React.Props<Pin> {}
 interface IPinState {
-  copied: boolean
+  copied?: boolean,
+  hide?: boolean
 }
 
 let clipboard = undefined
@@ -15,8 +16,10 @@ class Pin extends React.Component<IPinProps, IPinState> {
   constructor(props) {
     super(props)
     this.state = {
-      copied: false
+      copied: false,
+      hide: false
     }
+    this.triggerClose = this.triggerClose.bind(this)
     this.triggerClipboard = this.triggerClipboard.bind(this)
   }
   public componentDidMount() {
@@ -26,7 +29,13 @@ class Pin extends React.Component<IPinProps, IPinState> {
     clipboard.destroy()
   }
   public triggerClose() {
-    browserHistory.push('/')
+    this.setState({
+      hide: true
+    } as IPinState)
+
+    setTimeout(function() {
+      browserHistory.push('/')
+    }, 400)
   }
   public triggerClipboard() {
     if (this.state.copied) {
@@ -34,7 +43,7 @@ class Pin extends React.Component<IPinProps, IPinState> {
     } else {
       this.setState({
         copied: true
-      })
+      } as IPinState)
     }
   }
   public doNothing(e) {
@@ -55,7 +64,7 @@ class Pin extends React.Component<IPinProps, IPinState> {
       if (/crios/.test(userAgent) || /fxios/.test(userAgent) ||
           /fbios/.test(userAgent) || /twitter/.test(userAgent)) {
         output = <div className="ios-other">
-          <p>You'll need to open this app in Safari first!</p>
+          <p>You’ll need to open this app in Safari first!</p>
           <button className="primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
         </div>
       } else if (/safari/.test(userAgent)) {
@@ -66,7 +75,7 @@ class Pin extends React.Component<IPinProps, IPinState> {
       // yeah so chrome and ff both identy themselves as safari like wtf
       } else {
         output = <div className="ios-other">
-          <p>You'll need to open this app in Safari first!</p>
+          <p>You’ll need to open this app in Safari first!</p>
           <p><a href="https://transit.dymajo.com" onClick={this.doNothing}>transit.dymajo.com</a></p>
           <button className="primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
         </div>
@@ -75,7 +84,7 @@ class Pin extends React.Component<IPinProps, IPinState> {
     if (/android/.test(userAgent)) {
       if (/firefox/.test(userAgent) || /samsung/.test(userAgent)) {
         output = <div className="android-other">
-          <p>You'll need to open this page in Chrome first!</p>
+          <p>You’ll need to open this page in Chrome first!</p>
           <button className="primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
         </div>
       } else {
@@ -91,9 +100,20 @@ class Pin extends React.Component<IPinProps, IPinState> {
         <button className="primary" onTouchTap={this.triggerClose}>Thanks!</button>
       </div>
     }
+
+    var className = 'pincontainer'
+    if (this.state.hide) {
+      className += ' hide'
+    }
     return(
-      <div className="pincontainer">
-        {output}
+      <div className={className}>
+        <div className="mobile">
+          {output}
+        </div>
+        <div className="desktop">
+          <p>This feature isn’t implemented yet 😭. Just type <a href="#">transit.dymajo.com</a> into your phone.</p>
+          <button className="primary" onClick={this.triggerClose}>Thanks!</button>
+        </div>
       </div>
     )
   }
