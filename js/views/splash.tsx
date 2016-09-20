@@ -19,6 +19,7 @@ class Splash extends React.Component<IAppProps, {}> {
     }
     var output = <div className="mobile">
       <h2>Auckland</h2>
+      <p>Your realtime guide to AT buses, trains, and ferries.</p>
       <div className="buttonbox">
         <button onTouchTap={this.triggerSearch} className="primary">
           <img src="icons/search.png"/>Find a Station
@@ -31,8 +32,8 @@ class Splash extends React.Component<IAppProps, {}> {
     if (iOS.detect()) {
       if (/fbios/.test(userAgent) || /twitter/.test(userAgent)) {
         output = <div className="uiwebview">
-          <h2>Woah!</h2>
-          <p>You'll need to open Transit in Safari first.</p><br />
+          <h2>Whoa!</h2>
+          <p>You’ll need to open Transit in Safari first.</p><br />
         </div>
       }
     }

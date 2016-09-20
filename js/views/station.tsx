@@ -275,7 +275,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.triggerSaveAdd = this.triggerSaveAdd.bind(this)
     this.triggerSaveCancel = this.triggerSaveCancel.bind(this)
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
-    this.triggerRemove = this.triggerRemove.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
@@ -396,8 +395,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     UiStore.navigateSavedStations(path)
   }
   public triggerSave() {
-    //var stopName = prompt("Give your station a name")
-    //StationStore.addStop(this.props.routeParams.station, stopName)
     this.setStatePartial({
       saveModal: true
     })
@@ -409,6 +406,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     StationStore.addStop(this.props.routeParams.station, this.state.name)
   }
   public triggerSaveCancel() {
+    StationStore.removeStop(this.props.routeParams.station)
     this.setStatePartial({
       saveModal: false
     })
@@ -418,9 +416,6 @@ class Station extends React.Component<IAppProps, IAppState> {
       name: e.currentTarget.value
     })
   }  
-  public triggerRemove() {
-    StationStore.removeStop(this.props.routeParams.station)
-  }
   public componentDidMount() {
     requestAnimationFrame(() => {
       this.getData(this.props)
@@ -487,10 +482,16 @@ class Station extends React.Component<IAppProps, IAppState> {
     var icon = StationStore.getIcon(this.state.stop)
 
     var saveButton
+    var addButton
+    var cancelButton
     if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
       saveButton = <span className="save" onClick={this.triggerSave}>Save</span>  
+      cancelButton = 'Cancel'
+      addButton = 'Add Stop'
     } else {
-      saveButton = <span className="remove" onClick={this.triggerRemove}>Saved</span>  
+      saveButton = <span className="remove" onClick={this.triggerSave}>Saved</span>
+      cancelButton = 'Remove Stop'
+      addButton = 'Rename'
     }
     
     var iconString
@@ -523,8 +524,8 @@ class Station extends React.Component<IAppProps, IAppState> {
           <div>
             <h2>Choose a Name</h2>
             <input type="text" value={this.state.name} onChange={this.triggerSaveChange} />
-            <button className="cancel" onTouchTap={this.triggerSaveCancel}>Cancel</button>
-            <button className="submit" onTouchTap={this.triggerSaveAdd}>Add Stop</button>
+            <button className="cancel" onTouchTap={this.triggerSaveCancel}>{cancelButton}</button>
+            <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
           </div>
         </div>
         <header className={clockState} style={bgImage}>

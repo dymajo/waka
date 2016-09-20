@@ -6,7 +6,9 @@ let request = require('reqwest')
 interface StationItem {
   name: string,
   icon: string,
-  description: string 
+  description: string,
+  stop_lat?: number,
+  stop_lon?: number
 }
 export interface StationMap {
   [name: string]: StationItem
@@ -60,14 +62,14 @@ export namespace StationStore {
       StationOrder.push(stopNumber)
     }
     request(`/a/station/${stopNumber}`).then((data) => {
-      console.log(data)
       StationData[stopNumber] = {
         name: stopName,
+        stop_lat: data.stop_lat,
+        stop_lon: data.stop_lon,
         description: `Stop ${stopNumber} / ${data.stop_name}`,
         icon: getIcon(stopNumber)
       }
       StationStore.trigger('change')
-      //browserHistory.push(`/s/${stopNumber}`)
       saveData()
     })
   }
