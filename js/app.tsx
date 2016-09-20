@@ -11,6 +11,8 @@ import Station from './views/station.tsx'
 import SavedStations from './views/savedstations.tsx'
 import Settings from './views/settings.tsx'
 import NoMatch from './views/nomatch.tsx'
+import Lines from './views/lines.tsx'
+import Line from './views/line.tsx'
 
 declare function require(name: string): any;
 require('autotrack') // google analytics
@@ -29,6 +31,9 @@ class App extends React.Component<IAppProps, {}> {
           <Route path="pin" component={Splash} />
           <Route onChange={UiStore.handleReactChange} path="s" component={Search}>
             <Route path=":station" component={Station} />
+          </Route>
+          <Route path="l" component={Lines}>
+            <Route path=":line" component={Line} />
           </Route>
           <Route onChange={UiStore.handleReactChange} path="ss" component={SavedStations}>
             <Route path=":station" component={Station} />
