@@ -59,7 +59,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                   <li><a target="_blank" href="http://mattdavidson.kiwi">Matt Davidson</a> &ndash; Code</li>
                   <li><a target="_blank" href="https://twitter.com/itemic">Terran Kroft</a> &ndash; Testing, Feedback</li>
                   <li><a target="_blank" href="https://github.com/blackdragon723">Dylan Wragge</a> &ndash; Testing, Feedback</li>
-                  <li><a target="_blank" href="http://www.generationzero.org/">Generation Zero</a> &ndash; Artwork (We haven’t actually asked)</li>
+                  <li><a target="_blank" href="http://www.generationzero.org/">Generation Zero</a> &ndash; Artwork</li>
                   <li><a target="_blank" href="http://transportblog.co.nz">TransportBlog</a> &ndash; This app probably wouldn’t exist if we didn’t read TransportBlog every day.</li>
                 </ul>
                 <h3>Special Thanks</h3>

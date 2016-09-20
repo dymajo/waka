@@ -19,7 +19,6 @@ class Splash extends React.Component<IAppProps, {}> {
     }
     var output = <div className="mobile">
       <h2>Auckland</h2>
-      <p>I’ve stolen this piece of artwork from Generation Zero. I should probably ask them for permission.</p>
       <div className="buttonbox">
         <button onTouchTap={this.triggerSearch} className="primary">
           <img src="icons/search.png"/>Find a Station
