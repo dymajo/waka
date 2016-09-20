@@ -23,6 +23,7 @@ interface RealTimeMap {
 interface ITripItemProps extends React.Props<TripItem> {
   code: string,
   name: string,
+  long_name: string,
   time: string,
   trip_id: string,
   stop_sequence: number,
@@ -201,6 +202,15 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     var name = this.props.name.replace(' Train Station', '')
     name = name.replace(' Ferry Terminal', '')
 
+    var via
+    if (SettingsStore.getState().longName) {
+      var viaSplit = this.props.long_name.split('Via ')
+      if (viaSplit.length > 1) {
+        via = <small> via {viaSplit[1].replace('And', 'and')}</small>
+        className += ' via'
+      }
+    }
+
     // removed <li>›</li> for now
 
     return (
@@ -210,7 +220,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
             {this.props.code}
           </div>
         </li>
-        <li>{name}{emoji}</li>
+        <li>{name}{via}{emoji}</li>
         <li>{stops_away}</li>
         
       </ul></li>
@@ -556,6 +566,7 @@ class Station extends React.Component<IAppProps, IAppState> {
                 code={trip.route_short_name}
                 time={trip.arrival_time_seconds}
                 name={trip.trip_headsign}
+                long_name={trip.route_long_name}
                 key={trip.trip_id}
                 trip_id={trip.trip_id}
                 agency_id={trip.agency_id}

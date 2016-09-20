@@ -40,6 +40,9 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
               <Toggle id="clock">
                 Show Clock
               </Toggle>
+              <Toggle id="longName">
+                Long Route Names
+              </Toggle>
             </div>
             <div className="credits">
               <div className="logo" id="logo">

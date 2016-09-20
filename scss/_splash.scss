@@ -313,11 +313,17 @@
     }
   }
 
+  .mobile {
+    p {
+      max-width: 250px;
+    }
+  }
+
   p {
     margin: 15px auto 0;
     color: #333;
     letter-spacing: -0.5px;
-    max-width: 250px;
+    max-width: 400px;
     font-size: 16px;
     padding: 0 10px;
 

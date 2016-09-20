@@ -1,9 +1,14 @@
 export namespace SettingsStore {
   let state = {
-    clock: true
+    clock: true,
+    longName: false
   }
   if (localStorage.getItem('SettingsData')) {
-    state = JSON.parse(localStorage.getItem('SettingsData'))
+    var preState = JSON.parse(localStorage.getItem('SettingsData'))
+    // copies saved state, preserves defaults
+    for (var attrname in preState) {
+      state[attrname] = preState[attrname]
+    }
   }
   export function getState() {
     return state
