@@ -74,6 +74,15 @@ var cache = {
       })
     })
 
+    // calendar exceptions
+    options.url = 'https://api.at.govt.nz/v2/gtfs/calendarDate'
+    var dates = request(options).pipe(fs.createWriteStream('cache/calendardate.json'))
+    promises[4] = new Promise(function(resolve, reject) {
+      dates.on('finish', function() {
+        resolve()
+      })
+    })
+
     // now we build the hashtable things
     Promise.all(promises).then(function() {
       cache.build(cb)
@@ -155,6 +164,14 @@ var cache = {
 
     promises[1] = new Promise(function(resolve, reject) {
       tableSvc.createTableIfNotExists('trips', function(error, result, response){
+        if(!error){
+          resolve()
+        }
+      });
+    })
+
+    promises[2] = new Promise(function(resolve, reject) {
+      tableSvc.createTableIfNotExists('calendardate', function(error, result, response){
         if(!error){
           resolve()
         }
@@ -296,6 +313,66 @@ var cache = {
                 }
                 console.log('saved new meta date')
               })
+            }
+          } catch(err) {
+            console.log(err)
+          }
+        }
+        for (var key in arrayOfEntityArrays) {
+          batchUpload(key, arrayOfEntityArrays[key], 0)
+        }
+      })
+    })
+
+    Promise.all(promises).then(function() {
+      fs.readFile('cache/calendardate.json', function(err, data) {
+        if (err) throw err;
+        var calendarData = JSON.parse(data).response
+
+        var arrayOfEntityArrays = {}
+        var arrayOfEntityCounts = {}
+
+        calendarData.forEach(function(item) {
+          var pkey = item.date
+          if (typeof(arrayOfEntityArrays[pkey]) === 'undefined') {
+            arrayOfEntityArrays[pkey] = []
+            arrayOfEntityCounts[pkey] = 0
+          }
+          var b = arrayOfEntityArrays[pkey]
+          var c = arrayOfEntityCounts[pkey]
+
+          b[c] = b[c] || new azure.TableBatch()
+          if (b[c].operations.length > 99) {
+            // have to update both the copy, and the pointer
+            arrayOfEntityCounts[pkey]++
+            c++ 
+            // then we can create a new batch
+            b[c] = b[c] || new azure.TableBatch()
+          }
+          b[c].insertOrReplaceEntity({
+            PartitionKey: {'_': pkey},
+            RowKey: {'_': item.service_id},
+            exception_type: {'_': item.exception_type}
+          })
+        })
+        var batchUpload = function(name, batch, n) {
+          try {
+            if (n < batch.length) {
+              console.log(`uploading exceptions_${name} batch ${n+1}/${batch.length}`)
+              tableSvc.executeBatch('calendardate', batch[n], function (error, result, response) {
+                if(!error) {
+                  batchUpload(name, batch, n+1)
+                } else {
+                  if (error.code === 'ETIMEDOUT') {
+                    console.log('ETIMEDOUT... retrying')
+                    batchUpload(name, batch, n)
+                  } else {
+                    console.log(error)
+                  }
+                }
+              })
+            } else {
+              console.log('finished uploading exceptions')
             }
           } catch(err) {
             console.log(err)

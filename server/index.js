@@ -16,12 +16,6 @@ router.get('/station', station.stopInfo)
 router.get('/station/search', station.getStopsLatLong)
 router.get('/station/:station', station.stopInfo)
 router.get('/station/:station/times', station.stopTimes)
-router.get('/station/:station/clean', function() {
-  res.send({
-    'status': 'starting clean'
-  })
-  station.clean(req.params.station)
-})
 router.post('/realtime', realtime.getTrips)
 
 module.exports = router;
