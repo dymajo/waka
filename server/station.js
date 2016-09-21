@@ -16,6 +16,26 @@ var options = {
   }
 };
 
+// THE CALENDAR EXCEPTION CACHE //
+// NOT THE GREATEST, BUT LESS EFFORT THAN USING A PROPER CACHE //
+var exceptionCache = {
+  updated: null,
+  additions: [],
+  deletions: [],
+  existsToday: function(today, frequency, service) {
+    if (exceptionCache.deletions.indexOf(service) != -1) {
+      return false
+    }
+    if (exceptionCache.additions.indexOf(service) != -1) {
+      return true
+    }
+    if (parseInt(frequency[(today+6) % 7]) === 1) {
+      return true
+    }
+    return false
+  }
+}
+
 var station = {
   getStopsLatLong(req, res) {
     // no caching here, maybe we need it?
@@ -185,7 +205,10 @@ var station = {
       })
     }
   },
-  stopTimes: function(req, res) {
+  stopTimes: function(req, res, force) {
+    if (req.params.force) {
+      force = true
+    }
     if (req.params.station) {
       req.params.station = req.params.station.trim()
       var sending = {}
@@ -199,6 +222,17 @@ var station = {
           .where('PartitionKey eq ?', req.params.station)
           .and('arrival_time_seconds < ? and arrival_time_seconds > ?', currentTime + 7200, currentTime - 1200)
         sending.currentTime = currentTime
+
+        // force get update
+        if (force === true) {
+          console.log('forcing update ')
+          station.getTripsFromAt(req.params.station, function(err, data) {
+            sending.provider = 'at' // just for debugging purposes
+            sending.trips = data
+            resolve()
+          })
+          return 
+        }
 
         // if azure can't get it, ask AT
         tableSvc.queryEntities('stoptimes', query, null, function(err, result, response) {
@@ -296,7 +330,7 @@ var station = {
             }
 
             // check day of week
-            if (parseInt(trip.frequency._[(today.day()+6) % 7]) === 1 &&
+            if (exceptionCache.existsToday(today.day(), trip.frequency._, trip.service_id._) &&
               // check end date
               moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isAfter(tomorrow) &&
               // check start date
@@ -362,13 +396,20 @@ var station = {
 
         Promise.all(tripQueryPromises).then(function() {
           sending.trips = finalTripsArray
+
+          // forces a cache update
+          if (sending.trips.length === 0 && deleteCount > 0 && !force) {
+            stopTimes(req, res, true)
+            return  
+          }
+          
+          // send
           res.send(sending)
 
-          // can't do an empty batch
+          // otherwise just a normal delete
           if (deleteCount > 0) {
-            // console.log('delete should be run', deleteCount)
             console.log('deletion should be run')
-            station.clean(req.params.station)
+             station.clean(req.params.station)
           }
         })
 
