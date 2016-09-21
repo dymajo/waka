@@ -76,6 +76,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                 </ul>
                 <div className="love">Made with 💙 in Auckland NZ</div>
               </div>
+              <a className="button" href="https://www.patreon.com/dymajo" target="_blank">Become a Patron</a>
             </div>
           </div>
         </div>
