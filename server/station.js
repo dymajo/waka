@@ -33,6 +33,45 @@ var exceptionCache = {
       return true
     }
     return false
+  },
+  refresh: function(today, frequency, service) {
+    var time = moment().tz('Pacific/Auckland')
+    var y = time.year()
+    var m = time.month()
+    var d = time.date()
+    var today = moment(Date.UTC(y, m, d, 0, 0))
+    // fix for late night services
+    if (today.hour() < 5) { 
+      today.day(today.day()-1)
+    }
+    if (exceptionCache.updated !== today.toISOString()) {
+      var adding = []
+      var deleting = []
+      var dateQuery = function(query, continuationToken, callback) {
+        tableSvc.queryEntities('calendardate', query, continuationToken, function(err, result, response) {
+          if (err) {
+            return console.log(err)
+          }
+          result.entries.forEach(function(item) {
+            if (item.exception_type._ === 1) {
+              adding.push(item.RowKey._)  
+            } else if (item.exception_type._ === 2) {
+              deleting.push(item.RowKey._)
+            }
+          })
+          if (result.continuationToken) {
+            dateQuery(query, result.continuationToken, callback)
+          } else {
+            callback()
+          }
+        })
+      }
+      dateQuery(new azure.TableQuery().where('PartitionKey eq ?', today.toISOString()), null, function(message) {
+        exceptionCache.additions = adding
+        exceptionCache.deletions = deleting
+        exceptionCache.updated = today.toISOString()
+      })
+    }
   }
 }
 
@@ -206,6 +245,8 @@ var station = {
     }
   },
   stopTimes: function(req, res, force) {
+    exceptionCache.refresh()
+
     if (req.params.force) {
       force = true
     }
