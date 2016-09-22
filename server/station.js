@@ -439,7 +439,7 @@ var station = {
           sending.trips = finalTripsArray
 
           // forces a cache update
-          if (sending.trips.length === 0 && deleteCount > 0 && !force) {
+          if (sending.trips.length === 0 && deleteCount > 0 && force !== true) {
             stopTimes(req, res, true)
             return  
           }
