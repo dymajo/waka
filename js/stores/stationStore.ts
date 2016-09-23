@@ -36,6 +36,97 @@ export namespace StationStore {
     }
     return icon
   }
+  export function getColor(agency_id, code){
+    switch(agency_id){
+      case 'AM': // Auckland Metro
+        switch (code) {
+          case 'WEST': // West Line
+            //return '#006553' official
+            return '#4f9734'
+          case 'STH': // South Line
+            //return '#a60048' official
+            return '#e52f2b'
+          case 'EAST': // East Line
+            return '#fec132'
+          case 'PUK': // South Line
+            //return '#a60048'
+            return '#e52f2b'
+          case 'ONE': // ONE Line
+            return '#21b4e3'
+          default:
+            return '#17232f'
+        }
+      case 'FGL': // Fullers
+        return '#2756a4'
+
+      case 'HE': // Howick and Eastern
+        return '#0096d6'
+
+      case 'NZBGW': // NZ Bus - Go West
+        return '#08ac54'
+
+      case 'NZBML': // NZ Bus - metrolink
+        switch (code) {
+          case 'CTY': // City Link
+            return '#ef3c34'
+
+          case 'INN': // Inner Link
+            return '#41b649'
+
+          case 'OUT': // Outer Link
+            return '#f7991c'
+          
+          default:
+            return '#152a85'
+        }
+
+      case 'NZBNS': // NZ Bus - North Star
+        return '#fcba2e'
+
+      case 'NZBWP': // NZ Bus - Waka Pacific
+        return '#0f91ab'
+
+      case 'UE': // Urban Express
+        return '#281260'
+
+      case 'BTL': // Birkenhead Transport
+        return '#b2975b'
+
+      case 'RTH': // Ritchies
+        switch (code) {
+          case "NEX": // Northern Express
+            //return '#0079c2' official
+            return '#0056a9' 
+          
+          default:
+            return '#ff6f2c'
+        }
+
+      case 'WBC': // Waiheke Bus Company
+        return '#01bdf2'
+
+      case 'EXPNZ': // Explore Waiheke - supposed to be closed?
+        return '#ffe81c'
+
+      case 'BFL': // Belaire Ferries
+        return '#ffd503'
+
+      case 'ATAPT': // AT Airporter
+        return '#f7931d'
+
+      case 'PHH': // Pine Harbour / Sealink
+        return '#d92732'
+
+      case '360D': // 360 Discovery
+        return '#2756a4'
+
+      case 'ABEXP': //Skybus
+        return '#ee3124'
+
+      default: //MSB, PBC, BAYES - Schools
+        return '#17232f'
+    }
+  }
   let StationData = <StationMap>{}
   if (localStorage.getItem('StationData')) {
     StationData = JSON.parse(localStorage.getItem('StationData'))

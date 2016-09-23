@@ -27,7 +27,6 @@ interface ITripItemProps extends React.Props<TripItem> {
   time: string,
   trip_id: string,
   stop_sequence: number,
-  color: string,
   realtime: RealTimeItem,
   agency_id: string
 }
@@ -36,98 +35,10 @@ class TripItem extends React.Component<ITripItemProps, {}> {
   constructor(props: ITripItemProps) {
     super(props)
     this.triggerClick = this.triggerClick.bind(this)
-    this.getColor = this.getColor.bind(this)
   }
   public triggerClick() {
     console.log('navigating to', this.props.trip_id)
     // browserHistory.push(this.props.trip_id)
-  }
-  public getColor(){
-    switch(this.props.agency_id){
-      case 'AM': // Auckland Metro
-        switch (this.props.code) {
-          case 'WEST': // West Line
-            return '#006553'
-          case 'STH': // South Line
-            return '#a60048'
-          case 'EAST': // East Line
-            return '#fec132'
-          case 'PUK': // South Line
-            return '#a60048'
-          case 'ONE': // South Line
-            return '#21b4e3'
-          default:
-            return '#17232f'
-        }
-      case 'FGL': // Fullers
-        return '#2756a4'
-
-      case 'HE': // Howick and Eastern
-        return '#0096d6'
-
-      case 'NZBGW': // NZ Bus - Go West
-        return '#08ac54'
-
-      case 'NZBML': // NZ Bus - metrolink
-        switch (this.props.code) {
-          case 'CTY': // City Link
-            return '#ef3c34'
-
-          case 'INN': // Inner Link
-            return '#41b649'
-
-          case 'OUT': // Outer Link
-            return '#f7991c'
-          
-          default:
-            return '#152a85'
-        }
-
-      case 'NZBNS': // NZ Bus - North Star
-        return '#fcba2e'
-
-      case 'NZBWP': // NZ Bus - Waka Pacific
-        return '#0f91ab'
-
-      case 'UE': // Urban Express
-        return '#281260'
-
-      case 'BTL': // Birkenhead Transport
-        return '#b2975b'
-
-      case 'RTH': // Ritchies
-        switch (this.props.code) {
-          case "NEX": // Northern Express
-            return '#0079c2'
-          
-          default:
-            return '#ff6f2c'
-        }
-
-      case 'WBC': // Waiheke Bus Company
-        return '#01bdf2'
-
-      case 'EXPNZ': // Explore Waiheke - supposed to be closed?
-        return '#ffe81c'
-
-      case 'BFL': // Belaire Ferries
-        return '#ffd503'
-
-      case 'ATAPT': // AT Airporter
-        return '#f7931d'
-
-      case 'PHH': // Pine Harbour / Sealink
-        return '#d92732'
-
-      case '360D': // 360 Discovery
-        return '#2756a4'
-
-      case 'ABEXP': //Skybus
-        return '#ee3124'
-
-      default: //MSB, PBC, BAYES - Schools
-        return '#17232f'
-    }
   }
   public render() {
     var arrival = new Date()
@@ -216,7 +127,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     return (
       <li className={className}><ul className={active}>
         <li>
-          <div style={{backgroundColor: this.getColor()}}>
+          <div style={{backgroundColor: StationStore.getColor(this.props.agency_id, this.props.code)}}>
             {this.props.code}
           </div>
         </li>
@@ -401,8 +312,9 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public triggerBack() {
-    var path = '/' + window.location.pathname.split('/')[1]
-    UiStore.navigateSavedStations(path)
+    var path = window.location.pathname.split('/')
+    var i = path.indexOf(this.props.routeParams.station)
+    UiStore.navigateSavedStations(path.slice(0,i).join('/'))
   }
   public triggerSave() {
     this.setStatePartial({
@@ -562,7 +474,6 @@ class Station extends React.Component<IAppProps, IAppState> {
             {loading}
             {this.state.trips.map((trip) => {
               return <TripItem 
-                color="#27ae60"
                 code={trip.route_short_name}
                 time={trip.arrival_time_seconds}
                 name={trip.trip_headsign}

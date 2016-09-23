@@ -1,0 +1,12 @@
+@mixin mobile-desktop-absolute() {
+  position: absolute;
+  top: 0;
+  left: $navsize;
+  bottom: 0;
+  right: 0;
+
+  @media (max-width: 480px) {
+    bottom: 48px;
+    left: 0;
+  }
+}

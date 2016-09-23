@@ -1,16 +1,7 @@
 .splashScreen {
-  position: absolute;
+  @include mobile-desktop-absolute()
   text-align: center;
   overflow-y: hidden;
-  top: 0;
-  left: $navsize;
-  bottom: 0;
-  right: 0;
-
-  @media (max-width: 480px) {
-    bottom: 48px;
-    left: 0;
-  }
 
   .wrapper {
     padding: 25px 15px;

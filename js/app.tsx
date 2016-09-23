@@ -11,6 +11,7 @@ import Station from './views/station.tsx'
 import SavedStations from './views/savedstations.tsx'
 import Settings from './views/settings.tsx'
 import NoMatch from './views/nomatch.tsx'
+import ListStations from './views/liststations.tsx'
 import Lines from './views/lines.tsx'
 import Line from './views/line.tsx'
 
@@ -31,6 +32,11 @@ class App extends React.Component<IAppProps, {}> {
           <Route path="pin" component={Splash} />
           <Route onChange={UiStore.handleReactChange} path="s" component={Search}>
             <Route path=":station" component={Station} />
+          </Route>
+          <Route path="cf" component={ListStations}>
+            <Route path=":line" component={ListStations}>
+              <Route path=":station" component={Station} />
+            </Route>
           </Route>
           <Route path="l" component={Lines}>
             <Route path=":line" component={Line} />
