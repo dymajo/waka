@@ -57,6 +57,7 @@
     "react-tap-event-plugin": "^1.0.0",
     "request": "^2.74.0",
     "reqwest": "^2.0.5",
-    "sendgrid": "^4.3.0"
+    "sendgrid": "^4.3.0",
+    "wkx": "^0.4.0"
   }
 }

@@ -22,6 +22,12 @@ class Lines extends React.Component<IAppProps, IAppState>{
         this.triggerChange = this.triggerChange.bind(this)
     }
     
+    public viewLine(line){
+        return function() {
+            browserHistory.push(`/l/${line}`)
+        }
+    }
+
     private triggerChange(e) {
         this.setState({
             service: e.currentTarget.value
@@ -30,10 +36,9 @@ class Lines extends React.Component<IAppProps, IAppState>{
     public render() {
         return(
             <div>
-                <input value={this.state.service} type="text" placeholder="Enter Service Name" onChange={this.triggerChange} />
-                {this.state.service}<br/>
-                
-                These are lines.<br/>
+                <input value={this.state.service} type="text" placeholder="Enter Service Name" onChange={this.triggerChange} /><br/>
+                <button onClick={this.viewLine(this.state.service)}>View Line</button>
+                Your line: 
                 {this.props.children}
             </div>
         )
