@@ -1,6 +1,7 @@
 .listStations {
-  @include mobile-desktop-absolute()
+  @include mobile-desktop-absolute();
   overflow-y: auto;
+  overflow-x: hidden;
   background: #ddd;
   z-index: 1;
 
@@ -109,6 +110,13 @@
 
   .selected .linewrap {
     display: block;
+
+    @media (max-width: 700px) {
+      animation: 300ms ss-to-stop-station-nodelay ease 1;  
+    }
+    @media (min-width: 700px) {
+      animation: 250ms ss-to-stop-station-large ease 1;
+    }
   }
 
   ul {
@@ -256,9 +264,60 @@
     }
   }
 }
+@media (max-width: 600px) {
+  .cfContainer {
+    background: #000;
+    height: 100%;
+  }
+  
+  .listStations:not(.activepane) {
+    animation: 500ms ss-to-stop-nav ease 1;
+  }
+  .listStationsContainer {
+    .station {
+      animation: 500ms ss-to-stop-station ease 1;
+    }
+  }
+  .goingback {
+    .listStations {
+      animation: 500ms stop-to-ss-nav ease 1;
+    }
+    .listStationsContainer {
+      .station {
+        animation: 500ms stop-to-ss-station ease 1;
+        transform: translate3d(100vw,0,0);
+      }
+    }
+  } 
+}
+@media (max-width: 700px) {
+  .goingbacklocal {
+    .selected .linewrap {
+      animation: 300ms stop-to-ss-station ease 1;
+      transform: translate3d(100vw,0,0);
+    }
+  }
+}
+
+@media (min-width: 600px) {
+  .listStationsContainer {
+    .station {
+      animation: 250ms ss-to-stop-station-large-search ease 1;
+    }
+  }
+
+  .goingback {
+    .listStationsContainer {
+      .station {
+        animation: 250ms stop-to-ss-station-large ease 1;
+        opacity: 0;
+      }
+    }
+  }
+}
 .listStationsContainer {
   .station {
-    @include mobile-desktop-absolute()
+    @include mobile-desktop-absolute();
     z-index: 5;
     background: #fff;
   }

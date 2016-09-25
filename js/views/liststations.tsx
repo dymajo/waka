@@ -14,17 +14,45 @@ interface IListStationsProps extends React.Props<ListStations>{
 }
 
 interface IListStationsState {
+  back: boolean
 }
 
 class ListStations extends React.Component<IListStationsProps, IListStationsState>{
   constructor(props){
     super(props)
+    this.state = {
+      back: false
+    }
+    this.triggerBack = this.triggerBack.bind(this)
+
+    UiStore.bind('goingBack', this.triggerBack)
+  }
+
+  private componentWillUnmount() {
+    UiStore.unbind('goingBack', this.triggerBack)
+  }
+
+  public triggerBack() {
+    this.setState({
+      back: UiStore.getState().goingBack
+    })
   }
   
   public render() {
     var className = 'listStations'
+    if (!this.props.children) {
+      className += ' activepane'
+    }
+    var cfclassName = 'cfContainer'
+    if (this.state.back) {
+      if (window.location.pathname === '/cf') {
+        cfclassName += ' goingbacklocal'
+      } else {
+        cfclassName += ' goingback'
+      }  
+    }
     return(
-      <div>
+      <div className={cfclassName}>
         <div className={className}>
           <div className="listStationsBackground"></div>
           <h1>Congestion Free Network</h1>
@@ -171,23 +199,25 @@ class StationItem extends React.Component<IStationItemProps, {}> {
           <div className="icon" style={{backgroundColor: this.props.color}}>{this.props.icon}</div>
           {this.props.name}</h2>
         <div className="linewrap">
-          <h2 onClick={this.triggerClick}>
+          <h2>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
             <div className="icon" style={{backgroundColor: this.props.color}}>{this.props.icon}</div>
             {this.props.name}
           </h2>
-          <ul style={{borderColor: this.props.color}} className="enable-scrolling" onTouchStart={iOS.triggerStart}>
-          {this.props.stations.map(function(item) {
-            var zone
-            if (item.zone) {
-              zone = <span>Z</span>
-            }
-            var className
-            if (item.name === '') {
-              className = 'zoneonly'
-            }
-            return <li onTouchTap={triggerClick(item.id)} key={item.id} className={className}>{item.name}{zone}</li>
-          })}
+          <ul className="enable-scrolling" onTouchStart={iOS.triggerStart}>
+            <div className="scrollwrap" style={{borderColor: this.props.color}}>
+            {this.props.stations.map(function(item) {
+              var zone
+              if (item.zone) {
+                zone = <span>Z</span>
+              }
+              var className
+              if (item.name === '') {
+                className = 'zoneonly'
+              }
+              return <li onTouchTap={triggerClick(item.id)} key={item.id} className={className}>{item.name}{zone}</li>
+            })}
+            </div>
           </ul>
         </div>
       </div>

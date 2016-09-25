@@ -51,7 +51,9 @@ export namespace UiStore {
     if (iOS.detect() && !(window as any).navigator.standalone && !state.triggeredBack) {
       return callback()
     }
-    if ((nextState.location.action == 'POP' && (nextState.location.pathname == '/ss' || nextState.location.pathname == '/s')) || state.triggeredBack) {
+    var p = nextState.location.pathname
+    var sp = p.split('/')
+    if ((nextState.location.action == 'POP' && ((sp[1] == 'cf' && sp.length === 3) || sp.length === 2)) || state.triggeredBack) {
       state.goingBack = true
       UiStore.trigger('goingBack')
 

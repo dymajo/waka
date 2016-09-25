@@ -33,7 +33,8 @@ class App extends React.Component<IAppProps, {}> {
           <Route onChange={UiStore.handleReactChange} path="s" component={Search}>
             <Route path=":station" component={Station} />
           </Route>
-          <Route path="cf" component={ListStations}>
+          <Route onChange={UiStore.handleReactChange} path="cf">
+            <IndexRoute component={ListStations} />
             <Route path=":line" component={ListStations}>
               <Route path=":station" component={Station} />
             </Route>
