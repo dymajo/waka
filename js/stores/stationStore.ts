@@ -47,7 +47,7 @@ export namespace StationStore {
             //return '#a60048' official
             return '#e52f2b'
           case 'EAST': // East Line
-            return '#fec132'
+            return '#f39c12'
           case 'PUK': // South Line
             //return '#a60048'
             return '#e52f2b'

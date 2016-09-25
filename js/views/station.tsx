@@ -123,12 +123,18 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
 
     // removed <li>›</li> for now
+    var roundelStyle
+    var code = this.props.code
+    if (this.props.code === 'WEST' || this.props.code === 'EAST' || this.props.code === 'ONE' || this.props.code === 'STH' || this.props.code === 'NEX') {
+      roundelStyle = 'cf'
+      code = this.props.code[0]
+    }
 
     return (
       <li className={className}><ul className={active}>
         <li>
-          <div style={{backgroundColor: StationStore.getColor(this.props.agency_id, this.props.code)}}>
-            {this.props.code}
+          <div className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.props.agency_id, this.props.code)}}>
+            {code}
           </div>
         </li>
         <li>{name}{via}{emoji}</li>
@@ -253,8 +259,11 @@ class Station extends React.Component<IAppProps, IAppState> {
       } else {
         allRequests[0] = request(`/a/station/${newProps.routeParams.station}`).then((data) => {
           requestAnimationFrame(() => {
+            var name = data.stop_name.replace(' Train Station', '')
+            name = name.replace(' Ferry Terminal', '')
+
             this.setStatePartial({
-              name: data.stop_name,
+              name: name,
               description: `Stop ${this.props.routeParams.station} / ${data.stop_name}`,
               stop: this.props.routeParams.station
             })

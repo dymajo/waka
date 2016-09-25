@@ -371,6 +371,17 @@
 				padding: 4px;
 				color: #fff;
 				font-size: 16px;
+
+				&.cf {
+					width: 16px;
+					padding: 4px;
+					border-color: transparent;
+					font-weight: 600;
+					border-radius: 50%;
+					text-align: center;
+					text-shadow: 0 0 0 #000;
+					font-weight: 600;
+				}
 			}
 		}
 		&:nth-child(2) {
@@ -426,6 +437,11 @@
 				width: 56px;
 				div {
 					font-size: 14px;
+
+					&.cf {
+						width: 14px;
+						padding: 4px;
+					}
 				}
 			}
 			&:nth-child(2) {
@@ -469,6 +485,11 @@
 				div {
 					padding: 4px 2px;
 					font-size: 13px;
+
+					&.cf {
+						width: 13px;
+						padding: 3px;
+					}
 				}
 			}
 			&:nth-child(2) {
