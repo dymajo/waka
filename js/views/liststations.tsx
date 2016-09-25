@@ -72,10 +72,28 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
             { name: 'Hibiscus Coast Station', id: '13'}
           ]} />
           <StationItem icon="f" active={this.props.routeParams.line}
-            name="Ferries" color="#000" stations={[{
-            name: 'Downtown',
-            id: '234'
-          }]} />
+            name="Ferries" color="#000" stations={[
+              {name: 'Downtown Pier 1', id: '9600'},
+              {name: 'Downtown Pier 1A', id: '9604'},
+              {name: 'Downtown Pier 2', id: '9610'},
+              {name: 'Downtown Pier 3', id: '9620'},
+              // don't think this pier is used?
+              //{name: 'Downtown Pier 3D', id: '9623'},
+              {name: 'Downtown Pier 4', id: '9630'},
+              {name: 'Beach Haven', id: '9650'},
+              {name: 'Bayswater', id: '9640'},
+              {name: 'Birkenhead', id: '9660'},
+              {name: 'Devonport', id: '9670'},
+              {name: 'Gulf Harbour', id: '9690'},
+              {name: 'Half Moon Bay', id: '9700'},
+              {name: 'Hobsonville', id: '9720'},
+              {name: 'Northcote Point', id: '9730'},
+              {name: 'Pine Harbour', id: '9740'},
+              {name: 'Rangitoto', id: '9760'},
+              {name: 'Stanley Point', id: '9770'},
+              {name: 'Waiheke', id: '9790'},
+              {name: 'West Harbour', id: '9810'}
+            ]} />
           <StationItem icon="e" active={this.props.routeParams.line}
             name="Eastern Line" color="#fec132" stations={[
             {name: 'Britomart', id: '0133'},

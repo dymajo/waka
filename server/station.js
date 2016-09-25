@@ -440,7 +440,7 @@ var station = {
 
           // forces a cache update
           if (sending.trips.length === 0 && deleteCount > 0 && force !== true) {
-            stopTimes(req, res, true)
+            station.stopTimes(req, res, true)
             return  
           }
           

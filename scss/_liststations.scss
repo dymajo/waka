@@ -168,7 +168,7 @@
       }
     }
 
-    &:active {
+    &:active:not(.zoneonly) {
       color: $atblue;
       background: darken($list-color, 10);
     }
