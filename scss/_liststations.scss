@@ -81,6 +81,10 @@
     text-decoration: none;
     display: inline-block;
     font-size: 13px;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .selected h2, h2:active {
@@ -200,7 +204,7 @@
       }
     }
 
-    span {
+    .zone {
       vertical-align: top;
       display: inline-block;
       background: $atblue;
@@ -216,6 +220,30 @@
       position: absolute;
       left: $zemargin - 11px;
       z-index: 2;
+    }
+    .interchange {
+      font-weight: normal;
+      background: #000;
+      width: 22px;
+      line-height: 22px;
+      display: inline-block;
+      border-radius: 50%;
+      text-align: center;
+      color: #fff;
+      font-size: 11px;
+      margin-top: 3px;
+      margin-left: 2px;
+      text-transform: uppercase;
+      vertical-align: top;
+
+      &.pad {
+        width: 21px;
+        padding-right: 1px;
+      }
+
+      &:first-child {
+        margin-left: 7px;
+      }
     }
 
     &::before {

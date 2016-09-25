@@ -56,9 +56,9 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
         <div className={className}>
           <div className="listStationsBackground"></div>
           <h1>Congestion Free Network</h1>
-          <StationItem icon="x" active={this.props.routeParams.line}
-            name="Northern Express" color="#0056a9" stations={[
-            { name: 'Britomart', id: '234'},
+          <StationItem icon="n" active={this.props.routeParams.line}
+            name="Northern Busway" stations={[
+            { name: 'Britomart', id: '234', interchange: 'feosw'},
             { name: 'Sturdee Street', id: '293'},
             { name: 'Fanshawe Street', id: '290'},
             { name: 'Victoria Park', id: '2920'},
@@ -72,7 +72,7 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
             { name: 'Hibiscus Coast Station', id: '13'}
           ]} />
           <StationItem icon="f" active={this.props.routeParams.line}
-            name="Ferries" color="#000" stations={[
+            name="Ferries" stations={[
               {name: 'Downtown Pier 1', id: '9600'},
               {name: 'Downtown Pier 1A', id: '9604'},
               {name: 'Downtown Pier 2', id: '9610'},
@@ -95,8 +95,8 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
               {name: 'West Harbour', id: '9810'}
             ]} />
           <StationItem icon="e" active={this.props.routeParams.line}
-            name="Eastern Line" color="#fec132" stations={[
-            {name: 'Britomart', id: '0133'},
+            name="Eastern Line" stations={[
+            {name: 'Britomart', id: '0133', interchange: 'nfosw'},
             { name: '', id: 'izone', zone: true},
             {name: 'Orakei', id: '0116'},
             {name: 'Meadowbank', id: '0117'},
@@ -104,36 +104,36 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
             {name: 'Panmure', id: '0130'},
             {name: 'Sylvia Park', id: '0244'},
             {name: 'Westfield', id: '0111'},
-            {name: 'Otahuhu', id: '0101', zone: true},
+            {name: 'Otahuhu', id: '0101', zone: true, interchange: 's'},
             {name: 'Middlemore', id: '0109'},
-            {name: 'Papatoetoe', id: '0100'},
-            {name: 'Puhinui', id: '0108'},
+            {name: 'Papatoetoe ✈', id: '0100'},
+            {name: 'Puhinui', id: '0108', interchange: 's'},
             {name: 'Manukau', id: '9218'}
           ]} />
           <StationItem icon="o" active={this.props.routeParams.line}
-            name="Onehunga Line" color="#21b4e3" stations={[
-            {name: 'Britomart', id: '0133'},
-            {name: 'Newmarket', id: '0115', zone: true},
+            name="Onehunga Line" stations={[
+            {name: 'Britomart', id: '0133', interchange: 'nfesw'},
+            {name: 'Newmarket', id: '0115', zone: true, interchange: 'sw'},
             {name: 'Remuera', id: '0114'},
             {name: 'Ellerslie', id: '0113'},
             {name: 'Greenlane', id: '0112'},
-            {name: 'Penrose', id: '0102'},
+            {name: 'Penrose', id: '0102', interchange: 's'},
             {name: 'Te Papapa', id: '0606'},
             {name: 'Onehunga ✈', id: '0605'}
           ]} />
           <StationItem icon="s" active={this.props.routeParams.line}
-            name="Southern Line" color="#e52f2b" stations={[
-            {name: 'Britomart', id: '0133'},
-            {name: 'Newmarket', id: '0115', zone: true},
+            name="Southern Line" stations={[
+            {name: 'Britomart', id: '0133', interchange: 'nfeow'},
+            {name: 'Newmarket', id: '0115', zone: true, interchange: 'ow'},
             {name: 'Remuera', id: '0114'},
             {name: 'Greenlane', id: '0113'},
             {name: 'Ellerslie', id: '0112'},
-            {name: 'Penrose', id: '0102'},
+            {name: 'Penrose', id: '0102', interchange: 'o'},
             {name: 'Westfield', id: '0111'},
-            {name: 'Otahuhu', id: '0101', zone: true},
+            {name: 'Otahuhu', id: '0101', zone: true, interchange: 'e'},
             {name: 'Middlemore', id: '0109'},
             {name: 'Papatoetoe ✈', id: '0100'},
-            {name: 'Puhinui', id: '0108', zone: true},
+            {name: 'Puhinui', id: '0108', zone: true, interchange: 'e'},
             {name: 'Homai', id: '0099'},
             {name: 'Manurewa', id: '0098'},          
             {name: 'Te Mahia', id: '0107'},
@@ -143,9 +143,9 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
             {name: 'Pukekohe', id: '0134'}
           ]} />
           <StationItem icon="w" active={this.props.routeParams.line}
-            name="Western Line" color="#4f9734" stations={[
-            {name: 'Britomart', id: '0133'},
-            {name: 'Newmarket', id: '0115'},
+            name="Western Line" stations={[
+            {name: 'Britomart', id: '0133', interchange: 'nfeos'},
+            {name: 'Newmarket', id: '0115', interchange: 'os'},
             {name: 'Grafton', id: '0277'},
             {name: 'Mt Eden ✈', id: '0118'},
             {name: 'Kingsland', id: '0122', zone: true},
@@ -175,11 +175,11 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
 interface Station {
   name: string,
   id: string,
-  zone?: boolean
+  zone?: boolean,
+  interchange?: string
 }
 interface IStationItemProps extends React.Props<StationItem> {
   name: string,
-  color: string,
   stations: Array<Station>,
   active: string,
   icon: string
@@ -197,7 +197,7 @@ class StationItem extends React.Component<IStationItemProps, {}> {
   public triggerItemClick(id) {
     var icon = this.props.icon
     return function(e) {
-      if (icon === 'x') {
+      if (icon === 'n') {
         return console.log('please fix issue #15 first')
       }
       browserHistory.push(`/cf/${icon}/${id}`)
@@ -206,7 +206,24 @@ class StationItem extends React.Component<IStationItemProps, {}> {
   public triggerBack() {
     UiStore.navigateSavedStations('/cf')
   }
+  public getColor(icon) {
+    switch(icon) {
+      case 'n':
+        return '#0056a9'
+      case 'e':
+        return '#f39c12'
+      case 'o':
+        return '#21b4e3'
+      case 's':
+        return '#e52f2b'
+      case 'w':
+        return '#4f9734'
+      default:
+        return '#000'
+    }
+  }
   public render() {
+    var col = this.getColor
     var className
     if (this.props.active === this.props.icon) {
       className = 'selected'
@@ -215,26 +232,48 @@ class StationItem extends React.Component<IStationItemProps, {}> {
     return (
       <div className={className}>
         <h2 onTouchTap={this.triggerClick}>
-          <div className="icon" style={{backgroundColor: this.props.color}}>{this.props.icon}</div>
+          <div className="icon" style={{backgroundColor: col(this.props.icon)}}>{this.props.icon}</div>
           {this.props.name}</h2>
         <div className="linewrap">
           <h2>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
-            <div className="icon" style={{backgroundColor: this.props.color}}>{this.props.icon}</div>
+            <div className="icon" style={{backgroundColor: col(this.props.icon)}}>{this.props.icon}</div>
             {this.props.name}
           </h2>
           <ul className="enable-scrolling" onTouchStart={iOS.triggerStart}>
-            <div className="scrollwrap" style={{borderColor: this.props.color}}>
+            <div className="scrollwrap" style={{borderColor: col(this.props.icon)}}>
             {this.props.stations.map(function(item) {
               var zone
               if (item.zone) {
-                zone = <span>Z</span>
+                zone = <span className="zone">Z</span>
               }
               var className
               if (item.name === '') {
                 className = 'zoneonly'
               }
-              return <li onTouchTap={triggerClick(item.id)} key={item.id} className={className}>{item.name}{zone}</li>
+              var interchange = []
+              if (item.interchange) {
+                item.interchange.split('').map(function(icon) {
+                  var iclass = 'interchange'
+                  // just a design thing
+                  if (icon === 'f' || icon === 'n') {
+                    iclass += ' pad'
+                  }
+                  interchange.push(
+                    <span key={icon} style={{backgroundColor: col(icon)}} className={iclass}>
+                      {icon}
+                    </span>
+                  )
+                })
+              }
+              return (
+                <li onTouchTap={triggerClick(item.id)}
+                    key={item.id}
+                    className={className}>
+                    {item.name}
+                    {interchange}{zone}
+                </li>
+              )
             })}
             </div>
           </ul>
