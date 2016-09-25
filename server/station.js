@@ -41,7 +41,7 @@ var exceptionCache = {
     var d = time.date()
     var today = moment(Date.UTC(y, m, d, 0, 0))
     // fix for late night services
-    if (today.hour() < 5) { 
+    if (time.hour() < 5) { 
       today.day(today.day()-1)
     }
     if (exceptionCache.updated !== today.toISOString()) {
