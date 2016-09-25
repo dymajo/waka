@@ -72,6 +72,17 @@
     }
   }
 
+  a {
+    color:rgba(255,255,255,0.6);
+    max-width: $list-width;
+    margin: 14px;
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+  }
+
   .selected h2, h2:active {
     background: rgba(0,0,0,0.15);
   }
