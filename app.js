@@ -18,6 +18,9 @@ app.get('/*', cb)
  
 // the router routes stuff through this port
 var port = 8000
+if (process.env.NODE_ENV === 'dev') {
+  port = 8001
+}
 app.listen(port, function() {
 	console.log('listening on localhost:' + port)
 });
