@@ -58,18 +58,17 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
           <h1>Congestion Free Network</h1>
           <StationItem icon="n" active={this.props.routeParams.line}
             name="Northern Busway" stations={[
-            { name: 'Britomart', id: '234', interchange: 'feosw'},
-            { name: 'Sturdee Street', id: '293'},
-            { name: 'Fanshawe Street', id: '290'},
-            { name: 'Victoria Park', id: '2920'},
+            { name: 'Britomart', id: '7071', interchange: 'feosw'},
+            { name: 'Sturdee Street', id: '7034+7004'},
+            { name: 'Victoria Park', id: '7036+1315'},
             { name: '', id: 'szone', zone: true},
-            { name: 'Akoranga Station', id: '23x4'},
-            { name: 'Smales Farm Station', id: '230'},
-            { name: 'Sunnynook Station', id: '232x'},
-            { name: 'Constellation Park & Ride', id: '130', zone: true},
-            { name: 'Albany Park & Ride', id: '13x'},
+            { name: 'Akoranga Station', id: '4063+4065+4083+4087+4085+4089'},
+            { name: 'Smales Farm Station', id: '3355+3360+3362+3353'},
+            { name: 'Sunnynook Station', id: '3221+3219+3238+3240'},
+            { name: 'Constellation Park & Ride', id: '4222+4225+4223', zone: true},
+            { name: 'Albany Park & Ride', id: '4227+4229+4226+4228'},
             { name: '', id: 'hzone', zone: true},
-            { name: 'Hibiscus Coast Station', id: '13'}
+            { name: 'Hibiscus Coast Station', id: '4569'}
           ]} />
           <StationItem icon="f" active={this.props.routeParams.line}
             name="Ferries" stations={[
@@ -197,9 +196,6 @@ class StationItem extends React.Component<IStationItemProps, {}> {
   public triggerItemClick(id) {
     var icon = this.props.icon
     return function(e) {
-      if (icon === 'n') {
-        return console.log('please fix issue #15 first')
-      }
       browserHistory.push(`/cf/${icon}/${id}`)
     }
   }

@@ -211,7 +211,7 @@
     }
 
     ul {
-      overflow-y: hidden;
+      overflow-y: auto;
       padding: 5px 0;
       box-sizing: border-box;
       flex: 1;
@@ -226,6 +226,7 @@
     li {
       display: flex;
       padding: 5px 10px;
+      cursor: default;
 
       @media (pointer: fine) {
         &:hover {

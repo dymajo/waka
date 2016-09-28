@@ -42,19 +42,26 @@ interface IAppProps extends React.Props<Station> {
   }
 }
 interface IAppState {
-  name: string,
-  description: string,
-  stop: string,
-  trips: Array<ServerTripItem>,
-  realtime: RealTimeMap,
-  loading: boolean,
-  saveModal: boolean,
-  webp: boolean
+  name?: string,
+  description?: string,
+  stop?: string,
+  trips?: Array<ServerTripItem>,
+  realtime?: RealTimeMap,
+  loading?: boolean,
+  saveModal?: boolean,
+  webp?: boolean
 }
 
 // hack
 let liveRefresh = undefined
 let allRequests = [undefined, undefined, undefined]
+let tripsSort = function(a,b) {
+  var rv = Math.floor(a.arrival_time_seconds/60) - Math.floor(b.arrival_time_seconds/60)
+  if (rv === 0) {
+      rv = a.route_short_name.localeCompare(b.route_short_name)
+  }
+  return rv
+}
 
 class Station extends React.Component<IAppProps, IAppState> {
   public state : IAppState
@@ -115,9 +122,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
   }
   private getData(newProps, refreshMode = false) {
-    var tripsSort = function(a,b) {
-      return a.arrival_time_seconds - b.arrival_time_seconds
-    }
     // don't do this
     if (!refreshMode) {
       var cachedName = StationStore.getData()[newProps.routeParams.station]
@@ -148,51 +152,85 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
 
     allRequests[1] = request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
-      //console.log(data)
-      // Seems like a server bug?
-      if (typeof(data.trips.length) === 'undefined' || data.trips.length === 0) {
-        return this.setStatePartial({
-          loading: false
-        })
-      }
+      this.tripsCb(data.trips)
+    })
+  }
+  private getMultiData(newProps, refreshMode = false) {
+    var stations = newProps.routeParams.station.split('+')
+    // too many stations
+    if (stations.length > 7) {
+      return this.setState({
+        loading: false
+      } as IAppState)
+    }
 
-      data.trips.sort(tripsSort)
-      this.setStatePartial({
-        trips: data.trips,
+
+    var name = StationStore.getMulti(newProps.routeParams.station)
+    this.setStatePartial({
+      name: name,
+      description: `Busway Stops ${stations.join(', ')}`,
+      stop: stations[0]
+    })
+
+    var tripData = []
+    var promises = []
+    stations.forEach(function(station) {
+      promises.push(new Promise(function(resolve, reject) {
+        request(`/a/station/${station}/times`).then((data) => {
+          tripData = tripData.concat(data.trips)
+          resolve()
+        })
+      }))
+    })
+
+    Promise.all(promises).then(() => {
+      this.tripsCb(tripData)
+    })
+
+  }
+  private tripsCb(tripData) {
+    if (typeof(tripData.length) === 'undefined' || tripData.length === 0) {
+      return this.setStatePartial({
         loading: false
       })
+    }
+    tripData.sort(tripsSort)
 
-      // only realtime request for buses
-      if (data.trips[0].route_type !== 3) {
-        return
+    this.setState({
+      trips: tripData,
+      loading: false
+    } as IAppState)
+
+    // only realtime request for buses
+    if (tripData[0].route_type !== 3) {
+      return
+    }
+
+    var queryString = []
+    tripData.forEach(function(trip) {
+      var arrival = new Date()
+      arrival.setHours(0)
+      arrival.setMinutes(0)
+      arrival.setSeconds(parseInt(trip.arrival_time_seconds))
+
+      // only gets realtime info for things +30mins away
+      if (arrival.getTime() < (new Date().getTime() + 1800000)) {
+        queryString.push(trip.trip_id)
       }
+    })
 
-      var queryString = []
-      data.trips.forEach(function(trip) {
-        var arrival = new Date()
-        arrival.setHours(0)
-        arrival.setMinutes(0)
-        arrival.setSeconds(parseInt(trip.arrival_time_seconds))
-
-        // only gets realtime info for things +30mins away
-        if (arrival.getTime() < (new Date().getTime() + 1800000)) {
-          queryString.push(trip.trip_id)
-        }
-      })
-
-      // now we do a request to the realtime API
-      allRequests[2] = request({
-        method: 'post',
-        type: 'json',
-        contentType: 'application/json',
-        url: `/a/realtime`,
-        data: JSON.stringify({trips: queryString})
-      }).then((rtData) => {
-        this.setStatePartial({
-          // because typescript is dumb, you have to repass
-          realtime: rtData
-        })        
-      })
+    // now we do a request to the realtime API
+    allRequests[2] = request({
+      method: 'post',
+      type: 'json',
+      contentType: 'application/json',
+      url: `/a/realtime`,
+      data: JSON.stringify({trips: queryString})
+    }).then((rtData) => {
+      this.setStatePartial({
+        // because typescript is dumb, you have to repass
+        realtime: rtData
+      })        
     })
   }
   public triggerBack() {
@@ -224,13 +262,21 @@ class Station extends React.Component<IAppProps, IAppState> {
   }  
   public componentDidMount() {
     requestAnimationFrame(() => {
-      this.getData(this.props)
+      if (this.props.routeParams.station.split('+').length === 1) {
+        this.getData(this.props)
+      } else {
+        this.getMultiData(this.props)
+      }
     })
 
     // now we call our function again to get the new times
     // every 30 seconds
     liveRefresh = setInterval(() => {
-      this.getData(this.props, true)
+      if (this.props.routeParams.station.split('+').length === 1) {
+        this.getData(this.props, true)
+      } else {
+        this.getMultiData(this.props, true)
+      }
     }, 30000)
   }
   public componentWillUnmount() {
@@ -271,9 +317,9 @@ class Station extends React.Component<IAppProps, IAppState> {
   public render() {
     var bgImage = {}
     if (this.state.webp === false) {
-      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.png)'}
+      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.png)'}
     } else if (this.state.webp === true) {
-      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station + '.webp)'}
+      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.webp)'}
     }
 
     var time = new Date()
@@ -290,14 +336,16 @@ class Station extends React.Component<IAppProps, IAppState> {
     var saveButton
     var addButton
     var cancelButton
-    if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
-      saveButton = <span className="save" onClick={this.triggerSave}>Save</span>  
-      cancelButton = 'Cancel'
-      addButton = 'Add Stop'
-    } else {
-      saveButton = <span className="remove" onClick={this.triggerSave}>Saved</span>
-      cancelButton = 'Remove Stop'
-      addButton = 'Rename'
+    if (!this.state.loading) {
+      if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
+        saveButton = <span className="save" onClick={this.triggerSave}>Save</span>  
+        cancelButton = 'Cancel'
+        addButton = 'Add Stop'
+      } else {
+        saveButton = <span className="remove" onClick={this.triggerSave}>Saved</span>
+        cancelButton = 'Remove Stop'
+        addButton = 'Rename'
+      }
     }
     
     var iconString
@@ -357,14 +405,16 @@ class Station extends React.Component<IAppProps, IAppState> {
           <div className="scrollwrap">
             {loading}
             {this.state.trips.map((trip) => {
+              var key = trip.trip_id + trip.stop_sequence.toString()
               return <TripItem 
                 code={trip.route_short_name}
                 time={trip.arrival_time_seconds}
                 name={trip.trip_headsign}
                 long_name={trip.route_long_name}
-                key={trip.trip_id}
+                key={key} // because what if they use a multistop
                 trip_id={trip.trip_id}
                 agency_id={trip.agency_id}
+                stop_code={this.props.routeParams.station}
                 stop_sequence={trip.stop_sequence}
                 realtime={this.state.realtime[trip.trip_id]}
                />

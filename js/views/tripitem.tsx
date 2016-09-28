@@ -20,6 +20,7 @@ interface ITripItemProps extends React.Props<TripItem> {
   time: string,
   trip_id: string,
   stop_sequence: number,
+  stop_code: string,
   realtime: RealTimeItem,
   agency_id: string
 }
@@ -48,7 +49,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
 
     if (this.props.realtime) {
       arrival.setSeconds(arrival.getSeconds() + (this.props.realtime.delay))
-      let time = Math.round((arrival.getTime()-new Date().getTime())/60000)
+      let time = Math.abs(Math.round((arrival.getTime()-new Date().getTime())/60000))
       if (time === 0) {
         timestring = 'due'
       } else {
@@ -68,7 +69,8 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       if (stops_away_no < 0) {
         stops_away = 'Departed' // let the rider down :(
       } else if (stops_away_no === 0) {
-        stops_away = 'Arrived'
+        //stops_away = 'Arrived' // usually departed
+        stops_away = 'Departed'
       } else if (stops_away_no === 1) {
         if (timestring === 'due') {
           stops_away = <span>{stops_away_no} stop away</span>
@@ -91,9 +93,14 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     if (new Date().getTime() > arrival.getTime()) {
       visibility = false
     }
+    // if it's a busway station, don't show the departed ones
+    var stops_threshold = -1
+    if (this.props.stop_code.split('+').length > 1) {
+      stops_threshold = 0
+    }
     // but if there's a stops away
     var active
-    if (stops_away_no > -2) {
+    if (stops_away_no > stops_threshold) {
       visibility = true
       active = 'active'
     }

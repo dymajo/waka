@@ -127,6 +127,26 @@ export namespace StationStore {
         return '#17232f'
     }
   }
+  export function getMulti(id) {
+    switch (id) {
+      case('7034+7004'):
+        return 'Sturdee Street'
+      case('7036+1315'):
+        return 'Victoria Park'
+      case('4063+4065+4083+4087+4085+4089'):
+        return 'Akoranga Station'
+      case('3355+3360+3362+3353'):
+        return 'Smales Farm Station'
+      case('3221+3219+3238+3240'):
+        return 'Sunnynook Station'
+      case('4222+4225+4223'):
+        return 'Constellation Park & Ride'
+      case('4227+4229+4226+4228'):
+        return 'Albany Park & Ride'
+      default:
+        return 'Multi Station'
+    }
+  }
   let StationData = <StationMap>{}
   if (localStorage.getItem('StationData')) {
     StationData = JSON.parse(localStorage.getItem('StationData'))
@@ -152,12 +172,20 @@ export namespace StationStore {
     if (typeof(StationData[stopNumber]) === 'undefined') {
       StationOrder.push(stopNumber)
     }
-    request(`/a/station/${stopNumber}`).then((data) => {
+    var stopNumberReq = stopNumber
+    if (stopNumber.split('+').length > 1) {
+      stopNumberReq = stopNumber.split('+')[0]
+    }
+    request(`/a/station/${stopNumberReq}`).then((data) => {
+      var description = `Stop ${stopNumber} / ${data.stop_name}`
+      if (stopNumber.split('+').length > 1) {
+        description = 'Northern Busway / ' + getMulti(stopNumber)
+      }
       StationData[stopNumber] = {
         name: stopName,
         stop_lat: data.stop_lat,
         stop_lon: data.stop_lon,
-        description: `Stop ${stopNumber} / ${data.stop_name}`,
+        description: description,
         icon: getIcon(stopNumber)
       }
       StationStore.trigger('change')
