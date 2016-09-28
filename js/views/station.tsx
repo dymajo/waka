@@ -405,6 +405,9 @@ class Station extends React.Component<IAppProps, IAppState> {
           <div className="scrollwrap">
             {loading}
             {this.state.trips.map((trip) => {
+              if (typeof(trip.stop_sequence) === 'undefined') {
+                return
+              }
               var key = trip.trip_id + trip.stop_sequence.toString()
               return <TripItem 
                 code={trip.route_short_name}
