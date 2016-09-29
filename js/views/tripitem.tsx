@@ -19,6 +19,7 @@ interface ITripItemProps extends React.Props<TripItem> {
   long_name: string,
   time: string,
   trip_id: string,
+  station: string,
   stop_sequence: number,
   stop_code: string,
   realtime: RealTimeItem,
@@ -93,25 +94,19 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     if (new Date().getTime() > arrival.getTime()) {
       visibility = false
     }
-    // if it's a busway station, don't show the departed ones
-    var stops_threshold = -1
-    if (this.props.stop_code.split('+').length > 1) {
-      stops_threshold = 0
-    }
+
     // but if there's a stops away
     var active
     if (stops_away_no > stops_threshold) {
       visibility = true
       active = 'active'
     }
+
     // not sure if we need to do other checks?
     var className = ''
     if (!visibility) {
       className = 'hidden'
     }
-    // remove train station because it's unecessary
-    var name = this.props.name.replace(' Train Station', '')
-    name = name.replace(' Ferry Terminal', '')
 
     var via
     if (SettingsStore.getState().longName) {
@@ -121,6 +116,18 @@ class TripItem extends React.Component<ITripItemProps, {}> {
         className += ' via'
       }
     }
+
+    // if it's a busway station, don't show the departed ones
+    var stops_threshold = -1
+    if (this.props.stop_code.split('+').length > 1) {
+      stops_threshold = 0
+      via = <small>{StationStore.getPlatform(this.props.station)}</small>
+      className += ' via'
+    }
+    
+    // remove train station because it's unecessary
+    var name = this.props.name.replace(' Train Station', '')
+    name = name.replace(' Ferry Terminal', '')
 
     // removed <li>›</li> for now
     var roundelStyle
@@ -137,7 +144,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
             {code}
           </div>
         </li>
-        <li>{name}{via}{emoji}</li>
+        <li>{name}{emoji}{via}</li>
         <li>{stops_away}</li>
         
       </ul></li>

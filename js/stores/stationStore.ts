@@ -147,6 +147,36 @@ export namespace StationStore {
         return 'Multi Station'
     }
   }
+  export function getPlatform(id) {
+    var mappings = {
+      '7034': 'Northbound',
+      '7004': 'To City',
+      '7036': 'Northbound',
+      '1315': 'To City',
+      '4063': 'Platform 1',
+      '4065': 'Platform 2',
+      '4083': 'Platform 3a',
+      '4087': 'Platform 3b',
+      '4085': 'Platform 4a',
+      '4089': 'Platform 4b',
+      '3355': 'Platform 1',
+      '3360': 'Platform 2',
+      '3362': 'Platform 3a',
+      '3353': 'Platform 3b',
+      '3221': 'Platform 1',
+      '3219': 'Platform 2',
+      '3238': 'Platform 3a',
+      '3240': 'Platform 3b',
+      '4222': 'Platform 2',
+      '4225': 'Platform 3a',
+      '4223': 'Platform 3b',
+      '4227': 'Platform 1a',
+      '4229': 'Platform 1b',
+      '4226': 'Platform 2a',
+      '4228': 'Platform 2b'
+    }
+    return mappings[id]
+  }
   let StationData = <StationMap>{}
   if (localStorage.getItem('StationData')) {
     StationData = JSON.parse(localStorage.getItem('StationData'))

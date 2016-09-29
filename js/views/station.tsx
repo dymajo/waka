@@ -30,6 +30,7 @@ interface ServerTripItem {
   direction_id: string,
   end_date: string,
   frequency: string,
+  station: string,
   route_short_name: string,
   route_type: string,
   start_date: string,
@@ -177,7 +178,10 @@ class Station extends React.Component<IAppProps, IAppState> {
     stations.forEach(function(station) {
       promises.push(new Promise(function(resolve, reject) {
         request(`/a/station/${station}/times`).then((data) => {
-          tripData = tripData.concat(data.trips)
+          data.trips.forEach(function(trip) {
+            trip.station = station
+            tripData.push(trip)
+          })
           resolve()
         })
       }))
@@ -311,7 +315,11 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
     // wait a second :/
     requestAnimationFrame(() => {
-      this.getData(newProps)
+      if (this.props.routeParams.station.split('+').length === 1) {
+        this.getData(newProps)
+      } else {
+        this.getMultiData(newProps)
+      }
     })
   }
   public render() {
@@ -417,6 +425,7 @@ class Station extends React.Component<IAppProps, IAppState> {
                 key={key} // because what if they use a multistop
                 trip_id={trip.trip_id}
                 agency_id={trip.agency_id}
+                station={trip.station}
                 stop_code={this.props.routeParams.station}
                 stop_sequence={trip.stop_sequence}
                 realtime={this.state.realtime[trip.trip_id]}
