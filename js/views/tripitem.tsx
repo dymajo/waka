@@ -89,25 +89,13 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
 
     // logic for visibility
+    var className = ''
     var visibility = true
     // date check
     if (new Date().getTime() > arrival.getTime()) {
       visibility = false
     }
-
-    // but if there's a stops away
-    var active
-    if (stops_away_no > stops_threshold) {
-      visibility = true
-      active = 'active'
-    }
-
-    // not sure if we need to do other checks?
-    var className = ''
-    if (!visibility) {
-      className = 'hidden'
-    }
-
+    
     var via
     if (SettingsStore.getState().longName) {
       var viaSplit = this.props.long_name.split('Via ')
@@ -123,6 +111,18 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       stops_threshold = 0
       via = <small>{StationStore.getPlatform(this.props.station)}</small>
       className += ' via'
+    }
+
+    // but if there's a stops away
+    var active
+    if (stops_away_no > stops_threshold) {
+      visibility = true
+      active = 'active'
+    }
+
+    // not sure if we need to do other checks?
+    if (!visibility) {
+      className = 'hidden'
     }
     
     // remove train station because it's unecessary
