@@ -37,6 +37,11 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
       back: UiStore.getState().goingBack
     })
   }
+  private triggerTab(page) {
+    return function() {
+      browserHistory.push(page)
+    }
+  }
   
   public render() {
     var className = 'listStations'

@@ -20,6 +20,10 @@
       vertical-align: top;
       fill: #fff;
     }
+    img {
+      width: 28px;
+      padding-top: 4px;
+    }
 
     @media (display-mode: standalone) {
       &:first-child {
