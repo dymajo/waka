@@ -103,15 +103,29 @@
 
   @media (max-width: 480px) {
     width: 100%;
-    height: 48px;
+    height: 64px;
 
     ul {
       display: flex;
     }
 
     li {
+      opacity: 0.6;
       flex: 1;
-      height: 48px;
+      height: 64px;
+      box-sizing: border-box;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+
+      svg {
+        width: 24px;
+      }
+
+      &.selected {
+        background: transparent;
+        opacity: 1;
+        border-bottom-color: $lightblue;
+      }
 
       &:hover .tooltip {
         display: none;
@@ -295,12 +309,12 @@
   @media (min-width: 901px) {
     &:not(.activepane) {
       .station {
-        animation: 250ms ss-to-stop-station-large ease 1;
+        animation: 300ms ss-to-stop-station-large ease 1;
       }
     }
     &.goingback {
       .station {
-        animation: 250ms stop-to-ss-station-large ease 1;
+        animation: 300ms stop-to-ss-station-large ease 1;
         opacity: 0;
       }
     }
@@ -339,48 +353,12 @@
       padding-right: 5px;
     }
   }
-
-  @keyframes ss-to-stop-nav {
-    0% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(0.9);
-      opacity: 0.3;
-    }
-  }
   @keyframes ss-to-stop-station {
     0% {
       transform: translate3d(100vw,0,0);
     }
-    50% {
-      transform: translate3d(100vw,0,0);
-    }
     100% {
       transform: translate3d(0,0,0);
-    }
-  }
-  @keyframes ss-to-stop-station-nodelay {
-    0% {
-      transform: translate3d(100vw,0,0);
-    }
-    100% {
-      transform: translate3d(0,0,0);
-    }
-  }
-  @keyframes stop-to-ss-nav {
-    0% {
-      transform: scale(0.9);
-      opacity: 0.3;
-    }
-    50% {
-      transform: scale(0.9);
-      opacity: 0.3;
-    }
-    100% {
-      transform: scale(1);
-      opacity: 1;
     }
   }
   @keyframes stop-to-ss-station {
@@ -395,41 +373,36 @@
   @media (max-width: 600px) {
     background: #000;
     &:not(.activepane) {
-      nav {
-        animation: 500ms ss-to-stop-nav ease 1;
-      }
       &.animate {
         .station {
-          animation: 500ms ss-to-stop-station ease 1;
+          animation: 300ms ss-to-stop-station ease 1;
         }
       }
     }
     &.goingback {
-      nav {
-        animation: 500ms stop-to-ss-nav ease 1;
-      }
       .station {
-        animation: 500ms stop-to-ss-station ease 1;
+        animation: 300ms stop-to-ss-station ease 1;
         transform: translate3d(100vw,0,0);
       }
     }
     nav {
-      @include mobile-desktop-absolute()
       max-width: 600px;
       z-index: 0;
       display: flex;
 
-      h2 {
-        font-size: 18px;
-        background: #1d2e3d;
-        text-transform: none;
-        color: #fff;
-        margin: 0 0 0;
-        line-height: 48px;
-        padding-top: 4px;
-      }
       ul {
         padding: 10px 0;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    nav {
+      h2 {
+        display: none;
+      }
+      ul {
+        top: 0;
       }
     }
   }
@@ -437,7 +410,11 @@
 
 @media (max-width: 600px) {
   .station {
-    @include mobile-desktop-absolute()
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 1;
   }
 }

@@ -21,7 +21,7 @@ html, body, #app {
   display: flex;
   height: 100%;
   @media (max-width: 480px) {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
 }
 
@@ -29,6 +29,7 @@ html, body, #app {
 @import "_leaflet";
 @import "_navigation";
 @import "_search";
+@import "_searchswitch";
 @import "_content";
 @import "_settings";
 @import "_splash";

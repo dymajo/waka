@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
 import { UiStore } from '../stores/uiStore.ts'
+import SearchSwitch from './searchswitch.tsx'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -40,6 +41,7 @@ class Lines extends React.Component<IAppProps, IAppState>{
                 <button onClick={this.viewLine(this.state.service)}>View Line</button>
                 Your line: 
                 {this.props.children}
+                <SearchSwitch />
             </div>
         )
     }

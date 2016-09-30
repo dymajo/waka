@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
 import { UiStore } from '../stores/uiStore.ts'
+import SearchSwitch from './searchswitch.tsx'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -288,10 +289,10 @@ class Search extends React.Component<IAppProps, IAppState> {
             })}
             <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
             <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
-            
           </Map>
         </div>
         {this.props.children}
+        <SearchSwitch />
       </div>
     )
   }

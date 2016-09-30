@@ -3,6 +3,7 @@ import { iOS } from '../models/ios.ts'
 import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
 import { UiStore } from '../stores/uiStore.ts'
+import SearchSwitch from './searchswitch.tsx'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -171,6 +172,7 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
         <div className="listStationsContainer">
           {this.props.children}
         </div>
+        <SearchSwitch />
       </div>
     )
   }
