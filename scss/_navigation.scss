@@ -103,7 +103,7 @@
 
   @media (max-width: 480px) {
     width: 100%;
-    height: 64px;
+    height: $mobilenavsize;
 
     ul {
       display: flex;
@@ -112,7 +112,7 @@
     li {
       opacity: 0.6;
       flex: 1;
-      height: 64px;
+      height: $mobilenavsize;
       box-sizing: border-box;
       border-top: 4px solid transparent;
       border-bottom: 4px solid transparent;
@@ -420,7 +420,7 @@
 }
 
 .station {
-  background: #fff;
+  background: darken($atblue, 10);
   display: flex;
   flex-direction: column;  
   flex: 1;

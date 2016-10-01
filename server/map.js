@@ -6,7 +6,8 @@ const webp = require('imagemin-webp')
 
 var tableSvc = azure.createTableService()
 
-var url =
+var oldurl =
+
 `https://maps.googleapis.com/maps/api/staticmap?zoom=16&size=600x350&scale=2&maptype=roadmap
 &style=feature:water|element:geometry|color:0xcad2d3|lightness:17
 &style=feature:landscape|element:geometry|color:0xf5f5f5|lightness:20
@@ -21,6 +22,24 @@ var url =
 &style=feature:administrative|element:geometry.stroke|color:0xfefefe|lightness:17|weight:1.2
 &style=element:labels.text.stroke|visibility:off
 &style=element:labels.text.fill|visibility:on|color:0xbbbbbb
+&style=element:labels.icon|visibility:off
+&key=${process.env.mapsApiKey}`.replace(/\r?\n|\r/g, '')
+
+var url =
+
+`https://maps.googleapis.com/maps/api/staticmap?zoom=16&size=600x350&scale=2&maptype=roadmap
+&style=feature:water|element:geometry|color:0x000000|lightness:17
+&style=feature:landscape|element:geometry|color:0x000000|lightness:20
+&style=feature:road.highway|element:geometry.fill|color:0x000000|lightness:17
+&style=feature:road.highway|element:geometry.stroke|color:0x000000|lightness:29|weight:0.2
+&style=feature:road.arterial|element:geometry|color:0x000000|lightness:18
+&style=feature:road.local|element:geometry|color:0x000000|lightness:16
+&style=feature:poi|element:geometry|color:0x000000|lightness:21
+&style=feature:transit|element:geometry|color:0x000000|lightness:19
+&style=feature:administrative|element:geometry.fill|color:0x000000|lightness:20
+&style=feature:administrative|element:geometry.stroke|color:0x000000|lightness:17|weight:1.2
+&style=element:labels.text.stroke|visibility:off|color:0x000000|lightness:16
+&style=element:labels.text.fill|visibility:on|color:0x000000|lightness:40
 &style=element:labels.icon|visibility:off
 &key=${process.env.mapsApiKey}`.replace(/\r?\n|\r/g, '')
 

@@ -144,7 +144,7 @@ class Station extends React.Component<IAppProps, IAppState> {
 
             this.setStatePartial({
               name: name,
-              description: `Stop ${this.props.routeParams.station} / ${data.stop_name}`,
+              description: `${data.stop_name}`,
               stop: this.props.routeParams.station
             })
           })
@@ -325,41 +325,30 @@ class Station extends React.Component<IAppProps, IAppState> {
   public render() {
     var bgImage = {}
     if (this.state.webp === false) {
-      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.png)'}
+      bgImage = {'backgroundImage': 'linear-gradient(rgba(39,61,82,0.2), rgba(39,61,82,0.2)), url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.png)'}
     } else if (this.state.webp === true) {
-      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.webp)'}
+      bgImage = {'backgroundImage': 'linear-gradient(rgba(39,61,82,0.2), rgba(39,61,82,0.2)), url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.webp)'}
     }
-
-    var time = new Date()
-
-    // makes times like 4:9 -> 4:09
-    var minutes = time.getMinutes().toString()
-    if (time.getMinutes() < 10) {
-      minutes = '0' + minutes.toString()
-    }
-    var timestring = <time><span>{time.getHours()}</span><span className="blink">:</span><span>{minutes}</span></time>
-
+    
     var icon = StationStore.getIcon(this.state.stop)
+    var iconStr = this.state.description
+    if (icon === 'bus' && this.state.name !== '') {
+      iconStr = 'Bus Stop ' + this.state.stop
+    }
 
     var saveButton
     var addButton
     var cancelButton
-    if (!this.state.loading) {
-      if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
-        saveButton = <span className="save" onClick={this.triggerSave}>Save</span>  
-        cancelButton = 'Cancel'
-        addButton = 'Add Stop'
-      } else {
-        saveButton = <span className="remove" onClick={this.triggerSave}>Saved</span>
-        cancelButton = 'Remove Stop'
-        addButton = 'Rename'
-      }
+    if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
+      saveButton = <span className="save" onClick={this.triggerSave}><img src="/icons/unsaved.svg" /></span>  
+      cancelButton = 'Cancel'
+      addButton = 'Add Stop'
+    } else {
+      saveButton = <span className="remove" onClick={this.triggerSave}><img src="/icons/saved.svg" /></span>
+      cancelButton = 'Remove Stop'
+      addButton = 'Rename'
     }
-    
-    var iconString
-    if (this.state.name != '') {
-      iconString = <span className="icon"><img src={`/icons/${icon}.svg`} /></span>
-    }
+
     var saveModal = 'saveModal'
     if (!this.state.saveModal) {
       saveModal += ' hidden'
@@ -375,11 +364,6 @@ class Station extends React.Component<IAppProps, IAppState> {
       scrollable += ' enable-scrolling'
     }
 
-    var clockState
-    if (!SettingsStore.getState().clock) {
-      clockState = 'disable-clock'
-    }
-
     return (
       <div className="station">
         <div className={saveModal}>
@@ -390,25 +374,21 @@ class Station extends React.Component<IAppProps, IAppState> {
             <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
           </div>
         </div>
-        <header className={clockState} style={bgImage}>
-          <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
-          {saveButton}
+        <header>
           <div>
-            {iconString}
-            {timestring}
+            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+            {saveButton}
             <h1>{this.state.name}</h1>
-            <h2>{this.state.description}</h2>
+            <h2>{iconStr}</h2>
           </div>
         </header>
-        <ul>
-          <li className="header">
-            <ul>
-              <li>Route</li>
-              <li>Destination</li>
-              <li>Status</li>
-            </ul>
-          </li>
-        </ul>
+        <div className="bg" style={bgImage}>
+          <ul className="bar">
+            <li>All Departures</li>
+            <li>Inbound</li>
+            <li>Outgoing</li>
+          </ul>
+        </div>
         <ul className={scrollable} onTouchStart={iOS.triggerStart}>
           <div className="scrollwrap">
             {loading}
