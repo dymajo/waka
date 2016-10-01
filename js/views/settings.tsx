@@ -33,7 +33,6 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
     }
     return(
       <div className="settingsContainer">
-        <h2 className="settingsHeader">Settings</h2>
         <div className="settings enable-scrolling" onTouchStart={iOS.triggerStart}>
           <div className="scrollwrap">
             <div className="container">

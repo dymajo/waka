@@ -18,65 +18,27 @@
 
   // ipad :(
   @media (orientation: portrait) {
-    .settingsHeader {
-      padding-top: 4px + $status-bar-height;
+    .bignav {
+      padding-top: $status-bar-height;
+    }
+    .search {
+      top: $navsize + $status-bar-height;
     }
     .settings {
-      top: 52px + $status-bar-height;
-    }
-    .savedstations nav h2 {
-      padding-top: 4px + $status-bar-height;
-    }
-    .savedstations nav ul {
-      top: 52px + $status-bar-height;
+      top: $navsize + $status-bar-height;
     }
 
-    .content header {
-      padding-top: 25px + $status-bar-height;
-      @media (max-width: 550px) {
-        padding-top: 15px + $status-bar-height;
+    .content {
+      header div {
+          padding-top: $status-bar-height;
       }
-
-      &::before {
-        height: 20px;
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background: #000;
+      .bg {
+        height: $navsize + 125px + $status-bar-height;
       }
-
-      .back, .save, .remove {
-        top: 15px + $status-bar-height;
+      .scrollable .scrollwrap {
+        padding-top: $navsize + 125px + $status-bar-height;
+        background-position: 0 $navsize + 125px + $status-bar-height;
       }
-    }
-  }
-
-  .searchbox {
-    @media (orientation: portrait) {
-      margin-top: 10px + $status-bar-height;
-    }
-
-    &::before {
-      height: 30px;
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0));
-    }
-
-    // might not be so good on iPad?
-    @media (orientation: landscape) {
-      &::before {
-        display: none;
-      }
-    }
-
-    @media (orientation: portrait) and (max-width: 480px) {
-      margin-top: 15px + $status-bar-height;
     }
   }
 

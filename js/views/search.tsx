@@ -233,10 +233,10 @@ class Search extends React.Component<IAppProps, IAppState> {
           <div className="searchbox">
           <form onSubmit={this.triggerSearch}>
             <input type="tel" placeholder="Enter Stop Number" onChange={this.triggerChange} />
-            <button type="submit" onClick={this.triggerSearch} onFocus={this.triggerSearch}><img src="/icons/search-dark.png" /></button>
+            <button type="submit" onTouchTap={this.triggerSearch} onFocus={this.triggerSearch}><img src="/icons/search-dark.png" /></button>
           </form>
           </div>
-          <button className="currentLocationButton" onClick={this.currentLocateButton}>
+          <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>
           <img src="/icons/location.png" />
             
           </button>
