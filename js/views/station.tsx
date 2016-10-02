@@ -274,7 +274,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public triggerScroll(e) {
-    if (e.target.scrollTop > 97) {
+    if (e.target.scrollTop > 93) {
       if (this.state.stickyScroll === false) {
         this.setState({
           stickyScroll: true
@@ -352,9 +352,9 @@ class Station extends React.Component<IAppProps, IAppState> {
   public render() {
     var bgImage = {}
     if (this.state.webp === false) {
-      bgImage = {'backgroundImage': 'linear-gradient(rgba(39,61,82,0.2), rgba(39,61,82,0.2)), url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.png)'}
+      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.png)'}
     } else if (this.state.webp === true) {
-      bgImage = {'backgroundImage': 'linear-gradient(rgba(39,61,82,0.2), rgba(39,61,82,0.2)), url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.webp)'}
+      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.webp)'}
     }
     
     var icon = StationStore.getIcon(this.state.stop)

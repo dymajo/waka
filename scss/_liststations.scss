@@ -2,7 +2,7 @@
   @include mobile-desktop-absolute();
   overflow-y: auto;
   overflow-x: hidden;
-  background: #ddd;
+  background: #eee;
   z-index: 1;
   @media (max-width: 480px) {
     bottom: 48px;
@@ -18,15 +18,20 @@
     max-width: $list-width;
     width: 100%;
     bottom: 0;
-    background: lighten($atblue, 3);
+    background: $default-back;
+
+    @media (min-width: 701px) {
+      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+      z-index: 1;
+    }
   }
 
   h1 {
-    color: rgba(255,255,255,0.7);
+    color: $atblue;
     text-transform: uppercase;
     font-size: 14px;
     margin: 20px 0 10px;
-    text-indent: 13px;
+    text-indent: 14px;
   }
 
   h1, h2 {
@@ -37,14 +42,14 @@
   }
 
   h2 {
-    color: #fff;
+    color: $atblue;
     padding: 10px 14px;
     margin: 0;
     font-weight: 600;
     box-sizing: border-box;
-    font-size: 20px;
+    font-size: 18px;
     letter-spacing: -0.5px;
-    line-height: 1.5;
+    line-height: 30px;
     -webkit-tap-highlight-color: transparent;
 
     @media (pointer: fine) {
@@ -62,13 +67,14 @@
     }
 
     .icon {
+      color: #fff;
       display: inline-block;
       height: 30px;
       width: 30px;
       font-size: 16px;
       line-height: 30px;
       text-align: center;
-      margin-right: 10px;
+      margin-right: 14px;
       font-weight: normal;
       border-radius: 50%;
       text-transform: uppercase;
@@ -77,9 +83,9 @@
   }
 
   a {
-    color:rgba(255,255,255,0.6);
+    color: $atblue;
     max-width: $list-width;
-    margin: 14px;
+    margin: 7px 14px;
     position: relative;
     z-index: 1;
     text-decoration: none;
@@ -92,7 +98,7 @@
   }
 
   .selected h2, h2:active {
-    background: rgba(0,0,0,0.15);
+    background: #f5f5f5;
   }
 
   .linewrap {
@@ -131,7 +137,7 @@
     display: block;
 
     @media (max-width: 700px) {
-      animation: 300ms ss-to-stop-station ease 1;  
+      animation: 300ms ss-to-stop-station-ios ease 1;  
     }
     @media (min-width: 700px) {
       animation: 300ms ss-to-stop-station-large ease 1;
@@ -314,13 +320,13 @@
   }
   .listStationsContainer {
     .station {
-      animation: 300ms ss-to-stop-station ease 1;
+      animation: 300ms ss-to-stop-station-ios ease 1;
     }
   }
   .goingback {
     .listStationsContainer {
       .station {
-        animation: 300ms stop-to-ss-station ease 1;
+        animation: 300ms stop-to-ss-station-ios ease 1;
         transform: translate3d(100vw,0,0);
       }
     }
@@ -329,7 +335,7 @@
 @media (max-width: 700px) {
   .goingbacklocal {
     .selected .linewrap {
-      animation: 300ms stop-to-ss-station ease 1;
+      animation: 300ms stop-to-ss-station-ios ease 1;
       transform: translate3d(100vw,0,0);
     }
   }

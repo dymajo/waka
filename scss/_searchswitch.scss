@@ -2,12 +2,13 @@
   position: absolute;
   bottom: 0;
   height: 48px;
-  background: #eee;
+  background: #fff;
   left: 0;
   right: 0;
   display: flex;
   box-sizing: border-box;
-  border-top: 1px solid #ccc;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  z-index: 1;
 
   @media (min-width: 481px) {
     display: none;

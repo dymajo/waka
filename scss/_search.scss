@@ -72,80 +72,55 @@
     bottom: 48px;
   }
 }
-.searchbox {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 500;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2),0 -1px 0px rgba(0,0,0,0.02);
-  margin: 10px;
-  background: #fff;
-  border-radius: 2px;
-  max-width: 300px;
-  width: calc(100% - 20px);
-
-  img {
-    width: 20px;
-    padding: 1px 5px;
-    vertical-align: top;
-    opacity: 0.5;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
-  input {
-    border: 0;
-    padding: 10px 15px;
-    background: transparent;
-    outline: 0;
-    box-sizing: border-box;
-    width: calc(100% - 42px);
-    opacity: 1;
-    transition: 300ms ease opacity;
-  }
-  button {
-    background: transparent;
-    border: 0;
-    padding: 0;
-  }
-
-  @media (max-width: 480px) {
-    max-width: none;
-    margin-top: 15px;
-  }
-}
-.currentLocationButton{
+.currentLocationButton, .routeButton {
   position: absolute;
   z-index: 501;
-  bottom: 75px;
-  left: 10px;
+  right: 14px;
   background-color: #fff;
   border: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 -1px 0px rgba(0, 0, 0, 0.02);
-  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
   text-align: center;
-  padding: 4px 0;
-  width: 30px;
+  width: 55px;
+  height: 55px;
   outline: 0;
-
+  
   &:hover {
     background: #f7f7f7;
-    cursor: pointer;
+    cursor: default;
   }
   &:active {
     background: #eee;
   }
 
-  img {
-    width: 13px;
+  svg {
+    width: 24px;
+    padding-top: 4px;
+  }
+}
+.currentLocationButton {
+  bottom: 82px;
+
+  svg {
+    fill: #666;
+  }
+}
+.routeButton {
+  background: $lightblue;
+  bottom: 14px;
+
+  &:hover {
+    background: darken($lightblue, 5);
+  }
+  &:active {
+    background: darken($lightblue, 10);
+  }
+
+  svg {
+    fill: #fff;
   }
 }
 @media (pointer: coarse) {
-  .currentLocationButton {
-    bottom: 10px;
-  }
   .leaflet-control-zoom {
     display: none;
   }
@@ -154,7 +129,7 @@
 .bigCurrentLocationCircle {
   stroke: none;
   //opacity: 0.15;
-  fill: darken($atblue, 6);
+  fill: lighten($lightblue, 6);
 }
 
 .smallCurrentLocationCircle {

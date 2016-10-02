@@ -13,13 +13,13 @@
 		.back {
 			display: inline-block;
 			height: 48px;
-			width: 18px;
+			width: 24px;
 			float: left;
-			padding-right: 12px;
+			padding-right: 7px;
 			
 			img {
 				vertical-align: top;
-				padding-top: 19px;
+				padding-top: 16px;
 			}
 		}
 
@@ -41,13 +41,14 @@
 			height: $mobilenavsize;
 			padding: 0 14px;
 			z-index: 3;
+			background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.0));
 		}
 		h1 {
 			margin: 0;
 			font-size: 18px;
 			letter-spacing: -0.5px;
 			font-weight: 600;
-			color: #fff;
+			color: $atblue;
 			line-height: 1.2;
 			white-space: nowrap;
     	text-overflow: ellipsis;
@@ -57,15 +58,17 @@
 		h2 {
 			margin: 0;
 			font-size: 13px;
-			color: #aaa;
+			color: #888;
 			margin: 0;
-			font-weight: normal;
+			font-weight: 600;
+			letter-spacing: -0.5px;
 			line-height: 1.1;
 		}
 	}
 	.sticky {
 		header div {
-			background: darken($atblue, 6);
+			background: #fff;
+			box-shadow: 0 0 4px rgba(0,0,0,0.4);
 		}
 	}
 	.bar {
@@ -73,13 +76,15 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: rgba(0,0,0,0.3);
-		height: 28px;
+		box-sizing: border-box;
+		background: linear-gradient(rgba(255,255,255,0.0), rgba(255,255,255,0.7));
+		border-bottom: 1px solid #ddd;
+		height: 32px;
 		color: #999;
 		font-weight: bold;
 		font-size: 12px;
 		text-transform: uppercase;
-		line-height: 28px;
+		line-height: 31px;
 		overflow: hidden;
 		white-space: nowrap;
 
@@ -88,7 +93,7 @@
 			padding-right: 15px;
 			
 			&:first-child {
-				color: #fff;
+				color: $atblue;
 				padding-left: calc(50% - 50px);
 			}
 		}
@@ -118,7 +123,7 @@
 		.scrollwrap {
 			padding-top: $navsize + 125px;
 			box-sizing: border-box;
-			background: linear-gradient(#fff,#fff);
+			background: linear-gradient($default-back, $default-back);
 	    background-repeat: no-repeat;
 	    background-position: 0 $navsize + 125px;
 	    height: 100%;
@@ -145,7 +150,7 @@
 
 		ul {
 			width: 100%;
-			background: darken(#f7f8fb,1.5);
+			background: #f8f8f8;
 
 			&.active {
 				background: #fff;

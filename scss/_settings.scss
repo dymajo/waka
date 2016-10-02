@@ -1,5 +1,14 @@
 .settingsContainer {
     height: 100%;
+
+    h1 {
+        font-weight: 600;
+        margin: 0;
+        font-size: 14px;
+        padding: 14px 14px 7px;
+        border-bottom: 1px solid #ddd;
+        color: #666;
+    }
 }
 
 .settingwrap {
@@ -7,90 +16,112 @@
 
     h3 {
         font-weight: 400;
-        font-size: 16px;
+        font-size: 15px;
         margin-top: 0;
     }
 }
 
 .settings {
     @include mobile-desktop-absolute()
-    background: lighten($atblue, 3);
-    top: 52px;
+    background: $default-back;
     overflow-y: auto;
     box-sizing: border-box;
 
+    a {
+        color: $lightblue;
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover {
+            text-decoration: underline;
+        }
+
+        &.subtle {
+            color: #222;
+            font-weight: normal;
+        }
+    }
+
+    .logobox {
+        padding: 36px 14px 21px;
+        @media (max-width: 480px) {
+            text-align: center;
+        }
+
+        .sourcecode {
+            font-size: 14px;
+            padding-top: 7px;
+        }
+    }
+
+    .logo {
+        font-size: 24px;
+        .company {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+        .app {
+            letter-spacing: -0.5px;
+        }
+        .version {
+            font-size: 16px;
+            color: $lightblue;
+            font-weight: bold;
+        }
+    }
+    .copyright a {
+        font-weight: bold;
+        font-size: 12px;
+    }
+
     .container {
-        color: #fff;
+        color: #222;
+    }
+
+    p {
+        margin: 7px 0;
     }
 
     .credits {
-        color: #fff;
-        padding: 13px;
+        color: #222;
         font-size: 15px;
-
+        padding-top: 7px;
+        
         h3 {
             margin-bottom: 5px;
             font-weight: 600;
-            font-size: 24px;
-            letter-spacing: -1px;
-        }
-
-        p {
-            margin: 7px 0;
-        }
-
-        a {
-            color: lighten($lightblue, 20);
-            text-decoration: none;
-            font-weight: 600;
-
-            &:hover {
-                text-decoration: underline;
-            }
-
-            &.subtle {
-                color: #fff;
-                font-weight: normal;
-            }
-        }
-
-        .logo {
-            font-size: 24px;
-            .company {
-                font-weight: bold;
-                text-transform: uppercase;
-                letter-spacing: -1px;
-            }
-            .version {
-                font-size: 16px;
-                color: lighten($lightblue, 20);
-                font-weight: bold;
-            }
-        }
-        .copyright a {
-            font-weight: bold;
-            font-size: 12px;
+            font-size: 18px;
+            letter-spacing: -0.5px;
         }
 
         button, .button {
-            display: inline-block;
-            border: 2px solid lighten($lightblue, 20);
-            color: #fff;
-            font-weight: 600;
-            padding: 7px 13px;
-            margin-top: 13px;
-            margin-right: 5px;
+            display: block;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+            border: 0;
+            padding: 9px 14px;
+            color: #222;
+            font-weight: normal;
             cursor: default;
             background: transparent; 
             outline: 0;
             -webkit-tap-highlight-color: transparent;
-
-            &:active {
-                background: lighten($lightblue, 20);
-            }
+            line-height: 24px;
+            font-size: 16px;
             &:hover {
-              background: rgba(0,0,0,0.1);
+              background: #f2f2f2;
               text-decoration: none;
+            }
+            &:active {
+                background: #eee;
+            }
+
+            svg {
+                vertical-align: top;
+                margin-right: 9px;
+                fill: #222;
             }
         }
         .love {
@@ -99,13 +130,12 @@
             font-weight: 600;
         }
 
-        .sourcecode {
-            font-size: 14px;
-            padding-top: 7px;
-        }
-
         .creditscontainer {
             display: none;
+            text-align: left;
+            padding: 0 14px 14px;
+            border-bottom: 1px solid #ddd;
+
             &.visible {
                 display: block;
             }
@@ -152,29 +182,18 @@
 .tgl-flat + .tgl-btn {
   padding: 2px;
   transition: background .2s ease, border .2s ease;
-  background: lighten($atblue, 3);
-  border: 2px solid #fff;
+  border: 2px solid #000;
   border-radius: 2em;
-  opacity: 0.8;
-
-  &:hover {
-    opacity: 1;
-  }
 }
 .tgl-flat + .tgl-btn:after {
   transition: transform .2s ease, background .2s ease;
-  background: #fff;
+  background: #000;
   content: "";
   border-radius: 1em;
 }
 .tgl-flat:checked + .tgl-btn {
   border: 2px solid $lightblue;
   background: $lightblue;
-  opacity: 1;
-
-  &:hover {
-    opacity: 0.8;
-  }
 }
 .tgl-flat:checked + .tgl-btn:after {
   transform: translate(25px);
@@ -186,6 +205,7 @@
   line-height: 18px;
   padding-left: 15px;
   display: inline-block;
+  font-size: 15px;
 }
 .tgl-lbl span:nth-child(2) {
   display: none;
