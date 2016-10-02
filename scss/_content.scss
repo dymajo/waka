@@ -41,8 +41,6 @@
 			height: $mobilenavsize;
 			padding: 0 14px;
 			z-index: 3;
-			// background: rgba(darken($atblue, 6), 0.5);
-			background: darken($atblue, 6);
 		}
 		h1 {
 			margin: 0;
@@ -63,6 +61,11 @@
 			margin: 0;
 			font-weight: normal;
 			line-height: 1.1;
+		}
+	}
+	.sticky {
+		header div {
+			background: darken($atblue, 6);
 		}
 	}
 	.bar {
@@ -429,18 +432,8 @@
   height: 40px;
   margin: 100px auto;
   background-color: lighten($atblue, 15);
-
-  border-radius: 100%;  
-  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+  border-radius: 100%;
   animation: sk-scaleout 1.0s infinite ease-in-out;
-}
-
-@-webkit-keyframes sk-scaleout {
-  0% { -webkit-transform: scale(0) }
-  100% {
-    -webkit-transform: scale(1.0);
-    opacity: 0;
-  }
 }
 
 @keyframes sk-scaleout {

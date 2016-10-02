@@ -355,13 +355,33 @@
   }
   @keyframes ss-to-stop-station {
     0% {
+      transform: translate3d(0,15px,0);
+      opacity: 0;
+    }
+    100% {
+      transform: translate3d(0,0,0);
+      opacity: 1;
+    }
+  }
+  @keyframes stop-to-ss-station {
+    0% {
+      transform: translate3d(0,0,0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(0,15px,0);
+      opacity: 0;
+    }
+  }
+  @keyframes ss-to-stop-station-ios {
+    0% {
       transform: translate3d(100vw,0,0);
     }
     100% {
       transform: translate3d(0,0,0);
     }
   }
-  @keyframes stop-to-ss-station {
+  @keyframes stop-to-ss-station-ios {
     0% {
       transform: translate3d(0,0,0);
     }
@@ -375,14 +395,15 @@
     &:not(.activepane) {
       &.animate {
         .station {
-          animation: 300ms ss-to-stop-station ease 1;
+          animation: 250ms ss-to-stop-station ease 1;
         }
       }
     }
     &.goingback {
       .station {
-        animation: 300ms stop-to-ss-station ease 1;
-        transform: translate3d(100vw,0,0);
+        animation: 250ms stop-to-ss-station ease 1;
+        transform: translate3d(0,15px,0);
+        opacity: 0;
       }
     }
     nav {
@@ -420,7 +441,7 @@
 }
 
 .station {
-  background: darken($atblue, 10);
+  background: #313539;
   display: flex;
   flex-direction: column;  
   flex: 1;

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import { iOS } from '../models/ios.ts'
 import { browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
@@ -50,7 +51,8 @@ interface IAppState {
   realtime?: RealTimeMap,
   loading?: boolean,
   saveModal?: boolean,
-  webp?: boolean
+  webp?: boolean,
+  stickyScroll?: boolean
 }
 
 // hack
@@ -67,6 +69,11 @@ let tripsSort = function(a,b) {
 class Station extends React.Component<IAppProps, IAppState> {
   public state : IAppState
 
+  refs: {
+    [key: string]: (Element);
+    scroll: (HTMLDivElement);
+  }
+
   constructor(props: IAppProps) {
     super(props)
     this.state = {
@@ -77,7 +84,8 @@ class Station extends React.Component<IAppProps, IAppState> {
       realtime: {},
       loading: true,
       saveModal: false,
-      webp: webp.support
+      webp: webp.support,
+      stickyScroll: false
     }
     this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
@@ -86,6 +94,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.triggerSaveCancel = this.triggerSaveCancel.bind(this)
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
+    this.triggerScroll = this.triggerScroll.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
   }
@@ -263,7 +272,22 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.setStatePartial({
       name: e.currentTarget.value
     })
-  }  
+  }
+  public triggerScroll(e) {
+    if (e.target.scrollTop > 97) {
+      if (this.state.stickyScroll === false) {
+        this.setState({
+          stickyScroll: true
+        })
+      }
+    } else {
+      if (this.state.stickyScroll === true) {
+        this.setState({
+          stickyScroll: false
+        })
+      }
+    }
+  }
   public componentDidMount() {
     requestAnimationFrame(() => {
       if (this.props.routeParams.station.split('+').length === 1) {
@@ -272,6 +296,8 @@ class Station extends React.Component<IAppProps, IAppState> {
         this.getMultiData(this.props)
       }
     })
+
+    ReactDOM.findDOMNode(this.refs.scroll).addEventListener('scroll', this.triggerScroll)
 
     // now we call our function again to get the new times
     // every 30 seconds
@@ -286,6 +312,7 @@ class Station extends React.Component<IAppProps, IAppState> {
   public componentWillUnmount() {
     // unbind our trigger so it doesn't have more updates
     StationStore.unbind('change', this.triggerUpdate)
+    ReactDOM.findDOMNode(this.refs.scroll).removeEventListener('scroll', this.triggerScroll)
 
     // cancel all the requests
     //console.log('unmounting all')
@@ -363,9 +390,13 @@ class Station extends React.Component<IAppProps, IAppState> {
     } else {
       scrollable += ' enable-scrolling'
     }
+    var sticky = 'station'
+    if (this.state.stickyScroll === true) {
+      sticky += ' sticky'
+    }
 
     return (
-      <div className="station">
+      <div className={sticky}>
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>
@@ -382,15 +413,15 @@ class Station extends React.Component<IAppProps, IAppState> {
             <h2>{iconStr}</h2>
           </div>
         </header>
-        <div className="bg" style={bgImage}>
-          <ul className="bar">
-            <li>All Departures</li>
-            <li>Inbound</li>
-            <li>Outgoing</li>
-          </ul>
-        </div>
-        <ul className={scrollable} onTouchStart={iOS.triggerStart}>
+        <ul className={scrollable} onTouchStart={iOS.triggerStart} ref="scroll">
           <div className="scrollwrap">
+            <div className="bg" style={bgImage}>
+              <ul className="bar">
+                <li>All Departures</li>
+                <li>Inbound</li>
+                <li>Outgoing</li>
+              </ul>
+            </div>
             {loading}
             {this.state.trips.map((trip) => {
               if (typeof(trip.stop_sequence) === 'undefined') {
