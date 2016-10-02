@@ -50,34 +50,6 @@
   }
 }
 .ios-standalone {
-  $status-bar-height: 20px;
-
-  // ipad :(
-  @media (orientation: portrait) {
-    .bignav {
-      padding-top: $status-bar-height;
-    }
-    .search {
-      top: $navsize + $status-bar-height;
-    }
-    .settings {
-      top: $navsize + $status-bar-height;
-    }
-
-    .content {
-      header div {
-          padding-top: $status-bar-height;
-      }
-      .bg {
-        height: $navsize + 125px + $status-bar-height;
-      }
-      .scrollable .scrollwrap {
-        padding-top: $navsize + 125px + $status-bar-height;
-        background-position: 0 $navsize + 125px + $status-bar-height;
-      }
-    }
-  }
-
   .bignav li:first-child {
     display: none;
   }
