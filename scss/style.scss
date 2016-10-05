@@ -4,7 +4,7 @@ $lightblue: #3498db;
 $green: #27ae60;
 $navsize: 56px;
 $mobilenavsize: 56px;
-$default-back: #fafafa;
+$default-back: #f6f6f6;
 
 html {
   overflow: hidden;
@@ -33,6 +33,7 @@ html, body, #app {
 @import "_search";
 @import "_searchswitch";
 @import "_content";
+@import "_swipe";
 @import "_settings";
 @import "_splash";
 @import "_liststations";

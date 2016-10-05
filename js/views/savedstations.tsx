@@ -11,9 +11,10 @@ interface ClickFunc {
 interface ISidebarItemProps extends React.Props<SidebarItem> {
   url: string,
   name: string,
-  description: string,
-  icon: string,
-  click: ClickFunc
+  description?: string,
+  icon?: string,
+  click: ClickFunc,
+  type?: string
 }
 
 class SidebarItem extends React.Component<ISidebarItemProps, {}> {
@@ -27,20 +28,49 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
       this.props.click()
     }
   }
+  public getColor(icon) {
+    switch(icon) {
+      case 'n':
+        return '#0056a9'
+      case 'e':
+        return '#f39c12'
+      case 'o':
+        return '#21b4e3'
+      case 's':
+        return '#e52f2b'
+      case 'w':
+        return '#4f9734'
+      default:
+        return '#000'
+    }
+  }
   public render() {
+    
     var classname = 'ss'
     if (window.location.pathname == this.props.url) {
       classname += ' selected'
     }
-    return (
-      <li className={classname} onTouchTap={this.triggerTap}>
-        <div className="icon"><img src={`/icons/${this.props.icon}.svg`} /></div>
-        <div className="text-wrapper">
+    if (this.props.type === 'cf') {
+      classname += ' cf'
+      var col = this.getColor
+      var icon = this.props.name[0].toLowerCase()
+      return (
+        <li className={classname} onTouchTap={this.triggerTap}>
+          <div className="gicon" style={{backgroundColor: col(icon)}}>{icon}</div>
           <div className="name">{this.props.name}</div>
-          <div className="description">{this.props.description}</div>
-        </div>
-      </li>
-    )
+        </li>
+      )
+    } else {
+      return (
+        <li className={classname} onTouchTap={this.triggerTap}>
+          <div className="icon"><img src={`/icons/${this.props.icon}.svg`} /></div>
+          <div className="text-wrapper">
+            <div className="name">{this.props.name}</div>
+            <div className="description">{this.props.description}</div>
+          </div>
+        </li>
+      )
+    }
   }
 }
 
@@ -150,9 +180,9 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
     return (
       <div className={classname}>
         <nav>
-          <h2>Saved Stations</h2>
           <ul className={scrolling} onTouchStart={iOS.triggerStart}>
             <div className="scrollwrap">
+            <h2>Saved Stations</h2>
             {message}
             {StationStore.getOrder().map((station) => {
               return <SidebarItem
@@ -164,6 +194,14 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
                 description={stations[station].description} 
               />
             })}
+              <h2>Congestion Free Network</h2>
+              <SidebarItem type="cf" name="Northern Busway" />
+              <SidebarItem type="cf" name="Ferries" />
+              <SidebarItem type="cf" name="Eastern Line" />
+              <SidebarItem type="cf" name="Onehunga Line" />
+              <SidebarItem type="cf" name="Southern Line" />
+              <SidebarItem type="cf" name="Western Line" />
+              <a href="http://www.congestionfree.co.nz/" target="_blank">What is the Congestion Free Network?</a>
             </div>
           </ul>
         </nav>

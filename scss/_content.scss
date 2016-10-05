@@ -109,9 +109,11 @@
 	.scrollable {
 		overflow-y: auto;
 		position: absolute;
-		width: 100%;
+		left: 0;
+		right: 0;
 		top: 0;
 		bottom: 0;
+		overflow-x: hidden;
 		background-size: 100% auto;
     background-repeat: no-repeat;
     background-position: 50% 0;

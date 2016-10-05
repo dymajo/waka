@@ -4,7 +4,7 @@
   text-align: center;
   position: relative;
   z-index: 2;
-  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  box-shadow: 0 0 4px rgba(0,0,0,0.4);
 
   ul {
     margin: 0;
@@ -39,10 +39,9 @@
       }
     }
     &:active {
-      background: #eee;
+      background: rgba(0,0,0,0.03);
     }
     &.selected {
-
       svg {
         fill: $lightblue;
       }
@@ -120,8 +119,9 @@
       border-bottom: 2px solid transparent;
       
       &.selected {
-        background: transparent;
-        border-bottom-color: $lightblue;
+        // background: transparent;
+        // background: rgba(0,0,0,0.3);
+        border-bottom-color: lighten($lightblue, 10);
       }
 
       &:hover .tooltip {
@@ -136,6 +136,39 @@
   height: 100%;
   background: #eee;
 
+  .cf .name {
+    line-height: 30px;
+  }
+
+  a {
+    color: $atblue;
+    margin: 12px 14px 20px;
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .gicon {
+    color: #fff;
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    font-size: 16px;
+    line-height: 30px;
+    text-align: center;
+    margin: 0 10px 0 5px;
+    font-weight: normal;
+    border-radius: 50%;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
   button {
     border: 0;
     color: #444;
@@ -145,6 +178,7 @@
     border: 1px solid #999;
     margin-top: 25px;
     display: none;
+    border-radius: 3px;
 
     &.primary {
       color:#fff;
@@ -163,6 +197,8 @@
       img {
         width: 16px;
         margin-top: 3px;
+        margin-right: 5px;
+        vertical-align: top;
       }
       &.primary {
         display: inline-block;
@@ -177,6 +213,7 @@
 
   p {
     padding: 0 15px;
+    margin-bottom: 30px;
     font-size: 15px;
     color: #666;
 
@@ -200,10 +237,10 @@
       text-transform: uppercase;
       font-size: 14px;
       margin: 20px 0 0;
-      text-indent: 13px;
+      text-indent: 14px;
       padding-bottom: 12px;
 
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #e8e8e8;
     }
 
     ul {
@@ -212,7 +249,7 @@
       flex: 1;
 
       position: absolute;
-      top: 52px;
+      top: 0;
       bottom: 0;
       left: 0;
       width: 100%;
@@ -222,7 +259,8 @@
       display: flex;
       padding: 10px;
       cursor: default;
-      border-bottom: 1px solid #eee;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
 
       @media (pointer: fine) {
         &:hover {
@@ -390,17 +428,6 @@
       max-width: 600px;
       z-index: 0;
       display: flex;
-    }
-  }
-
-  @media (max-width: 480px) {
-    nav {
-      h2 {
-        display: none;
-      }
-      ul {
-        top: 0;
-      }
     }
   }
 }

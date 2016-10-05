@@ -48,13 +48,35 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
             <div className="container">
               <h1>Settings</h1>
               <Toggle id="clock">
+                <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                </svg>
                 24hr Time
               </Toggle>
               <Toggle id="longName">
+                <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                </svg>
                 Long Route Names
               </Toggle>
               <h1>More</h1>
               <div className="credits">
+                <a className="button" href="mailto:hello@dymajo.com">
+                  <svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                  </svg>
+                  Send Feedback
+                </a>
+                <a className="button" href="https://twitter.com/dymajoltd" target="_blank">
+                  <svg style={{
+                        margin: "-6px 3px -6px -6px"
+                  }} xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 400 400"><path d="M153.62,301.59c94.34,0,145.94-78.16,145.94-145.94,0-2.22,0-4.43-.15-6.63A104.36,104.36,0,0,0,325,122.47a102.38,102.38,0,0,1-29.46,8.07,51.47,51.47,0,0,0,22.55-28.37,102.79,102.79,0,0,1-32.57,12.45,51.34,51.34,0,0,0-87.41,46.78A145.62,145.62,0,0,1,92.4,107.81a51.33,51.33,0,0,0,15.88,68.47A50.91,50.91,0,0,1,85,169.86c0,.21,0,.43,0,.65a51.31,51.31,0,0,0,41.15,50.28,51.21,51.21,0,0,1-23.16.88,51.35,51.35,0,0,0,47.92,35.62,102.92,102.92,0,0,1-63.7,22A104.41,104.41,0,0,1,75,278.55a145.21,145.21,0,0,0,78.62,23"/></svg>
+                  Twitter
+                </a>
                 {button}
                 <div className={className}>
                   <p>A number of people helped design, develop, and influence Transit.</p>
