@@ -14,7 +14,9 @@ var options = {
 var cache = {
   check: function(cb) {
     tableSvc.createTableIfNotExists('meta', function(error) {
-      if (error) cb(error)
+      if (error) {
+        console.log(error)
+      }
 
       tableSvc.retrieveEntity('meta', 'all', 'last-updated', function(err, result, response) {
         if (result === null) {

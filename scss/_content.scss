@@ -1,3 +1,4 @@
+$bgheight: 125px;
 .content {
 	flex: 1;
 	overflow: hidden;
@@ -6,7 +7,7 @@
 	height: 100%;
 
 	header {
-		height: 125px + $mobilenavsize;
+		height: $bgheight + $mobilenavsize;
 		position: relative;
 		box-sizing: border-box;
 
@@ -41,7 +42,9 @@
 			height: $mobilenavsize;
 			padding: 0 14px;
 			z-index: 3;
-			background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.0));
+			background: #fff;
+			box-shadow: 0 0 4px rgba(0,0,0,0.4);
+			// background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.0));
 		}
 		h1 {
 			margin: 0;
@@ -58,17 +61,11 @@
 		h2 {
 			margin: 0;
 			font-size: 13px;
-			color: #888;
+			color: rgba(#000, 0.7);
 			margin: 0;
 			font-weight: 600;
 			letter-spacing: -0.5px;
 			line-height: 1.1;
-		}
-	}
-	.sticky {
-		header div {
-			background: #fff;
-			box-shadow: 0 0 4px rgba(0,0,0,0.4);
 		}
 	}
 	.bar {
@@ -77,7 +74,8 @@
 		right: 0;
 		bottom: 0;
 		box-sizing: border-box;
-		background: linear-gradient(rgba(255,255,255,0.0), rgba(255,255,255,0.7));
+		background: #fff;
+		box-shadow: 0 0 2px rgba(0,0,0,0.4);
 		border-bottom: 1px solid #ddd;
 		height: 32px;
 		color: #999;
@@ -87,31 +85,48 @@
 		line-height: 31px;
 		overflow: hidden;
 		white-space: nowrap;
+		display: flex;
 
 		li {
 			display: inline-block;
-			padding-right: 15px;
+			padding: 0 7px;
+			text-align: center;
+			flex: 1;
 			
 			&:first-child {
 				color: $atblue;
-				padding-left: calc(50% - 50px);
 			}
 		}
 	}
 	.bg {
-		height: $navsize + 125px;
-		background-size: cover;
+		height: $navsize + $bgheight;
 		position: absolute;
 		left: 0;
 		right: 0;
 		top: 0;
+		background-size: auto $bgheight + 24;
+		background-position: 50% 0;
+		background-repeat: no-repeat;
+		overflow: hidden;
+
+		.bgwrap {
+			display: flex;
+			// width: 100%;
+			margin-top: -40px;
+		}
+
+		img {
+			width: 256px;
+			height: 256px;
+			flex-shrink: 0
+		}
 	}
 	.scrollable {
 		overflow-y: auto;
 		position: absolute;
 		left: 0;
 		right: 0;
-		top: 0;
+		top: $navsize;
 		bottom: 0;
 		overflow-x: hidden;
 		background-size: 100% auto;
@@ -123,11 +138,11 @@
 			z-index: 2;
 		}
 		.scrollwrap {
-			padding-top: $navsize + 125px;
+			padding-top: $navsize + $bgheight;
 			box-sizing: border-box;
 			background: linear-gradient($default-back, $default-back);
 	    background-repeat: no-repeat;
-	    background-position: 0 $navsize + 125px;
+	    background-position: 0 $navsize + $bgheight;
 	    height: 100%;
 		}
 	}
@@ -466,4 +481,18 @@
 			left: 300px + $navsize;
 		}
 	}
+}
+
+// It's absolutely insane that SASS cannot import .css files
+// Included here in swipeview.css
+.swipe-content {
+  position: absolute;
+  display: flex;
+}
+.swipe-content.swipe-animate {
+  transition: transform 0.3s ease-out;
+}
+.swipe-pane {
+  width: 100vw;
+  position: relative;
 }

@@ -10,6 +10,7 @@ import TripItem from './tripitem.tsx'
 declare function require(name: string): any;
 let request = require('reqwest')
 let webp = require('../models/webp')
+let swipeview = require('../swipeviewjs/swipe.js')
 
 interface RealTimeItem {
   delay: number,
@@ -52,7 +53,9 @@ interface IAppState {
   loading?: boolean,
   saveModal?: boolean,
   webp?: boolean,
-  stickyScroll?: boolean
+  stickyScroll?: boolean,
+  stop_lat?: number,
+  stop_lon?: number
 }
 
 // hack
@@ -72,6 +75,7 @@ class Station extends React.Component<IAppProps, IAppState> {
   refs: {
     [key: string]: (Element);
     scroll: (HTMLDivElement);
+    swipecontent: (HTMLDivElement);
   }
 
   constructor(props: IAppProps) {
@@ -85,7 +89,9 @@ class Station extends React.Component<IAppProps, IAppState> {
       loading: true,
       saveModal: false,
       webp: webp.support,
-      stickyScroll: false
+      stickyScroll: false,
+      stop_lat: undefined,
+      stop_lon: undefined
     }
     this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
@@ -137,11 +143,13 @@ class Station extends React.Component<IAppProps, IAppState> {
       var cachedName = StationStore.getData()[newProps.routeParams.station]
       if (typeof(cachedName) !== 'undefined') {
         requestAnimationFrame(() => {
-          this.setStatePartial({
+          this.setState({
             name: cachedName.name,
             description: cachedName.description,
-            stop: newProps.routeParams.station
-          })
+            stop: newProps.routeParams.station,
+            stop_lat: cachedName.stop_lat, 
+            stop_lon: cachedName.stop_lon
+          } as IAppState)
         })
 
       // If it's not cached, we'll just ask the server
@@ -151,11 +159,13 @@ class Station extends React.Component<IAppProps, IAppState> {
             var name = data.stop_name.replace(' Train Station', '')
             name = name.replace(' Ferry Terminal', '')
 
-            this.setStatePartial({
+            this.setState({
               name: name,
               description: `${data.stop_name}`,
-              stop: this.props.routeParams.station
-            })
+              stop: this.props.routeParams.station,
+              stop_lat: data.stop_lat, 
+              stop_lon: data.stop_lon
+            } as IAppState)
           })
         })
       }
@@ -288,7 +298,19 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }
   }
+  public triggerTouchStart(e) {
+    swipeview.contentTouchStart(e.nativeEvent)
+  }
+  public triggerTouchMove(e) {
+    swipeview.contentTouchMove(e.nativeEvent)
+  }
+  public triggerTouchEnd(e) {
+    swipeview.contentTouchEnd(e.nativeEvent)
+  }
   public componentDidMount() {
+    swipeview.contentEl = ReactDOM.findDOMNode(this.refs.swipecontent)
+    swipeview.setSizes()
+
     requestAnimationFrame(() => {
       if (this.props.routeParams.station.split('+').length === 1) {
         this.getData(this.props)
@@ -351,11 +373,21 @@ class Station extends React.Component<IAppProps, IAppState> {
   }
   public render() {
     var bgImage = {}
-    if (this.state.webp === false) {
-      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.png)'}
-    } else if (this.state.webp === true) {
-      bgImage = {'backgroundImage': 'url(/a/map/' + this.props.routeParams.station.split('+')[0] + '.webp)'}
+    var token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
+    var w = window.innerWidth
+    if (w > 1280) {
+      w = 1280
     }
+    var x = this.state.stop_lon
+    var y = this.state.stop_lat
+    var z = 15
+    if (typeof(x) === 'undefined') {
+      x = 174.75
+      y = -36.85
+      z = 8
+    }
+    bgImage = {'backgroundImage': `url(https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/${x},${y},${z},0,0/${w}x149@2x${token}`}
+    
     
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
@@ -413,15 +445,22 @@ class Station extends React.Component<IAppProps, IAppState> {
             <h2>{iconStr}</h2>
           </div>
         </header>
-        <ul className={scrollable} onTouchStart={iOS.triggerStart} ref="scroll">
+        <ul className={scrollable}
+            onTouchStart={this.triggerTouchStart}
+            onTouchMove={this.triggerTouchMove}
+            onTouchEnd={this.triggerTouchEnd}
+            onTouchCancel={this.triggerTouchEnd}
+            ref="scroll">
           <div className="scrollwrap">
             <div className="bg" style={bgImage}>
               <ul className="bar">
-                <li>All Departures</li>
+                <li>All</li>
                 <li>Inbound</li>
                 <li>Outgoing</li>
               </ul>
             </div>
+            <div className="swipe-content" ref="swipecontent">
+            <div className="swipe-pane">
             {loading}
             {this.state.trips.map((trip) => {
               if (typeof(trip.stop_sequence) === 'undefined') {
@@ -442,6 +481,14 @@ class Station extends React.Component<IAppProps, IAppState> {
                 realtime={this.state.realtime[trip.trip_id]}
                />
             })}
+            </div>
+            <div className="swipe-pane">
+              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint saecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            <div className="swipe-pane">
+              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint saecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            </div>
           </div>
         </ul>
       </div>
