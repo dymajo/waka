@@ -44,18 +44,21 @@ class Line extends React.Component<IAppProps, IAppState>{
     }
     
     public componentDidMount(){
-        request(`/a/shape/1126-20160922135358_v46.7`).then((data)=>{
-            this.convert(data)
+        console.log(this.props.routeParams.line)
+        request(`/a/line/${this.props.routeParams.line}`).then((shape)=>{
+            console.log(shape[0].shape_id)
+            request(`/a/shape/${shape[0].shape_id}`).then((wkb)=>{
+                //console.log(wkb)
+                this.convert(wkb)
+            })
         })
+       
     }
 
     public render(){
-        
-        console.log(this.state.line)
-        var geoJson
         if (typeof(this.state.line) !== 'undefined') {
             console.log('it defined')
-            geoJson = <GeoJson data={this.state.line} />
+            var geoJson = <GeoJson data={this.state.line} />
         }
         let retina = ''
         if (window.devicePixelRatio > 1) {
@@ -73,7 +76,7 @@ class Line extends React.Component<IAppProps, IAppState>{
                 />
                 {geoJson}
             </Map>
-
+            
         </div>
         )
     }
