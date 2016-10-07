@@ -83,17 +83,22 @@ $bgheight: 125px;
 		font-size: 12px;
 		text-transform: uppercase;
 		line-height: 31px;
-		overflow: hidden;
-		white-space: nowrap;
-		display: flex;
+
+		ul {
+			display: flex;
+		}
 
 		li {
 			display: inline-block;
 			padding: 0 7px;
 			text-align: center;
 			flex: 1;
+
+			&:active {
+				background: rgba(0,0,0,0.03)
+			}
 			
-			&:first-child {
+			&.active {
 				color: $atblue;
 			}
 		}
@@ -114,12 +119,17 @@ $bgheight: 125px;
 			// width: 100%;
 			margin-top: -40px;
 		}
-
-		img {
-			width: 256px;
-			height: 256px;
-			flex-shrink: 0
+		.iconPop {
+			width: 25px;
+			margin-left: calc(50% - 12px);
+			margin-top: ($bgheight - 45px) / 2;
 		}
+
+		// img {
+		// 	width: 256px;
+		// 	height: 256px;
+		// 	flex-shrink: 0
+		// }
 	}
 	.scrollable {
 		overflow-y: auto;
@@ -489,10 +499,15 @@ $bgheight: 125px;
   position: absolute;
   display: flex;
 }
-.swipe-content.swipe-animate {
+.swipe-content.swipe-animate, .swipe-bar.swipe-animate {
   transition: transform 0.3s ease-out;
 }
 .swipe-pane {
   width: 100vw;
   position: relative;
+}
+.swipe-bar {
+  border-bottom: 2px solid $atblue;
+  top: -1px;
+  position:relative;
 }

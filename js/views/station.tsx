@@ -76,6 +76,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     [key: string]: (Element);
     scroll: (HTMLDivElement);
     swipecontent: (HTMLDivElement);
+    swipeheader: (HTMLDivElement);
   }
 
   constructor(props: IAppProps) {
@@ -101,6 +102,9 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
     this.triggerScroll = this.triggerScroll.bind(this)
+    this.triggerTouchStart = this.triggerTouchStart.bind(this)
+    this.triggerTouchMove = this.triggerTouchMove.bind(this)
+    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
   }
@@ -284,7 +288,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public triggerScroll(e) {
-    if (e.target.scrollTop > 93) {
+    if (e.target.scrollTop > 181) {
       if (this.state.stickyScroll === false) {
         this.setState({
           stickyScroll: true
@@ -299,16 +303,23 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
   }
   public triggerTouchStart(e) {
-    swipeview.contentTouchStart(e.nativeEvent)
+    if (!this.state.stickyScroll) {
+      swipeview.contentTouchStart(e.nativeEvent)
+    }
   }
   public triggerTouchMove(e) {
-    swipeview.contentTouchMove(e.nativeEvent)
+    if (!this.state.stickyScroll) {
+      swipeview.contentTouchMove(e.nativeEvent)
+    }
   }
   public triggerTouchEnd(e) {
-    swipeview.contentTouchEnd(e.nativeEvent)
+    if (!this.state.stickyScroll) {
+      swipeview.contentTouchEnd(e.nativeEvent)
+    }
   }
   public componentDidMount() {
     swipeview.contentEl = ReactDOM.findDOMNode(this.refs.swipecontent)
+    swipeview.headerEl = ReactDOM.findDOMNode(this.refs.swipeheader)
     swipeview.setSizes()
 
     requestAnimationFrame(() => {
@@ -391,8 +402,12 @@ class Station extends React.Component<IAppProps, IAppState> {
     
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
+    var iconPop
     if (icon === 'bus' && this.state.name !== '') {
       iconStr = 'Bus Stop ' + this.state.stop
+    }
+    if (icon !== 'train') {
+      iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
     }
 
     var saveButton
@@ -422,13 +437,9 @@ class Station extends React.Component<IAppProps, IAppState> {
     } else {
       scrollable += ' enable-scrolling'
     }
-    var sticky = 'station'
-    if (this.state.stickyScroll === true) {
-      sticky += ' sticky'
-    }
 
     return (
-      <div className={sticky}>
+      <div className='station'>
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>
@@ -453,11 +464,18 @@ class Station extends React.Component<IAppProps, IAppState> {
             ref="scroll">
           <div className="scrollwrap">
             <div className="bg" style={bgImage}>
-              <ul className="bar">
-                <li>All</li>
-                <li>Inbound</li>
-                <li>Outgoing</li>
-              </ul>
+              {iconPop}
+              <div className="swipe-header bar" ref="swipeheader">
+                <ul>
+                  {
+                    // there's a space in here because reasons of that's how the swipe plugin works
+                  }
+                  <li className=" active" onTouchTap={swipeview.navigate(0)}>All</li>
+                  <li onTouchTap={swipeview.navigate(1)}>Inbound</li>
+                  <li onTouchTap={swipeview.navigate(2)}>Outgoing</li>
+                </ul>
+                <div className="swipe-bar"></div>
+              </div>
             </div>
             <div className="swipe-content" ref="swipecontent">
             <div className="swipe-pane">
