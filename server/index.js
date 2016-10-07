@@ -3,6 +3,7 @@ var station = require('./station')
 var cache = require('./cache')
 var map = require('./map')
 var realtime = require('./realtime')
+var line = require('./line')
 
 console.log('using AT API Key: ' + process.env.atApiKey)
 console.log('using Google Maps API Key: ' + process.env.mapsApiKey)
@@ -16,6 +17,9 @@ router.get('/station', station.stopInfo)
 router.get('/station/search', station.getStopsLatLong)
 router.get('/station/:station', station.stopInfo)
 router.get('/station/:station/times', station.stopTimes)
+router.get('/line/:line', line.getLine)
+router.get('/shape/:line', line.getShape)
 router.post('/realtime', realtime.getTrips)
+
 
 module.exports = router;
