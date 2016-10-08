@@ -1,5 +1,6 @@
 #!/bin/bash
 git pull
+git submodule foreach git pull origin master
 npm install
 npm run install-typings
 npm run build-css

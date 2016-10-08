@@ -4,7 +4,8 @@
   "description": "Web App for Auckland Transport Real Time Board",
   "main": "index.js",
   "scripts": {
-    "build-js": "browserify js/app.tsx -p [ tsify ] -o dist/app.js",
+    "build-js": "browserify -g [ envify --NODE_ENV production ] -g [uglifyify] js/app.tsx -p [ tsify ] -o dist/app.js",
+    "build-js-dev": "browserify js/app.tsx -p [ tsify ] -o dist/app.js",
     "watch-js": "watchify js/app.tsx -p [ tsify ] -o dist/app.js",
     "build-css": "node-sass scss -o dist",
     "watch-css": "node-sass scss -o dist && node-sass -w scss -o dist",
@@ -32,10 +33,12 @@
   "devDependencies": {
     "browserify": "^13.1.0",
     "concurrently": "^2.2.0",
+    "envify": "^3.4.1",
     "node-sass": "^3.8.0",
     "tsify": "^1.0.3",
     "typescript": "^1.8.10",
     "typings": "^1.3.2",
+    "uglifyify": "^3.0.3",
     "watchify": "^3.7.0"
   },
   "dependencies": {

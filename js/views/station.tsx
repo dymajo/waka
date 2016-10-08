@@ -29,7 +29,7 @@ interface ServerTripItem {
   trip_id: string,
   route_long_name: string,
   agency_id: string,
-  direction_id: string,
+  direction_id: number,
   end_date: string,
   frequency: string,
   station: string,
@@ -306,6 +306,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     if (!this.state.stickyScroll) {
       swipeview.contentTouchStart(e.nativeEvent)
     }
+    iOS.triggerStart(e)
   }
   public triggerTouchMove(e) {
     if (!this.state.stickyScroll) {
@@ -341,6 +342,9 @@ class Station extends React.Component<IAppProps, IAppState> {
         this.getMultiData(this.props, true)
       }
     }, 30000)
+  }
+  public componentDidUpdate() {
+    swipeview.setSizes()
   }
   public componentWillUnmount() {
     // unbind our trigger so it doesn't have more updates
@@ -383,7 +387,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public render() {
-    var bgImage = {}
     var token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
     var w = window.innerWidth
     if (w > 1280) {
@@ -397,17 +400,23 @@ class Station extends React.Component<IAppProps, IAppState> {
       y = -36.85
       z = 8
     }
-    bgImage = {'backgroundImage': `url(https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/${x},${y},${z},0,0/${w}x149@2x${token}`}
-    
+    var bgImage = {}
+    bgImage = {backgroundImage: `url(https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/${x},${y},${z},0,0/${w}x149@2x${token})`}
+    if (this.state.loading && typeof(x) === 'undefined' || this.state.name === '') {
+      // so we don't do extra http request
+      bgImage = {}
+    }
     
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
     var iconPop
-    if (icon === 'bus' && this.state.name !== '') {
-      iconStr = 'Bus Stop ' + this.state.stop
-    }
-    if (icon !== 'train') {
-      iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
+    if (this.state.name !== '') {
+      if (icon === 'bus') {
+        iconStr = 'Bus Stop ' + this.state.stop
+      }
+      if (icon !== 'train') {
+        iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
+      }
     }
 
     var saveButton
@@ -438,6 +447,67 @@ class Station extends React.Component<IAppProps, IAppState> {
       scrollable += ' enable-scrolling'
     }
 
+    var inbound = []
+    var outbound = []
+    var all = []
+    var inboundLabel = 'Inbound'
+    this.state.trips.forEach((trip) => {
+      if (typeof(trip.stop_sequence) === 'undefined') {
+        return
+      }
+      var key = trip.trip_id + trip.stop_sequence.toString()
+      var item = <TripItem 
+        code={trip.route_short_name}
+        time={trip.arrival_time_seconds}
+        name={trip.trip_headsign}
+        long_name={trip.route_long_name}
+        key={key} // because what if they use a multistop
+        trip_id={trip.trip_id}
+        agency_id={trip.agency_id}
+        station={trip.station}
+        stop_code={this.props.routeParams.station}
+        stop_sequence={trip.stop_sequence}
+        realtime={this.state.realtime[trip.trip_id]}
+      />
+      if (trip.direction_id === 0) {
+        inbound.push(item)
+        if (inboundLabel === 'Inbound') {
+          var h = trip.trip_headsign
+          // hardcoded because confusing AT uses different headsigns
+          console.log(h)
+          if (h.match('Britomart') || h === 'City Centre' || h === 'Civic Centre' || h.match('Downtown')) {
+            inboundLabel = 'Citybound'
+          }
+        }
+      } else {
+        outbound.push(item)
+      }
+      all.push(item)
+    })
+
+    // draws the html
+    var header
+    all = <div className="swipe-pane">{loading}{all}</div>
+    if (inbound.length === 0 || outbound.length === 0) {
+      if (inbound.length === 0 && outbound.length === 0) {
+        header = <ul className="invisible"><li></li></ul>
+      } else if (inbound.length === 0) {
+        header = <ul className="single"><li className=" active">Outbound</li></ul>
+      } else if (outbound.length === 0) {
+        header = <ul className="single"><li className=" active">{inboundLabel}</li></ul>
+      }
+      inbound = null
+      outbound = null
+    } else {
+      outbound = <div className="swipe-pane">{outbound}</div>
+      inbound = <div className="swipe-pane">{inbound}</div>
+      header = <ul>
+        <li className=" active" onTouchTap={swipeview.navigate(0)}>All</li>
+        <li onTouchTap={swipeview.navigate(1)}>Outbound</li>
+        <li onTouchTap={swipeview.navigate(2)}>{inboundLabel}</li>
+      </ul>
+    }
+
     return (
       <div className='station'>
         <div className={saveModal}>
@@ -466,46 +536,14 @@ class Station extends React.Component<IAppProps, IAppState> {
             <div className="bg" style={bgImage}>
               {iconPop}
               <div className="swipe-header bar" ref="swipeheader">
-                <ul>
-                  {
-                    // there's a space in here because reasons of that's how the swipe plugin works
-                  }
-                  <li className=" active" onTouchTap={swipeview.navigate(0)}>All</li>
-                  <li onTouchTap={swipeview.navigate(1)}>Inbound</li>
-                  <li onTouchTap={swipeview.navigate(2)}>Outgoing</li>
-                </ul>
+                {header}
                 <div className="swipe-bar"></div>
               </div>
             </div>
             <div className="swipe-content" ref="swipecontent">
-            <div className="swipe-pane">
-            {loading}
-            {this.state.trips.map((trip) => {
-              if (typeof(trip.stop_sequence) === 'undefined') {
-                return
-              }
-              var key = trip.trip_id + trip.stop_sequence.toString()
-              return <TripItem 
-                code={trip.route_short_name}
-                time={trip.arrival_time_seconds}
-                name={trip.trip_headsign}
-                long_name={trip.route_long_name}
-                key={key} // because what if they use a multistop
-                trip_id={trip.trip_id}
-                agency_id={trip.agency_id}
-                station={trip.station}
-                stop_code={this.props.routeParams.station}
-                stop_sequence={trip.stop_sequence}
-                realtime={this.state.realtime[trip.trip_id]}
-               />
-            })}
-            </div>
-            <div className="swipe-pane">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint saecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            </div>
-            <div className="swipe-pane">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint saecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            </div>
+              {all}
+              {outbound}
+              {inbound}
             </div>
           </div>
         </ul>

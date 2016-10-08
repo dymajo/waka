@@ -498,6 +498,11 @@ $bgheight: 125px;
 .swipe-content {
   position: absolute;
   display: flex;
+  // fixes iphone
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  backface-visibility: hidden;
+  perspective: 1000;
 }
 .swipe-content.swipe-animate, .swipe-bar.swipe-animate {
   transition: transform 0.3s ease-out;
@@ -506,8 +511,25 @@ $bgheight: 125px;
   width: 100vw;
   position: relative;
 }
+.swipe-header {
+	.invisible {
+  	visibility: hidden;
+
+  	& + .swipe-bar {
+  		visibility: hidden;
+  	}
+  }
+  .single + .swipe-bar {
+  	visibility: hidden;
+  }
+}
 .swipe-bar {
   border-bottom: 2px solid $atblue;
   top: -1px;
   position:relative;
+  // fixes iphone
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  backface-visibility: hidden;
+  perspective: 1000;
 }
