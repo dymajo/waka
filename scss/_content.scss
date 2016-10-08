@@ -93,6 +93,7 @@ $bgheight: 125px;
 			padding: 0 7px;
 			text-align: center;
 			flex: 1;
+			transition: 300ms ease color;
 
 			&:active {
 				background: rgba(0,0,0,0.03)

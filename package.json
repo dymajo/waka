@@ -7,7 +7,8 @@
     "build-js": "browserify -g [ envify --NODE_ENV production ] -g [uglifyify] js/app.tsx -p [ tsify ] -o dist/app.js",
     "build-js-dev": "browserify js/app.tsx -p [ tsify ] -o dist/app.js",
     "watch-js": "watchify js/app.tsx -p [ tsify ] -o dist/app.js",
-    "build-css": "node-sass scss -o dist",
+    "build-css": "node-sass scss -o dist --output-style compressed",
+    "build-css-dev": "node-sass scss -o dist",
     "watch-css": "node-sass scss -o dist && node-sass -w scss -o dist",
     "install-typings": "typings install",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -322,6 +322,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     swipeview.contentEl = ReactDOM.findDOMNode(this.refs.swipecontent)
     swipeview.headerEl = ReactDOM.findDOMNode(this.refs.swipeheader)
     swipeview.setSizes()
+    window.addEventListener('resize', swipeview.setSizes)
 
     requestAnimationFrame(() => {
       if (this.props.routeParams.station.split('+').length === 1) {
@@ -347,6 +348,8 @@ class Station extends React.Component<IAppProps, IAppState> {
     swipeview.setSizes()
   }
   public componentWillUnmount() {
+    window.removeEventListener('resize', swipeview.setSizes)
+    
     // unbind our trigger so it doesn't have more updates
     StationStore.unbind('change', this.triggerUpdate)
     ReactDOM.findDOMNode(this.refs.scroll).removeEventListener('scroll', this.triggerScroll)
@@ -474,7 +477,6 @@ class Station extends React.Component<IAppProps, IAppState> {
         if (inboundLabel === 'Inbound') {
           var h = trip.trip_headsign
           // hardcoded because confusing AT uses different headsigns
-          console.log(h)
           if (h.match('Britomart') || h === 'City Centre' || h === 'Civic Centre' || h.match('Downtown')) {
             inboundLabel = 'Citybound'
           }
@@ -501,10 +503,12 @@ class Station extends React.Component<IAppProps, IAppState> {
     } else {
       outbound = <div className="swipe-pane">{outbound}</div>
       inbound = <div className="swipe-pane">{inbound}</div>
+      var headerClass = ['','','']
+      headerClass[swipeview.index]  = ' active'
       header = <ul>
-        <li className=" active" onTouchTap={swipeview.navigate(0)}>All</li>
-        <li onTouchTap={swipeview.navigate(1)}>Outbound</li>
-        <li onTouchTap={swipeview.navigate(2)}>{inboundLabel}</li>
+        <li className={headerClass[0]} onTouchTap={swipeview.navigate(0)}>All</li>
+        <li className={headerClass[1]} onTouchTap={swipeview.navigate(1)}>Outbound</li>
+        <li className={headerClass[2]} onTouchTap={swipeview.navigate(2)}>{inboundLabel}</li>
       </ul>
     }
 
