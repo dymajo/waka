@@ -75,6 +75,7 @@ class Station extends React.Component<IAppProps, IAppState> {
   refs: {
     [key: string]: (Element);
     scroll: (HTMLDivElement);
+    container: (HTMLDivElement);
     swipecontent: (HTMLDivElement);
     swipeheader: (HTMLDivElement);
   }
@@ -102,6 +103,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
     this.triggerScroll = this.triggerScroll.bind(this)
+    this.triggerBackSwiped = this.triggerBackSwiped.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
@@ -302,26 +304,36 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }
   }
-  public triggerTouchStart(e) {
-    if (!this.state.stickyScroll) {
-      swipeview.contentTouchStart(e.nativeEvent)
+  public triggerBackSwiped(swipedAway) {
+    if (swipedAway) {
+      var path = window.location.pathname.split('/')
+      var i = path.indexOf(this.props.routeParams.station)
+      // runs with the no animate flag
+      UiStore.navigateSavedStations(path.slice(0,i).join('/'), true)
     }
+  }
+  public triggerTouchStart(e) {
+    swipeview.contentTouchStart(e.nativeEvent)
     iOS.triggerStart(e)
   }
   public triggerTouchMove(e) {
-    if (!this.state.stickyScroll) {
-      swipeview.contentTouchMove(e.nativeEvent)
-    }
+    swipeview.contentTouchMove(e.nativeEvent, this.state.stickyScroll || this.state.loading)
   }
   public triggerTouchEnd(e) {
-    if (!this.state.stickyScroll) {
-      swipeview.contentTouchEnd(e.nativeEvent)
-    }
+    swipeview.contentTouchEnd(e.nativeEvent)
   }
   public componentDidMount() {
+    swipeview.containerEl = ReactDOM.findDOMNode(this.refs.container)
+    
+    // only have back gesture on ios standalone
+    if (iOS.detect() && (window as any).navigator.standalone) {
+      swipeview.iOSBack = swipeview.containerEl
+      swipeview.iOSBackCb = this.triggerBackSwiped
+    }
     swipeview.contentEl = ReactDOM.findDOMNode(this.refs.swipecontent)
     swipeview.headerEl = ReactDOM.findDOMNode(this.refs.swipeheader)
     swipeview.setSizes()
+
     window.addEventListener('resize', swipeview.setSizes)
 
     requestAnimationFrame(() => {
@@ -513,7 +525,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
 
     return (
-      <div className='station'>
+      <div className='station' ref="container">
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>

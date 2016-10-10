@@ -494,6 +494,10 @@ $bgheight: 125px;
 	}
 }
 
+.station.swipe-animate {
+  transition: transform 0.3s ease-out;
+}
+
 // It's absolutely insane that SASS cannot import .css files
 // Included here in swipeview.css
 .swipe-content {

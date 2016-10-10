@@ -4,6 +4,7 @@ import { iOS } from '../models/ios.ts'
 export namespace UiStore {
   let state = {
     triggeredBack: false,
+    noAnimate: false,
     goingBack: false,
     lastUrl: '',
     currentUrl: '/ss'
@@ -21,20 +22,24 @@ export namespace UiStore {
   export function getState() {
     return state
   }
-  export function navigateSavedStations(path: string) {
+  export function navigateSavedStations(path: string, noAnimate?: boolean) {
     if (window.location.pathname === path) {
       return
     } else if (state.lastUrl === path) {
       state.triggeredBack = true
+      state.noAnimate = noAnimate
       browserHistory.goBack()
       setTimeout(function() {
+        state.noAnimate = false
         state.triggeredBack = false
       }, 300)
     } else {
       // first run maybe?
       state.triggeredBack = true
+      state.noAnimate = noAnimate
       browserHistory.push(path)
       setTimeout(function() {
+        state.noAnimate = false
         state.triggeredBack = false
       }, 300)
     }
@@ -54,6 +59,13 @@ export namespace UiStore {
     var p = nextState.location.pathname
     var sp = p.split('/')
     if ((nextState.location.action == 'POP' && ((sp[1] == 'cf' && sp.length === 3) || sp.length === 2)) || state.triggeredBack) {
+      if (state.noAnimate === true) {
+        // runs cb with delay for animation to finish
+        setTimeout(function() {
+          callback()
+        }, 500)
+        return
+      }
       state.goingBack = true
       UiStore.trigger('goingBack')
 
