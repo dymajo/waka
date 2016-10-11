@@ -103,6 +103,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
     this.triggerScroll = this.triggerScroll.bind(this)
+    this.triggerSwiped = this.triggerSwiped.bind(this)
     this.triggerBackSwiped = this.triggerBackSwiped.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
@@ -304,6 +305,25 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }
   }
+  public triggerSwiped(index) {
+    var len = swipeview.contentEl.children[index].children
+    var h = 0
+    for (var i=0; i<len.length; i++) {
+      if (len[i].className !== 'hidden') {
+        h += 48
+      }
+    }
+    // remove one for extra element in first one
+    if (index === 0) {
+      h = h - 48
+    }
+    // oh fuck typescript with these fucking hacks
+    var elemH = (ReactDOM.findDOMNode(this.refs.scroll) as any).offsetHeight - 181
+    if (h < elemH) {
+      h = elemH
+    }
+    return h
+  }
   public triggerBackSwiped(swipedAway) {
     if (swipedAway) {
       var path = window.location.pathname.split('/')
@@ -320,9 +340,10 @@ class Station extends React.Component<IAppProps, IAppState> {
     swipeview.contentTouchMove(e.nativeEvent, this.state.stickyScroll || this.state.loading)
   }
   public triggerTouchEnd(e) {
-    swipeview.contentTouchEnd(e.nativeEvent)
+    swipeview.contentTouchEnd(e.nativeEvent, this.triggerSwiped)
   }
   public componentDidMount() {
+    swipeview.index = 0
     swipeview.containerEl = ReactDOM.findDOMNode(this.refs.container)
     
     // only have back gesture on ios standalone
@@ -357,6 +378,8 @@ class Station extends React.Component<IAppProps, IAppState> {
     }, 30000)
   }
   public componentDidUpdate() {
+    // this seems bad 
+    swipeview.height = this.triggerSwiped(swipeview.index)
     swipeview.setSizes()
   }
   public componentWillUnmount() {
@@ -376,6 +399,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     clearInterval(liveRefresh)
   }
   public componentWillReceiveProps(newProps) {
+    swipeview.index = 0
     //console.log('new props... killnug old requests')
     allRequests.forEach(function (request) {
       if (typeof(request) !== 'undefined') {
@@ -518,9 +542,9 @@ class Station extends React.Component<IAppProps, IAppState> {
       var headerClass = ['','','']
       headerClass[swipeview.index]  = ' active'
       header = <ul>
-        <li className={headerClass[0]} onTouchTap={swipeview.navigate(0)}>All</li>
-        <li className={headerClass[1]} onTouchTap={swipeview.navigate(1)}>Outbound</li>
-        <li className={headerClass[2]} onTouchTap={swipeview.navigate(2)}>{inboundLabel}</li>
+        <li className={headerClass[0]} onTouchTap={swipeview.navigate(0, this.triggerSwiped)}>All</li>
+        <li className={headerClass[1]} onTouchTap={swipeview.navigate(1, this.triggerSwiped)}>Outbound</li>
+        <li className={headerClass[2]} onTouchTap={swipeview.navigate(2, this.triggerSwiped)}>{inboundLabel}</li>
       </ul>
     }
 

@@ -508,6 +508,7 @@ $bgheight: 125px;
   -webkit-perspective: 1000;
   backface-visibility: hidden;
   perspective: 1000;
+  overflow: hidden;
 }
 .swipe-content.swipe-animate, .swipe-bar.swipe-animate {
   transition: transform 0.3s ease-out;
