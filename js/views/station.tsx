@@ -314,26 +314,13 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }
     // remove one for extra element in first one
-    var hx = 0
     if (index === 0) {
       h = h - 48
-    } else {
-      hx = this.triggerSwiped(0)
     }
     // oh fuck typescript with these fucking hacks
-    var elemH = (ReactDOM.findDOMNode(this.refs.scroll) as any).offsetHeight - 181
+    var elemH = (ReactDOM.findDOMNode(this.refs.scroll) as any).offsetHeight
     if (h < elemH) {
-      // basically if the first elem overflows, we set the scrolling threshold higher
-      // otherwise the app will bounce around doing weird things
-      if (hx > elemH) {
-        if (hx < elemH + 149) {
-          h = hx  
-        } else {
-          h = elemH + 149
-        }
-      } else {
-        h = elemH
-      }
+      h = elemH
     }
     return h
   }
