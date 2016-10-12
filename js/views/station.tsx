@@ -321,6 +321,9 @@ class Station extends React.Component<IAppProps, IAppState> {
     var elemH = (ReactDOM.findDOMNode(this.refs.scroll) as any).offsetHeight
     if (h < elemH) {
       h = elemH
+      if (this.state.trips.length * 48 < h-181) {
+        h = h - 181
+      }
     }
     return h
   }
@@ -525,17 +528,15 @@ class Station extends React.Component<IAppProps, IAppState> {
 
     // draws the html
     var header
+    var scrollwrap = 'scrollwrap'
     all = <div className="swipe-pane">{loading}{all}</div>
     if (inbound.length === 0 || outbound.length === 0) {
-      if (inbound.length === 0 && outbound.length === 0) {
-        header = <ul className="invisible"><li></li></ul>
-      } else if (inbound.length === 0) {
-        header = <ul className="single"><li className=" active">Outbound</li></ul>
-      } else if (outbound.length === 0) {
-        header = <ul className="single"><li className=" active">{inboundLabel}</li></ul>
-      }
+      header = <ul className="invisible"><li></li></ul>
       inbound = null
       outbound = null
+      scrollwrap += ' offset'
+    } else if (this.state.loading) {
+      scrollwrap += ' offset'
     } else {
       outbound = <div className="swipe-pane">{outbound}</div>
       inbound = <div className="swipe-pane">{inbound}</div>
@@ -572,12 +573,14 @@ class Station extends React.Component<IAppProps, IAppState> {
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
             ref="scroll">
-          <div className="scrollwrap">
+          <div className={scrollwrap}>
             <div className="bg" style={bgImage}>
               {iconPop}
-              <div className="swipe-header bar" ref="swipeheader">
-                {header}
-                <div className="swipe-bar"></div>
+              <div className="shadow-bar">
+                <div className="swipe-header bar" ref="swipeheader">
+                  {header}
+                  <div className="swipe-bar"></div>
+                </div>
               </div>
             </div>
             <div className="swipe-content" ref="swipecontent">

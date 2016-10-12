@@ -6,6 +6,10 @@
   z-index: 2;
   box-shadow: 0 0 4px rgba(0,0,0,0.4);
 
+  @media (min-width: 601px) {
+    z-index: 4;
+  }
+
   ul {
     margin: 0;
     padding: 0;
@@ -350,7 +354,7 @@
   @media (min-width: 601px) {
     nav {
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
-      z-index: 1;
+      z-index: 3;
     }
   }
 
@@ -432,14 +436,14 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .station {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2;
+    z-index: 5;
     box-shadow: 0 0 4px rgba(0,0,0,0.3);
   }
 }
