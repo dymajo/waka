@@ -4,12 +4,7 @@ var wkx = require('wkx')
 
 var tableSvc = azure.createTableService()
 
-var routeSearchOptions = {
-    url: 'https://api.at.govt.nz/v2/gtfs/routes/routeShortName/',
-    headers: {
-        'Ocp-Apim-Subscription-Key': process.env.atApiKey
-    }
-}
+
 
 var shapeWKBOptions = {
     url: 'https://api.at.govt.nz/v2/gtfs/shapes/geometry/',
@@ -20,44 +15,24 @@ var shapeWKBOptions = {
 
 var line = {
     getLine: function(req, res) {
-         
-        var newOpts = JSON.parse(JSON.stringify(routeSearchOptions))
-        newOpts.url += req.params.line
-        request(newOpts, function(err, response, body) {
+        var query = new azure.TableQuery()
+            .where('route_short_name eq ?', req.params.line)
+        tableSvc.queryEntities('routeShapes', query, null, function(err, result, response){
             if (err) {
-                res.send({
-                    error: err
+                return reject(err)
+            }
+            var results = []
+            result.entries.forEach(function(route){
+                results.push({
+                    route_id: route.RowKey._,
+                    route_long_name: route.route_long_name._,
+                    route_short_name: route.route_short_name._,
+                    shape_id: route.shape_id._,
+                    route_type: route.route_type._
                 })
-                return
-            }
-            var data = JSON.parse(body).response
-            var promises = []
-            for (var i=0; i<data.length; i++){            
-                promises.push(new Promise(function(resolve, reject) {
-                    var j = i
-                    var query = new azure.TableQuery()
-                        .top(1)
-                        .where('route_id eq ?', data[i].route_id)
-                    tableSvc.queryEntities('trips', query, null, function(err, result, response){
-                        if (err) {
-                            return reject(err)
-                        }
-                        if (result.entries.length > 0) {
-                            console.log(result.entries[0].shape_id._)
-                            console.log(j)
-                            console.log(data[j])
-                            data[j].shape_id = result.entries[0].shape_id._
-                        }
-                        resolve() 
-                    })
-                }))
-            }
-            Promise.all(promises).then(function(){
-                res.send(data)
+
             })
-            
-            
-            // promises.all
+            res.send(results)
         })
     },
     getShape: function(req, res) {
