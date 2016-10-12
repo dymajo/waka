@@ -23,14 +23,15 @@ var line = {
             }
             var results = []
             result.entries.forEach(function(route){
-                results.push({
-                    route_id: route.RowKey._,
-                    route_long_name: route.route_long_name._,
-                    route_short_name: route.route_short_name._,
-                    shape_id: route.shape_id._,
-                    route_type: route.route_type._
-                })
-
+                if (line.exceptionCheck(route) === true ){
+                    results.push({
+                        route_id: route.RowKey._,
+                        route_long_name: route.route_long_name._,
+                        route_short_name: route.route_short_name._,
+                        shape_id: route.shape_id._,
+                        route_type: route.route_type._    
+                    })
+                }
             })
             res.send(results)
         })
@@ -47,8 +48,29 @@ var line = {
             }
             res.send(JSON.parse(body).response[0].the_geom)
         })  
+    },
+
+    exceptionCheck: function(route){
+        if (route.trip_headsign._ === "Schools"){
+            return false
+        }
+        else if (route.route_short_name._ === "INN"){
+            if (route.route_long_name._ !== "Inner Link Anticlockwise" && route.route_long_name._ !== "Inner Link Clockwise") {
+                return false
+            }
+        } else if (route.route_short_name._ === "OUT") {
+            if (route.route_long_name._ !== "Outer Link Anticlockwise" && route.route_long_name._ !== "Outer Link Clockwise") {
+                return false
+            }
+        }
+
+
+        return true
+
     }
 }
+
+
 
 module.exports = line
 

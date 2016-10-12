@@ -35,6 +35,16 @@ class Line extends React.Component<IAppProps, IAppState>{
         this.state = {
             line: undefined
         }
+        this.getWKB = this.getWKB.bind(this)
+    }
+
+    public getWKB(line){
+        request(`/a/line/${line}`).then((shape)=>{
+
+            request(`/a/shape/${shape[0].shape_id}`).then((wkb)=>{
+                this.convert(wkb)
+            })
+        })
     }
     public convert(data){
         var wkb = new Buffer(data, 'hex')
@@ -44,15 +54,11 @@ class Line extends React.Component<IAppProps, IAppState>{
     }
     
     public componentDidMount(){
-        console.log(this.props.routeParams.line)
-        request(`/a/line/${this.props.routeParams.line}`).then((shape)=>{
-            console.log(shape[0].shape_id)
-            request(`/a/shape/${shape[0].shape_id}`).then((wkb)=>{
-                //console.log(wkb)
-                this.convert(wkb)
-            })
-        })
-       
+        this.getWKB(this.props.routeParams.line)   
+    }
+
+    public componentWillReceiveProps(nextProps){
+        this.getWKB(nextProps.routeParams.line)
     }
 
     public render(){
@@ -67,9 +73,9 @@ class Line extends React.Component<IAppProps, IAppState>{
 
         return(
         <div>
-            <Map style={{height: '400px'}}
-                center={[-36.844229, 174.767823]} 
-                zoom={18}>
+            <Map style={{height: '500px'}}
+                center={[-36.840556, 174.74]} 
+                zoom={13}>
                 <TileLayer
                     url={'https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}' + retina + token}
                     attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
