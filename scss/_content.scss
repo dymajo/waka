@@ -41,7 +41,7 @@ $bgheight: 125px;
 			right: 0;
 			height: $mobilenavsize;
 			padding: 0 14px;
-			z-index: 3;
+			z-index: 2;
 			background: #fff;
 			box-shadow: 0 0 4px rgba(0,0,0,0.4);
 			// background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.0));
@@ -68,31 +68,40 @@ $bgheight: 125px;
 			line-height: 1.1;
 		}
 	}
-	.bar {
+	.shadow-bar {
+		box-shadow: 0 0 2px rgba(0,0,0,0.4);
+		border-bottom: 1px solid #ddd;
+		background: #fff;
 		position: absolute;
 		left: 0;
 		right: 0;
 		bottom: 0;
-		box-sizing: border-box;
-		background: #fff;
-		box-shadow: 0 0 2px rgba(0,0,0,0.4);
-		border-bottom: 1px solid #ddd;
 		height: 32px;
+	}
+	.bar {
+		box-sizing: border-box;
+		width: 100%;
+		height: 100%;
+		background: #fff;
 		color: #999;
 		font-weight: bold;
 		font-size: 12px;
 		text-transform: uppercase;
 		line-height: 31px;
+		max-width: 700px;
+		margin: 0 auto;
 
 		ul {
 			display: flex;
 		}
 
 		li {
+			cursor: default;
 			display: inline-block;
 			padding: 0 7px;
 			text-align: center;
 			flex: 1;
+			transition: 300ms ease color;
 
 			&:active {
 				background: rgba(0,0,0,0.03)
@@ -154,6 +163,18 @@ $bgheight: 125px;
 	    background-repeat: no-repeat;
 	    background-position: 0 $navsize + $bgheight;
 	    height: 100%;
+
+	    &.offset {
+	    	padding-top: $navsize + $bgheight - 32px;
+
+	    	.shadow-bar {
+	    		border-bottom: 0;
+	    		background: transparent;
+	    	}
+	    	.bar {
+	    		visibility: hidden;
+	    	}
+	    }
 		}
 	}
 	.error {
@@ -175,7 +196,7 @@ $bgheight: 125px;
 		padding: 0;
 		margin: 0;
 
-		ul {
+		li ul {
 			width: 100%;
 			background: #f8f8f8;
 
@@ -493,11 +514,21 @@ $bgheight: 125px;
 	}
 }
 
+.station.swipe-animate {
+  transition: transform 0.3s ease-out;
+}
+
 // It's absolutely insane that SASS cannot import .css files
 // Included here in swipeview.css
 .swipe-content {
   position: absolute;
   display: flex;
+  // fixes iphone
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  backface-visibility: hidden;
+  perspective: 1000;
+  overflow: hidden;
 }
 .swipe-content.swipe-animate, .swipe-bar.swipe-animate {
   transition: transform 0.3s ease-out;
@@ -506,8 +537,25 @@ $bgheight: 125px;
   width: 100vw;
   position: relative;
 }
+.swipe-header {
+	.invisible {
+  	visibility: hidden;
+
+  	& + .swipe-bar {
+  		visibility: hidden;
+  	}
+  }
+  .single + .swipe-bar {
+  	visibility: hidden;
+  }
+}
 .swipe-bar {
   border-bottom: 2px solid $atblue;
   top: -1px;
   position:relative;
+  // fixes iphone
+  -webkit-backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  backface-visibility: hidden;
+  perspective: 1000;
 }

@@ -29,7 +29,7 @@ interface ServerTripItem {
   trip_id: string,
   route_long_name: string,
   agency_id: string,
-  direction_id: string,
+  direction_id: number,
   end_date: string,
   frequency: string,
   station: string,
@@ -75,6 +75,7 @@ class Station extends React.Component<IAppProps, IAppState> {
   refs: {
     [key: string]: (Element);
     scroll: (HTMLDivElement);
+    container: (HTMLDivElement);
     swipecontent: (HTMLDivElement);
     swipeheader: (HTMLDivElement);
   }
@@ -102,6 +103,8 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
     this.triggerScroll = this.triggerScroll.bind(this)
+    this.triggerSwiped = this.triggerSwiped.bind(this)
+    this.triggerBackSwiped = this.triggerBackSwiped.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
@@ -302,25 +305,60 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }
   }
-  public triggerTouchStart(e) {
-    if (!this.state.stickyScroll) {
-      swipeview.contentTouchStart(e.nativeEvent)
+  public triggerSwiped(index) {
+    var len = swipeview.contentEl.children[index].children
+    var h = 0
+    for (var i=0; i<len.length; i++) {
+      if (len[i].className !== 'hidden') {
+        h += 48
+      }
     }
+    // remove one for extra element in first one
+    if (index === 0) {
+      h = h - 48
+    }
+    // oh fuck typescript with these fucking hacks
+    var elemH = (ReactDOM.findDOMNode(this.refs.scroll) as any).offsetHeight
+    if (h < elemH) {
+      h = elemH
+      if (this.state.trips.length * 48 < h-181) {
+        h = h - 181
+      }
+    }
+    return h
+  }
+  public triggerBackSwiped(swipedAway) {
+    if (swipedAway) {
+      var path = window.location.pathname.split('/')
+      var i = path.indexOf(this.props.routeParams.station)
+      // runs with the no animate flag
+      UiStore.navigateSavedStations(path.slice(0,i).join('/'), true)
+    }
+  }
+  public triggerTouchStart(e) {
+    swipeview.contentTouchStart(e.nativeEvent)
+    iOS.triggerStart(e)
   }
   public triggerTouchMove(e) {
-    if (!this.state.stickyScroll) {
-      swipeview.contentTouchMove(e.nativeEvent)
-    }
+    swipeview.contentTouchMove(e.nativeEvent, this.state.stickyScroll || this.state.loading)
   }
   public triggerTouchEnd(e) {
-    if (!this.state.stickyScroll) {
-      swipeview.contentTouchEnd(e.nativeEvent)
-    }
+    swipeview.contentTouchEnd(e.nativeEvent, this.triggerSwiped)
   }
   public componentDidMount() {
+    swipeview.index = 0
+    swipeview.containerEl = ReactDOM.findDOMNode(this.refs.container)
+    
+    // only have back gesture on ios standalone
+    if (iOS.detect() && (window as any).navigator.standalone) {
+      swipeview.iOSBack = swipeview.containerEl
+      swipeview.iOSBackCb = this.triggerBackSwiped
+    }
     swipeview.contentEl = ReactDOM.findDOMNode(this.refs.swipecontent)
     swipeview.headerEl = ReactDOM.findDOMNode(this.refs.swipeheader)
     swipeview.setSizes()
+
+    window.addEventListener('resize', swipeview.setSizes)
 
     requestAnimationFrame(() => {
       if (this.props.routeParams.station.split('+').length === 1) {
@@ -342,7 +380,14 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }, 30000)
   }
+  public componentDidUpdate() {
+    // this seems bad 
+    swipeview.height = this.triggerSwiped(swipeview.index)
+    swipeview.setSizes()
+  }
   public componentWillUnmount() {
+    window.removeEventListener('resize', swipeview.setSizes)
+    
     // unbind our trigger so it doesn't have more updates
     StationStore.unbind('change', this.triggerUpdate)
     ReactDOM.findDOMNode(this.refs.scroll).removeEventListener('scroll', this.triggerScroll)
@@ -357,6 +402,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     clearInterval(liveRefresh)
   }
   public componentWillReceiveProps(newProps) {
+    swipeview.index = 0
     //console.log('new props... killnug old requests')
     allRequests.forEach(function (request) {
       if (typeof(request) !== 'undefined') {
@@ -383,7 +429,6 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public render() {
-    var bgImage = {}
     var token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
     var w = window.innerWidth
     if (w > 1280) {
@@ -397,17 +442,23 @@ class Station extends React.Component<IAppProps, IAppState> {
       y = -36.85
       z = 8
     }
-    bgImage = {'backgroundImage': `url(https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/${x},${y},${z},0,0/${w}x149@2x${token}`}
-    
+    var bgImage = {}
+    bgImage = {backgroundImage: `url(https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/${x},${y},${z},0,0/${w}x149@2x${token})`}
+    if (this.state.loading && typeof(x) === 'undefined' || this.state.name === '') {
+      // so we don't do extra http request
+      bgImage = {}
+    }
     
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
     var iconPop
-    if (icon === 'bus' && this.state.name !== '') {
-      iconStr = 'Bus Stop ' + this.state.stop
-    }
-    if (icon !== 'train') {
-      iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
+    if (this.state.name !== '') {
+      if (icon === 'bus') {
+        iconStr = 'Bus Stop ' + this.state.stop
+      }
+      if (icon !== 'train') {
+        iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
+      }
     }
 
     var saveButton
@@ -438,8 +489,68 @@ class Station extends React.Component<IAppProps, IAppState> {
       scrollable += ' enable-scrolling'
     }
 
+    var inbound = []
+    var outbound = []
+    var all = []
+    var inboundLabel = 'Inbound'
+    this.state.trips.forEach((trip) => {
+      if (typeof(trip.stop_sequence) === 'undefined') {
+        return
+      }
+      var key = trip.trip_id + trip.stop_sequence.toString()
+      var item = <TripItem 
+        code={trip.route_short_name}
+        time={trip.arrival_time_seconds}
+        name={trip.trip_headsign}
+        long_name={trip.route_long_name}
+        key={key} // because what if they use a multistop
+        trip_id={trip.trip_id}
+        agency_id={trip.agency_id}
+        station={trip.station}
+        stop_code={this.props.routeParams.station}
+        stop_sequence={trip.stop_sequence}
+        realtime={this.state.realtime[trip.trip_id]}
+      />
+      if (trip.direction_id === 0) {
+        inbound.push(item)
+        if (inboundLabel === 'Inbound') {
+          var h = trip.trip_headsign
+          // hardcoded because confusing AT uses different headsigns
+          if (h.match('Britomart') || h === 'City Centre' || h === 'Civic Centre' || h.match('Downtown')) {
+            inboundLabel = 'Citybound'
+          }
+        }
+      } else {
+        outbound.push(item)
+      }
+      all.push(item)
+    })
+
+    // draws the html
+    var header
+    var scrollwrap = 'scrollwrap'
+    all = <div className="swipe-pane">{loading}{all}</div>
+    if (inbound.length === 0 || outbound.length === 0) {
+      header = <ul className="invisible"><li></li></ul>
+      inbound = null
+      outbound = null
+      scrollwrap += ' offset'
+    } else if (this.state.loading) {
+      scrollwrap += ' offset'
+    } else {
+      outbound = <div className="swipe-pane">{outbound}</div>
+      inbound = <div className="swipe-pane">{inbound}</div>
+      var headerClass = ['','','']
+      headerClass[swipeview.index]  = ' active'
+      header = <ul>
+        <li className={headerClass[0]} onTouchTap={swipeview.navigate(0, this.triggerSwiped)}>All</li>
+        <li className={headerClass[1]} onTouchTap={swipeview.navigate(1, this.triggerSwiped)}>Outbound</li>
+        <li className={headerClass[2]} onTouchTap={swipeview.navigate(2, this.triggerSwiped)}>{inboundLabel}</li>
+      </ul>
+    }
+
     return (
-      <div className='station'>
+      <div className='station' ref="container">
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>
@@ -462,50 +573,20 @@ class Station extends React.Component<IAppProps, IAppState> {
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
             ref="scroll">
-          <div className="scrollwrap">
+          <div className={scrollwrap}>
             <div className="bg" style={bgImage}>
               {iconPop}
-              <div className="swipe-header bar" ref="swipeheader">
-                <ul>
-                  {
-                    // there's a space in here because reasons of that's how the swipe plugin works
-                  }
-                  <li className=" active" onTouchTap={swipeview.navigate(0)}>All</li>
-                  <li onTouchTap={swipeview.navigate(1)}>Inbound</li>
-                  <li onTouchTap={swipeview.navigate(2)}>Outgoing</li>
-                </ul>
-                <div className="swipe-bar"></div>
+              <div className="shadow-bar">
+                <div className="swipe-header bar" ref="swipeheader">
+                  {header}
+                  <div className="swipe-bar"></div>
+                </div>
               </div>
             </div>
             <div className="swipe-content" ref="swipecontent">
-            <div className="swipe-pane">
-            {loading}
-            {this.state.trips.map((trip) => {
-              if (typeof(trip.stop_sequence) === 'undefined') {
-                return
-              }
-              var key = trip.trip_id + trip.stop_sequence.toString()
-              return <TripItem 
-                code={trip.route_short_name}
-                time={trip.arrival_time_seconds}
-                name={trip.trip_headsign}
-                long_name={trip.route_long_name}
-                key={key} // because what if they use a multistop
-                trip_id={trip.trip_id}
-                agency_id={trip.agency_id}
-                station={trip.station}
-                stop_code={this.props.routeParams.station}
-                stop_sequence={trip.stop_sequence}
-                realtime={this.state.realtime[trip.trip_id]}
-               />
-            })}
-            </div>
-            <div className="swipe-pane">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint saecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            </div>
-            <div className="swipe-pane">
-              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint saecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            </div>
+              {all}
+              {outbound}
+              {inbound}
             </div>
           </div>
         </ul>

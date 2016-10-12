@@ -26,7 +26,7 @@
       &.goingback {
         .station {
           animation: 300ms stop-to-ss-station-ios ease 1;
-          transform: translate3d(100vw,0,0);
+          transform: translate3d(100vw,0,0) !important; // bypasses my plugin
           opacity: 1;
         }
       }
@@ -42,7 +42,7 @@
       &.goingback {
         .station {
           animation: 300ms stop-to-ss-station-ios ease 1;
-          transform: translate3d(100vw,0,0);
+          transform: translate3d(100vw,0,0) !important;  // bypasses my plugin
           opacity: 1;
         }
       }

@@ -47,6 +47,14 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       minutes = '0' + minutes.toString()
     }
     var timestring = arrival.getHours() + ':' + minutes
+    if (SettingsStore.getState().clock === false) {
+      // will modulo to 0, but that's not how time works.
+      var h = arrival.getHours() % 12
+      if (h === 0) {
+        h = 12
+      }
+      timestring = h + ':' + minutes
+    }
 
     if (this.props.realtime) {
       arrival.setSeconds(arrival.getSeconds() + (this.props.realtime.delay))
