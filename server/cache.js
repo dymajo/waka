@@ -76,13 +76,26 @@ var cache = {
       })
     })
 
-    // calendar exceptions
-    options.url = 'https://api.at.govt.nz/v2/gtfs/calendarDate'
-    var dates = request(options).pipe(fs.createWriteStream('cache/calendardate.json'))
-    promises[4] = new Promise(function(resolve, reject) {
+    var getExceptions = function(resolve) {
+      // calendar exceptions
+      options.url = 'https://api.at.govt.nz/v2/gtfs/calendarDate'
+      var dates = request(options).pipe(fs.createWriteStream('cache/calendardate.json'))
       dates.on('finish', function() {
-        resolve()
+        fs.readFile('cache/calendardate.json', function(err, data) {
+          if (err) throw err;
+          if (JSON.parse(data).response === null) {
+            console.log('failed to get calendar dates, retrying')
+            getExceptions(resolve)
+          } else {
+            console.log('got calendar dates!')
+            resolve()
+          }
+        })
       })
+    }
+    
+    promises[4] = new Promise(function(resolve, reject) {
+      getExceptions(resolve)
     })
 
     // now we build the hashtable things
