@@ -26,23 +26,38 @@ interface IAppProps extends React.Props<Line>{
 }
 
 interface IAppState {
-    line: Array<Array<number>>
+    line?: Array<Array<number>>,
+    route_id?: String,
+    route_list?: Array<Array<String>>
 }
 
 class Line extends React.Component<IAppProps, IAppState>{
     constructor(props) {
         super(props)
         this.state = {
-            line: undefined
+            line: undefined,
+            route_id: undefined,
+            route_list: []
         }
         this.getWKB = this.getWKB.bind(this)
+        this.getShapeIDs = this.getShapeIDs.bind(this)
+        this.triggerTap = this.triggerTap.bind(this)
     }
 
-    public getWKB(line){
-        request(`/a/line/${line}`).then((shape)=>{
+    public getWKB(shape){
+            request(`/a/shape/${shape}`).then((wkb)=>{
+                this.convert(wkb)           
+        })
+    }
 
-            request(`/a/shape/${shape[0].shape_id}`).then((wkb)=>{
-                this.convert(wkb)
+    public getShapeIDs(line){
+        request(`/a/line/${line}`).then((shape)=>{
+            var shapes = []
+            shape.forEach(function(s){
+                shapes.push([s.shape_id, s.route_long_name])
+            })
+            this.setState({
+                route_list: shapes
             })
         })
     }
@@ -52,13 +67,21 @@ class Line extends React.Component<IAppProps, IAppState>{
             line: wkx.Geometry.parse(wkb).toGeoJSON()
         })
     }
+
+    public triggerTap(shape){
+        var wkb = this.getWKB
+        return function(){
+            console.log(shape)
+            wkb(shape)
+        }
+    }
     
     public componentDidMount(){
-        this.getWKB(this.props.routeParams.line)   
+        this.getShapeIDs(this.props.routeParams.line)   
     }
 
     public componentWillReceiveProps(nextProps){
-        this.getWKB(nextProps.routeParams.line)
+        this.getShapeIDs(nextProps.routeParams.line)
     }
 
     public render(){
@@ -73,6 +96,9 @@ class Line extends React.Component<IAppProps, IAppState>{
 
         return(
         <div>
+            {this.state.route_list.map((route)=>{
+                return <div key={route[0]}><button onTouchTap={this.triggerTap(route[0])}>{route[1]}</button></div>
+            })}
             <Map style={{height: '500px'}}
                 center={[-36.840556, 174.74]} 
                 zoom={13}>
