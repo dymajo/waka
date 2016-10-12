@@ -119,12 +119,15 @@ var cache = {
             agency_id: s.agency_id,
             route_short_name: s.route_short_name,
             route_long_name: s.route_long_name,
-            route_type: s.route_type
+            route_type: s.route_type,
+            shape_id: null
           }
         })
         resolve()
       })
     })
+
+    
 
     // build the awesome joined trips lookup table
     Promise.all(promises).then(function() {
@@ -147,7 +150,10 @@ var cache = {
             start_date: services[s.service_id].start_date,
             end_date: services[s.service_id].end_date
           }
+          routes[s.route_id].shape_id = s.shape_id
+          
         })
+        fs.writeFile('cache/routeShapes.json', JSON.stringify(routes))
         fs.writeFile('cache/tripsLookup.json', JSON.stringify(trips))
         if (cb) cb()
       })
@@ -161,7 +167,7 @@ var cache = {
         if(!error){
           resolve()
         }
-      });
+      })
     })
 
     promises[1] = new Promise(function(resolve, reject) {
@@ -169,7 +175,7 @@ var cache = {
         if(!error){
           resolve()
         }
-      });
+      })
     })
 
     promises[2] = new Promise(function(resolve, reject) {
@@ -177,7 +183,79 @@ var cache = {
         if(!error){
           resolve()
         }
-      });
+      })
+    })
+
+    promises[3] = new Promise(function(resolve, reject) {
+      tableSvc.createTableIfNotExists('routeShapes', function(error, result, response){
+        if(!error){
+          resolve()
+        }
+      })
+    })
+
+    Promise.all(promises).then(function(){
+      fs.readFile('cache/routeShapes.json', function(err, data){
+        if (err) throw err;
+        var routeShapesData = JSON.parse(data)
+        var batch = new azure.TableBatch()
+        var arrayOfEntityArrays = {}
+        var arrayOfEntityCounts = {}
+        var count = 0
+        for (var key in routeShapesData) {
+          var pkey = key.split('_').slice(-1)[0]
+          if (typeof(arrayOfEntityArrays[pkey]) === 'undefined') {
+            arrayOfEntityArrays[pkey] = []
+            arrayOfEntityCounts[pkey] = 0
+          }
+          var b = arrayOfEntityArrays[pkey]
+          var c = arrayOfEntityCounts[pkey]
+
+          b[c] = b[c] || new azure.TableBatch()
+          if (b[c].operations.length > 99) {
+            // have to update both the copy, and the pointer
+            arrayOfEntityCounts[pkey]++
+            c++ 
+            // then we can create a new batch
+            b[c] = b[c] || new azure.TableBatch()
+          }
+          b[c].insertOrReplaceEntity({
+            PartitionKey: {'_': pkey},
+            RowKey: {'_': key},
+            agency_id: {'_': routeShapesData[key].agency_id},
+            route_short_name: {'_': routeShapesData[key].route_short_name},
+            route_long_name: {'_': routeShapesData[key].route_long_name},
+            route_type:{'_': routeShapesData[key].route_type},
+            shape_id:{'_': routeShapesData[key].shape_id}
+          })
+        }
+        var batchUpload = function(name, batch, n) {
+          try {
+            if (n < batch.length) {
+              console.log(`uploading route shapes_${name} batch ${n+1}/${batch.length}`)
+              tableSvc.executeBatch('routeShapes', batch[n], function (error, result, response) {
+                if(!error) {
+                  batchUpload(name, batch, n+1)
+                } else {
+                  if (error.code === 'ETIMEDOUT') {
+                    console.log('ETIMEDOUT... retrying')
+                    batchUpload(name, batch, n)
+                  } else {
+                    console.log(error)
+                  }
+                }
+              })
+            } else {
+              console.log('finished uploading route shapes')
+            }
+          } catch(err) {
+            console.log(err)
+          }
+        }
+        for (var key in arrayOfEntityArrays) {
+          batchUpload(key, arrayOfEntityArrays[key], 0)
+        }
+      })
     })
 
     Promise.all(promises).then(function(){
