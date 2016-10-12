@@ -120,7 +120,8 @@ var cache = {
             route_short_name: s.route_short_name,
             route_long_name: s.route_long_name,
             route_type: s.route_type,
-            shape_id: null
+            shape_id: null,
+            trip_headsign: null
           }
         })
         resolve()
@@ -151,6 +152,7 @@ var cache = {
             end_date: services[s.service_id].end_date
           }
           routes[s.route_id].shape_id = s.shape_id
+          routes[s.route_id].trip_headsign = s.trip_headsign
           
         })
         fs.writeFile('cache/routeShapes.json', JSON.stringify(routes))
@@ -226,7 +228,8 @@ var cache = {
             route_short_name: {'_': routeShapesData[key].route_short_name},
             route_long_name: {'_': routeShapesData[key].route_long_name},
             route_type:{'_': routeShapesData[key].route_type},
-            shape_id:{'_': routeShapesData[key].shape_id}
+            shape_id: {'_': routeShapesData[key].shape_id},
+            trip_headsign: {'_': routeShapesData[key].trip_headsign}
           })
         }
         var batchUpload = function(name, batch, n) {
