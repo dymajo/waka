@@ -1,4 +1,4 @@
-import * as React from 'react'
+﻿import * as React from 'react'
 import { browserHistory } from 'react-router'
 import { iOS } from '../models/ios.ts'
 
@@ -60,9 +60,18 @@ class Pin extends React.Component<IPinProps, IPinState> {
 
   public sendEmail(e){
     e.preventDefault()
-    console.log(this.state.email)
+    request({
+      url: '/a/email',
+      method: 'post',
+      type: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        email: this.state.email
+      })
+    }).then(function() {
+      this.setState({emailSent: true})
+    })
   }
-
   private triggerChange(e) {
     this.setState({
       email: e.currentTarget.value
@@ -130,7 +139,7 @@ class Pin extends React.Component<IPinProps, IPinState> {
           {output}
         </div>
         <div className="desktop">
-        <h3>Email yourself a link</h3>
+        <h3>Email yourself a link to Transit!</h3>
           <form onSubmit={this.sendEmail}>
             <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
             <button className="primary" type="submit">Send Link</button>
