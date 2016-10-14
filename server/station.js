@@ -341,8 +341,13 @@ var station = {
           return
         }
 
-        var today = moment().tz('Pacific/Auckland')
-        var tomorrow = moment().tz('Pacific/Auckland').add(1, 'day')
+        var time = moment().tz('Pacific/Auckland')
+        var y = time.year()
+        var m = time.month()
+        var d = time.date()
+        var today = moment(Date.UTC(y, m, d, 0, 0))
+        var tomorrow = moment(Date.UTC(y, m, d, 0, 0)).add(1, 'day').subtract(1, 'minute')
+
         // >5am override (nite rider)
         if (today.hour() < 5) {
           today.day(today.day()-1)
@@ -373,10 +378,11 @@ var station = {
             // check day of week
             if (exceptionCache.existsToday(today.day(), trip.frequency._, trip.service_id._) &&
               // check end date
-              moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isAfter(tomorrow) &&
+              moment(trip.end_date._).isAfter(tomorrow) &&
               // check start date
-              moment.tz(trip.start_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(today)
+              moment(trip.start_date._).isBefore(today)
               ) {
+              
               // TODO: Only push the ones that haven't already ended
               finalTripsArray.push({
                 arrival_time_seconds: tmpTripStore[trip.RowKey._].a,
@@ -396,7 +402,7 @@ var station = {
 
             // check end date & delete if expired
             // we don't have to batch because 75 is max
-            if (moment.tz(trip.end_date._, 'Pacific/Auckland').subtract(12, 'hours').isBefore(tomorrow)) {
+            if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(tomorrow)) {
               deleteCount++
             }
 
