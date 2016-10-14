@@ -55,7 +55,7 @@ var line = {
                     var v = parseFloat(route.RowKey._.split('_v').slice(-1)[0])
                     if (typeof(versions[route.route_long_name._]) === 'undefined') {
                         versions[route.route_long_name._] = v 
-                    } else if (v > versions[route.route_long_name._]) {
+                    } else if (v < versions[route.route_long_name._]) {
                         versions[route.route_long_name._] = v
                     }
                 }
