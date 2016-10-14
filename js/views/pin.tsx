@@ -2,13 +2,17 @@ import * as React from 'react'
 import { browserHistory } from 'react-router'
 import { iOS } from '../models/ios.ts'
 
+
 declare function require(name: string): any;
 let Clipboard = require('clipboard')
+let request = require('reqwest')
 
 interface IPinProps extends React.Props<Pin> {}
 interface IPinState {
+  email?: string,
   copied?: boolean,
   hide?: boolean
+  emailSent?: boolean
 }
 
 let clipboard = undefined
@@ -16,11 +20,15 @@ class Pin extends React.Component<IPinProps, IPinState> {
   constructor(props) {
     super(props)
     this.state = {
+      email: '',
       copied: false,
-      hide: false
+      hide: false,
+      emailSent: false
     }
     this.triggerClose = this.triggerClose.bind(this)
     this.triggerClipboard = this.triggerClipboard.bind(this)
+    this.sendEmail = this.sendEmail.bind(this)
+    this.triggerChange = this.triggerChange.bind(this)
   }
   public componentDidMount() {
     clipboard = new Clipboard('.clipboardcopy');
@@ -48,6 +56,17 @@ class Pin extends React.Component<IPinProps, IPinState> {
   }
   public doNothing(e) {
     e.preventDefault()
+  }
+
+  public sendEmail(e){
+    e.preventDefault()
+    console.log(this.state.email)
+  }
+
+  private triggerChange(e) {
+    this.setState({
+      email: e.currentTarget.value
+    } as IPinState)
   }
   public render() {
     var userAgent = window.navigator.userAgent.toLowerCase()
@@ -111,9 +130,13 @@ class Pin extends React.Component<IPinProps, IPinState> {
           {output}
         </div>
         <div className="desktop">
-          <p>This feature isn’t implemented yet 😭. Just type <a href="#">transit.dymajo.com</a> into your phone.</p>
-          <button className="primary" onClick={this.triggerClose}>Thanks!</button>
-        </div>
+        <h3>Email yourself a link</h3>
+          <form onSubmit={this.sendEmail}>
+            <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
+            <button className="primary" type="submit">Send Link</button>
+            <button onClick={this.triggerClose}>Close</button>
+          </form>
+        </div>       
       </div>
     )
   }

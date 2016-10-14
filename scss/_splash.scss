@@ -424,4 +424,17 @@
   .android-chrome img {
     width: 16px;
   }
+  input {
+    border: 0;
+    margin-bottom: 1em;
+    min-width: 300px;
+    padding: 11px 14px;
+    border-radius: 3px;
+  }
+  button {
+    color: white;
+  }
+  h3 {
+    margin-top: 0;
+  }
 }
