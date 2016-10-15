@@ -273,7 +273,7 @@
       }
 
       &.selected, &:active {
-        background: #fff;
+        background: #f5fafe;
       }
 
     }
@@ -432,6 +432,24 @@
       max-width: 600px;
       z-index: 0;
       display: flex;
+    }
+  }
+  @media (min-width: 601px) {
+    &:not(.activepane) {
+      .station {
+        animation: 300ms ss-to-stop-station-large-search ease 1;
+      }
+    }
+    &.goingback {
+      .station {
+        animation: 300ms stop-to-ss-station-large ease 1;
+        opacity: 0;
+      }
+    }
+    .station {
+      left: $navsize;
+      box-shadow: none;
+      z-index: 1;
     }
   }
 }

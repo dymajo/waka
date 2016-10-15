@@ -126,7 +126,15 @@ $bgheight: 125px;
 		.bgwrap {
 			display: flex;
 			// width: 100%;
-			margin-top: -40px;
+			height: 148px;
+			overflow: hidden;
+
+			img {
+				width: 256px;
+				height: 256px;
+				flex-shrink: 0;
+				margin-top: -40px;
+			}
 		}
 		.iconPop {
 			width: 25px;
@@ -134,11 +142,7 @@ $bgheight: 125px;
 			margin-top: ($bgheight - 45px) / 2;
 		}
 
-		// img {
-		// 	width: 256px;
-		// 	height: 256px;
-		// 	flex-shrink: 0
-		// }
+		
 	}
 	.scrollable {
 		overflow-y: auto;

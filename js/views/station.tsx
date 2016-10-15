@@ -7,6 +7,8 @@ import { UiStore } from '../stores/uiStore.ts'
 import { SettingsStore } from '../stores/settingsStore.ts'
 import TripItem from './tripitem.tsx'
 
+const mapboxToken = 'pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
+
 declare function require(name: string): any;
 let request = require('reqwest')
 let webp = require('../models/webp')
@@ -110,6 +112,12 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
+  }
+  private toTile(lat, lng, zoom) {
+    return [
+      (lng+180)/360*Math.pow(2,zoom), // lng 
+      (1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom) //lat
+    ]
   }
   /* THIS CAN ACTUALLY BE REPLACED WITH:
   this.setState({
@@ -444,10 +452,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     var bgImage = {}
     bgImage = {backgroundImage: `url(https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/${x},${y},${z},0,0/${w}x149@2x${token})`}
-    if (this.state.loading && typeof(x) === 'undefined' || this.state.name === '') {
-      // so we don't do extra http request
-      bgImage = {}
-    }
+    
     
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
@@ -459,6 +464,36 @@ class Station extends React.Component<IAppProps, IAppState> {
       if (icon !== 'train') {
         iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
       }
+    }
+    if (window.innerWidth > 600) {
+      bgImage = {}
+      var latLng = this.toTile(this.state.stop_lat, this.state.stop_lon, 16)
+      var offset = {marginTop: (latLng[1] - Math.floor(latLng[1])) * -108}
+      var tiles = Math.ceil(window.innerWidth / 256)
+      var url = new Array(tiles)
+
+      // make one less tile to consider sidebar
+      var path = window.location.pathname.split('/')
+      var i = path.indexOf(this.props.routeParams.station)
+      if (path.slice(0,i).join('/') === '/ss' && window.innerWidth > 900) {
+        tiles = tiles -1
+      }
+      
+      for (var i=0; i<tiles; i++) {
+        var index = Math.ceil(i - tiles/2)
+        url.push(`https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1])}@2x?access_token=${mapboxToken}`)
+      }
+      iconPop = <div className="bgwrap">
+        {url.map(function(item, index) {
+          return <img src={item} key={index} style={offset} />
+        })}
+      </div>
+    }
+
+    if (this.state.loading && typeof(x) === 'undefined' || this.state.name === '') {
+      // so we don't do extra http request
+      iconPop = undefined
+      bgImage = {}
     }
 
     var saveButton
