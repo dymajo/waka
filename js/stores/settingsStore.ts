@@ -10,6 +10,7 @@ export namespace SettingsStore {
       state[attrname] = preState[attrname]
     }
   }
+  localStorage.setItem('AppVersion', '0.2')
   export function getState() {
     return state
   }

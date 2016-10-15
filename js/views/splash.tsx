@@ -61,7 +61,7 @@ class Splash extends React.Component<IAppProps, {}> {
             <button className="send" onTouchTap={this.triggerPin}>Send to Phone</button>
           </div>
           <footer>
-            <p>&copy; {new Date().getUTCFullYear()} DYMAJO Ltd &middot; v0.2<small>β</small></p>
+            <p>&copy; {new Date().getUTCFullYear()} DYMAJO Ltd &middot; <small>V</small>{localStorage.getItem('AppVersion')}</p>
           </footer>
         </div>
       </div>

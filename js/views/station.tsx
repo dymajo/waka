@@ -500,11 +500,11 @@ class Station extends React.Component<IAppProps, IAppState> {
     var addButton
     var cancelButton
     if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
-      saveButton = <span className="save" onClick={this.triggerSave}><img src="/icons/unsaved.svg" /></span>  
+      saveButton = <span className="save" onTouchTap={this.triggerSave}><img src="/icons/unsaved.svg" /></span>  
       cancelButton = 'Cancel'
       addButton = 'Add Stop'
     } else {
-      saveButton = <span className="remove" onClick={this.triggerSave}><img src="/icons/saved.svg" /></span>
+      saveButton = <span className="remove" onTouchTap={this.triggerSave}><img src="/icons/saved.svg" /></span>
       cancelButton = 'Remove Stop'
       addButton = 'Rename'
     }

@@ -39,7 +39,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
               <div className="logo" id="logo">
                 <span className="company">Dymajo </span>
                 <span className="app">Transit </span>
-                <span className="version">0.2<small>β</small></span>
+                <span className="version">v{localStorage.getItem('AppVersion')}</span>
               </div>
               <div className="copyright"><a className="subtle" href="https://dymajo.com" target="_blank">&copy; 2016 DYMAJO LTD</a></div>
               <div className="sourcecode">This app is licensed under the <a className="subtle" href="https://github.com/consindo/dymajo-transit/blob/master/LICENSE" target="_blank">MIT License</a>.<br />

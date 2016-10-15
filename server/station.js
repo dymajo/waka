@@ -514,13 +514,17 @@ var station = {
         if (err) {
           return console.log(err)
         }
-        var today = moment().tz('Pacific/Auckland').add(1, 'day').subtract(12, 'hours')
+        var time = moment().tz('Pacific/Auckland')
+        var y = time.year()
+        var m = time.month()
+        var d = time.date()
+        var today = moment(Date.UTC(y, m, d, 0, 0)).subtract(1, 'minute')
         result.entries.forEach(function(trip) {
           var index = allRows.indexOf(trip.RowKey._)
           if (index > -1) {
             allRows.splice(index, 1)
           }
-          if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(today)) {
+          if (moment(trip.end_date._).isBefore(today)) {
             deleteCandidates.push(trip.RowKey._)
           }
         })

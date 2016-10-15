@@ -15,6 +15,7 @@ import ListStations from './views/liststations.tsx'
 import Lines from './views/lines.tsx'
 import Line from './views/line.tsx'
 
+declare function process(): any;
 declare function require(name: string): any;
 require('autotrack') // google analytics
 var injectTapEventPlugin = require('react-tap-event-plugin')
@@ -53,6 +54,9 @@ class App extends React.Component<IAppProps, {}> {
   }
 }
 document.addEventListener("DOMContentLoaded", function(event) {
+  if ((process as any).env.NODE_ENV === "production") {
+    document.getElementById('app').className = 'production'
+  }
   ReactDOM.render(<App />, document.getElementById('app'))
 })
 document.ontouchmove = iOS.touchMoveFix

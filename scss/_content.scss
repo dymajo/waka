@@ -414,14 +414,18 @@ $bgheight: 125px;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(0,0,0,0.3);
+	background: rgba(#fff,0.8);
 	z-index: 5;
+	animation: 300ms ss-to-stop-station ease 1;
 
 	div {
 		background: #fff;
 		padding: 25px;
 		max-width: 250px;
 		margin: 20vh auto 0;
+		border: 2px solid $atblue;
+		border-radius: 3px;
+		box-shadow: 0 1px 4px rgba(#000, 0.3);
 	}
 
 	h2 {
@@ -432,6 +436,7 @@ $bgheight: 125px;
 		font-weight: 600;
 	}
 	input {
+		border-radius: 3px;
 		width: 100%;
 		box-sizing: border-box;
 		border: 2px solid #ccc;
@@ -440,7 +445,6 @@ $bgheight: 125px;
 		padding: 7px 10px;
 		font-family: "Open Sans", sans-serif;
 		-webkit-appearance: none;
-		border-radius: 0;
 
 		&:focus {
 			border-color: $atblue;

@@ -1,0 +1,10 @@
+.production {
+    .cfwrapper, .searchswitch {
+        display: none;
+    }
+    .search {
+        @media (max-width: 480px) {
+            bottom: 0;
+        }
+    }
+}
