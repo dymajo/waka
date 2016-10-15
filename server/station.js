@@ -378,7 +378,7 @@ var station = {
             // check day of week
             if (exceptionCache.existsToday(today.day(), trip.frequency._, trip.service_id._) &&
               // check end date
-              moment(trip.end_date._).isAfter(tomorrow) &&
+              tomorrow.isAfter(moment(trip.end_date._)) &&
               // check start date
               moment(trip.start_date._).isBefore(today)
               ) {
@@ -398,11 +398,9 @@ var station = {
                 start_date: trip.start_date._,
                 trip_headsign: trip.trip_headsign._
               })
-            }
-
             // check end date & delete if expired
             // we don't have to batch because 75 is max
-            if (moment.tz(trip.end_date._, 'Pacific/Auckland').isBefore(tomorrow)) {
+            } else if (moment(trip.start_date._).isBefore(today) && moment(trip.end_date._).isAfter(tomorrow)) {
               deleteCount++
             }
 
