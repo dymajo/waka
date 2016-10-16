@@ -4,6 +4,8 @@
 .searchContainer {
   height: 100%;
 
+  
+
   @keyframes ss-to-stop-station-large-search {
     0% {
       opacity: 0;
@@ -63,6 +65,10 @@
       bottom: 0;
       z-index: 1; // I do know how z-index works, but leaflet comes with dumb defaults i cbf changing
     }
+  }
+
+  .saveModal {
+    z-index: 1001; // fml leaflet
   }
 }
 .search {

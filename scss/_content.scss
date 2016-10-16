@@ -250,7 +250,7 @@ $bgheight: 125px;
 				padding-top: 6px;
 				padding-bottom: 5px;
 
-				@media(max-width: 800px) {
+				@media(max-width: 1200px) {
 					padding-top: 3px;
 				}
 			}
@@ -333,7 +333,7 @@ $bgheight: 125px;
 		}
 	}
 
-	@media(max-width: 800px) {
+	@media(max-width: 1200px) {
 		li li {
 			font-size: 16px;
 			padding: 10px 5px;
@@ -409,6 +409,7 @@ $bgheight: 125px;
 }
 
 .saveModal {
+	-webkit-tap-highlight-color: transparent;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -458,11 +459,13 @@ $bgheight: 125px;
 		background: transparent;
 		font-family: "Open Sans", sans-serif;
 		padding: 7px 0;
+		outline: 0;
 		font-size: 14px;
 		font-weight: bold;
 		text-transform: uppercase;
 		display: inline-block;
 		margin-top: 0;
+		border-radius: 3px;
 		
 		&.cancel {
 			margin-right: 10px;
@@ -544,6 +547,17 @@ $bgheight: 125px;
 .swipe-pane {
   width: 100vw;
   position: relative;
+
+  @media (min-width: 601px) {
+	  max-width: calc(100vw - #{$navsize});
+  }
+}
+@media (min-width: 901px) {
+	.savedstations {
+		.swipe-pane {
+			max-width: calc(100vw - #{$navsize} - 300px);
+		}
+	} 
 }
 .swipe-header {
 	.invisible {

@@ -36,7 +36,11 @@ class Pin extends React.Component<IPinProps, IPinState> {
   public componentWillUnmount() {
     clipboard.destroy()
   }
-  public triggerClose() {
+  public triggerClose(e?) {
+    if (e) {
+      e.preventDefault()
+    }
+    
     this.setState({
       hide: true
     } as IPinState)

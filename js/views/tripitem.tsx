@@ -2,6 +2,9 @@ import * as React from 'react'
 import { StationStore } from '../stores/stationStore.ts'
 import { SettingsStore } from '../stores/settingsStore.ts'
 
+// 3 minutes until we'll hide the trip
+const tripDelay = 3 * 6000
+
 interface RealTimeItem {
   delay: number,
   stop_sequence: number,
@@ -100,7 +103,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     var className = ''
     var visibility = true
     // date check
-    if (new Date().getTime() > arrival.getTime()) {
+    if (new Date().getTime()-tripDelay > arrival.getTime()) {
       visibility = false
     }
     

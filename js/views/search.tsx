@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.ts'
 import { UiStore } from '../stores/uiStore.ts'
@@ -32,7 +33,8 @@ interface IAppState {
   currentPosition?: Array<number>,
   back?: boolean,
   accuracy?: number,
-  error?: string
+  error?: string,
+  findModal?: boolean
 }
 
 const busIcon = Icon({
@@ -66,13 +68,15 @@ class Search extends React.Component<IAppProps, IAppState> {
       currentPosition: [0,0],
       back: false,
       accuracy: 0,
-      error: ''
+      error: '',
+      findModal: false
     }
   
     this.watchPosition = this.watchPosition.bind(this)
     this.getAndSetCurrentPosition = this.getAndSetCurrentPosition.bind(this)
     this.setCurrentPosition = this.setCurrentPosition.bind(this)
     this.currentLocateButton = this.currentLocateButton.bind(this)
+    this.toggleFind = this.toggleFind.bind(this)
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerKeyUp = this.triggerKeyUp.bind(this)
     this.triggerSearch = this.triggerSearch.bind(this)
@@ -85,7 +89,12 @@ class Search extends React.Component<IAppProps, IAppState> {
     geoID = navigator.geolocation.watchPosition((position) => {
       if (this.state.currentPosition[0] === 0){
         this.setCurrentPosition(position)
-        this.getAndSetCurrentPosition()
+
+        // hardcoded for auckland only
+        if (this.state.currentPosition[0] > -38 && this.state.currentPosition[0] < -36
+          && this.state.currentPosition[1] > 173 && this.state.currentPosition[1] < 175) {
+          this.getAndSetCurrentPosition()
+        }
       } else {
         this.setCurrentPosition(position)
       }   
@@ -123,6 +132,7 @@ class Search extends React.Component<IAppProps, IAppState> {
   // hack to get it to work with typescript
   public refs: {
     [string: string]: any;
+    searchInput: any;
     map: any;
   }
   public componentDidMount() {
@@ -158,6 +168,18 @@ class Search extends React.Component<IAppProps, IAppState> {
       } as IAppState)
     })
   }
+  private toggleFind() {
+    this.setState({
+      findModal: !this.state.findModal
+    } as IAppState)
+    setTimeout(() => {
+      if (this.state.findModal === true) {
+        (ReactDOM.findDOMNode(this.refs.searchInput) as HTMLElement).focus()
+      } else {
+        (ReactDOM.findDOMNode(this.refs.searchInput) as HTMLElement).blur()
+      }
+    }, 200)
+  }
   private triggerChange(e) {
     this.setState({
       station: e.currentTarget.value
@@ -172,6 +194,7 @@ class Search extends React.Component<IAppProps, IAppState> {
     if (e) {
       e.preventDefault()
     }
+    (ReactDOM.findDOMNode(this.refs.searchInput) as HTMLElement).blur()
     browserHistory.push(`/s/${this.state.station}`)
   }
   public viewServices(station) {
@@ -223,14 +246,35 @@ class Search extends React.Component<IAppProps, IAppState> {
     }
     if (this.state.back) {
       classname += ' goingback'
-    }  
+    }
+
+    // css class is saveModal
+    var findModal = 'saveModal'
+    if (!this.state.findModal) {
+      findModal += ' hidden'
+    }
 
     var positionMap = {}
 
     return (
        <div className={classname}>
         <div className="search">
-          <button className="routeButton">
+          <div className={findModal}>
+            <div>
+              <h2>Find Stop</h2>
+              <input type="tel"
+                placeholder="Enter Stop Number"
+                maxLength="4"
+                value={this.state.station}
+                onKeyUp={this.triggerKeyUp}
+                onChange={this.triggerChange} 
+                ref="searchInput"
+              />
+              <button className="cancel" onTouchTap={this.toggleFind}>Cancel</button>
+              <button className="submit" onTouchTap={this.triggerSearch}>Go</button>
+            </div>
+          </div>
+          <button className="routeButton" onTouchTap={this.toggleFind}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
           </button>
           <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>

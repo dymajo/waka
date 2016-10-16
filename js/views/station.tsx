@@ -80,6 +80,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     container: (HTMLDivElement);
     swipecontent: (HTMLDivElement);
     swipeheader: (HTMLDivElement);
+    saveInput: any;
   }
 
   constructor(props: IAppProps) {
@@ -155,20 +156,7 @@ class Station extends React.Component<IAppProps, IAppState> {
   private getData(newProps, refreshMode = false) {
     // don't do this
     if (!refreshMode) {
-      var cachedName = StationStore.getData()[newProps.routeParams.station]
-      if (typeof(cachedName) !== 'undefined') {
-        requestAnimationFrame(() => {
-          this.setState({
-            name: cachedName.name,
-            description: cachedName.description,
-            stop: newProps.routeParams.station,
-            stop_lat: cachedName.stop_lat, 
-            stop_lon: cachedName.stop_lon
-          } as IAppState)
-        })
-
-      // If it's not cached, we'll just ask the server
-      } else {
+      var getStationData = () => {
         allRequests[0] = request(`/a/station/${newProps.routeParams.station}`).then((data) => {
           requestAnimationFrame(() => {
             var name = data.stop_name.replace(' Train Station', '')
@@ -183,6 +171,28 @@ class Station extends React.Component<IAppProps, IAppState> {
             } as IAppState)
           })
         })
+      }
+      var cachedName = StationStore.getData()[newProps.routeParams.station]
+      if (typeof(cachedName) !== 'undefined') {
+        // workaround for users upgrading from v0.1 to v0.2
+        // lat, lng didn't used to be sent, now it is
+        if (typeof(cachedName.stop_lon) === 'undefined') {
+          getStationData()
+        } else {
+          requestAnimationFrame(() => {
+            this.setState({
+              name: cachedName.name,
+              description: cachedName.description,
+              stop: newProps.routeParams.station,
+              stop_lat: cachedName.stop_lat, 
+              stop_lon: cachedName.stop_lon
+            } as IAppState)
+          })
+        }
+
+      // If it's not cached, we'll just ask the server
+      } else {
+        getStationData()
       }
     }
 
@@ -280,18 +290,23 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.setStatePartial({
       saveModal: true
     })
+    setTimeout(() => {
+      (ReactDOM.findDOMNode(this.refs.saveInput) as HTMLElement).focus()
+    }, 200)
   }
   public triggerSaveAdd() {
     this.setStatePartial({
       saveModal: false
     })
-    StationStore.addStop(this.props.routeParams.station, this.state.name)
+    StationStore.addStop(this.props.routeParams.station, this.state.name);
+    (ReactDOM.findDOMNode(this.refs.saveInput) as HTMLElement).blur()
   }
   public triggerSaveCancel() {
     StationStore.removeStop(this.props.routeParams.station)
     this.setStatePartial({
       saveModal: false
-    })
+    });
+    (ReactDOM.findDOMNode(this.refs.saveInput) as HTMLElement).blur()
   }
   public triggerSaveChange(e) {
     this.setStatePartial({
@@ -589,7 +604,7 @@ class Station extends React.Component<IAppProps, IAppState> {
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>
-            <input type="text" value={this.state.name} onChange={this.triggerSaveChange} />
+            <input type="text" value={this.state.name} onChange={this.triggerSaveChange} ref="saveInput" />
             <button className="cancel" onTouchTap={this.triggerSaveCancel}>{cancelButton}</button>
             <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
           </div>

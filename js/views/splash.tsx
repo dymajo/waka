@@ -24,7 +24,7 @@ class Splash extends React.Component<IAppProps, {}> {
         <button onTouchTap={this.triggerSearch} className="primary">
           <img src="icons/search.png"/>Find a Station
         </button>
-        <button onTouchTap={this.triggerPin} className="pin"><img src="icons/home.png"/>Pin to Home</button>
+        <button onTouchTap={this.triggerPin} className="pin"><img src="icons/home.png"/>Install App</button>
       </div>
     </div>
 
