@@ -72,9 +72,10 @@ class Pin extends React.Component<IPinProps, IPinState> {
       data: JSON.stringify({
         email: this.state.email
       })
-    }).then(function() {
-      this.setState({emailSent: true})
     })
+    this.setState({
+      emailSent: true
+    } as IPinState)
   }
   private triggerChange(e) {
     this.setState({
@@ -137,18 +138,29 @@ class Pin extends React.Component<IPinProps, IPinState> {
     if (this.state.hide) {
       className += ' hide'
     }
+    var desktopOut = ""
+    if (!this.state.emailSent) {     
+      desktopOut = <div>
+            <h3>Email yourself a link to Transit!</h3>
+            <form onSubmit={this.sendEmail}>
+              <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
+              <button className="primary" type="submit">Send Link</button>
+            </form>
+          </div>
+    } else {
+      console.log("done")
+      desktopOut = <div>
+            <h3>Thanks! You should receive any email shortly.</h3>
+            <button onClick={this.triggerClose}>Close</button>
+          </div>
+    }
     return(
       <div className={className}>
         <div className="mobile">
           {output}
         </div>
         <div className="desktop">
-        <h3>Email yourself a link to Transit!</h3>
-          <form onSubmit={this.sendEmail}>
-            <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
-            <button className="primary" type="submit">Send Link</button>
-            <button onClick={this.triggerClose}>Close</button>
-          </form>
+          {desktopOut}
         </div>       
       </div>
     )
