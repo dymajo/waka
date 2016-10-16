@@ -150,7 +150,7 @@ class Pin extends React.Component<IPinProps, IPinState> {
     } else {
       console.log("done")
       desktopOut = <div>
-            <h3>Thanks! You should receive any email shortly.</h3>
+            <h3>Thanks! You should receive an email shortly.</h3>
             <button onClick={this.triggerClose}>Close</button>
           </div>
     }
