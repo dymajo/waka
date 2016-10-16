@@ -345,11 +345,11 @@ var station = {
         var y = time.year()
         var m = time.month()
         var d = time.date()
-        var today = moment(Date.UTC(y, m, d, 0, 0))
-        var tomorrow = moment(Date.UTC(y, m, d, 0, 0)).add(1, 'day').subtract(1, 'minute')
+        var today = moment(Date.UTC(y, m, d, 0, 0)).add(1, 'minute')
+        var tomorrow = moment(Date.UTC(y, m, d, 0, 0)).add(1, 'day').add(1, 'minute')
 
         // >5am override (nite rider)
-        if (today.hour() < 5) {
+        if (time.hour() < 5) {
           today.day(today.day()-1)
         }
 
@@ -378,7 +378,7 @@ var station = {
             // check day of week
             if (exceptionCache.existsToday(today.day(), trip.frequency._, trip.service_id._) &&
               // check end date
-              tomorrow.isAfter(moment(trip.end_date._)) &&
+              moment(trip.end_date._).isAfter(tomorrow) &&
               // check start date
               moment(trip.start_date._).isBefore(today)
               ) {
@@ -400,7 +400,7 @@ var station = {
               })
             // check end date & delete if expired
             // we don't have to batch because 75 is max
-            } else if (moment(trip.start_date._).isBefore(today) && moment(trip.end_date._).isAfter(tomorrow)) {
+            } else if (moment(trip.start_date._).isBefore(today) && tomorrow.isAfter(moment(trip.end_date._))) {
               deleteCount++
             }
 
