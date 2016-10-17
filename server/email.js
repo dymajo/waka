@@ -301,7 +301,7 @@ var emailBody = `
                                 <table border="0" cellpadding="0" cellspacing="0">
                                   <tbody>
                                     <tr>
-                                      <td> <a href="transit.dymajo.com" target="_blank">transit.dymajo.com</a> </td>
+                                      <td> <p>transit.dymajo.com</p> </td>
                                     </tr>
                                   </tbody>
                                 </table>
