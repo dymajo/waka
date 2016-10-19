@@ -6,6 +6,12 @@ var tripUpdatesOptions = {
     'Ocp-Apim-Subscription-Key': process.env.atApiKey
   }
 }
+var vehicleLocationsOptions = {
+  url: 'https://api.at.govt.nz/v2/public/realtime/vehiclelocations',
+  headers: {
+    'Ocp-Apim-Subscription-Key': process.env.atApiKey
+  }
+}
 
 var isDoubleDecker = function(vehicle) {
   // This information collected by watching Symonds Street #dedication
@@ -47,8 +53,13 @@ var realtime = {
 			})
 		}
 
+    var newOpts
+    if (req.body.train) {
+      newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
+    } else {
+      newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
+    }
 		// i feel like we should sanatize this or something...
-		var newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
     newOpts.url += '?tripid=' + req.body.trips.join(',')
     request(newOpts, function(err, response, body) {
       if (err) {
@@ -67,16 +78,27 @@ var realtime = {
       }
       var sending = {}
       if (body.response.entity) {
-        body.response.entity.forEach(function(trip) {
-          var timeUpdate = trip.trip_update.stop_time_update.departure || trip.trip_update.stop_time_update.arrival || {}
-          sending[trip.trip_update.trip.trip_id] = {
-            stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
-            delay: timeUpdate.delay,
-            timestamp: timeUpdate.time,
-            v_id: trip.trip_update.vehicle.id,
-            double_decker: isDoubleDecker(trip.trip_update.vehicle.id)
-          }
-        })
+        if (req.body.train) {
+          body.response.entity.forEach(function(trip) {
+            sending[trip.vehicle.trip.trip_id] = {
+              v_id: trip.vehicle.vehicle.id,
+              latitude: trip.vehicle.position.latitude,
+              longitude: trip.vehicle.position.longitude,
+              bearing: trip.vehicle.position.bearing
+            }
+          })
+        } else {
+          body.response.entity.forEach(function(trip) {
+            var timeUpdate = trip.trip_update.stop_time_update.departure || trip.trip_update.stop_time_update.arrival || {}
+            sending[trip.trip_update.trip.trip_id] = {
+              stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
+              delay: timeUpdate.delay,
+              timestamp: timeUpdate.time,
+              v_id: trip.trip_update.vehicle.id,
+              double_decker: isDoubleDecker(trip.trip_update.vehicle.id)
+            }
+          })
+        }
       }
       res.send(sending)	
     })

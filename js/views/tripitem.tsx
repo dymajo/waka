@@ -2,15 +2,18 @@ import * as React from 'react'
 import { StationStore } from '../stores/stationStore.ts'
 import { SettingsStore } from '../stores/settingsStore.ts'
 
+declare function process(): any;
+
 // 3 minutes until we'll hide the trip
 const tripDelay = 3 * 6000
 
 interface RealTimeItem {
-  delay: number,
-  stop_sequence: number,
-  timestamp: number,
+  delay?: number,
+  stop_sequence?: number,
+  timestamp?: number,
   v_id: string,
-  double_decker: boolean
+  double_decker?: boolean,
+  distance?: number
 }
 interface RealTimeMap {
   [name: string]: RealTimeItem;
@@ -60,12 +63,14 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
 
     if (this.props.realtime) {
-      arrival.setSeconds(arrival.getSeconds() + (this.props.realtime.delay))
-      let time = Math.abs(Math.round((arrival.getTime()-new Date().getTime())/60000))
-      if (time === 0) {
-        timestring = 'due'
-      } else {
-        timestring = time.toString() + 'm'
+      if (this.props.realtime.delay) {
+        arrival.setSeconds(arrival.getSeconds() + (this.props.realtime.delay))
+        let time = Math.abs(Math.round((arrival.getTime()-new Date().getTime())/60000))
+        if (time === 0) {
+          timestring = 'due'
+        } else {
+          timestring = time.toString() + 'm'
+        }
       }
     }
 
@@ -73,7 +78,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     var stops_away = ''
     var emoji = ''
     var stops_away_no
-    if (this.props.realtime) {
+    if (this.props.realtime && this.props.realtime.delay) {
       stops_away_no = this.props.stop_sequence - this.props.realtime.stop_sequence
       if (this.props.realtime.double_decker) {
         emoji = ' Ⓜ️'
@@ -95,6 +100,14 @@ class TripItem extends React.Component<ITripItemProps, {}> {
       if (window.location.hash === '#debug') {
         stops_away = <span><time>{stops_away_no}</time> {this.props.realtime.v_id}</span>
       }
+    } else if (this.props.realtime && this.props.realtime.distance) {
+      if ((process as any).env.NODE_ENV === "production") {
+        return
+      }
+      if (new Date().getTime()-tripDelay < arrival.getTime()) {
+        stops_away_no = 0
+      }
+      stops_away = <span>{Math.ceil(this.props.realtime.distance)} km away &middot; <time>{timestring}</time></span>
     } else {
       stops_away = <span>Scheduled <time>{timestring}</time></span>
     }
