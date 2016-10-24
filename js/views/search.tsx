@@ -53,8 +53,6 @@ const ferryIcon = Icon({
   iconSize: [30, 49]
 })
 
-// whatever the public can use doesn't really bother me
-const token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
 let dataRequest = undefined
 let geoID = undefined
 

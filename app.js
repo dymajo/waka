@@ -4,9 +4,16 @@ var bodyParser = require('body-parser')
 // var compression = require('compression')
 
 var app = express()
+app.disable('x-powered-by')
 app.use(bodyParser.json()) // can parse post requests
-// going to use nginx for this
-// app.use(compression()) // compresses all requests
+// compression performed by nginx
+// set headers for every request
+app.use(function(req, res, next) {
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN')
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-XSS-Protection', '1; mode=block')
+  next()
+})
 
 var cb = function(req, res) {
   res.sendFile(__dirname + '/dist/index.html')

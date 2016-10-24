@@ -7,8 +7,6 @@ import { UiStore } from '../stores/uiStore.ts'
 import { SettingsStore } from '../stores/settingsStore.ts'
 import TripItem from './tripitem.tsx'
 
-const hToken = 'pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
-
 declare function require(name: string): any;
 let request = require('reqwest')
 let webp = require('../models/webp')
