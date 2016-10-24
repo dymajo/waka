@@ -1,12 +1,13 @@
 # DYMAJO Transit
 This is an Auckland Transport app. At the moment, it only supports real time board. Route Search, Journey Planner and more are planned for the future.
 
+<https://transit.dymajo.com>
+
 ## Development
 
 ### Prereqs
 - Sign up for an account at <https://dev-portal.at.govt.nz>
 - Set the system enviromental variable atApiKey to your API key
-- Get a Google Maps Static API Key
 - Set the system enviromental variable mapsApiKey to your API key
 - You'll also need Azure Table Storage - install the emulator, or use a testing server. There's instructions in the Azure documentation on how to set credentials.
 
