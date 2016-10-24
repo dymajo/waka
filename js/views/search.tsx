@@ -289,7 +289,7 @@ class Search extends React.Component<IAppProps, IAppState> {
             className="map">
             <ZoomControl position="bottomleft" />
             <TileLayer
-              url={'https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}' + retina + token}
+              url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             />
             {this.state.stops.map((stop) => {

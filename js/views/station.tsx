@@ -7,7 +7,7 @@ import { UiStore } from '../stores/uiStore.ts'
 import { SettingsStore } from '../stores/settingsStore.ts'
 import TripItem from './tripitem.tsx'
 
-const mapboxToken = 'pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
+const hToken = 'pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
 
 declare function require(name: string): any;
 let request = require('reqwest')
@@ -532,7 +532,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       
       for (var i=0; i<tiles; i++) {
         var index = Math.ceil(i - tiles/2)
-        url.push(`https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1])}@2x?access_token=${mapboxToken}`)
+        url.push(`https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1])}.png`)
       }
       iconPop = <div className="bgwrap">
         {url.map(function(item, index) {

@@ -371,6 +371,7 @@
 /* attribution and scale controls */
 
 .leaflet-container .leaflet-control-attribution {
+  display: none;
   margin: 0;
   text-indent: -9999px;
   background-position: 0 0;
