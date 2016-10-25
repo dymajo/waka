@@ -17,7 +17,6 @@ let GeoJson = leaflet.GeoJSON
 let Icon = require('leaflet').icon
 let Circle = leaflet.Circle
 let CircleMarker = leaflet.CircleMarker
-const token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
 
 interface IAppProps extends React.Props<Line>{
     routeParams: {
@@ -89,10 +88,6 @@ class Line extends React.Component<IAppProps, IAppState>{
             console.log('it defined')
             var geoJson = <GeoJson data={this.state.line} />
         }
-        let retina = ''
-        if (window.devicePixelRatio > 1) {
-            retina = '@2x'
-        }
 
         return(
         <div>
@@ -103,8 +98,8 @@ class Line extends React.Component<IAppProps, IAppState>{
                 center={[-36.840556, 174.74]} 
                 zoom={13}>
                 <TileLayer
-                    url={'https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}' + retina + token}
-                    attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
+                  attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 />
                 {geoJson}
             </Map>

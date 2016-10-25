@@ -486,63 +486,50 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
   }
   public render() {
-    var token = '?access_token=pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2lza3ozcmd5MDZrejJ6b2M0YmR5dHBqdiJ9.Aeru3ssdT8poPZPdN2eBtg'
-    var w = window.innerWidth
-    if (w > 1280) {
-      w = 1280
-    }
-    var x = this.state.stop_lon
-    var y = this.state.stop_lat
-    var z = 15
-    if (typeof(x) === 'undefined') {
-      x = 174.75
-      y = -36.85
-      z = 8
-    }
-    var bgImage = {}
-    bgImage = {backgroundImage: `url(https://api.mapbox.com/styles/v1/mapbox/streets-v10/static/${x},${y},${z},0,0/${w}x149@2x${token})`}
-    
-    
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
     var iconPop
+    
     if (this.state.name !== '') {
       if (icon === 'bus') {
         iconStr = 'Bus Stop ' + this.state.stop
       }
-      if (icon !== 'train') {
-        iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
-      }
-    }
-    if (window.innerWidth > 600) {
-      bgImage = {}
-      var latLng = this.toTile(this.state.stop_lat, this.state.stop_lon, 16)
-      var offset = {marginTop: (latLng[1] - Math.floor(latLng[1])) * -108}
-      var tiles = Math.ceil(window.innerWidth / 256)
-      var url = new Array(tiles)
-
-      // make one less tile to consider sidebar
-      var path = window.location.pathname.split('/')
-      var i = path.indexOf(this.props.routeParams.station)
-      if (path.slice(0,i).join('/') === '/ss' && window.innerWidth > 900) {
-        tiles = tiles -1
-      }
-      
-      for (var i=0; i<tiles; i++) {
-        var index = Math.ceil(i - tiles/2)
-        url.push(`https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1])}.png`)
-      }
-      iconPop = <div className="bgwrap">
-        {url.map(function(item, index) {
-          return <img src={item} key={index} style={offset} />
-        })}
-      </div>
+      iconPop = <img className="iconPop" src={'/icons/' +icon +'-icon-2x.png'} />
     }
 
-    if (this.state.loading && typeof(x) === 'undefined' || this.state.name === '') {
+    var latLng = this.toTile(this.state.stop_lat, this.state.stop_lon, 16)
+    var tiles = Math.ceil((window.innerWidth+256) / 256)
+    var offsetLeft = window.innerWidth/2 + (-256*Math.floor(tiles/2)) + latLng[0]%1 * -256
+    var offsetTop = (148/2) + Math.round((latLng[1]%1 * -256))
+    var offsetx = {marginLeft:offsetLeft}
+    var url = new Array(tiles)
+    var urlx = new Array(tiles)
+
+    for (var i=0; i<tiles; i++) {
+      var index = Math.ceil(i - tiles/2)
+      url[i] = `https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1])}.png`
+      urlx[i] = `https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1]+1)}.png`
+    }
+
+    // if it overflows, we need to basically move everything
+    if (offsetTop > 0) {
+      latLng[1] += -1
+      offsetTop += -256
+    } else if (offsetTop > -108) {
+      // prevent uneccessary requests 
+      offsetx = undefined
+      urlx = []
+    }
+
+    var offset = {marginTop: offsetTop, marginLeft: offsetLeft}
+
+    if (this.state.loading && typeof(this.state.stop_lat) === 'undefined' || this.state.name === '') {
       // so we don't do extra http request
       iconPop = undefined
-      bgImage = {}
+      offset = undefined
+      offsetx = undefined
+      url = []
+      urlx = []
     }
 
     var saveButton
@@ -658,8 +645,20 @@ class Station extends React.Component<IAppProps, IAppState> {
             onTouchCancel={this.triggerTouchEnd}
             ref="scroll">
           <div className={scrollwrap}>
-            <div className="bg" style={bgImage}>
+            <div className="bg">
               {iconPop}
+              <div className="bgwrap">
+                <div style={offset}>
+                  {url.map(function(item, index) {
+                    return <img src={item} key={index} />
+                  })}
+                </div>
+                <div style={offsetx}>
+                  {urlx.map(function(item, index) {
+                    return <img src={item} key={index} />
+                  })}
+                </div>
+              </div>
               <div className="shadow-bar">
                 <div className="swipe-header bar" ref="swipeheader">
                   {header}
