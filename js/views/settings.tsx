@@ -94,7 +94,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                     <li><a target="_blank" href="https://at.govt.nz">Auckland Transport</a> &ndash; API Usage</li>
                     <li><a target="_blank" href="https://azure.microsoft.com">Microsoft Azure</a> &ndash; Application Server</li>
                     <li><a target="_blank" href="https://github.com">GitHub</a> &ndash; Project Hosting</li>
-                    <li><a target="_blank" href="https://www.mapbox.com/">Mapbox</a> &ndash; Map Provider</li>
+                    <li><a target="_blank" href="https://www.openstreetmap.org/">OpenStreetMap</a> &ndash; Map Data</li>
                     <li><a target="_blank" href="https://github.com/consindo/dymajo-transit">Other Tools &amp; Libraries</a></li>
                   </ul>
                   <div className="love">Made with 💙 in Auckland NZ</div>

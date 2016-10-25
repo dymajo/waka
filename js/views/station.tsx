@@ -504,21 +504,21 @@ class Station extends React.Component<IAppProps, IAppState> {
     var offsetx = {marginLeft:offsetLeft}
     var url = new Array(tiles)
     var urlx = new Array(tiles)
-
-    for (var i=0; i<tiles; i++) {
-      var index = Math.ceil(i - tiles/2)
-      url[i] = `https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1])}.png`
-      urlx[i] = `https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1]+1)}.png`
-    }
+    var kill = false
 
     // if it overflows, we need to basically move everything
     if (offsetTop > 0) {
       latLng[1] += -1
       offsetTop += -256
+    // prevent unecessary requests
     } else if (offsetTop > -108) {
-      // prevent uneccessary requests 
-      offsetx = undefined
-      urlx = []
+      kill = true
+    }
+
+    for (var i=0; i<tiles; i++) {
+      var index = Math.ceil(i - tiles/2)
+      url[i] = `https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1])}.png`
+      urlx[i] = `https://maps.dymajo.com/osm_tiles/16/${Math.floor(latLng[0])+index}/${Math.floor(latLng[1]+1)}.png`
     }
 
     var offset = {marginTop: offsetTop, marginLeft: offsetLeft}
@@ -527,8 +527,12 @@ class Station extends React.Component<IAppProps, IAppState> {
       // so we don't do extra http request
       iconPop = undefined
       offset = undefined
-      offsetx = undefined
       url = []
+      kill = true 
+    }
+
+    if (kill === true) {
+      offsetx = undefined
       urlx = []
     }
 
