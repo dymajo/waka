@@ -346,7 +346,7 @@ var station = {
         var m = time.month()
         var d = time.date()
         var today = moment(Date.UTC(y, m, d, 0, 0)).add(1, 'minute')
-        var tomorrow = moment(Date.UTC(y, m, d, 0, 0)).add(1, 'day').add(1, 'minute')
+        var tomorrow = moment(Date.UTC(y, m, d, 0, 0)).subtract(1, 'minute')
 
         // >5am override (nite rider)
         if (time.hour() < 5) {
