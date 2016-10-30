@@ -572,6 +572,21 @@ class Station extends React.Component<IAppProps, IAppState> {
       if (typeof(trip.stop_sequence) === 'undefined') {
         return
       }
+      if (trip.route_short_name === 'OUT') {
+        if (trip.direction_id === 0) {
+          trip.trip_headsign = 'Clockwise Outer Link'
+        } else {
+          trip.trip_headsign = 'Anticlockwise Outer Link'
+        }
+      } else if (trip.route_short_name === 'INN') {
+        if (trip.direction_id === 0) {
+          trip.trip_headsign = 'Clockwise Inner Link'
+        } else {
+          trip.trip_headsign = 'Anticlockwise Inner Link'
+        }
+      } else if (trip.route_short_name === 'CTY') {
+        trip.trip_headsign = 'City Link'
+      }
       var key = trip.trip_id + trip.stop_sequence.toString()
       var item = <TripItem 
         code={trip.route_short_name}
@@ -588,13 +603,14 @@ class Station extends React.Component<IAppProps, IAppState> {
       />
       if (trip.direction_id === 0) {
         inbound.push(item)
-        if (inboundLabel === 'Inbound') {
-          var h = trip.trip_headsign
-          // hardcoded because confusing AT uses different headsigns
-          if (h.match('Britomart') || h === 'City Centre' || h === 'Civic Centre' || h.match('Downtown')) {
-            inboundLabel = 'Citybound'
-          }
-        }
+        // if (inboundLabel === 'Inbound') {
+          // Removed for Now
+          // var h = trip.trip_headsign
+          // // hardcoded because confusing AT uses different headsigns
+          // if (h.match('Britomart') || h === 'City Centre' || h === 'Civic Centre' || h.match('Downtown')) {
+          //   inboundLabel = 'Citybound'
+          // }
+        // }
       } else {
         outbound.push(item)
       }
