@@ -303,9 +303,18 @@ var station = {
         // we going to query the things
         var time = moment().tz('Pacific/Auckland')
         var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
+        var currentDate = moment(Date.UTC(time.year(), time.month(), time.date(), 0, 0))
+
+        // >5am override (nite rider)
+        if (time.hour() < 5) {
+          currentDate.subtract(1, 'day')
+        }
+
         var query = new azure.TableQuery()
           .where('PartitionKey eq ?', req.params.station)
           .and('arrival_time_seconds < ? and arrival_time_seconds > ?', currentTime + 7200, currentTime - 1200)
+          .and('start_date <= ?', currentDate.toISOString())
+          .and(currentDate.format('dddd').toLowerCase() + ' eq \'1\'')
         sending.currentTime = currentTime
 
         // force get update
@@ -394,7 +403,7 @@ var station = {
 
         // >5am override (nite rider)
         if (time.hour() < 5) {
-          today.day(today.day()-1)
+          today.subtract(1, 'day')
         }
 
         var tmpTripStore = {}
