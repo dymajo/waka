@@ -150,7 +150,8 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
     
     // remove train station because it's unecessary
-    var name = this.props.name.replace(' Train Station', '')
+    var name = this.props.name.replace('/N', '')
+    name = name.replace('/PAN', '')
     name = name.replace(' Ferry Terminal', '')
 
     // removed <li>›</li> for now

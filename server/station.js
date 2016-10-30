@@ -361,6 +361,14 @@ var station = {
           } else {
             var data = []
             result.entries.forEach(function(trip) {
+              // checks the exception to check if the frequency was added.
+              // only continue if it's supposed to be there
+              var exceptions = JSON.parse(trip.exceptions._)[currentDate.isoWeekday() - 1]
+              if (exceptions.length > 0) {
+                if (exceptions.indexOf(currentDate.toISOString()) === -1) {
+                  return
+                }
+              }
               data.push({
                 trip_id: trip.RowKey._,
                 arrival_time_seconds: trip.arrival_time_seconds._,
