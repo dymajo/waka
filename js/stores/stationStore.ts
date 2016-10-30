@@ -117,6 +117,9 @@ export namespace StationStore {
       case 'PHH': // Pine Harbour / Sealink
         return '#d92732'
 
+      case 'GBT': // Go Bus
+        return '#58aa17'
+
       case '360D': // 360 Discovery
         return '#2756a4'
 

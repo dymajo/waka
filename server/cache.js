@@ -141,6 +141,21 @@ var cache = {
       })
     })
 
+    // this is used only for stop times rebuild, so doesn't get db'ed
+    var parsed = {}
+    fs.readFile('cache/calendardate.json', function(err, data) {
+      var data = JSON.parse(data)
+      data.response.forEach(function(service) {
+        if (service.exception_type == 1) {
+          if (typeof(parsed[service.service_id]) === 'undefined') {
+            parsed[service.service_id] = [[],[],[],[],[],[],[]]
+          }
+          parsed[service.service_id][moment.utc(service.date).isoWeekday() - 1].push(service.date)
+        }
+      })
+      fs.writeFile('cache/calendardate-parsed.json', JSON.stringify(parsed))
+    })
+
     
 
     // build the awesome joined trips lookup table

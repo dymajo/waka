@@ -22,6 +22,7 @@ var exceptionCache = {
   updated: null,
   additions: [],
   deletions: [],
+  jsonAdditions: {},
   existsToday: function(today, frequency, service) {
     if (exceptionCache.deletions.indexOf(service) != -1) {
       return false
@@ -34,7 +35,7 @@ var exceptionCache = {
     }
     return false
   },
-  refresh: function(today, frequency, service) {
+  refresh: function() {
     var time = moment().tz('Pacific/Auckland')
     var y = time.year()
     var m = time.month()
@@ -70,6 +71,9 @@ var exceptionCache = {
         exceptionCache.additions = adding
         exceptionCache.deletions = deleting
         exceptionCache.updated = today.toISOString()
+      })
+      fs.readFile('cache/calendardate-parsed.json', function(err, data) {
+        exceptionCache.jsonAdditions = JSON.parse(data)
       })
     }
   }
@@ -157,27 +161,64 @@ var station = {
       var time = moment().tz('Pacific/Auckland')
       var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
 
+      var promises = []
       var trips = JSON.parse(body).response
       var filteredTrips = []
       var arrayOfEntityArrays = []
       var count = 0
       trips.forEach(function(trip) {
-        arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
-        if (arrayOfEntityArrays[count].operations.length > 99) {
-          count++
-          arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
-        }
-        // midnight fix?
-        trip.arrival_time_seconds = trip.arrival_time_seconds % 86400
+        promises.push(new Promise(function (resolve, reject) {
 
-        // for the azure batch
-        arrayOfEntityArrays[count].insertOrReplaceEntity({
-          PartitionKey: {'_': station},
-          RowKey: {'_': trip.trip_id},
-          arrival_time_seconds: {'_': trip.arrival_time_seconds},
-          stop_sequence: {'_': trip.stop_sequence}
-        })
+          // midnight fix?
+          trip.arrival_time_seconds = trip.arrival_time_seconds % 86400
 
+          var partitionKey = trip.trip_id.split('_').slice(-1)[0]
+          tableSvc.retrieveEntity('trips', partitionKey, trip.trip_id, function(error, azTripData, response) {
+            if (azTripData === null) {
+              resolve()
+              return 
+            }
+            arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
+            if (arrayOfEntityArrays[count].operations.length > 99) {
+              count++
+              arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
+            }
+            var exceptions = [[],[],[],[],[],[],[]]
+            var freq = azTripData.frequency._.split('')
+
+            // check the bitflips
+            if (typeof(exceptionCache.jsonAdditions[azTripData.service_id._]) !== 'undefined') {
+              for (var i=0; i<7; i++) {
+                if (exceptionCache.jsonAdditions[azTripData.service_id._][i].length > 0) {
+                  // record which bits have been flipped
+                  if (freq[i] === '0') {
+                    freq[i] = '1'
+                    exceptions[i] = exceptionCache.jsonAdditions[azTripData.service_id._][i]
+                  }
+                }
+              }
+            } 
+            // for the azure batch
+            arrayOfEntityArrays[count].insertOrReplaceEntity({
+              PartitionKey: {'_': station},
+              RowKey: {'_': trip.trip_id},
+              arrival_time_seconds: {'_': trip.arrival_time_seconds},
+              stop_sequence: {'_': trip.stop_sequence},
+              start_date: azTripData.start_date,
+              end_date: azTripData.end_date,
+              monday: {'_': freq[0]},
+              tuesday: {'_': freq[1]},
+              wednesday: {'_': freq[2]},
+              thursday: {'_': freq[3]},
+              friday: {'_': freq[4]},
+              saturday: {'_': freq[5]},
+              sunday: {'_': freq[6]},
+              exceptions: {'_': JSON.stringify(exceptions)}
+            })
+            resolve()
+          })
+        }))
+        
         // filter for the immediate return because we do it in a query on the db side
         if (trip.arrival_time_seconds < (currentTime + 7200) && trip.arrival_time_seconds > (currentTime - 1200)) {
           // this is for the normal at return
@@ -188,6 +229,9 @@ var station = {
           })
         }
       })
+
+      // only run the cb if requested
+      if (cb) cb(null, filteredTrips)
 
       // save the filtered trips from at
       var batchUpload = function(n) {
@@ -217,10 +261,9 @@ var station = {
         }
       }
 
-      batchUpload(0)
-
-      // only run the cb if requested
-      if (cb) cb(null, filteredTrips)
+      Promise.all(promises).then(function() {
+        batchUpload(0)
+      })      
     })
   },
   stopInfo: function(req, res) {
@@ -247,9 +290,10 @@ var station = {
   stopTimes: function(req, res, force) {
     exceptionCache.refresh()
 
-    if (req.params.force) {
+    if (req.query.force) {
       force = true
     }
+
     if (req.params.station) {
       req.params.station = req.params.station.trim()
       var sending = {}
@@ -661,4 +705,6 @@ var station = {
     })
   }
 }
+// on first run
+exceptionCache.refresh()
 module.exports = station
