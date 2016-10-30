@@ -221,7 +221,7 @@ var station = {
         
         // filter for the immediate return because we do it in a query on the db side
         // we're only gonna do half an hour for immediate return for performance reasons
-        if (trip.arrival_time_seconds < (currentTime + 1800) && trip.arrival_time_seconds > (currentTime - 1200)) {
+        if (trip.arrival_time_seconds < (currentTime + 3600) && trip.arrival_time_seconds > (currentTime - 1200)) {
           // this is for the normal at return
           filteredTrips.push({
             trip_id: trip.trip_id,
