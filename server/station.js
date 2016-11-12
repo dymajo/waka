@@ -23,7 +23,14 @@ var exceptionCache = {
   additions: [],
   deletions: [],
   jsonAdditions: {},
-  existsToday: function(today, frequency, service) {
+  existsToday: function(today, frequency, service, enddate) {
+    var version = service.split('-')[1]
+    if (typeof(cache.versions[version]) === 'undefined') {
+      // console.log(version, 'is old')
+      return false
+    }
+    // console.log(version, enddate, cache.versions[version].enddate)
+
     if (exceptionCache.deletions.indexOf(service) != -1) {
       return false
     }
@@ -384,7 +391,6 @@ var station = {
           }         
         })
       }).then(function() {
-
         var sortByTime = function(a, b) {
           return a.arrival_time_seconds - b.arrival_time_seconds
         }
@@ -438,7 +444,7 @@ var station = {
             }
 
             // check day of week
-            if (exceptionCache.existsToday(today.day(), trip.frequency._, trip.service_id._) &&
+            if (exceptionCache.existsToday(today.day(), trip.frequency._, trip.service_id._, trip.end_date._) &&
               // check end date
               moment(trip.end_date._).isAfter(tomorrow) &&
               // check start date

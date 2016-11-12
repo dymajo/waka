@@ -8,9 +8,9 @@ var email = require('./email')
 console.log('using AT API Key: ' + process.env.atApiKey)
 console.log('using SendGrid API Key: '+ process.env.SENDGRID_API_KEY)
 
-// check the cache initally, then every hour
+// check the cache initally, then every half hour
 cache.check()
-setInterval(cache.check, 3600000)
+setInterval(cache.check, 1800000)
 
 router.get('/station', station.stopInfo)
 router.get('/station/search', station.getStopsLatLong)

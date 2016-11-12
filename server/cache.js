@@ -12,12 +12,27 @@ var options = {
 };
 
 var cache = {
+  // current AT versions
+  versions: {},
+
   check: function(cb) {
     tableSvc.createTableIfNotExists('meta', function(error) {
       if (error) {
         console.log(error)
       }
 
+      options.url = 'https://api.at.govt.nz/v2/gtfs/versions'
+      request(options, function(err, response, body) {
+        var data = JSON.parse(body)
+        cache.versions = {}
+
+        data.response.forEach(function(version) {
+          cache.versions[version.version] = {startdate: version.startdate, enddate: version.enddate}
+        })
+        //console.log(cache.versions)
+      })
+
+      // TODO: Update this to use the new versions API.
       tableSvc.retrieveEntity('meta', 'all', 'last-updated', function(err, result, response) {
         if (result === null) {
           console.log('building the cache for the first time')
