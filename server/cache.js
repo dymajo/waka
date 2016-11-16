@@ -2,6 +2,7 @@ var azure = require('azure-storage');
 var request = require('request')
 var moment = require('moment-timezone')
 var fs = require('fs')
+var deepEqual = require('deep-equal')
 
 var tableSvc = azure.createTableService();
 
@@ -29,26 +30,25 @@ var cache = {
         data.response.forEach(function(version) {
           cache.versions[version.version] = {startdate: version.startdate, enddate: version.enddate}
         })
-        //console.log(cache.versions)
-      })
 
-      // TODO: Update this to use the new versions API.
-      tableSvc.retrieveEntity('meta', 'all', 'last-updated', function(err, result, response) {
-        if (result === null) {
-          console.log('building the cache for the first time')
-          cache.get(function() {
-            console.log('uploading the cache')
-            cache.upload()
-          })
-        } else if (new Date().getTime() - result.date._.getTime() > 86400000*2) {
-          console.log('going to update the cache')
-          cache.get(function() {
-            console.log('uploading the cache')
-            cache.upload()
-          })
-        } else {
-          console.log('cache does not need update at', new Date().toString())
-        }
+        tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
+          if (result === null) {
+            console.log('building the cache for the first time')
+            cache.get(function() {
+              console.log('uploading the cache')
+              cache.upload()
+            })
+          // objects are not equal, so we need to do a cache rebuild
+          } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
+            console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
+            cache.get(function() {
+              console.log('uploading the cache')
+              cache.upload()
+            })
+          } else {
+            console.log('cache does not need update at', new Date().toString())
+          }
+        })
       })
     })
   },
@@ -438,6 +438,17 @@ var cache = {
                   console.log(error)
                 }
                 console.log('saved new meta date')
+              })
+              var version = {
+                PartitionKey: {'_':'all'},
+                RowKey: {'_': 'cache-version'},
+                version: {'_': JSON.stringify(cache.versions)}
+              }
+              tableSvc.insertOrReplaceEntity('meta', version, function (error, result, response) {
+                if (error) {
+                  console.log(error)
+                }
+                console.log('saved new meta version')
               })
             }
           } catch(err) {
