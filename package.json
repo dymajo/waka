@@ -8,8 +8,8 @@
     "build-js-dev": "webpack",
     "watch-js": "webpack --progress --colors --watch",
     "build-css": "node-sass scss -o dist --output-style compressed",
-    "build-css-dev": "node-sass scss -o dist --source-map dist/style.css.map",
-    "watch-css": "node-sass scss -o dist && node-sass -w scss -o dist --source-map dist/style.css.map",
+    "build-css-dev": "node-sass scss -o dist --source-map dist",
+    "watch-css": "node-sass scss -o dist && node-sass -w scss -o dist --source-map dist",
     "install-typings": "typings install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

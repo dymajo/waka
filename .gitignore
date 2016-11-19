@@ -44,5 +44,8 @@ cache/*.json
 cache/maps/*.png
 cache/maps/*.webp
 
+# vs code 
+.vscode
+
 *.sublime-project
 *.sublime-workspace

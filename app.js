@@ -19,6 +19,7 @@ var cb = function(req, res) {
   res.sendFile(__dirname + '/dist/index.html')
 }
 app.use('/a', require('./server'));
+app.use('/scss', express.static(__dirname + '/scss'))
 app.use('/', express.static(__dirname + '/dist'))
 app.get('/*', cb)
  

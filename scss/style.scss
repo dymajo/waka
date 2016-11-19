@@ -27,6 +27,15 @@ html, body, #app {
   }
 }
 
+noscript {
+  padding: 15px;
+  display: block;
+
+  @media (max-width: 480px) {
+    text-align: center;
+  }
+}
+
 @import "_mixins";
 @import "_leaflet";
 @import "_navigation";
