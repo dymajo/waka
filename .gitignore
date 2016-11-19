@@ -39,6 +39,7 @@ jspm_packages
 typings
 dist/*.css
 dist/*.js
+dist/*.map
 cache/*.json
 cache/maps/*.png
 cache/maps/*.webp
