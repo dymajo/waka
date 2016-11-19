@@ -52,12 +52,15 @@ var exceptionCache = {
     if (time.hour() < 5) { 
       today.day(today.day()-1)
     }
-    if (exceptionCache.updated !== today.toISOString()) {
+    if (exceptionCache.updated !== today.toISOString() || JSON.stringify(exceptionCache.jsonAdditions) === '{}') {
       var adding = []
       var deleting = []
       var dateQuery = function(query, continuationToken, callback) {
         tableSvc.queryEntities('calendardate', query, continuationToken, function(err, result, response) {
           if (err) {
+            if (err.statusCode === 404) {
+              return console.log('calendardate table does not exist! skipping...')
+            }
             return console.log(err)
           }
           result.entries.forEach(function(item) {
@@ -80,6 +83,11 @@ var exceptionCache = {
         exceptionCache.updated = today.toISOString()
       })
       fs.readFile('cache/calendardate-parsed.json', function(err, data) {
+        if (err) {
+          console.log('calendardate-parsed.json does not exist! not using any calendar exceptions!')
+          exceptionCache.jsonAdditions = {}  
+          return
+        }
         exceptionCache.jsonAdditions = JSON.parse(data)
       })
     }

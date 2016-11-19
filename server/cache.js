@@ -60,6 +60,7 @@ var cache = {
     var calendar = request(options).pipe(fs.createWriteStream('cache/calendar.json'))
     promises[0] = new Promise(function(resolve, reject) {
       calendar.on('finish', function() {
+        console.log('got calendar!')
         resolve()
       })
     })
@@ -69,6 +70,7 @@ var cache = {
     var routes = request(options).pipe(fs.createWriteStream('cache/routes.json'))
     promises[1] = new Promise(function(resolve, reject) {
       routes.on('finish', function() {
+        console.log('got routes!')
         resolve()
       })
     })
@@ -78,6 +80,7 @@ var cache = {
     var trips = request(options).pipe(fs.createWriteStream('cache/trips.json'))
     promises[2] = new Promise(function(resolve, reject) {
       trips.on('finish', function() {
+        console.log('got trips!')
         resolve()
       })
     })
@@ -87,6 +90,7 @@ var cache = {
     var stops = request(options).pipe(fs.createWriteStream('cache/stops.json'))
     promises[3] = new Promise(function(resolve, reject) {
       stops.on('finish', function() {
+        console.log('got stops!')
         resolve()
       })
     })
@@ -347,7 +351,7 @@ var cache = {
           if (n < arrayOfEntityArrays.length) {
             console.log(`uploading stops batch ${n+1}/${arrayOfEntityArrays.length}`)
             tableSvc.executeBatch('stops', arrayOfEntityArrays[n], function(error, result, response){
-              if(!error){
+              if(!error){ 
                 batchUpload(n+1)
               } else {
                 if (error.code === 'ETIMEDOUT') {
@@ -376,6 +380,17 @@ var cache = {
 
         for (var key in tripsData) {
           var pkey = key.split('_').slice(-1)[0]
+
+          // makes sure it does not upload old trips
+          var version = key.split('-').slice(-1)[0]
+          if (typeof(cache.versions[version]) === 'undefined') {
+            // this is literally the first time i've ever used continue in js
+            // console.log(version, 'is  not ok')
+            continue
+          // } else {
+          //   console.log(version, 'is ok')
+          }
+
           if (typeof(arrayOfEntityArrays[pkey]) === 'undefined') {
             arrayOfEntityArrays[pkey] = []
             arrayOfEntityCounts[pkey] = 0

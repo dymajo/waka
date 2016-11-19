@@ -3,7 +3,7 @@ var moment = require('moment')
 
 var parsed = {}
 
-fs.readFile('calendardate.json', function(err, data) {
+fs.readFile('../cache/calendardate.json', function(err, data) {
   var data = JSON.parse(data)
   data.response.forEach(function(service) {
     if (service.exception_type == 1) {
@@ -13,5 +13,5 @@ fs.readFile('calendardate.json', function(err, data) {
       parsed[service.service_id][moment.utc(service.date).isoWeekday() - 1].push(service.date)
     }
   })
-  fs.writeFile('calendardate-parsed.json', JSON.stringify(parsed))
+  fs.writeFile('../cache/calendardate-parsed.json', JSON.stringify(parsed))
 })
