@@ -1,3 +1,4 @@
+'use strict'
 var azure = require('azure-storage');
 var tableSvc = azure.createTableService();
 
