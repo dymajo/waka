@@ -16,10 +16,12 @@ app.use(function(req, res, next) {
 })
 
 var cb = function(req, res) {
+  res.set('Link',  '</style.css>; rel=preload; as=style, </app.js>; rel=preload; as=script')
   res.sendFile(__dirname + '/dist/index.html')
 }
 app.use('/a', require('./server'));
 app.use('/scss', express.static(__dirname + '/scss'))
+app.get('/', cb)
 app.use('/', express.static(__dirname + '/dist'))
 app.get('/*', cb)
  

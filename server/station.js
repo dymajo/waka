@@ -160,13 +160,22 @@ var station = {
       }
       if(new Date().getTime() - result.date._.getTime() > 86400000) {
         // if it was last updated a day ago, redo the caches
-        console.log(`refreshing stop: ${stop}`)
-        station.getTripsFromAt(stop)
+        station.getTripsFromAt(stop, function() {
+          // clean the db after new data from AT
+          // cb excecutes after data is got, so maybe just wait 5 seconds???
+          // this seems dumb and I should fix the CB behaviour
+          // i will when i change how initial cache works!
+          setTimeout(function() {
+            station.clean(stop)
+          }, 5000)
+        })
       }
     })
   },
   // ok whytf did i use station as the variable name ???
   getTripsFromAt(station, cb) {
+    console.log(station, ': Getting New Data From AT')
+
     // we have to go the AT API and store this data
     var newOpts = JSON.parse(JSON.stringify(options))
     newOpts.url += station
@@ -261,7 +270,7 @@ var station = {
             }
           });
         } else {
-          console.log(`finished uploading stoptimes for ${station}`)
+          console.log(station, ': Upload Complete')
 
           var task = {
             PartitionKey: {'_': 'stoptimes'},
@@ -272,7 +281,7 @@ var station = {
             if (error) {
               console.log(error)
             }
-            console.log(`saved new stoptimes date for ${station}`)
+            console.log(station, ': Metadata Updated')
           })
         }
       }
@@ -356,7 +365,7 @@ var station = {
               if (err) {
                 // checks if it exists at all, if not grab the latest data
                 if (err.statusCode === 404) {
-                  console.log('getting trips for the first time for', req.params.station)
+                  console.log(req.params.station, ': New Station')
                   station.getTripsFromAt(req.params.station, function(err, data) {
                     sending.provider = 'at' // just for debugging purposes
                     sending.trips = data
@@ -474,10 +483,6 @@ var station = {
                 start_date: trip.start_date._,
                 trip_headsign: trip.trip_headsign._
               })
-            // check end date & delete if expired
-            // we don't have to batch because 75 is max
-            } else if (moment(trip.start_date._).isBefore(today) && tomorrow.isAfter(moment(trip.end_date._))) {
-              deleteCount++
             }
 
             // should have all gone well :)
@@ -526,12 +531,6 @@ var station = {
           
           // send
           res.send(sending)
-
-          // otherwise just a normal delete
-          if (deleteCount > 0) {
-            console.log('deletion should be run')
-             station.clean(req.params.station)
-          }
         })
 
       }, function(error) {
