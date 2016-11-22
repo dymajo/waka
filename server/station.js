@@ -480,13 +480,19 @@ var station = {
           if (index === queue.length) {
             return callback()
           }
+          // skips over if it's outdated
+          var versionKey = queue[index].trip_id.split('-').slice(-1)[0]
+          if (typeof(cache.versions[versionKey]) === 'undefined') {
+            deleteCount += 1
+            return getTrip(queue, index+1, callback)
+          }
           var partitionKey = queue[index].trip_id.split('_').slice(-1)[0]
           tableSvc.retrieveEntity('trips', partitionKey, queue[index].trip_id, function(error, trip, response) {
             if (error) {
               // ignore not found trips
               if (error.statusCode != 404) {
                 // fail if needed, but still resolve
-                console.log(error)
+                console.warn(error)
               }
               return getTrip(queue, index+1, callback)
             }
@@ -545,7 +551,7 @@ var station = {
                 resolve()
               })
             } catch(err) {
-              console.log(err)
+              console.warn(err)
             }
             
           }))
