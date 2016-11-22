@@ -291,6 +291,27 @@ var station = {
       })      
     })
   },
+  getFastDataFromAt(station, cb) {
+    console.log(station, ': Getting Fast Data From AT')
+
+    var filteredTrips = []
+    var newOpts = JSON.parse(JSON.stringify(options))
+    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/stopinfo/' + station
+    request(newOpts, function(err, response, body) {
+      if (err) return cb(err)
+
+      var trips = JSON.parse(body).response
+      trips.forEach(function(trip) {
+        filteredTrips.push({
+          trip_id: trip.trip_id,
+          arrival_time_seconds: trip.departure_time,
+          stop_sequence: trip.stop_sequence
+        })
+      })
+
+      if (cb) cb(null, filteredTrips)
+    })
+  },
   stopInfo: function(req, res) {
     if (req.params.station) {
       req.params.station = req.params.station.trim()
@@ -344,10 +365,15 @@ var station = {
 
         // force get update
         if (force === true) {
-          console.log('forcing update ')
-          station.getTripsFromAt(req.params.station, function(err, data) {
+          console.log(req.params.station, ': Forcing Update ')
+          station.getFastDataFromAt(req.params.station, function(err, data) {
+            if (err) {
+              res.status(500).send(err)
+            }
             sending.provider = 'at' // just for debugging purposes
             sending.trips = data
+            // rebuild cache async after request
+            station.getTripsFromAt(req.params.station) 
             resolve()
           })
           return 
@@ -366,9 +392,14 @@ var station = {
                 // checks if it exists at all, if not grab the latest data
                 if (err.statusCode === 404) {
                   console.log(req.params.station, ': New Station')
-                  station.getTripsFromAt(req.params.station, function(err, data) {
+                  station.getFastDataFromAt(req.params.station, function(err, data) {
+                    if (err) {
+                      res.status(500).send(err)
+                    }
                     sending.provider = 'at' // just for debugging purposes
                     sending.trips = data
+                    // rebuild cache async after request
+                    station.getTripsFromAt(req.params.station) 
                     resolve()
                   })
                 } else {
