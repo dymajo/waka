@@ -302,9 +302,12 @@ var station = {
 
       var trips = JSON.parse(body).response
       trips.forEach(function(trip) {
+        var depTimeSplit = trip.departure_time.split(':')
+        var arrTime = parseInt(depTimeSplit[0]*3600) + parseInt(depTimeSplit[1]*60) + parseInt(depTimeSplit[2])
+
         filteredTrips.push({
           trip_id: trip.trip_id,
-          arrival_time_seconds: trip.departure_time,
+          arrival_time_seconds: arrTime,
           stop_sequence: trip.stop_sequence
         })
       })
