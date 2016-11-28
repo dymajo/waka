@@ -2,7 +2,10 @@
 const webpack = require('webpack')
 
 let config = {
-  entry: "./js/app.tsx",
+  entry: {
+    app: "./js/app.tsx",
+    vendor: ['react', 'react-dom', 'react-router', 'reqwest', 'leaflet', 'react-leaflet', 'wkx', 'buffer', 'autotrack']
+  },
   output: {
     path: __dirname,
     filename: "dist/app.js"
@@ -23,7 +26,8 @@ let config = {
       'process.env': {
         'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
       }
-    })
+    }),
+    new webpack.optimize.CommonsChunkPlugin('vendor', 'dist/vendor.js')
   ]
 }
 module.exports = config
