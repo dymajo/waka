@@ -90,7 +90,7 @@ var realtime = {
           }
 
           body.response.entity.forEach(function(trip) {
-            let latlon = fix(trip.vehicle.position.latitude, trip.vehicle.position.longitude)
+            var latlon = fix(trip.vehicle.position.latitude, trip.vehicle.position.longitude)
             sending[trip.vehicle.trip.trip_id] = {
               v_id: trip.vehicle.vehicle.id,
               latitude: latlon[0],
