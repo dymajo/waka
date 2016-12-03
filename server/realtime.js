@@ -79,11 +79,22 @@ var realtime = {
       var sending = {}
       if (body.response.entity) {
         if (req.body.train) {
+          var fix = function(lat, lon) {
+            lat = lat*1.66 + 23.7564;
+            lon = lon*1.66 - 114.8370;
+    
+            if (lat < -37.091) {
+                lat += 0.6639;
+            }
+            return [lat, lon]
+          }
+
           body.response.entity.forEach(function(trip) {
+            let latlon = fix(trip.vehicle.position.latitude, trip.vehicle.position.longitude)
             sending[trip.vehicle.trip.trip_id] = {
               v_id: trip.vehicle.vehicle.id,
-              latitude: trip.vehicle.position.latitude,
-              longitude: trip.vehicle.position.longitude,
+              latitude: latlon[0],
+              longitude: latlon[1],
               bearing: trip.vehicle.position.bearing
             }
           })

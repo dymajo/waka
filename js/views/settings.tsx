@@ -41,9 +41,9 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                 <span className="app">Transit </span>
                 <span className="version">v{localStorage.getItem('AppVersion')}</span>
               </div>
-              <div className="copyright"><a className="subtle" href="https://dymajo.com" target="_blank">&copy; 2016 DYMAJO LTD</a></div>
-              <div className="sourcecode">This app is licensed under the <a className="subtle" href="https://github.com/consindo/dymajo-transit/blob/master/LICENSE" target="_blank">MIT License</a>.<br />
-              Contributions are welcome!<br /><a href="https://github.com/consindo/dymajo-transit" target="_blank">github.com/consindo/dymajo-transit</a></div>
+              <div className="copyright"><a className="subtle" rel="noopener" href="https://dymajo.com" target="_blank">&copy; 2016 DYMAJO LTD</a></div>
+              <div className="sourcecode">This app is licensed under the <a className="subtle" rel="noopener" href="https://github.com/consindo/dymajo-transit/blob/master/LICENSE" target="_blank">MIT License</a>.<br />
+              Contributions are welcome!<br /><a href="https://github.com/consindo/dymajo-transit" rel="noopener" target="_blank">github.com/consindo/dymajo-transit</a></div>
             </div>
             <div className="container">
               <h1>Settings</h1>
@@ -71,7 +71,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                   </svg>
                   Send Feedback
                 </a>
-                <a className="button" href="https://twitter.com/dymajoltd" target="_blank">
+                <a className="button" rel="noopener" href="https://twitter.com/dymajoltd" target="_blank">
                   <svg style={{
                         margin: "-6px 3px -6px -6px"
                   }} xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 400 400"><path d="M153.62,301.59c94.34,0,145.94-78.16,145.94-145.94,0-2.22,0-4.43-.15-6.63A104.36,104.36,0,0,0,325,122.47a102.38,102.38,0,0,1-29.46,8.07,51.47,51.47,0,0,0,22.55-28.37,102.79,102.79,0,0,1-32.57,12.45,51.34,51.34,0,0,0-87.41,46.78A145.62,145.62,0,0,1,92.4,107.81a51.33,51.33,0,0,0,15.88,68.47A50.91,50.91,0,0,1,85,169.86c0,.21,0,.43,0,.65a51.31,51.31,0,0,0,41.15,50.28,51.21,51.21,0,0,1-23.16.88,51.35,51.35,0,0,0,47.92,35.62,102.92,102.92,0,0,1-63.7,22A104.41,104.41,0,0,1,75,278.55a145.21,145.21,0,0,0,78.62,23"/></svg>
@@ -81,25 +81,25 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                 <div className={className}>
                   <p>A number of people helped design, develop, and influence Transit.</p>
                   <ul>
-                    <li><a target="_blank" href="https://jono.nz">Jono Cooper</a> &ndash; Design, Code</li>
-                    <li><a target="_blank" href="http://mattdavidson.kiwi">Matt Davidson</a> &ndash; Code</li>
-                    <li><a target="_blank" href="https://twitter.com/itemic">Terran Kroft</a> &ndash; Testing, Feedback</li>
-                    <li><a target="_blank" href="https://github.com/blackdragon723">Dylan Wragge</a> &ndash; Testing, Feedback</li>
-                    <li><a target="_blank" href="http://www.generationzero.org/">Generation Zero</a> &ndash; Artwork</li>
-                    <li><a target="_blank" href="http://transportblog.co.nz">TransportBlog</a> &ndash; This app probably wouldn’t exist if we didn’t read TransportBlog every day.</li>
+                    <li><a target="_blank" rel="noopener" href="https://jono.nz">Jono Cooper</a> &ndash; Design, Code</li>
+                    <li><a target="_blank" rel="noopener" href="http://mattdavidson.kiwi">Matt Davidson</a> &ndash; Code</li>
+                    <li><a target="_blank" rel="noopener" href="https://twitter.com/itemic">Terran Kroft</a> &ndash; Testing, Feedback</li>
+                    <li><a target="_blank" rel="noopener" href="https://github.com/blackdragon723">Dylan Wragge</a> &ndash; Testing, Feedback</li>
+                    <li><a target="_blank" rel="noopener" href="http://www.generationzero.org/">Generation Zero</a> &ndash; Artwork</li>
+                    <li><a target="_blank" rel="noopener" href="http://transportblog.co.nz">TransportBlog</a> &ndash; This app probably wouldn’t exist if we didn’t read TransportBlog every day.</li>
                   </ul>
                   <h3>Special Thanks</h3>
                   <p>These are great things that are free, and we love them.</p>
                   <ul>
-                    <li><a target="_blank" href="https://at.govt.nz">Auckland Transport</a> &ndash; API Usage</li>
-                    <li><a target="_blank" href="https://azure.microsoft.com">Microsoft Azure</a> &ndash; Application Server</li>
-                    <li><a target="_blank" href="https://github.com">GitHub</a> &ndash; Project Hosting</li>
-                    <li><a target="_blank" href="https://www.openstreetmap.org/">OpenStreetMap</a> &ndash; Map Data</li>
-                    <li><a target="_blank" href="https://github.com/consindo/dymajo-transit">Other Tools &amp; Libraries</a></li>
+                    <li><a target="_blank" rel="noopener" href="https://at.govt.nz">Auckland Transport</a> &ndash; API Usage</li>
+                    <li><a target="_blank" rel="noopener" href="https://azure.microsoft.com">Microsoft Azure</a> &ndash; Application Server</li>
+                    <li><a target="_blank" rel="noopener" href="https://github.com">GitHub</a> &ndash; Project Hosting</li>
+                    <li><a target="_blank" rel="noopener" href="https://www.openstreetmap.org/">OpenStreetMap</a> &ndash; Map Data</li>
+                    <li><a target="_blank" rel="noopener" href="https://github.com/consindo/dymajo-transit">Other Tools &amp; Libraries</a></li>
                   </ul>
                   <div className="love">Made with 💙 in Auckland NZ</div>
                 </div>
-                <a className="button" href="https://www.patreon.com/dymajo" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>Become a Patron</a>
+                <a className="button" href="https://www.patreon.com/dymajo" rel="noopener" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>Become a Patron</a>
               </div>
             </div>
           </div>

@@ -101,9 +101,6 @@ class TripItem extends React.Component<ITripItemProps, {}> {
         stops_away = <span><time>{stops_away_no}</time> {this.props.realtime.v_id}</span>
       }
     } else if (this.props.realtime && this.props.realtime.distance) {
-      if ((process as any).env.NODE_ENV === "production") {
-        return
-      }
       if (new Date().getTime()-tripDelay < arrival.getTime()) {
         stops_away_no = 0
       }

@@ -162,8 +162,9 @@ $bgheight: 125px;
 		bottom: 0;
 		overflow-x: hidden;
 		background-size: 100% auto;
-    background-repeat: no-repeat;
-    background-position: 50% 0;
+    	background-repeat: no-repeat;
+    	background-position: 50% 0;
+		will-change: scroll;
 
 		div > li {
 			position: relative;
@@ -549,6 +550,7 @@ $bgheight: 125px;
   backface-visibility: hidden;
   perspective: 1000;
   overflow: hidden;
+  will-change: transform;
 }
 .swipe-content.swipe-animate, .swipe-bar.swipe-animate {
   transition: transform 0.3s ease-out;
