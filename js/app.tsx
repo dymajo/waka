@@ -14,6 +14,7 @@ import NoMatch from './views/nomatch.tsx'
 import ListStations from './views/liststations.tsx'
 import Lines from './views/lines.tsx'
 import Line from './views/line.tsx'
+import VehicleLocation from './views/vehicle_loc.tsx'
 
 declare function process(): any;
 declare function require(name: string): any;
@@ -32,7 +33,9 @@ class App extends React.Component<IAppProps, {}> {
           <IndexRoute component={Splash} />
           <Route path="pin" component={Splash} />
           <Route onChange={UiStore.handleReactChange} path="s" component={Search}>
-            <Route path=":station" component={Station} />
+            <Route path=":station" component={Station} >
+              <Route path=":trip_id" component={VehicleLocation}/>
+            </Route>
           </Route>
           <Route onChange={UiStore.handleReactChange} path="cf">
             <IndexRoute component={ListStations} />

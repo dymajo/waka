@@ -693,6 +693,7 @@ class Station extends React.Component<IAppProps, IAppState> {
             </div>
           </div>
         </ul>
+        {this.props.children}
       </div>
     )
   }

@@ -23,6 +23,7 @@ router.get('/station/:station/clean', function(req, res) {
 })
 router.get('/lines', line.getLines)
 router.get('/line/:line', line.getLine)
+router.get('/vehicle_loc/:trip_id', line.getShapeFromTrip)
 router.get('/vehicle/:vehicle', vehicle.getVehicle)
 router.get('/shape/:line', line.getShape)
 router.post('/realtime', realtime.getTrips)

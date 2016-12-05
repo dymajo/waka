@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { StationStore } from '../stores/stationStore.ts'
 import { SettingsStore } from '../stores/settingsStore.ts'
+import { browserHistory } from 'react-router'
 
 declare function process(): any;
 
@@ -38,8 +39,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     this.triggerClick = this.triggerClick.bind(this)
   }
   public triggerClick() {
-    console.log('navigating to', this.props.trip_id)
-    // browserHistory.push(this.props.trip_id)
+    browserHistory.push(window.location.pathname + '/' + this.props.trip_id)
   }
   public render() {
     var arrival = new Date()
@@ -160,7 +160,7 @@ class TripItem extends React.Component<ITripItemProps, {}> {
     }
 
     return (
-      <li className={className}><ul className={active}>
+      <li onTouchTap={this.triggerClick} className={className}><ul className={active} >
         <li>
           <div className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.props.agency_id, this.props.code)}}>
             {code}
