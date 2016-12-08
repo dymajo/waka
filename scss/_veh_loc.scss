@@ -9,12 +9,68 @@
 }
 
 .vehicle-location-stops {
+    overflow-y: auto;
+
     ul {
         color: white;
     }
 
     div {
         border:1px solid white;
+        
     }
 
+}
+
+.currentLocationButton, .routeButton {
+  position: absolute;
+  z-index: 501;
+  right: 14px;
+  background-color: #fff;
+  border: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  text-align: center;
+  width: 55px;
+  height: 55px;
+  outline: 0;
+  
+  &:hover {
+    background: #f7f7f7;
+    cursor: default;
+  }
+  &:active {
+    background: #eee;
+  }
+
+  svg {
+    width: 24px;
+    padding-top: 4px;
+  }
+}
+.currentLocationButton {
+  bottom: 16px;
+  right: 82px;
+
+  svg {
+    fill: #666;
+  }
+}
+
+.bigCurrentLocationCircle {
+  stroke: none;
+  //opacity: 0.15;
+  fill: lighten($lightblue, 6);
+}
+
+.smallCurrentLocationCircle {
+  fill-opacity: 1;
+  fill: $lightblue;
+  stroke: white;
+  stroke-width: 2
+}
+.line {
+    path {
+            stroke: #17232f;
+    }
 }
