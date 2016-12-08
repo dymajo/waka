@@ -14,15 +14,21 @@ let GeoJson = leaflet.GeoJSON
 let Icon = require('leaflet').icon
 let Circle = leaflet.Circle
 let CircleMarker = leaflet.CircleMarker
+let CurrentStop = window.location.pathname.slice(3,7)
 
-interface IVehicleLocationProps extends React.Props<App> {}
+
+interface IVehicleLocationProps extends React.Props<vehicle_location> {
+    params: {
+        trip_id: string
+    }
+}
 
 interface IVehicleLocationState {
     line?: Array<Array<number>>,
-    stops?: Array<Array<number>>
+    stops?: Array<Array<string>>
 }
 
-class vehicle_location extends React.Component<IVehicleLocationProps, {}> {
+class vehicle_location extends React.Component<IVehicleLocationProps, IVehicleLocationState> {
     constructor(props) {
         super(props)
         this.state = {
@@ -39,7 +45,7 @@ class vehicle_location extends React.Component<IVehicleLocationProps, {}> {
         request(`/a/vehicle_loc/${this.props.params.trip_id}`).then((data)=>{
             this.getWKB(data.az.shape_id._)
             data.at.forEach(function(item){
-                stops.push([item.stop_lat, item.stop_lon])
+                stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
             })
             this.setState({stops: stops})
         })
@@ -71,21 +77,33 @@ class vehicle_location extends React.Component<IVehicleLocationProps, {}> {
         }
         return (
             <div className='vehicle-location-container'>
-                <Map style={{height: '100vh'}}
-                    center={[-36.840556, 174.74]} 
-                    zoom={13}>
-                    <TileLayer
-                        url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
-                        attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
-                    {geoJson}
-                    {this.state.stops.map((stop, key) => {
-                        return (
-                            <Marker key={key} position={stop} />
+                <div className='vehicle-location-map'>
+                    <Map style={{height: '50vh'}}
+                        center={[-36.840556, 174.74]} 
+                        zoom={13}>
+                        <TileLayer
+                            url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
+                            attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
+                        {geoJson}
+                        {this.state.stops.map((stop, key) => {
+                            return (
+                                <Marker key={key} position={[stop[0], stop[1]]} />
 
+                            )
+                        })}
+                    </Map>
+                        
+                </div>
+                <div className='vehicle-location-stops'>
+                    Current Station: {CurrentStop}
+                    {this.state.stops.map((stop, key) => {
+                        return(
+                            <ul key={key}>{stop[2]} - {stop[3]}</ul>
                         )
-                    })}
-                </Map>
-                     
+                    })
+
+                    }
+                </div>
             </div>
         )
     }
