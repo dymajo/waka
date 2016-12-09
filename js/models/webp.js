@@ -11,4 +11,4 @@ export class WebP {
     }
   }
 }
-export let webp = new Webp()
+export let webp = new WebP()

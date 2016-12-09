@@ -14,13 +14,13 @@ export class settingsStore {
     localStorage.setItem('AppVersion', '0.2.3')
   }
   getState() {
-    return state
+    return this.state
   }
   saveState() {
-    localStorage.setItem('SettingsData', JSON.stringify(state))
+    localStorage.setItem('SettingsData', JSON.stringify(this.state))
   }
   toggle(item) {
-    state[item] = !state[item]
+    this.state[item] = !this.state[item]
     saveState()
   }
 }

@@ -15,44 +15,45 @@ export class uiStore extends Events {
     // restores history if it's an iphone web clip :/
     if (window.navigator.standalone) {
       if (localStorage.getItem('CurrentUrl')) {
-        state.currentUrl = localStorage.getItem('CurrentUrl')
+        this.state.currentUrl = localStorage.getItem('CurrentUrl')
       }
     }
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      browserHistory.push(state.currentUrl)
+      browserHistory.push(this.state.currentUrl)
     }
   }
   getState() {
-    return state
+    return this.state
   }
   navigateSavedStations(path, noAnimate) {
     if (window.location.pathname === path) {
       return
-    } else if (state.lastUrl === path) {
-      state.triggeredBack = true
-      state.noAnimate = noAnimate
+    } else if (this.state.lastUrl === path) {
+      this.state.triggeredBack = true
+      this.state.noAnimate = noAnimate
       browserHistory.goBack()
-      setTimeout(function() {
-        state.noAnimate = false
-        state.triggeredBack = false
+      setTimeout(() => {
+        this.state.noAnimate = false
+        this.state.triggeredBack = false
       }, 300)
     } else {
       // first run maybe?
-      state.triggeredBack = true
-      state.noAnimate = noAnimate
+      this.state.triggeredBack = true
+      this.state.noAnimate = noAnimate
       browserHistory.push(path)
-      setTimeout(function() {
-        state.noAnimate = false
-        state.triggeredBack = false
+      setTimeout(() => {
+        this.state.noAnimate = false
+        this.state.triggeredBack = false
       }, 300)
     }
   }
   handleState(e) { 
-    state.lastUrl = window.location.pathname
+    this.state.lastUrl = window.location.pathname
   }
   currentState(e) { 
-    state.currentUrl = window.location.pathname
-    localStorage.setItem('CurrentUrl', state.currentUrl)
+    console.log(this)
+    this.state.currentUrl = window.location.pathname
+    localStorage.setItem('CurrentUrl', this.state.currentUrl)
   }
   handleReactChange(prevState, nextState, replace, callback) {
     // don't run the back animation if it's just in normal ios
@@ -61,21 +62,21 @@ export class uiStore extends Events {
     }
     var p = nextState.location.pathname
     var sp = p.split('/')
-    if ((nextState.location.action == 'POP' && ((sp[1] == 'cf' && sp.length === 3) || sp.length === 2)) || state.triggeredBack) {
-      if (state.noAnimate === true) {
+    if ((nextState.location.action == 'POP' && ((sp[1] == 'cf' && sp.length === 3) || sp.length === 2)) || this.state.triggeredBack) {
+      if (this.state.noAnimate === true) {
         // runs cb with delay for animation to finish
         setTimeout(function() {
           callback()
         }, 500)
         return
       }
-      state.goingBack = true
+      this.state.goingBack = true
       UiStore.trigger('goingBack')
 
       setTimeout(function() {
-        requestAnimationFrame(function() {
+        requestAnimationFrame(() => {
           callback()
-          state.goingBack = false
+          this.state.goingBack = false
           UiStore.trigger('goingBack')
         })
       }, 550)
@@ -84,7 +85,7 @@ export class uiStore extends Events {
     }
   }
 }
-browserHistory.listenBefore(UiStore.handleState)
-browserHistory.listen(UiStore.currentState)
 
 export let UiStore = new uiStore()
+// browserHistory.listenBefore(UiStore.handleState)
+// browserHistory.listen(UiStore.currentState)

@@ -1,5 +1,5 @@
 let iostest = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
-export class iOS {
+export class ios {
   // ensures the rubber banding is in the correct place,
   // if they are already at the top of the div
   detect() {
@@ -40,3 +40,4 @@ export class iOS {
     }
   }
 }
+export let iOS = new ios()

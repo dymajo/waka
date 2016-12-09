@@ -31,9 +31,9 @@ export class stationStore extends Events {
   }
   getIcon(station) {
     var icon = 'bus'
-    if (trainStations.indexOf(station) != -1) {
+    if (this.trainStations.indexOf(station) != -1) {
       icon = 'train'
-    } else if (ferryStations.indexOf(station) != -1) {
+    } else if (this.ferryStations.indexOf(station) != -1) {
       icon = 'ferry'
     }
     return icon
