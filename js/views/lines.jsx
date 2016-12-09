@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { Link, browserHistory } from 'react-router'
-import { StationStore } from '../stores/stationStore.ts'
-import { UiStore } from '../stores/uiStore.ts'
-import SearchSwitch from './searchswitch.tsx'
+import { StationStore } from '../stores/stationStore.js'
+import { UiStore } from '../stores/uiStore.js'
+import SearchSwitch from './searchswitch.jsx'
 
 let request = require('reqwest')
 

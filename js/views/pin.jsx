@@ -1,22 +1,12 @@
-﻿import * as React from 'react'
+﻿import React from 'react'
 import { browserHistory } from 'react-router'
-import { iOS } from '../models/ios.ts'
+import { iOS } from '../models/ios.js'
+import Clipboard from 'clipboard'
 
-
-declare function require(name: string): any;
-let Clipboard = require('clipboard')
 let request = require('reqwest')
 
-interface IPinProps extends React.Props<Pin> {}
-interface IPinState {
-  email?: string,
-  copied?: boolean,
-  hide?: boolean
-  emailSent?: boolean
-}
-
 let clipboard = undefined
-class Pin extends React.Component<IPinProps, IPinState> {
+class Pin extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -30,39 +20,39 @@ class Pin extends React.Component<IPinProps, IPinState> {
     this.sendEmail = this.sendEmail.bind(this)
     this.triggerChange = this.triggerChange.bind(this)
   }
-  public componentDidMount() {
+  componentDidMount() {
     clipboard = new Clipboard('.clipboardcopy');
   }
-  public componentWillUnmount() {
+  componentWillUnmount() {
     clipboard.destroy()
   }
-  public triggerClose(e?) {
+  triggerClose(e) {
     if (e) {
       e.preventDefault()
     }
     
     this.setState({
       hide: true
-    } as IPinState)
+    })
 
     setTimeout(function() {
       browserHistory.push('/')
     }, 400)
   }
-  public triggerClipboard() {
+  triggerClipboard() {
     if (this.state.copied) {
       this.triggerClose()
     } else {
       this.setState({
         copied: true
-      } as IPinState)
+      })
     }
   }
-  public doNothing(e) {
+  doNothing(e) {
     e.preventDefault()
   }
 
-  public sendEmail(e){
+  sendEmail(e){
     e.preventDefault()
     request({
       url: '/a/email',
@@ -75,14 +65,14 @@ class Pin extends React.Component<IPinProps, IPinState> {
     })
     this.setState({
       emailSent: true
-    } as IPinState)
+    })
   }
-  private triggerChange(e) {
+  triggerChange(e) {
     this.setState({
       email: e.currentTarget.value
-    } as IPinState)
+    })
   }
-  public render() {
+  render() {
     var userAgent = window.navigator.userAgent.toLowerCase()
     var output = <div className="other">
       <p>We don't know what browser you're using. 😕😕😕</p>

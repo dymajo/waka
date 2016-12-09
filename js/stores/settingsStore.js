@@ -1,4 +1,4 @@
-export class SettingsStore {
+export class settingsStore {
   constructor() {
     this.state = {
       clock: true,
@@ -24,4 +24,4 @@ export class SettingsStore {
     saveState()
   }
 }
-export default let settingsStore = new SettingsStore()
+export let SettingsStore = new settingsStore()

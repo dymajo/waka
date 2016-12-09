@@ -1,20 +1,16 @@
-import * as React from 'react'
+import React from 'react'
 import { browserHistory } from 'react-router'
 
-interface ISearchSwitchProps extends React.Props<SearchSwitch> {
-
-}
-
-class SearchSwitch extends React.Component<ISearchSwitchProps, {}> {
+class SearchSwitch extends React.Component {
   constructor(props) {
     super(props)
   }
-  public triggerLink(link) {
+  triggerLink(link) {
     return function() {
       browserHistory.push(link)
     }
   }
-  public render() {
+  render() {
     var ss = window.location.pathname.split('/')[1] === 's' ? 'selected' : ''
     var sl = window.location.pathname.split('/')[1] === 'l' ? 'selected' : ''
     return (

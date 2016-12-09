@@ -1,13 +1,8 @@
-import * as React from 'react'
-import { iOS } from '../models/ios.ts'
-import Toggle from './toggle.tsx'
+import React from 'react'
+import { iOS } from '../models/ios.js'
+import Toggle from './toggle.jsx'
 
-interface ISettingsProps extends React.Props<Settings> {}
-interface ISettingsState {
-  credits: boolean
-}
-
-class Settings extends React.Component<ISettingsProps, ISettingsState> {
+class Settings extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -17,13 +12,13 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
     this.triggerCredits = this.triggerCredits.bind(this)
   }
 
-  public triggerCredits() {
+  triggerCredits() {
     this.setState({
       credits: true
     })
   }
 
-  public render() {
+  render() {
     var button
     var className = 'creditscontainer'
     if (this.state.credits) {

@@ -3,7 +3,7 @@ import { browserHistory } from 'react-router'
 
 let request = require('reqwest')
 
-export class StationStore extends Events {
+export class stationStore extends Events {
   constructor(props) {
     super(props)
     this.trainStations = [
@@ -229,3 +229,4 @@ export class StationStore extends Events {
     saveData()
   }
 }
+export let StationStore = new stationStore()

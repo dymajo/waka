@@ -1,18 +1,16 @@
-import * as React from 'react'
+import React from 'react'
 import { Link, browserHistory } from 'react-router'
-import { iOS } from '../models/ios.ts'
-import Pin from './pin.tsx'
+import { iOS } from '../models/ios.js'
+import Pin from './pin.jsx'
 
-interface IAppProps extends React.Props<Splash> {}
-
-class Splash extends React.Component<IAppProps, {}> {
-  public triggerSearch() {
+class Splash extends React.Component {
+  triggerSearch() {
     browserHistory.push(`/s`)
   }
-  public triggerPin() {
+  triggerPin() {
     browserHistory.push(`/pin`)
   }
-  public render() {
+  render() {
     var modal
     if (window.location.pathname === '/pin') {
       modal = <Pin />

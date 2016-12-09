@@ -1,47 +1,20 @@
-import * as React from 'react'
-import { StationStore } from '../stores/stationStore.ts'
-import { SettingsStore } from '../stores/settingsStore.ts'
+import React from 'react'
+import { StationStore } from '../stores/stationStore.js'
+import { SettingsStore } from '../stores/settingsStore.js'
 import { browserHistory } from 'react-router'
-
-declare function process(): any;
 
 // 3 minutes until we'll hide the trip
 const tripDelay = 3 * 6000
 
-interface RealTimeItem {
-  delay?: number,
-  stop_sequence?: number,
-  timestamp?: number,
-  v_id: string,
-  double_decker?: boolean,
-  distance?: number
-}
-interface RealTimeMap {
-  [name: string]: RealTimeItem;
-}
-
-interface ITripItemProps extends React.Props<TripItem> {
-  code: string,
-  name: string,
-  long_name: string,
-  time: string,
-  trip_id: string,
-  station: string,
-  stop_sequence: number,
-  stop_code: string,
-  realtime: RealTimeItem,
-  agency_id: string
-}
-
-class TripItem extends React.Component<ITripItemProps, {}> {
-  constructor(props: ITripItemProps) {
+class TripItem extends React.Component {
+  constructor(props) {
     super(props)
     this.triggerClick = this.triggerClick.bind(this)
   }
-  public triggerClick() {
+  triggerClick() {
     browserHistory.push(window.location.pathname + '/' + this.props.trip_id)
   }
-  public render() {
+  render() {
     var arrival = new Date()
     arrival.setHours(0)
     arrival.setMinutes(0)

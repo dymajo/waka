@@ -1,14 +1,7 @@
 import * as React from 'react'
-import { SettingsStore } from '../stores/settingsStore.ts'
+import { SettingsStore } from '../stores/settingsStore.js'
 
-interface IToggleProps extends React.Props<Toggle> {
-  id: string
-}
-interface IAppState {
-  checked: boolean
-}
-
-class Toggle extends React.Component<IToggleProps, IAppState> {
+class Toggle extends React.Component {
   constructor(props) {
     super(props)
     this.triggerChange = this.triggerChange.bind(this)

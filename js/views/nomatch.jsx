@@ -1,10 +1,8 @@
-import * as React from 'react'
+import React from 'react'
 import { Link, browserHistory } from 'react-router'
 
-interface IAppProps extends React.Props<NoMatch> {}
-
-class NoMatch extends React.Component<IAppProps, {}> {  
-  public render() {
+class NoMatch extends React.Component {  
+  render() {
     return (
       <div className="settingsContainer http-not-found">
         <div className="settings">

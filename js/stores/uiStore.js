@@ -1,8 +1,8 @@
 import Events from './events'
 import { browserHistory } from 'react-router'
-import { iOS } from '../models/ios.ts'
+import { iOS } from '../models/ios.js'
 
-export class UiStore extends Events {
+export class uiStore extends Events {
   constructor(props) {
     super(props)
     this.state = {
@@ -87,4 +87,4 @@ export class UiStore extends Events {
 browserHistory.listenBefore(UiStore.handleState)
 browserHistory.listen(UiStore.currentState)
 
-export let uistore = new UiStore()
+export let UiStore = new uiStore()
