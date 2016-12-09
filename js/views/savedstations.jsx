@@ -1,34 +1,21 @@
-import * as React from 'react'
+import React from 'react'
 import { Link, browserHistory } from 'react-router'
-import { iOS } from '../models/ios.ts'
-import { StationStore, StationMap } from '../stores/stationStore.ts'
-import { UiStore } from '../stores/uiStore.ts'
+import { iOS } from '../models/ios.js'
+import { StationStore, StationMap } from '../stores/stationStore.js'
+import { UiStore } from '../stores/uiStore.js'
 
-interface ClickFunc {
-  (): boolean
-}
-
-interface ISidebarItemProps extends React.Props<SidebarItem> {
-  url: string,
-  name: string,
-  description?: string,
-  icon?: string,
-  click: ClickFunc,
-  type?: string
-}
-
-class SidebarItem extends React.Component<ISidebarItemProps, {}> {
-  constructor(props: ISidebarItemProps) {
+class SidebarItem extends React.Component {
+  constructor(props) {
     super(props)
     this.triggerTap = this.triggerTap.bind(this)
   }
-  public triggerTap() {
+  triggerTap() {
     browserHistory.push(this.props.url)
-    if (iOS.detect() && !(window as any).navigator.standalone) {
+    if (iOS.detect() && !window.navigator.standalone) {
       this.props.click()
     }
   }
-  public getColor(icon) {
+  getColor(icon) {
     switch(icon) {
       case 'n':
         return '#0056a9'
@@ -44,7 +31,7 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
         return '#000'
     }
   }
-  public render() {
+  render() {
     
     var classname = 'ss'
     if (window.location.pathname == this.props.url) {
@@ -74,14 +61,7 @@ class SidebarItem extends React.Component<ISidebarItemProps, {}> {
   }
 }
 
-interface IAppProps extends React.Props<SavedSations> {}
-interface IAppState {
-  stations: StationMap,
-  back: boolean,
-  animate: boolean
-}
-
-class SavedSations extends React.Component<IAppProps, IAppState> {
+class SavedSations extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -96,7 +76,7 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
     StationStore.bind('change', this.triggerUpdate)
     UiStore.bind('goingBack', this.triggerBack)
   }
-  private triggerUpdate() {
+  triggerUpdate() {
     this.setState({
       back: this.state.back,
       animate: this.state.animate,
@@ -104,8 +84,8 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
     })
   }
   // set it and whatever
-  public componentWillReceiveProps() {
-    if (!iOS.detect() || (window as any).navigator.standalone) {
+  componentWillReceiveProps() {
+    if (!iOS.detect() || window.navigator.standalone) {
       this.setState({
         back: this.state.back,
         animate: true,
@@ -113,7 +93,7 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
       })
     }
   }
-  public triggerNewState() {
+  triggerNewState() {
     this.setState({
       back: this.state.back,
       animate: true,
@@ -128,21 +108,21 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
       })
     }, 550)
   }
-  private componentWillUnmount() {
+  componentWillUnmount() {
     StationStore.unbind('change', this.triggerUpdate)
     UiStore.unbind('goingBack', this.triggerBack)
   }
-  public triggerSearch() {
+  triggerSearch() {
     browserHistory.push(`/s`)
   }
-  public triggerBack() {
+  triggerBack() {
     this.setState({
       stations: this.state.stations,
       back: UiStore.getState().goingBack,
       animate: this.state.animate
     })
   }
-  public triggerStart(event) {
+  triggerStart(event) {
     var e = event.currentTarget
     var top = e.scrollTop, totalScroll = e.scrollHeight, currentScroll = top + e.offsetHeight;
 
@@ -152,7 +132,7 @@ class SavedSations extends React.Component<IAppProps, IAppState> {
         e.scrollTop = top - 1;
     }
   }
-  public render() {
+  render() {
     var stations = this.state.stations
     var classname = 'savedstations'
     if (window.location.pathname === '/ss') {

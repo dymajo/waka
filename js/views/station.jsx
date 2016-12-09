@@ -1,63 +1,13 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { iOS } from '../models/ios.ts'
-import { browserHistory } from 'react-router'
-import { StationStore } from '../stores/stationStore.ts'
-import { UiStore } from '../stores/uiStore.ts'
-import { SettingsStore } from '../stores/settingsStore.ts'
-import TripItem from './tripitem.tsx'
+import { iOS } from '../models/ios.js'
+import { webp } from '../models/webp'
+import { StationStore } from '../stores/stationStore.js'
+import { UiStore } from '../stores/uiStore.js'
+import TripItem from './tripitem.jsx'
 
-declare function require(name: string): any;
 let request = require('reqwest')
-let webp = require('../models/webp')
 let swipeview = require('../swipeviewjs/swipe.js')
-
-interface RealTimeItem {
-  delay?: number,
-  stop_sequence?: number,
-  timestamp?: number,
-  v_id: string,
-  double_decker?: boolean,
-  distance?: number
-}
-interface RealTimeMap {
-  [name: string]: RealTimeItem;
-}
-
-interface ServerTripItem {
-  arrival_time_seconds: string,
-  stop_sequence: string,
-  trip_id: string,
-  route_long_name: string,
-  agency_id: string,
-  direction_id: number,
-  end_date: string,
-  frequency: string,
-  station: string,
-  route_short_name: string,
-  route_type: string,
-  start_date: string,
-  trip_headsign: string
-}
-
-interface IAppProps extends React.Props<Station> {
-  routeParams: {
-    station: string
-  }
-}
-interface IAppState {
-  name?: string,
-  description?: string,
-  stop?: string,
-  trips?: Array<ServerTripItem>,
-  realtime?: RealTimeMap,
-  loading?: boolean,
-  saveModal?: boolean,
-  webp?: boolean,
-  stickyScroll?: boolean,
-  stop_lat?: number,
-  stop_lon?: number
-}
 
 // hack
 let liveRefresh = undefined
@@ -70,19 +20,8 @@ let tripsSort = function(a,b) {
   return rv
 }
 
-class Station extends React.Component<IAppProps, IAppState> {
-  public state : IAppState
-
-  refs: {
-    [key: string]: (Element);
-    scroll: (HTMLDivElement);
-    container: (HTMLDivElement);
-    swipecontent: (HTMLDivElement);
-    swipeheader: (HTMLDivElement);
-    saveInput: any;
-  }
-
-  constructor(props: IAppProps) {
+class Station extends React.Component {
+  constructor(props) {
     super(props)
     this.state = {
       name: '',
@@ -113,14 +52,14 @@ class Station extends React.Component<IAppProps, IAppState> {
 
     StationStore.bind('change', this.triggerUpdate)
   }
-  private toTile(lat, lng, zoom) {
+  toTile(lat, lng, zoom) {
     return [
       (lng+180)/360*Math.pow(2,zoom), // lng 
       (1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom) //lat
     ]
   }
   // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
-  private getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     var deg2rad = function(deg) {
       return deg * (Math.PI/180)
     }
@@ -135,17 +74,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     var d = R * c; // Distance in km
     return d;
   }
-  /* THIS CAN ACTUALLY BE REPLACED WITH:
-  this.setState({
-    editorState: editorState
-  } as MainState);
-  interface MainState {
-    todos?: Todo[];
-    hungry?: Boolean;
-    editorState?: EditorState;
-  }
-  */
-  private setStatePartial(newState) {
+  setStatePartial(newState) {
     this.setState({
       name: (typeof(newState.name) !== 'undefined' ? newState.name : this.state.name),
       description:(typeof(newState.description) !== 'undefined' ? newState.description : this.state.description),
@@ -157,7 +86,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       webp: this.state.webp
     })
   }
-  private triggerUpdate() {
+  triggerUpdate() {
     var cachedName = StationStore.getData()[this.props.routeParams.station]
     if (typeof(cachedName) !== 'undefined') {
       this.setStatePartial({
@@ -168,7 +97,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       this.forceUpdate()
     }
   }
-  private getData(newProps, refreshMode = false) {
+  getData(newProps, refreshMode = false) {
     // don't do this
     if (!refreshMode) {
       var getStationData = () => {
@@ -183,7 +112,7 @@ class Station extends React.Component<IAppProps, IAppState> {
               stop: this.props.routeParams.station,
               stop_lat: data.stop_lat, 
               stop_lon: data.stop_lon
-            } as IAppState)
+            })
           })
         })
       }
@@ -201,7 +130,7 @@ class Station extends React.Component<IAppProps, IAppState> {
               stop: newProps.routeParams.station,
               stop_lat: cachedName.stop_lat, 
               stop_lon: cachedName.stop_lon
-            } as IAppState)
+            })
           })
         }
 
@@ -215,13 +144,13 @@ class Station extends React.Component<IAppProps, IAppState> {
       this.tripsCb(data.trips)
     })
   }
-  private getMultiData(newProps, refreshMode = false) {
+  getMultiData(newProps, refreshMode = false) {
     var stations = newProps.routeParams.station.split('+')
     // too many stations
     if (stations.length > 7) {
       return this.setState({
         loading: false
-      } as IAppState)
+      })
     }
 
 
@@ -251,7 +180,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
 
   }
-  private tripsCb(tripData) {
+  tripsCb(tripData) {
     if (typeof(tripData.length) === 'undefined' || tripData.length === 0) {
       return this.setStatePartial({
         loading: false
@@ -262,7 +191,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     this.setState({
       trips: tripData,
       loading: false
-    } as IAppState)
+    })
 
     // realtime request for buses and trains
     // not ferries though
@@ -312,42 +241,42 @@ class Station extends React.Component<IAppProps, IAppState> {
       } 
       this.setState({
         realtime: rtData
-      } as IAppState)
+      })
     })
   }
-  public triggerBack() {
+  triggerBack() {
     var path = window.location.pathname.split('/')
     var i = path.indexOf(this.props.routeParams.station)
     UiStore.navigateSavedStations(path.slice(0,i).join('/'))
   }
-  public triggerSave() {
+  triggerSave() {
     this.setStatePartial({
       saveModal: true
     })
     setTimeout(() => {
-      (ReactDOM.findDOMNode(this.refs.saveInput) as HTMLElement).focus()
+      ReactDOM.findDOMNode(this.refs.saveInput).focus()
     }, 200)
   }
-  public triggerSaveAdd() {
+  triggerSaveAdd() {
     this.setStatePartial({
       saveModal: false
     })
     StationStore.addStop(this.props.routeParams.station, this.state.name);
-    (ReactDOM.findDOMNode(this.refs.saveInput) as HTMLElement).blur()
+    ReactDOM.findDOMNode(this.refs.saveInput).blur()
   }
-  public triggerSaveCancel() {
+  triggerSaveCancel() {
     StationStore.removeStop(this.props.routeParams.station)
     this.setStatePartial({
       saveModal: false
     });
-    (ReactDOM.findDOMNode(this.refs.saveInput) as HTMLElement).blur()
+    ReactDOM.findDOMNode(this.refs.saveInput).blur()
   }
-  public triggerSaveChange(e) {
+  triggerSaveChange(e) {
     this.setStatePartial({
       name: e.currentTarget.value
     })
   }
-  public triggerScroll(e) {
+  triggerScroll(e) {
     if (e.target.scrollTop > 181) {
       if (this.state.stickyScroll === false) {
         this.setState({
@@ -362,7 +291,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }
   }
-  public triggerSwiped(index) {
+  triggerSwiped(index) {
     var len = swipeview.contentEl.children[index].children
     var h = 0
     for (var i=0; i<len.length; i++) {
@@ -375,7 +304,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       h = h - 48
     }
     // oh fuck typescript with these fucking hacks
-    var elemH = (ReactDOM.findDOMNode(this.refs.scroll) as any).offsetHeight
+    var elemH = ReactDOM.findDOMNode(this.refs.scroll).offsetHeight
     if (h < elemH) {
       h = elemH
       if (this.state.trips.length * 48 < h-181) {
@@ -384,7 +313,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     }
     return h
   }
-  public triggerBackSwiped(swipedAway) {
+  triggerBackSwiped(swipedAway) {
     if (swipedAway) {
       var path = window.location.pathname.split('/')
       var i = path.indexOf(this.props.routeParams.station)
@@ -392,22 +321,22 @@ class Station extends React.Component<IAppProps, IAppState> {
       UiStore.navigateSavedStations(path.slice(0,i).join('/'), true)
     }
   }
-  public triggerTouchStart(e) {
+  triggerTouchStart(e) {
     swipeview.contentTouchStart(e.nativeEvent)
     iOS.triggerStart(e)
   }
-  public triggerTouchMove(e) {
+  triggerTouchMove(e) {
     swipeview.contentTouchMove(e.nativeEvent, this.state.stickyScroll || this.state.loading)
   }
-  public triggerTouchEnd(e) {
+  triggerTouchEnd(e) {
     swipeview.contentTouchEnd(e.nativeEvent, this.triggerSwiped)
   }
-  public componentDidMount() {
+  componentDidMount() {
     swipeview.index = 0
     swipeview.containerEl = ReactDOM.findDOMNode(this.refs.container)
     
     // only have back gesture on ios standalone
-    if (iOS.detect() && (window as any).navigator.standalone) {
+    if (iOS.detect() && window.navigator.standalone) {
       swipeview.iOSBack = swipeview.containerEl
       swipeview.iOSBackCb = this.triggerBackSwiped
     }
@@ -437,12 +366,12 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     }, 30000)
   }
-  public componentDidUpdate() {
+  componentDidUpdate() {
     // this seems bad 
     swipeview.height = this.triggerSwiped(swipeview.index)
     swipeview.setSizes()
   }
-  public componentWillUnmount() {
+  componentWillUnmount() {
     window.removeEventListener('resize', swipeview.setSizes)
     
     // unbind our trigger so it doesn't have more updates
@@ -458,7 +387,7 @@ class Station extends React.Component<IAppProps, IAppState> {
     })
     clearInterval(liveRefresh)
   }
-  public componentWillReceiveProps(newProps) {
+  componentWillReceiveProps(newProps) {
     swipeview.index = 0
     //console.log('new props... killnug old requests')
     allRequests.forEach(function (request) {
@@ -485,7 +414,7 @@ class Station extends React.Component<IAppProps, IAppState> {
       }
     })
   }
-  public render() {
+  render() {
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
     var iconPop

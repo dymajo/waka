@@ -1,11 +1,10 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Link, browserHistory } from 'react-router'
-import { StationStore } from '../stores/stationStore.ts'
-import { UiStore } from '../stores/uiStore.ts'
-import SearchSwitch from './searchswitch.tsx'
+import { StationStore } from '../stores/stationStore.js'
+import { UiStore } from '../stores/uiStore.js'
+import SearchSwitch from './searchswitch.jsx'
 
-declare function require(name: string): any;
 let request = require('reqwest')
 let leaflet = require('react-leaflet')
 let Map = leaflet.Map
@@ -16,26 +15,6 @@ let ZoomControl = leaflet.ZoomControl
 let Icon = require('leaflet').icon
 let Circle = leaflet.Circle
 let CircleMarker = leaflet.CircleMarker
-
-interface StopItem {
-  stop_id: string,
-  stop_name: string,
-  stop_lat: number,
-  stop_lng: number
-}
-
-interface IAppProps extends React.Props<Search> {}
-
-interface IAppState {
-  station?: string,
-  stops?: Array<StopItem>,
-  position?: Array<number>,
-  currentPosition?: Array<number>,
-  back?: boolean,
-  accuracy?: number,
-  error?: string,
-  findModal?: boolean
-}
 
 const busIcon = Icon({
   iconUrl: '/icons/bus-icon.png',
@@ -56,7 +35,7 @@ const ferryIcon = Icon({
 let dataRequest = undefined
 let geoID = undefined
 
-class Search extends React.Component<IAppProps, IAppState> {
+class Search extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -83,7 +62,7 @@ class Search extends React.Component<IAppProps, IAppState> {
 
     UiStore.bind('goingBack', this.triggerBack)
   }
-  public watchPosition() {
+  watchPosition() {
     geoID = navigator.geolocation.watchPosition((position) => {
       if (this.state.currentPosition[0] === 0){
         this.setCurrentPosition(position)
@@ -100,47 +79,41 @@ class Search extends React.Component<IAppProps, IAppState> {
       //will remove for release
       this.setState({
         error: error.message
-      } as IAppState)
+      })
     }, {
       enableHighAccuracy: true,
       timeout: 5000
     })
   }
-  public getAndSetCurrentPosition() {
+  getAndSetCurrentPosition() {
     this.setState({
       position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000]
-    } as IAppState)
+    })
   }
 
-  public setCurrentPosition(position) {
+  setCurrentPosition(position) {
     //console.log('getting new position')
     //console.log(position.coords.accuracy)
     this.setState({
       currentPosition: [position.coords.latitude, position.coords.longitude],
       accuracy: position.coords.accuracy
-    } as IAppState)
+    })
   }
-  public currentLocateButton() {
+  currentLocateButton() {
     if (this.state.error === '') {
       this.getAndSetCurrentPosition()
     } else {
       alert(this.state.error)
     }
   }
-  // hack to get it to work with typescript
-  public refs: {
-    [string: string]: any;
-    searchInput: any;
-    map: any;
-  }
-  public componentDidMount() {
+  componentDidMount() {
     this.getData(this.state.position[0], this.state.position[1], 250)
     if (window.location.pathname === '/s') {
       this.watchPosition()
     }
   }
   // stops requesting location when not in use
-  public componentWillReceiveProps() {
+  componentWillReceiveProps() {
     if (window.location.pathname === '/s') {
       this.watchPosition()
     } else {
@@ -150,7 +123,7 @@ class Search extends React.Component<IAppProps, IAppState> {
     }
 
   }
-  public componentWillUnmount() {
+  componentWillUnmount() {
     if (typeof(dataRequest) !== 'undefined') {
       dataRequest.abort()
     }
@@ -159,48 +132,48 @@ class Search extends React.Component<IAppProps, IAppState> {
     })
     UiStore.unbind('goingBack', this.triggerBack)
   }
-  private getData(lat, lng, dist) {
+  getData(lat, lng, dist) {
     dataRequest = request(`/a/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((data) => {
       this.setState({
         stops: data
-      } as IAppState)
+      })
     })
   }
-  private toggleFind() {
+  toggleFind() {
     this.setState({
       findModal: !this.state.findModal
-    } as IAppState)
+    })
     setTimeout(() => {
       if (this.state.findModal === true) {
-        (ReactDOM.findDOMNode(this.refs.searchInput) as HTMLElement).focus()
+        ReactDOM.findDOMNode(this.refs.searchInput).focus()
       } else {
-        (ReactDOM.findDOMNode(this.refs.searchInput) as HTMLElement).blur()
+        ReactDOM.findDOMNode(this.refs.searchInput).blur()
       }
     }, 200)
   }
-  private triggerChange(e) {
+  triggerChange(e) {
     this.setState({
       station: e.currentTarget.value
-    } as IAppState)
+    })
   }
-  private triggerKeyUp(e) {
+  triggerKeyUp(e) {
     if (e.keyCode === 13) {
       this.triggerSearch(undefined)
     }
   }
-  private triggerSearch(e) {
+  triggerSearch(e) {
     if (e) {
       e.preventDefault()
     }
-    (ReactDOM.findDOMNode(this.refs.searchInput) as HTMLElement).blur()
+    ReactDOM.findDOMNode(this.refs.searchInput).blur()
     browserHistory.push(`/s/${this.state.station}`)
   }
-  public viewServices(station) {
+  viewServices(station) {
     return function() {
       browserHistory.push(`/s/${station}`)
     }
   }
-  public moveEnd(e) {
+  moveEnd(e) {
     var zoom = e.target.getZoom()
     // we're basing this off screensize
     var screensize = document.body.offsetWidth
@@ -215,7 +188,7 @@ class Search extends React.Component<IAppProps, IAppState> {
     } else if (zoom < 16) {
       this.setState({
         stops: []
-      } as IAppState)
+      })
       return 
     }
     // max the api will handle is 1250
@@ -226,14 +199,14 @@ class Search extends React.Component<IAppProps, IAppState> {
     var newPos = e.target.getCenter()
     this.getData(newPos.lat, newPos.lng, dist)
   }
-  public triggerBack() {
+  triggerBack() {
     this.setState({
       back: UiStore.getState().goingBack
-    } as IAppState)
+    })
   }
-  public render() {
+  render() {
 
-    // this is the public key for now
+    // this is the key for now
     let retina = ''
     if (window.devicePixelRatio > 1) {
       retina = '@2x'

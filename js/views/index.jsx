@@ -1,27 +1,22 @@
-import * as React from 'react'
+import React from 'react'
 import { browserHistory } from 'react-router'
-import { iOS } from '../models/ios.ts'
-import { StationStore, StationMap } from '../stores/stationStore.ts'
-import { UiStore } from '../stores/uiStore.ts'
+import { iOS } from '../models/ios.js'
+import { StationStore, StationMap } from '../stores/stationStore.js'
+import { UiStore } from '../stores/uiStore.js'
 
-interface ISidebarButtonProps extends React.Props<SidebarButton> {
-  url: string,
-  name: string
-}
-
-class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
-  constructor(props: ISidebarButtonProps) {
+class SidebarButton extends React.Component {
+  constructor(props) {
     super(props)
     this.triggerClick = this.triggerClick.bind(this)
   }
-  public triggerClick(e) {
+  triggerClick(e) {
     if (this.props.url === '/ss' || this.props.url === '/s') {
       UiStore.navigateSavedStations(this.props.url)
     } else {
       browserHistory.push(this.props.url)
     }
   }
-  public render() {
+  render() {
     var classname
     if (window.location.pathname.split('/')[1] == this.props.url.substring(1)) {
       classname = 'selected'
@@ -41,17 +36,16 @@ class SidebarButton extends React.Component<ISidebarButtonProps, {}> {
   }
 }
 
-interface IAppProps extends React.Props<Index> {}
 
-class Index extends React.Component<IAppProps, {}> {
-  public render() {
+class Index extends React.Component {
+  render() {
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
     var className = 'panes'
     if (iOS.detect()) {
       className += ' ios'
     }
     // if it's running standalone, add a class because iOS doesn't support media queries
-    if ((window as any).navigator.standalone) {
+    if (window.navigator.standalone) {
       className += ' ios-standalone'
     }
     // i embedded the svgs so they load at launch

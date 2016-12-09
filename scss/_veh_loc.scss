@@ -8,6 +8,14 @@
     background: white;
 }
 
+.vehicle-location-map {
+  height: 50vh;
+
+  .leaflet-container {
+    height: 100%;
+  }
+}
+
 .vehicle-location-stops {
     overflow-y: auto;
 

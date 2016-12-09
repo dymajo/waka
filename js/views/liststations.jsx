@@ -1,24 +1,13 @@
 import * as React from 'react'
-import { iOS } from '../models/ios.ts'
+import { iOS } from '../models/ios.js'
 import { Link, browserHistory } from 'react-router'
-import { StationStore } from '../stores/stationStore.ts'
-import { UiStore } from '../stores/uiStore.ts'
-import SearchSwitch from './searchswitch.tsx'
+import { StationStore } from '../stores/stationStore.js'
+import { UiStore } from '../stores/uiStore.js'
+import SearchSwitch from './searchswitch.jsx'
 
-declare function require(name: string): any;
 let request = require('reqwest')
 
-interface IListStationsProps extends React.Props<ListStations>{
-  routeParams?: {
-    line: string
-  }
-}
-
-interface IListStationsState {
-  back: boolean
-}
-
-class ListStations extends React.Component<IListStationsProps, IListStationsState>{
+class ListStations extends React.Component {
   constructor(props){
     super(props)
     this.state = {
@@ -29,22 +18,22 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
     UiStore.bind('goingBack', this.triggerBack)
   }
 
-  private componentWillUnmount() {
+  componentWillUnmount() {
     UiStore.unbind('goingBack', this.triggerBack)
   }
 
-  public triggerBack() {
+  triggerBack() {
     this.setState({
       back: UiStore.getState().goingBack
     })
   }
-  private triggerTab(page) {
+  triggerTab(page) {
     return function() {
       browserHistory.push(page)
     }
   }
   
-  public render() {
+  render() {
     var className = 'listStations'
     if (!this.props.children) {
       className += ' activepane'
@@ -178,38 +167,25 @@ class ListStations extends React.Component<IListStationsProps, IListStationsStat
   }
 }
 
-interface Station {
-  name: string,
-  id: string,
-  zone?: boolean,
-  interchange?: string
-}
-interface IStationItemProps extends React.Props<StationItem> {
-  name: string,
-  stations: Array<Station>,
-  active: string,
-  icon: string
-}
-
-class StationItem extends React.Component<IStationItemProps, {}> {
+class StationItem extends React.Component {
   constructor(props) {
     super(props)
     this.triggerClick = this.triggerClick.bind(this)
     this.triggerItemClick = this.triggerItemClick.bind(this)
   }
-  public triggerClick() {
+  triggerClick() {
     browserHistory.push(`/cf/${this.props.icon}`)
   }
-  public triggerItemClick(id) {
+  triggerItemClick(id) {
     var icon = this.props.icon
     return function(e) {
       browserHistory.push(`/cf/${icon}/${id}`)
     }
   }
-  public triggerBack() {
+  triggerBack() {
     UiStore.navigateSavedStations('/cf')
   }
-  public getColor(icon) {
+  getColor(icon) {
     switch(icon) {
       case 'n':
         return '#0056a9'
@@ -225,7 +201,7 @@ class StationItem extends React.Component<IStationItemProps, {}> {
         return '#000'
     }
   }
-  public render() {
+  render() {
     var col = this.getColor
     var className
     if (this.props.active === this.props.icon) {

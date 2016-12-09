@@ -6,7 +6,7 @@
   "scripts": {
     "build-js": "cross-env NODE_ENV=production webpack -p",
     "build-js-dev": "webpack",
-    "watch-js": "webpack --progress --colors --watch",
+    "watch-js": "webpack --progress --colors --watch -d",
     "build-css": "node-sass scss -o dist --output-style compressed",
     "build-css-dev": "node-sass scss -o dist --source-map dist",
     "watch-css": "node-sass scss -o dist && node-sass -w scss -o dist --source-map dist",
@@ -32,11 +32,13 @@
   },
   "homepage": "https://transit.dymajo.com",
   "devDependencies": {
+    "babel-core": "^6.20.0",
+    "babel-loader": "^6.2.9",
+    "babel-preset-latest": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
     "cross-env": "^3.1.3",
+    "eslint-plugin-react": "^6.8.0",
     "node-sass": "^3.8.0",
-    "source-map-loader": "^0.1.5",
-    "ts-loader": "^1.2.2",
-    "typescript": "^1.8.10",
     "typings": "^1.3.2",
     "webpack": "^1.13.3"
   },
