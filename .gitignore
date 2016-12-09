@@ -49,3 +49,6 @@ cache/maps/*.webp
 
 *.sublime-project
 *.sublime-workspace
+
+*report.html
+*report.json
