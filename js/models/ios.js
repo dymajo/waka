@@ -1,11 +1,11 @@
-export namespace iOS {
+let iostest = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+export class iOS {
   // ensures the rubber banding is in the correct place,
   // if they are already at the top of the div
-  let iostest = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-  export function detect() {
+  detect() {
     return iostest
   }
-  export function triggerStart(event) {
+  triggerStart(event) {
     if (!iostest) {
       return true
     }
@@ -20,7 +20,7 @@ export namespace iOS {
       e.scrollTop = top - 1
     }
   }
-  export function touchMoveFix(event) {
+  touchMoveFix(event) {
     if (!iostest) {
       return true
     }

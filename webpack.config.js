@@ -3,6 +3,19 @@ const webpack = require('webpack')
 const fs = require('fs')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
+const ConsoleNotifierPlugin = function () {}
+
+ConsoleNotifierPlugin.prototype.compilationDone = (stats) => {
+  const log = (error) => {
+    console.log(error.error.toString())
+  }
+  stats.compilation.errors.forEach(log)
+}
+
+ConsoleNotifierPlugin.prototype.apply = function (compiler) {
+  compiler.plugin('done', this.compilationDone.bind(this))
+}
+
 let config = {
   entry: {
     app: "./js/app.jsx",
@@ -24,7 +37,7 @@ let config = {
         'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
       }
     }),
-    new webpack.optimize.CommonsChunkPlugin('vendor', 'dist/vendor.js')
+    new webpack.optimize.CommonsChunkPlugin('vendor', 'dist/vendor.js'),
   ]
 }
 if (process.env.NODE_ENV === 'production') {
@@ -38,6 +51,10 @@ if (process.env.NODE_ENV === 'production') {
       analyzerMode: 'static',
       openAnalyzer: false
     })
+  )
+} else {
+  config.plugins.push(
+    new ConsoleNotifierPlugin()
   )
 }
 module.exports = config

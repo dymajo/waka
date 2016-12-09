@@ -1,33 +1,35 @@
+import Events from './events'
 import { browserHistory } from 'react-router'
 
-declare function require(name: string): any;
 let request = require('reqwest')
 
-interface StationItem {
-  name: string,
-  icon: string,
-  description: string,
-  stop_lat?: number,
-  stop_lon?: number
-}
-export interface StationMap {
-  [name: string]: StationItem
-}
+export class StationStore extends Events {
+  constructor(props) {
+    super(props)
+    this.trainStations = [
+      '0133','0115', // britomart, newmarket
+      '0277','0118','0122','0104','0119','0120','0105','0129','0123','0124','0121','0125','0126','0128','0127', // western line
+      '0114','0113','0112','0102','0606','0605', // onehunga line
+      '0111','0101','0109','0100','0108','0099','0098','0107','0106','0097','0134', // southern line
+      '0116','0117','0103','0130','0244','9218' // eastern line
+    ]
+    // not in any order
+    this.ferryStations = [
+      '9600','9610','9623','9630','9670','9690','9730',
+      '9660','9650','9720','9810','9640','9770','9760',
+      '9790','9740','9700','9604','9620']
 
-export namespace StationStore {
-  const trainStations = [
-    '0133','0115', // britomart, newmarket
-    '0277','0118','0122','0104','0119','0120','0105','0129','0123','0124','0121','0125','0126','0128','0127', // western line
-    '0114','0113','0112','0102','0606','0605', // onehunga line
-    '0111','0101','0109','0100','0108','0099','0098','0107','0106','0097','0134', // southern line
-    '0116','0117','0103','0130','0244','9218' // eastern line
-  ]
-  // not in any order
-  const ferryStations = [
-    '9600','9610','9623','9630','9670','9690','9730',
-    '9660','9650','9720','9810','9640','9770','9760',
-    '9790','9740','9700','9604','9620']
-  export function getIcon(station) {
+    this.StationData = {}
+    if (localStorage.getItem('StationData')) {
+      StationData = JSON.parse(localStorage.getItem('StationData'))
+    }
+
+    this.StationOrder = []
+    if (localStorage.getItem('StationOrder')) {
+      this.StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
+    }
+  }
+  getIcon(station) {
     var icon = 'bus'
     if (trainStations.indexOf(station) != -1) {
       icon = 'train'
@@ -36,7 +38,7 @@ export namespace StationStore {
     }
     return icon
   }
-  export function getColor(agency_id, code){
+  getColor(agency_id, code){
     switch(agency_id){
       case 'AM': // Auckland Metro
         switch (code) {
@@ -130,7 +132,7 @@ export namespace StationStore {
         return '#17232f'
     }
   }
-  export function getMulti(id) {
+  getMulti(id) {
     switch (id) {
       case('7034+7004'):
         return 'Sturdee Street'
@@ -150,7 +152,7 @@ export namespace StationStore {
         return 'Multi Station'
     }
   }
-  export function getPlatform(id) {
+  getPlatform(id) {
     var mappings = {
       '7034': 'Northbound',
       '7004': 'To City',
@@ -180,30 +182,21 @@ export namespace StationStore {
     }
     return mappings[id]
   }
-  let StationData = <StationMap>{}
-  if (localStorage.getItem('StationData')) {
-    StationData = JSON.parse(localStorage.getItem('StationData'))
-  }
-
-  let StationOrder = []
-  if (localStorage.getItem('StationOrder')) {
-    StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
-  }
   // persists data to localStorage
-  function saveData() {
-    localStorage.setItem('StationData', JSON.stringify(StationData))
-    localStorage.setItem('StationOrder', JSON.stringify(StationOrder))
+  saveData() {
+    localStorage.setItem('StationData', JSON.stringify(this.StationData))
+    localStorage.setItem('StationOrder', JSON.stringify(this.StationOrder))
   }
-  export function getData() {
-    return StationData
+  getData() {
+    return this.StationData
   }
-  export function getOrder() {
-    return StationOrder
+  getOrder() {
+    return this.StationOrder
   }
-  export function addStop(stopNumber, stopName) {
+  addStop(stopNumber, stopName) {
     // so we don't have duplicates
-    if (typeof(StationData[stopNumber]) === 'undefined') {
-      StationOrder.push(stopNumber)
+    if (typeof(this.StationData[stopNumber]) === 'undefined') {
+      this.StationOrder.push(stopNumber)
     }
     var stopNumberReq = stopNumber
     if (stopNumber.split('+').length > 1) {
@@ -214,7 +207,7 @@ export namespace StationStore {
       if (stopNumber.split('+').length > 1) {
         description = 'Northern Busway / ' + getMulti(stopNumber)
       }
-      StationData[stopNumber] = {
+      this.StationData[stopNumber] = {
         name: stopName,
         stop_lat: data.stop_lat,
         stop_lon: data.stop_lon,
@@ -225,33 +218,14 @@ export namespace StationStore {
       saveData()
     })
   }
-  export function removeStop(stopNumber) {
-    var index = StationOrder.indexOf(stopNumber)
+  removeStop(stopNumber) {
+    var index = this.StationOrder.indexOf(stopNumber)
     if (index > -1) {
-      StationOrder.splice(index, 1);
+      this.StationOrder.splice(index, 1);
     }
-    delete StationData[stopNumber]
+    delete this.StationData[stopNumber]
     StationStore.trigger('change')
 
     saveData()
-  }
-  /* THIS IS NOT VERY TYPESCRIPT */
-  // But it's so simple I'll fix it later :)
-  export function bind(event, fct){
-    this._events = this._events || {};
-    this._events[event] = this._events[event] || [];
-    this._events[event].push(fct);
-  }
-  export function unbind(event, fct){
-    this._events = this._events || {};
-    if( event in this._events === false  )  return;
-    this._events[event].splice(this._events[event].indexOf(fct), 1);
-  }
-  export function trigger(event /* , args... */){
-    this._events = this._events || {};
-    if( event in this._events === false  )  return;
-    for(var i = 0; i < this._events[event].length; i++){
-      this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
-    }
   }
 }
