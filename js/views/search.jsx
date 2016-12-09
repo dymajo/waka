@@ -5,7 +5,6 @@ import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import SearchSwitch from './searchswitch.jsx'
 
-let request = require('reqwest')
 let leaflet = require('react-leaflet')
 let Map = leaflet.Map
 let Marker = leaflet.Marker
@@ -31,8 +30,6 @@ const ferryIcon = Icon({
   iconRetinaUrl: '/icons/ferry-icon-2x.png',
   iconSize: [30, 49]
 })
-
-let dataRequest = undefined
 let geoID = undefined
 
 class Search extends React.Component {
@@ -124,18 +121,21 @@ class Search extends React.Component {
 
   }
   componentWillUnmount() {
-    if (typeof(dataRequest) !== 'undefined') {
-      dataRequest.abort()
-    }
+    // can't do anything about this for now
+    // if (typeof(dataRequest) !== 'undefined') {
+    //   dataRequest.abort()
+    // }
     requestAnimationFrame(function() {
       navigator.geolocation.clearWatch(geoID)
     })
     UiStore.unbind('goingBack', this.triggerBack)
   }
   getData(lat, lng, dist) {
-    dataRequest = request(`/a/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((data) => {
-      this.setState({
-        stops: data
+    fetch(`/a/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
+      response.json().then((data) => {
+        this.setState({
+          stops: data
+        })
       })
     })
   }

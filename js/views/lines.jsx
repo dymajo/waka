@@ -1,10 +1,6 @@
 import * as React from 'react'
 import { Link, browserHistory } from 'react-router'
-import { StationStore } from '../stores/stationStore.js'
-import { UiStore } from '../stores/uiStore.js'
 import SearchSwitch from './searchswitch.jsx'
-
-let request = require('reqwest')
 
 class Lines extends React.Component {
   constructor(props){
@@ -29,17 +25,17 @@ class Lines extends React.Component {
   }
 
   componentDidMount() {
-    request(`/a/lines`).then((res)=>{
-      console.log(res)
-      this.setState({
-        allLines: res
-      })       
+    fetch('/a/lines').then((response)=>{
+      response.json().then((data) => {
+        this.setState({
+          allLines: data
+        })       
+      })
     })
   }
 
-
   render() {
-    var ret
+    let ret
     // there needs to be a sorting function in here probably
     if (this.props.children === null) {
       ret = []

@@ -6,7 +6,6 @@ import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import TripItem from './tripitem.jsx'
 
-let request = require('reqwest')
 let swipeview = require('../swipeviewjs/swipe.js')
 
 // hack
@@ -15,7 +14,7 @@ let allRequests = [undefined, undefined, undefined]
 let tripsSort = function(a,b) {
   var rv = Math.floor(a.arrival_time_seconds/60) - Math.floor(b.arrival_time_seconds/60)
   if (rv === 0) {
-      rv = a.route_short_name.localeCompare(b.route_short_name)
+    rv = a.route_short_name.localeCompare(b.route_short_name)
   }
   return rv
 }
@@ -63,16 +62,16 @@ class Station extends React.Component {
     var deg2rad = function(deg) {
       return deg * (Math.PI/180)
     }
-    var R = 6371; // Radius of the earth in km
-    var dLat = deg2rad(lat2-lat1);  // deg2rad below
-    var dLon = deg2rad(lon2-lon1); 
+    var R = 6371 // Radius of the earth in km
+    var dLat = deg2rad(lat2-lat1)  // deg2rad below
+    var dLon = deg2rad(lon2-lon1) 
     var a = 
       Math.sin(dLat/2) * Math.sin(dLat/2) +
       Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2); 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-    var d = R * c; // Distance in km
-    return d;
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    var d = R * c // Distance in km
+    return d
   }
   setStatePartial(newState) {
     this.setState({
@@ -101,17 +100,19 @@ class Station extends React.Component {
     // don't do this
     if (!refreshMode) {
       var getStationData = () => {
-        allRequests[0] = request(`/a/station/${newProps.routeParams.station}`).then((data) => {
-          requestAnimationFrame(() => {
-            var name = data.stop_name.replace(' Train Station', '')
-            name = name.replace(' Ferry Terminal', '')
+        allRequests[0] = fetch(`/a/station/${newProps.routeParams.station}`).then((response) => {
+          response.json().then((data) => {
+            requestAnimationFrame(() => {
+              var name = data.stop_name.replace(' Train Station', '')
+              name = name.replace(' Ferry Terminal', '')
 
-            this.setState({
-              name: name,
-              description: `${data.stop_name}`,
-              stop: this.props.routeParams.station,
-              stop_lat: data.stop_lat, 
-              stop_lon: data.stop_lon
+              this.setState({
+                name: name,
+                description: `${data.stop_name}`,
+                stop: this.props.routeParams.station,
+                stop_lat: data.stop_lat, 
+                stop_lon: data.stop_lon
+              })
             })
           })
         })
@@ -140,8 +141,10 @@ class Station extends React.Component {
       }
     }
 
-    allRequests[1] = request(`/a/station/${newProps.routeParams.station}/times`).then((data) => {
-      this.tripsCb(data.trips)
+    allRequests[1] = fetch(`/a/station/${newProps.routeParams.station}/times`).then((response) => {
+      response.json().then((data) => {
+        this.tripsCb(data.trips)
+      })
     })
   }
   getMultiData(newProps, refreshMode = false) {
@@ -165,12 +168,14 @@ class Station extends React.Component {
     var promises = []
     stations.forEach(function(station) {
       promises.push(new Promise(function(resolve, reject) {
-        request(`/a/station/${station}/times`).then((data) => {
-          data.trips.forEach(function(trip) {
-            trip.station = station
-            tripData.push(trip)
+        fetch(`/a/station/${station}/times`).then((response) => {
+          response.json().then((data) => {
+            data.trips.forEach(function(trip) {
+              trip.station = station
+              tripData.push(trip)
+            })
+            resolve()
           })
-          resolve()
         })
       }))
     })
@@ -224,23 +229,25 @@ class Station extends React.Component {
     }
 
     // now we do a request to the realtime API
-    allRequests[2] = request({
-      method: 'post',
-      type: 'json',
-      contentType: 'application/json',
-      url: `/a/realtime`,
-      data: requestData
-    }).then((rtData) => {
-      if (tripData[0].route_type === 2) {
-        for (var key in rtData) {
-          rtData[key] = {
-            v_id: rtData[key].v_id,
-            distance: this.getDistanceFromLatLonInKm(rtData[key].latitude, rtData[key].longitude, this.state.stop_lat, this.state.stop_lon)
+    allRequests[2] = fetch('/a/realtime', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: requestData
+    }).then((response) => {
+      response.json().then((rtData) => {
+        if (tripData[0].route_type === 2) {
+          for (var key in rtData) {
+            rtData[key] = {
+              v_id: rtData[key].v_id,
+              distance: this.getDistanceFromLatLonInKm(rtData[key].latitude, rtData[key].longitude, this.state.stop_lat, this.state.stop_lon)
+            }
           }
-        }
-      } 
-      this.setState({
-        realtime: rtData
+        } 
+        this.setState({
+          realtime: rtData
+        })
       })
     })
   }
@@ -268,7 +275,7 @@ class Station extends React.Component {
     StationStore.removeStop(this.props.routeParams.station)
     this.setStatePartial({
       saveModal: false
-    });
+    })
     ReactDOM.findDOMNode(this.refs.saveInput).blur()
   }
   triggerSaveChange(e) {
@@ -382,7 +389,8 @@ class Station extends React.Component {
     //console.log('unmounting all')
     allRequests.forEach(function (request) {
       if (typeof(request) !== 'undefined') {
-        request.abort()
+        // Can't do this with the request api ugh
+        // request.abort()
       }
     })
     clearInterval(liveRefresh)
@@ -392,7 +400,8 @@ class Station extends React.Component {
     //console.log('new props... killnug old requests')
     allRequests.forEach(function (request) {
       if (typeof(request) !== 'undefined') {
-        request.abort()
+        // Can't do this with the request api ugh
+        // request.abort()
       }
     })
     this.setState({

@@ -3,7 +3,6 @@ import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
-let request = require('reqwest')
 let leaflet = require('react-leaflet')
 let wkx = require('wkx')
 let Buffer = require('buffer').Buffer
@@ -28,37 +27,38 @@ class Line extends React.Component {
     this.getWKB = this.getWKB.bind(this)
     this.getShapeIDs = this.getShapeIDs.bind(this)
     this.triggerTap = this.triggerTap.bind(this)
+    this.convert = this.convert.bind(this)
   }
 
   getWKB(shape){
-    request(`/a/shape/${shape}`).then((wkb)=>{
-      this.convert(wkb)       
+    fetch(`/a/shape/${shape}`).then((response) => {
+      response.text().then(this.convert)
     })
   }
 
   getShapeIDs(line){
-    request(`/a/line/${line}`).then((shape)=>{
-      var shapes = []
-      shape.forEach(function(s){
-        shapes.push([s.shape_id, s.route_long_name])
-      })
-      this.setState({
-        route_list: shapes
+    fetch(`/a/line/${line}`).then((response) => {
+      response.json().then((shape) => {
+        var shapes = []
+        shape.forEach(function(s){
+          shapes.push([s.shape_id, s.route_long_name])
+        })
+        this.setState({
+          route_list: shapes
+        })
       })
     })
   }
   convert(data){
-    var wkb = new Buffer(data, 'hex')
+    let wkb = new Buffer(data, 'hex')
     this.setState({
       line: wkx.Geometry.parse(wkb).toGeoJSON()
     })
   }
 
   triggerTap(shape){
-    var wkb = this.getWKB
-    return function(){
-      console.log(shape)
-      wkb(shape)
+    return () => {
+      this.getWKB(shape)
     }
   }
   

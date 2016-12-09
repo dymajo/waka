@@ -18,14 +18,14 @@ ConsoleNotifierPlugin.prototype.apply = function (compiler) {
 
 let config = {
   entry: {
-    app: "./js/app.jsx",
-    vendor: ['react', 'react-dom', 'react-router', 'reqwest', 'leaflet', 'react-leaflet', 'wkx', 'buffer', 'autotrack']
+    app: ['whatwg-fetch', './js/app.jsx'],
+    vendor: ['react', 'react-dom', 'react-router', 'leaflet', 'react-leaflet', 'wkx', 'buffer', 'autotrack']
   },
   output: {
     path: __dirname,
-    filename: "dist/app.js"
+    filename: 'dist/app.js'
   },
-  devtool: "cheap-module-source-map",
+  devtool: 'cheap-module-source-map',
   module: {
     loaders: [
       { test: /\.(js|jsx)?$/, loader: 'babel-loader', include: [fs.realpathSync(__dirname + '/js')] }

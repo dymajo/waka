@@ -3,8 +3,6 @@ import { browserHistory } from 'react-router'
 import { iOS } from '../models/ios.js'
 import Clipboard from 'clipboard'
 
-let request = require('reqwest')
-
 let clipboard = undefined
 class Pin extends React.Component {
   constructor(props) {
@@ -54,12 +52,12 @@ class Pin extends React.Component {
 
   sendEmail(e){
     e.preventDefault()
-    request({
-      url: '/a/email',
-      method: 'post',
-      type: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify({
+    fetch('/a/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         email: this.state.email
       })
     })

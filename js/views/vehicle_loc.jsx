@@ -1,7 +1,6 @@
 import React from 'react';
 import { StationStore } from '../stores/stationStore.js'
 
-let request = require('reqwest')
 let leaflet = require('react-leaflet')
 let wkx = require('wkx')
 let Buffer = require('buffer').Buffer
@@ -94,20 +93,22 @@ class vehicle_location extends React.Component {
   getData(){
     var stops = []
     var stop_ids = []
-    request(`/a/vehicle_loc/${this.props.params.trip_id}`).then((data)=>{
-      this.getWKB(data.az.shape_id._)
-      data.at.forEach(function(item){
-        stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
-        stop_ids.push(item.stop_id)
+    fetch(`/a/vehicle_loc/${this.props.params.trip_id}`).then((response) => {
+      response.json().then((data) => {
+        this.getWKB(data.az.shape_id._)
+        data.at.forEach(function(item){
+          stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
+          stop_ids.push(item.stop_id)
+        })
+        this.setState({stops: stops, stop_ids: stop_ids})
       })
-      this.setState({stops: stops, stop_ids: stop_ids})
     })
     
   }
 
   getWKB(shape){
-    request(`/a/shape/${shape}`).then((wkb)=>{
-      this.convert(wkb)       
+    fetch(`/a/shape/${shape}`).then((response) => {
+      response.text().then(this.convert)
     })
   }
 

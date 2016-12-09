@@ -5,8 +5,6 @@ import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import SearchSwitch from './searchswitch.jsx'
 
-let request = require('reqwest')
-
 class ListStations extends React.Component {
   constructor(props){
     super(props)

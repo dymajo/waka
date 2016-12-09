@@ -1,7 +1,4 @@
 import Events from './events'
-import { browserHistory } from 'react-router'
-
-let request = require('reqwest')
 
 export class stationStore extends Events {
   constructor(props) {
@@ -40,116 +37,116 @@ export class stationStore extends Events {
   }
   getColor(agency_id, code){
     switch(agency_id){
-      case 'AM': // Auckland Metro
-        switch (code) {
-          case 'WEST': // West Line
-            //return '#006553' official
-            return '#4f9734'
-          case 'STH': // South Line
-            //return '#a60048' official
-            return '#e52f2b'
-          case 'EAST': // East Line
-            return '#f39c12'
-          case 'PUK': // South Line
-            //return '#a60048'
-            return '#e52f2b'
-          case 'ONE': // ONE Line
-            return '#21b4e3'
-          default:
-            return '#17232f'
-        }
-      case 'FGL': // Fullers
-        return '#2756a4'
-
-      case 'HE': // Howick and Eastern
-        return '#0096d6'
-
-      case 'NZBGW': // NZ Bus - Go West
-        return '#08ac54'
-
-      case 'NZBML': // NZ Bus - metrolink
-        switch (code) {
-          case 'CTY': // City Link
-            return '#ef3c34'
-
-          case 'INN': // Inner Link
-            return '#41b649'
-
-          case 'OUT': // Outer Link
-            return '#f7991c'
-          
-          default:
-            return '#152a85'
-        }
-
-      case 'NZBNS': // NZ Bus - North Star
-        return '#fcba2e'
-
-      case 'NZBWP': // NZ Bus - Waka Pacific
-        return '#0f91ab'
-
-      case 'UE': // Urban Express
-        return '#281260'
-
-      case 'BTL': // Birkenhead Transport
-        return '#b2975b'
-
-      case 'RTH': // Ritchies
-        switch (code) {
-          case "NEX": // Northern Express
-            //return '#0079c2' official
-            return '#0056a9' 
-          
-          default:
-            return '#ff6f2c'
-        }
-
-      case 'WBC': // Waiheke Bus Company
-        return '#01bdf2'
-
-      case 'EXPNZ': // Explore Waiheke - supposed to be closed?
-        return '#ffe81c'
-
-      case 'BFL': // Belaire Ferries
-        return '#ffd503'
-
-      case 'ATAPT': // AT Airporter
-        return '#f7931d'
-
-      case 'PHH': // Pine Harbour / Sealink
-        return '#d92732'
-
-      case 'GBT': // Go Bus
-        return '#58aa17'
-
-      case '360D': // 360 Discovery
-        return '#2756a4'
-
-      case 'ABEXP': //Skybus
-        return '#ee3124'
-
-      default: //MSB, PBC, BAYES - Schools
+    case 'AM': // Auckland Metro
+      switch (code) {
+      case 'WEST': // West Line
+        //return '#006553' official
+        return '#4f9734'
+      case 'STH': // South Line
+        //return '#a60048' official
+        return '#e52f2b'
+      case 'EAST': // East Line
+        return '#f39c12'
+      case 'PUK': // South Line
+        //return '#a60048'
+        return '#e52f2b'
+      case 'ONE': // ONE Line
+        return '#21b4e3'
+      default:
         return '#17232f'
+      }
+    case 'FGL': // Fullers
+      return '#2756a4'
+
+    case 'HE': // Howick and Eastern
+      return '#0096d6'
+
+    case 'NZBGW': // NZ Bus - Go West
+      return '#08ac54'
+
+    case 'NZBML': // NZ Bus - metrolink
+      switch (code) {
+      case 'CTY': // City Link
+        return '#ef3c34'
+
+      case 'INN': // Inner Link
+        return '#41b649'
+
+      case 'OUT': // Outer Link
+        return '#f7991c'
+      
+      default:
+        return '#152a85'
+      }
+
+    case 'NZBNS': // NZ Bus - North Star
+      return '#fcba2e'
+
+    case 'NZBWP': // NZ Bus - Waka Pacific
+      return '#0f91ab'
+
+    case 'UE': // Urban Express
+      return '#281260'
+
+    case 'BTL': // Birkenhead Transport
+      return '#b2975b'
+
+    case 'RTH': // Ritchies
+      switch (code) {
+      case 'NEX': // Northern Express
+        //return '#0079c2' official
+        return '#0056a9' 
+      
+      default:
+        return '#ff6f2c'
+      }
+
+    case 'WBC': // Waiheke Bus Company
+      return '#01bdf2'
+
+    case 'EXPNZ': // Explore Waiheke - supposed to be closed?
+      return '#ffe81c'
+
+    case 'BFL': // Belaire Ferries
+      return '#ffd503'
+
+    case 'ATAPT': // AT Airporter
+      return '#f7931d'
+
+    case 'PHH': // Pine Harbour / Sealink
+      return '#d92732'
+
+    case 'GBT': // Go Bus
+      return '#58aa17'
+
+    case '360D': // 360 Discovery
+      return '#2756a4'
+
+    case 'ABEXP': //Skybus
+      return '#ee3124'
+
+    default: //MSB, PBC, BAYES - Schools
+      return '#17232f'
     }
   }
   getMulti(id) {
     switch (id) {
-      case('7034+7004'):
-        return 'Sturdee Street'
-      case('7036+1315'):
-        return 'Victoria Park'
-      case('4063+4065+4083+4087+4085+4089'):
-        return 'Akoranga Station'
-      case('3355+3360+3362+3353'):
-        return 'Smales Farm Station'
-      case('3221+3219+3238+3240'):
-        return 'Sunnynook Station'
-      case('4222+4225+4223'):
-        return 'Constellation Park & Ride'
-      case('4227+4229+4226+4228'):
-        return 'Albany Park & Ride'
-      default:
-        return 'Multi Station'
+    case('7034+7004'):
+      return 'Sturdee Street'
+    case('7036+1315'):
+      return 'Victoria Park'
+    case('4063+4065+4083+4087+4085+4089'):
+      return 'Akoranga Station'
+    case('3355+3360+3362+3353'):
+      return 'Smales Farm Station'
+    case('3221+3219+3238+3240'):
+      return 'Sunnynook Station'
+    case('4222+4225+4223'):
+      return 'Constellation Park & Ride'
+    case('4227+4229+4226+4228'):
+      return 'Albany Park & Ride'
+    default:
+      return 'Multi Station'
     }
   }
   getPlatform(id) {
@@ -202,26 +199,28 @@ export class stationStore extends Events {
     if (stopNumber.split('+').length > 1) {
       stopNumberReq = stopNumber.split('+')[0]
     }
-    request(`/a/station/${stopNumberReq}`).then((data) => {
-      var description = `Stop ${stopNumber} / ${data.stop_name}`
-      if (stopNumber.split('+').length > 1) {
-        description = 'Northern Busway / ' + this.getMulti(stopNumber)
-      }
-      this.StationData[stopNumber] = {
-        name: stopName,
-        stop_lat: data.stop_lat,
-        stop_lon: data.stop_lon,
-        description: description,
-        icon: this.getIcon(stopNumber)
-      }
-      this.trigger('change')
-      this.saveData()
+    fetch(`/a/station/${stopNumberReq}`).then((response) => {
+      response.json().then((data) => {
+        var description = `Stop ${stopNumber} / ${data.stop_name}`
+        if (stopNumber.split('+').length > 1) {
+          description = 'Northern Busway / ' + this.getMulti(stopNumber)
+        }
+        this.StationData[stopNumber] = {
+          name: stopName,
+          stop_lat: data.stop_lat,
+          stop_lon: data.stop_lon,
+          description: description,
+          icon: this.getIcon(stopNumber)
+        }
+        this.trigger('change')
+        this.saveData()
+      })
     })
   }
   removeStop(stopNumber) {
     var index = this.StationOrder.indexOf(stopNumber)
     if (index > -1) {
-      this.StationOrder.splice(index, 1);
+      this.StationOrder.splice(index, 1)
     }
     delete this.StationData[stopNumber]
     this.trigger('change')
