@@ -106,8 +106,8 @@ class vehicle_location extends React.Component {
   }
 
   getWKB(shape){
-      request(`/a/shape/${shape}`).then((wkb)=>{
-        this.convert(wkb)       
+    request(`/a/shape/${shape}`).then((wkb)=>{
+      this.convert(wkb)       
     })
   }
 
@@ -125,9 +125,9 @@ class vehicle_location extends React.Component {
   
   currentLocateButton() {
     if (this.state.error === '') {
-    this.getAndSetCurrentPosition()
+      this.getAndSetCurrentPosition()
     } else {
-    alert(this.state.error)
+      alert(this.state.error)
     }
   }
 
@@ -140,14 +140,15 @@ class vehicle_location extends React.Component {
   render(){
     let geoJson
     if (typeof(this.state.line) !== 'undefined') {
-      //console.log('it defined')
       geoJson = <GeoJson className='line' data={this.state.line} />
     }
     return (
       <div className='vehicle-location-container'>
         <div className='vehicle-location-map'>
-          <Map style={{height: '50vh'}}
-            center={this.state.position} 
+          <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+          </button>
+          <Map center={this.state.position} 
             zoom={13}>
             <TileLayer
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
@@ -163,12 +164,8 @@ class vehicle_location extends React.Component {
               }    
               return (
                 <Marker key={stop[2]} icon={markericon} position={[stop[0], stop[1]]} />
-
               )
             })}
-            <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-            </button>
             <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
             <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
           </Map>
@@ -176,9 +173,9 @@ class vehicle_location extends React.Component {
         </div>
         <div className='vehicle-location-stops'>
           <h3>Current Station: {this.props.params.station}</h3>
-          {this.state.stops.map((stop) => {
+          {this.state.stops.map((stop, key) => {
             return(
-              <div>
+              <div key={key}>
                 <ul style={{backgroundColor: StationStore.getColor('AM', '')}} key={stop[2]}>{stop[2]} - {stop[3]}</ul>
               </div>
             )
@@ -190,5 +187,4 @@ class vehicle_location extends React.Component {
     )
   }
 }
-      
-export default vehicle_location;
+export default vehicle_location

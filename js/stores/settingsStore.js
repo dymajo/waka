@@ -21,7 +21,7 @@ export class settingsStore {
   }
   toggle(item) {
     this.state[item] = !this.state[item]
-    saveState()
+    this.saveState()
   }
 }
 export let SettingsStore = new settingsStore()

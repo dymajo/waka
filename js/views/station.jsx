@@ -1,14 +1,12 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { iOS } from '../models/ios.js'
-import { browserHistory } from 'react-router'
+import { webp } from '../models/webp'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
-import { SettingsStore } from '../stores/settingsStore.js'
 import TripItem from './tripitem.jsx'
 
 let request = require('reqwest')
-let webp = require('../models/webp')
 let swipeview = require('../swipeviewjs/swipe.js')
 
 // hack

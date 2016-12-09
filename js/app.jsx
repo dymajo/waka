@@ -28,12 +28,12 @@ class App extends React.Component {
         <Route path="/" component={Index}>
           <IndexRoute component={Splash} />
           <Route path="pin" component={Splash} />
-          <Route onChange={UiStore.handleReactChange} path="s" component={Search}>
+          <Route onChange={UiStore.handleReactChange.bind(UiStore)} path="s" component={Search}>
             <Route path=":station" component={Station} >
               <Route path=":trip_id" component={VehicleLocation}/>
             </Route>
           </Route>
-          <Route onChange={UiStore.handleReactChange} path="cf">
+          <Route onChange={UiStore.handleReactChange.bind(UiStore)} path="cf">
             <IndexRoute component={ListStations} />
             <Route path=":line" component={ListStations}>
               <Route path=":station" component={Station} />
@@ -42,8 +42,10 @@ class App extends React.Component {
           <Route path="l" component={Lines}>
             <Route path=":line" component={Line} />
           </Route>
-          <Route onChange={UiStore.handleReactChange} path="ss" component={SavedStations}>
-            <Route path=":station" component={Station} />
+          <Route onChange={UiStore.handleReactChange.bind(UiStore)} path="ss" component={SavedStations}>
+            <Route path=":station" component={Station} >
+              <Route path=":trip_id" component={VehicleLocation}/>
+            </Route>
           </Route>
           <Route path="settings" component={Settings}/>
           <Route path="*" component={NoMatch}/>

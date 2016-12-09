@@ -21,6 +21,8 @@ export class uiStore extends Events {
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
       browserHistory.push(this.state.currentUrl)
     }
+    browserHistory.listenBefore(this.handleState.bind(this))
+    browserHistory.listen(this.currentState.bind(this))
   }
   getState() {
     return this.state
@@ -51,13 +53,12 @@ export class uiStore extends Events {
     this.state.lastUrl = window.location.pathname
   }
   currentState(e) { 
-    console.log(this)
     this.state.currentUrl = window.location.pathname
     localStorage.setItem('CurrentUrl', this.state.currentUrl)
   }
   handleReactChange(prevState, nextState, replace, callback) {
     // don't run the back animation if it's just in normal ios
-    if (iOS.detect() && !window.navigator.standalone && !state.triggeredBack) {
+    if (iOS.detect() && !window.navigator.standalone && !this.state.triggeredBack) {
       return callback()
     }
     var p = nextState.location.pathname
@@ -73,7 +74,7 @@ export class uiStore extends Events {
       this.state.goingBack = true
       UiStore.trigger('goingBack')
 
-      setTimeout(function() {
+      setTimeout(() => {
         requestAnimationFrame(() => {
           callback()
           this.state.goingBack = false
@@ -87,5 +88,3 @@ export class uiStore extends Events {
 }
 
 export let UiStore = new uiStore()
-// browserHistory.listenBefore(UiStore.handleState)
-// browserHistory.listen(UiStore.currentState)

@@ -21,7 +21,7 @@ export class stationStore extends Events {
 
     this.StationData = {}
     if (localStorage.getItem('StationData')) {
-      StationData = JSON.parse(localStorage.getItem('StationData'))
+      this.StationData = JSON.parse(localStorage.getItem('StationData'))
     }
 
     this.StationOrder = []
@@ -205,17 +205,17 @@ export class stationStore extends Events {
     request(`/a/station/${stopNumberReq}`).then((data) => {
       var description = `Stop ${stopNumber} / ${data.stop_name}`
       if (stopNumber.split('+').length > 1) {
-        description = 'Northern Busway / ' + getMulti(stopNumber)
+        description = 'Northern Busway / ' + this.getMulti(stopNumber)
       }
       this.StationData[stopNumber] = {
         name: stopName,
         stop_lat: data.stop_lat,
         stop_lon: data.stop_lon,
         description: description,
-        icon: getIcon(stopNumber)
+        icon: this.getIcon(stopNumber)
       }
-      StationStore.trigger('change')
-      saveData()
+      this.trigger('change')
+      this.saveData()
     })
   }
   removeStop(stopNumber) {
@@ -224,9 +224,9 @@ export class stationStore extends Events {
       this.StationOrder.splice(index, 1);
     }
     delete this.StationData[stopNumber]
-    StationStore.trigger('change')
+    this.trigger('change')
 
-    saveData()
+    this.saveData()
   }
 }
 export let StationStore = new stationStore()

@@ -31,8 +31,8 @@ class Line extends React.Component {
   }
 
   getWKB(shape){
-      request(`/a/shape/${shape}`).then((wkb)=>{
-        this.convert(wkb)       
+    request(`/a/shape/${shape}`).then((wkb)=>{
+      this.convert(wkb)       
     })
   }
 
