@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "jsx": "react",
-    "allowSyntheticDefaultImports": true
-  },
-  "files": [
-    "typings/index.d.ts"
-  ]
-}

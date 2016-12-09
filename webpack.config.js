@@ -1,9 +1,11 @@
 'use strict'
 const webpack = require('webpack')
+const fs = require('fs')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 let config = {
   entry: {
-    app: "./js/app.tsx",
+    app: "./js/app.jsx",
     vendor: ['react', 'react-dom', 'react-router', 'reqwest', 'leaflet', 'react-leaflet', 'wkx', 'buffer', 'autotrack']
   },
   output: {
@@ -13,12 +15,7 @@ let config = {
   devtool: "cheap-module-source-map",
   module: {
     loaders: [
-      // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
-      { test: /\.tsx?$/, loader: "ts-loader" }
-    ],
-    preLoaders: [
-      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-      { test: /\.js$/, loader: "source-map-loader" }
+      { test: /\.(js|jsx)?$/, loader: 'babel-loader', include: [fs.realpathSync(__dirname + '/js')] }
     ]
   },
   plugins: [
@@ -29,5 +26,18 @@ let config = {
     }),
     new webpack.optimize.CommonsChunkPlugin('vendor', 'dist/vendor.js')
   ]
+}
+if (process.env.NODE_ENV === 'production') {
+  config.plugins.push(
+    new webpack.optimize.UglifyJsPlugin({
+      compress: {
+        warnings: false
+      }
+    }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      openAnalyzer: false
+    })
+  )
 }
 module.exports = config

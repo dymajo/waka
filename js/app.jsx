@@ -1,32 +1,28 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { Router, IndexRoute, Route, Link, browserHistory } from 'react-router'
-import { iOS } from './models/ios.ts'
-import { UiStore } from './stores/uiStore.ts'
+import { iOS } from './models/ios.js'
+import { UiStore } from './stores/uiStore.js'
 
-import Index from './views/index.tsx'
-import Splash from './views/splash.tsx'
-import Search from './views/search.tsx'
-import Station from './views/station.tsx'
-import SavedStations from './views/savedstations.tsx'
-import Settings from './views/settings.tsx'
-import NoMatch from './views/nomatch.tsx'
-import ListStations from './views/liststations.tsx'
-import Lines from './views/lines.tsx'
-import Line from './views/line.tsx'
-import VehicleLocation from './views/vehicle_loc.tsx'
+import Index from './views/index.jsx'
+import Splash from './views/splash.jsx'
+import Search from './views/search.jsx'
+import Station from './views/station.jsx'
+import SavedStations from './views/savedstations.jsx'
+import Settings from './views/settings.jsx'
+import NoMatch from './views/nomatch.jsx'
+import ListStations from './views/liststations.jsx'
+import Lines from './views/lines.jsx'
+import Line from './views/line.jsx'
+import VehicleLocation from './views/vehicle_loc.jsx'
 
-declare function process(): any;
-declare function require(name: string): any;
-require('autotrack') // google analytics
-var injectTapEventPlugin = require('react-tap-event-plugin')
+import autotrack from 'autotrack' // google analytics
+import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
 
-interface IAppProps extends React.Props<App> {}
+class App extends React.Component {
 
-class App extends React.Component<IAppProps, {}> {
-
-  public render() {
+  render() {
     return (
       <Router history={browserHistory}>
         <Route path="/" component={Index}>
@@ -57,7 +53,7 @@ class App extends React.Component<IAppProps, {}> {
   }
 }
 document.addEventListener("DOMContentLoaded", function(event) {
-  if ((process as any).env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production") {
     document.getElementById('app').className = 'production'
   }
   ReactDOM.render(<App />, document.getElementById('app'))
