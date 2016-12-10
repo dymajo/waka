@@ -1,4 +1,5 @@
-import React from 'react';
+import React from 'react'
+import { browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.js'
 
 let leaflet = require('react-leaflet')
@@ -42,7 +43,8 @@ class vehicle_location extends React.Component {
       position: [-36.844229, 174.767823],
       currentPosition: [0,0],
       accuracy: 0,
-      error: ''
+      error: '',
+      tripInfo: {}
     }
     this.getData = this.getData.bind(this)
     this.getWKB = this.getWKB.bind(this)
@@ -95,12 +97,16 @@ class vehicle_location extends React.Component {
     var stop_ids = []
     fetch(`/a/vehicle_loc/${this.props.params.trip_id}`).then((response) => {
       response.json().then((data) => {
-        this.getWKB(data.az.shape_id._)
+        this.getWKB(data.az.shape_id)
         data.at.forEach(function(item){
           stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
           stop_ids.push(item.stop_id)
         })
-        this.setState({stops: stops, stop_ids: stop_ids})
+        this.setState({
+          stops: stops,
+          stop_ids: stop_ids,
+          tripInfo: data.az
+        })
       })
     })
     
@@ -137,6 +143,11 @@ class vehicle_location extends React.Component {
       navigator.geolocation.clearWatch(geoID)
     })
   }
+  triggerBack(){
+    let newUrl = window.location.pathname.split('/')
+    newUrl.splice(-1)
+    browserHistory.push(newUrl.join('/'))
+  }
 
   render(){
     let geoJson
@@ -145,6 +156,15 @@ class vehicle_location extends React.Component {
     }
     return (
       <div className='vehicle-location-container'>
+        <header>
+          <div>
+            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+            <h1 className='line-name'>
+              <span style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>{this.state.tripInfo.route_short_name}</span>
+              {this.state.tripInfo.route_long_name}
+            </h1>
+          </div>
+        </header>
         <div className='vehicle-location-map'>
           <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>

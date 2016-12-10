@@ -4,9 +4,6 @@
   overflow-x: hidden;
   background: #eee;
   z-index: 1;
-  @media (max-width: 480px) {
-    bottom: 48px;
-  }
 
   $list-width: 300px;
   $list-color: #fafafa;

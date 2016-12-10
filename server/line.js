@@ -86,7 +86,14 @@ var line = {
         })
         return
       }
-      res.send(JSON.parse(body).response[0].the_geom)
+      let sending = JSON.parse(body).response
+      if (sending.length < 1) {
+        res.status(404).send({
+          error: 'not found'
+        })
+      } else {
+        res.send(sending[0].the_geom)
+      }
     })  
   },
 
@@ -142,8 +149,10 @@ var line = {
             'error': 'trip not found'
           })
         }
+        for (let key in result) {
+          result[key]  = result[key]._
+        }
         azureResult = result
-        console.log(azureResult)
         resolve()
       })
     }))
@@ -166,8 +175,6 @@ var line = {
             stop_lon: item.stop_lon,         
           })
         })
-        console.log(atResult)
-
         
         resolve()
       })  
