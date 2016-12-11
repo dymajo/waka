@@ -396,6 +396,10 @@ class Station extends React.Component {
     clearInterval(liveRefresh)
   }
   componentWillReceiveProps(newProps) {
+    // basically don't do anything if the station doesn't change
+    if (this.props.params.station === newProps.params.station) {
+      return
+    }
     swipeview.index = 0
     //console.log('new props... killnug old requests')
     allRequests.forEach(function (request) {
@@ -631,7 +635,10 @@ class Station extends React.Component {
             </div>
           </div>
         </ul>
-        {this.props.children}
+        {this.props.children && React.cloneElement(this.props.children, {
+          trips: this.state.trips,
+          realtime: this.state.realtime
+        })}
       </div>
     )
   }

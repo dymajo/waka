@@ -104,8 +104,7 @@ class vehicle_location extends React.Component {
         })
         this.setState({
           stops: stops,
-          stop_ids: stop_ids,
-          tripInfo: data.az
+          stop_ids: stop_ids
         })
       })
     })
@@ -122,6 +121,15 @@ class vehicle_location extends React.Component {
     var wkb = new Buffer(data, 'hex')
     this.setState({
       line: wkx.Geometry.parse(wkb).toGeoJSON()
+    })
+  }
+
+  componentWillMount() {
+    let tripNodeMatches = (item) => {
+      return item.trip_id === this.props.params.trip_id
+    }
+    this.setState({
+      tripInfo: this.props.trips.find(tripNodeMatches) || {}
     })
   }
   
