@@ -200,6 +200,12 @@ class vehicle_location extends React.Component {
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
+            {Object.keys(this.props.realtime).map((bus) => {
+              console.log(bus)
+              return (
+                <Marker position={[bus.latitude, bus.longitude]} />
+              )
+            })}
             {this.state.stops.map((stop, key) => {
               if (geoJson === null) {
                 return
@@ -220,7 +226,7 @@ class vehicle_location extends React.Component {
             
         </div>
         <div className='vehicle-location-stops'>
-          <h3>Current Station: {this.props.params.station}</h3>
+          <h3>Current Station: {JSON.stringify(this.props.realtime)}</h3>
           <ul>
           {this.state.stops.map((stop) => {
             let className = ''
