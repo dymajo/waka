@@ -44,13 +44,15 @@ class vehicle_location extends React.Component {
       currentPosition: [0,0],
       accuracy: 0,
       error: '',
-      tripInfo: {}
+      tripInfo: {},
+      showIcons: true
     }
     this.getData = this.getData.bind(this)
     this.getWKB = this.getWKB.bind(this)
     this.convert = this.convert.bind(this)
     this.setCurrentPosition = this.setCurrentPosition.bind(this)
     this.currentLocateButton = this.currentLocateButton.bind(this)
+    this.zoomstart = this.zoomstart.bind(this)
   }
 
   watchPosition() {
@@ -157,10 +159,24 @@ class vehicle_location extends React.Component {
     browserHistory.push(newUrl.join('/'))
   }
 
+   zoomstart(e){   
+    let zoomLevel = e.target.getZoom()
+    //console.log(zoomLevel)
+    if (zoomLevel < 14) {
+      this.setState({
+        showIcons: false
+      })
+    } else {
+      this.setState({
+        showIcons: true
+      })
+    }
+  }
+
   render(){
-    let geoJson
+    let geoJson = null
     if (typeof(this.state.line) !== 'undefined') {
-      geoJson = <GeoJson className='line' data={this.state.line} />
+      geoJson = <GeoJson color={StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)} className='line' data={this.state.line} />
     }
     return (
       <div className='vehicle-location-container'>
@@ -178,39 +194,48 @@ class vehicle_location extends React.Component {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
           </button>
           <Map center={this.state.position} 
-            zoom={13}>
+            onZoomend={this.zoomstart}
+            zoom={16}>
             <TileLayer
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
-            {this.state.stops.map((stop) => {
-              var icon = StationStore.getIcon(stop.stop_id)
-              var markericon = busIcon
-              if (icon === 'train') {
-                markericon = trainIcon
-              } else if (icon === 'ferry') {
-                markericon = ferryIcon
-              }    
+            {this.state.stops.map((stop, key) => {
+              if (geoJson === null) {
+                return
+              }
+              if (!this.state.showIcons) {
+                if (key !== 0 && key !== this.state.stops.length - 1){
+                  return
+                }
+              }
               return (
-                <Marker key={stop[2]} icon={markericon} position={[stop[0], stop[1]]} />
-              )
+                  <CircleMarker color={StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)} className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} />
+                )
             })}
             <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
             <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
+            
           </Map>
             
         </div>
         <div className='vehicle-location-stops'>
           <h3>Current Station: {this.props.params.station}</h3>
-          {this.state.stops.map((stop, key) => {
+          <ul>
+          {this.state.stops.map((stop) => {
+            let className = ''
+            if (stop[2] === this.props.params.station) {
+                className += 'selectedStop'
+            }
             return(
-              <div key={key}>
-                <ul style={{backgroundColor: StationStore.getColor('AM', '')}} key={stop[2]}>{stop[2]} - {stop[3]}</ul>
-              </div>
+              <li className={className}
+                key={stop[2]} >{stop[2]} - {stop[3]}
+              </li>
             )
           })
 
           }
+          </ul>
         </div>
       </div>
     )

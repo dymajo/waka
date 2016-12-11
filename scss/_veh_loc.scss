@@ -10,6 +10,13 @@
       left: 300px + $navsize;
     }
 
+    .CircleMarker {
+      fill-opacity: 1;
+      fill: white;
+      stroke:  $lightblue;
+      stroke-width: 3;
+    }
+
     header {
       height: $navsize;
       div {
@@ -47,8 +54,8 @@
 .vehicle-location-stops {
     overflow-y: auto;
 
-    ul {
-        color: white;
+    li {
+        color: blue;
     }
 
     div {
@@ -106,7 +113,11 @@
   stroke-width: 2
 }
 .line {
-    path {
-            stroke: #17232f;
-    }
+  stroke: $lightblue;
+  stroke-width: 5;
+
+}
+
+.selectedStop {
+  background-color: yellow;
 }
