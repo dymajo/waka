@@ -54,7 +54,10 @@ var realtime = {
 		}
     var promises = []
     var realtimeInfo = {}
-
+    req.body.trips.forEach(function(trip) {
+      realtimeInfo[trip] = {}
+    })
+    console.log(realtimeInfo)
     promises[0] = new Promise(function(resolve, reject) {
       var newOpts
       if (req.body.train) {
@@ -103,7 +106,7 @@ var realtime = {
           } else {
             body.response.entity.forEach(function(trip) {
               var timeUpdate = trip.trip_update.stop_time_update.departure || trip.trip_update.stop_time_update.arrival || {}
-              realtimeInfo[trip.trip_update.trip.trip_id] = {
+              realtimeInfo[trip.trip_update.trip.trip_id] += {
                 stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
                 delay: timeUpdate.delay,
                 timestamp: timeUpdate.time,
@@ -136,16 +139,20 @@ var realtime = {
           })
         }
         if (body.response.entity){
+          //console.log('1', body.response.entity)
+          console.log('getting vehiclelocations')
           body.response.entity.forEach(function(trip) {
-            realtimeInfo[trip.vehicle.trip.trip_id] = {
-              latitude: trip.position.latitude,
-              longitude: trip.position.longitude,
-              bearing: trip.position.bearing,
+            realtimeInfo[trip.vehicle.trip.trip_id] += {
+              latitude: trip.vehicle.position.latitude,
+              longitude: trip.vehicle.position.longitude,
+              bearing: trip.vehicle.position.bearing,
             }
           })
+          console.log(realtimeInfo)
         }
-      })
-        
+        resolve()
+    })
+       
     })
     Promise.all(promises).then(function() {
       res.send(realtimeInfo)
