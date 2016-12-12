@@ -201,9 +201,12 @@ class vehicle_location extends React.Component {
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
             {Object.keys(this.props.realtime).map((bus) => {
-              console.log(bus)
-              return (
-                <Marker position={[bus.latitude, bus.longitude]} />
+              console.log(this.props.realtime[bus])
+              //console.log(this.props.realtime[bus].longitude)
+              //console.log(bus[longitude])
+              //console.log(bus.longitude)
+              return(
+                <CircleMarker key={this.props.realtime[bus].v_id} center={[this.props.realtime[bus].latitude,this.props.realtime[bus].longitude]} radius={15}/>
               )
             })}
             {this.state.stops.map((stop, key) => {

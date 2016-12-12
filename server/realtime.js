@@ -1,7 +1,7 @@
 var request = require('request')
 
 var tripUpdatesOptions = {
-  url: 'https://api.at.govt.nz/v2/public/realtime',
+  url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
   headers: {
     'Ocp-Apim-Subscription-Key': process.env.atApiKey
   }
@@ -52,85 +52,105 @@ var realtime = {
 				message: 'please send trips'
 			})
 		}
+    var promises = []
+    var realtimeInfo = {}
 
-    var newOpts
-    if (req.body.train) {
-      newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
-    } else {
-      newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
-    }
-		// i feel like we should sanatize this or something...
-    newOpts.url += '?tripid=' + req.body.trips.join(',')
-    request(newOpts, function(err, response, body) {
-      if (err) {
-      	res.send({
-      		error: err
-      	})
-      	return
+    promises[0] = new Promise(function(resolve, reject) {
+      var newOpts
+      if (req.body.train) {
+        newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
+      } else {
+        newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
       }
-      try {
-        body = JSON.parse(body)  
-      } catch(err) {
-        console.log('rt error', err)
-        return res.send({
-          error: err
-        })
-      }
-      var sending = {}
-      if (body.response.entity) {
-        if (req.body.train) {
-          var fix = function(lat, lon) {
-            lat = lat*1.66 + 23.7564;
-            lon = lon*1.66 - 114.8370;
-    
-            if (lat < -37.091) {
-                lat += 0.6639;
-            }
-            return [lat, lon]
-          }
-
-          body.response.entity.forEach(function(trip) {
-            var latlon = fix(trip.vehicle.position.latitude, trip.vehicle.position.longitude)
-            sending[trip.vehicle.trip.trip_id] = {
-              v_id: trip.vehicle.vehicle.id,
-              latitude: latlon[0],
-              longitude: latlon[1],
-              bearing: trip.vehicle.position.bearing
-            }
+      // i feel like we should sanatize this or something...
+      newOpts.url += '?tripid=' + req.body.trips.join(',')
+      request(newOpts, function(err, response, body) {
+        if (err) {
+          res.send({
+            error: err
           })
-        } else {
-          console.log('res', body.response)
-          body.response.entity.forEach(function(trip) {   
-            console.log(trip)         
-            if (typeof(trip.trip_update) !== 'undefined'){
-              let timeUpdate = trip.trip_update.stop_time_update.departure || trip.trip_update.stop_time_update.arrival || {}
-              let t = trip.trip_update.trip.trip_id
-              if (typeof(sending[t]) === 'undefined'){
-               sending[t] = {}
+          return
+        }
+        try {
+          body = JSON.parse(body)  
+        } catch(err) {
+          console.log('rt error', err)
+          return res.send({
+            error: err
+          })
+        }
+        if (body.response.entity) {
+          if (req.body.train) {
+            var fix = function(lat, lon) {
+              lat = lat*1.66 + 23.7564;
+              lon = lon*1.66 - 114.8370;
+      
+              if (lat < -37.091) {
+                  lat += 0.6639;
               }
-              sending[t].stop_sequence = trip.trip_update.stop_time_update.stop_sequence
-              sending[t].delay = timeUpdate.delay
-              sending[t].timestamp = timeUpdate.time
-              sending[t].v_id = trip.trip_update.vehicle.id
-              sending[t].double_decker = isDoubleDecker(trip.trip_update.vehicle.id)
-            } else if (typeof(trip.vehicle) !== 'undefined'){
-              let t = trip.vehicle.trip.trip_id
-              if (typeof(sending[t]) === 'undefined'){
-                sending[t] = {}
+              return [lat, lon]
+            }
+
+            body.response.entity.forEach(function(trip) {
+              var latlon = fix(trip.vehicle.position.latitude, trip.vehicle.position.longitude)
+              sending[trip.vehicle.trip.trip_id] = {
+                v_id: trip.vehicle.vehicle.id,
+                latitude: latlon[0],
+                longitude: latlon[1],
+                bearing: trip.vehicle.position.bearing
               }
-              sending[t].latitude = trip.vehicle.position.latitude
-              sending[t].longitude = trip.vehicle.position.longitude
-              sending[t].bearing = trip.vehicle.position.bearing
-              sending[t].occupancyStatus = trip.vehicle.occupancy_status
-              console.log(sending[t])
-              console.log(t)
+            })
+          } else {
+            body.response.entity.forEach(function(trip) {
+              var timeUpdate = trip.trip_update.stop_time_update.departure || trip.trip_update.stop_time_update.arrival || {}
+              realtimeInfo[trip.trip_update.trip.trip_id] = {
+                stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
+                delay: timeUpdate.delay,
+                timestamp: timeUpdate.time,
+                v_id: trip.trip_update.vehicle.id,
+                double_decker: isDoubleDecker(trip.trip_update.vehicle.id)
+              }
+            })
+          }
+        }
+        resolve() // ???
+      })
+    })
+
+    promises[1] = new Promise(function(resolve,reject) {
+      newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
+      newOpts.url += '?tripid=' + req.body.trips.join(',')
+      request(newOpts, function(err, response, body){
+        if (err) {
+          res.send({
+            error: err
+          })
+          return
+        }
+        try {
+          body = JSON.parse(body)  
+        } catch(err) {
+          console.log('rt error', err)
+          return res.send({
+            error: err
+          })
+        }
+        if (body.response.entity){
+          body.response.entity.forEach(function(trip) {
+            realtimeInfo[trip.vehicle.trip.trip_id] = {
+              latitude: trip.position.latitude,
+              longitude: trip.position.longitude,
+              bearing: trip.position.bearing,
             }
           })
         }
-      }
-      console.log(sending)
-      res.send(sending)	
+      })
+        
     })
+    Promise.all(promises).then(function() {
+      res.send(realtimeInfo)
+    })
+    
 	}	
 }
 module.exports = realtime
