@@ -52,15 +52,11 @@ var realtime = {
 				message: 'please send trips'
 			})
 		}
-    var promises = []
     var realtimeInfo = {}
-    var vehicleInfo = {}
     req.body.trips.forEach(function(trip) {
       realtimeInfo[trip] = {}
-      vehicleInfo[trip] = {}
     })
     //console.log(realtimeInfo)
-    promises[0] = new Promise(function(resolve, reject) {
       var newOpts
       if (req.body.train) {
         newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
@@ -119,50 +115,46 @@ var realtime = {
             })
           }
         }
-        resolve() // ???
+        res.send(realtimeInfo) // ???
       })
+  },
+  getVehicleLocation: function(req, res) {
+    var vehicleInfo = {}
+    req.body.trips.forEach(function(trip) {
+      vehicleInfo[trip] = {}
     })
-
-    promises[1] = new Promise(function(resolve,reject) {
-      newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
-      newOpts.url += '?tripid=' + req.body.trips.join(',')
-      request(newOpts, function(err, response, body){
-        if (err) {
-          res.send({
-            error: err
-          })
-          return
-        }
-        try {
-          body = JSON.parse(body)  
-        } catch(err) {
-          console.log('rt error', err)
-          return res.send({
-            error: err
-          })
-        }
-        if (body.response.entity){
-          //console.log('1', body.response.entity)
-          console.log('getting vehiclelocations')
-          body.response.entity.forEach(function(trip) {
-            
-            vehicleInfo[trip.vehicle.trip.trip_id] = {
-              latitude: trip.vehicle.position.latitude,
-              longitude: trip.vehicle.position.longitude,
-              bearing: trip.vehicle.position.bearing,
-            }
-            console.log(realtimeInfo[trip.vehicle.trip.trip_id])
-          })
-          
-        }
-        resolve()
-    })
-       
-    })
-    Promise.all(promises).then(function() {
-      res.send(vehicleInfo)
-    })
-    
-	}	
+    newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
+        newOpts.url += '?tripid=' + req.body.trips.join(',')
+        request(newOpts, function(err, response, body){
+          if (err) {
+            res.send({
+              error: err
+            })
+            return
+          }
+          try {
+            body = JSON.parse(body)  
+          } catch(err) {
+            console.log('rt error', err)
+            return res.send({
+              error: err
+            })
+          }
+          if (body.response.entity){
+            //console.log('1', body.response.entity)
+            console.log('getting vehiclelocations')
+            body.response.entity.forEach(function(trip) {    
+              vehicleInfo[trip.vehicle.trip.trip_id] = {
+                latitude: trip.vehicle.position.latitude,
+                longitude: trip.vehicle.position.longitude,
+                bearing: trip.vehicle.position.bearing,
+              }
+              console.log(vehicleInfo[trip.vehicle.trip.trip_id])
+            })
+          }
+        res.send(vehicleInfo)
+        })
+        
+  }
 }
 module.exports = realtime

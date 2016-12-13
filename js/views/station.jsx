@@ -227,7 +227,6 @@ class Station extends React.Component {
     } else {
       requestData = JSON.stringify({trips: queryString})
     }
-
     // now we do a request to the realtime API
     allRequests[2] = fetch('/a/realtime', {
       method: 'POST',

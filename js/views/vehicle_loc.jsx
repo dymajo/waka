@@ -45,9 +45,12 @@ class vehicle_location extends React.Component {
       accuracy: 0,
       error: '',
       tripInfo: {},
-      showIcons: true
+      showIcons: true,
+      busPosition: [0,0],
+      busBearing: 0
     }
     this.getData = this.getData.bind(this)
+    this.getPositionData = this.getPositionData.bind(this)
     this.getWKB = this.getWKB.bind(this)
     this.convert = this.convert.bind(this)
     this.setCurrentPosition = this.setCurrentPosition.bind(this)
@@ -137,6 +140,7 @@ class vehicle_location extends React.Component {
   
   componentDidMount() {
     this.getData()
+    this.getPositionData()
     this.watchPosition()
   }
   
@@ -159,7 +163,7 @@ class vehicle_location extends React.Component {
     browserHistory.push(newUrl.join('/'))
   }
 
-   zoomstart(e){   
+  zoomstart(e){   
     let zoomLevel = e.target.getZoom()
     //console.log(zoomLevel)
     if (zoomLevel < 14) {
@@ -173,7 +177,29 @@ class vehicle_location extends React.Component {
     }
   }
 
+  getPositionData() {
+    var trips = Object.keys(this.props)
+    console.log('positiondata',this.props.realtime)
+    var queryString = []
+    trips.map(function(trip) {
+      queryString.push(trip.trip_id)
+    })
+    var requestData
+    requestData = JSON.stringify({trips: queryString})
+    console.log(requestData)
+    fetch('/a/vehicle_location', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: requestData
+    }).then((response) => {
+      console.log(response)
+    })
+  }
+
   render(){
+    console.log('render',this.props.realtime)
     let geoJson = null
     if (typeof(this.state.line) !== 'undefined') {
       geoJson = <GeoJson color={StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)} className='line' data={this.state.line} />
@@ -201,8 +227,8 @@ class vehicle_location extends React.Component {
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
             {Object.keys(this.props.realtime).map((bus) => {
-              console.log(bus)
-              console.log(this.props.params.trip_id)
+              //console.log(bus)
+              //console.log(this.props.params.trip_id)
               //console.log(this.props.realtime[bus].longitude)
               //console.log(bus[longitude])
               //console.log(bus.longitude)
