@@ -592,7 +592,7 @@ class Station extends React.Component {
             <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
           </div>
         </div>
-        <header>
+        <header className="material-header">
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
             {saveButton}

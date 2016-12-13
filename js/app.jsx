@@ -6,12 +6,9 @@ import { UiStore } from './stores/uiStore.js'
 
 import Index from './views/index.jsx'
 import Splash from './views/splash.jsx'
-import Search from './views/search.jsx'
 import Station from './views/station.jsx'
-import SavedStations from './views/savedstations.jsx'
 import Settings from './views/settings.jsx'
 import NoMatch from './views/nomatch.jsx'
-import ListStations from './views/liststations.jsx'
 import Lines from './views/lines.jsx'
 import Line from './views/line.jsx'
 import VehicleLocation from './views/vehicle_loc.jsx'
@@ -26,27 +23,13 @@ class App extends React.Component {
     return (
       <Router history={browserHistory}>
         <Route path="/" component={Index}>
-          <IndexRoute component={Splash} />
-          <Route path="pin" component={Splash} />
-          <Route onChange={UiStore.handleReactChange.bind(UiStore)} path="s" component={Search}>
-            <Route path=":station" component={Station} >
-              <Route path=":trip_id" component={VehicleLocation}/>
-            </Route>
-          </Route>
-          <Route onChange={UiStore.handleReactChange.bind(UiStore)} path="cf">
-            <IndexRoute component={ListStations} />
-            <Route path=":line" component={ListStations}>
-              <Route path=":station" component={Station} />
-            </Route>
+          <Route path="s/:station" component={Station} >
+            <Route path=":trip_id" component={VehicleLocation}/>
           </Route>
           <Route path="l" component={Lines}>
             <Route path=":line" component={Line} />
           </Route>
-          <Route onChange={UiStore.handleReactChange.bind(UiStore)} path="ss" component={SavedStations}>
-            <Route path=":station" component={Station} >
-              <Route path=":trip_id" component={VehicleLocation}/>
-            </Route>
-          </Route>
+
           <Route path="settings" component={Settings}/>
           <Route path="*" component={NoMatch}/>
         </Route>
