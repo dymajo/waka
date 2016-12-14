@@ -1,0 +1,54 @@
+$root-card-bar: 64px;
+$transition: 500ms ease transform;
+
+.root-container {
+  position: relative;
+  height: 100%;
+}
+.root-map {
+  height: calc(100vh - #{$mobilenavsize} - #{$root-card-bar});
+  background-color: #eee;
+  $col: #fff;
+  // background-image: linear-gradient(45deg, $col 25%, transparent 25%, transparent 75%, $col 75%, $col), 
+    // linear-gradient(45deg, $col 25%, transparent 25%, transparent 75%, $col 75%, $col);
+  // background-size:60px 60px;
+  // background-position:0 0, 30px 30px;
+  background-image: url(Capture.png);
+  background-position: 50% 25%;
+  background-size: 200%;
+  transform: translateY(-50vh);
+  transition: $transition;
+  will-change: transform;
+}
+.root-card {
+  position: absolute;
+  top: 200px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  transition: $transition;
+  will-change: transform;
+}
+.map-view {
+  .root-map {
+    transform: translateY(0);
+  }
+  .root-card {
+    transform: translateY(calc(100vh - #{$root-card-bar} - 200px));
+  }
+}
+.root-card-bar {
+  height: $root-card-bar;
+  display: flex;
+
+  button {
+    display: block;
+    flex: 1;
+    background: #eee;
+    border: 0;
+    margin: 0 1px;
+    outline: 0;
+  }
+}
