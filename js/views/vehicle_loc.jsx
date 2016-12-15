@@ -46,8 +46,7 @@ class vehicle_location extends React.Component {
       error: '',
       tripInfo: {},
       showIcons: true,
-      busPosition: [0,0],
-      busBearing: 0
+      busPosition: []
     }
     this.getData = this.getData.bind(this)
     this.getPositionData = this.getPositionData.bind(this)
@@ -143,6 +142,8 @@ class vehicle_location extends React.Component {
     this.getPositionData()
     this.watchPosition()
   }
+
+
   
   currentLocateButton() {
     if (this.state.error === '') {
@@ -178,28 +179,37 @@ class vehicle_location extends React.Component {
   }
 
   getPositionData() {
-    var trips = Object.keys(this.props)
-    console.log('positiondata',this.props.realtime)
-    var queryString = []
-    trips.map(function(trip) {
-      queryString.push(trip.trip_id)
-    })
-    var requestData
-    requestData = JSON.stringify({trips: queryString})
-    console.log(requestData)
-    fetch('/a/vehicle_location', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: requestData
-    }).then((response) => {
-      console.log(response)
-    })
+    //console.log("get pos data",this.props.realtime)
+    var trips = Object.keys(this.props.realtime)
+    //console.log('keys', trips)
+    console.log(trips, trips.length)
+    if (trips.length > 0){
+      console.log('there\'s some data!')
+      var queryString = []
+      trips.map(function(trip) {
+        queryString.push(trip)
+      })
+      var requestData
+      requestData = JSON.stringify({trips: queryString})
+      console.log(requestData)
+      fetch('/a/vehicle_location', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: requestData
+      }).then((response) => {
+        console.log(response)
+        this.setState({
+          busPosition: [response]
+        })
+        console.log(this.state.busPosition)
+      })
+    }
   }
 
   render(){
-    console.log('render',this.props.realtime)
+    //console.log("render",this.props.realtime)
     let geoJson = null
     if (typeof(this.state.line) !== 'undefined') {
       geoJson = <GeoJson color={StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)} className='line' data={this.state.line} />
@@ -227,12 +237,6 @@ class vehicle_location extends React.Component {
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
             {Object.keys(this.props.realtime).map((bus) => {
-              //console.log(bus)
-              //console.log(this.props.params.trip_id)
-              //console.log(this.props.realtime[bus].longitude)
-              //console.log(bus[longitude])
-              //console.log(bus.longitude)
-              
               return(
                 <CircleMarker key={bus} center={[this.props.realtime[bus].latitude,this.props.realtime[bus].longitude]} radius={15}/>
               )
