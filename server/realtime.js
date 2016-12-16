@@ -149,7 +149,7 @@ var realtime = {
                 longitude: trip.vehicle.position.longitude,
                 bearing: trip.vehicle.position.bearing,
               }
-              console.log(vehicleInfo[trip.vehicle.trip.trip_id])
+              //console.log(vehicleInfo[trip.vehicle.trip.trip_id])
             })
           }
         res.send(vehicleInfo)

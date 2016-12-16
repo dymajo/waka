@@ -16,6 +16,8 @@ let Circle = leaflet.Circle
 let CircleMarker = leaflet.CircleMarker
 let CurrentStop = window.location.pathname.slice(3,7)
 let geoID = undefined
+let liveRefresh = undefined
+let busPositions = {}
 
 const busIcon = Icon({
   iconUrl: '/icons/bus-icon.png',
@@ -139,11 +141,10 @@ class vehicle_location extends React.Component {
   
   componentDidMount() {
     this.getData()
-    this.getPositionData()
-    this.watchPosition()
+    liveRefresh = setInterval(() => {
+      this.getPositionData(this.props)  
+    }, 20000)    
   }
-
-
   
   currentLocateButton() {
     if (this.state.error === '') {
@@ -154,6 +155,7 @@ class vehicle_location extends React.Component {
   }
 
   componentWillUnmount() {
+    clearInterval(liveRefresh)
     requestAnimationFrame(function() {
       navigator.geolocation.clearWatch(geoID)
     })
@@ -182,7 +184,7 @@ class vehicle_location extends React.Component {
     //console.log("get pos data",this.props.realtime)
     var trips = Object.keys(this.props.realtime)
     //console.log('keys', trips)
-    console.log(trips, trips.length)
+    //console.log(trips, trips.length)
     if (trips.length > 0){
       console.log('there\'s some data!')
       var queryString = []
@@ -191,7 +193,7 @@ class vehicle_location extends React.Component {
       })
       var requestData
       requestData = JSON.stringify({trips: queryString})
-      console.log(requestData)
+      //console.log(requestData)
       fetch('/a/vehicle_location', {
         method: 'POST',
         headers: {
@@ -199,13 +201,28 @@ class vehicle_location extends React.Component {
         },
         body: requestData
       }).then((response) => {
-        console.log(response)
-        this.setState({
-          busPosition: [response]
-        })
-        console.log(this.state.busPosition)
+        response.json().then((data) => {
+         for (var trip in data) {
+           if (data[trip].latitude !== 'undefined'){
+              busPositions[trip] = 
+                {
+                  latitude: data[trip].latitude,
+                  longitude: data[trip].longitude,
+                  bearing: data[trip].bearing
+                }
+          } else {
+            console.log('this trip was undefined')
+          }
+         }
+      })
+      this.setState({
+        busPosition: busPositions
+      })
       })
     }
+
+    
+
   }
 
   render(){
@@ -214,6 +231,7 @@ class vehicle_location extends React.Component {
     if (typeof(this.state.line) !== 'undefined') {
       geoJson = <GeoJson color={StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)} className='line' data={this.state.line} />
     }
+    //console.log(this.state.busPosition)
     return (
       <div className='vehicle-location-container'>
         <header>
@@ -236,9 +254,10 @@ class vehicle_location extends React.Component {
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
-            {Object.keys(this.props.realtime).map((bus) => {
+            {Object.keys(this.state.busPosition).map((bus) => {
+              console.log(this.state.busPosition[bus].latitude)
               return(
-                <CircleMarker key={bus} center={[this.props.realtime[bus].latitude,this.props.realtime[bus].longitude]} radius={15}/>
+                <CircleMarker key={bus} center={[this.state.busPosition[bus].latitude,this.state.busPosition[bus].longitude]} radius={15}/>
               )
               
             })}
