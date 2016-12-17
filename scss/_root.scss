@@ -22,26 +22,32 @@ $transition: 500ms ease transform;
 }
 .root-card {
   position: absolute;
-  top: 200px;
+  padding-top: 200px;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: #fff;
-  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  box-sizing: border-box;
   transition: $transition;
   will-change: transform;
+  overflow-y: scroll;
 }
 .map-view {
   .root-map {
     transform: translateY(0);
   }
   .root-card {
+    padding: 0;
+    top: 200px;
+    overflow-y: hidden;
     transform: translateY(calc(100vh - #{$root-card-bar} - 200px));
   }
 }
 .root-card-bar {
   height: $root-card-bar;
   display: flex;
+  background: #fff;
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
 
   button {
     display: block;
@@ -51,4 +57,8 @@ $transition: 500ms ease transform;
     margin: 0 1px;
     outline: 0;
   }
+}
+.root-card-content {
+  background: #fff;
+  line-height: 2;
 }
