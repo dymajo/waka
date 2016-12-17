@@ -16,7 +16,7 @@ $transition: 500ms ease transform;
   background-image: url(Capture.png);
   background-position: 50% 25%;
   background-size: 200%;
-  transform: translateY(-50vh);
+  transform: translate3d(0,-50vh,0);
   transition: $transition;
   will-change: transform;
 }
@@ -34,13 +34,13 @@ $transition: 500ms ease transform;
 }
 .map-view {
   .root-map {
-    transform: translateY(0);
+    transform: translate3d(0,0,0);
   }
   .root-card {
     padding: 0;
     top: 200px;
     overflow-y: hidden;
-    transform: translateY(calc(100vh - #{$root-card-bar} - 200px));
+    transform: translate3d(0,calc(100vh - #{$root-card-bar} - 200px),0);
   }
 }
 .root-card-bar {

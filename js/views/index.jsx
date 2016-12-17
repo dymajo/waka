@@ -17,7 +17,7 @@ class Index extends React.Component {
     this.toggleStations = this.toggleStations.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
-    this.triggerScroll = this.triggerScroll.bind(this)
+    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
   }
   toggleStations() {
     this.setState({
@@ -27,9 +27,11 @@ class Index extends React.Component {
   triggerTouchStart(e) {
     // only start the pull down if they're at the top of the card
     if (this.refs.touchcard.scrollTop === 0) {
-      // console.log('touchstart', e.touches[0].clientY)
       this.touchstartpos = e.touches[0].clientY
       this.scrolllock = null
+
+      // kill the transition on this
+      this.refs.touchcard.style.transition = 'initial'
     } else {
       this.touchstartpos = null
       this.scrolllock = null
@@ -42,11 +44,18 @@ class Index extends React.Component {
     }
 
     if (this.scrolllock === true) {
-      console.log('scrolling locked')
+      let offset = e.changedTouches[0].clientY - this.touchstartpos
+      if (offset < 0) {
+        offset = 0
+      }
+      let form = `translate3d(0,${offset}px,0)`
+      requestAnimationFrame(() => {
+        this.refs.touchcard.style.transform = form
+      })
       e.preventDefault()
       return
     } else if (this.scrolllock === false) {
-      console.log('scrolling enabled')
+      // scrolling enabled, do nothing
       return
     }
 
@@ -59,12 +68,9 @@ class Index extends React.Component {
     }
     // }
   }
-  triggerScroll(e) {
-    // if (this.scrolllock === true) {
-    //   // console.log('scroll should be locked')
-    //   e.preventDefault()
-    //   // return false
-    // }
+  triggerTouchEnd() {
+    console.log('touch end')
+    this.refs.touchcard.style.transition = ''
   }
   render() {
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
@@ -97,7 +103,8 @@ class Index extends React.Component {
             ref="touchcard"
             onTouchStart={this.triggerTouchStart}
             onTouchMove={this.triggerTouchMove}
-            onScroll={this.triggerScroll}
+            onTouchEnd={this.triggerTouchEnd}
+            onTouchCancel={this.triggerTouchEnd}
           >
             <div className="root-card-bar">
               <button onClick={this.toggleStations}>Stations</button>
