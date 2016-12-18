@@ -1,5 +1,5 @@
 $root-card-bar: 64px;
-$transition: 500ms ease transform;
+$transition: 300ms ease transform;
 
 .root-container {
   position: relative;
@@ -37,8 +37,8 @@ $transition: 500ms ease transform;
     transform: translate3d(0,0,0);
   }
   .root-card {
-    padding: 0;
-    top: 200px;
+    padding-top: 15px;
+    top: 185px;
     overflow-y: hidden;
     transform: translate3d(0,calc(100vh - #{$root-card-bar} - 200px),0);
   }

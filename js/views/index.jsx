@@ -4,6 +4,9 @@ import { iOS } from '../models/ios.js'
 import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
+const paddingHeight = 200
+const barHeight = 64
+
 class Index extends React.Component {
   constructor(props) {
     super(props)
@@ -20,8 +23,10 @@ class Index extends React.Component {
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
   }
   toggleStations() {
-    this.setState({
-      mapView: !this.state.mapView
+    requestAnimationFrame(() => {
+      this.setState({
+        mapView: !this.state.mapView
+      })
     })
   }
   triggerTouchStart(e) {
@@ -29,9 +34,12 @@ class Index extends React.Component {
     if (this.refs.touchcard.scrollTop === 0) {
       this.touchstartpos = e.touches[0].clientY
       this.scrolllock = null
+      this.windowHeight = window.innerHeight / 2
+      this.cardHeight = e.currentTarget.offsetHeight - paddingHeight - barHeight
 
       // kill the transition on this
       this.refs.touchcard.style.transition = 'initial'
+      this.refs.touchmap.style.transition = 'initial'
     } else {
       this.touchstartpos = null
       this.scrolllock = null
@@ -43,14 +51,25 @@ class Index extends React.Component {
       return
     }
 
+    // todo animate between first touchstart & touchmove
+
     if (this.scrolllock === true) {
+      // limits from scrolling over start or end
       let offset = e.changedTouches[0].clientY - this.touchstartpos
       if (offset < 0) {
         offset = 0
+      } else if (offset > this.cardHeight) {
+        offset = this.cardHeight
       }
-      let form = `translate3d(0,${offset}px,0)`
+
+      // calculates percentage of card height, and applies that to map transform
+      let mapoffset = Math.round(offset / this.cardHeight * this.windowHeight * window.devicePixelRatio) / window.devicePixelRatio
+
+      let cardtransform = `translate3d(0,${offset}px,0)`
+      let maptransform = `translate3d(0,${mapoffset-this.windowHeight}px,0)`
       requestAnimationFrame(() => {
-        this.refs.touchcard.style.transform = form
+        this.refs.touchcard.style.transform = cardtransform
+        this.refs.touchmap.style.transform = maptransform
       })
       e.preventDefault()
       return
@@ -68,9 +87,23 @@ class Index extends React.Component {
     }
     // }
   }
-  triggerTouchEnd() {
-    console.log('touch end')
-    this.refs.touchcard.style.transition = ''
+  triggerTouchEnd(e) {
+    // cancels if the event never started
+    if (this.touchstartpos === null) {
+      return
+    }
+
+    let threshold = Math.round((e.currentTarget.offsetHeight - paddingHeight - barHeight) / 2)
+    let touchDelta = e.changedTouches[0].clientY - this.touchstartpos
+    if (touchDelta > threshold) {
+      this.toggleStations()
+    }
+    requestAnimationFrame(() => {
+      this.refs.touchcard.style.transition = ''
+      this.refs.touchcard.style.transform = ''
+      this.refs.touchmap.style.transition = ''
+      this.refs.touchmap.style.transform = ''
+    })
   }
   render() {
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
@@ -96,7 +129,9 @@ class Index extends React.Component {
                 <strong>DYMAJO</strong> <span>Transit</span></h1>
             </div>
           </header>
-          <div className="root-map">
+          <div className="root-map"
+            ref="touchmap"
+          >
             Root Map.
           </div>
           <div className="root-card"
