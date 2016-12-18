@@ -65,19 +65,25 @@ class Index extends React.Component {
     // todo animate between first touchstart & touchmove
     let scrollLogic = () => {
       if (this.scrolllock === true) {
-        // limits from scrolling over start or end
+        // fix if starting from bottom
         let offset = e.changedTouches[0].clientY - this.fakestartpos
+        let offsetPadding = this.cardHeight
+        if (this.state.mapView === true) {
+          offsetPadding = this.cardHeight + paddingHeight - 15
+          offset = offset + this.cardHeight + paddingHeight 
+        }
+        // limits from scrolling over start or end
         if (offset < 0) {
           offset = 0
-        } else if (offset > this.cardHeight) {
-          offset = this.cardHeight
+        } else if (offset > offsetPadding) {
+          offset = offsetPadding
         }
 
         // stores last touch position for use on touchend to detect flick
         this.touchlastpos = e.changedTouches[0].clientY
 
         // calculates percentage of card height, and applies that to map transform
-        let mapoffset = Math.round(offset / this.cardHeight * this.windowHeight * window.devicePixelRatio) / window.devicePixelRatio
+        let mapoffset = Math.round(offset / offsetPadding * this.windowHeight * window.devicePixelRatio) / window.devicePixelRatio
 
         let cardtransform = `translate3d(0,${offset}px,0)`
         let maptransform = `translate3d(0,${mapoffset-this.windowHeight}px,0)`
@@ -97,12 +103,20 @@ class Index extends React.Component {
       return
     }
 
+    // does the equality depending on state of card
     let newPos = e.changedTouches[0].clientY
-    if (this.touchstartpos < newPos) {
+    let equality = false
+    if (this.state.mapView === true) {
+      equality = this.touchstartpos < newPos
+    } else if (this.state.mapView === false) {
+      equality = this.touchstartpos > newPos
+    }
+
+    if (equality === false) {
       this.scrolllock = true
 
       // eliminiate the janky feel
-      this.fakestartpos = newPos - 1
+      this.fakestartpos = newPos + (this.state.mapView ? -1 : 1)
       scrollLogic()
     } else {
       this.scrolllock = false
@@ -117,7 +131,11 @@ class Index extends React.Component {
     // detects if they've scrolled over halfway
     if (this.longtouch === true) {
       let threshold = Math.round((e.currentTarget.offsetHeight - paddingHeight - barHeight) / 2)
-      let touchDelta = e.changedTouches[0].clientY - this.touchstartpos
+      if (this.state.mapView === true) {
+        threshold = e.currentTarget.offsetHeight / 2
+      }
+      let touchDelta = Math.abs(e.changedTouches[0].clientY - this.touchstartpos)
+      console.log(touchDelta, threshold)
       if (touchDelta > threshold) {
         this.toggleStations()
       }
