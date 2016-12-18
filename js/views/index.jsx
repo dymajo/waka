@@ -6,6 +6,7 @@ import { UiStore } from '../stores/uiStore.js'
 
 const paddingHeight = 200
 const barHeight = 64
+const initalTransitionSpeed = 40
 
 class Index extends React.Component {
   constructor(props) {
@@ -37,9 +38,10 @@ class Index extends React.Component {
       this.windowHeight = window.innerHeight / 2
       this.cardHeight = e.currentTarget.offsetHeight - paddingHeight - barHeight
 
-      // kill the transition on this
+      // kill transition
       this.refs.touchcard.style.transition = 'initial'
       this.refs.touchmap.style.transition = 'initial'
+      
     } else {
       this.touchstartpos = null
       this.scrolllock = null
@@ -52,40 +54,47 @@ class Index extends React.Component {
     }
 
     // todo animate between first touchstart & touchmove
+    let scrollLogic = () => {
+      if (this.scrolllock === true) {
+        // limits from scrolling over start or end
+        let offset = e.changedTouches[0].clientY - this.touchstartpos
+        if (offset < 0) {
+          offset = 0
+        } else if (offset > this.cardHeight) {
+          offset = this.cardHeight
+        }
 
-    if (this.scrolllock === true) {
-      // limits from scrolling over start or end
-      let offset = e.changedTouches[0].clientY - this.touchstartpos
-      if (offset < 0) {
-        offset = 0
-      } else if (offset > this.cardHeight) {
-        offset = this.cardHeight
+        // calculates percentage of card height, and applies that to map transform
+        let mapoffset = Math.round(offset / this.cardHeight * this.windowHeight * window.devicePixelRatio) / window.devicePixelRatio
+
+        let cardtransform = `translate3d(0,${offset}px,0)`
+        let maptransform = `translate3d(0,${mapoffset-this.windowHeight}px,0)`
+        requestAnimationFrame(() => {
+          this.refs.touchcard.style.transform = cardtransform
+          this.refs.touchmap.style.transform = maptransform
+        })
+        e.preventDefault()
+        return true
+      } else if (this.scrolllock === false) {
+        // scrolling enabled, do nothing
+        return true
       }
-
-      // calculates percentage of card height, and applies that to map transform
-      let mapoffset = Math.round(offset / this.cardHeight * this.windowHeight * window.devicePixelRatio) / window.devicePixelRatio
-
-      let cardtransform = `translate3d(0,${offset}px,0)`
-      let maptransform = `translate3d(0,${mapoffset-this.windowHeight}px,0)`
-      requestAnimationFrame(() => {
-        this.refs.touchcard.style.transform = cardtransform
-        this.refs.touchmap.style.transform = maptransform
-      })
-      e.preventDefault()
-      return
-    } else if (this.scrolllock === false) {
-      // scrolling enabled, do nothing
+    }
+    // return if it executes
+    if (scrollLogic() === true) {
       return
     }
 
-    // if (this.refs.touchcard.scrollTop === 0) {
     let newPos = e.changedTouches[0].clientY
     if (this.touchstartpos < newPos) {
       this.scrolllock = true
+
+      // eliminiate the janky feel
+      this.touchstartpos = newPos - 1
+      scrollLogic()
     } else {
       this.scrolllock = false
     }
-    // }
   }
   triggerTouchEnd(e) {
     // cancels if the event never started
