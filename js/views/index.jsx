@@ -6,8 +6,6 @@ import { UiStore } from '../stores/uiStore.js'
 
 const paddingHeight = 200
 const barHeight = 64
-const initalTransitionSpeed = 40
-
 class Index extends React.Component {
   constructor(props) {
     super(props)
@@ -15,8 +13,10 @@ class Index extends React.Component {
       mapView: false
     }
 
-    this.touchstartpos = null
-    this.scrolllock = false
+    this.touchstartpos = null // actual start pos
+    this.fakestartpos = null  // used for non janky animations
+    this.touchlastpos = null // used to detect flick
+    this.scrolllock = false  // used so you know the difference between scroll & transform
 
     this.toggleStations = this.toggleStations.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
@@ -34,6 +34,9 @@ class Index extends React.Component {
     // only start the pull down if they're at the top of the card
     if (this.refs.touchcard.scrollTop === 0) {
       this.touchstartpos = e.touches[0].clientY
+      this.fakestartpos = e.touches[0].clientY
+      this.touchlastpos = e.touches[0].clientY
+
       this.scrolllock = null
       this.windowHeight = window.innerHeight / 2
       this.cardHeight = e.currentTarget.offsetHeight - paddingHeight - barHeight
@@ -41,9 +44,15 @@ class Index extends React.Component {
       // kill transition
       this.refs.touchcard.style.transition = 'initial'
       this.refs.touchmap.style.transition = 'initial'
-      
+
+      // hack to detect flicks
+      this.longtouch = false
+      setTimeout(() => {
+        this.longtouch = true
+      }, 250)
     } else {
       this.touchstartpos = null
+      this.fakestartpos = null
       this.scrolllock = null
     }
   }
@@ -57,12 +66,15 @@ class Index extends React.Component {
     let scrollLogic = () => {
       if (this.scrolllock === true) {
         // limits from scrolling over start or end
-        let offset = e.changedTouches[0].clientY - this.touchstartpos
+        let offset = e.changedTouches[0].clientY - this.fakestartpos
         if (offset < 0) {
           offset = 0
         } else if (offset > this.cardHeight) {
           offset = this.cardHeight
         }
+
+        // stores last touch position for use on touchend to detect flick
+        this.touchlastpos = e.changedTouches[0].clientY
 
         // calculates percentage of card height, and applies that to map transform
         let mapoffset = Math.round(offset / this.cardHeight * this.windowHeight * window.devicePixelRatio) / window.devicePixelRatio
@@ -90,7 +102,7 @@ class Index extends React.Component {
       this.scrolllock = true
 
       // eliminiate the janky feel
-      this.touchstartpos = newPos - 1
+      this.fakestartpos = newPos - 1
       scrollLogic()
     } else {
       this.scrolllock = false
@@ -102,10 +114,32 @@ class Index extends React.Component {
       return
     }
 
-    let threshold = Math.round((e.currentTarget.offsetHeight - paddingHeight - barHeight) / 2)
-    let touchDelta = e.changedTouches[0].clientY - this.touchstartpos
-    if (touchDelta > threshold) {
-      this.toggleStations()
+    // detects if they've scrolled over halfway
+    if (this.longtouch === true) {
+      let threshold = Math.round((e.currentTarget.offsetHeight - paddingHeight - barHeight) / 2)
+      let touchDelta = e.changedTouches[0].clientY - this.touchstartpos
+      if (touchDelta > threshold) {
+        this.toggleStations()
+      }
+    // detects a flick
+    } else if (this.longtouch === false) {
+      if (Math.abs(this.touchstartpos - this.touchlastpos) > 3) {
+        this.toggleStations()
+        // special easing curve
+        requestAnimationFrame(() => {
+          this.refs.touchcard.style.transition = '250ms ease-out transform'
+          this.refs.touchcard.style.transform = ''
+          this.refs.touchmap.style.transition = '250ms ease-out transform'
+          this.refs.touchmap.style.transform = ''
+        })
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            this.refs.touchcard.style.transition = ''
+            this.refs.touchmap.style.transition = ''
+          })
+        }, 250)
+        return
+      }
     }
     requestAnimationFrame(() => {
       this.refs.touchcard.style.transition = ''
@@ -151,7 +185,7 @@ class Index extends React.Component {
             onTouchCancel={this.triggerTouchEnd}
           >
             <div className="root-card-bar">
-              <button onClick={this.toggleStations}>Stations</button>
+              <button onTouchTap={this.toggleStations}>Stations</button>
               <button>Lines</button>
               <button>Alerts</button>
             </div>
