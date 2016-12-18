@@ -296,7 +296,7 @@ var station = {
 
     var filteredTrips = []
     var newOpts = JSON.parse(JSON.stringify(options))
-    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/stopinfo/' + station
+    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/stopinfo/' + parseInt(station)
     request(newOpts, function(err, response, body) {
       if (err) return cb(err)
 
@@ -564,7 +564,8 @@ var station = {
           sending.trips = finalTripsArray
 
           // forces a cache update
-          if (sending.trips.length === 0 && deleteCount > 0 && force !== true) {
+          // delete count is unreliable
+          if (sending.trips.length === 0 && force !== true) {
             station.stopTimes(req, res, true)
             return  
           }
