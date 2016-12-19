@@ -289,7 +289,7 @@ class vehicle_location extends React.Component {
             
         </div>
         <div className='vehicle-location-stops'>
-          <h3>Current Station: {JSON.stringify(this.props.realtime)}</h3>
+          <h3>Current Station: {this.props.params.station}</h3>
           <ul>
           {this.state.stops.map((stop) => {
             let className = ''
