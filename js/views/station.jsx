@@ -636,7 +636,8 @@ class Station extends React.Component {
         </ul>
         {this.props.children && React.cloneElement(this.props.children, {
           trips: this.state.trips,
-          realtime: this.state.realtime
+          realtime: this.state.realtime,
+          stopInfo: [this.state.stop_lat, this.state.stop_lon]
         })}
       </div>
     )

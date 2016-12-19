@@ -42,7 +42,7 @@ class vehicle_location extends React.Component {
       line: undefined,
       stops: [],
       stop_ids: undefined,
-      position: [-36.844229, 174.767823],
+      position: this.props.stopInfo,
       currentPosition: [0,0],
       accuracy: 0,
       error: '',
