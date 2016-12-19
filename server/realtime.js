@@ -63,6 +63,7 @@ var realtime = {
       } else {
         newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
       }
+    
       // i feel like we should sanatize this or something...
       newOpts.url += '?tripid=' + req.body.trips.join(',')
       request(newOpts, function(err, response, body) {
@@ -83,12 +84,6 @@ var realtime = {
         if (body.response.entity) {
           if (req.body.train) {
             var fix = function(lat, lon) {
-              lat = lat*1.66 + 23.7564;
-              lon = lon*1.66 - 114.8370;
-      
-              if (lat < -37.091) {
-                  lat += 0.6639;
-              }
               return [lat, lon]
             }
 
