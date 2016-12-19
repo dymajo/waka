@@ -16,6 +16,8 @@ let Circle = leaflet.Circle
 let CircleMarker = leaflet.CircleMarker
 let CurrentStop = window.location.pathname.slice(3,7)
 let geoID = undefined
+let liveRefresh = undefined
+
 
 const busIcon = Icon({
   iconUrl: '/icons/bus-icon.png',
@@ -45,9 +47,11 @@ class vehicle_location extends React.Component {
       accuracy: 0,
       error: '',
       tripInfo: {},
-      showIcons: true
+      showIcons: true,
+      busPosition: []
     }
-    this.getData = this.getData.bind(this)
+    this.getShapeData = this.getShapeData.bind(this)
+    this.getPositionData = this.getPositionData.bind(this)
     this.getWKB = this.getWKB.bind(this)
     this.convert = this.convert.bind(this)
     this.setCurrentPosition = this.setCurrentPosition.bind(this)
@@ -94,7 +98,7 @@ class vehicle_location extends React.Component {
     })
   }
 
-  getData(){
+  getShapeData(){
     var stops = []
     var stop_ids = []
     fetch(`/a/vehicle_loc/${this.props.params.trip_id}`).then((response) => {
@@ -136,8 +140,12 @@ class vehicle_location extends React.Component {
   }
   
   componentDidMount() {
-    this.getData()
-    this.watchPosition()
+    this.getShapeData()
+    
+    this.getPositionData(this.props)
+    liveRefresh = setInterval(() => {
+      this.getPositionData(this.props)  
+    }, 10000)    
   }
   
   currentLocateButton() {
@@ -149,6 +157,7 @@ class vehicle_location extends React.Component {
   }
 
   componentWillUnmount() {
+    clearInterval(liveRefresh)
     requestAnimationFrame(function() {
       navigator.geolocation.clearWatch(geoID)
     })
@@ -159,9 +168,8 @@ class vehicle_location extends React.Component {
     browserHistory.push(newUrl.join('/'))
   }
 
-   zoomstart(e){   
+  zoomstart(e){   
     let zoomLevel = e.target.getZoom()
-    //console.log(zoomLevel)
     if (zoomLevel < 14) {
       this.setState({
         showIcons: false
@@ -172,6 +180,60 @@ class vehicle_location extends React.Component {
       })
     }
   }
+
+  getPositionData() {
+    //console.log("get pos data",this.props.realtime)
+    var trips = Object.keys(this.props.realtime)
+    //console.log('keys', trips)
+    //console.log(trips, trips.length)
+    if (trips.length > 0){
+      //console.table(this.props.trips)
+      var tripsHashTable = {}
+      this.props.trips.forEach(function(trip){
+        tripsHashTable[trip.trip_id] = trip.route_short_name
+      })
+      console.log('there\'s some data!')
+      var queryString = trips.filter((trip) => {
+         return tripsHashTable[trip] === this.state.tripInfo.route_short_name
+      })
+      var requestData
+      requestData = JSON.stringify({trips: queryString})
+      //console.log(requestData)
+      if (queryString.length === 0) {
+        return
+      }
+      let busPositions = {}
+      fetch('/a/vehicle_location', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: requestData
+      }).then((response) => {
+        response.json().then((data) => {
+         for (var trip in data) {
+           if (typeof(data[trip].latitude) !== 'undefined'){
+              busPositions[trip] = {
+                  latitude: data[trip].latitude,
+                  longitude: data[trip].longitude,
+                  bearing: data[trip].bearing
+                }
+          } else {
+            console.log('this trip was undefined')
+          }
+         }
+      })
+      this.setState({
+        busPosition: busPositions
+      })
+      })
+    }
+
+    
+
+  }
+
+  
 
   render(){
     let geoJson = null
@@ -200,11 +262,12 @@ class vehicle_location extends React.Component {
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
-            {Object.keys(this.props.realtime).map((bus) => {
+            {Object.keys(this.state.busPosition).map((bus) => {
               console.log(bus)
-              return (
-                <Marker position={[bus.latitude, bus.longitude]} />
+              return(
+                <CircleMarker key={bus} center={[this.state.busPosition[bus].latitude,this.state.busPosition[bus].longitude]} radius={15}/>
               )
+              
             })}
             {this.state.stops.map((stop, key) => {
               if (geoJson === null) {
