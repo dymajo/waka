@@ -4,13 +4,16 @@ import { iOS } from '../models/ios.js'
 import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
+import Search from './search.jsx'
+
 const paddingHeight = 200
 const barHeight = 64
 class Index extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      mapView: false
+      mapView: false,
+      showMap: false
     }
 
     this.touchstartpos = null // actual start pos
@@ -22,6 +25,14 @@ class Index extends React.Component {
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+  }
+  componentDidMount() {
+    // this ensures the map is the last thing to load
+    requestAnimationFrame(() => {
+      this.setState({
+        showMap: true 
+      })
+    })
   }
   toggleStations() {
     requestAnimationFrame(() => {
@@ -135,14 +146,26 @@ class Index extends React.Component {
         threshold = e.currentTarget.offsetHeight / 2
       }
       let touchDelta = Math.abs(e.changedTouches[0].clientY - this.touchstartpos)
-      console.log(touchDelta, threshold)
       if (touchDelta > threshold) {
-        this.toggleStations()
+        // hacks to make it not slow on slow device
+        if (this.state.mapView) {
+          this.refs.rootcontainer.className = 'root-container'
+        } else {
+          this.refs.rootcontainer.className = 'root-container map-view'
+        }
+        setTimeout(() => {
+          this.toggleStations()
+        }, 275)
       }
-    // detects a flick
+    // detects a flicks
     } else if (this.longtouch === false) {
       if (Math.abs(this.touchstartpos - this.touchlastpos) > 3) {
-        this.toggleStations()
+        // hacks to make it not slow on slow devices
+        if (this.state.mapView) {
+          this.refs.rootcontainer.className = 'root-container'
+        } else {
+          this.refs.rootcontainer.className = 'root-container map-view'
+        }
         // special easing curve
         requestAnimationFrame(() => {
           this.refs.touchcard.style.transition = '250ms ease-out transform'
@@ -151,11 +174,12 @@ class Index extends React.Component {
           this.refs.touchmap.style.transform = ''
         })
         setTimeout(() => {
+          this.toggleStations()
           requestAnimationFrame(() => {
             this.refs.touchcard.style.transition = ''
             this.refs.touchmap.style.transition = ''
           })
-        }, 250)
+        }, 275)
         return
       }
     }
@@ -180,9 +204,13 @@ class Index extends React.Component {
     if (this.state.mapView) {
       rootClassName += ' map-view'
     }
+    let map
+    if (this.state.showMap) {
+      map = <Search />
+    }
     return (
       <div className={className}>
-        <div className={rootClassName}>
+        <div className={rootClassName} ref="rootcontainer">
           <header className="material-header">
             <div>
               <h1 className="full-height">
@@ -193,7 +221,7 @@ class Index extends React.Component {
           <div className="root-map"
             ref="touchmap"
           >
-            Root Map.
+            {map}
           </div>
           <div className="root-card"
             ref="touchcard"
