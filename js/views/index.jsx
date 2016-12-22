@@ -6,8 +6,9 @@ import { UiStore } from '../stores/uiStore.js'
 
 import Search from './search.jsx'
 
-const paddingHeight = 200
+const paddingHeight = 250
 const barHeight = 64
+const animationSpeed = 250
 class Index extends React.Component {
   constructor(props) {
     super(props)
@@ -36,6 +37,10 @@ class Index extends React.Component {
   }
   toggleStations() {
     requestAnimationFrame(() => {
+      console.log(this.refs.touchcard.scrollTop)
+      if (this.state.mapView === false) {
+        this.refs.touchcard.scrollTop = 0
+      }
       this.setState({
         mapView: !this.state.mapView
       })
@@ -60,10 +65,11 @@ class Index extends React.Component {
       this.longtouch = false
       setTimeout(() => {
         this.longtouch = true
-      }, 250)
+      }, animationSpeed)
     } else {
       this.touchstartpos = null
       this.fakestartpos = null
+      this.longtouch = null
       this.scrolllock = null
     }
   }
@@ -94,10 +100,11 @@ class Index extends React.Component {
         this.touchlastpos = e.changedTouches[0].clientY
 
         // calculates percentage of card height, and applies that to map transform
-        let mapoffset = Math.round(offset / offsetPadding * this.windowHeight * window.devicePixelRatio) / window.devicePixelRatio
+        let mapoffset = Math.round(offset / offsetPadding * (this.windowHeight - 56 - 64) * window.devicePixelRatio) / window.devicePixelRatio
+        mapoffset = mapoffset - (this.windowHeight - 56 - 64)
 
         let cardtransform = `translate3d(0,${offset}px,0)`
-        let maptransform = `translate3d(0,${mapoffset-this.windowHeight}px,0)`
+        let maptransform = `translate3d(0,${mapoffset}px,0)`
         requestAnimationFrame(() => {
           this.refs.touchcard.style.transform = cardtransform
           this.refs.touchmap.style.transform = maptransform
@@ -155,7 +162,7 @@ class Index extends React.Component {
         }
         setTimeout(() => {
           this.toggleStations()
-        }, 275)
+        }, animationSpeed)
       }
     // detects a flicks
     } else if (this.longtouch === false) {
@@ -168,9 +175,9 @@ class Index extends React.Component {
         }
         // special easing curve
         requestAnimationFrame(() => {
-          this.refs.touchcard.style.transition = '250ms ease-out transform'
+          this.refs.touchcard.style.transition = `${animationSpeed}ms ease-out transform`
           this.refs.touchcard.style.transform = ''
-          this.refs.touchmap.style.transition = '250ms ease-out transform'
+          this.refs.touchmap.style.transition = `${animationSpeed}ms ease-out transform`
           this.refs.touchmap.style.transform = ''
         })
         setTimeout(() => {
@@ -230,6 +237,7 @@ class Index extends React.Component {
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
           >
+            <div className="root-card-padding-button" onClick={this.toggleStations}></div>
             <div className="root-card-bar">
               <button onTouchTap={this.toggleStations}>Stations</button>
               <button>Lines</button>

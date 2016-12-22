@@ -6,12 +6,9 @@ $navsize: 56px;
 $mobilenavsize: 56px;
 $default-back: #f6f6f6;
 
-html {
-  overflow: hidden;
-}
-
 html, body, #app {
   height: 100%;
+  overflow: hidden;
   font-family: 'Open Sans', sans-serif;
   -webkit-user-select: none;
   -moz-user-select: none;
