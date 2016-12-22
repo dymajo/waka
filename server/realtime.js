@@ -83,16 +83,11 @@ var realtime = {
         }
         if (body.response.entity) {
           if (req.body.train) {
-            var fix = function(lat, lon) {
-              return [lat, lon]
-            }
-
             body.response.entity.forEach(function(trip) {
-              var latlon = fix(trip.vehicle.position.latitude, trip.vehicle.position.longitude)
-              sending[trip.vehicle.trip.trip_id] = {
+              realtimeInfo[trip.vehicle.trip.trip_id] = {
                 v_id: trip.vehicle.vehicle.id,
-                latitude: latlon[0],
-                longitude: latlon[1],
+                latitude: trip.vehicle.position.latitude,
+                longitude: trip.vehicle.position.longitude,
                 bearing: trip.vehicle.position.bearing
               }
             })
