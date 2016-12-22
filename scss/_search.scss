@@ -1,82 +1,8 @@
 .map {
   height: 100%;
 }
-.searchContainer {
-  height: 100%;
-
-  
-
-  @keyframes ss-to-stop-station-large-search {
-    0% {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @media (min-width: 600px) {
-    &:not(.activepane) {
-      .station {
-        animation: 300ms ss-to-stop-station-large-search ease 1;
-      }
-    }
-    &.goingback {
-      .station {
-        animation: 300ms stop-to-ss-station-large ease 1;
-        opacity: 0;
-      }
-    }
-  }
-
-  @media (max-width: 600px) {
-    background: #000;
-    &:not(.activepane) {
-      .station {
-        animation: 300ms ss-to-stop-station ease 1;
-      }
-    }
-    &.goingback {
-      .search {
-
-        // this clever trick stops the iphone from pressing into the input that's behind the back button
-        input {
-          visibility: hidden;
-          opacity: 0;
-        }
-      }
-      .station {
-        animation: 300ms stop-to-ss-station ease 1;
-        transform: translate3d(0,15px,0);
-        opacity: 0;
-      }
-    }
-  }
-
-  @media (min-width: 601px) {
-    .station {
-      position: absolute;
-      top: 0;
-      left: $navsize;
-      right: 0;
-      bottom: 0;
-      z-index: 1; // I do know how z-index works, but leaflet comes with dumb defaults i cbf changing
-    }
-  }
-
-  .saveModal {
-    z-index: 1001; // fml leaflet
-  }
-}
 .search {
-  @include mobile-desktop-absolute();
-  z-index: 1;
-  @media (max-width: 480px) {
-    bottom: 48px;
-  }
+  height: 100%;
 }
 .currentLocationButton, .routeButton {
   position: absolute;

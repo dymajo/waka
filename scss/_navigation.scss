@@ -1,144 +1,7 @@
-.bignav {
-  background: #fff;
-  width: $navsize;
-  text-align: center;
-  position: relative;
-  z-index: 2;
-  box-shadow: 0 0 4px rgba(0,0,0,0.4);
-
-  @media (min-width: 601px) {
-    z-index: 4;
-  }
-
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-  }
-  li {
-    width: $navsize;
-    height: $navsize;
-    position: relative;
-    display: inline-block;
-
-    svg {
-      width: 24px;
-      vertical-align: top;
-      fill: #888;
-    }
-
-    @media (display-mode: standalone) {
-      &:first-child {
-        display: none;
-      }
-    }
-
-    @media (pointer: fine) {
-      &:hover {
-        background: #f2f2f2;
-        
-        .tooltip {
-          display: inline-block;
-        }
-      }
-    }
-    // &:active {
-    //   background: rgba(0,0,0,0.03);
-    // }
-    &.selected {
-      svg {
-        fill: $lightblue;
-      }
-    }
-
-    @keyframes fade-in {
-      0% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .tooltip {
-      animation: fade-in 100ms ease 1;
-      background: #000;
-      color: #fff;
-      position: absolute;
-      top: 12px;
-      left: $navsize + 15;
-      text-align: left;
-      line-height: 32px;
-      white-space: nowrap;
-      padding: 0 10px;
-      z-index: 502;
-      font-size: 14px;
-      display: none;
-
-
-      $arrow-size: 7px;
-      &:after {
-        right: 100%;
-        top: 50%;
-        border: solid transparent;
-        content: " ";
-        height: 0;
-        width: 0;
-        position: absolute;
-        pointer-events: none;
-        border-color: rgba(0, 0, 0, 0);
-        border-right-color: #000;
-        border-width: $arrow-size;
-        margin-top: $arrow-size * -1;
-      }
-    }
-  }
-  button {
-    color: #fff;
-    text-decoration: none;
-    cursor: default;
-    width: 100%;
-    height: 100%;
-    display: block;
-    background: transparent;
-    border: 0;
-    outline: none;
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  @media (max-width: 480px) {
-    width: 100%;
-    height: $mobilenavsize;
-
-    ul {
-      display: flex;
-    }
-
-    li {
-      flex: 1;
-      height: $mobilenavsize;
-      box-sizing: border-box;
-      border-top: 2px solid transparent;
-      border-bottom: 2px solid transparent;
-      
-      &.selected {
-        // background: transparent;
-        // background: rgba(0,0,0,0.3);
-        border-bottom-color: lighten($lightblue, 10);
-      }
-
-      &:hover .tooltip {
-        display: none;
-      }
-    }
-  }
-}
-
 .savedstations {
-  display: flex;
-  height: 100%;
   background: #eee;
+  margin: 0;
+  padding: 0;
 
   .cf .name {
     line-height: 30px;
@@ -216,97 +79,89 @@
   }
 
   p {
-    padding: 0 15px;
+    padding: 15px 15px 00;
     margin-bottom: 30px;
     font-size: 15px;
     color: #666;
 
     @media (max-width: 480px) {
-      padding-top: 15px;
       text-align: center;
     }
   }
 
-  nav {
-    position: relative;
-    max-width: 300px;
+  h2 {
+    color: $atblue;
+    text-transform: uppercase;
+    font-size: 14px;
+    margin: 0;
+    text-indent: 14px;
+    padding: 15px 0 5px;
+    border-bottom: 1px solid #e4e4e4;
+  }
+
+  ul {
+    overflow-y: auto;
+    box-sizing: border-box;
+    flex: 1;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    background: $default-back;
-    color: #444;
+  }
+
+  li {
     display: flex;
-    flex-direction: column;
+    padding: 10px;
+    cursor: default;
+    background: #fff;
+    border-bottom: 1px solid #e4e4e4;
 
-    h2 {
-      color: $atblue;
-      text-transform: uppercase;
-      font-size: 14px;
-      margin: 20px 0 0;
-      text-indent: 14px;
-      padding-bottom: 12px;
-
-      border-bottom: 1px solid #e8e8e8;
+    &.ss {
+      padding-bottom: 5px;
     }
 
-    ul {
-      overflow-y: auto;
-      box-sizing: border-box;
-      flex: 1;
-
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-    }
-
-    li {
-      display: flex;
-      padding: 10px;
-      cursor: default;
-      background: #fff;
-      border-bottom: 1px solid #e8e8e8;
-
-      @media (pointer: fine) {
-        &:hover {
-          background: #f7f7f7;
-        }
+    @media (pointer: fine) {
+      &:hover {
+        background: #f7f7f7;
       }
-
-      &.selected, &:active {
-        background: #f5fafe;
-      }
-
     }
 
-    // the emoji
-    .icon {
-      padding: 4px 2px 0px 2px;
-      margin-right: 5px;
+    &.selected, &:active {
+      background: #f5fafe;
+    }
+
+  }
+
+  // the emoji
+  .icon {
+    padding: 4px 2px 0px 2px;
+    margin-right: 5px;
+    width: 36px;
+    text-align: center;
+
+    img {
       width: 36px;
-      text-align: center;
+    }
+  }
 
-      img {
-        width: 36px;
-      }
-    }
+  .text-wrapper {
+    padding: 5px 0;
+    flex: 1;
+  }
 
-    .text-wrapper {
-      padding: 5px 0;
-      flex: 1;
-    }
-
-    .name {
-      letter-spacing: -0.5px;
-      line-height: 1;
-      font-size: 18px;
-      font-weight: 600;
-      color: $atblue;
-    }
-    .description {
-      font-size: 12px;
-      color: #999;
-      font-weight: 600;
-    }
+  .name {
+    letter-spacing: -0.5px;
+    line-height: 1;
+    font-size: 18px;
+    font-weight: 600;
+    color: $atblue;
+  }
+  .description {
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
   }
 
   @keyframes ss-to-stop-station-large {

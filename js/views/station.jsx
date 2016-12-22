@@ -251,9 +251,7 @@ class Station extends React.Component {
     })
   }
   triggerBack() {
-    var path = window.location.pathname.split('/')
-    var i = path.indexOf(this.props.routeParams.station)
-    UiStore.navigateSavedStations(path.slice(0,i).join('/'))
+    UiStore.navigateSavedStations('/')
   }
   triggerSave() {
     this.setStatePartial({
@@ -591,7 +589,7 @@ class Station extends React.Component {
             <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
           </div>
         </div>
-        <header>
+        <header className="material-header">
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
             {saveButton}

@@ -1,4 +1,85 @@
 $bgheight: 125px;
+
+.material-header {
+	height: $mobilenavsize;
+	position: relative;
+	box-sizing: border-box;
+
+	.back {
+		display: inline-block;
+		height: 48px;
+		width: 24px;
+		float: left;
+		padding-right: 7px;
+		
+		img {
+			vertical-align: top;
+			padding-top: 16px;
+		}
+	}
+
+	.logo {
+		margin-right: 5px;
+	}
+
+	.save, .remove {
+		float: right;
+
+		img {
+			width: 22px;
+	    padding: 17px 0;
+	    vertical-align: top;
+		}
+	}
+
+	div {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: $mobilenavsize;
+		padding: 0 14px;
+		z-index: 2;
+		background: #fff;
+		box-shadow: 0 0 4px rgba(0,0,0,0.4);
+		// background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.0));
+	}
+	h1 {
+		margin: 0;
+		font-size: 18px;
+		letter-spacing: -0.5px;
+		font-weight: 600;
+		color: $atblue;
+		line-height: 1.2;
+		white-space: nowrap;
+  	text-overflow: ellipsis;
+  	overflow: hidden;
+  	padding-top: 9px;
+
+  	&.full-height {
+  		padding-top: 0;
+  		line-height: $mobilenavsize;
+  	}
+
+  	strong {
+  		font-weight: 600;
+  	}
+
+  	span {
+  		font-weight: 400;
+  	}
+	}
+	h2 {
+		margin: 0;
+		font-size: 13px;
+		color: rgba(#000, 0.7);
+		margin: 0;
+		font-weight: 600;
+		letter-spacing: -0.5px;
+		line-height: 1.1;
+	}
+}
+
 .content {
 	flex: 1;
 	overflow: hidden;
@@ -8,66 +89,8 @@ $bgheight: 125px;
 
 	header {
 		height: $bgheight + $mobilenavsize;
-		position: relative;
-		box-sizing: border-box;
-
-		.back {
-			display: inline-block;
-			height: 48px;
-			width: 24px;
-			float: left;
-			padding-right: 7px;
-			
-			img {
-				vertical-align: top;
-				padding-top: 16px;
-			}
-		}
-
-		.save, .remove {
-			float: right;
-
-			img {
-				width: 22px;
-		    padding: 17px 0;
-		    vertical-align: top;
-			}
-		}
-
-		div {
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			height: $mobilenavsize;
-			padding: 0 14px;
-			z-index: 2;
-			background: #fff;
-			box-shadow: 0 0 4px rgba(0,0,0,0.4);
-			// background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.0));
-		}
-		h1 {
-			margin: 0;
-			font-size: 18px;
-			letter-spacing: -0.5px;
-			font-weight: 600;
-			color: $atblue;
-			line-height: 1.2;
-			white-space: nowrap;
-    	text-overflow: ellipsis;
-    	overflow: hidden;
-    	padding-top: 9px;
-		}
-		h2 {
-			margin: 0;
-			font-size: 13px;
-			color: rgba(#000, 0.7);
-			margin: 0;
-			font-weight: 600;
-			letter-spacing: -0.5px;
-			line-height: 1.1;
-		}
 	}
+
 	.shadow-bar {
 		box-shadow: 0 0 2px rgba(0,0,0,0.4);
 		border-bottom: 1px solid #ddd;

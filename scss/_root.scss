@@ -1,0 +1,97 @@
+$padding-height: 250px;
+$root-card-bar: 64px;
+$transition: 250ms ease transform;
+
+.root-container {
+  position: relative;
+  height: 100vh;
+  height: var(--real-height);
+}
+.root-map {
+  height: calc(100vh - #{$mobilenavsize} - #{$root-card-bar});
+  height: calc(var(--real-height) - #{$mobilenavsize} - #{$root-card-bar});
+  background-color: #eee;
+  transform: translate3d(0,calc(-50vh + 56px + 64px),0);
+  transition: $transition;
+  will-change: transform;
+}
+.root-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  transition: $transition;
+  will-change: transform;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.map-view {
+  .root-map {
+    transform: translate3d(0,0,0);
+  }
+  $pad: 25px;
+  .root-card {
+    top: $padding-height - $pad;
+    overflow-y: hidden;
+    transform: translate3d(0,calc(100vh - #{$root-card-bar} - #{$padding-height}),0);
+    transform: translate3d(0,calc(var(--real-height) - #{$root-card-bar} - #{$padding-height}),0);
+  }
+
+  .root-card-padding-button {
+    height: $pad;
+  }
+}
+.root-card-padding-button {
+  height: $padding-height;
+}
+.root-card-bar {
+  height: $root-card-bar;
+  display: flex;
+  background: #eee;
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  border-bottom: 1px solid #e4e4e4;
+
+  button {
+    display: block;
+    flex: 1;
+    background: #fff;
+    border: 0;
+    border-left: 1px solid #e4e4e4;
+    margin: 0;
+    outline: 0;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: $atblue;
+    font-size: 12px;
+    padding-top: 30px;
+
+    &:first-child {
+      border-left: 0;
+    }
+  }
+}
+
+$sidebar-width: 350px;
+@media (min-width: 481px) {
+  .root-container {
+    .material-header {
+      width: $sidebar-width;
+    }
+  }
+  .root-card {
+    width: $sidebar-width;
+    top: $mobilenavsize;
+    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+  }
+  .root-card-padding-button, .root-card-bar {
+    display: none;
+  }
+  .root-map {
+    transform: none;
+    padding-left: $sidebar-width;
+    height: 100vh;
+    margin-top: -$mobilenavsize;
+  }
+}
