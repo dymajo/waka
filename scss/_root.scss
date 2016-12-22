@@ -50,6 +50,7 @@ $transition: 300ms ease transform;
   display: flex;
   background: #fff;
   box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  border-bottom: 2px solid #fff;
 
   button {
     display: block;
@@ -63,4 +64,5 @@ $transition: 300ms ease transform;
 .root-card-content {
   background: #fff;
   line-height: 2;
+  -webkit-overflow-scrolling: touch
 }

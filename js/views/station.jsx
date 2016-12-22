@@ -252,9 +252,7 @@ class Station extends React.Component {
     })
   }
   triggerBack() {
-    var path = window.location.pathname.split('/')
-    var i = path.indexOf(this.props.routeParams.station)
-    UiStore.navigateSavedStations(path.slice(0,i).join('/'))
+    UiStore.navigateSavedStations('/')
   }
   triggerSave() {
     this.setStatePartial({

@@ -1,7 +1,7 @@
 .savedstations {
-  display: flex;
-  height: 100%;
   background: #eee;
+  margin: 0;
+  padding: 0;
 
   .cf .name {
     line-height: 30px;
@@ -90,86 +90,80 @@
     }
   }
 
-  nav {
-    position: relative;
-    max-width: 300px;
+  h2 {
+    color: $atblue;
+    text-transform: uppercase;
+    font-size: 14px;
+    margin: 0;
+    text-indent: 14px;
+    padding: 15px 0 2px;
+
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  ul {
+    overflow-y: auto;
+    box-sizing: border-box;
+    flex: 1;
+
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    background: $default-back;
-    color: #444;
+  }
+
+  li {
     display: flex;
-    flex-direction: column;
+    padding: 10px;
+    cursor: default;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
 
-    h2 {
-      color: $atblue;
-      text-transform: uppercase;
-      font-size: 14px;
-      margin: 20px 0 0;
-      text-indent: 14px;
-      padding-bottom: 12px;
-
-      border-bottom: 1px solid #e8e8e8;
+    &.ss {
+      padding-bottom: 5px;
     }
 
-    ul {
-      overflow-y: auto;
-      box-sizing: border-box;
-      flex: 1;
-
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-    }
-
-    li {
-      display: flex;
-      padding: 10px;
-      cursor: default;
-      background: #fff;
-      border-bottom: 1px solid #e8e8e8;
-
-      @media (pointer: fine) {
-        &:hover {
-          background: #f7f7f7;
-        }
+    @media (pointer: fine) {
+      &:hover {
+        background: #f7f7f7;
       }
-
-      &.selected, &:active {
-        background: #f5fafe;
-      }
-
     }
 
-    // the emoji
-    .icon {
-      padding: 4px 2px 0px 2px;
-      margin-right: 5px;
+    &.selected, &:active {
+      background: #f5fafe;
+    }
+
+  }
+
+  // the emoji
+  .icon {
+    padding: 4px 2px 0px 2px;
+    margin-right: 5px;
+    width: 36px;
+    text-align: center;
+
+    img {
       width: 36px;
-      text-align: center;
+    }
+  }
 
-      img {
-        width: 36px;
-      }
-    }
+  .text-wrapper {
+    padding: 5px 0;
+    flex: 1;
+  }
 
-    .text-wrapper {
-      padding: 5px 0;
-      flex: 1;
-    }
-
-    .name {
-      letter-spacing: -0.5px;
-      line-height: 1;
-      font-size: 18px;
-      font-weight: 600;
-      color: $atblue;
-    }
-    .description {
-      font-size: 12px;
-      color: #999;
-      font-weight: 600;
-    }
+  .name {
+    letter-spacing: -0.5px;
+    line-height: 1;
+    font-size: 18px;
+    font-weight: 600;
+    color: $atblue;
+  }
+  .description {
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
   }
 
   @keyframes ss-to-stop-station-large {

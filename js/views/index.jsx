@@ -5,6 +5,7 @@ import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
 import Search from './search.jsx'
+import SavedStations from './savedstations.jsx'
 
 const paddingHeight = 250
 const barHeight = 64
@@ -37,7 +38,6 @@ class Index extends React.Component {
   }
   toggleStations() {
     requestAnimationFrame(() => {
-      console.log(this.refs.touchcard.scrollTop)
       if (this.state.mapView === false) {
         this.refs.touchcard.scrollTop = 0
       }
@@ -86,7 +86,7 @@ class Index extends React.Component {
         let offset = e.changedTouches[0].clientY - this.fakestartpos
         let offsetPadding = this.cardHeight
         if (this.state.mapView === true) {
-          offsetPadding = this.cardHeight + paddingHeight - 15
+          offsetPadding = this.cardHeight + paddingHeight - 25
           offset = offset + this.cardHeight + paddingHeight 
         }
         // limits from scrolling over start or end
@@ -244,22 +244,7 @@ class Index extends React.Component {
               <button>Alerts</button>
             </div>
             <div className="root-card-content">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat.  
+              <SavedStations />
             </div>
           </div>
         </div>
