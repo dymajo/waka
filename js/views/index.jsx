@@ -18,6 +18,8 @@ class Index extends React.Component {
       showMap: false
     }
 
+    document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px');
+
     this.touchstartpos = null // actual start pos
     this.fakestartpos = null  // used for non janky animations
     this.touchlastpos = null // used to detect flick
@@ -54,7 +56,7 @@ class Index extends React.Component {
       this.touchlastpos = e.touches[0].clientY
 
       this.scrolllock = null
-      this.windowHeight = window.innerHeight / 2
+      this.windowHeight = document.documentElement.clientHeight / 2
       this.cardHeight = e.currentTarget.offsetHeight - paddingHeight - barHeight
 
       // kill transition
@@ -230,7 +232,7 @@ class Index extends React.Component {
           >
             {map}
           </div>
-          <div className="root-card"
+          <div className="root-card enable-scrolling"
             ref="touchcard"
             onTouchStart={this.triggerTouchStart}
             onTouchMove={this.triggerTouchMove}

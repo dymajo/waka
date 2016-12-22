@@ -4,7 +4,12 @@ $lightblue: #3498db;
 $green: #27ae60;
 $navsize: 56px;
 $mobilenavsize: 56px;
+$root-card-bar: 64px;
 $default-back: #f6f6f6;
+
+body {
+  --real-height: 100vh;
+}
 
 html, body, #app {
   height: 100%;

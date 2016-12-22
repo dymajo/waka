@@ -1,13 +1,15 @@
 $padding-height: 250px;
 $root-card-bar: 64px;
-$transition: 300ms ease transform;
+$transition: 250ms ease transform;
 
 .root-container {
   position: relative;
-  height: 100%;
+  height: 100vh;
+  height: var(--real-height);
 }
 .root-map {
   height: calc(100vh - #{$mobilenavsize} - #{$root-card-bar});
+  height: calc(var(--real-height) - #{$mobilenavsize} - #{$root-card-bar});
   background-color: #eee;
   transform: translate3d(0,calc(-50vh + 56px + 64px),0);
   transition: $transition;
@@ -15,7 +17,6 @@ $transition: 300ms ease transform;
 }
 .root-card {
   position: absolute;
-  // padding-top: $padding-height;
   top: 0;
   left: 0;
   right: 0;
@@ -36,6 +37,7 @@ $transition: 300ms ease transform;
     top: $padding-height - $pad;
     overflow-y: hidden;
     transform: translate3d(0,calc(100vh - #{$root-card-bar} - #{$padding-height}),0);
+    transform: translate3d(0,calc(var(--real-height) - #{$root-card-bar} - #{$padding-height}),0);
   }
 
   .root-card-padding-button {
@@ -64,5 +66,4 @@ $transition: 300ms ease transform;
 .root-card-content {
   background: #fff;
   line-height: 2;
-  -webkit-overflow-scrolling: touch
 }
