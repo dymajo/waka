@@ -33,7 +33,6 @@ $transition: 250ms ease transform;
   }
   $pad: 25px;
   .root-card {
-    // padding-top: $pad;
     top: $padding-height - $pad;
     overflow-y: hidden;
     transform: translate3d(0,calc(100vh - #{$root-card-bar} - #{$padding-height}),0);
@@ -50,20 +49,49 @@ $transition: 250ms ease transform;
 .root-card-bar {
   height: $root-card-bar;
   display: flex;
-  background: #fff;
+  background: #eee;
   box-shadow: 0 0 3px rgba(0,0,0,0.4);
-  border-bottom: 2px solid #fff;
+  border-bottom: 1px solid #e4e4e4;
 
   button {
     display: block;
     flex: 1;
-    background: #eee;
+    background: #fff;
     border: 0;
-    margin: 0 1px;
+    border-left: 1px solid #e4e4e4;
+    margin: 0;
     outline: 0;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: $atblue;
+    font-size: 12px;
+    padding-top: 30px;
+
+    &:first-child {
+      border-left: 0;
+    }
   }
 }
-.root-card-content {
-  background: #fff;
-  line-height: 2;
+
+$sidebar-width: 350px;
+@media (min-width: 481px) {
+  .root-container {
+    .material-header {
+      width: $sidebar-width;
+    }
+  }
+  .root-card {
+    width: $sidebar-width;
+    top: $mobilenavsize;
+    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+  }
+  .root-card-padding-button, .root-card-bar {
+    display: none;
+  }
+  .root-map {
+    transform: none;
+    padding-left: $sidebar-width;
+    height: 100vh;
+    margin-top: -$mobilenavsize;
+  }
 }

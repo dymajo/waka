@@ -22,11 +22,7 @@ html, body, #app {
 }
 
 .panes {
-  display: flex;
   height: 100%;
-  @media (max-width: 480px) {
-    flex-direction: column;
-  }
 }
 
 noscript {

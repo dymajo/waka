@@ -29,6 +29,10 @@ class Index extends React.Component {
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+
+    window.onresize = function() {
+      document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px');
+    }
   }
   componentDidMount() {
     // this ensures the map is the last thing to load
@@ -50,7 +54,7 @@ class Index extends React.Component {
   }
   triggerTouchStart(e) {
     // only start the pull down if they're at the top of the card
-    if (this.refs.touchcard.scrollTop === 0) {
+    if (this.refs.touchcard.scrollTop === 0 && window.innerWidth < 481) {
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY
@@ -210,8 +214,10 @@ class Index extends React.Component {
       className += ' ios-standalone'
     }
     let rootClassName = 'root-container'
+    let stationsString = 'Stations'
     if (this.state.mapView) {
       rootClassName += ' map-view'
+      // stationsString = 'Home'
     }
     let map
     if (this.state.showMap) {
@@ -241,7 +247,7 @@ class Index extends React.Component {
           >
             <div className="root-card-padding-button" onClick={this.toggleStations}></div>
             <div className="root-card-bar">
-              <button onTouchTap={this.toggleStations}>Stations</button>
+              <button onTouchTap={this.toggleStations}>{stationsString}</button>
               <button>Lines</button>
               <button>Alerts</button>
             </div>
