@@ -1,7 +1,8 @@
 .savedstations {
-  background: #eee;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
+
+  max-width: 480px;
 
   .cf .name {
     line-height: 30px;
@@ -100,15 +101,8 @@
   }
 
   ul {
-    overflow-y: auto;
-    box-sizing: border-box;
-    flex: 1;
-
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    margin: 0;
+    padding: 0;
   }
 
   li {
@@ -132,6 +126,19 @@
       background: #f5fafe;
     }
 
+  }
+
+  @media (min-width: 481px) {
+    h2 {
+      padding: 21px 0 7px;
+    }
+    ul {
+      box-shadow: 0 1px 3px rgba(#000, 0.3);
+    }
+
+    li:last-child {
+      border-bottom: 0;
+    }
   }
 
   // the emoji

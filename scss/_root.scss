@@ -27,6 +27,9 @@ $transition: 250ms ease transform;
   overflow-y: scroll;
   overflow-x: hidden;
 }
+.root-card-content {
+  background: #eee;
+}
 .map-view {
   .root-map {
     transform: translate3d(0,0,0);
@@ -37,6 +40,10 @@ $transition: 250ms ease transform;
     overflow-y: hidden;
     transform: translate3d(0,calc(100vh - #{$root-card-bar} - #{$padding-height}),0);
     transform: translate3d(0,calc(var(--real-height) - #{$root-card-bar} - #{$padding-height}),0);
+  }
+
+  .root-card-content {
+    width: 100%;
   }
 
   .root-card-padding-button {
@@ -50,8 +57,10 @@ $transition: 250ms ease transform;
   height: $root-card-bar;
   display: flex;
   background: #eee;
-  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  box-shadow:  0 0 3px rgba(#000,0.4);
   border-bottom: 1px solid #e4e4e4;
+  max-width: 480px;
+  margin: 0 auto;
 
   button {
     display: block;
@@ -73,8 +82,35 @@ $transition: 250ms ease transform;
   }
 }
 
-$sidebar-width: 350px;
 @media (min-width: 481px) {
+  .root-card-content {
+    padding-top: 10px;
+    position: relative;
+  }
+  .root-card-bar {
+    position: relative;
+    z-index: 1;
+    border-bottom: 0;
+    box-shadow:  0 1px 3px rgba(#000,0.3);
+  }
+  .root-card-content::before {
+    content: "";
+    top: $big-offset * -1;
+    background: #eee;
+    height: $big-offset;
+    width: 100%;
+    position: absolute;
+    z-index: -1;
+    box-shadow: 0 0 3px rgba(#000, 0.4);
+  }
+  .root-map {
+    height: calc(100vh - #{$mobilenavsize} - #{$big-offset});
+    height: calc(var(--real-height) - #{$mobilenavsize} - #{$big-offset});
+  }
+}
+
+$sidebar-width: 350px;
+@media (min-width: 851px) {
   .root-container {
     .material-header {
       width: $sidebar-width;
@@ -84,6 +120,9 @@ $sidebar-width: 350px;
     width: $sidebar-width;
     top: $mobilenavsize;
     box-shadow: 0 0 4px rgba(0,0,0,0.4);
+  }
+  .root-card-content {
+    padding-top: 0;
   }
   .root-card-padding-button, .root-card-bar {
     display: none;

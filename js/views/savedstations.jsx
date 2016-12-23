@@ -35,7 +35,7 @@ class SidebarItem extends React.Component {
       classname += ' selected'
     }
     if (this.props.type === 'cf') {
-      classname += ' cf'
+      classname = classname.replace('ss', 'cf')
       var col = this.getColor
       var icon = this.props.name[0].toLowerCase()
       return (
@@ -84,29 +84,31 @@ class SavedSations extends React.Component {
       )
     }
     return (
-      <ul className="savedstations">
+      <div className="savedstations">
         <h2>Saved Stations</h2>
         {message}
-        {StationStore.getOrder().map((station) => {
-          return <SidebarItem
-            key={station}
-            url={`/s/${station}`}
-            name={stations[station].name} 
-            icon={stations[station].icon}
-            description={stations[station].description} 
-          />
-        })}
-        <div className="cfwrapper">
-          <h2>Congestion Free Network</h2>
+        <ul>
+          {StationStore.getOrder().map((station) => {
+            return <SidebarItem
+              key={station}
+              url={`/s/${station}`}
+              name={stations[station].name} 
+              icon={stations[station].icon}
+              description={stations[station].description} 
+            />
+          })}
+        </ul>
+        <h2>Congestion Free Network</h2>
+        <ul className="cfwrapper">
           <SidebarItem type="cf" name="Northern Busway" />
           <SidebarItem type="cf" name="Ferries" />
           <SidebarItem type="cf" name="Eastern Line" />
           <SidebarItem type="cf" name="Onehunga Line" />
           <SidebarItem type="cf" name="Southern Line" />
           <SidebarItem type="cf" name="Western Line" />
-          <a href="http://www.congestionfree.co.nz/" target="_blank">What is the Congestion Free Network?</a>
-        </div>
-      </ul>
+        </ul>
+        <a href="http://www.congestionfree.co.nz/" target="_blank">What is the Congestion Free Network?</a>
+      </div>
     )
   }
 }
