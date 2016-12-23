@@ -43,6 +43,7 @@ dist/*.map
 cache/*.json
 cache/maps/*.png
 cache/maps/*.webp
+dist/generated/*
 
 # vs code 
 .vscode

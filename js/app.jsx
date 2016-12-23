@@ -9,9 +9,9 @@ import Splash from './views/splash.jsx'
 import Station from './views/station.jsx'
 import Settings from './views/settings.jsx'
 import NoMatch from './views/nomatch.jsx'
-import Lines from './views/lines.jsx'
-import Line from './views/line.jsx'
-import VehicleLocation from './views/vehicle_loc.jsx'
+// import Lines from './views/lines.jsx'
+// import Line from './views/line.jsx'
+// import VehicleLocation from './views/vehicle_loc.jsx'
 
 import autotrack from 'autotrack' // google analytics
 import injectTapEventPlugin from 'react-tap-event-plugin'
@@ -24,10 +24,7 @@ class App extends React.Component {
       <Router history={browserHistory}>
         <Route path="/" component={Index}>
           <Route path="s/:station" component={Station} >
-            <Route path=":trip_id" component={VehicleLocation}/>
-          </Route>
-          <Route path="l" component={Lines}>
-            <Route path=":line" component={Line} />
+            
           </Route>
 
           <Route path="settings" component={Settings}/>
