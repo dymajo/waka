@@ -18,7 +18,7 @@ ConsoleNotifierPlugin.prototype.apply = function (compiler) {
 
 let config = {
   entry: {
-    app: ['whatwg-fetch', './js/app.jsx'],
+    app: ['./js/app.jsx'],
     vendor: ['react', 'react-dom', 'react-router', 'autotrack']
   },
   output: {
@@ -40,10 +40,7 @@ let config = {
       }
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      children: true,
-      minChunks: 2,
-      async: true
+      name: 'vendor'
     })
   ]
 }

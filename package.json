@@ -4,8 +4,8 @@
   "description": "Auckland Transport Progressive Web App",
   "main": "index.js",
   "scripts": {
-    "build-js": "cross-env NODE_ENV=production webpack -p",
-    "build-js-dev": "webpack",
+    "build-js": "cross-env NODE_ENV=production webpack --progress --colors -p",
+    "build-js-dev": "webpack --progress --colors",
     "watch-js": "webpack --progress --colors --watch -d",
     "build-css": "node-sass scss -o dist --output-style compressed",
     "build-css-dev": "node-sass scss -o dist --source-map dist",

@@ -34,10 +34,27 @@ class App extends React.Component {
     )
   }
 }
+let renderGo = false
+let appStarted = false
+if ('fetch' in window) {
+  renderGo = true
+} else {
+  require.ensure([], function() {
+    window.fetch = require('whatwg-fetch')
+    renderGo = true
+    startApp()
+  })
+}
 document.addEventListener("DOMContentLoaded", function(event) {
   if (process.env.NODE_ENV === "production") {
     document.getElementById('app').className = 'production'
   }
-  ReactDOM.render(<App />, document.getElementById('app'))
+  startApp()
 })
+let startApp = function() {
+  if (renderGo === true && appStarted === false) {
+    appStarted = true
+    ReactDOM.render(<App />, document.getElementById('app'))
+  }
+}
 document.ontouchmove = iOS.touchMoveFix
