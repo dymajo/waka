@@ -10,7 +10,7 @@ export class uiStore extends Events {
       noAnimate: false,
       goingBack: false,
       lastUrl: '',
-      currentUrl: '/ss'
+      currentUrl: '/'
     }
     // restores history if it's an iphone web clip :/
     if (window.navigator.standalone) {
@@ -19,7 +19,9 @@ export class uiStore extends Events {
       }
     }
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      browserHistory.push(this.state.currentUrl)
+      if (this.state.currentUrl !== window.location.pathname) {
+        browserHistory.push(this.state.currentUrl)
+      }
     }
     browserHistory.listenBefore(this.handleState.bind(this))
     browserHistory.listen(this.currentState.bind(this))

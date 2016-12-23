@@ -8,7 +8,7 @@ import Search from './search.jsx'
 import SavedStations from './savedstations.jsx'
 
 const paddingHeight = 250
-const barHeight = 64
+const barHeight = 56
 const animationSpeed = 250
 class Index extends React.Component {
   constructor(props) {
@@ -203,6 +203,13 @@ class Index extends React.Component {
       this.refs.touchmap.style.transform = ''
     })
   }
+  triggerSettings() {
+    if (window.location.pathname === '/settings') {
+      browserHistory.push('/')
+    } else {
+      browserHistory.push('/settings')
+    }
+  }
   render() {
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
     var className = 'panes'
@@ -214,7 +221,6 @@ class Index extends React.Component {
       className += ' ios-standalone'
     }
     let rootClassName = 'root-container'
-    let stationsString = 'Stations'
     if (this.state.mapView) {
       rootClassName += ' map-view'
       // stationsString = 'Home'
@@ -228,7 +234,7 @@ class Index extends React.Component {
         <div className={rootClassName} ref="rootcontainer">
           <header className="material-header branding-header">
             <div>
-            <span className="more"><img src="/icons/settings.svg" /></span>
+            <span className="more" onClick={this.triggerSettings}><img src="/icons/settings.svg" /></span>
               <h1 className="full-height">
                 <img className="logo" src='/icons/icon.svg' width='18' />
                 <strong>DYMAJO Transit</strong></h1>
@@ -248,9 +254,18 @@ class Index extends React.Component {
           >
             <div className="root-card-padding-button" onClick={this.toggleStations}></div>
             <div className="root-card-bar">
-              <button onTouchTap={this.toggleStations}>{stationsString}</button>
-              <button>Lines</button>
-              <button>Alerts</button>
+              <button onTouchTap={this.toggleStations}>
+                <img src="/icons/station.svg" />
+                Stations
+              </button>
+              <button>
+                <img src="/icons/lines.svg" />
+                Lines
+              </button>
+              <button>
+                <img src="/icons/alert.svg" />
+                Status
+              </button>
             </div>
             <div className="root-card-content">
               <SavedStations />

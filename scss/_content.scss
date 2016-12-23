@@ -92,7 +92,6 @@ $bgheight: 125px;
 }
 
 .content {
-	flex: 1;
 	overflow: hidden;
 
 	// Safari Fix
@@ -213,7 +212,9 @@ $bgheight: 125px;
 			background: linear-gradient($default-back, $default-back);
 	    background-repeat: no-repeat;
 	    background-position: 0 $navsize + $bgheight;
-	    height: 100%;
+	    // height: 100%;
+	    overflow: hidden;
+	    position: relative;
 
 	    &.offset {
 	    	padding-top: $navsize + $bgheight - 32px;
@@ -571,7 +572,8 @@ $bgheight: 125px;
 // It's absolutely insane that SASS cannot import .css files
 // Included here in swipeview.css
 .swipe-content {
-  position: absolute;
+  // position: absolute;
+  width: 300vw;
   display: flex;
   // fixes iphone
   -webkit-backface-visibility: hidden;
