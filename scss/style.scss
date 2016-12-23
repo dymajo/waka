@@ -7,6 +7,7 @@ $mobilenavsize: 56px;
 $root-card-bar: 64px;
 $default-back: #f6f6f6;
 $big-offset: 32px;
+$sidebar-width: 350px;
 
 body {
   --real-height: 100vh;
@@ -20,6 +21,7 @@ html, body, #app {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select:  none;
+  background: #eee;
 }
 
 .panes {

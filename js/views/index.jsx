@@ -226,11 +226,12 @@ class Index extends React.Component {
     return (
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
-          <header className="material-header">
+          <header className="material-header branding-header">
             <div>
+            <span className="more"><img src="/icons/settings.svg" /></span>
               <h1 className="full-height">
-                <img className="logo" src='/icons/icon.png' width='16' />
-                <strong>DYMAJO</strong> <span>Transit</span></h1>
+                <img className="logo" src='/icons/icon.svg' width='18' />
+                <strong>DYMAJO Transit</strong></h1>
             </div>
           </header>
           <div className="root-map"

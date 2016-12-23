@@ -9,7 +9,7 @@ class NoMatch extends React.Component {
           <div className="logobox">
             <div className="logo"><span className="app">Page not Found</span></div>
             <p>Sorry, but the page you were trying to view does not exist.</p>
-            <Link to="/s">Find a Station</Link>
+            <Link to="/">Find a Station</Link>
           </div>
         </div>
       </div>

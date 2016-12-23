@@ -316,21 +316,17 @@
   }
 }
 
-@media (max-width: 900px) {
-  .station {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 5;
-    box-shadow: 0 0 4px rgba(0,0,0,0.3);
-  }
-}
-
 .station {
-  background: $default-back;
-  display: flex;
-  flex-direction: column;  
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  background: #f8f8f8;
+
+  @media (min-width: 851px) {
+    left: $sidebar-width;
+    z-index: 0;
+  }
 }

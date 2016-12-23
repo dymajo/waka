@@ -20,6 +20,8 @@ $bgheight: 125px;
 
 	.logo {
 		margin-right: 5px;
+		padding-top: 19px;
+		vertical-align: top;
 	}
 
 	.save, .remove {
@@ -29,6 +31,15 @@ $bgheight: 125px;
 			width: 22px;
 	    padding: 17px 0;
 	    vertical-align: top;
+		}
+	}
+	.more {
+		float: right;
+
+		img {
+			height: 22px;
+			padding: 17px 0;
+			vertical-align: top;
 		}
 	}
 
@@ -169,7 +180,7 @@ $bgheight: 125px;
 			left: calc(50% - 12px);
 			top: ($bgheight - 45px) / 2;
 
-			@media (min-width: 601px) {
+			@media (min-width: 851px) {
 				display: none;
 			}
 		}
@@ -188,6 +199,9 @@ $bgheight: 125px;
     	background-repeat: no-repeat;
     	background-position: 50% 0;
 		will-change: scroll;
+
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+		-ms-scroll-rails: railed;
 
 		div > li {
 			position: relative;
@@ -389,6 +403,13 @@ $bgheight: 125px;
 			}
 		}
 	}
+	@media(max-width: 925px) {
+		li li {
+			&:nth-child(2) {
+				width: 200px;
+			}
+		}
+	}
 	@media(max-width: 550px) {
 		li li {
 			font-size: 15px;
@@ -543,21 +564,6 @@ $bgheight: 125px;
     opacity: 0;
   }
 }
-.savedstations {
-	@media (min-width: 601px) and (max-width: 900px) {
-		&.goingback .station {
-			display: none;	
-		}
-	}
-	@media (min-width: 901px) {
-		.scrollable {
-			right: 0;
-			width: auto;
-			left: 300px + $navsize;
-		}
-	}
-}
-
 .station.swipe-animate {
   transition: transform 0.3s ease-out;
 }
@@ -582,16 +588,9 @@ $bgheight: 125px;
   width: 100vw;
   position: relative;
 
-  @media (min-width: 601px) {
-	  max-width: calc(100vw - #{$navsize});
+  @media (min-width: 851px) {
+	  max-width: calc(100vw - #{$sidebar-width});
   }
-}
-@media (min-width: 901px) {
-	.savedstations {
-		.swipe-pane {
-			max-width: calc(100vw - #{$navsize} - 300px);
-		}
-	} 
 }
 .swipe-header {
 	.invisible {
