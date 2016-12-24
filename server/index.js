@@ -5,6 +5,7 @@ var realtime = require('./realtime')
 var line = require('./line')
 var email = require('./email')
 var vehicle = require('./vehicle')
+var search = require('./search')
 
 console.log('using AT API Key: ' + process.env.atApiKey)
 console.log('using SendGrid API Key: '+ process.env.SENDGRID_API_KEY)
@@ -14,7 +15,7 @@ cache.check()
 setInterval(cache.check, 1800000)
 
 router.get('/station', station.stopInfo)
-router.get('/station/search', station.getStopsLatLong)
+router.get('/station/search', search.getStopsLatLng)
 router.get('/station/:station', station.stopInfo)
 router.get('/station/:station/times', station.stopTimes)
 router.get('/station/:station/clean', function(req, res) {

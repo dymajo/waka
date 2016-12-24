@@ -95,46 +95,6 @@ var exceptionCache = {
 }
 
 var station = {
-  getStopsLatLong(req, res) {
-    // no caching here, maybe we need it?
-    if (req.query.lat && req.query.lng && req.query.distance) {
-      // limit of the distance value
-      if (req.query.distance > 1250) {
-        return res.status(400).send({
-          'error': 'too many stops sorry'
-        })
-      }
-
-      var lat = parseFloat(req.query.lat)
-      var lng = parseFloat(req.query.lng)
-      // var latDist = req.query.distance / 165000
-      var latDist = req.query.distance / 100000
-      var lngDist = req.query.distance / 65000
-
-      var query = new azure.TableQuery()
-          .where('stop_lat > ? and stop_lat < ?', lat - latDist, lat + latDist)
-          .and('stop_lon > ? and stop_lon < ?', lng -  lngDist, lng + lngDist)
-
-      tableSvc.queryEntities('stops', query, null, function(err, result, response) {
-        var stops = []
-        result.entries.forEach(function(stop) {
-          if (stop.location_type._ === 0) {
-            stops.push({
-              stop_id: stop.RowKey._,
-              stop_name: stop.stop_name._,
-              stop_lat: stop.stop_lat._,
-              stop_lng: stop.stop_lon._ // wtf why isn't this consistent
-            })
-          }
-        })
-        res.send(stops)
-      })
-    } else {
-      res.status(400).send({
-        'message': 'please send all required params (lat, lng, distance)'
-      })
-    }
-  },
   cacheCheck(stop) {
     tableSvc.retrieveEntity('meta', 'stoptimes', stop, function(err, result, response) {
       if (err) {
@@ -160,14 +120,9 @@ var station = {
       }
       if(new Date().getTime() - result.date._.getTime() > 86400000) {
         // if it was last updated a day ago, redo the caches
-        station.getTripsFromAt(stop, function() {
-          // clean the db after new data from AT
-          // cb excecutes after data is got, so maybe just wait 5 seconds???
-          // this seems dumb and I should fix the CB behaviour
-          // i will when i change how initial cache works!
-          setTimeout(function() {
-            station.clean(stop)
-          }, 5000)
+        // TODO: update this to versions api haha
+        station.getTripsFromAt(stop).then(function() {
+          station.clean(stop)
         })
       }
     })
@@ -179,116 +134,103 @@ var station = {
     // we have to go the AT API and store this data
     var newOpts = JSON.parse(JSON.stringify(options))
     newOpts.url += station
-    request(newOpts, function(err, response, body) {
-      if (err) return cb(err)
 
-      var time = moment().tz('Pacific/Auckland')
-      var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
+    return new Promise(function(globalResolve, globalReject) {
+      request(newOpts, function(err, response, body) {
+        if (err) return cb(err)
 
-      var promises = []
-      var trips = JSON.parse(body).response
-      var filteredTrips = []
-      var arrayOfEntityArrays = []
-      var count = 0
-      trips.forEach(function(trip) {
-        promises.push(new Promise(function (resolve, reject) {
+        var time = moment().tz('Pacific/Auckland')
+        var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
 
-          // midnight fix?
-          trip.arrival_time_seconds = trip.arrival_time_seconds % 86400
+        var promises = []
+        var trips = JSON.parse(body).response
+        var arrayOfEntityArrays = []
+        var count = 0
+        var promises = trips.map(function(trip) {
+          return new Promise(function (resolve, reject) {
+            // midnight fix?
+            trip.arrival_time_seconds = trip.arrival_time_seconds % 86400
 
-          var partitionKey = trip.trip_id.split('_').slice(-1)[0]
-          tableSvc.retrieveEntity('trips', partitionKey, trip.trip_id, function(error, azTripData, response) {
-            if (azTripData === null) {
-              resolve()
-              return 
-            }
-            arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
-            if (arrayOfEntityArrays[count].operations.length > 99) {
-              count++
+            var partitionKey = trip.trip_id.split('_').slice(-1)[0]
+            tableSvc.retrieveEntity('trips', partitionKey, trip.trip_id, function(error, azTripData, response) {
+              if (azTripData === null) {
+                resolve()
+                return 
+              }
               arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
-            }
-            var exceptions = [[],[],[],[],[],[],[]]
-            var freq = azTripData.frequency._.split('')
+              if (arrayOfEntityArrays[count].operations.length > 99) {
+                count++
+                arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
+              }
+              var exceptions = [[],[],[],[],[],[],[]]
+              var freq = azTripData.frequency._.split('')
 
-            // check the bitflips
-            if (typeof(exceptionCache.jsonAdditions[azTripData.service_id._]) !== 'undefined') {
-              for (var i=0; i<7; i++) {
-                if (exceptionCache.jsonAdditions[azTripData.service_id._][i].length > 0) {
-                  // record which bits have been flipped
-                  if (freq[i] === '0') {
-                    freq[i] = '1'
-                    exceptions[i] = exceptionCache.jsonAdditions[azTripData.service_id._][i]
+              // check the bitflips
+              if (typeof(exceptionCache.jsonAdditions[azTripData.service_id._]) !== 'undefined') {
+                for (var i=0; i<7; i++) {
+                  if (exceptionCache.jsonAdditions[azTripData.service_id._][i].length > 0) {
+                    // record which bits have been flipped
+                    if (freq[i] === '0') {
+                      freq[i] = '1'
+                      exceptions[i] = exceptionCache.jsonAdditions[azTripData.service_id._][i]
+                    }
                   }
                 }
-              }
-            } 
-            // for the azure batch
-            arrayOfEntityArrays[count].insertOrReplaceEntity({
-              PartitionKey: {'_': station},
-              RowKey: {'_': trip.trip_id},
-              arrival_time_seconds: {'_': trip.arrival_time_seconds},
-              stop_sequence: {'_': trip.stop_sequence},
-              start_date: azTripData.start_date,
-              end_date: azTripData.end_date,
-              monday: {'_': freq[0]},
-              tuesday: {'_': freq[1]},
-              wednesday: {'_': freq[2]},
-              thursday: {'_': freq[3]},
-              friday: {'_': freq[4]},
-              saturday: {'_': freq[5]},
-              sunday: {'_': freq[6]},
-              exceptions: {'_': JSON.stringify(exceptions)}
+              } 
+              // for the azure batch
+              arrayOfEntityArrays[count].insertOrReplaceEntity({
+                PartitionKey: {'_': station},
+                RowKey: {'_': trip.trip_id},
+                arrival_time_seconds: {'_': trip.arrival_time_seconds},
+                stop_sequence: {'_': trip.stop_sequence},
+                start_date: azTripData.start_date,
+                end_date: azTripData.end_date,
+                monday: {'_': freq[0]},
+                tuesday: {'_': freq[1]},
+                wednesday: {'_': freq[2]},
+                thursday: {'_': freq[3]},
+                friday: {'_': freq[4]},
+                saturday: {'_': freq[5]},
+                sunday: {'_': freq[6]},
+                exceptions: {'_': JSON.stringify(exceptions)}
+              })
+              resolve()
             })
-            resolve()
           })
-        }))
-        
-        // filter for the immediate return because we do it in a query on the db side
-        // we're only gonna do half an hour for immediate return for performance reasons
-        if (trip.arrival_time_seconds < (currentTime + 3600) && trip.arrival_time_seconds > (currentTime - 1200)) {
-          // this is for the normal at return
-          filteredTrips.push({
-            trip_id: trip.trip_id,
-            arrival_time_seconds: trip.arrival_time_seconds,
-            stop_sequence: trip.stop_sequence
-          })
-        }
-      })
+        })
 
-      // only run the cb if requested
-      if (cb) cb(null, filteredTrips)
+        // save the filtered trips from at
+        let batchUpload = function(n) {
+          if (n < arrayOfEntityArrays.length) {
+            tableSvc.executeBatch('stoptimes', arrayOfEntityArrays[n], function (error, result, response) {
+              if(!error) {
+                batchUpload(n+1)
+              } else {
+                console.log(error)
+              }
+            });
+          } else {
+            console.log(station, ': Upload Complete')
+            globalResolve()
 
-      // save the filtered trips from at
-      var batchUpload = function(n) {
-        if (n < arrayOfEntityArrays.length) {
-          //console.log(`uploading stoptimes for ${station} batch ${n+1}`)
-          tableSvc.executeBatch('stoptimes', arrayOfEntityArrays[n], function (error, result, response) {
-            if(!error) {
-              batchUpload(n+1)
-            } else {
-              console.log(error)
+            let task = {
+              PartitionKey: {'_': 'stoptimes'},
+              RowKey: {'_': station.toString()},
+              date: {'_':new Date(), '$':'Edm.DateTime'}
             }
-          });
-        } else {
-          console.log(station, ': Upload Complete')
-
-          var task = {
-            PartitionKey: {'_': 'stoptimes'},
-            RowKey: {'_': station.toString()},
-            date: {'_':new Date(), '$':'Edm.DateTime'}
+            tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
+              if (error) {
+                console.log(error)
+              }
+              console.log(station, ': Metadata Updated')
+            })
           }
-          tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
-            if (error) {
-              console.log(error)
-            }
-            console.log(station, ': Metadata Updated')
-          })
         }
-      }
 
-      Promise.all(promises).then(function() {
-        batchUpload(0)
-      })      
+        Promise.all(promises).then(function() {
+          batchUpload(0)
+        })      
+      })
     })
   },
   getFastDataFromAt(station, cb) {
@@ -588,8 +530,9 @@ var station = {
   },
   clean: function(station)  {
     if (JSON.stringify(cache.versions) === '{}') {
-      return console.log('No version data, skipping clean.')
+      return console.log(`${station} : No version data, skipping clean.`)
     }
+    console.log(`${station} : Starting Clean`)
     var allRows = []
     var deleteCandidates = []
 

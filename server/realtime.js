@@ -92,7 +92,6 @@ var realtime = {
               }
             })
           } else {
-            console.log('getting realtime')
             body.response.entity.forEach(function(trip) {
               var timeUpdate = trip.trip_update.stop_time_update.departure || trip.trip_update.stop_time_update.arrival || {}
               realtimeInfo[trip.trip_update.trip.trip_id] = {
