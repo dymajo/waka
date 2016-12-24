@@ -233,44 +233,42 @@ var station = {
       })
     })
   },
-  getFastDataFromAt(station, cb) {
-    console.log(station, ': Getting Fast Data From AT')
-
-    var filteredTrips = []
+  getFastDataFromAt(stop, cb) {
+    console.log(stop, ': Getting Fast Data From AT')
     var newOpts = JSON.parse(JSON.stringify(options))
-    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/stopinfo/' + parseInt(station)
-    request(newOpts, function(err, response, body) {
-      if (err) return cb(err)
-
-      var trips = JSON.parse(body).response
-      trips.forEach(function(trip) {
-        var depTimeSplit = trip.departure_time.split(':')
-        var arrTime = parseInt(depTimeSplit[0]*3600) + parseInt(depTimeSplit[1]*60) + parseInt(depTimeSplit[2])
-
-        filteredTrips.push({
-          trip_id: trip.trip_id,
-          arrival_time_seconds: arrTime,
-          stop_sequence: trip.stop_sequence
+    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/stopinfo/' + parseInt(stop)
+    return new Promise(function(resolve, reject) {
+      request(newOpts, function(err, response, body) {
+        if (err) {
+          reject(err)
+        }
+        let filteredTrips = JSON.parse(body).response.map(function(trip) {
+          let depTimeSplit = trip.departure_time.split(':')
+          let arrTime = parseInt(depTimeSplit[0]*3600) + parseInt(depTimeSplit[1]*60) + parseInt(depTimeSplit[2])
+          return {
+            trip_id: trip.trip_id,
+            arrival_time_seconds: arrTime,
+            stop_sequence: trip.stop_sequence
+          }
         })
+        resolve(filteredTrips)
       })
-
-      if (cb) cb(null, filteredTrips)
     })
   },
   stopInfo: function(req, res) {
     if (req.params.station) {
-      req.params.station = req.params.station.trim()
-      var sending = {}
-      tableSvc.retrieveEntity('stops', 'allstops', req.params.station, function(err, result, response) {
+      let stop = req.params.station.trim()
+      tableSvc.retrieveEntity('stops', 'allstops', stop, function(err, result, response) {
         if (err) {
           return res.status(404).send({
             'error': 'station not found'
           })
         }
-        sending.stop_name = result.stop_name._
-        sending.stop_lat = result.stop_lat._
-        sending.stop_lon = result.stop_lon._
-        res.send(sending)
+        res.send({
+          stop_name: result.stop_name._,
+          stop_lat: result.stop_lat._,
+          stop_lon: result.stop_lon._
+        })
       })
     } else {
       res.status(404).send({
@@ -279,29 +277,28 @@ var station = {
     }
   },
   stopTimes: function(req, res, force) {
-    exceptionCache.refresh()
-
     if (req.query.force) {
       force = true
     }
-
     if (req.params.station) {
+      process.nextTick(exceptionCache.refresh) // async
       req.params.station = req.params.station.trim()
-      var sending = {}
+      
+      let sending = {}
 
       // ask for trips in real time
-      var promise = new Promise(function(resolve, reject) {
+      new Promise(function(resolve, reject) {
         // we going to query the things
-        var time = moment().tz('Pacific/Auckland')
-        var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
-        var currentDate = moment(Date.UTC(time.year(), time.month(), time.date(), 0, 0))
+        let time = moment().tz('Pacific/Auckland')
+        let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
+        let currentDate = moment(Date.UTC(time.year(), time.month(), time.date(), 0, 0))
 
         // >5am override (nite rider)
         if (time.hour() < 5) {
           currentDate.subtract(1, 'day')
         }
 
-        var query = new azure.TableQuery()
+        let query = new azure.TableQuery()
           .where('PartitionKey eq ?', req.params.station)
           .and('arrival_time_seconds < ? and arrival_time_seconds > ?', currentTime + 7200, currentTime - 1200)
           .and('start_date <= ?', currentDate.toISOString())
@@ -311,15 +308,15 @@ var station = {
         // force get update
         if (force === true) {
           console.log(req.params.station, ': Forcing Update ')
-          station.getFastDataFromAt(req.params.station, function(err, data) {
-            if (err) {
-              res.status(500).send(err)
-            }
+          station.getFastDataFromAt(req.params.station).then(function(data) {
             sending.provider = 'at' // just for debugging purposes
             sending.trips = data
+            resolve()
+
             // rebuild cache async after request
             station.getTripsFromAt(req.params.station) 
-            resolve()
+          }).catch(function(err) {
+            res.status(500).send(err)
           })
           return 
         }
@@ -329,23 +326,23 @@ var station = {
           if (err) {
             return reject(err)
           }
-          // TODO: Fix this
-          // Side Effect of this, stations that have no more stops for a night, will init a call to the AT API
-          if (result.entries.length === 0 || req.query.debug) {
+          // TODO: Fix this - won't retrieve stuff after midnight
+          // It's a limitaztion of Azure thingo
+          if (result.entries.length === 0) {
             tableSvc.retrieveEntity('meta', 'stoptimes', req.params.station, function(err, result, response) {
               if (err) {
                 // checks if it exists at all, if not grab the latest data
                 if (err.statusCode === 404) {
                   console.log(req.params.station, ': New Station')
-                  station.getFastDataFromAt(req.params.station, function(err, data) {
-                    if (err) {
-                      res.status(500).send(err)
-                    }
+                  station.getFastDataFromAt(req.params.station).then(function(data) {
                     sending.provider = 'at' // just for debugging purposes
                     sending.trips = data
+                    resolve()
+
                     // rebuild cache async after request
                     station.getTripsFromAt(req.params.station) 
-                    resolve()
+                  }).catch(function(err) {
+                      res.status(500).send(err)
                   })
                 } else {
                   console.log(err)
@@ -358,49 +355,47 @@ var station = {
 
                 station.cacheCheck(req.params.station)
               }
-            });
+            })
           } else {
-            var data = []
-            result.entries.forEach(function(trip) {
+            sending.provider = 'azure' // just for debugging purposes
+            sending.trips = result.entries.filter(function(trip) {
               // checks the exception to check if the frequency was added.
               // only continue if it's supposed to be there
               var exceptions = JSON.parse(trip.exceptions._)[currentDate.isoWeekday() - 1]
               if (exceptions.length > 0) {
                 if (exceptions.indexOf(currentDate.toISOString()) === -1) {
-                  return
+                  return false
                 }
               }
-              data.push({
+              return true
+            }).map(function(trip) {
+              return {
                 trip_id: trip.RowKey._,
                 arrival_time_seconds: trip.arrival_time_seconds._,
                 stop_sequence: trip.stop_sequence._
-              })
+              }
             })
-            sending.provider = 'azure' // just for debugging purposes
-            sending.trips = data
             resolve()
-
             station.cacheCheck(req.params.station)  
           }         
         })
       }).then(function() {
-        var sortByTime = function(a, b) {
-          return a.arrival_time_seconds - b.arrival_time_seconds
-        }
-        sending.trips.sort(sortByTime)
-
-        // only sending 200 trips back :/ or is that too many?
-        var maxTrips = sending.trips.length
-        if (maxTrips > 150) {         
-          maxTrips = 150
-        }        
-
         // if there are no trips, don't do a query duh
         if (maxTrips === 0) {
           sending.trips = {}
           res.send(sending)
           return
         }
+
+        // 250 should be fine.
+        var maxTrips = sending.trips.length
+        if (maxTrips > 250) {         
+          maxTrips = 250
+        }
+
+        sending.trips.sort(function(a, b) {
+          return a.arrival_time_seconds - b.arrival_time_seconds
+        })
 
         var time = moment().tz('Pacific/Auckland')
         var y = time.year()
@@ -442,11 +437,9 @@ var station = {
               return getTrip(queue, index+1, callback)
             }
 
-            // check day of week
+            // check day of week, start and end date
             if (exceptionCache.existsToday(today.day(), trip.frequency._, trip.service_id._, trip.end_date._) &&
-              // check end date
               moment(trip.end_date._).isAfter(tomorrow) &&
-              // check start date
               moment(trip.start_date._).isBefore(today)
               ) {
               
@@ -498,7 +491,6 @@ var station = {
             } catch(err) {
               console.warn(err)
             }
-            
           }))
         }
 
@@ -508,6 +500,7 @@ var station = {
           // forces a cache update
           // delete count is unreliable
           if (sending.trips.length === 0 && force !== true) {
+            console.log('Forcing an update with deleteCount:', deleteCount)
             station.stopTimes(req, res, true)
             return  
           }
