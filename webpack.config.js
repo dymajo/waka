@@ -18,12 +18,14 @@ ConsoleNotifierPlugin.prototype.apply = function (compiler) {
 
 let config = {
   entry: {
-    app: ['whatwg-fetch', './js/app.jsx'],
-    vendor: ['react', 'react-dom', 'react-router', 'leaflet', 'react-leaflet', 'wkx', 'buffer', 'autotrack']
+    app: ['./js/app.jsx'],
+    vendor: ['react', 'react-dom', 'react-router', 'autotrack']
   },
   output: {
-    path: __dirname,
-    filename: 'dist/app.js'
+    path: __dirname + '/dist/',
+    publicPath: '/',
+    filename: 'generated/[name].bundle.js',
+    chunkFilename: 'generated/[id].chunk.js'
   },
   devtool: 'cheap-module-source-map',
   module: {
@@ -37,7 +39,14 @@ let config = {
         'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
       }
     }),
-    new webpack.optimize.CommonsChunkPlugin('vendor', 'dist/vendor.js'),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor'
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'app',
+      async: true,
+      minChunks: 2
+    })
   ]
 }
 if (process.env.NODE_ENV === 'production') {

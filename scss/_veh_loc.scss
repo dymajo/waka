@@ -6,9 +6,6 @@
     right: 0;
     z-index: 7;
     background: white;
-    @media (min-width: 900px) {
-      left: 300px + $navsize;
-    }
 
     .CircleMarker {
       fill-opacity: 1;
@@ -17,7 +14,7 @@
       stroke-width: 3;
     }
 
-    header {
+    .material-header {
       height: $navsize;
       div {
         z-index: 10;
@@ -36,6 +33,11 @@
           line-height: 1;
           padding: 3px;
           margin-right: 7px;
+          font-weight: 600;
+
+          &:empty {
+            visibility: hidden;
+          }
         }
       }
     }

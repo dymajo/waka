@@ -4,7 +4,6 @@ import { iOS } from '../models/ios.js'
 import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
-import Search from './search.jsx'
 import SavedStations from './savedstations.jsx'
 
 const paddingHeight = 250
@@ -17,6 +16,7 @@ class Index extends React.Component {
       mapView: false,
       showMap: false
     }
+    this.Search = null // Map Component, dynamic load
 
     document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px');
 
@@ -25,6 +25,7 @@ class Index extends React.Component {
     this.touchlastpos = null // used to detect flick
     this.scrolllock = false  // used so you know the difference between scroll & transform
 
+    this.loadMapDynamic = this.loadMapDynamic.bind(this)
     this.toggleStations = this.toggleStations.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
@@ -35,10 +36,29 @@ class Index extends React.Component {
     }
   }
   componentDidMount() {
+    if (window.location.pathname === '/') {
+      this.loadMapDynamic()
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.location.pathname === '/') {
+      this.loadMapDynamic()
+    }
+  }
+  loadMapDynamic() {
+    // doesn't do anything if already loaded
+    if (this.Search !== null) {
+      return
+    }
     // this ensures the map is the last thing to load
-    requestAnimationFrame(() => {
-      this.setState({
-        showMap: true 
+    // only loads on main page, i.e if nothing is in front of it
+    require.ensure(['react-leaflet'], () => {
+      this.Search = require('./search.jsx').default
+
+      requestAnimationFrame(() => {      
+        this.setState({
+          showMap: true 
+        })
       })
     })
   }
@@ -227,7 +247,7 @@ class Index extends React.Component {
     }
     let map
     if (this.state.showMap) {
-      map = <Search />
+      map = <this.Search />
     }
     return (
       <div className={className}>

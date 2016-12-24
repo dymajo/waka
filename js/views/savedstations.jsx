@@ -98,16 +98,18 @@ class SavedSations extends React.Component {
             />
           })}
         </ul>
-        <h2>Congestion Free Network</h2>
-        <ul className="cfwrapper">
-          <SidebarItem type="cf" name="Northern Busway" />
-          <SidebarItem type="cf" name="Ferries" />
-          <SidebarItem type="cf" name="Eastern Line" />
-          <SidebarItem type="cf" name="Onehunga Line" />
-          <SidebarItem type="cf" name="Southern Line" />
-          <SidebarItem type="cf" name="Western Line" />
-        </ul>
-        <a href="http://www.congestionfree.co.nz/" target="_blank">What is the Congestion Free Network?</a>
+        <div className="cfwrapper">
+          <h2>Congestion Free Network</h2>
+          <ul>
+            <SidebarItem type="cf" name="Northern Busway" />
+            <SidebarItem type="cf" name="Ferries" />
+            <SidebarItem type="cf" name="Eastern Line" />
+            <SidebarItem type="cf" name="Onehunga Line" />
+            <SidebarItem type="cf" name="Southern Line" />
+            <SidebarItem type="cf" name="Western Line" />
+          </ul>
+          <a href="http://www.congestionfree.co.nz/" target="_blank">What is the Congestion Free Network?</a>
+        </div>
       </div>
     )
   }
