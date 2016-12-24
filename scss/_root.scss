@@ -27,7 +27,7 @@ $transition: 250ms ease transform;
   box-sizing: border-box;
   transition: $transition;
   will-change: transform;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 
   -ms-scroll-rails: railed;

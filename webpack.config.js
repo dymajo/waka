@@ -18,7 +18,7 @@ ConsoleNotifierPlugin.prototype.apply = function (compiler) {
 
 let config = {
   entry: {
-    app: ['./js/app.jsx'],
+    app: ['whatwg-fetch', './js/app.jsx'],
     vendor: ['react', 'react-dom', 'react-router', 'autotrack']
   },
   output: {
