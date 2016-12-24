@@ -46,7 +46,6 @@ class vehicle_location extends React.Component {
       currentPosition: [0,0],
       accuracy: 0,
       error: '',
-      tripInfo: {},
       showIcons: true,
       busPosition: []
     }
@@ -129,15 +128,6 @@ class vehicle_location extends React.Component {
       line: wkx.Geometry.parse(wkb).toGeoJSON()
     })
   }
-
-  componentWillMount() {
-    let tripNodeMatches = (item) => {
-      return item.trip_id === this.props.params.trip_id
-    }
-    this.setState({
-      tripInfo: this.props.trips.find(tripNodeMatches) || {}
-    })
-  }
   
   componentDidMount() {
     this.getShapeData()
@@ -194,7 +184,7 @@ class vehicle_location extends React.Component {
       })
       console.log('there\'s some data!')
       var queryString = trips.filter((trip) => {
-         return tripsHashTable[trip] === this.state.tripInfo.route_short_name
+         return tripsHashTable[trip] === this.props.tripInfo.route_short_name
       })
       var requestData
       requestData = JSON.stringify({trips: queryString})
@@ -228,33 +218,16 @@ class vehicle_location extends React.Component {
       })
       })
     }
-
-    
-
   }
-
-  
 
   render(){
     let geoJson = null
     if (typeof(this.state.line) !== 'undefined') {
-      geoJson = <GeoJson color={StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)} className='line' data={this.state.line} />
+      geoJson = <GeoJson color={StationStore.getColor(this.props.tripInfo.agency_id, this.props.tripInfo.route_short_name)} className='line' data={this.state.line} />
     }
     return (
-      <div className='vehicle-location-container'>
-        <header>
-          <div>
-            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
-            <h1 className='line-name'>
-              <span style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>{this.state.tripInfo.route_short_name}</span>
-              {this.state.tripInfo.route_long_name}
-            </h1>
-          </div>
-        </header>
+      <div>
         <div className='vehicle-location-map'>
-          <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-          </button>
           <Map center={this.state.position} 
             onZoomend={this.zoomstart}
             zoom={16}>
@@ -279,7 +252,7 @@ class vehicle_location extends React.Component {
                 }
               }
               return (
-                  <CircleMarker color={StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)} className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} />
+                  <CircleMarker color={StationStore.getColor(this.props.tripInfo.agency_id, this.props.tripInfo.route_short_name)} className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} />
                 )
             })}
             <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 

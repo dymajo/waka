@@ -52,7 +52,7 @@ class Index extends React.Component {
     }
     // this ensures the map is the last thing to load
     // only loads on main page, i.e if nothing is in front of it
-    require.ensure([], () => {
+    require.ensure(['react-leaflet'], () => {
       this.Search = require('./search.jsx').default
 
       requestAnimationFrame(() => {      

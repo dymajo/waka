@@ -41,6 +41,11 @@ let config = {
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor'
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'app',
+      async: true,
+      minChunks: 2
     })
   ]
 }
