@@ -4,6 +4,13 @@ var wkx = require('wkx')
 var cache = require('./cache')
 
 var tableSvc = azure.createTableService()
+var blobSvc = azure.createBlobService()
+
+blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response){
+  if (error) {
+    throw error
+  }
+})
 
 var shapeWKBOptions = {
   url: 'https://api.at.govt.nz/v2/gtfs/shapes/geometry/',
@@ -96,6 +103,62 @@ var line = {
       }
     })  
   },
+  getShapeFromAt(arrayOfShapeId, cb) {
+    if (arrayOfShapeId.length === 0) {
+      return
+    }
+
+    var newOpts = JSON.parse(JSON.stringify(shapeWKBOptions))
+    let shape_id = arrayOfShapeId[0]
+    newOpts.url += shape_id
+    request(newOpts, function(err, response, body) {
+      if (err) {
+        console.warn(err)
+        console.log(`${shape_id} : Failed to get Shape`)
+        return line.getShapeFromAt(arrayOfShapeId.slice(1), cb)
+      }
+
+      // if AT doesn't send back a shape
+      let wkb = JSON.parse(body).response
+      if (wkb.length < 1) {
+        console.log(`${shape_id} : Shape not found!`)
+        return nextItem()
+      }
+
+      let nextItem = function() {
+        if (arrayOfShapeId.length === 1) {
+          // only calls back the last shape, for immediate return
+          if (cb) {
+            cb(wkb)
+          }
+          return
+        } else {
+          return line.getShapeFromAt(arrayOfShapeId.slice(1), cb)
+        }
+      }
+
+      blobSvc.createBlockBlobFromText('shapewkb', shape_id, wkb[0].the_geom, function(blobErr, blobResult, blobResponse) {
+        if (blobErr) {
+          console.warn(blobErr)
+          return nextItem()
+        }
+        nextItem()
+
+        // informs table storage that there is an item there
+        var task = {
+            PartitionKey: {'_': 'shapewkb'},
+            RowKey: {'_': shape_id},
+            date: {'_': new Date(), '$':'Edm.DateTime'}
+          }
+        tableSvc.insertOrReplaceEntity('meta', task, function (error) {
+          if (error) {
+            return console.warn(error)
+          }
+          console.log(`${shape_id} : Shape Saved from AT`)
+        })
+      })
+    })  
+  },
 
   exceptionCheck: function(route){
     // blanket thing for no schools
@@ -182,6 +245,40 @@ var line = {
     }))
     Promise.all(promises).then(function(){
       res.send({at: atResult, az: azureResult})
+    })
+  },
+  cacheShapes: function(trips) {
+    // makes a priority list
+    let allShapes = {}
+    trips.forEach(function(trip) {
+      let shape = trip.shape_id
+      if (shape in allShapes) {
+        allShapes[shape] +=1
+      } else {
+        allShapes[shape] = 1
+      }
+    })
+    // flattens to priority array
+    let sorted = Object.keys(allShapes).sort(function(a, b) {
+      return allShapes[b] - allShapes[a]
+    }).map(function(sortedKey) {
+      return sortedKey
+    })
+    let promises = []
+    let requests = []
+    sorted.forEach(function(shape) {
+      promises.push(new Promise(function(resolve, reject) {
+        tableSvc.retrieveEntity('meta', 'shapewkb', shape, function(err, result, response) {
+          if (err) {
+            requests.push(shape)
+          }
+          resolve()
+        })
+      }))
+    })
+    // after it sees if they exist, fire the cache
+    Promise.all(promises).then(function() {
+      line.getShapeFromAt(requests)
     })
   }
 }

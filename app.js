@@ -16,7 +16,7 @@ app.use(function(req, res, next) {
 })
 
 var cb = function(req, res) {
-  res.set('Link',  '</style.css>; rel=preload; as=style, </generated/vendor.bundle.js>; rel=preload; as=script, </generated/app.bundle.js>; rel=preload; as=script')
+  res.set('Link',  `</style.css>; rel=preload; as='style', </generated/vendor.bundle.js>; rel=preload; as='script', </generated/app.bundle.js>; rel=preload; as='script'`)
   res.sendFile(__dirname + '/dist/index.html')
 }
 app.use('/a', require('./server'));

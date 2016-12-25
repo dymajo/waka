@@ -3,6 +3,7 @@ var request = require('request')
 var moment = require('moment-timezone')
 var azure = require('azure-storage')
 var cache = require('./cache')
+var line = require('./line')
 
 var tableSvc = azure.createTableService()
 tableSvc.createTableIfNotExists('stoptimes', function(error, result, response) {
@@ -453,6 +454,7 @@ var station = {
                 direction_id: trip.direction_id._,
                 end_date: trip.end_date._,
                 frequency: trip.frequency._,
+                shape_id: trip.shape_id._,
                 route_short_name: trip.route_short_name._,
                 route_type: trip.route_type._,
                 start_date: trip.start_date._,
@@ -507,6 +509,9 @@ var station = {
           
           // send
           res.send(sending)
+
+          // cache shapes
+          line.cacheShapes(sending.trips)
         })
 
       }, function(error) {
@@ -598,7 +603,9 @@ var station = {
             console.log(`${name} : Deletion Complete`)
           }
         } catch(err) {
-          console.log(err)
+          if (err.statusCode != 404) {
+            console.log(err)
+          }
         }
       }
       
