@@ -55,6 +55,7 @@
 
 .vehicle-location-stops {
     overflow-y: auto;
+    height: calc(50vh - #{$mobilenavsize});
 
     li {
         color: blue;

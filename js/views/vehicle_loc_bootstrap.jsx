@@ -42,14 +42,17 @@ class VehicleLocationBootstrap extends React.Component {
   render() {
     let content = null
     if (this.state.showContent === true) {
-      console.log(this.props.stopInfo)
+      let stopInfo = this.props.stopInfo
+      if (typeof(stopInfo[0]) === 'undefined') {
+        stopInfo = [-36.844229, 174.767823]
+      }
       content = (
         <this.VehicleLocation 
           realtime={this.props.realtime}
           params={this.props.params}
           trips={this.props.trips}
           tripInfo={this.state.tripInfo}
-          stopInfo={this.props.stopInfo}
+          stopInfo={stopInfo}
         />
       )
     }

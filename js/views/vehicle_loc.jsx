@@ -53,48 +53,7 @@ class vehicle_location extends React.Component {
     this.getPositionData = this.getPositionData.bind(this)
     this.getWKB = this.getWKB.bind(this)
     this.convert = this.convert.bind(this)
-    this.setCurrentPosition = this.setCurrentPosition.bind(this)
-    this.currentLocateButton = this.currentLocateButton.bind(this)
     this.zoomstart = this.zoomstart.bind(this)
-  }
-
-  watchPosition() {
-    geoID = navigator.geolocation.watchPosition((position) => {
-    if (this.state.currentPosition[0] === 0){
-      this.setCurrentPosition(position)
-
-      // hardcoded for auckland only
-      if (this.state.currentPosition[0] > -38 && this.state.currentPosition[0] < -36
-      && this.state.currentPosition[1] > 173 && this.state.currentPosition[1] < 175) {
-      this.getAndSetCurrentPosition()
-      }
-    } else {
-      this.setCurrentPosition(position)
-    }   
-    }, (error) => {
-    //will remove for release
-    this.setState({
-      error: error.message
-    })
-    }, {
-        enableHighAccuracy: true,
-        timeout: 5000
-    })
-  }
-
-
-  getAndSetCurrentPosition() {
-    this.setState({
-        position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000]
-    })
-  }
-  setCurrentPosition(position) {
-    //console.log('getting new position')
-    //console.log(position.coords.accuracy)
-    this.setState({
-      currentPosition: [position.coords.latitude, position.coords.longitude],
-      accuracy: position.coords.accuracy
-    })
   }
 
   getShapeData(){
@@ -102,8 +61,7 @@ class vehicle_location extends React.Component {
     var stop_ids = []
     fetch(`/a/vehicle_loc/${this.props.params.trip_id}`).then((response) => {
       response.json().then((data) => {
-        this.getWKB(data.az.shape_id)
-        data.at.forEach(function(item){
+        data.forEach(function(item){
           stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
           stop_ids.push(item.stop_id)
         })
@@ -116,10 +74,18 @@ class vehicle_location extends React.Component {
     
   }
 
-  getWKB(shape){
-    fetch(`/a/shape/${shape}`).then((response) => {
-      response.text().then(this.convert)
-    })
+  getWKB(newProps = this.props){
+    if (typeof(this.state.line) === 'undefined') {
+      if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
+        fetch(`/a/shape/${newProps.tripInfo.shape_id}`).then((response) => {
+          response.text().then(this.convert)
+        })
+      }
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.getWKB()
   }
 
   convert(data){
@@ -130,8 +96,8 @@ class vehicle_location extends React.Component {
   }
   
   componentDidMount() {
+    this.getWKB()
     this.getShapeData()
-    
     this.getPositionData(this.props)
     liveRefresh = setInterval(() => {
       this.getPositionData(this.props)  
@@ -262,7 +228,6 @@ class vehicle_location extends React.Component {
             
         </div>
         <div className='vehicle-location-stops'>
-          <h3>Current Station: {this.props.params.station}</h3>
           <ul>
           {this.state.stops.map((stop) => {
             let className = ''

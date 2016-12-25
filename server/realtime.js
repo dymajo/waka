@@ -131,7 +131,7 @@ var realtime = {
           }
           if (body.response.entity){
             //console.log('1', body.response.entity)
-            console.log('getting vehiclelocations')
+            // console.log('getting vehiclelocations')
             body.response.entity.forEach(function(trip) {    
               vehicleInfo[trip.vehicle.trip.trip_id] = {
                 latitude: trip.vehicle.position.latitude,

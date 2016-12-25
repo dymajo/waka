@@ -206,52 +206,27 @@ var line = {
   },
 
   getShapeFromTrip: function(req, res){
-    var promises = [];
     var trip_id = req.params.trip_id
     var pkey = trip_id.split('_').slice(-1)[0]
-    var azureResult
-    var atResult = []
-    promises.push(new Promise(function(resolve, reject) {
-      tableSvc.retrieveEntity('trips', pkey, req.params.trip_id, function(err, result, response) {
-        if (err) {
-          return res.status(404).send({
-            'error': 'trip not found'
-          })
-        }
-        for (let key in result) {
-          result[key]  = result[key]._
-        }
-        azureResult = result
-        resolve()
-      })
-    }))
-    promises.push(new Promise(function(resolve, reject) {
-      var newOpts = JSON.parse(JSON.stringify(shapeWKBOptions))     
-      newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/tripId/' + trip_id
-      request(newOpts, function(err, response, body){
-        if (err) {
-          console.log(err)
-          res.send({
-            error: err
-          })
-          return
-        }
-        JSON.parse(body).response.forEach(function(item){
-          atResult.push({
-            stop_id: item.stop_id,
-            stop_name: item.stop_name,
-            stop_lat: item.stop_lat,
-            stop_lon: item.stop_lon,         
-          })
+    var newOpts = JSON.parse(JSON.stringify(shapeWKBOptions))     
+    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/tripId/' + trip_id
+    request(newOpts, function(err, response, body){
+      if (err) {
+        console.log(err)
+        res.send({
+          error: err
         })
-        
-        resolve()
-      })  
-
-    }))
-    Promise.all(promises).then(function(){
-      res.send({at: atResult, az: azureResult})
-    })
+        return
+      }
+      res.send(JSON.parse(body).response.map(function(item){
+        return {
+          stop_id: item.stop_id,
+          stop_name: item.stop_name,
+          stop_lat: item.stop_lat,
+          stop_lon: item.stop_lon,         
+        }
+      }))
+    })  
   },
   cacheShapes: function(trips) {
     // makes a priority list
