@@ -84,24 +84,30 @@ var line = {
     })
   },
   getShape: function(req, res) {
-    var newOpts = JSON.parse(JSON.stringify(shapeWKBOptions))
-    newOpts.url += req.params.line
-    request(newOpts, function(err, response, body){
+    let shape_id = req.params.line
+    tableSvc.retrieveEntity('meta', 'shapewkb', shape_id, function(err, result, response) {
       if (err) {
-        res.send({
-          error: err
+        line.getShapeFromAt([shape_id], function(wkb) {
+          if (wkb.length < 1) {
+            res.status(404).send({
+              error: 'not found'
+            })
+          } else {
+            res.send(wkb[0].the_geom)
+          }
         })
         return
       }
-      let sending = JSON.parse(body).response
-      if (sending.length < 1) {
-        res.status(404).send({
-          error: 'not found'
-        })
-      } else {
-        res.send(sending[0].the_geom)
-      }
-    })  
+     
+      res.set('Content-Type', 'text/plain')
+      blobSvc.getBlobToStream('shapewkb', shape_id, res, function(blobError, blobResult, blobResponse){
+        if (blobError) {
+          console.warn(blobError)
+        }
+        res.end()
+        return
+      })
+    })
   },
   getShapeFromAt(arrayOfShapeId, cb) {
     if (arrayOfShapeId.length === 0) {
