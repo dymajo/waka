@@ -138,7 +138,13 @@ var station = {
 
     return new Promise(function(globalResolve, globalReject) {
       request(newOpts, function(err, response, body) {
-        if (err) return cb(err)
+        if (err) {
+          console.warn(err)
+          if (cb) {
+            cb(err)
+          }
+          return
+        }
 
         var time = moment().tz('Pacific/Auckland')
         var currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000

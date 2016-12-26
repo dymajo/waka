@@ -12,25 +12,16 @@
       -webkit-overflow-scrolling: touch;
     }
   }
-  .searchContainer {
-    @media (max-width: 600px) {
-      &:not(.activepane) {
-        .station {
-          animation: 300ms ss-to-stop-station-ios ease 1;
-        }
-      }
-      &.goingback {
-        .station {
-          animation: 300ms stop-to-ss-station-ios ease 1;
-          transform: translate3d(100vw,0,0) !important;  // bypasses my plugin
-          opacity: 1;
-        }
-      }
+  .animate {
+    .station {
+      animation: 300ms ss-to-stop-station-ios ease 1;
     }
   }
-}
-.ios-standalone {
-  .bignav li:first-child {
-    display: none;
+  .goingback {
+    .station {
+      animation: 300ms stop-to-ss-station-ios ease 1;
+      transform: translate3d(100vw,0,0) !important;  // bypasses my plugin
+      opacity: 1;
+    }
   }
 }

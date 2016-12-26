@@ -14,7 +14,9 @@ class Index extends React.Component {
     super(props)
     this.state = {
       mapView: false,
-      showMap: false
+      showMap: false,
+      animate: false,
+      back: false
     }
     this.Search = null // Map Component, dynamic load
 
@@ -27,6 +29,7 @@ class Index extends React.Component {
 
     this.loadMapDynamic = this.loadMapDynamic.bind(this)
     this.toggleStations = this.toggleStations.bind(this)
+    this.triggerBack = this.triggerBack.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
@@ -34,11 +37,16 @@ class Index extends React.Component {
     window.onresize = function() {
       document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px');
     }
+
+    UiStore.bind('goingBack', this.triggerBack)
   }
   componentDidMount() {
     if (window.location.pathname === '/') {
       this.loadMapDynamic()
     }
+    this.setState({
+      animate: true
+    })
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {
@@ -70,6 +78,11 @@ class Index extends React.Component {
       this.setState({
         mapView: !this.state.mapView
       })
+    })
+  }
+  triggerBack() {
+    this.setState({
+      back: UiStore.getState().goingBack
     })
   }
   triggerTouchStart(e) {
@@ -249,6 +262,14 @@ class Index extends React.Component {
     if (this.state.showMap) {
       map = <this.Search />
     }
+
+    let contentClassname = 'content'
+    if (this.state.back) {
+      contentClassname += ' goingback'
+    }
+    if (this.state.animate) {
+      contentClassname += ' animate'
+    }
     return (
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
@@ -292,7 +313,7 @@ class Index extends React.Component {
             </div>
           </div>
         </div>
-        <div className="content">
+        <div className={contentClassname}>
         {this.props.children}
         </div>
       </div>

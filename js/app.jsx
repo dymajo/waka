@@ -22,8 +22,8 @@ class App extends React.Component {
   render() {
     return (
       <Router history={browserHistory}>
-        <Route path="/" component={Index}>
-          <Route path="s/:station" component={Station} >
+        <Route path="/" component={Index} onChange={UiStore.handleReactChange}>
+          <Route path="s/:station" component={Station}>
             <Route path=":trip_id" component={VehicleLocationBootstrap} />
           </Route>
 

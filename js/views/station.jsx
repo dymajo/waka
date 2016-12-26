@@ -319,10 +319,8 @@ class Station extends React.Component {
   }
   triggerBackSwiped(swipedAway) {
     if (swipedAway) {
-      var path = window.location.pathname.split('/')
-      var i = path.indexOf(this.props.routeParams.station)
       // runs with the no animate flag
-      UiStore.navigateSavedStations(path.slice(0,i).join('/'), true)
+      UiStore.navigateSavedStations('/', true)
     }
   }
   triggerTouchStart(e) {

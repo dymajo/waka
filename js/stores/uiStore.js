@@ -25,6 +25,8 @@ export class uiStore extends Events {
     }
     browserHistory.listenBefore(this.handleState.bind(this))
     browserHistory.listen(this.currentState.bind(this))
+
+    this.handleReactChange = this.handleReactChange.bind(this)
   }
   getState() {
     return this.state
@@ -65,7 +67,7 @@ export class uiStore extends Events {
     }
     var p = nextState.location.pathname
     var sp = p.split('/')
-    if ((nextState.location.action == 'POP' && ((sp[1] == 'cf' && sp.length === 3) || sp.length === 2)) || this.state.triggeredBack) {
+    if ((nextState.location.action == 'POP' && sp.length === 2) || this.state.triggeredBack) {
       if (this.state.noAnimate === true) {
         // runs cb with delay for animation to finish
         setTimeout(function() {
