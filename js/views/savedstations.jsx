@@ -10,7 +10,9 @@ class SidebarItem extends React.Component {
     this.triggerTap = this.triggerTap.bind(this)
   }
   triggerTap() {
-    browserHistory.push(this.props.url)
+    if (this.props.type !== 'url') {
+      browserHistory.push(this.props.url)
+    }
   }
   getColor(icon) {
     switch(icon) {
@@ -45,15 +47,23 @@ class SidebarItem extends React.Component {
         </li>
       )
     } else {
-      return (
+      let item = (
         <li className={classname} onTouchTap={this.triggerTap}>
-          <div className="icon"><img src={`/icons/${this.props.icon}.svg`} /></div>
+          <div className="icon"><img src={`/icons/${this.props.icon}`} /></div>
           <div className="text-wrapper">
             <div className="name">{this.props.name}</div>
             <div className="description">{this.props.description}</div>
           </div>
         </li>
       )
+      if (this.props.type === 'url') {
+        return (
+          <a href={this.props.url} target="_blank" rel="noopener">
+            {item}
+          </a>
+        )
+      }
+      return item
     }
   }
 }
@@ -93,7 +103,7 @@ class SavedSations extends React.Component {
               key={station}
               url={`/s/${station}`}
               name={stations[station].name} 
-              icon={stations[station].icon}
+              icon={stations[station].icon + '.svg'}
               description={stations[station].description} 
             />
           })}
@@ -108,8 +118,28 @@ class SavedSations extends React.Component {
             <SidebarItem type="cf" name="Southern Line" />
             <SidebarItem type="cf" name="Western Line" />
           </ul>
-          <a href="http://www.congestionfree.co.nz/" target="_blank">What is the Congestion Free Network?</a>
+          <a className="label" href="http://www.congestionfree.co.nz/" target="_blank" rel="noopener">What is the Congestion Free Network?</a>
         </div>
+        <h2>Service Alerts</h2>
+        <ul>
+          <SidebarItem
+            type="url"
+            url="https://twitter.com/AklTransport"
+            icon="atlogo.png"
+            name="Auckland Transport"
+            description="@AklTransport on Twitter"
+          />
+          <SidebarItem
+            type="url"
+            url="https://twitter.com/DYMAJOLtd"
+            icon="dymajo.png"
+            name="DYMAJO"
+            description="@DYMAJOLtd on Twitter"
+          />
+        </ul>
+        <a className="label version" href="https://github.com/consindo/dymajo-transit" target="_blank" rel="noopener">
+          DYMAJO Transit v{localStorage.getItem('AppVersion')}
+        </a>
       </div>
     )
   }

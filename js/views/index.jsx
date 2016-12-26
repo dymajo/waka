@@ -303,10 +303,12 @@ class Index extends React.Component {
                 <img src="/icons/lines.svg" />
                 Lines
               </button>
+              {/*
               <button>
                 <img src="/icons/alert.svg" />
                 Status
               </button>
+              */}
             </div>
             <div className="root-card-content">
               <SavedStations />
