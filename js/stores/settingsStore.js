@@ -2,7 +2,8 @@ export class settingsStore {
   constructor() {
     this.state = {
       clock: true,
-      longName: false
+      longName: false,
+      lastLocation: [-36.844229, 174.767823]
     }
     if (localStorage.getItem('SettingsData')) {
       var preState = JSON.parse(localStorage.getItem('SettingsData'))

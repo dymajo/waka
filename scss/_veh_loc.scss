@@ -68,41 +68,6 @@
 
 }
 
-.currentLocationButton, .routeButton {
-  position: absolute;
-  z-index: 501;
-  right: 14px;
-  background-color: #fff;
-  border: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  border-radius: 50%;
-  text-align: center;
-  width: 55px;
-  height: 55px;
-  outline: 0;
-  
-  &:hover {
-    background: #f7f7f7;
-    cursor: default;
-  }
-  &:active {
-    background: #eee;
-  }
-
-  svg {
-    width: 24px;
-    padding-top: 4px;
-  }
-}
-.currentLocationButton {
-  bottom: 16px;
-  right: 82px;
-
-  svg {
-    fill: #666;
-  }
-}
-
 .bigCurrentLocationCircle {
   stroke: none;
   //opacity: 0.15;
