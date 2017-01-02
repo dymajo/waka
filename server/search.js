@@ -21,7 +21,10 @@ var search = {
           .where('stop_lat > ? and stop_lat < ?', lat - latDist, lat + latDist)
           .and('stop_lon > ? and stop_lon < ?', lng -  lngDist, lng + lngDist)
 
-      tableSvc.queryEntities('stops', query, null, function(err, result, response) {
+      tableSvc.queryEntities('stops', query, null, function(err, result) {
+        if (result.entries === null) {
+          res.send([])
+        }
         res.send(result.entries.filter(function(stop) {
           if (stop.location_type._ === 0) {
             return true

@@ -126,7 +126,7 @@ class vehicle_location extends React.Component {
 
   zoomstart(e){   
     let zoomLevel = e.target.getZoom()
-    if (zoomLevel < 14) {
+    if (zoomLevel < 14 && StationStore.getIcon(this.props.params.station) === 'bus') {
       this.setState({
         showIcons: false
       })
@@ -138,17 +138,12 @@ class vehicle_location extends React.Component {
   }
 
   getPositionData() {
-    //console.log("get pos data",this.props.realtime)
     var trips = Object.keys(this.props.realtime)
-    //console.log('keys', trips)
-    //console.log(trips, trips.length)
     if (trips.length > 0){
-      //console.table(this.props.trips)
       var tripsHashTable = {}
       this.props.trips.forEach(function(trip){
         tripsHashTable[trip.trip_id] = trip.route_short_name
       })
-      console.log('there\'s some data!')
       var queryString = trips.filter((trip) => {
          return tripsHashTable[trip] === this.props.tripInfo.route_short_name
       })
@@ -167,42 +162,49 @@ class vehicle_location extends React.Component {
         body: requestData
       }).then((response) => {
         response.json().then((data) => {
-         for (var trip in data) {
-           if (typeof(data[trip].latitude) !== 'undefined'){
+          for (var trip in data) {
+            if (typeof(data[trip].latitude) !== 'undefined'){
               busPositions[trip] = {
-                  latitude: data[trip].latitude,
-                  longitude: data[trip].longitude,
-                  bearing: data[trip].bearing
-                }
-          } else {
-            console.log('this trip was undefined')
+                latitude: data[trip].latitude,
+                longitude: data[trip].longitude,
+                bearing: data[trip].bearing
+              }
+            }
           }
-         }
+        })
+        this.setState({
+          busPosition: busPositions
+        })
       })
-      this.setState({
-        busPosition: busPositions
-      })
-      })
+    }
+  }
+  viewServices(stop) {
+    return function() {
+      browserHistory.push(`/s/${stop}`)
     }
   }
 
   render(){
+    let color = '#000000'
     let geoJson = null
     if (typeof(this.state.line) !== 'undefined') {
-      geoJson = <GeoJson color={StationStore.getColor(this.props.tripInfo.agency_id, this.props.tripInfo.route_short_name)} className='line' data={this.state.line} />
+      color = StationStore.getColor(this.props.tripInfo.agency_id, this.props.tripInfo.route_short_name)
+      //console.log(color)
+      geoJson = <GeoJson className='line' data={this.state.line} style={{color: color}}/>
     }
+    let icon = StationStore.getIcon(this.props.params.station)
+
     return (
       <div>
         <div className='vehicle-location-map'>
           <Map center={this.state.position} 
             onZoomend={this.zoomstart}
-            zoom={16}>
+            zoom={15}>
             <TileLayer
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
             {Object.keys(this.state.busPosition).map((bus) => {
-              console.log(bus)
               return(
                 <CircleMarker key={bus} center={[this.state.busPosition[bus].latitude,this.state.busPosition[bus].longitude]} radius={15}/>
               )
@@ -218,31 +220,22 @@ class vehicle_location extends React.Component {
                 }
               }
               return (
-                  <CircleMarker color={StationStore.getColor(this.props.tripInfo.agency_id, this.props.tripInfo.route_short_name)} className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} />
+                  <CircleMarker className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} color={color}>
+                    <Popup>
+                      <span>
+                        <img src={`/icons/${icon}.svg`} />
+                        <h2>{stop[3]}</h2>
+                        <h3>Stop {stop[2]}</h3>
+                        <button onClick={this.viewServices(stop[2])}>View Services</button>
+                      </span>
+                    </Popup>
+                  </CircleMarker>
                 )
             })}
             <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
             <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
             
-          </Map>
-            
-        </div>
-        <div className='vehicle-location-stops'>
-          <ul>
-          {this.state.stops.map((stop) => {
-            let className = ''
-            if (stop[2] === this.props.params.station) {
-                className += 'selectedStop'
-            }
-            return(
-              <li className={className}
-                key={stop[2]} >{stop[2]} - {stop[3]}
-              </li>
-            )
-          })
-
-          }
-          </ul>
+          </Map>            
         </div>
       </div>
     )

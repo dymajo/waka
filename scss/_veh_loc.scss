@@ -10,7 +10,7 @@
     .CircleMarker {
       fill-opacity: 1;
       fill: white;
-      stroke:  $lightblue;
+      // stroke:  $lightblue;
       stroke-width: 3;
     }
 
@@ -46,26 +46,12 @@
 .vehicle-location-map {
   position: relative;
   z-index: 8;
-  height: 50vh;
+  height: calc(100vh - #{$mobilenavsize});
+  height: calc(var(--real-height) - #{$mobilenavsize});
 
   .leaflet-container {
     height: 100%;
   }
-}
-
-.vehicle-location-stops {
-    overflow-y: auto;
-    height: calc(50vh - #{$mobilenavsize});
-
-    li {
-        color: blue;
-    }
-
-    div {
-        border:1px solid white;
-        
-    }
-
 }
 
 .bigCurrentLocationCircle {
@@ -81,11 +67,5 @@
   stroke-width: 2
 }
 .line {
-  stroke: $lightblue;
   stroke-width: 5;
-
-}
-
-.selectedStop {
-  background-color: yellow;
 }
