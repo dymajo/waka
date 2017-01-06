@@ -18,7 +18,11 @@ let CurrentStop = window.location.pathname.slice(3,7)
 let geoID = undefined
 let liveRefresh = undefined
 
-
+const hiddenIcon = Icon({
+  iconUrl: '/icons/bus-fill.svg',
+  iconSize: [48, 48],
+  className: 'hiddenIcon'
+})
 const busIcon = Icon({
   iconUrl: '/icons/bus-fill.svg',
   iconRetinaUrl: '/icons/bus-fill.svg',
@@ -231,8 +235,11 @@ class vehicle_location extends React.Component {
                   return
                 }
               }
-              return (
-                  <CircleMarker className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} color={color}>
+              return ([(
+                  <CircleMarker className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} color={color} />
+                  ),
+                  (
+                  <Marker icon={hiddenIcon} key={stop[2]+'invis'} position={[stop[0], stop[1]]}>
                     <Popup>
                       <span>
                         <img src={`/icons/${icon}.svg`} />
@@ -241,8 +248,9 @@ class vehicle_location extends React.Component {
                         <button onClick={this.viewServices(stop[2])}>View Services</button>
                       </span>
                     </Popup>
-                  </CircleMarker>
-                )
+                  </Marker>
+                  )
+                ])
             })}
             <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
             <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
