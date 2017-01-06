@@ -20,19 +20,22 @@ let liveRefresh = undefined
 
 
 const busIcon = Icon({
-  iconUrl: '/icons/bus-icon.png',
-  iconRetinaUrl: '/icons/bus-icon-2x.png',
-  iconSize: [25, 41]
+  iconUrl: '/icons/bus-fill.svg',
+  iconRetinaUrl: '/icons/bus-fill.svg',
+  iconSize: [24, 24],
+  className: 'vehIcon'
 })
 const trainIcon = Icon({
-  iconUrl: '/icons/train-icon.png',
-  iconRetinaUrl: '/icons/train-icon-2x.png',
-  iconSize: [30, 49]
+  iconUrl: '/icons/train-fill.svg',
+  iconRetinaUrl: '/icons/train-fill.svg',
+  iconSize: [24, 24],
+  className: 'vehIcon'
 })
 const ferryIcon = Icon({
-  iconUrl: '/icons/ferry-icon.png',
-  iconRetinaUrl: '/icons/ferry-icon-2x.png',
-  iconSize: [30, 49]
+  iconUrl: '/icons/ferry-fill.svg',
+  iconRetinaUrl: '/icons/ferry-fill.svg',
+  iconSize: [24, 24],
+  className: 'vehIcon'
 })
 
 class vehicle_location extends React.Component {
@@ -142,10 +145,10 @@ class vehicle_location extends React.Component {
     if (trips.length > 0){
       var tripsHashTable = {}
       this.props.trips.forEach(function(trip){
-        tripsHashTable[trip.trip_id] = trip.route_short_name
+        tripsHashTable[trip.trip_id] = trip.route_long_name
       })
       var queryString = trips.filter((trip) => {
-         return tripsHashTable[trip] === this.props.tripInfo.route_short_name
+        return tripsHashTable[trip] === this.props.tripInfo.route_long_name
       })
       var requestData
       requestData = JSON.stringify({trips: queryString})
@@ -171,9 +174,12 @@ class vehicle_location extends React.Component {
               }
             }
           }
-        })
-        this.setState({
-          busPosition: busPositions
+          this.setState({
+            busPosition: []
+          })
+          this.setState({
+            busPosition: busPositions
+          })
         })
       })
     }
@@ -193,6 +199,12 @@ class vehicle_location extends React.Component {
       geoJson = <GeoJson className='line' data={this.state.line} style={{color: color}}/>
     }
     let icon = StationStore.getIcon(this.props.params.station)
+    let leafletIcon = busIcon
+    if (icon === 'train') {
+      leafletIcon = trainIcon
+    } else if (icon === 'ferry') {
+      leafletIcon = ferryIcon
+    }
 
     return (
       <div>
@@ -206,7 +218,7 @@ class vehicle_location extends React.Component {
             {geoJson}
             {Object.keys(this.state.busPosition).map((bus) => {
               return(
-                <CircleMarker key={bus} center={[this.state.busPosition[bus].latitude,this.state.busPosition[bus].longitude]} radius={15}/>
+                <Marker icon={leafletIcon} key={bus} position={[this.state.busPosition[bus].latitude,this.state.busPosition[bus].longitude]}/>
               )
               
             })}
