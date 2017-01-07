@@ -11,6 +11,7 @@ import Settings from './views/settings.jsx'
 import NoMatch from './views/nomatch.jsx'
 // import Lines from './views/lines.jsx'
 // import Line from './views/line.jsx'
+import TestLines from './views/test_lines.jsx'
 import VehicleLocationBootstrap from './views/vehicle_loc_bootstrap.jsx'
 
 import autotrack from 'autotrack' // google analytics
@@ -26,6 +27,7 @@ class App extends React.Component {
           <Route path="s/:station" component={Station}>
             <Route path=":trip_id" component={VehicleLocationBootstrap} />
           </Route>
+          <Route path="testlines" component={TestLines} />
 
           <Route path="settings" component={Settings}/>
           <Route path="*" component={NoMatch}/>
