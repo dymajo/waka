@@ -21,8 +21,11 @@ var shapeWKBOptions = {
 
 var allLines = {
   // TRAINS
+  'EAST': [['Britomart Train Station', 'Manukau Train Station']],
+  'ONE': [['Britomart Train Station', 'Onehunga Train Station']],
   'STH': [['Britomart Train Station', 'Papakura Train Station']],
   'WEST': [['Britomart Train Station', 'Swanson Train Station']],
+  'PUK': [['Papakura Train Station', 'Pukekohe Train Station']],
 
   // CITY
   'CTY': [['City Link', 'Wynyard Quarter', 'Greys Ave']],
@@ -30,15 +33,63 @@ var allLines = {
 
   // ISTHMUS
   'OUT': [['Outer Link Clockwise'],['Outer Link Anticlockwise']],
+  '005': [['Britomart', 'Pt Chevalier', 'Westmere']],
   '007': [['Pt Chevalier', 'St Heliers', 'Hospital And Selwyn Village'], ['Pt Chevalier', 'St Heliers', 'Selwyn Village And Hospital']],
-  '233': [['Midtown', 'New Lynn', 'Sandringham Road and St Lukes']],
+  '008': [['New Lynn', 'Otahuhu']],
+  '009': [['New Lynn', 'Sylvia Park', 'Blockhouse Bay Shops']],
+  '010': [['Wynyard Quarter', 'Onehunga', 'Unitec']],
+  '011': [['St Lukes', 'Onehunga']],
+  '020': [['Britomart', 'Westmere', 'Wellington St']],
+  '030': [['City Centre', 'Pt Chevalier']],
+  '209': [['City Centre', 'Titirangi', 'New North Rd And Green Bay (U)'], ['City Centre', 'Titirangi', 'Green Bay And New North Rd (U)']],
+  '220': [['Midtown', 'St Lukes'], ['City Centre', 'St Lukes']],
+  '221': [['Midtown', 'Rosebank Rd'], ['City Centre', 'Rosebank Rd']],
+  '222': [['Midtown', 'Patiki Rd'], ['City Centre', 'Patiki Rd']],
+  '223': [['Midtown', 'New Lynn'], ['City Centre', 'New Lynn']],
+  '224': [['Midtown', 'Henderson', 'St Lukes And New Lynn'], ['City Centre', 'Henderson']],
+  '233': [['Midtown', 'New Lynn', 'Sandringham Road and St Lukes'], ['City Centre', 'New Lynn', 'Sandringham Road and St Lukes']],
+  '243': [['Midtown', 'New Lynn', 'Sandringham Road'], ['City Centre', 'New Lynn', 'Sandringham Rd']],
+  '243X': [['Midtown', 'New Lynn Express', 'Owairaka'], ['City Centre Express', 'New Lynn', 'Owairaka']],
+  '246': [['Midtown', 'Wesley']],
+  '248': [['Midtown', 'Blockhouse Bay'], ['Midtown', 'Blockhouse Bay', 'Sandringham Rd']],
+  '248X': [['Midtown', 'Blockhouse Bay Express', 'New Windsor'], ['Midtown Express', 'Blockhouse Bay', 'New Windsor']],
+  '249': [['Midtown', 'New Lynn', 'Sandringham Rd and Blockhouse Bay'], ['City Centre', 'New Lynn', 'Blockhouse Bay and Sandringham R']],
   '255': [['Civic Centre', 'May Rd'], ['Civic Centre', 'May Rd', 'Flyover']],
   '258': [['Civic Centre', 'Blockhouse Bay'], ['Civic Centre', 'Blockhouse Bay', 'Flyover']],
+  '258X': [['Civic Centre', 'Blockhouse Bay Express'], ['Civic Centre Express', 'Blockhouse Bay']],
   '267': [['Civic Centre', 'Lynfield'], ['Civic Centre', 'Lynfield', 'Flyover']],
+  '267X': [['Civic Centre', 'Lynfield Express'], ['Civic Centre Express', 'Lynfield']],
   '274': [['Britomart', 'Three Kings']],
   '277': [['Britomart', 'Waikowhai']],
+  '299': [['Civic Centre', 'Lynfield', 'Waikowhai'], ['City Centre', 'Lynfield', 'Waikowhai']],
+  '302': [['Civic Centre', 'Onehunga'], ['City Centre', 'Onehunga']],
+  '309': [['Civic / Queen St', 'Mangere Town Centre'], ['City Centre', 'Mangere Town Centre']],
+  '309X': [['Civic / Queen St', 'Mangere Town Centre (Express)'], ['City Centre (Express)', 'Mangere Town Centre']],
+  '31X': [['City Centre', 'Onehunga Express', 'One Tree Hill'], ['City Centre Express', 'Onehunga', 'One Tree Hill']],
+  '312': [['Civic Centre', 'Onehunga', 'Oranga'], ['City Centre', 'Onehunga', 'Oranga']],
+  '321': [['Britomart', 'Middlemore Station', 'Greenlane']],
+  '322': [['Britomart', 'Otahuhu Station', 'Great South Road']],
+  '390': [['City Centre', 'Te Papapa']],
 
-  // SOUTH
+  // NORTH OF MOTORWAY ISTHMUS
+  '605': [['Civic Centre', 'Lucerne Rd', 'Benson Rd'], ['City Centre', 'Lucerne Rd', 'Benson Rd']],
+  '606': [['Civic Centre', 'Upland Rd', 'Lucerne Rd And Benson Rd']],
+  '625': [['Britomart', 'Glen Innes', 'Khyber Pass Rd And Remuera Rd'], ['Britomart', 'Glen Innes', 'St Johns And Khyber Pass Rd']],
+  '635': [['Britomart', 'Glen Innes', 'Parnell And Grand Dr'], ['Britomart', 'Glen Innes', 'Grand Dr And Parnell']],
+  '645': [['Britomart', 'Glen Innes', 'Parnell and Remuera Rd']],
+  '655': [['Britomart', 'Glen Innes', 'Meadowbank and Parnell']],
+  '703': [['Britomart', 'Remuera', 'Portland Rd']],
+  '715': [['Britomart', 'Glen Innes Centre', 'Orakei']],
+  '719': [['Britomart', 'Sylvia Park']],
+  '745': [['Britomart', 'Glen Innes Centre', 'Mission Bay']],
+  '756': [['Britomart', 'Panmure', 'Mission Bay And Glen Innes'], ['Britomart', 'Panmure', 'Glen Innes And Mission Bay']],
+  '757': [['Britomart', 'Otahuhu', 'Glen Innes And Mission Heights'], ['Britomart', 'Otahuhu', 'Panmure and Glen Innes and Mission']],
+  '767': [['Britomart', 'Glendowie'], ['Britomart', 'Glendowie South', 'Tamaki Dr']],
+  '769': [['Britomart', 'Glendowie North', 'Tamaki Dr']],
+  '770': [['Newmarket', 'St Heliers', 'Kohimarama']],
+  '771': [['Newmarket', 'St Heliers', 'Mission Bay']],
+
+  // EAST
   '500': [['Britomart', 'Mission Heights', 'Botany Town Centre']]
 }
 
