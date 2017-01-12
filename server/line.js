@@ -18,8 +18,18 @@ var shapeWKBOptions = {
     'Ocp-Apim-Subscription-Key': process.env.atApiKey
   }
 }
-
-var allLines = {
+let lineOperators = {}
+const lineGroups = [
+  {
+    name: 'Trains',
+    items: ['EAST','ONE','STH','WEST','PUK']
+  },
+  {
+    name: 'City & Isthmus',
+    items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','209','220','221','222','223','224','233','243','243X','246','248','248X','249','255','258','258X','267','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
+  }
+]
+const allLines = {
   // TRAINS
   'EAST': [['Britomart Train Station', 'Manukau Train Station']],
   'ONE': [['Britomart Train Station', 'Onehunga Train Station']],
@@ -93,9 +103,44 @@ var allLines = {
   '500': [['Britomart', 'Mission Heights', 'Botany Town Centre']]
 }
 
+function getOperators() {
+  let todo = []
+  for (var key in allLines) {
+    todo.push(key)
+  }
+
+  let version = Object.keys(cache.versions)[0].split('_')[1]
+  let getOperator = function(index) {
+    if (index >= todo.length) {
+      console.log('Completed Lookup of Agencies')
+      return
+    }
+    let query = new azure.TableQuery()
+      .select(['agency_id'])
+      .top(1)
+      .where('PartitionKey eq ? and route_short_name eq ?', version, todo[index])
+
+    tableSvc.queryEntities('trips', query, null, function(error, result, response) {
+      if(error) {
+        console.warn(error)
+      }
+      // query was successful
+      lineOperators[todo[index]] = result.entries[0].agency_id._
+      getOperator(index + 1)
+    })
+  }
+  getOperator(0)
+}
+// runs after initial cache get
+cache.ready.push(getOperators)
+
 var line = {
   getLines: function(req, res) {
-    res.send(allLines)
+    res.send({
+      groups: lineGroups,
+      lines: allLines,
+      operators: lineOperators
+    })
   },
 
   getLine: function(req, res) {

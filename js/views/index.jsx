@@ -29,6 +29,7 @@ class Index extends React.Component {
 
     this.loadMapDynamic = this.loadMapDynamic.bind(this)
     this.toggleStations = this.toggleStations.bind(this)
+    this.toggleLines = this.toggleLines.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
@@ -79,6 +80,9 @@ class Index extends React.Component {
         mapView: !this.state.mapView
       })
     })
+  }
+  toggleLines() {
+    browserHistory.push('/l')
   }
   triggerBack() {
     this.setState({
@@ -299,7 +303,7 @@ class Index extends React.Component {
                 <img src="/icons/station.svg" />
                 Stations
               </button>
-              <button>
+              <button onTouchTap={this.toggleLines}>
                 <img src="/icons/lines.svg" />
                 Lines
               </button>

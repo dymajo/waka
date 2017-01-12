@@ -62,7 +62,7 @@ class VehicleLocationBootstrap extends React.Component {
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
             <h1 className='line-name'>
-              <span style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
+              <span className='line-pill' style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
                 {this.state.tripInfo.route_short_name}
               </span>
               {this.state.tripInfo.route_long_name}

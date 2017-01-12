@@ -1,0 +1,31 @@
+.lines-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 5;
+  background: $default-back;
+
+
+  .material-header {
+    height: $navsize;
+    div {
+      z-index: 10;
+    }
+
+    h1 {
+      line-height: $navsize; 
+      padding-top: 0;
+    }
+  }
+}
+
+.list-lines {
+  position: absolute;
+  top: $navsize;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: scroll;
+}

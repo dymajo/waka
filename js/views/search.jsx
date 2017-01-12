@@ -3,7 +3,6 @@ import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
-import SearchSwitch from './searchswitch.jsx'
 
 let leaflet = require('react-leaflet')
 let Map = leaflet.Map

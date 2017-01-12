@@ -1,5 +1,4 @@
 $padding-height: 250px;
-$root-card-bar: 56px;
 $transition: 250ms ease transform;
 
 .root-container {
@@ -67,7 +66,7 @@ $transition: 250ms ease transform;
   display: flex;
   background: #eee;
   box-shadow:  0 0 3px rgba(#000,0.4);
-  border-bottom: 1px solid #e4e4e4;
+  // border-bottom: 1px solid #e4e4e4;
   max-width: 480px;
   margin: 0 auto;
 

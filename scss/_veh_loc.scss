@@ -23,24 +23,25 @@
       .line-name {
         line-height: $navsize; 
         padding-top: 0;
-
-        span {
-          color: #fff;
-          display: inline-block;
-          border: 2px solid rgba(0,0,0,0.2);
-          text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
-          border-radius: 2px;
-          line-height: 1;
-          padding: 3px;
-          margin-right: 7px;
-          font-weight: 600;
-
-          &:empty {
-            visibility: hidden;
-          }
-        }
       }
     }
+}
+
+.line-pill {
+  color: #fff;
+  display: inline-block;
+  border: 2px solid rgba(0,0,0,0.2);
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
+  border-radius: 2px;
+  line-height: 1;
+  padding: 3px;
+  margin-right: 7px;
+  font-weight: 600;
+  background: #000;
+
+  &:empty {
+    visibility: hidden;
+  }
 }
 
 .vehicle-location-map {

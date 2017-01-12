@@ -10,7 +10,7 @@ var options = {
   headers: {
     'Ocp-Apim-Subscription-Key': process.env.atApiKey
   }
-};
+}
 
 var cache = {
   // current AT versions
@@ -29,6 +29,11 @@ var cache = {
 
         data.response.forEach(function(version) {
           cache.versions[version.version] = {startdate: version.startdate, enddate: version.enddate}
+        })
+
+        // run all the callbacks
+        cache.ready.forEach(function(fn) {
+          fn()
         })
 
         tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
@@ -52,6 +57,9 @@ var cache = {
       })
     })
   },
+
+  ready: [],
+
   get: function(cb) {
     var promises = []
 

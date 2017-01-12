@@ -1,13 +1,15 @@
 import * as React from 'react'
 import { Link, browserHistory } from 'react-router'
-import SearchSwitch from './searchswitch.jsx'
+
+import { StationStore } from '../stores/stationStore'
 
 class Lines extends React.Component {
   constructor(props){
     super(props)
     this.state = {
       service: '',
-      allLines: undefined
+      allLines: undefined,
+      groups: []
     }
     this.triggerChange = this.triggerChange.bind(this)
   }
@@ -16,6 +18,9 @@ class Lines extends React.Component {
     return function() {
       browserHistory.push(`/l/${line}`)
     }
+  }
+  triggerBack() {
+    browserHistory.push('/')
   }
 
   triggerChange(e) {
@@ -28,7 +33,9 @@ class Lines extends React.Component {
     fetch('/a/lines').then((response)=>{
       response.json().then((data) => {
         this.setState({
-          allLines: data
+          allLines: data.lines,
+          groups: data.groups,
+          operators: data.operators
         })       
       })
     })
@@ -39,25 +46,38 @@ class Lines extends React.Component {
     // there needs to be a sorting function in here probably
     if (this.props.children === null) {
       ret = []
-      for (var key in this.state.allLines) {
-        var el = this.state.allLines[key]
-        if (el[0].length === 1) {
-          ret.push(<div key={key}><Link to={'/l/'+key}><strong>{key}</strong> {el[0][0]}</Link></div>)
-        } else {
-          ret.push(<div key={key}><Link to={'/l/'+key}><strong>{key}</strong> {el[0][0]} to {el[0][1]}</Link></div>)
-        }
-        
-      }
+      this.state.groups.forEach((group) => {
+        ret.push(<h2 key={group.name}>{group.name}</h2>)
+        group.items.forEach((item, lineKey) => {
+          let key = group.name + lineKey
+          let el = this.state.allLines[item]
+          let operator = this.state.operators[item]
+          let name = el[0][0].replace(' Train Station', '')
+          if (el[0].length > 1) {
+            name = el[0][0].replace(' Train Station', '') + ' to ' + el[0][1].replace('Train Station', '')
+          }
+          ret.push(
+            <div key={key}>
+              <Link to={'/l/'+key}>
+                <span className="line-pill" style={{backgroundColor: StationStore.getColor(operator, item)}}>{item}</span> {name}
+              </Link>
+            </div>
+          )
+        })
+      })
+      ret = <div className="list-lines">{ret}</div>
     } else {
       ret = this.props.children
     }
     return(
-      <div>
-        <input value={this.state.service} type="text" placeholder="Enter Service Name" onChange={this.triggerChange} /><br/>
-        <button onClick={this.viewLine(this.state.service)}>View Line</button>
-        Your line: 
+      <div className="lines-container">
+        <header className='material-header'>
+          <div>
+            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+            <h1>All Lines</h1>
+          </div>
+        </header>
         {ret}
-        <SearchSwitch />
       </div>
     )
   }
