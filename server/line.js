@@ -89,7 +89,7 @@ const allLines = {
   '645': [['Britomart', 'Glen Innes', 'Parnell and Remuera Rd']],
   '655': [['Britomart', 'Glen Innes', 'Meadowbank and Parnell']],
   '703': [['Britomart', 'Remuera', 'Portland Rd']],
-  '715': [['Britomart', 'Glen Innes Centre', 'Orakei']],
+  '715': [['Britomart', 'Glen Innes Centre', 'Orakei'], ['Britomart', 'Glen Innes', 'Orakei']],
   '719': [['Britomart', 'Sylvia Park']],
   '745': [['Britomart', 'Glen Innes Centre', 'Mission Bay']],
   '756': [['Britomart', 'Panmure', 'Mission Bay And Glen Innes'], ['Britomart', 'Panmure', 'Glen Innes And Mission Bay']],
@@ -144,8 +144,10 @@ var line = {
   },
 
   getLine: function(req, res) {
-    var query = new azure.TableQuery()
-      .where('route_short_name eq ?', req.params.line)
+    let lineId = req.params.line.trim()
+    let version = Object.keys(cache.versions)[0].split('_')[1]
+    let query = new azure.TableQuery()
+      .where('PartitionKey eq ? and route_short_name eq ?', version, lineId)
     tableSvc.queryEntities('routeShapes', query, null, function(err, result, response){
       if (err) {
         return reject(err)
@@ -301,15 +303,15 @@ var line = {
 
   },
 
-  getShapeFromTrip: function(req, res){
+  getStopsFromTrip: function(req, res){
     var trip_id = req.params.trip_id
-    var pkey = trip_id.split('_').slice(-1)[0]
+    // var pkey = trip_id.split('_').slice(-1)[0]
     var newOpts = JSON.parse(JSON.stringify(shapeWKBOptions))     
     newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/tripId/' + trip_id
     request(newOpts, function(err, response, body){
       if (err) {
         console.log(err)
-        res.send({
+        res.status(500).send({
           error: err
         })
         return
@@ -324,6 +326,26 @@ var line = {
       }))
     })  
   },
+  getStopsFromShape: function(req, res) {
+    let shape_id = req.params.shape_id
+    let version = Object.keys(cache.versions)[0].split('_')[1]
+    let query = new azure.TableQuery()
+      .select('RowKey')
+      .top(1)
+      .where('PartitionKey eq ? and shape_id eq ?', version, shape_id)
+    tableSvc.queryEntities('trips', query, null, function(err, result) {
+      if (result.entries.length < 1) {
+        return res.status(404).send({
+          'error': 'shape not found'
+        })
+      }
+      // pass it on to another controller with hacks
+      let trip_id = result.entries[0].RowKey._
+      req.params.trip_id =  trip_id
+      line.getStopsFromTrip(req, res)
+    })
+  },
+
   cacheShapes: function(trips) {
     // makes a priority list
     let allShapes = {}

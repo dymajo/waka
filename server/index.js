@@ -24,12 +24,12 @@ router.get('/station/:station/clean', function(req, res) {
 })
 router.get('/lines', line.getLines)
 router.get('/line/:line', line.getLine)
-router.get('/vehicle_loc/:trip_id', line.getShapeFromTrip)
-router.get('/vehicle/:vehicle', vehicle.getVehicle)
+router.get('/stops/trip/:trip_id', line.getStopsFromTrip)
+router.get('/stops/shape/:shape_id', line.getStopsFromShape)
 router.get('/shape/:line', line.getShape)
+router.get('/vehicle/:vehicle', vehicle.getVehicle)
 router.post('/realtime', realtime.getTrips)
 router.post('/vehicle_location', realtime.getVehicleLocation)
 router.post('/email', email.sendEmail)
 
-
-module.exports = router;
+module.exports = router
