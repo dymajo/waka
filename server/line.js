@@ -103,8 +103,9 @@ const allLines = {
   '500': [['Britomart', 'Mission Heights', 'Botany Town Centre']]
 }
 
-function getOperators() {
+function cacheOperatorsAndShapes() {
   let todo = []
+  let shapesToCache = []
   for (var key in allLines) {
     todo.push(key)
   }
@@ -115,12 +116,13 @@ function getOperators() {
       console.log('Completed Lookup of Agencies')
       return
     }
+    // caches the operator
     let query = new azure.TableQuery()
       .select(['agency_id'])
       .top(1)
       .where('PartitionKey eq ? and route_short_name eq ?', version, todo[index])
 
-    tableSvc.queryEntities('trips', query, null, function(error, result, response) {
+    tableSvc.queryEntities('trips', query, null, function(error, result) {
       if(error) {
         console.warn(error)
       }
@@ -128,11 +130,23 @@ function getOperators() {
       lineOperators[todo[index]] = result.entries[0].agency_id._
       getOperator(index + 1)
     })
+
+    // caches the shape 
+    line._getLine(todo[index], function(err, data) {
+      if (err) {
+        console.warn(err)
+      }
+      shapesToCache.push({shape_id: data[0].shape_id})
+      if (todo.length === shapesToCache.length) {
+        console.log('Collected List of Shapes To Cache')
+        line.cacheShapes(shapesToCache)
+      }
+    })
   }
   getOperator(0)
 }
 // runs after initial cache get
-cache.ready.push(getOperators)
+cache.ready.push(cacheOperatorsAndShapes)
 
 var line = {
   getLines: function(req, res) {
@@ -145,16 +159,24 @@ var line = {
 
   getLine: function(req, res) {
     let lineId = req.params.line.trim()
+    line._getLine(lineId, function(err, data) {
+      if (err) {
+        return res.status(500).send(err)
+      }
+      res.send(data)
+    })
+  },
+  _getLine(lineId, cb) {
     let version = Object.keys(cache.versions)[0].split('_')[1]
     let query = new azure.TableQuery()
       .where('PartitionKey eq ? and route_short_name eq ?', version, lineId)
-    tableSvc.queryEntities('routeShapes', query, null, function(err, result, response){
+    tableSvc.queryEntities('routeShapes', query, null, function(err, result){
       if (err) {
-        return reject(err)
+        cb(err, null)
       }
       var versions = {}
       var results = []
-      result.entries.forEach(function(route){
+      result.entries.forEach(function(route) {
         // checks to make it's the right route (the whole exception thing)
         if (line.exceptionCheck(route) === false){
           return
@@ -170,19 +192,25 @@ var line = {
           return
         }
 
-        results.push({
+        let result = {
           route_id: route.RowKey._,
           route_long_name: route.route_long_name._,
           route_short_name: route.route_short_name._,
           shape_id: route.shape_id._,
           route_type: route.route_type._  
-        })
+        }
+        // if it's the best match, inserts at the front
+        if (line.exceptionCheck(route, true) === true) {
+          return results.unshift(result)
+        }
+        results.push(result)
       })
-      res.send(results)
+      cb(null, results)
     })
   },
+
   getShape: function(req, res) {
-    let shape_id = req.params.line
+    let shape_id = req.params.shape_id
     tableSvc.retrieveEntity('meta', 'shapewkb', shape_id, function(err, result, response) {
       if (err) {
         line.getShapeFromAt([shape_id], function(wkb) {
@@ -264,36 +292,42 @@ var line = {
     })  
   },
 
-  exceptionCheck: function(route){
+  exceptionCheck: function(route, bestMatchMode = false) {
     // blanket thing for no schools
-    if (route.trip_headsign._ === "Schools"){
+    if (route.trip_headsign._ === 'Schools'){
       return false
     }
     if (typeof(allLines[route.route_short_name._]) === 'undefined') {
       return true
     }
-    var retval = false
-    allLines[route.route_short_name._].forEach(function(variant) {
+    let retval = false
+    let routes = allLines[route.route_short_name._].slice()
+
+    // new mode that we only find the best match
+    if (bestMatchMode) {
+      routes = [routes[0]]
+    }
+    routes.forEach(function(variant) {
       if (variant.length === 1 && route.route_long_name._ === variant[0]) {
         retval = true
       // normal routes - from x to x
       } else if (variant.length === 2) {
-        var splitName = route.route_long_name._.toLowerCase().split(' to ')
+        let splitName = route.route_long_name._.toLowerCase().split(' to ')
         if (variant[0].toLowerCase() == splitName[0] && variant[1].toLowerCase() == splitName[1]) {
           retval = true
         // reverses the order
-        } else if (variant[1].toLowerCase() == splitName[0] && variant[0].toLowerCase() == splitName[1]) {
+        } else if (variant[1].toLowerCase() == splitName[0] && variant[0].toLowerCase() == splitName[1]  && !bestMatchMode) {
           retval = true
         }
       // handles via Flyover or whatever
       } else if (variant.length === 3) {
-        var splitName = route.route_long_name._.toLowerCase().split(' to ')
+        let splitName = route.route_long_name._.toLowerCase().split(' to ')
         if (splitName[1].split(' via ')[1] === variant[2].toLowerCase()) {
           splitName[1] = splitName[1].split(' via ')[0]
           if (variant[0].toLowerCase() === splitName[0] && variant[1].toLowerCase() === splitName[1]) {
             retval = true
           // reverses the order
-          } else if (variant[1].toLowerCase() === splitName[0] && variant[0].toLowerCase() === splitName[1]) {
+          } else if (variant[1].toLowerCase() === splitName[0] && variant[0].toLowerCase() === splitName[1] && !bestMatchMode) {
             retval = true
           }
         }
