@@ -28,6 +28,7 @@ class App extends React.Component {
             <Route path=":trip_id" component={VehicleLocationBootstrap} />
           </Route>
           <Route path='l' component={Lines}>
+            <Route path=":line_id" component={VehicleLocationBootstrap} />
           </Route>
           <Route path="testlines" component={TestLines} />
 

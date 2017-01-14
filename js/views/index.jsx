@@ -285,9 +285,7 @@ class Index extends React.Component {
                 <strong>DYMAJO Transit</strong></h1>
             </div>
           </header>
-          <div className="root-map"
-            ref="touchmap"
-          >
+          <div className="root-map" ref="touchmap">
             {map}
           </div>
           <div className="root-card enable-scrolling"

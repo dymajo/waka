@@ -58,7 +58,7 @@ class Lines extends React.Component {
           }
           ret.push(
             <div key={key}>
-              <Link to={'/l/'+key}>
+              <Link to={'/l/'+item}>
                 <span className="line-pill" style={{backgroundColor: StationStore.getColor(operator, item)}}>{item}</span> {name}
               </Link>
             </div>
@@ -67,7 +67,9 @@ class Lines extends React.Component {
       })
       ret = <div className="list-lines">{ret}</div>
     } else {
-      ret = this.props.children
+      ret = this.props.children && React.cloneElement(this.props.children, {
+        operators: this.state.operators
+      })
     }
     return(
       <div className="lines-container">

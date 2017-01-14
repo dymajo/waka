@@ -63,22 +63,34 @@ class vehicle_location extends React.Component {
     this.zoomstart = this.zoomstart.bind(this)
   }
 
-  getShapeData(){
+  getShapeData(newProps = this.props) {
+    let showIcons = true
+    let url = `/a/stops/trip/${newProps.params.trip_id}`
+    if ('line_id' in newProps.params) {
+      if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
+        url = `/a/stops/shape/${newProps.tripInfo.shape_id}`
+        showIcons = false
+      } else {
+        return
+      }
+    }
     var stops = []
     var stop_ids = []
-    fetch(`/a/vehicle_loc/${this.props.params.trip_id}`).then((response) => {
+    fetch(url).then((response) => {
       response.json().then((data) => {
         data.forEach(function(item){
           stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
           stop_ids.push(item.stop_id)
         })
-        this.setState({
+        let newState = {
           stops: stops,
-          stop_ids: stop_ids
-        })
+          stop_ids: stop_ids,
+          showIcons: showIcons
+        }
+        // we're going to center the map at the center stop
+        this.setState(newState)
       })
     })
-    
   }
 
   getWKB(newProps = this.props){
@@ -92,14 +104,26 @@ class vehicle_location extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.getWKB()
+    this.getWKB(newProps)
+    if ('line_id' in newProps.params) {
+      this.getShapeData(newProps)
+    }
   }
 
   convert(data){
-    var wkb = new Buffer(data, 'hex')
-    this.setState({
-      line: wkx.Geometry.parse(wkb).toGeoJSON()
-    })
+    let wkb = new Buffer(data, 'hex')
+    let geoJson = wkx.Geometry.parse(wkb).toGeoJSON()
+
+    let newState = {
+      line: geoJson
+    }
+    // this centers the line if we're looking at the line
+    if ('line_id' in this.props.params) {
+      // it's opposite for some reason, also we shouldn't mutate it
+      let center = geoJson.coordinates[Math.round(geoJson.coordinates.length/2)]
+      newState.position = center.slice().reverse()
+    }
+    this.setState(newState)
   }
   
   componentDidMount() {
@@ -145,6 +169,10 @@ class vehicle_location extends React.Component {
   }
 
   getPositionData() {
+    // i might bring this back from the dead one day
+    if ('line_id' in this.props.params) {
+      return
+    }
     var trips = Object.keys(this.props.realtime)
     if (trips.length > 0){
       var tripsHashTable = {}
@@ -209,13 +237,17 @@ class vehicle_location extends React.Component {
     } else if (icon === 'ferry') {
       leafletIcon = ferryIcon
     }
+    let zoom  = 15
+    if ('line_id' in this.props.params) {
+      zoom = 12
+    }
 
     return (
       <div>
         <div className='vehicle-location-map'>
           <Map center={this.state.position} 
             onZoomend={this.zoomstart}
-            zoom={15}>
+            zoom={zoom}>
             <TileLayer
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
@@ -236,21 +268,21 @@ class vehicle_location extends React.Component {
                 }
               }
               return ([(
-                  <CircleMarker className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} color={color} />
-                  ),
-                  (
-                  <Marker icon={hiddenIcon} key={stop[2]+'invis'} position={[stop[0], stop[1]]}>
-                    <Popup>
-                      <span>
-                        <img src={`/icons/${icon}.svg`} />
-                        <h2>{stop[3]}</h2>
-                        <h3>Stop {stop[2]}</h3>
-                        <button onClick={this.viewServices(stop[2])}>View Services</button>
-                      </span>
-                    </Popup>
-                  </Marker>
-                  )
-                ])
+                <CircleMarker className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} color={color} />
+                ),
+                (
+                <Marker icon={hiddenIcon} key={stop[2]+'invis'} position={[stop[0], stop[1]]}>
+                  <Popup>
+                    <span>
+                      <img src={`/icons/${icon}.svg`} />
+                      <h2>{stop[3]}</h2>
+                      <h3>Stop {stop[2]}</h3>
+                      <button onClick={this.viewServices(stop[2])}>View Services</button>
+                    </span>
+                  </Popup>
+                </Marker>
+                )
+              ])
             })}
             <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
             <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
@@ -260,5 +292,12 @@ class vehicle_location extends React.Component {
       </div>
     )
   }
+}
+vehicle_location.propTypes = {
+  params: React.PropTypes.object.isRequired,
+  tripInfo: React.PropTypes.object,
+  stopInfo: React.PropTypes.array,
+  trips: React.PropTypes.array,
+  realtime: React.PropTypes.object
 }
 export default vehicle_location
