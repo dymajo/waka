@@ -37,6 +37,8 @@ class VehicleLocationBootstrap extends React.Component {
           let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
           tripInfo.route_long_name = data[0].route_long_name
           tripInfo.shape_id = data[0].shape_id
+          tripInfo.route_type = data[0].route_type
+          // tripInfo.route_type = data[]
           this.setState({
             lineInfo: data,
             selectedLine: 0,

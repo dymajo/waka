@@ -69,7 +69,6 @@ class vehicle_location extends React.Component {
     if ('line_id' in newProps.params) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
         url = `/a/stops/shape/${newProps.tripInfo.shape_id}`
-        showIcons = false
       } else {
         return
       }
@@ -82,6 +81,9 @@ class vehicle_location extends React.Component {
           stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
           stop_ids.push(item.stop_id)
         })
+        if (this.props.tripInfo.route_type === 3) {
+          showIcons = false
+        }
         let newState = {
           stops: stops,
           stop_ids: stop_ids,
@@ -157,7 +159,15 @@ class vehicle_location extends React.Component {
 
   zoomstart(e){   
     let zoomLevel = e.target.getZoom()
-    if (zoomLevel < 14 && StationStore.getIcon(this.props.params.station) === 'bus') {
+    let station = 'notbus'
+    if ('line_id' in this.props.params) {
+      if (this.props.lineInfo[0].route_type === 3) {
+        station = 'bus'
+      }
+    } else {
+      station = StationStore.getIcon(this.props.params.station)
+    }
+    if (zoomLevel < 14 && station === 'bus') {
       this.setState({
         showIcons: false
       })

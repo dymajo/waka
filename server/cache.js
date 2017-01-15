@@ -12,6 +12,8 @@ var options = {
   }
 }
 
+let firstRun = true
+
 var cache = {
   // current AT versions
   versions: {},
@@ -31,10 +33,13 @@ var cache = {
           cache.versions[version.version] = {startdate: version.startdate, enddate: version.enddate}
         })
 
-        // run all the callbacks
-        cache.ready.forEach(function(fn) {
-          fn()
-        })
+        if (firstRun) {
+          // run all the callbacks
+          cache.ready.forEach(function(fn) {
+            fn()
+          })
+          firstRun = false
+        }
 
         tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
           if (result === null) {

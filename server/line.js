@@ -21,7 +21,7 @@ var shapeWKBOptions = {
 let lineOperators = {}
 const lineGroups = [
   {
-    name: 'Trains',
+    name: 'Train',
     items: ['EAST','ONE','STH','WEST','PUK']
   },
   {
