@@ -95,8 +95,8 @@ class vehicle_location extends React.Component {
     })
   }
 
-  getWKB(newProps = this.props){
-    if (typeof(this.state.line) === 'undefined') {
+  getWKB(newProps = this.props, force = false){
+    if (typeof(this.state.line) === 'undefined' || force === true) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
         fetch(`/a/shape/${newProps.tripInfo.shape_id}`).then((response) => {
           response.text().then(this.convert)
@@ -106,9 +106,12 @@ class vehicle_location extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.getWKB(newProps)
     if ('line_id' in newProps.params) {
+      this.setState({line: undefined})
+      this.getWKB(newProps, true)
       this.getShapeData(newProps)
+    } else {
+      this.getWKB(newProps)
     }
   }
 

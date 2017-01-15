@@ -9,13 +9,13 @@ class VehicleLocationBootstrap extends React.Component {
     super(props)
     this.state = {
       showContent: false,
-      selectedLine: 0,
       tripInfo: {},
       lineInfo: []
     }
 
     this.lineMountCb = this.lineMountCb.bind(this)
     this.tripMountCb = this.tripMountCb.bind(this)
+    this.triggerChange = this.triggerChange.bind(this)
   }
   componentWillMount() {
     if ('line_id' in this.props.params) {
@@ -41,7 +41,6 @@ class VehicleLocationBootstrap extends React.Component {
           // tripInfo.route_type = data[]
           this.setState({
             lineInfo: data,
-            selectedLine: 0,
             tripInfo: tripInfo
           })
         })
@@ -78,8 +77,19 @@ class VehicleLocationBootstrap extends React.Component {
     newUrl.splice(-1)
     browserHistory.push(newUrl.join('/'))
   }
+  triggerChange(e) {
+    let newLine = this.state.lineInfo[e.currentTarget.value]
+    let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
+
+    tripInfo.route_long_name = newLine.route_long_name
+    tripInfo.shape_id = newLine.shape_id
+    this.setState({
+      tripInfo: tripInfo
+    })
+  }
   render() {
     let content = null
+    let lineSelect = this.state.tripInfo.route_long_name
     if (this.state.showContent === true) {
       if ('line_id' in this.props.params) {
         let stopInfo = [-36.844229, 174.767823]
@@ -90,6 +100,12 @@ class VehicleLocationBootstrap extends React.Component {
             stopInfo={stopInfo}
           />
         )
+        if (this.state.lineInfo.length > 1) {
+          lineSelect = this.state.lineInfo.map(function(line, key) {
+            return <option key={key} value={key}>{line.route_long_name.replace(/ Train Station/g, '')}</option>
+          })
+          lineSelect = <select onChange={this.triggerChange}>{lineSelect}</select>
+        }
       } else {
         let stopInfo = this.props.stopInfo
         if (typeof(stopInfo[0]) === 'undefined') {
@@ -112,10 +128,12 @@ class VehicleLocationBootstrap extends React.Component {
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
             <h1 className='line-name'>
-              <span className='line-pill' style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
-                {this.state.tripInfo.route_short_name}
-              </span>
-              {this.state.tripInfo.route_long_name}
+              <section className="line-pill-wrapper-header">
+                <span className='line-pill' style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
+                  {this.state.tripInfo.route_short_name}
+                </span>
+              </section>
+              <section className="selectWrapper">{lineSelect}</section>
             </h1>
           </div>
         </header>
