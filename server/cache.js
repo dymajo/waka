@@ -33,12 +33,14 @@ var cache = {
           cache.versions[version.version] = {startdate: version.startdate, enddate: version.enddate}
         })
 
-        if (firstRun) {
-          // run all the callbacks
-          cache.ready.forEach(function(fn) {
-            fn()
-          })
-          firstRun = false
+        let runCb = function() {
+          if (firstRun) {
+            // run all the callbacks
+            cache.ready.forEach(function(fn) {
+              fn()
+            })
+            firstRun = false
+          }
         }
 
         tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
@@ -46,17 +48,18 @@ var cache = {
             console.log('building the cache for the first time')
             cache.get(function() {
               console.log('uploading the cache')
-              cache.upload()
+              cache.upload(runCb)
             })
           // objects are not equal, so we need to do a cache rebuild
           } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
             console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
             cache.get(function() {
               console.log('uploading the cache')
-              cache.upload()
+              cache.upload(runCb)
             })
           } else {
             console.log('cache does not need update at', new Date().toString())
+            cache.upload(runCb)
           }
         })
       })
@@ -221,7 +224,7 @@ var cache = {
       })
     })
   },
-  upload: function() {
+  upload: function(cb) {
     var promises = []
 
     promises[0] = new Promise(function(resolve, reject) {

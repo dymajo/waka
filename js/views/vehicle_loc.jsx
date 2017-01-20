@@ -81,7 +81,7 @@ class vehicle_location extends React.Component {
           stops.push([item.stop_lat, item.stop_lon, item.stop_id, item.stop_name])
           stop_ids.push(item.stop_id)
         })
-        if (this.props.tripInfo.route_type === 3) {
+        if (this.props.tripInfo.route_type === 3 && 'line_id' in newProps.params) {
           showIcons = false
         }
         let newState = {
