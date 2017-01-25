@@ -59,7 +59,7 @@ var cache = {
             })
           } else {
             console.log('cache does not need update at', new Date().toString())
-            cache.upload(runCb)
+            runCb()
           }
         })
       })
@@ -388,7 +388,7 @@ var cache = {
 
     Promise.all(promises).then(function() {
       fs.readFile('cache/tripsLookup.json', function(err, data) {
-        if (err) throw err;
+        if (err) throw err
         var tripsData = JSON.parse(data)
         
         var arrayOfEntityArrays = {}
@@ -458,6 +458,7 @@ var cache = {
               })
             } else {
               console.log('finished uploading trips')
+              cb()
 
               var task = {
                 PartitionKey: {'_':'all'},

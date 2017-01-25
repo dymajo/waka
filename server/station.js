@@ -244,12 +244,21 @@ var station = {
     console.log(stop, ': Getting Fast Data From AT')
     var newOpts = JSON.parse(JSON.stringify(options))
     newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/stopinfo/' + parseInt(stop)
-    return new Promise(function(resolve, reject) {
+
+    const httpRequest = function(resolve, reject) {
       request(newOpts, function(err, response, body) {
         if (err) {
           reject(err)
         }
-        let filteredTrips = JSON.parse(body).response.map(function(trip) {
+        let filteredTrips = []
+        try {
+          filteredTrips = JSON.parse(body)
+        } catch(err) {
+          // retries
+          console.error(err, body)
+          return httpRequest(resolve, reject)
+        }
+        filteredTrips = filteredTrips.response.map(function(trip) {
           let depTimeSplit = trip.departure_time.split(':')
           let arrTime = parseInt(depTimeSplit[0]*3600) + parseInt(depTimeSplit[1]*60) + parseInt(depTimeSplit[2])
           return {
@@ -260,6 +269,9 @@ var station = {
         })
         resolve(filteredTrips)
       })
+    }
+    return new Promise(function(resolve, reject) {
+      httpRequest(resolve, reject)
     })
   },
   stopInfo: function(req, res) {
