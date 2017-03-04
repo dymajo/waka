@@ -3,8 +3,11 @@ var request = require('request')
 var moment = require('moment-timezone')
 var fs = require('fs')
 var deepEqual = require('deep-equal')
+const extract = require('extract-zip')
+const csvparse = require('csv-parse')
 
 var tableSvc = azure.createTableService();
+const zipLocation = 'cache/gtfs.zip'
 
 var options = {
   headers: {
@@ -46,17 +49,19 @@ var cache = {
         tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
           if (result === null) {
             console.log('building the cache for the first time')
-            cache.get(function() {
-              console.log('uploading the cache')
-              cache.upload(runCb)
-            })
+            cache.get()
+              .then(cache.unzip)
+              .then(cache.build)
+              .then(function() {
+                cache.upload(runCb)
+              })
           // objects are not equal, so we need to do a cache rebuild
           } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
             console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
-            cache.get(function() {
-              console.log('uploading the cache')
-              cache.upload(runCb)
-            })
+            cache.get()
+              .then(cache.unzip)
+              .then(cache.build)
+              .then(cache.upload(runCb))
           } else {
             console.log('cache does not need update at', new Date().toString())
             runCb()
@@ -68,159 +73,223 @@ var cache = {
 
   ready: [],
 
-  get: function(cb) {
-    var promises = []
-
-    // calendar
-    options.url = 'https://api.at.govt.nz/v2/gtfs/calendar'
-    var calendar = request(options).pipe(fs.createWriteStream('cache/calendar.json'))
-    promises[0] = new Promise(function(resolve, reject) {
-      calendar.on('finish', function() {
-        console.log('got calendar!')
+  get: function() {
+    return new Promise(function(resolve, reject) {
+      options.url = 'https://atcdn.blob.core.windows.net/data/gtfs.zip'
+      console.log('Downloading GTFS Data from AT')
+      const gtfsRequest = request(options).pipe(fs.createWriteStream(zipLocation))
+      gtfsRequest.on('finish', function() {
+        console.log('Finished Downloading GTFS Data')
         resolve()
       })
-    })
-    
-    // routes
-    options.url = 'https://api.at.govt.nz/v2/gtfs/routes'
-    var routes = request(options).pipe(fs.createWriteStream('cache/routes.json'))
-    promises[1] = new Promise(function(resolve, reject) {
-      routes.on('finish', function() {
-        console.log('got routes!')
-        resolve()
-      })
-    })
-
-    // trips
-    options.url = 'https://api.at.govt.nz/v2/gtfs/trips'
-    var trips = request(options).pipe(fs.createWriteStream('cache/trips.json'))
-    promises[2] = new Promise(function(resolve, reject) {
-      trips.on('finish', function() {
-        console.log('got trips!')
-        resolve()
-      })
-    })
-
-    // stops
-    options.url = 'https://api.at.govt.nz/v2/gtfs/stops'
-    var stops = request(options).pipe(fs.createWriteStream('cache/stops.json'))
-    promises[3] = new Promise(function(resolve, reject) {
-      stops.on('finish', function() {
-        console.log('got stops!')
-        resolve()
-      })
-    })
-
-    var getExceptions = function(resolve) {
-      // calendar exceptions
-      options.url = 'https://api.at.govt.nz/v2/gtfs/calendarDate'
-      var dates = request(options).pipe(fs.createWriteStream('cache/calendardate.json'))
-      dates.on('finish', function() {
-        fs.readFile('cache/calendardate.json', function(err, data) {
-          if (err) throw err;
-          if (JSON.parse(data).response === null) {
-            console.log('failed to get calendar dates, retrying')
-            getExceptions(resolve)
-          } else {
-            console.log('got calendar dates!')
-            resolve()
-          }
-        })
-      })
-    }
-    
-    promises[4] = new Promise(function(resolve, reject) {
-      getExceptions(resolve)
-    })
-
-    // now we build the hashtable things
-    Promise.all(promises).then(function() {
-      cache.build(cb)
     })
   },
-  build: function(cb) {
-    var promises = []
-
-    // build a calendar hashtable
-    var services = {}
-    promises[0] = new Promise(function(resolve, reject) {
-      fs.readFile('cache/calendar.json', function(err, data) {
-        if (err) throw err;
-        JSON.parse(data).response.forEach(function(s) {
-          services[s.service_id] = {
-            frequency: s.monday.toString() + s.tuesday.toString() + s.wednesday.toString() + s.thursday.toString() + s.friday.toString() + s.saturday.toString() + s.sunday.toString(),
-            start_date: s.start_date,
-            end_date: s.end_date
-          }
-        })
+  unzip: function() {
+    return new Promise(function(resolve, reject) {
+      console.log('Unzipping GTFS Data')
+      extract(zipLocation, {dir: 'cache'}, function (err) {
+        if (err) {
+          return reject('Failed to Unzip!')
+        }
+        console.log('Unzip Success!')
         resolve()
       })
+    })
+  },
+  build: function() {
+    console.log('Transforming GTFS Data')
+    var promises = []
+
+    // calendar table
+    var services = {}
+    promises[0] = new Promise(function(resolve, reject) {
+      const input = fs.createReadStream('cache/calendar.txt')
+      const parser = csvparse({delimiter: ','})
+      let headers = null
+      parser.on('readable', function() {
+        // builds the csv headers for easy access later
+        if (headers === null) {
+          headers = {}
+          parser.read().forEach(function(item, index) {
+            headers[item] = index
+          })
+          return
+        }
+
+        // assembles our CSV into JSON
+        var record = parser.read()
+        if (record) {
+          services[record[headers['service_id']]] = {
+            frequency: record[headers['monday']] +
+                       record[headers['tuesday']] +
+                       record[headers['wednesday']] +
+                       record[headers['thursday']] + 
+                       record[headers['friday']] +
+                       record[headers['saturday']] +
+                       record[headers['sunday']],
+            start_date: moment(record[headers['start_date']], 'YYYYMMDD').toDate(),
+            end_date: moment(record[headers['end_date']], 'YYYYMMDD').toDate()
+          }
+        } else {
+          console.log('Transformed calendar')
+          resolve()
+        }
+      })
+      input.pipe(parser)
     })
 
     // build a routes hash table
     var routes = {}
     promises[1] = new Promise(function(resolve, reject) {
-      fs.readFile('cache/routes.json', function(err, data) {
-        if (err) throw err;
-        JSON.parse(data).response.forEach(function(s) {
-          routes[s.route_id] = {
-            agency_id: s.agency_id,
-            route_short_name: s.route_short_name,
-            route_long_name: s.route_long_name,
-            route_type: s.route_type,
-            shape_id: null,
-            trip_headsign: null
-          }
-        })
-        resolve()
-      })
-    })
+      const input = fs.createReadStream('cache/routes.txt')
+      const parser = csvparse({delimiter: ','})
+      let headers = null
+      parser.on('readable', function() {
+        // builds the csv headers for easy access later
+        if (headers === null) {
+          headers = {}
+          parser.read().forEach(function(item, index) {
+            headers[item] = index
+          })
+          return
+        }
 
-    // this is used only for stop times rebuild, so doesn't get db'ed
-    var parsed = {}
-    fs.readFile('cache/calendardate.json', function(err, data) {
-      var data = JSON.parse(data)
-      data.response.forEach(function(service) {
-        if (service.exception_type == 1) {
-          if (typeof(parsed[service.service_id]) === 'undefined') {
-            parsed[service.service_id] = [[],[],[],[],[],[],[]]
+        // assembles our CSV into JSON
+        var record = parser.read()
+        if (record) {
+          routes[record[headers['route_id']]] = {
+            agency_id: record[headers['agency_id']],
+            route_short_name: record[headers['route_short_name']],
+            route_long_name: record[headers['route_long_name']],
+            route_type: record[headers['route_type']],
+            shape_id: null, // this is copied in later when the trips is being assembled
+            trip_headsign: null,
           }
-          parsed[service.service_id][moment.utc(service.date).isoWeekday() - 1].push(service.date)
+        } else {
+          console.log('Transformed routes')
+          resolve()
         }
       })
-      fs.writeFile('cache/calendardate-parsed.json', JSON.stringify(parsed))
+      input.pipe(parser)
     })
+    const transformToJson = function(file) {
+      return new Promise(function(resolve, reject) {
+        const input = fs.createReadStream('cache/' + file + '.txt')
+        const parser = csvparse({delimiter: ','})
+        let parsed = []
+        let headers = null
+        parser.on('readable', function() {
+          // builds the csv headers for easy access later
+          if (headers === null) {
+            headers = {}
+            parser.read().forEach(function(item, index) {
+              headers[item] = index
+            })
+            return
+          }
 
-    
+          // assembles our CSV into JSON
+          var record = parser.read()
+          if (record) {
+            let obj = {}
+            Object.keys(headers).forEach(function(key) {
+              obj[key] = record[headers[key]]
+            })
+            parsed.push(obj)
+          } else {
+            fs.writeFile('cache/' + file + '.json', JSON.stringify(parsed, null, 2))
+            console.log('Transformed ' + file)
+            resolve()
+          }
+        })
+        input.pipe(parser)
+      })
+    }
+
+    promises[2] = transformToJson('stops')
+    promises[3] = transformToJson('calendar_dates')
+    // can't do this, uses too much ram
+    //promises[3] = transformToJson('stop_times')
+
+    // this is used only for stop times rebuild, so doesn't get db'ed
+    var calendar_dates = function() {
+      var parsed = {}
+      const input = fs.createReadStream('cache/calendar_dates.txt')
+      const parser = csvparse({delimiter: ','})
+      let headers = null
+      parser.on('readable', function() {
+        if (headers === null) {
+          headers = {}
+          parser.read().forEach(function(item, index) {
+            headers[item] = index
+          })
+          return
+        }
+        var record = parser.read()
+        if (record) {
+          const service_id = record[headers['service_id']]
+          if (typeof(parsed[service_id]) === 'undefined') {
+            parsed[service_id] = [[],[],[],[],[],[],[]]
+          }
+          let date = moment(record[headers['date']], 'YYYYMMDD')
+          parsed[service_id][date.isoWeekday() - 1].push(date.toDate())
+        } else {
+          console.log('Transformed calendar_dates parsed')
+          fs.writeFile('cache/calendardate-parsed.json', JSON.stringify(parsed, null, 2))
+        }
+      })
+      input.pipe(parser)
+    }
+    calendar_dates()    
 
     // build the awesome joined trips lookup table
-    Promise.all(promises).then(function() {
-      var trips = {}
-      fs.readFile('cache/trips.json', function(err, data) {
-        if (err) throw err;
-        JSON.parse(data).response.forEach(function(s) {
-          trips[s.trip_id] = {
-            route_id: s.route_id,
-            service_id: s.service_id,
-            trip_headsign: s.trip_headsign,
-            direction_id: s.direction_id,
-            block_id: s.block_id,
-            shape_id: s.shape_id,
-            agency_id: routes[s.route_id].agency_id,
-            route_short_name: routes[s.route_id].route_short_name,
-            route_long_name: routes[s.route_id].route_long_name,
-            route_type: routes[s.route_id].route_type,
-            frequency: services[s.service_id].frequency,
-            start_date: services[s.service_id].start_date,
-            end_date: services[s.service_id].end_date
+    return new Promise(function(resolve, reject) {
+      Promise.all(promises).then(function() {
+        var trips = {}
+        const input = fs.createReadStream('cache/trips.txt')
+        const parser = csvparse({delimiter: ','})
+        let headers = null
+        parser.on('readable', function() {
+          // builds the csv headers for easy access later
+          if (headers === null) {
+            headers = {}
+            parser.read().forEach(function(item, index) {
+              headers[item] = index
+            })
+            return
           }
-          routes[s.route_id].shape_id = s.shape_id
-          routes[s.route_id].trip_headsign = s.trip_headsign
-          
+
+          // assembles our CSV into JSON
+          var record = parser.read()
+          if (record) {
+            const route_id = record[headers['route_id']]
+            const service_id = record[headers['service_id']]
+            trips[record[headers['route_id']]] = {
+              route_id: route_id,
+              service_id: service_id,
+              trip_headsign: record[headers['trip_headsign']],
+              direction_id: record[headers['direction_id']],
+              block_id: record[headers['block_id']],
+              shape_id: record[headers['shape_id']],
+              agency_id: routes[route_id].agency_id,
+              route_short_name: routes[route_id].route_short_name,
+              route_long_name: routes[route_id].route_long_name,
+              route_type: routes[route_id].route_type,
+              frequency: services[service_id].frequency,
+              start_date: services[service_id].start_date,
+              end_date: services[service_id].end_date,
+            }
+            // copy this data later
+            routes[route_id].shape_id =  record[headers['shape_id']]
+            routes[route_id].trip_headsign =  record[headers['trip_headsign']]
+          } else {
+            fs.writeFile('cache/routeShapes.json', JSON.stringify(routes, null, 2))
+            fs.writeFile('cache/tripsLookup.json', JSON.stringify(trips, null, 2))
+            console.log('Finished GTFS Transform')
+            resolve()
+          }
         })
-        fs.writeFile('cache/routeShapes.json', JSON.stringify(routes))
-        fs.writeFile('cache/tripsLookup.json', JSON.stringify(trips))
-        if (cb) cb()
+        input.pipe(parser)
       })
     })
   },
@@ -331,7 +400,7 @@ var cache = {
         var batch = new azure.TableBatch()
         var arrayOfEntityArrays = []
         var count = 0
-        stopsData.response.forEach(function(stop){
+        stopsData.forEach(function(stop){
           arrayOfEntityArrays[count] = arrayOfEntityArrays[count] || new azure.TableBatch()
           if (arrayOfEntityArrays[count].operations.length > 99){
             count++
@@ -494,9 +563,9 @@ var cache = {
     })
 
     Promise.all(promises).then(function() {
-      fs.readFile('cache/calendardate.json', function(err, data) {
-        if (err) throw err;
-        var calendarData = JSON.parse(data).response
+      fs.readFile('cache/calendar_dates.json', function(err, data) {
+        if (err) throw err
+        var calendarData = JSON.parse(data)
 
         var arrayOfEntityArrays = {}
         var arrayOfEntityCounts = {}

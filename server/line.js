@@ -105,6 +105,7 @@ const allLines = {
 
 function cacheOperatorsAndShapes() {
   let todo = []
+  let shapeCount = 0
   let shapesToCache = []
   for (var key in allLines) {
     todo.push(key)
@@ -136,8 +137,11 @@ function cacheOperatorsAndShapes() {
       if (err) {
         console.warn(err)
       }
-      shapesToCache.push({shape_id: data[0].shape_id})
-      if (todo.length === shapesToCache.length) {
+      shapeCount++
+      if (typeof(data[0]) !== 'undefined') {
+        shapesToCache.push({shape_id: data[0].shape_id})
+      }
+      if (todo.length === shapeCount) {
         console.log('Collected List of Shapes To Cache')
         line.cacheShapes(shapesToCache)
       }
