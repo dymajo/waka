@@ -395,9 +395,8 @@ var cache = {
 
     Promise.all(promises).then(function(){
       fs.readFile('cache/stops.json', function(err, data){
-        if (err) throw err;
+        if (err) throw err
         var stopsData = JSON.parse(data)
-        var batch = new azure.TableBatch()
         var arrayOfEntityArrays = []
         var count = 0
         stopsData.forEach(function(stop){
@@ -411,8 +410,8 @@ var cache = {
             RowKey: {'_': stop.stop_id.toString()},
             stop_name: {'_': stop.stop_name},
             stop_desc: {'_': stop.stop_desc},
-            stop_lat: {'_': stop.stop_lat},
-            stop_lon: {'_': stop.stop_lon},
+            stop_lat: {'_': stop.stop_lat, '$':'Edm.Double'},
+            stop_lon: {'_': stop.stop_lon, '$':'Edm.Double'},
             zone_id: {'_': stop.zone_id},
             stop_url: {'_': stop.stop_url},
             stop_code: {'_': stop.stop_code},
@@ -421,7 +420,7 @@ var cache = {
             stop_region: {'_': stop.stop_region},
             stop_postcode: {'_': stop.stop_postcode},
             stop_country: {'_': stop.stop_country},
-            location_type : {'_': stop.location_type },
+            location_type : {'_': stop.location_type, '$':'Edm.Int32'},
             parent_station: {'_': stop.parent_station},
             stop_timezone: {'_': stop.stop_timezone},
             wheelchair_boarding: {'_': stop.wheelchair_boarding},
