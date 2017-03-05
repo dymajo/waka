@@ -7,6 +7,8 @@ const extract = require('extract-zip')
 const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 
+const Queue = require('./queue.js')
+
 var tableSvc = azure.createTableService();
 const zipLocation = 'cache/gtfs.zip'
 
@@ -54,7 +56,10 @@ var cache = {
               .then(cache.unzip)
               .then(cache.build)
               .then(function() {
-                cache.upload(runCb)
+                cache.upload(function() {
+                  runCb()
+                  cache.uploadTimes()
+                })
               })
           // objects are not equal, so we need to do a cache rebuild
           } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
@@ -62,7 +67,12 @@ var cache = {
             cache.get()
               .then(cache.unzip)
               .then(cache.build)
-              .then(cache.upload(runCb))
+              .then(function() {
+                cache.upload(function() {
+                  runCb()
+                  cache.uploadTimes()
+                })
+              })
           } else {
             console.log('cache does not need update at', new Date().toString())
             runCb()
@@ -382,7 +392,7 @@ var cache = {
                 }
               })
             } else {
-              console.log('finished uploading route shapes')
+              // console.log('finished uploading route shapes')
             }
           } catch(err) {
             console.log(err)
@@ -434,7 +444,9 @@ var cache = {
         // console.log(arrayOfEntityArrays.length)
         var batchUpload = function(n){
           if (n < arrayOfEntityArrays.length) {
-            console.log(`uploading stops batch ${n+1}/${arrayOfEntityArrays.length}`)
+            if ((n+1) % 10 === 0 || n+1 === arrayOfEntityArrays.length) {
+              console.log(`uploading stops batch ${n+1}/${arrayOfEntityArrays.length}`)
+            }
             tableSvc.executeBatch('stops', arrayOfEntityArrays[n], function(error, result, response){
               if(!error){ 
                 batchUpload(n+1)
@@ -512,7 +524,9 @@ var cache = {
         var batchUpload = function(name, batch, n) {
           try {
             if (n < batch.length) {
-              console.log(`uploading trips_${name} batch ${n+1}/${batch.length}`)
+              if ((n+1) % 10 === 0 || n+1 === batch.length) {
+                console.log(`uploading trips_${name} batch ${n+1}/${batch.length}`)  
+              }
               tableSvc.executeBatch('trips', batch[n], function (error, result, response) {
                 if(!error) {
                   batchUpload(name, batch, n+1)
@@ -596,7 +610,9 @@ var cache = {
         var batchUpload = function(name, batch, n) {
           try {
             if (n < batch.length) {
-              console.log(`uploading exceptions_${name} batch ${n+1}/${batch.length}`)
+              if ((n+1) % 10 === 0 || n+1 === batch.length) {
+                console.log(`uploading exceptions_${name} batch ${n+1}/${batch.length}`)
+              }
               tableSvc.executeBatch('calendardate', batch[n], function (error, result, response) {
                 if(!error) {
                   batchUpload(name, batch, n+1)
@@ -610,7 +626,7 @@ var cache = {
                 }
               })
             } else {
-              console.log('finished uploading exceptions')
+              // console.log('finished uploading exceptions')
             }
           } catch(err) {
             console.log(err)
@@ -624,15 +640,6 @@ var cache = {
   },
   uploadTimes: function() {
     console.log('uploading times')
-    const uploadCb = function(data) {
-      return new Promise(function(resolve, reject) {
-        setTimeout(function() {
-          // process data
-          console.log('process')
-          resolve()
-        }, 5000)
-      })
-    }
     return new Promise(function(resolve, reject) {
       const tripsLookup = JSON.parse(fs.readFileSync('cache/tripsLookup.json'))
       const exceptionsLookup = JSON.parse(fs.readFileSync('cache/calendardate-parsed.json'))
@@ -640,6 +647,51 @@ var cache = {
       const input = fs.createReadStream('cache/stop_times.txt')
       const parser = csvparse({delimiter: ','})
       let headers = null
+
+      let totalBatches = 1
+      let batchStore = {}
+      let batchSize = {}
+      let batchPromise = {}
+      let azureQueue = new Queue()
+
+      const uploadBatches = function(partitionKey) {
+        totalBatches++
+        if (totalBatches % 50 === 0) {
+          console.log('uploading batch', totalBatches)
+        }
+        batchPromise[partitionKey] = new Promise(function(resolve, reject) {
+          tableSvc.executeBatch('stoptimes', batchStore[partitionKey], function (error, result) {
+            if (error) {
+              console.error(error)
+              return reject()
+            }
+
+            // reset things
+            delete batchStore[partitionKey]
+            batchSize[partitionKey] = 0
+            batchPromise[partitionKey] = null
+
+            resolve()
+          })
+        })
+      }
+
+      const uploadBatchesQueue = function(item) {
+        const length = azureQueue.getLength()
+        if (length % 50 === 0 || (length < 100 && length % 10 === 0)) {
+          console.log(length + ' batches remaining')
+        }
+        
+        tableSvc.executeBatch('stoptimes', item[1], function (error, result) {
+          if (error) {
+            console.error(error)
+            return
+          }
+          if (azureQueue.getLength() > 0) {
+            uploadBatchesQueue(azureQueue.dequeue())  
+          }
+        })
+      }
 
       const uploader = transform(function(record, callback) {
         if (headers === null) {
@@ -650,16 +702,27 @@ var cache = {
           return callback(null)
         }
 
+        const stop_id = record[headers['stop_id']]
         const trip_id = record[headers['trip_id']]
         const trip = tripsLookup[trip_id]
+        const arrival = record[headers['arrival_time']].split(':')
+        const arrival_seconds = moment.utc()
+          .set('year', 1970)
+          .set('month', 0)
+          .set('date', 1)
+          .set('hour', arrival[0])
+          .set('minute', arrival[1])
+          .set('second', arrival[2])
+          .unix()
         const payload = {
-          PartitionKey: {'_': record[headers['stop_id']]},
-          RowKey: {'_': trip_id},
+          PartitionKey: {'_': stop_id},
+          RowKey: {'_': arrival_seconds + '-' + trip_id},
+          trip_id: {'_': trip_id},
           arrival_time_seconds: {
-            '_': moment.utc(record[headers['arrival_time']], 'HH:mm:ss').set('year', 1970).set('month', 0).set('date', 1).unix(),
+            '_': arrival_seconds,
             '$': 'Edm.Int32'
-          }, // TODO: PARSE
-          stop_sequence: {'_': record[headers['stop_sequence']], '$': 'Edm.Int32'},
+          },
+          stop_sequence: {'_': parseInt(record[headers['stop_sequence']]), '$': 'Edm.Int32'},
           start_date: {'_': trip.start_date},
           end_date: {'_': trip.end_date},
           monday: {'_': trip.frequency[0]},
@@ -672,11 +735,40 @@ var cache = {
           exceptions: {'_': JSON.stringify(exceptionsLookup[trip.service_id] || [[],[],[],[],[],[],[]])}
         }
 
-        setTimeout(function() {
-          console.log(payload)
+        if (typeof(batchStore[stop_id]) === 'undefined') {
+          batchStore[stop_id] = new azure.TableBatch()
+          batchSize[stop_id] = 0
+        }
+        if (batchSize[stop_id] === 99) {
+          // stops it running
+          batchSize[stop_id]++
+
+          // run the upload
+          uploadBatches(stop_id)
+          batchPromise[stop_id].then(callback)
+
+        } else if (batchSize[stop_id] > 99) {
+          // waits till the upload is complete
+          batchPromise[stop_id].then(callback)
+        } else {
+          batchSize[stop_id]++
+          batchStore[stop_id].insertOrReplaceEntity(payload)
           callback(null)
-        }, 500)
-      }, {parallel: 1})
+        }
+      }, {parallel: 10})
+
+      parser.on('finish', function() {
+        Object.keys(batchStore).forEach(function(key) {
+          azureQueue.enqueue([key, batchStore[key]])
+        })
+
+        const threads = 10
+        console.log('Using', threads, 'threads.', azureQueue.getLength(), 'items to be uploaded.')
+        for (let i=0; i<threads; i++) {
+          uploadBatchesQueue(azureQueue.dequeue())  
+        }
+      })
+
       input.pipe(parser).pipe(uploader)
     })
   }
