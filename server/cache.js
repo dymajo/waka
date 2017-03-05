@@ -5,6 +5,7 @@ var fs = require('fs')
 var deepEqual = require('deep-equal')
 const extract = require('extract-zip')
 const csvparse = require('csv-parse')
+const transform = require('stream-transform')
 
 var tableSvc = azure.createTableService();
 const zipLocation = 'cache/gtfs.zip'
@@ -264,7 +265,7 @@ var cache = {
           if (record) {
             const route_id = record[headers['route_id']]
             const service_id = record[headers['service_id']]
-            trips[record[headers['route_id']]] = {
+            trips[record[headers['trip_id']]] = {
               route_id: route_id,
               service_id: service_id,
               trip_headsign: record[headers['trip_headsign']],
@@ -619,6 +620,64 @@ var cache = {
           batchUpload(key, arrayOfEntityArrays[key], 0)
         }
       })
+    })
+  },
+  uploadTimes: function() {
+    console.log('uploading times')
+    const uploadCb = function(data) {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          // process data
+          console.log('process')
+          resolve()
+        }, 5000)
+      })
+    }
+    return new Promise(function(resolve, reject) {
+      const tripsLookup = JSON.parse(fs.readFileSync('cache/tripsLookup.json'))
+      const exceptionsLookup = JSON.parse(fs.readFileSync('cache/calendardate-parsed.json'))
+
+      const input = fs.createReadStream('cache/stop_times.txt')
+      const parser = csvparse({delimiter: ','})
+      let headers = null
+
+      const uploader = transform(function(record, callback) {
+        if (headers === null) {
+          headers = {}
+          record.forEach(function(item, index) {
+            headers[item] = index
+          })
+          return callback(null)
+        }
+
+        const trip_id = record[headers['trip_id']]
+        const trip = tripsLookup[trip_id]
+        const payload = {
+          PartitionKey: {'_': record[headers['stop_id']]},
+          RowKey: {'_': trip_id},
+          arrival_time_seconds: {
+            '_': moment.utc(record[headers['arrival_time']], 'HH:mm:ss').set('year', 1970).set('month', 0).set('date', 1).unix(),
+            '$': 'Edm.Int32'
+          }, // TODO: PARSE
+          stop_sequence: {'_': record[headers['stop_sequence']], '$': 'Edm.Int32'},
+          start_date: {'_': trip.start_date},
+          end_date: {'_': trip.end_date},
+          monday: {'_': trip.frequency[0]},
+          tuesday: {'_': trip.frequency[1]},
+          wednesday: {'_': trip.frequency[2]},
+          thursday: {'_': trip.frequency[3]},
+          friday: {'_': trip.frequency[4]},
+          saturday: {'_': trip.frequency[5]},
+          sunday: {'_': trip.frequency[6]},
+          exceptions: {'_': JSON.stringify(exceptionsLookup[trip.service_id] || [[],[],[],[],[],[],[]])}
+        }
+
+        setTimeout(function() {
+          console.log(payload)
+          callback(null)
+        }, 500)
+      }, {parallel: 1})
+      input.pipe(parser).pipe(uploader)
     })
   }
 }
