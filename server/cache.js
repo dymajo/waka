@@ -83,6 +83,18 @@ var cache = {
       })
     })
   },
+  currentVersion: function() {
+    const time = moment().tz('Pacific/Auckland')
+    const currentDate = moment(Date.UTC(time.year(), time.month(), time.date(), 0, 0))
+    let currentVersion = null
+    Object.keys(cache.versions).forEach(function(version) {
+      if (moment.utc(cache.versions[version].startdate).isBefore(currentDate) &&
+        moment.utc(cache.versions[version].enddate).add(1, 'days').isAfter(currentDate)) {
+        currentVersion = version
+      }
+    })
+    return currentVersion
+  },
 
   ready: [],
 
@@ -140,8 +152,8 @@ var cache = {
                        record[headers['friday']] +
                        record[headers['saturday']] +
                        record[headers['sunday']],
-            start_date: moment(record[headers['start_date']], 'YYYYMMDD').toDate(),
-            end_date: moment(record[headers['end_date']], 'YYYYMMDD').toDate()
+            start_date: moment.utc(record[headers['start_date']], 'YYYYMMDD').toDate(),
+            end_date: moment.utc(record[headers['end_date']], 'YYYYMMDD').toDate()
           }
         } else {
           console.log('Transformed calendar')
@@ -244,7 +256,7 @@ var cache = {
           if (typeof(parsed[service_id]) === 'undefined') {
             parsed[service_id] = [[],[],[],[],[],[],[]]
           }
-          let date = moment(record[headers['date']], 'YYYYMMDD')
+          let date = moment.utc(record[headers['date']], 'YYYYMMDD')
           parsed[service_id][date.isoWeekday() - 1].push(date.toDate())
         } else {
           console.log('Transformed calendar_dates parsed')
@@ -587,7 +599,7 @@ var cache = {
         var arrayOfEntityCounts = {}
 
         calendarData.forEach(function(item) {
-          var pkey = item.date
+          var pkey = moment.utc(item.date, 'YYYYMMDD').toISOString()
           if (typeof(arrayOfEntityArrays[pkey]) === 'undefined') {
             arrayOfEntityArrays[pkey] = []
             arrayOfEntityCounts[pkey] = 0
@@ -737,7 +749,12 @@ var cache = {
 
         if (typeof(allStopsData[trip_id[1]]) === 'undefined') {
           allStopsData[trip_id[1]] = {}
-          fs.mkdirSync('cache/stops/' + trip_id[1])
+          try {
+            fs.mkdirSync('cache/stops/' + trip_id[1])  
+          } catch(err) {
+            console.warn('could not create', trip_id[1])
+            return
+          }
         }
         if (typeof(allStopsData[trip_id[1]][stop_id]) === 'undefined') {
           allStopsData[trip_id[1]][stop_id] = []
@@ -746,7 +763,9 @@ var cache = {
           arrival_seconds +
           ',' + 
           trip_id[0] + 
-          ',' + 
+          ',' +
+          trip.service_id.split('-')[0] +
+          ',' +
           trip.frequency
         )
 
