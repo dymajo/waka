@@ -505,7 +505,7 @@ class Station extends React.Component {
     var outbound = []
     var all = []
     var inboundLabel = 'Inbound'
-    this.state.trips.forEach((trip) => {
+    this.state.trips.forEach((trip, index) => {
       if (typeof(trip.stop_sequence) === 'undefined') {
         return
       }
@@ -524,7 +524,7 @@ class Station extends React.Component {
       } else if (trip.route_short_name === 'CTY') {
         trip.trip_headsign = 'City Link'
       }
-      var key = trip.trip_id + trip.stop_sequence.toString()
+      var key = trip.trip_id + index
       var item = <TripItem 
         code={trip.route_short_name}
         time={trip.arrival_time_seconds}
