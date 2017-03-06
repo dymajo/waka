@@ -212,7 +212,8 @@ var station = {
       const currentVersion = cache.currentVersion()
       const azCurrentVersion = currentVersion.split('_').join('-').split('.').join('-')
       const parser = csvparse({delimiter: ','})
-      let possibleTrips = []
+      // allows us to use as a hash table sort of thingo
+      let possibleTrips = {}
 
       // read through file, test exceptions
       parser.on('readable', function(){
@@ -221,7 +222,9 @@ var station = {
         // console.log(record)
         if (record === null) {
           sending.provider = 'azure-blob' // just for debugging purposes
-          sending.trips = possibleTrips
+          sending.trips = Object.keys(possibleTrips).map(function(key) {
+            return possibleTrips[key]
+          })
           resolve()
           return
         }
@@ -233,15 +236,18 @@ var station = {
         if (exceptionCache.existsToday(today.day(), frequency, service_id) &&
           arrivalTime < currentTime + 7200 &&
           arrivalTime > currentTime - 1200) {
-          possibleTrips.push({
-            arrival_time_seconds: record[0],
+          possibleTrips[record[1]+ '-' +  currentVersion] = {
+            arrival_time_seconds: arrivalTime,
             trip_id: record[1]+ '-' +  currentVersion,
             service_id: service_id,
-            frequency: record[3]
-          })
+            frequency: record[3],
+            stop_sequence: parseInt(record[4])
+          }
         }
       })
       
+      // we need this, because bug in azure library causes the callback to not fire
+      // rip rip rip maybe i should contribute to the library?
       blobSvc.getBlobProperties(azCurrentVersion, req.params.station + '.txt', function(error) {
         if (error) {
           if (error.statusCode === 404) {

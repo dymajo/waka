@@ -766,7 +766,9 @@ var cache = {
           ',' +
           trip.service_id.split('-')[0] +
           ',' +
-          trip.frequency
+          trip.frequency +
+          ',' +
+          record[headers['stop_sequence']]
         )
 
         if (allStopsData[trip_id[1]][stop_id].length > 100) {
