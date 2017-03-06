@@ -9,7 +9,9 @@ const transform = require('stream-transform')
 
 const Queue = require('./queue.js')
 
-var tableSvc = azure.createTableService();
+var tableSvc = azure.createTableService()
+var blobSvc = azure.createBlobService()
+
 const zipLocation = 'cache/gtfs.zip'
 
 var options = {
@@ -642,51 +644,69 @@ var cache = {
     console.log('uploading times')
     return new Promise(function(resolve, reject) {
       const tripsLookup = JSON.parse(fs.readFileSync('cache/tripsLookup.json'))
-      const exceptionsLookup = JSON.parse(fs.readFileSync('cache/calendardate-parsed.json'))
+      const threads = 10
 
       const input = fs.createReadStream('cache/stop_times.txt')
       const parser = csvparse({delimiter: ','})
       let headers = null
 
-      let totalBatches = 1
-      let batchStore = {}
-      let batchSize = {}
-      let batchPromise = {}
       let azureQueue = new Queue()
+      let uploadQueues = {}
 
-      const uploadBatches = function(partitionKey) {
-        totalBatches++
-        if (totalBatches % 50 === 0) {
-          console.log('uploading batch', totalBatches)
-        }
-        batchPromise[partitionKey] = new Promise(function(resolve, reject) {
-          tableSvc.executeBatch('stoptimes', batchStore[partitionKey], function (error, result) {
-            if (error) {
-              console.error(error)
-              return reject()
+      let allStopsData = {}
+
+      const uploadToAzure = function() {
+        console.log('uploading stoptimes to azure')
+        Object.keys(allStopsData).forEach(function(partition) {
+          // azure limitations for the names
+          const partitionAz = partition.split('_').join('-').split('.').join('-')
+          blobSvc.createContainerIfNotExists(partitionAz, function(error){
+            if(!error){
+              fs.readdir('cache/stops/' + partition, function(err, data) {
+                if (err) {
+                  return console.error(err)
+                }
+                uploadQueues[partition] = new Queue()
+                data.forEach(function(file) {
+                  uploadQueues[partition].enqueue([partition, partitionAz, file])
+                })
+                console.log('uploading', partition)
+                uploadFile(uploadQueues[partition].dequeue())
+              })
             }
-
-            // reset things
-            delete batchStore[partitionKey]
-            batchSize[partitionKey] = 0
-            batchPromise[partitionKey] = null
-
-            resolve()
           })
+        })
+      }
+
+      const uploadFile = function(path) {
+        const length = uploadQueues[path[0]].getLength()
+        if (length % 250 === 0) {
+          console.log(path[0], ':', length, 'files remaining')
+        }
+        blobSvc.createBlockBlobFromLocalFile(path[1], path[2], 'cache/stops/'+path[0]+'/'+path[2], function(error, result, response){
+          if(error) {
+            return console.error(error)
+          }
+          if (length > 0) {
+            uploadFile(uploadQueues[path[0]].dequeue())  
+          } else {
+            console.log(path[0], 'upload complete')
+          }
         })
       }
 
       const uploadBatchesQueue = function(item) {
         const length = azureQueue.getLength()
-        if (length % 50 === 0 || (length < 100 && length % 10 === 0)) {
-          console.log(length + ' batches remaining')
+
+        if (length === 0) {
+          uploadToAzure()
         }
         
-        tableSvc.executeBatch('stoptimes', item[1], function (error, result) {
-          if (error) {
-            console.error(error)
-            return
+        fs.appendFile(`cache/stops/${item[0]}/${item[1]}.txt`, item[2].join('\n') + '\n', (err) => {
+          if (err) {
+            return console.error(err)
           }
+
           if (azureQueue.getLength() > 0) {
             uploadBatchesQueue(azureQueue.dequeue())  
           }
@@ -703,8 +723,8 @@ var cache = {
         }
 
         const stop_id = record[headers['stop_id']]
-        const trip_id = record[headers['trip_id']]
-        const trip = tripsLookup[trip_id]
+        const trip_id = record[headers['trip_id']].split('-')
+        const trip = tripsLookup[record[headers['trip_id']]]
         const arrival = record[headers['arrival_time']].split(':')
         const arrival_seconds = moment.utc()
           .set('year', 1970)
@@ -714,61 +734,47 @@ var cache = {
           .set('minute', arrival[1])
           .set('second', arrival[2])
           .unix()
-        const payload = {
-          PartitionKey: {'_': stop_id},
-          RowKey: {'_': arrival_seconds + '-' + trip_id},
-          trip_id: {'_': trip_id},
-          arrival_time_seconds: {
-            '_': arrival_seconds,
-            '$': 'Edm.Int32'
-          },
-          stop_sequence: {'_': parseInt(record[headers['stop_sequence']]), '$': 'Edm.Int32'},
-          start_date: {'_': trip.start_date},
-          end_date: {'_': trip.end_date},
-          monday: {'_': trip.frequency[0]},
-          tuesday: {'_': trip.frequency[1]},
-          wednesday: {'_': trip.frequency[2]},
-          thursday: {'_': trip.frequency[3]},
-          friday: {'_': trip.frequency[4]},
-          saturday: {'_': trip.frequency[5]},
-          sunday: {'_': trip.frequency[6]},
-          exceptions: {'_': JSON.stringify(exceptionsLookup[trip.service_id] || [[],[],[],[],[],[],[]])}
+
+        if (typeof(allStopsData[trip_id[1]]) === 'undefined') {
+          allStopsData[trip_id[1]] = {}
+          fs.mkdirSync('cache/stops/' + trip_id[1])
         }
-
-        if (typeof(batchStore[stop_id]) === 'undefined') {
-          batchStore[stop_id] = new azure.TableBatch()
-          batchSize[stop_id] = 0
+        if (typeof(allStopsData[trip_id[1]][stop_id]) === 'undefined') {
+          allStopsData[trip_id[1]][stop_id] = []
         }
-        if (batchSize[stop_id] === 99) {
-          // stops it running
-          batchSize[stop_id]++
+        allStopsData[trip_id[1]][stop_id].push(
+          arrival_seconds +
+          ',' + 
+          trip_id[0] + 
+          ',' + 
+          trip.frequency
+        )
 
-          // run the upload
-          uploadBatches(stop_id)
-          batchPromise[stop_id].then(callback)
-
-        } else if (batchSize[stop_id] > 99) {
-          // waits till the upload is complete
-          batchPromise[stop_id].then(callback)
+        if (allStopsData[trip_id[1]][stop_id].length > 100) {
+          fs.appendFile(`cache/stops/${trip_id[1]}/${stop_id}.txt`, allStopsData[trip_id[1]][stop_id].join('\n') + '\n', (err) => {
+            if (err) {
+              return console.error(err)
+            }
+            allStopsData[trip_id[1]][stop_id] = []
+            callback(null)
+          })
         } else {
-          batchSize[stop_id]++
-          batchStore[stop_id].insertOrReplaceEntity(payload)
           callback(null)
         }
-      }, {parallel: 10})
+      }, {parallel: threads})
 
       parser.on('finish', function() {
-        Object.keys(batchStore).forEach(function(key) {
-          azureQueue.enqueue([key, batchStore[key]])
+        console.log('finishing up')
+        Object.keys(allStopsData).forEach(function(partition) {
+          Object.keys(allStopsData[partition]).forEach(function(key) {
+            azureQueue.enqueue([partition, key, allStopsData[partition][key]])
+          })
         })
 
-        const threads = 10
-        console.log('Using', threads, 'threads.', azureQueue.getLength(), 'items to be uploaded.')
         for (let i=0; i<threads; i++) {
           uploadBatchesQueue(azureQueue.dequeue())  
         }
       })
-
       input.pipe(parser).pipe(uploader)
     })
   }
