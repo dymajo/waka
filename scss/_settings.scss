@@ -1,10 +1,10 @@
 .settingsContainer {
     position: absolute;
-    top: $mobilenavsize;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1;
+    z-index: 2;
 
     @media (min-width: 851px) {
       top: 0;
@@ -12,14 +12,27 @@
       z-index: 0;
     }
 
-    h1 {
-        font-weight: 600;
-        margin: 0 0 7px;
-        font-size: 14px;
-        padding: 14px 14px 7px;
-        border-bottom: 1px solid #ddd;
-        color: #666;
+    .material-header {
+      height: $mobilenavsize;
+
+      h1 {
+        line-height: $mobilenavsize;
+        padding-top: 0;
+      }
     }
+}
+
+.animate {
+  .settingsContainer {
+    animation: 250ms ss-to-stop-station ease 1;
+  }
+}
+.goingback {
+  .settingsContainer {
+    animation: 250ms stop-to-ss-station ease 1;
+    transform: translate3d(0,15px,0);
+    opacity: 0;
+  }
 }
 
 .settingwrap {
@@ -43,6 +56,15 @@
     overflow-y: auto;
     box-sizing: border-box;
 
+    h1 {
+        font-weight: 600;
+        margin: 0 0 7px;
+        font-size: 14px;
+        padding: 14px 14px 7px;
+        border-bottom: 1px solid #ddd;
+        color: #666;
+    }
+
      svg {
         vertical-align: top;
         margin-right: 9px;
@@ -65,7 +87,7 @@
     }
 
     .logobox {
-        padding: 36px 14px 21px;
+        padding: 21px 14px;
         @media (max-width: 480px) {
             text-align: center;
         }

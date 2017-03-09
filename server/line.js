@@ -83,13 +83,13 @@ const allLines = {
 
   // NORTH OF MOTORWAY ISTHMUS
   '605': [['Civic Centre', 'Lucerne Rd', 'Benson Rd'], ['City Centre', 'Lucerne Rd', 'Benson Rd']],
-  '606': [['Civic Centre', 'Upland Rd', 'Lucerne Rd And Benson Rd']],
+  '606': [['City Centre', 'Upland Rd', 'Lucerne Rd And Benson Rd']],
   '625': [['Britomart', 'Glen Innes', 'Khyber Pass Rd And Remuera Rd'], ['Britomart', 'Glen Innes', 'St Johns And Khyber Pass Rd']],
   '635': [['Britomart', 'Glen Innes', 'Parnell And Grand Dr'], ['Britomart', 'Glen Innes', 'Grand Dr And Parnell']],
   '645': [['Britomart', 'Glen Innes', 'Parnell and Remuera Rd']],
   '655': [['Britomart', 'Glen Innes', 'Meadowbank and Parnell']],
   '703': [['Britomart', 'Remuera', 'Portland Rd']],
-  '715': [['Britomart', 'Glen Innes Centre', 'Orakei'], ['Britomart', 'Glen Innes', 'Orakei']],
+  '715': [['Britomart', 'Glen Innes Centre', 'Orakei'], ['Britomart', 'Eastridge']],
   '719': [['Britomart', 'Sylvia Park']],
   '745': [['Britomart', 'Glen Innes Centre', 'Mission Bay']],
   '756': [['Britomart', 'Panmure', 'Mission Bay And Glen Innes'], ['Britomart', 'Panmure', 'Glen Innes And Mission Bay']],

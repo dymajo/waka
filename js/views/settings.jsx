@@ -1,5 +1,6 @@
 import React from 'react'
 import { iOS } from '../models/ios.js'
+import { UiStore } from '../stores/uiStore.js'
 import Toggle from './toggle.jsx'
 
 class Settings extends React.Component {
@@ -10,6 +11,10 @@ class Settings extends React.Component {
     }
 
     this.triggerCredits = this.triggerCredits.bind(this)
+  }
+
+  triggerBack() {
+    UiStore.navigateSavedStations('/')
   }
 
   triggerCredits() {
@@ -28,6 +33,12 @@ class Settings extends React.Component {
     }
     return(
       <div className="settingsContainer">
+        <header className='material-header'>
+          <div>
+            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+            <h1>Settings</h1>
+          </div>
+        </header>
         <div className="settings enable-scrolling" onTouchStart={iOS.triggerStart}>
           <div className="scrollwrap">
             <div className="logobox">
