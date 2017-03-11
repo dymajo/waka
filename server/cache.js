@@ -79,6 +79,8 @@ var cache = {
             console.log('cache does not need update at', new Date().toString())
             runCb()
           }
+          // copies cached data into there
+          cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
         })
       })
     })
@@ -93,6 +95,9 @@ var cache = {
         currentVersion = version
       }
     })
+    if (currentVersion === null) {
+      return Object.keys(cache.versions)[0]
+    }
     return currentVersion
   },
 
