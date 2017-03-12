@@ -9,7 +9,7 @@ export class uiStore extends Events {
       triggeredBack: false,
       noAnimate: false,
       goingBack: false,
-      lastUrl: '',
+      totalNavigations: 0,
       currentUrl: '/'
     }
     // restores history if it's an iphone web clip :/
@@ -34,7 +34,7 @@ export class uiStore extends Events {
   navigateSavedStations(path, noAnimate) {
     if (window.location.pathname === path) {
       return
-    } else if (this.state.lastUrl === path) {
+    } else if (this.state.totalNavigations > 0) {
       this.state.triggeredBack = true
       this.state.noAnimate = noAnimate
       browserHistory.goBack()
@@ -52,27 +52,36 @@ export class uiStore extends Events {
         this.state.triggeredBack = false
       }, 300)
     }
+    this.state.totalNavigations = this.state.totalNavigations -1
   }
   handleState(e) { 
-    this.state.lastUrl = window.location.pathname
+    this.state.totalNavigations++
   }
   currentState(e) { 
     this.state.currentUrl = window.location.pathname
     localStorage.setItem('CurrentUrl', this.state.currentUrl)
   }
   handleReactChange(prevState, nextState, replace, callback) {
+    var p = prevState.location.pathname
+    var n = nextState.location.pathname
+    
+    // weird state changes not back or forward just weird
+    const isNoWayGoingBack = n.split('/')[1] !== p.split('/')[1] && n.length > 2 && p.length > 2
+    if (isNoWayGoingBack) {
+      return callback()
+    }
     // don't run the back animation if it's just in normal ios
     if (iOS.detect() && !window.navigator.standalone && !this.state.triggeredBack) {
       return callback()
     }
-    var p = nextState.location.pathname
-    var sp = p.split('/')
-    if ((nextState.location.action == 'POP' && sp.length === 2) || this.state.triggeredBack) {
+    // custom hacked logic for the stations weirdness animation emulation
+    const isGoingBackKinda = (n.split('/').length < p.split('/').length) && n.split('/')[1] === p.split('/')[1]
+    if ((((nextState.location.action == 'POP') || this.state.triggeredBack) && (n.split('/').length <= p.split('/').length && p.length > 1)) || isGoingBackKinda) {
       if (this.state.noAnimate === true) {
         // runs cb with delay for animation to finish
         setTimeout(function() {
           callback()
-        }, 500)
+        }, 275)
         return
       }
       this.state.goingBack = true
@@ -84,7 +93,7 @@ export class uiStore extends Events {
           this.state.goingBack = false
           UiStore.trigger('goingBack')
         })
-      }, 550)
+      }, 300)
     } else {
       callback()
     }

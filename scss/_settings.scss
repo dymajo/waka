@@ -22,19 +22,6 @@
     }
 }
 
-.animate {
-  .settingsContainer {
-    animation: 250ms ss-to-stop-station ease 1;
-  }
-}
-.goingback {
-  .settingsContainer {
-    animation: 250ms stop-to-ss-station ease 1;
-    transform: translate3d(0,15px,0);
-    opacity: 0;
-  }
-}
-
 .settingwrap {
     padding: 9px 14px;
     max-width: 480px - 28px;

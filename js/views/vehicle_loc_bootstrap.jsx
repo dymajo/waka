@@ -1,6 +1,7 @@
 import React from 'react'
 import { browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.js'
+import { UiStore } from '../stores/uiStore.js'
 
 // this is hacked so it handles the current location
 // and just normal people looking up a line
@@ -69,13 +70,13 @@ class VehicleLocationBootstrap extends React.Component {
       return item.trip_id === newProps.params.trip_id
     }
     this.setState({
-      tripInfo: newProps.trips.find(tripNodeMatches) || {}
+      tripInfo: newProps.trips.find(tripNodeMatches) || this.state.tripInfo
     })
   }
   triggerBack(){
     let newUrl = window.location.pathname.split('/')
     newUrl.splice(-1)
-    browserHistory.push(newUrl.join('/'))
+    UiStore.navigateSavedStations(newUrl.join('/'))
   }
   triggerChange(e) {
     let newLine = this.state.lineInfo[e.currentTarget.value]

@@ -33,7 +33,8 @@ class Station extends React.Component {
       webp: webp.support,
       stickyScroll: false,
       stop_lat: undefined,
-      stop_lon: undefined
+      stop_lon: undefined,
+      animationFinished: false
     }
     this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
@@ -356,6 +357,12 @@ class Station extends React.Component {
       }
     })
 
+    setTimeout(() => {
+      this.setState({
+        animationFinished: true
+      })
+    }, 275)
+
     ReactDOM.findDOMNode(this.refs.scroll).addEventListener('scroll', this.triggerScroll)
 
     // now we call our function again to get the new times
@@ -395,37 +402,54 @@ class Station extends React.Component {
     if (this.props.params.station === newProps.params.station) {
       return
     }
-    swipeview.index = 0
-    //console.log('new props... killnug old requests')
-    allRequests.forEach(function (request) {
-      if (typeof(request) !== 'undefined') {
-        // Can't do this with the request api ugh
-        // request.abort()
-      }
-    })
-    this.setState({
-      name: '',
-      description: '',
-      stop: '',
-      trips: [],
-      realtime: {},
-      loading: true,
-      saveModal: false,
-      webp: webp.support
-    })
-    // wait a second :/
-    requestAnimationFrame(() => {
-      if (this.props.routeParams.station.split('+').length === 1) {
-        this.getData(newProps)
-      } else {
-        this.getMultiData(newProps)
-      }
-    })
+
+    const cb = () => {
+      swipeview.index = 0
+      //console.log('new props... killnug old requests')
+      allRequests.forEach(function (request) {
+        if (typeof(request) !== 'undefined') {
+          // Can't do this with the request api ugh
+          // request.abort()
+        }
+      })
+      this.setState({
+        name: '',
+        description: '',
+        stop: '',
+        trips: [],
+        realtime: {},
+        loading: true,
+        saveModal: false,
+        webp: webp.support
+      })
+      // wait a second :/
+      requestAnimationFrame(() => {
+        if (this.props.routeParams.station.split('+').length === 1) {
+          this.getData(newProps)
+        } else {
+          this.getMultiData(newProps)
+        }
+      })
+    }
+
+    if (newProps.location.pathname.split('/').length > 3) {
+      setTimeout(cb, 300)
+    // } else if (newProps.location.pathname.split('/').length !== this.props.location.pathname.split('/').length) {
+    //   console.log('probably going forward')
+    //   cb()
+    } else {
+      cb()
+    }
   }
   render() {
     var icon = StationStore.getIcon(this.state.stop)
     var iconStr = this.state.description
     var iconPop
+
+    let className = 'station'
+    if (this.props.children === null && this.state.animationFinished) {
+      className += ' level-1'
+    }
     
     if (this.state.name !== '') {
       if (icon === 'bus') {
@@ -578,7 +602,7 @@ class Station extends React.Component {
     }
 
     return (
-      <div className='station' ref="container">
+      <div className={className} ref="container">
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>

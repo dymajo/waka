@@ -305,7 +305,7 @@ class Search extends React.Component {
                     <img src={`/icons/${icon}.svg`} />
                     <h2>{stop.stop_name}</h2>
                     <h3>Stop {stop.stop_id}</h3>
-                    <button onClick={this.viewServices(stop.stop_id)}>View Services</button>
+                    <button onTouchTap={this.viewServices(stop.stop_id)}>View Services</button>
                   </span>
                 </Popup>
               </Marker>

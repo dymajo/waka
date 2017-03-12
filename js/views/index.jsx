@@ -45,13 +45,28 @@ class Index extends React.Component {
     if (window.location.pathname === '/') {
       this.loadMapDynamic()
     }
-    this.setState({
-      animate: true
-    })
+    setTimeout(() => {
+      this.setState({
+        animate: true
+      })  
+    }, 300)
+    
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {
       this.loadMapDynamic()
+    }
+    const n = nextProps.location.pathname
+    const p = this.props.location.pathname
+    if (n.split('/')[1] !== p.split('/')[1] && n.length > 2 && p.length > 2) {
+      this.setState({
+        animate: false
+      })
+      setTimeout(() => {
+        this.setState({
+          animate: true
+        })
+      }, 275)
     }
   }
   loadMapDynamic() {
@@ -267,19 +282,19 @@ class Index extends React.Component {
       map = <this.Search />
     }
 
-    let contentClassname = 'content'
+    let contentClassname = 'content animate'
     if (this.state.back) {
       contentClassname += ' goingback'
     }
-    if (this.state.animate) {
-      contentClassname += ' animate'
+    if (!this.state.animate) {
+      contentClassname += ' no-animate'
     }
     return (
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
           <header className="material-header branding-header">
             <div>
-            <span className="more" onClick={this.triggerSettings}><img src="/icons/settings.svg" /></span>
+            <span className="more" onTouchTap={this.triggerSettings}><img src="/icons/settings.svg" /></span>
               <h1 className="full-height">
                 <img className="logo" src='/icons/icon.svg' width='18' />
                 <strong>DYMAJO Transit</strong></h1>
@@ -295,7 +310,7 @@ class Index extends React.Component {
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
           >
-            <div className="root-card-padding-button" onClick={this.toggleStations}></div>
+            <div className="root-card-padding-button" onTouchTap={this.toggleStations}></div>
             <div className="root-card-bar">
               <button onTouchTap={this.toggleStations}>
                 <img src="/icons/station.svg" />

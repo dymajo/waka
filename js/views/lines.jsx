@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { Link, browserHistory } from 'react-router'
 
+import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore'
+import { UiStore } from '../stores/uiStore.js'
 
 class Lines extends React.Component {
   constructor(props){
@@ -9,8 +11,9 @@ class Lines extends React.Component {
     this.state = {
       service: '',
       allLines: undefined,
-      groups: [],
-      groupShow: {}
+      groups: null,
+      groupShow: {},
+      animationFinished: false
     }
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerGroup = this.triggerGroup.bind(this)
@@ -22,7 +25,7 @@ class Lines extends React.Component {
     }
   }
   triggerBack() {
-    browserHistory.push('/')
+    UiStore.navigateSavedStations('/')
   }
 
   triggerChange(e) {
@@ -56,12 +59,18 @@ class Lines extends React.Component {
         })       
       })
     })
+    setTimeout(() => {
+      this.setState({
+        animationFinished: true
+      })
+    }, 275)
   }
 
   render() {
-    let ret
+    let ret, children
+    let className = 'lines-container'
     // there needs to be a sorting function in here probably
-    if (this.props.children === null) {
+    if (this.state.groups !== null) {
       ret = []
       this.state.groups.forEach((group) => {
         ret.push(<h2 key={group.name}>{group.name}</h2>)
@@ -93,14 +102,24 @@ class Lines extends React.Component {
           <div className={className} key={key}>{innerLineList}</div>
         )
       })
-      ret = <div className="list-lines">{ret}</div>
     } else {
-      ret = this.props.children && React.cloneElement(this.props.children, {
+      ret = <div className="spinner" />
+    }
+    ret = (
+      <div className="list-lines enable-scrolling" onTouchStart={iOS.triggerStart}>
+        <div className="scrollwrap">{ret}</div>
+      </div>
+    )
+
+    if (this.props.children !== null) {
+      children = this.props.children && React.cloneElement(this.props.children, {
         operators: this.state.operators
       })
+    } else if (this.state.animationFinished) {
+      className += ' level-1'
     }
     return(
-      <div className="lines-container">
+      <div className={className}>
         <header className='material-header'>
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
@@ -108,6 +127,7 @@ class Lines extends React.Component {
           </div>
         </header>
         {ret}
+        {children}
       </div>
     )
   }

@@ -74,7 +74,7 @@ class Pin extends React.Component {
     var userAgent = window.navigator.userAgent.toLowerCase()
     var output = <div className="other">
       <p>We don't know what browser you're using. 😕😕😕</p>
-      <button className="primary" onClick={this.triggerClose}>Maybe next time.</button>
+      <button className="primary" onTouchTap={this.triggerClose}>Maybe next time.</button>
     </div>
     var linktext = 'Copy Link'
     if (this.state.copied) {
@@ -139,7 +139,7 @@ class Pin extends React.Component {
       console.log("done")
       desktopOut = <div>
             <h3>Thanks! You should receive an email shortly.</h3>
-            <button onClick={this.triggerClose}>Close</button>
+            <button onTouchTap={this.triggerClose}>Close</button>
           </div>
     }
     return(

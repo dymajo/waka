@@ -12,13 +12,21 @@
       -webkit-overflow-scrolling: touch;
     }
   }
+  .animate.no-animate {
+    .station, .settingsContainer, .lines-container, .vehicle-location-container {
+      animation-duration: 0ms;
+    }
+  }
   .animate {
-    .station {
+    .station, .settingsContainer, .lines-container, .vehicle-location-container {
       animation: 300ms ss-to-stop-station-ios ease 1;
+    }
+    .level-1 {
+      animation-duration: 0ms;
     }
   }
   .goingback {
-    .station {
+    .station.level-1, .settingsContainer, .lines-container.level-1, .vehicle-location-container {
       animation: 300ms stop-to-ss-station-ios ease 1;
       transform: translate3d(100vw,0,0) !important;  // bypasses my plugin
       opacity: 1;

@@ -107,9 +107,11 @@ class vehicle_location extends React.Component {
 
   componentWillReceiveProps(newProps) {
     if ('line_id' in newProps.params) {
-      this.setState({line: undefined})
-      this.getWKB(newProps, true)
-      this.getShapeData(newProps)
+      if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
+        this.setState({line: undefined})  
+        this.getWKB(newProps, true)
+        this.getShapeData(newProps)
+      }
     } else {
       this.getWKB(newProps)
     }
@@ -243,7 +245,11 @@ class vehicle_location extends React.Component {
       //console.log(color)
       geoJson = <GeoJson className='line' data={this.state.line} style={{color: color}}/>
     }
+
     let icon = StationStore.getIcon(this.props.params.station)
+    if (typeof(this.state.stops[0]) !== 'undefined') {
+      icon = StationStore.getIcon(this.state.stops[0][2])
+    }
     let leafletIcon = busIcon
     if (icon === 'train') {
       leafletIcon = trainIcon
@@ -290,7 +296,7 @@ class vehicle_location extends React.Component {
                       <img src={`/icons/${icon}.svg`} />
                       <h2>{stop[3]}</h2>
                       <h3>Stop {stop[2]}</h3>
-                      <button onClick={this.viewServices(stop[2])}>View Services</button>
+                      <button onTouchTap={this.viewServices(stop[2])}>View Services</button>
                     </span>
                   </Popup>
                 </Marker>
