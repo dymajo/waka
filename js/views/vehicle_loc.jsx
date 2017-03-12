@@ -296,7 +296,7 @@ class vehicle_location extends React.Component {
                       <img src={`/icons/${icon}.svg`} />
                       <h2>{stop[3]}</h2>
                       <h3>Stop {stop[2]}</h3>
-                      <button onTouchTap={this.viewServices(stop[2])}>View Services</button>
+                      <button onClick={this.viewServices(stop[2])}>View Services</button>
                     </span>
                   </Popup>
                 </Marker>
