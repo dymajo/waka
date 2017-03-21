@@ -64,23 +64,30 @@ var cache = {
                 })
               })
           // objects are not equal, so we need to do a cache rebuild
-          } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
-            console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
-            cache.get()
-              .then(cache.unzip)
-              .then(cache.build)
-              .then(function() {
-                cache.upload(function() {
-                  runCb()
-                  cache.uploadTimes()
-                })
-              })
+          // } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
+            
           } else {
-            console.log('cache does not need update at', new Date().toString())
-            runCb()
+            for (let version in JSON.parse(result.version._)) {
+              delete cache.versions[version]
+            }
+            if (JSON.stringify(cache.versions) === '{}') {
+              console.log('cache does not need update at', new Date().toString())
+              cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
+              runCb()  
+            } else {
+              console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
+              cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
+              cache.get()
+                .then(cache.unzip)
+                .then(cache.build)
+                .then(function() {
+                  cache.upload(function() {
+                    runCb()
+                    cache.uploadTimes()
+                  })
+                })
+            }
           }
-          // copies cached data into there
-          cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
         })
       })
     })

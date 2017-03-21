@@ -38,7 +38,8 @@
 }
 
 .settings {
-    height: 100%;
+    height: calc(100vh - #{$mobilenavsize});
+    height: calc(var(--real-height) - #{$mobilenavsize});
     background: $default-back;
     overflow-y: auto;
     box-sizing: border-box;
