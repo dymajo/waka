@@ -17,6 +17,11 @@ class Lines extends React.Component {
     }
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerGroup = this.triggerGroup.bind(this)
+
+    this.triggerTouchStart = this.triggerTouchStart.bind(this)
+    this.triggerTouchMove = this.triggerTouchMove.bind(this)
+    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
   }
   
   viewLine(line){
@@ -64,6 +69,60 @@ class Lines extends React.Component {
         animationFinished: true
       })
     }, 275)
+
+    if (iOS.detect() && window.navigator.standalone === true) {
+      this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
+      this.refs.container.addEventListener('touchmove', this.triggerTouchMove)
+      this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
+      this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
+    }
+  }
+  componentWillUnmount() {
+    if (iOS.detect() && window.navigator.standalone === true) {
+      this.refs.container.removeEventListener('touchstart', this.triggerTouchStart)
+      this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
+      this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
+      this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    }
+  }
+
+  triggerTouchStart(event) {
+    if (this.props.children !== null) {
+      this.touchStartPos = 100
+      return
+    }
+    // This is a hack to detect flicks  
+    this.longTouch = false
+    setTimeout(() => {
+      this.longTouch = true
+    }, 250)
+
+    this.touchStartPos = event.touches[0].pageX
+  }
+  triggerTouchMove(event) {
+    if (this.touchStartPos <= 7) {
+      this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
+      this.refs.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
+    }
+  }
+  triggerTouchEnd(event) {
+    if (this.touchStartPos <= 7) {
+      this.touchStartPos = 100
+      let swipedAway = false
+      if (this.newPos > window.innerWidth/2 || this.longTouch === false) {
+        // rejects touches that don't really move
+        if (this.newPos > 3) {
+          swipedAway = true
+        }
+      }
+      if (swipedAway) {
+        // navigate backwards with no animate flag
+        UiStore.navigateSavedStations('/', true)
+        this.refs.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
+      } else {
+        this.refs.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
+      }
+    }
   }
 
   render() {
@@ -119,7 +178,7 @@ class Lines extends React.Component {
       className += ' level-1'
     }
     return(
-      <div className={className}>
+      <div className={className} ref="container">
         <header className='material-header'>
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>

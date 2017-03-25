@@ -25,10 +25,12 @@ class Settings extends React.Component {
     }
   }
   componentWillUnmount() {
-    this.refs.container.removeEventListener('touchstart', this.triggerTouchStart)
-    this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
-    this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
-    this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    if (iOS.detect() && window.navigator.standalone === true) {
+      this.refs.container.removeEventListener('touchstart', this.triggerTouchStart)
+      this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
+      this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
+      this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    }
   }
 
   triggerTouchStart(event) {
