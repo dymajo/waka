@@ -10,7 +10,8 @@ $transition: 250ms ease transform;
   height: calc(100vh - #{$mobilenavsize} - #{$root-card-bar});
   height: calc(var(--real-height) - #{$mobilenavsize} - #{$root-card-bar});
   background-color: #eee;
-  transform: translate3d(0,calc(-50vh + 56px + 64px),0);
+  transform: translate3d(0,calc(56px + 64px - 50vh),0);
+  transform: translate3d(0, calc(56px + 64px - (var(--real-height) / 2)), 0);
   transition: $transition;
   will-change: transform;
   position: relative;
@@ -34,6 +35,7 @@ $transition: 250ms ease transform;
 }
 .root-card-content {
   background: #eee;
+  min-height: 50vh;
 }
 // only applies to mobile touch devices
 @media (max-width: 850px) {
