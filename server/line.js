@@ -27,6 +27,10 @@ const lineGroups = [
   {
     name: 'City & Isthmus',
     items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','209','220','221','222','223','224','233','243','243X','246','248','248X','249','255','258','258X','267','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
+  },
+  {
+    name: 'East',
+    items: ['500','501','515','525','532','545','550','551','552','565','575','580','589','595']
   }
 ]
 const allLines = {
@@ -100,7 +104,20 @@ const allLines = {
   '771': [['Newmarket', 'St Heliers', 'Mission Bay']],
 
   // EAST
-  '500': [['Britomart', 'Mission Heights', 'Botany Town Centre']]
+  '500': [['Britomart', 'Mission Heights', 'Botany Town Centre']],
+  '501': [['Britomart', 'Cockle Bay', 'Botany Town Centre']],
+  '515': [['Britomart', 'Otahuhu Station', 'Ruawai Rd and Panama Rd']],
+  '525': [['Britomart', 'Mt Wellington', 'Mt Wellington Highway'], ['Britomart', 'Sylvia Park', 'Mt Wellington Highway']],
+  '532': [['Britomart', 'Otahuhu', 'Carbine Road'], ['Britomart', 'Otahuhu Station', 'Carbine Road']],
+  '545': [['Botany Town Centre', 'Bucklands Beach', 'Highland Park']],
+  '550': [['Britomart', 'Cockle Bay', 'Newmarket']],
+  '551': [['Britomart', 'North Park', 'Newmarket']],
+  '552': [['Britomart', 'Bucklands Beach', 'Newmarket']],
+  '565': [['Botany Town Centre', 'Half Moon Bay', 'Gossamer Dr']],
+  '575': [['Middlemore', 'Half Moon Bay', 'Otara And Highbrook']],
+  '580': [['Howick', 'Manukau City Centre', 'Botany Town Centre'], ['Howick', 'Manukau Station', 'Botany Town Centre']],
+  '589': [['Botany Town Centre', 'Maraetai'], ['Botany Town Centre', 'Beachlands And Maraetai', 'Flat Bush']],
+  '595': [['Britomart', 'Glen Innes', 'Panmure'], ['Britomart', 'Glen Innes Centre', 'Panmure And Ellerslie']],
 }
 
 function cacheOperatorsAndShapes() {
