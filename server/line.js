@@ -21,7 +21,7 @@ var shapeWKBOptions = {
 let lineOperators = {}
 const lineGroups = [
   {
-    name: 'Train',
+    name: 'Congestion Free Network',
     items: ['EAST','ONE','STH','WEST','PUK']
   },
   {
@@ -31,6 +31,10 @@ const lineGroups = [
   {
     name: 'East',
     items: ['500','501','515','525','532','545','550','551','552','565','575','580','589','595']
+  },
+  {
+    name: 'South',
+    items: ['31','32','33','313','314','324','325','326','352','353','360X','361','362','363','365','366','368','369','371','372','373','374','376','377','378','380','391','392','393','394','395','396','398','399']
   }
 ]
 const allLines = {
@@ -118,6 +122,42 @@ const allLines = {
   '580': [['Howick', 'Manukau City Centre', 'Botany Town Centre'], ['Howick', 'Manukau Station', 'Botany Town Centre']],
   '589': [['Botany Town Centre', 'Maraetai'], ['Botany Town Centre', 'Beachlands And Maraetai', 'Flat Bush']],
   '595': [['Britomart', 'Glen Innes', 'Panmure'], ['Britomart', 'Glen Innes Centre', 'Panmure And Ellerslie']],
+
+  // SOUTH
+  '31': [['Mangere Town Centre', 'Botany Town Centre', 'Otara']],
+  '313': [['Onehunga', 'Manukau Station', 'Mangere & Papatoetoe'], ['Onehunga', 'Manukau Station', 'Papatoetoe & Mangere']],
+  '314': [['Papatoetoe Station', 'Ormiston', 'Otara']],
+  '32': [['Mangere Town Centre', 'Sylvia Park', 'Otahuhu']],
+  '324': [['Mangere Town Centre', 'Seaside Park', 'Otahuhu']],
+  '325': [['Mangere Town Centre', 'Manukau Station', 'Otahuhu And Otara'], ['Mangere Town Centre', 'Manukau Station', 'Otara And Otahuhu']],
+  '326': [['Mangere Town Centre', 'Otahuhu Station', 'Tidal Road']],
+  '33': [['Otahuhu Station', 'Papakura Interchange', 'Great South Rd']],
+  '352': [['Manukau Station', 'Panmure', 'East Tamaki']],
+  '353': [['Manukau Station', 'Botany Town Centre', 'Preston Rd']],
+  '360X': [['City', 'Papakura', 'Manurewa (Express)']],
+  '361': [['Manurewa Interchange', 'Otara / Mit', 'Mahia Rd']],
+  '362': [['Manukau Station', 'Weymouth', 'Great South Rd']],
+  '363': [['Manurewa Interchange', 'Wattle Downs Loop']],
+  '365': [['Manukau Station', 'Papakura Interchange', 'Porchester Rd'], ['Manukau Station', 'Papakura Interchange Station', 'Porchest']],
+  '366': [['Manukau Station', 'Manurewa Interchange', 'The Gardens'], ['Manukau Station', 'Manurewa', 'The Gardens']],
+  '368': [['Wiri Industrial Loop Clockwise']],
+  '369': [['Wiri Industrial Loop Anticlockwise']],
+  '371': [['Papakura Interchange', 'Takanini Station']],
+  '372': [['Papakura Shops', 'Keri Hill Loop']],
+  '373': [['Papakura Shops', 'Red Hill']],
+  '374': [['Papakura Shops', 'Opaheke Loop']],
+  '376': [['Papakura Shops', 'Drury']],
+  '377': [['Papakura Interchange', 'Pahurehure']],
+  '378': [['Papakura Shops', 'Karaka Harbourside Loop']],
+  '380': [['Onehunga', 'Manukau', 'Airport']],
+  '391': [['Pukekohe Northeast Loop']],
+  '392': [['Pukekohe Northwest Loop']],
+  '393': [['Pukekohe South Loop']],
+  '394': [['Pukekohe Interchange', 'Wesley College/Paerata']],
+  '395': [['Papakura Interchange', 'Waiuku']],
+  '396': [['Pukekohe Interchange', 'Waiuku', 'Patumahoe']],
+  '398': [['Pukekohe', 'Tuakau']],
+  '399': [['Pukekohe', 'Port Waikato', 'Tuakau']],
 }
 
 function cacheOperatorsAndShapes() {
