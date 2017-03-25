@@ -99,7 +99,13 @@ var cache = {
     Object.keys(cache.versions).forEach(function(version) {
       if (moment.utc(cache.versions[version].startdate).isBefore(currentDate) &&
         moment.utc(cache.versions[version].enddate).add(1, 'days').isAfter(currentDate)) {
-        currentVersion = version
+        if (currentVersion !== null) {
+          if (moment.utc(cache.versions[version].startdate).isAfter(moment.utc(cache.versions[currentVersion].startdate))) {
+            currentVersion = version
+          }
+        } else {
+          currentVersion = version  
+        }
       }
     })
     if (currentVersion === null) {
