@@ -144,10 +144,20 @@ class Lines extends React.Component {
             name = el[0][0].replace(' Train Station', '') + ' to ' + el[0][1].replace('Train Station', '')
           }
           name = this.state.friendlyNames[item] || name
+
+          let roundelStyle = 'line-pill'
+          let code = item
+          if (item === 'WEST' || item === 'EAST' || item === 'ONE' || item === 'STH' || item === 'NEX' || item === 'PUK') {
+            roundelStyle += ' cf'
+            code = item[0]
+            if (item === 'PUK') {
+              code = 'S'
+            }
+          }
           return (
             <Link className="line-item" key={key} to={'/l/'+item}>
               <span className="line-pill-wrapper">
-                <span className="line-pill" style={{backgroundColor: StationStore.getColor(operator, item)}}>{item}</span>
+                <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(operator, item)}}>{code}</span>
               </span>
               <span className="line-label">{name}</span>
             </Link>

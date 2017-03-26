@@ -179,6 +179,17 @@ class VehicleLocationBootstrap extends React.Component {
         )
       }
     }
+
+    let roundelStyle = 'line-pill'
+    let code = this.state.tripInfo.route_short_name
+    if (code === 'WEST' || code === 'EAST' || code === 'ONE' || code === 'STH' || code === 'NEX' || code === 'PUK') {
+      roundelStyle += ' cf'
+      if (code === 'PUK') {
+        code = 'S'
+      } else {
+        code = code[0]
+      }
+    }
     return (
       <div className='vehicle-location-container' ref="container">
         <header className='material-header'>
@@ -186,8 +197,8 @@ class VehicleLocationBootstrap extends React.Component {
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
             <h1 className='line-name'>
               <section className="line-pill-wrapper-header">
-                <span className='line-pill' style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
-                  {this.state.tripInfo.route_short_name}
+                <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
+                  {code}
                 </span>
               </section>
               <section className="selectWrapper">{lineSelect}</section>

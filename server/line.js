@@ -22,7 +22,7 @@ let lineOperators = {}
 const lineGroups = [
   {
     name: 'Congestion Free Network',
-    items: ['NEX', 'EAST','ONE','STH','WEST','PUK']
+    items: ['NEX', 'EAST','ONE','WEST','STH','PUK']
   },
   {
     name: 'City & Isthmus',
