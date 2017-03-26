@@ -43,7 +43,11 @@ class Lines extends React.Component {
     return (e) => {
       e.preventDefault()
       let groupShow = JSON.parse(JSON.stringify(this.state.groupShow))
-      groupShow[group] = 'show'
+      if (groupShow[group] === 'show') {
+        groupShow[group] = ''
+      } else {
+        groupShow[group] = 'show'
+      }
       this.setState({
         groupShow: groupShow
       })
@@ -171,9 +175,15 @@ class Lines extends React.Component {
             </Link>
           )
         })
+        let label = group.items.length - 3 
+        if (this.state.groupShow[group.name] === 'show') {
+          label += ' less ▴'
+        } else {
+          label += ' more ▾'
+        }
         innerLineList.push(
           <div className="line-item expand" key={group.name + 'expand'} onTouchTap={this.triggerGroup(group.name)}>
-            {group.items.length - 4} more ▾
+            {label}
           </div>
         )
         let key = group.name + 'innerLines'
