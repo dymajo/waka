@@ -26,7 +26,7 @@ const lineGroups = [
   },
   {
     name: 'City & Isthmus',
-    items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','209','220','221','222','223','224','233','243','243X','246','248','248X','249','255','258','258X','267','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
+    items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','220','221','222','223','224','233','243','243X','246','248','248X','249','255','258','258X','267','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
   },
   {
     name: 'East',
@@ -35,6 +35,10 @@ const lineGroups = [
   {
     name: 'South',
     items: ['31','32','33','313','314','324','325','326','352','353','360X','361','362','363','365','366','368','369','371','372','373','374','376','377','378','380','391','392','393','394','395','396','398','399']
+  },
+  {
+    name: 'West',
+    items: ['04X','048','049','060','07X','070','079','080','081','085','087','09X','090','091','092','093','095','097','102','104','11X','113','115','121','13X','130','135','136','145','149','15X','153','154','156','170','171','171X','172','172X','186','195','209']
   }
 ]
 const allLines = {
@@ -59,7 +63,6 @@ const allLines = {
   '011': [['St Lukes', 'Onehunga']],
   '020': [['Britomart', 'Westmere', 'Wellington St']],
   '030': [['City Centre', 'Pt Chevalier']],
-  '209': [['City Centre', 'Titirangi', 'New North Rd And Green Bay (U)'], ['City Centre', 'Titirangi', 'Green Bay And New North Rd (U)']],
   '220': [['Midtown', 'St Lukes'], ['City Centre', 'St Lukes']],
   '221': [['Midtown', 'Rosebank Rd'], ['City Centre', 'Rosebank Rd']],
   '222': [['Midtown', 'Patiki Rd'], ['City Centre', 'Patiki Rd']],
@@ -158,6 +161,50 @@ const allLines = {
   '396': [['Pukekohe Interchange', 'Waiuku', 'Patumahoe']],
   '398': [['Pukekohe', 'Tuakau']],
   '399': [['Pukekohe', 'Port Waikato', 'Tuakau']],
+
+  // WEST
+  '04X': [['City Centre', 'Te Atatu Peninsula Express'], ['City Centre Express', 'Te Atatu Peninsula']],
+  '048': [['City Centre', 'Te Atatu Peninsula']],
+  '049': [['City Centre', 'Henderson', 'Te Atatu Peninsula'], ['City Centre', 'Henderson', 'Te Atatu Penninsula']], // wtf spelling
+  '060': [['City Centre', 'Helensville']],
+  '07X': [['City Centre', 'Parrs Park Express', 'Te Atatu South'], ['City Centre Express', 'Parrs Park', 'Te Atatu South']],
+  '070': [['City Centre', 'Westgate', 'Waimumu Road']],
+  '079': [['City Centre', 'Sturges Road', 'Sunnyvale']],
+  '080': [['City Centre', 'Westgate']],
+  '081': [['City Centre', 'Westgate', 'Don Buck Rd']],
+  '085': [['City Centre', 'Swanson']],
+  '087': [['City Centre', 'Ranui']],
+  '09X': [['City Centre', 'Sturges Rd Express'], ['City Centre Express', 'Sturges Rd']],
+  '090': [['City Centre', 'Westgate', 'Massey East']],
+  '091': [['City Centre', 'Westgate', 'Massey East and Lincoln Rd']],
+  '092': [['City Centre', 'Hobsonville']],
+  '093': [['Westgate', 'Whenuapai']],
+  '095': [['City Centre', 'Whenuapai']],
+  '097': [['City Centre', 'Ranui', 'Te Atatu South']],
+  '102': [['New Lynn', 'Patiki Rd', 'Rosebank Rd']],
+  '104': [['New Lynn Local']],
+  '11X': [['City Centre', 'Henderson Express', 'Glendene'], ['City Centre Express', 'Henderson', 'Glendene']],
+  '113': [['City Centre', 'Henderson', 'Kelston']],
+  '115': [['City Centre', 'Henderson', 'Glendene']],
+  '121': [['New Lynn', 'Te Atatu Peninsula']],
+  '13X': [['City Centre', 'Ranui Express'], ['City Centre Express', 'Ranui']],
+  '130': [['New Lynn', 'Takapuna']],
+  '135': [['City Centre', 'Swanson', 'New Lynn']],
+  '136': [['City Centre', 'Ranui', 'New Lynn'], ['City Centre', 'Ranui', 'Swanson']],
+  '145': [['Henderson Hopper Via McLaren Park And Sturges Rd']],
+  '149': [['New Lynn', 'Sturges Road'], ['New Lynn', 'Sturges Rd', 'Sunnyvale']],
+  '15X': [['City Centre', 'Henderson Express', 'Glen Eden'], ['City Centre Express', 'Henderson', 'Glen Eden']],
+  '153': [['City Centre', 'Henderson', 'Glen Eden'], ['City Centre', 'Henderson', 'Glen Eden And Rosier Rd']],
+  '154': [['City Centre', 'Henderson', 'Glen Eden'], ['City Centre', 'Henderson', 'Glen Eden And Solar Rd']],
+  '156': [['New Lynn', 'Forrest Hill Rd', 'Glen Eden']],
+  '170': [['New Lynn', 'Titirangi South'], ['New Lynn', 'Titirangi South', 'Titirangi And French Bay']],
+  '171': [['New Lynn', 'Laingholm']],
+  '171X': [['City Centre', 'Laingholm Express'], ['City Centre Express', 'Laingholm']],
+  '172': [['New Lynn', 'Glen Eden', 'Titirangi']],
+  '172X': [['City Centre', 'Glen Eden Express', 'Titirangi'], ['City Centre Express', 'Glen Eden', 'Titirangi']],
+  '186': [['New Lynn Loop']],
+  '195': [['City Centre', 'New Lynn V Blockhouse Bay Rd And Green Bay(U)'], ['New Lynn', 'City Centre V GreenBay And Blockhouse Bay Rd (U)']],
+  '209': [['City Centre', 'Titirangi', 'New North Rd And Green Bay (U)'], ['City Centre', 'Titirangi', 'Green Bay And New North Rd (U)']],
 }
 
 function cacheOperatorsAndShapes() {
