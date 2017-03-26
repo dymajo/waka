@@ -9,6 +9,17 @@ const variants = [
   ['WEST', 2],
   ['PUK', 2],
 
+  ['DEV', 2],
+  ['HMB', 2],
+  ['BIRK', 2],
+  ['BAYS', 2],
+  ['MTIA', 2],
+  ['SBAY', 2],
+  ['WSTH', 2],
+  ['RAK', 2],
+  ['PINE', 2],
+  ['HOBS', 2],
+
   // CITY
   ['CTY', 1],
   ['INN', 2],

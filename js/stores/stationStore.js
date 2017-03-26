@@ -14,7 +14,7 @@ export class stationStore extends Events {
     this.ferryStations = [
       '9600','9610','9623','9630','9670','9690','9730',
       '9660','9650','9720','9810','9640','9770','9760',
-      '9790','9740','9700','9604','9620','9603']
+      '9790','9740','9700','9604','9620','9603','9750']
 
     this.StationData = {}
     if (localStorage.getItem('StationData')) {
@@ -113,7 +113,7 @@ export class stationStore extends Events {
     case 'ATAPT': // AT Airporter
       return '#f7931d'
 
-    case 'PHH': // Pine Harbour / Sealink
+    case 'SLPH': // Pine Harbour / Sealink
       return '#d92732'
 
     case 'GBT': // Go Bus

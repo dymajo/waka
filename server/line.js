@@ -25,6 +25,10 @@ const lineGroups = [
     items: ['NEX', 'EAST','ONE','WEST','STH','PUK']
   },
   {
+    name: 'Ferries',
+    items: ['DEV','HMB','BIRK','BAYS','MTIA','SBAY','WSTH','RAK','PINE','HOBS']
+  },
+  {
     name: 'City & Isthmus',
     items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','220','221','222','223','224','233','243','243X','246','248','248X','249','255','258','258X','267','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
   },
@@ -56,6 +60,7 @@ const friendlyNames = {
   'INN': 'Inner Link',
   'OUT': 'Outer Link',
   '380': 'Airporter',
+  'MTIA': 'Auckland to Waiheke Island',
 }
 const allLines = {
   // RAPID
@@ -65,6 +70,19 @@ const allLines = {
   'STH': [['Britomart Train Station', 'Papakura Train Station']],
   'WEST': [['Britomart Train Station', 'Swanson Train Station']],
   'PUK': [['Papakura Train Station', 'Pukekohe Train Station']],
+
+  // FERRIES
+  'DEV': [['Auckland', 'Devonport']],
+  'HMB': [['Auckland', 'Half Moon Bay'], ['Auckland Pier 1', 'Half Moon Bay']],
+  'BIRK': [['Auckland', 'Birkenhead', 'Northcote Point']],
+  'BAYS': [['Auckland', 'Bayswater']],
+  'MTIA': [['Auckland 2', 'Waiheke Island 1']],
+  'SBAY': [['Auckland', 'Stanley Bay']],
+  'WSTH': [['Auckland', 'West Harbour']],
+  'RAK': [['Auckland', 'Rakino Island']],
+  'PINE': [['Auckland', 'Pine Harbour']],
+  'HOBS': [['Auckland', 'Hobsonville', 'Beach Haven']],
+
 
   // CITY
   'CTY': [['City Link', 'Wynyard Quarter', 'Greys Ave']],
