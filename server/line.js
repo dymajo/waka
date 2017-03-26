@@ -39,10 +39,27 @@ const lineGroups = [
   {
     name: 'West',
     items: ['04X','048','049','060','07X','070','079','080','081','085','087','09X','090','091','092','093','095','097','102','104','11X','113','115','121','13X','130','135','136','145','149','15X','153','154','156','170','171','171X','172','172X','186','195','209']
+  },
+  {
+    name: 'North',
+    items: ['555','560','76X','779','802X','803','804','813','815','822','839','843','85X','858','86X','863X','87X','873','873X','874X','875','879','880','881','882','886','887','891','891X','900X','905','911','913','915','920','921','922','945','945X','952','953','955','956','957','958','960','962','966','971','972','973','974','975','976','981','982','983','984','985','986','987','988','991X','992X']
   }
 ]
+const friendlyNames = {
+  'NEX': 'Northern Express',
+  'EAST': 'Eastern Line',
+  'ONE': 'Onehunga Line',
+  'STH': 'Southern Line',
+  'WEST': 'Western Line',
+  'PUK': 'Pukekohe Shuttle',
+  'CTY': 'City Link',
+  'INN': 'Inner Link',
+  'OUT': 'Outer Link',
+  '380': 'Airporter',
+}
 const allLines = {
-  // TRAINS
+  // RAPID
+  'NEX': [['Britomart', 'Hibiscus Coast Station'], ['Britomart', 'HC Station', 'all Busway Stations']],
   'EAST': [['Britomart Train Station', 'Manukau Train Station']],
   'ONE': [['Britomart Train Station', 'Onehunga Train Station']],
   'STH': [['Britomart Train Station', 'Papakura Train Station']],
@@ -205,7 +222,73 @@ const allLines = {
   '186': [['New Lynn Loop']],
   '195': [['City Centre', 'New Lynn V Blockhouse Bay Rd And Green Bay(U)'], ['New Lynn', 'City Centre V GreenBay And Blockhouse Bay Rd (U)']],
   '209': [['City Centre', 'Titirangi', 'New North Rd And Green Bay (U)'], ['City Centre', 'Titirangi', 'Green Bay And New North Rd (U)']],
-}
+
+  // NORTH
+  '555': [['Massey University', 'Highbury']],
+  '560': [['Massey University', 'Glenfield']],
+  '76X': [['Mayoral Dr', 'Long Bay Express'], ['City Centre Express', 'Long Bay']],
+  '779': [['Devonport Wharf', 'Stanley Bay And Return'], ['Devonport Wharf', 'Cheltenham And Return']],
+  '802X': [['Mayoral Dr', 'Bayswater Express'], ['Mayoral Dr Express', 'Bayswater']],
+  '803': [['Takapuna Loop'], ['Takapuna', 'Bayswater', 'Francis St']],
+  '804': [['Bayswater Wharf', 'Takapuna', 'Westlake']],
+  '813': [['Takapuna', 'Devonport', 'Narrow Neck (R)']],
+  '815': [['Devonport', 'Westwell Rd', 'Ngataringa Rd']],
+  '822': [['Mayoral Dr', 'Castor Bay']],
+  '839': [['Mayoral Dr', 'Long Bay', 'Crown Hill']],
+  '843': [['Akoranga Station', 'Constellation Station', 'Takapuna']],
+  '85X': [['Mayoral Dr', 'Torbay Express'], ['Mayoral Dr Express', 'Torbay']],
+  '858': [['Mayoral Dr', 'Long Bay', 'North Shore Hospital'], ['City Centre', 'Long Bay', 'North Shore Hospital']],
+  '86X': [['Mayoral Dr', 'Browns Bay Express'], ['Mayoral Dr Express', 'Browns Bay']],
+  '863X': [['Mayoral Dr', 'Mairangi Bay Express'], ['City Centre Express', 'Mairangi Bay']],
+  '87X': [['Mayoral Dr', 'Long Bay Express', 'Albany Station'], ['City Centre Express', 'Long Bay', 'Albany Station']],
+  '873': [['Constellation Station', 'Takapuna']],
+  '873X': [['Mayoral Dr', 'Constellation Station Express', 'Sunnynook'], ['City Centre Express', 'Constellation Station', 'Sunnynook']],
+  '874X': [['Mayoral Dr', 'Constellation Station Express'], ['City Centre Express', 'Constellation Station']],
+  '875': [['Mayoral Dr', 'Browns Bay']],
+  '879': [['Mayoral Dr', 'Long Bay', 'Forrest Hill']],
+  '880': [['Albany Loop Clockwise'], ['Albany Loop Anticlockwise']],
+  '881': [['Newmarket', 'Albany Station']],
+  '882': [['Albany Station', 'Torbay']],
+  '886': [['Constellation Station', 'Long Bay', 'Browns Bay']],
+  '887': [['Constellation Station', 'Long Bay', 'Albany']],
+  '891': [['Takapuna', 'Albany Station']],
+  '891X': [['Newmarket', 'Albany Village']],
+  '900X': [['Mayoral Dr', 'Unsworth Heights Express'], ['City Centre Express', 'Unsworth Heights']],
+  '905': [['Takapuna', 'Glenfield', 'Unsworth Heights']],
+  '911': [['Takapuna', 'Glenfield', 'Northcote']],
+  '913': [['Takapuna', 'Windy Ridge', 'North Shore Hospital']],
+  '915': [['Takapuna', 'Bayview']],
+  '920': [['Sylvan Ave', 'Mayoral Dr']],
+  '921': [['Mayoral Dr', 'Hillcrest']],
+  '922': [['Mayoral Dr', 'Takapuna', 'Northcote']],
+  '945': [['Takapuna', 'Glenfield', 'Marlborough']],
+  '945X': [['Mayoral Dr', 'Glenfield Express'], ['City Centre Express', 'Glenfield']],
+  '952': [['Mayoral Dr', 'Glenfield Shops', 'Coronation Rd'], ['City Centre', 'Glenfield Shops', 'Coronation Rd']],
+  '953': [['Universities', 'Windy Ridge']],
+  '955': [['Midtown', 'Bayview']],
+  '956': [['Mayoral Dr', 'Westgate Express', 'Greenhithe'], ['Mayoral Dr Express', 'Westgate', 'Greenhithe']],
+  '957': [['Birkenhead Wharf', 'Albany Station', 'Highbury']],
+  '958': [['Midtown', 'Constellation Station']],
+  '960': [['Highbury', 'Northcote Point'], ['Highbury Shops', 'Northcote Point']],
+  '962': [['Newmarket', 'Albany Station', 'Ponsonby']],
+  '966': [['Newmarket', 'Beach Haven', 'Ponsonby']],
+  '971': [['Auckland University', 'Chatswood']],
+  '972': [['Auckland University', 'Beach Haven Wharf']],
+  '973': [['Midtown', 'Beach Haven', 'Rangatira Rd'], ['Beach Haven', 'Midtown', 'Birkdale Rd And Highbury Bypass']],
+  '974': [['Midtown', 'Beach Haven', 'Highbury Bypass'], ['Midtown', 'Beach Haven', 'Rangatira Rd And Highbury Bypass']],
+  '975': [['Takapuna', 'Beach Haven Wharf', 'Birkdale Rd'], ['Takapuna', 'Beach Haven', 'Birkdale Rd']],
+  '976': [['Takapuna', 'Beach Haven', 'Rangatira Rd'], ['Takapuna', 'Beach Haven Wharf', 'Rangatira Rd']],
+  '981': [['HC Station', 'Waiwera']],
+  '982': [['HC Station', 'Gulf Harbour']],
+  '983': [['HC Station', 'Gulf Harbour', 'Silverdale, Red Beach, Vipond'], ['HC Station', 'Gulf Harbour', 'Manly shops, Vipond Rd, Red B']],
+  '984': [['HC Station to Orewa, via Silverdale and Red Beach Rd'], ['Orewa to HC Station, via Maygrove, Red Beach and Silverdale']],
+  '985': [['HC Station', 'Orewa', 'Silverdale and Millwater'], ['HC Station', 'Orewa', 'Millwater and Silverdale']],
+  '986': [['HC Station', 'Albany Station', 'Dairy Flat Highway, Massey'], ['HC Station', 'Albany Station', 'Albany Centre, Massey Uni']],
+  '987': [['Arkles Bay to The Plaza']],
+  '988': [['Gulf Harbour Ferry', 'The Plaza', 'Shakespear Regional Park']],
+  '991X': [['City Centre (Wellesley St)', 'Waiwera', 'HC Station']],
+  '992X': [['City Centre (Wellesley St)', 'Gulf Harbour', 'HC Station']],
+} 
 
 function cacheOperatorsAndShapes() {
   let todo = []
@@ -259,6 +342,7 @@ cache.ready.push(cacheOperatorsAndShapes)
 var line = {
   getLines: function(req, res) {
     res.send({
+      friendlyNames: friendlyNames,
       groups: lineGroups,
       lines: allLines,
       operators: lineOperators
@@ -430,7 +514,7 @@ var line = {
       // handles via Flyover or whatever
       } else if (variant.length === 3) {
         let splitName = route.route_long_name._.toLowerCase().split(' to ')
-        if (splitName[1].split(' via ')[1] === variant[2].toLowerCase()) {
+        if (splitName.length > 1 && splitName[1].split(' via ')[1] === variant[2].toLowerCase()) {
           splitName[1] = splitName[1].split(' via ')[0]
           if (variant[0].toLowerCase() === splitName[0] && variant[1].toLowerCase() === splitName[1]) {
             retval = true
