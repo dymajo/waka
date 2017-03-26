@@ -22,7 +22,7 @@ let lineOperators = {}
 const lineGroups = [
   {
     name: 'Congestion Free Network',
-    items: ['EAST','ONE','STH','WEST','PUK']
+    items: ['NEX', 'EAST','ONE','STH','WEST','PUK']
   },
   {
     name: 'City & Isthmus',
@@ -59,7 +59,7 @@ const friendlyNames = {
 }
 const allLines = {
   // RAPID
-  'NEX': [['Britomart', 'Hibiscus Coast Station'], ['Britomart', 'HC Station', 'all Busway Stations']],
+  'NEX': [['Britomart', 'HC Station', 'all Busway Stations'], ['Britomart', 'Hibiscus Coast Station']],
   'EAST': [['Britomart Train Station', 'Manukau Train Station']],
   'ONE': [['Britomart Train Station', 'Onehunga Train Station']],
   'STH': [['Britomart Train Station', 'Papakura Train Station']],

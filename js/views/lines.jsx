@@ -13,6 +13,7 @@ class Lines extends React.Component {
       allLines: undefined,
       groups: null,
       groupShow: {},
+      friendlyNames: {},
       animationFinished: false
     }
     this.triggerChange = this.triggerChange.bind(this)
@@ -60,6 +61,7 @@ class Lines extends React.Component {
           allLines: data.lines,
           groups: data.groups,
           operators: data.operators,
+          friendlyNames: data.friendlyNames,
           groupShow: groupShow
         })       
       })
@@ -141,6 +143,7 @@ class Lines extends React.Component {
           if (el[0].length > 1) {
             name = el[0][0].replace(' Train Station', '') + ' to ' + el[0][1].replace('Train Station', '')
           }
+          name = this.state.friendlyNames[item] || name
           return (
             <Link className="line-item" key={key} to={'/l/'+item}>
               <span className="line-pill-wrapper">

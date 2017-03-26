@@ -2,6 +2,7 @@ import React from 'react'
 
 const variants = [
   // TRAINS
+  ['NEX', 2],
   ['EAST', 2],
   ['ONE', 2],
   ['STH', 2],
