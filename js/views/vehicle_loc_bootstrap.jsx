@@ -31,6 +31,15 @@ class VehicleLocationBootstrap extends React.Component {
     }
     this.tripMountCb(this.props)
   }
+  componentDidUpdate() {
+    if (typeof(this.state.tripInfo.route_short_name) !== 'undefined') {
+      if ('line_id' in this.props.params) {
+        document.title = this.state.tripInfo.route_short_name + ' - ' + this.state.tripInfo.route_long_name + ' - Transit'
+      } else {
+        document.title = this.state.tripInfo.route_short_name + ' - Live Location - Transit'
+      }
+    }
+  }
   componentDidMount() {
     require.ensure(['react-leaflet'], () => {
       this.VehicleLocation = require('./vehicle_loc.jsx').default

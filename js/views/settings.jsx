@@ -17,6 +17,7 @@ class Settings extends React.Component {
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
   }
   componentDidMount() {
+    document.title = 'Settings - Transit'
     if (iOS.detect() && window.navigator.standalone === true) {
       this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
       this.refs.container.addEventListener('touchmove', this.triggerTouchMove)

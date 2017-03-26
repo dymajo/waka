@@ -49,8 +49,16 @@ class Lines extends React.Component {
       })
     }
   }
+  componentDidUpdate() {
+    if (this.props.children === null) {
+      document.title = 'Lines - Transit'
+    }
+  }
 
   componentDidMount() {
+    if (this.props.children === null) {
+      document.title = 'Lines - Transit'
+    }
     fetch('/a/lines').then((response)=>{
       response.json().then((data) => {
         let groupShow = {}

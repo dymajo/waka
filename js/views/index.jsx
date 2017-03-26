@@ -52,6 +52,11 @@ class Index extends React.Component {
     }, 300)
     
   }
+  componentDidUpdate() {
+    if (this.props.children === null) {
+      document.title = 'Transit'
+    }
+  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {
       this.loadMapDynamic()

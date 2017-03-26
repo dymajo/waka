@@ -379,6 +379,10 @@ class Station extends React.Component {
     // this seems bad 
     swipeview.height = this.triggerSwiped(swipeview.index)
     swipeview.setSizes()
+
+    if (this.props.children === null && this.state.name !== '') {
+      document.title = this.state.name + ' - Transit'
+    }
   }
   componentWillUnmount() {
     window.removeEventListener('resize', swipeview.setSizes)
