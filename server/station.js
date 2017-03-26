@@ -39,7 +39,7 @@ var exceptionCache = {
     if (exceptionCache.additions.indexOf(service) != -1) {
       return true
     }
-    if (parseInt(frequency[(today+6) % 7]) === 1) {
+    if (parseInt(frequency[today]) === 1) {
       return true
     }
     return false
