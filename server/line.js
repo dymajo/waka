@@ -47,6 +47,14 @@ const lineGroups = [
   {
     name: 'North',
     items: ['555','560','76X','779','802X','803','804','813','815','822','839','843','85X','858','86X','863X','87X','873','873X','874X','875','879','880','881','882','886','887','891','891X','900X','905','911','913','915','920','921','922','945','945X','952','953','955','956','957','958','960','962','966','971','972','973','974','975','976','981','982','983','984','985','986','987','988','991X','992X']
+  },
+  {
+    name: 'Late Night',
+    items: ['N05','N13','N24','N26','N10','N11','N50','N62','N83','N97']
+  },
+  {
+    name: 'Waiheke Island',
+    items: ['1','1a','2','3','4']
   }
 ]
 const friendlyNames = {
@@ -306,6 +314,24 @@ const allLines = {
   '988': [['Gulf Harbour Ferry', 'The Plaza', 'Shakespear Regional Park']],
   '991X': [['City Centre (Wellesley St)', 'Waiwera', 'HC Station']],
   '992X': [['City Centre (Wellesley St)', 'Gulf Harbour', 'HC Station']],
+
+  // LATE NIGHT
+  'N05': [['City Centre To Massey Via Te Atatu Peninsula']],
+  'N13': [['City Centre To Te Atatu South Via New Lynn And Henderson']],
+  'N24': [['City Centre To Mt Albert Vi Sandringham And BlockhouseBay']],
+  'N26': [['City Centre To Lynfield Via Dominion Rd']],
+  'N10': [['City To Otara Via Manukau Rd, Onehunga, Mangere, Papatoetoe']],
+  'N11': [['City To Papakura Via Great South Rd']],
+  'N50': [['Civic Centre To Howick Via Pakuranga']],
+  'N62': [['City Centre To Orakei V Remuera GlenInnes And StHeliers']],
+  'N83': [['Civic Centre To Takapuna And East Coast Bays']],
+  'N97': [['Civic Centre To Birkenhead Via Beach Haven And Glenfield Rd']],
+
+  '1': [['Matiatia Wharf', 'Onetangi']],
+  '1a': [['Matiatia Wharf', 'Onetangi', 'Seaview Rd']],
+  '2': [['Matiatia Wharf', 'Rocky Bay']],
+  '3': [['Matiatia Wharf', 'Rocky Bay', 'Ostend & Onetangi'], ['Matiatia', 'Rocky Bay', 'Onetangi and Ostend']],
+  '4': [['Matiatia Wharf', 'Onetangi Direct']],
 } 
 
 function cacheOperatorsAndShapes() {
