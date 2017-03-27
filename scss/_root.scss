@@ -86,6 +86,17 @@ $transition: 250ms ease transform;
     font-size: 12px;
     padding-top: 3px;
     -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 1px 0 #ddd;
+
+    @media (pointer: fine) {
+      &:hover {
+        background: #f7f7f7;
+      }
+    }
+
+    &:active {
+      background: #f5fafe;
+    }
 
     img {
       display: block;
@@ -112,6 +123,10 @@ $transition: 250ms ease transform;
     border-bottom: 0;
     box-shadow:  0 1px 3px rgba(#000,0.3);
     transform: translate3d(0, -14px, 0);
+
+    button {
+      box-shadow: none;
+    }
   }
   .root-card-content::before {
     content: "";

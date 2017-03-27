@@ -183,6 +183,29 @@
     font-weight: 600;
   }
 
+  .text-only {
+    background: #fff;
+    border-bottom: 1px dotted #ddd;
+
+    &:hover, &:active {
+      background: #fff;
+    }
+
+    .name {
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+    .description {
+      font-size: 14px;
+      color: #333;
+      font-weight: 400;
+    }
+    .text-wrapper {
+      padding-left: 3px;
+      padding-bottom: 10px;
+    }
+  }
+
   @media (min-width: 601px) {
     nav {
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
@@ -208,6 +231,20 @@
       display: none;
     }
   }
+}
+
+@media (min-width: 851px) {
+  .onboard {
+    display: none;
+  }
+}
+@media (display-mode: standalone) {
+  .onboard {
+    display: none;
+  } 
+}
+.ios-standalone .onboard {
+  display: none;
 }
 
 .station {

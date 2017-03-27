@@ -62,6 +62,15 @@ class SidebarItem extends React.Component {
             {item}
           </a>
         )
+      } else if (this.props.type === 'description') {
+        return (
+          <li className={classname + ' text-only'}>
+            <div className="text-wrapper">
+              <div className="name">{this.props.name}</div>
+              <div className="description">{this.props.description}</div>
+            </div>
+          </li>
+        )
       }
       return item
     }
@@ -93,8 +102,28 @@ class SavedSations extends React.Component {
         </p>
       )
     }
+    let onboarding = null
+    if (true) {
+      onboarding = <div className="onboard">
+        <h2></h2>
+        <ul>
+          <SidebarItem
+            type="description"
+            name="Welcome to Transit!"
+            description="Transit is your realtime guide to AT Buses, Trains, and Ferries."
+          />
+          <SidebarItem
+            type="right"
+            icon="pin.svg"
+            name="Install App"
+            description="Add Transit to your home screen"
+          />
+        </ul>
+      </div>
+    }
     return (
       <div className="savedstations">
+        {onboarding}
         <h2>Saved Stations</h2>
         {message}
         <ul>
