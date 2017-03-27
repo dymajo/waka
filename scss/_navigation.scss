@@ -238,6 +238,14 @@
     display: none;
   }
 }
+@media (min-width: 481px) {
+  .onboard .text-only {
+    border-bottom: 0;
+  }
+  .onboard li:last-child {
+    display: none;
+  }
+}
 @media (display-mode: standalone) {
   .onboard {
     display: none;

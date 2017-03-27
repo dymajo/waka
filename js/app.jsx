@@ -5,12 +5,10 @@ import { iOS } from './models/ios.js'
 import { UiStore } from './stores/uiStore.js'
 
 import Index from './views/index.jsx'
-import Splash from './views/splash.jsx'
 import Station from './views/station.jsx'
 import Settings from './views/settings.jsx'
 import NoMatch from './views/nomatch.jsx'
 import Lines from './views/lines.jsx'
-// import Line from './views/line.jsx'
 import TestLines from './views/test_lines.jsx'
 import VehicleLocationBootstrap from './views/vehicle_loc_bootstrap.jsx'
 

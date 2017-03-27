@@ -33,8 +33,8 @@ class Pin extends React.Component {
       hide: true
     })
 
-    setTimeout(function() {
-      browserHistory.push('/')
+    setTimeout(() => {
+      this.props.onHide()
     }, 400)
   }
   triggerClipboard() {

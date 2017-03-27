@@ -16,7 +16,8 @@ class Index extends React.Component {
       mapView: false,
       showMap: false,
       animate: false,
-      back: false
+      back: false,
+      showPin: false
     }
     this.Search = null // Map Component, dynamic load
 
