@@ -201,7 +201,7 @@ class Station extends React.Component {
 
     // realtime request for buses and trains
     // not ferries though
-    if (tripData[0].route_type === 4) {
+    if (tripData[0].route_type === '4') {
       return
     }
 
@@ -220,7 +220,7 @@ class Station extends React.Component {
 
     // we need to pass an extra param for train trips
     var requestData
-    if (tripData[0].route_type === 2) {
+    if (tripData[0].route_type === '2') {
       requestData = JSON.stringify({
         trips: queryString,
         train: true
@@ -237,7 +237,7 @@ class Station extends React.Component {
       body: requestData
     }).then((response) => {
       response.json().then((rtData) => {
-        if (tripData[0].route_type === 2) {
+        if (tripData[0].route_type === '2') {
           for (var key in rtData) {
             rtData[key] = {
               v_id: rtData[key].v_id,
@@ -538,13 +538,13 @@ class Station extends React.Component {
         return
       }
       if (trip.route_short_name === 'OUT') {
-        if (trip.direction_id === 0) {
+        if (trip.direction_id === '0') {
           trip.trip_headsign = 'Clockwise Outer Link'
         } else {
           trip.trip_headsign = 'Anticlockwise Outer Link'
         }
       } else if (trip.route_short_name === 'INN') {
-        if (trip.direction_id === 0) {
+        if (trip.direction_id === '0') {
           trip.trip_headsign = 'Clockwise Inner Link'
         } else {
           trip.trip_headsign = 'Anticlockwise Inner Link'
@@ -566,7 +566,7 @@ class Station extends React.Component {
         stop_sequence={trip.stop_sequence}
         realtime={this.state.realtime[trip.trip_id]}
       />
-      if (trip.direction_id === 0) {
+      if (trip.direction_id === '0') {
         inbound.push(item)
         // if (inboundLabel === 'Inbound') {
           // Removed for Now
