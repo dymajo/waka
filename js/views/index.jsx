@@ -5,6 +5,7 @@ import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
 import SavedStations from './savedstations.jsx'
+import Pin from './pin.jsx'
 
 const paddingHeight = 250
 const barHeight = 56
@@ -31,6 +32,7 @@ class Index extends React.Component {
     this.loadMapDynamic = this.loadMapDynamic.bind(this)
     this.toggleStations = this.toggleStations.bind(this)
     this.toggleLines = this.toggleLines.bind(this)
+    this.togglePin = this.togglePin.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
@@ -100,6 +102,11 @@ class Index extends React.Component {
       this.setState({
         mapView: !this.state.mapView
       })
+    })
+  }
+  togglePin() {
+    this.setState({
+      showPin: !this.state.showPin
     })
   }
   toggleLines() {
@@ -295,6 +302,10 @@ class Index extends React.Component {
     if (!this.state.animate) {
       contentClassname += ' no-animate'
     }
+    let modal = null
+    if (this.state.showPin) {
+      modal = <Pin onHide={this.togglePin} />
+    }
     return (
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
@@ -334,13 +345,14 @@ class Index extends React.Component {
               */}
             </div>
             <div className="root-card-content">
-              <SavedStations />
+              <SavedStations togglePin={this.togglePin} />
             </div>
           </div>
         </div>
         <div className={contentClassname}>
         {this.props.children}
         </div>
+        {modal}
       </div>
     )
   }

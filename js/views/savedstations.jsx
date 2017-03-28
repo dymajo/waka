@@ -4,8 +4,6 @@ import { iOS } from '../models/ios.js'
 import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
-import Pin from './pin.jsx'
-
 class SidebarItem extends React.Component {
   constructor(props) {
     super(props)
@@ -86,9 +84,7 @@ class SavedSations extends React.Component {
     super(props)
     this.state = {
       stations: StationStore.getData(),
-      showPin: true,
     }
-    this.togglePin = this.togglePin.bind(this)
   }
   triggerUpdate() {
     this.setState({
@@ -97,11 +93,6 @@ class SavedSations extends React.Component {
   }
   componentWillUnmount() {
     StationStore.unbind('change', this.triggerUpdate)
-  }
-  togglePin() {
-    this.setState({
-      showPin: !this.state.showPin
-    })
   }
   render() {
     let stations = this.state.stations
@@ -112,10 +103,6 @@ class SavedSations extends React.Component {
         Save them and they’ll show up here!<br />
         </p>
       )
-    }
-    let modal = null
-    if (this.state.showPin) {
-      modal = <Pin onHide={this.togglePin} />
     }
     let onboarding = null
     if (true) {
@@ -129,7 +116,7 @@ class SavedSations extends React.Component {
           />
           <SidebarItem
             type="install"
-            action={this.togglePin}
+            action={this.props.togglePin}
             icon="pin.svg"
             name="Install App"
             description="Add Transit to your home screen"
@@ -173,7 +160,6 @@ class SavedSations extends React.Component {
         <a className="label version" href="https://github.com/consindo/dymajo-transit" target="_blank" rel="noopener">
           DYMAJO Transit v{localStorage.getItem('AppVersion')}
         </a>
-        {modal}
       </div>
     )
   }
