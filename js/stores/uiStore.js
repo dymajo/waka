@@ -10,7 +10,8 @@ export class uiStore extends Events {
       noAnimate: false,
       goingBack: false,
       totalNavigations: 0,
-      currentUrl: '/'
+      currentUrl: '/',
+      oldNavigate: [],
     }
     // restores history if it's an iphone web clip :/
     if (window.navigator.standalone) {
@@ -52,9 +53,10 @@ export class uiStore extends Events {
         this.state.triggeredBack = false
       }, 300)
     }
-    this.state.totalNavigations = this.state.totalNavigations -1
+    // handle state picks up back and forwards, so, you have to subtract two
+    this.state.totalNavigations = this.state.totalNavigations - 2
   }
-  handleState(e) { 
+  handleState(e) {    
     this.state.totalNavigations++
   }
   currentState(e) { 
@@ -64,11 +66,34 @@ export class uiStore extends Events {
   handleReactChange(prevState, nextState, replace, callback) {
     var p = prevState.location.pathname
     var n = nextState.location.pathname
+
+    // we're going to where we want to go...
+    if (n.split('/')[1] === 's' && n.split('/').length === 3) {
+      if (nextState.location.action == 'PUSH') {
+        // failsafe?s
+        if (p !== '/' && p !== '/settings') {
+          this.state.oldNavigate.push(p)  
+        }
+      }
+    } else if (p.split('/')[1] === 's' && p.split('/').length === 3) {
+      if (nextState.location.action == 'POP') {
+        this.state.oldNavigate.pop()
+      }
+    }
     
     // weird state changes not back or forward just weird
     const isNoWayGoingBack = n.split('/')[1] !== p.split('/')[1] && n.length > 2 && p.length > 2
     if (isNoWayGoingBack) {
-      return callback()
+      // all this mess for the backswipe on stations
+      // on ios standalone mode
+      if (iOS.detect() && window.navigator.standalone && nextState.location.action === 'POP' && this.state.noAnimate === true) {
+        setTimeout(function() {
+          callback()
+        }, 255)
+        return
+      } else {
+        return callback()
+      }
     }
     // don't run the back animation if it's just in normal ios
     if (iOS.detect() && !window.navigator.standalone && !this.state.triggeredBack) {
@@ -99,5 +124,4 @@ export class uiStore extends Events {
     }
   }
 }
-
 export let UiStore = new uiStore()

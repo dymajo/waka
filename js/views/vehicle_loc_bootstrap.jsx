@@ -32,7 +32,7 @@ class VehicleLocationBootstrap extends React.Component {
     this.tripMountCb(this.props)
   }
   componentDidUpdate() {
-    if (typeof(this.state.tripInfo.route_short_name) !== 'undefined') {
+    if (typeof(this.state.tripInfo.route_long_name) !== 'undefined') {
       if ('line_id' in this.props.params) {
         document.title = this.state.tripInfo.route_short_name + ' - ' + this.state.tripInfo.route_long_name + ' - Transit'
       } else {

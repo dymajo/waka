@@ -18,7 +18,8 @@ class Index extends React.Component {
       showMap: false,
       animate: false,
       back: false,
-      showPin: false
+      showPin: false,
+      hideUi: false
     }
     this.Search = null // Map Component, dynamic load
 
@@ -58,6 +59,16 @@ class Index extends React.Component {
   componentDidUpdate() {
     if (this.props.children === null) {
       document.title = 'Transit'
+    } else {
+      if (this.state.hideUi === true && UiStore.state.oldNavigate.length === 0) {
+        this.setState({
+          hideUi: false
+        })
+      } else if (this.state.hideUi === false && UiStore.state.oldNavigate.length > 0) {
+        this.setState({
+          hideUi: true
+        })
+      }
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -284,6 +295,9 @@ class Index extends React.Component {
     // if it's running standalone, add a class because iOS doesn't support media queries
     if (window.navigator.standalone) {
       className += ' ios-standalone'
+    }
+    if (this.state.hideUi) {
+      className += ' hide-ui'
     }
     let rootClassName = 'root-container'
     if (this.state.mapView) {
