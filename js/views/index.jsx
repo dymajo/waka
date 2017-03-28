@@ -54,7 +54,7 @@ class Index extends React.Component {
         animate: true
       })  
     }, 300)
-    
+    this.refs.touchcard.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
   }
   componentDidUpdate() {
     if (this.props.children === null) {
@@ -337,7 +337,8 @@ class Index extends React.Component {
           <div className="root-card enable-scrolling"
             ref="touchcard"
             onTouchStart={this.triggerTouchStart}
-            onTouchMove={this.triggerTouchMove}
+            // fuck you chrome for making passive default
+            // onTouchMove={this.triggerTouchMove}
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
           >

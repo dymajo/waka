@@ -329,7 +329,7 @@ class Station extends React.Component {
     iOS.triggerStart(e)
   }
   triggerTouchMove(e) {
-    swipeview.contentTouchMove(e.nativeEvent, this.state.stickyScroll || this.state.loading)
+    swipeview.contentTouchMove(e, this.state.stickyScroll || this.state.loading)
   }
   triggerTouchEnd(e) {
     swipeview.contentTouchEnd(e.nativeEvent, this.triggerSwiped)
@@ -347,6 +347,7 @@ class Station extends React.Component {
     swipeview.headerEl = ReactDOM.findDOMNode(this.refs.swipeheader)
     swipeview.setSizes()
 
+    this.refs.scroll.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
     window.addEventListener('resize', swipeview.setSizes)
 
     requestAnimationFrame(() => {
@@ -385,6 +386,7 @@ class Station extends React.Component {
     }
   }
   componentWillUnmount() {
+    this.refs.scroll.removeEventListener('touchmove', this.triggerTouchMove, {passive: false})
     window.removeEventListener('resize', swipeview.setSizes)
     
     // unbind our trigger so it doesn't have more updates
@@ -625,7 +627,8 @@ class Station extends React.Component {
         </header>
         <ul className={scrollable}
             onTouchStart={this.triggerTouchStart}
-            onTouchMove={this.triggerTouchMove}
+            // fuck you chrome
+            // onTouchMove={this.triggerTouchMove}
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
             ref="scroll">
