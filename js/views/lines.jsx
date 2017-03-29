@@ -23,6 +23,7 @@ class Lines extends React.Component {
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+    this.goingBack = this.goingBack.bind(this)
   }
   
   viewLine(line){
@@ -95,6 +96,7 @@ class Lines extends React.Component {
       this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
     }
+    UiStore.bind('goingBack', this.goingBack)
   }
   componentWillUnmount() {
     if (iOS.detect() && window.navigator.standalone === true) {
@@ -102,6 +104,14 @@ class Lines extends React.Component {
       this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
       this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    }
+    UiStore.unbind('goingBack', this.goingBack)
+  }
+  goingBack() {
+    if (UiStore.state.goingBack && this.props.children === null) {
+      this.setState({
+        goingBack: true
+      })
     }
   }
 
@@ -215,6 +225,8 @@ class Lines extends React.Component {
     let styles = {}
     if (this.state.runAnimation && UiStore.getAnimationIn() && this.props.children === null) {
       styles.animation = UiStore.getAnimationIn()
+    } else if (this.state.goingBack) {
+      Object.assign(styles, UiStore.getAnimationOut())
     }
 
     return(

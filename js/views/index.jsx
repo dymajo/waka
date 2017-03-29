@@ -17,7 +17,6 @@ class Index extends React.Component {
       mapView: false,
       showMap: false,
       animate: false,
-      back: false,
       showPin: false,
       hideUi: false,
       invisibleUi: false
@@ -35,7 +34,6 @@ class Index extends React.Component {
     this.toggleStations = this.toggleStations.bind(this)
     this.toggleLines = this.toggleLines.bind(this)
     this.togglePin = this.togglePin.bind(this)
-    this.triggerBack = this.triggerBack.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
@@ -43,8 +41,6 @@ class Index extends React.Component {
     window.onresize = function() {
       document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px');
     }
-
-    UiStore.bind('goingBack', this.triggerBack)
   }
   componentDidMount() {
     if (window.location.pathname === '/') {
@@ -137,11 +133,6 @@ class Index extends React.Component {
   }
   toggleLines() {
     browserHistory.push('/l')
-  }
-  triggerBack() {
-    this.setState({
-      back: UiStore.getState().goingBack
-    })
   }
   triggerTouchStart(e) {
     // only start the pull down if they're at the top of the card
@@ -325,9 +316,6 @@ class Index extends React.Component {
     }
 
     let contentClassname = 'content animate'
-    if (this.state.back) {
-      contentClassname += ' goingback'
-    }
     if (!this.state.animate) {
       contentClassname += ' no-animate'
     }

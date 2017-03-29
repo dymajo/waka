@@ -25,6 +25,7 @@ class VehicleLocationBootstrap extends React.Component {
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+    this.goingBack = this.goingBack.bind(this)
   }
   componentWillMount() {
     this.setState({
@@ -79,6 +80,7 @@ class VehicleLocationBootstrap extends React.Component {
       this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
     }
+    UiStore.bind('goingBack', this.goingBack)
   }
   componentWillUnmount() {
     if (iOS.detect() && window.navigator.standalone === true) {
@@ -86,6 +88,14 @@ class VehicleLocationBootstrap extends React.Component {
       this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
       this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    }
+    UiStore.unbind('goingBack', this.goingBack)
+  }
+  goingBack() {
+    if (UiStore.state.goingBack) {
+      this.setState({
+        goingBack: true
+      })
     }
   }
   componentWillReceiveProps(newProps) {
@@ -201,6 +211,10 @@ class VehicleLocationBootstrap extends React.Component {
           />
         )
       }
+    }
+
+    if (this.state.goingBack) {
+      Object.assign(styles, UiStore.getAnimationOut())
     }
 
     let roundelStyle = 'line-pill'

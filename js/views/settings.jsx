@@ -7,7 +7,9 @@ class Settings extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      credits: false
+      credits: false,
+      runAnimation: false,
+      goingBack: false
     }
 
     this.triggerCredits = this.triggerCredits.bind(this)
@@ -15,6 +17,17 @@ class Settings extends React.Component {
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+    this.goingBack = this.goingBack.bind(this)
+  }
+  componentWillMount() {
+    this.setState({
+      runAnimation: true
+    })
+    setTimeout(() => {
+      this.setState({
+        runAnimation: false
+      })
+    }, UiStore.animationTiming)
   }
   componentDidMount() {
     document.title = 'Settings - Transit'
@@ -24,6 +37,7 @@ class Settings extends React.Component {
       this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
     }
+    UiStore.bind('goingBack', this.goingBack)
   }
   componentWillUnmount() {
     if (iOS.detect() && window.navigator.standalone === true) {
@@ -31,6 +45,14 @@ class Settings extends React.Component {
       this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
       this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    }
+    UiStore.unbind('goingBack', this.goingBack)
+  }
+  goingBack() {
+    if (UiStore.state.goingBack) {
+      this.setState({
+        goingBack: true
+      })
     }
   }
 
@@ -88,8 +110,16 @@ class Settings extends React.Component {
     } else {
       button = <button onTouchTap={this.triggerCredits}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M9 11.75c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zm6 0c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-.29.02-.58.05-.86 2.36-1.05 4.23-2.98 5.21-5.37C11.07 8.33 14.05 10 17.42 10c.78 0 1.53-.09 2.25-.26.21.71.33 1.47.33 2.26 0 4.41-3.59 8-8 8z"/></svg>View Credits</button>
     }
+
+    let styles = {}
+    if (this.state.runAnimation && UiStore.getAnimationIn()) {
+      styles.animation = UiStore.getAnimationIn()
+    } else if (this.state.goingBack) {
+      Object.assign(styles, UiStore.getAnimationOut())
+    }
+
     return(
-      <div className="settingsContainer" ref="container">
+      <div className="settingsContainer" ref="container" style={styles}>
         <header className='material-header'>
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>

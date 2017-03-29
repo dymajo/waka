@@ -48,6 +48,22 @@ export class uiStore extends Events {
     }
     return '250ms ss-to-stop-station ease 1'
   }
+  getAnimationOut() {
+    if (this.state.canAnimate === false) {
+      return null
+    } else if (iOS.detect()) {
+      return {
+        animation: '250ms stop-to-ss-station-ios ease 1',
+        transform: 'translate3d(100vw,0,0)',
+      }
+    }
+    return {
+      animation: '250ms stop-to-ss-station ease 1',
+      transform: 'translate3d(0,15px,0)',
+      opacity: '0',
+      pointerEvents: 'none',
+    }
+  }
   navigateSavedStations(path, noAnimate) {
     if (window.location.pathname === path) {
       return

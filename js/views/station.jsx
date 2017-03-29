@@ -49,6 +49,7 @@ class Station extends React.Component {
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+    this.goingBack = this.goingBack.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
   }
@@ -379,7 +380,7 @@ class Station extends React.Component {
         this.getMultiData(this.props, true)
       }
     }, 30000)
-
+    UiStore.bind('goingBack', this.goingBack)
   }
   componentDidUpdate() {
     // this seems bad 
@@ -407,6 +408,15 @@ class Station extends React.Component {
       }
     })
     clearInterval(liveRefresh)
+
+    UiStore.unbind('goingBack', this.goingBack)
+  }
+  goingBack() {
+    if (UiStore.state.goingBack && this.props.children === null) {
+      this.setState({
+        goingBack: true
+      })
+    }
   }
   componentWillReceiveProps(newProps) {
     // basically don't do anything if the station doesn't change
@@ -610,6 +620,8 @@ class Station extends React.Component {
     let styles = {}
     if (this.state.runAnimation && UiStore.getAnimationIn()) {
       styles.animation = UiStore.getAnimationIn()
+    } else if (this.state.goingBack) {
+      Object.assign(styles, UiStore.getAnimationOut())
     }
 
     return (
