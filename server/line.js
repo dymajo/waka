@@ -359,7 +359,11 @@ function cacheOperatorsAndShapes() {
         console.warn(error)
       }
       // query was successful
-      lineOperators[todo[index]] = result.entries[0].agency_id._
+      if (result.entries.length > 0) {
+        lineOperators[todo[index]] = result.entries[0].agency_id._  
+      } else {
+        console.warn('could not find agency for', todo[index])
+      }
       getOperator(index + 1)
     })
 
