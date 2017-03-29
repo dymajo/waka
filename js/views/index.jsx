@@ -121,6 +121,7 @@ class Index extends React.Component {
       if (this.state.mapView === false) {
         this.refs.touchcard.scrollTop = 0
       }
+      UiStore.state.mapView = !this.state.mapView
       this.setState({
         mapView: !this.state.mapView
       })

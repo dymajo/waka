@@ -6,8 +6,10 @@ $transition: 250ms ease transform;
   height: 100vh;
   height: var(--real-height);
 
-  &.invisibleUi {
-    visibility: hidden;
+  @media (max-width: 850px) {
+    &.invisibleUi {
+      visibility: hidden;
+    }  
   }
 }
 .root-map {

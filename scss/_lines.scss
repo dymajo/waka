@@ -49,6 +49,17 @@ $left-pad: 80px;
   border-bottom: 1px solid #e4e4e4;
   padding-right: 14px;
   font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+
+  @media (pointer: fine) {
+    &:hover {
+      background: #f7f7f7;
+    }
+  }
+
+  &:active {
+    background: #f5fafe;
+  }
 
   &:first-child {
     border-top: 1px solid #e4e4e4;

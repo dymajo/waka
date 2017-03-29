@@ -1,6 +1,5 @@
 import React from 'react'
-import { Link, browserHistory } from 'react-router'
-import { iOS } from '../models/ios.js'
+import { browserHistory } from 'react-router'
 import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
@@ -32,6 +31,11 @@ class SidebarItem extends React.Component {
         return '#000'
     }
   }
+  reject(e) {
+    if (UiStore.state.mapView) {
+      e.preventDefault()
+    }
+  }
   render() {
     
     var classname = 'ss'
@@ -60,7 +64,7 @@ class SidebarItem extends React.Component {
       )
       if (this.props.type === 'url') {
         return (
-          <a href={this.props.url} target="_blank" rel="noopener">
+          <a href={this.props.url} target="_blank" rel="noopener" onClick={this.reject}>
             {item}
           </a>
         )
@@ -93,6 +97,11 @@ class SavedSations extends React.Component {
   }
   componentWillUnmount() {
     StationStore.unbind('change', this.triggerUpdate)
+  }
+  reject(e) {
+    if (UiStore.state.mapView) {
+      e.preventDefault()
+    }
   }
   render() {
     let stations = this.state.stations
@@ -157,7 +166,7 @@ class SavedSations extends React.Component {
             description="@DYMAJOLtd on Twitter"
           />
         </ul>
-        <a className="label version" href="https://github.com/consindo/dymajo-transit" target="_blank" rel="noopener">
+        <a className="label version" href="https://github.com/consindo/dymajo-transit" target="_blank" rel="noopener" onClick={this.reject}>
           DYMAJO Transit v{localStorage.getItem('AppVersion')}
         </a>
       </div>

@@ -153,6 +153,14 @@ class Lines extends React.Component {
       }
     }
   }
+  disable(e) {
+    e.preventDefault()
+  }
+  hijack(link) {
+    return function() {
+      browserHistory.push(link)
+    }
+  }
 
   render() {
     let ret, children
@@ -182,12 +190,12 @@ class Lines extends React.Component {
             }
           }
           return (
-            <Link className="line-item" key={key} to={'/l/'+item}>
+            <a className="line-item" key={key} href={'/l/'+item} onClick={this.disable} onTouchTap={this.hijack('/l/'+item)}>
               <span className="line-pill-wrapper">
                 <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(operator, item)}}>{code}</span>
               </span>
               <span className="line-label">{name}</span>
-            </Link>
+            </a>
           )
         })
         let label = group.items.length - 3 

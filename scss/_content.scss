@@ -255,14 +255,13 @@ $bgheight: 125px;
 			&.active {
 				background: #fff;
 
-			/*	&:hover {
-					background: #f7f8fb;
-				}
+				// &:hover {
+				// 	background: #f7f8fb;
+				// }
 
 				&:active {
 					background: darken(#f7f8fb,4);
 				}
-			*/
 
 				li:nth-child(4) {
 					display: inline-block;
