@@ -204,8 +204,15 @@ var station = {
     new Promise(function(resolve, reject) {
       // we going to query the things
       const time = moment().tz('Pacific/Auckland')
-      const currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
+      let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
       const today = moment.utc('00:01', 'HH:mm')
+
+      // i hope at doesn't do 24 hour services soon 
+      // but then again I do because we should be a world class city
+      if (time.hour() < 5) {
+        currentTime += 86400
+        today.subtract(1, 'day')
+      }
 
       sending.currentTime = currentTime
 
