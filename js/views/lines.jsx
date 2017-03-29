@@ -14,7 +14,7 @@ class Lines extends React.Component {
       groups: null,
       groupShow: {},
       friendlyNames: {},
-      animationFinished: false
+      runAnimation: false
     }
     this.triggerChange = this.triggerChange.bind(this)
     this.triggerGroup = this.triggerGroup.bind(this)
@@ -53,6 +53,16 @@ class Lines extends React.Component {
       })
     }
   }
+  componentWillMount() {
+    this.setState({
+      runAnimation: true
+    })
+    setTimeout(() => {
+      this.setState({
+        runAnimation: false
+      })
+    }, UiStore.animationTiming)
+  }
   componentDidUpdate() {
     if (this.props.children === null) {
       document.title = 'Lines - Transit'
@@ -78,11 +88,6 @@ class Lines extends React.Component {
         })       
       })
     })
-    setTimeout(() => {
-      this.setState({
-        animationFinished: true
-      })
-    }, 275)
 
     if (iOS.detect() && window.navigator.standalone === true) {
       this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
@@ -205,19 +210,25 @@ class Lines extends React.Component {
       children = this.props.children && React.cloneElement(this.props.children, {
         operators: this.state.operators
       })
-    } else if (this.state.animationFinished) {
-      className += ' level-1'
     }
+
+    let styles = {}
+    if (this.state.runAnimation && UiStore.getAnimationIn() && this.props.children === null) {
+      styles.animation = UiStore.getAnimationIn()
+    }
+
     return(
-      <div className={className} ref="container">
-        <header className='material-header'>
-          <div>
-            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
-            <h1>All Lines</h1>
-          </div>
-        </header>
-        {ret}
+      <div>
         {children}
+        <div className={className} ref="container" style={styles}>
+          <header className='material-header'>
+            <div>
+              <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+              <h1>All Lines</h1>
+            </div>
+          </header>
+          {ret}
+        </div>
       </div>
     )
   }

@@ -6,13 +6,17 @@ export class uiStore extends Events {
   constructor(props) {
     super(props)
     this.state = {
+      canAnimate: false,
       triggeredBack: false,
       noAnimate: false,
       goingBack: false,
       totalNavigations: 0,
       currentUrl: '/',
-      oldNavigate: [],
+      oldNavigate: []
     }
+    // constant used for setTimeouts
+    this.animationTiming = 250 + 25
+
     // restores history if it's an iphone web clip :/
     if (window.navigator.standalone) {
       if (localStorage.getItem('CurrentUrl')) {
@@ -28,9 +32,21 @@ export class uiStore extends Events {
     browserHistory.listen(this.currentState.bind(this))
 
     this.handleReactChange = this.handleReactChange.bind(this)
+
+    setTimeout(() => {
+      this.state.canAnimate = true
+    }, this.animationTiming * 3)
   }
   getState() {
     return this.state
+  }
+  getAnimationIn() {
+    if (this.state.canAnimate === false) {
+      return null
+    } else if (iOS.detect()) {
+      return '250ms ss-to-stop-station-ios ease 1'
+    }
+    return '250ms ss-to-stop-station ease 1'
   }
   navigateSavedStations(path, noAnimate) {
     if (window.location.pathname === path) {
@@ -56,7 +72,7 @@ export class uiStore extends Events {
     // handle state picks up back and forwards, so, you have to subtract two
     this.state.totalNavigations = this.state.totalNavigations - 2
   }
-  handleState(e) {    
+  handleState(e) {
     this.state.totalNavigations++
   }
   currentState(e) { 

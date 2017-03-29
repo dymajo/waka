@@ -34,7 +34,7 @@ class Station extends React.Component {
       stickyScroll: false,
       stop_lat: undefined,
       stop_lon: undefined,
-      animationFinished: false
+      runAnimation: false
     }
     this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
@@ -334,6 +334,16 @@ class Station extends React.Component {
   triggerTouchEnd(e) {
     swipeview.contentTouchEnd(e.nativeEvent, this.triggerSwiped)
   }
+  componentWillMount() {
+    this.setState({
+      runAnimation: true
+    })
+    setTimeout(() => {
+      this.setState({
+        runAnimation: false
+      })
+    }, UiStore.animationTiming)
+  }
   componentDidMount() {
     swipeview.index = 0
     swipeview.containerEl = ReactDOM.findDOMNode(this.refs.container)
@@ -358,12 +368,6 @@ class Station extends React.Component {
       }
     })
 
-    setTimeout(() => {
-      this.setState({
-        animationFinished: true
-      })
-    }, 275)
-
     ReactDOM.findDOMNode(this.refs.scroll).addEventListener('scroll', this.triggerScroll)
 
     // now we call our function again to get the new times
@@ -375,6 +379,7 @@ class Station extends React.Component {
         this.getMultiData(this.props, true)
       }
     }, 30000)
+
   }
   componentDidUpdate() {
     // this seems bad 
@@ -453,10 +458,6 @@ class Station extends React.Component {
     var iconPop
 
     let className = 'station'
-    if (this.props.children === null && this.state.animationFinished) {
-      className += ' level-1'
-    }
-    
     if (this.state.name !== '') {
       if (icon === 'bus') {
         iconStr = 'Bus Stop ' + this.state.stop
@@ -606,9 +607,13 @@ class Station extends React.Component {
         <li className={headerClass[2]} onTouchTap={swipeview.navigate(2, this.triggerSwiped)}>{inboundLabel}</li>
       </ul>
     }
+    let styles = {}
+    if (this.state.runAnimation && UiStore.getAnimationIn()) {
+      styles.animation = UiStore.getAnimationIn()
+    }
 
     return (
-      <div className={className} ref="container">
+      <div className={className} ref="container" style={styles}>
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>

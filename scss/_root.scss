@@ -5,6 +5,10 @@ $transition: 250ms ease transform;
   position: relative;
   height: 100vh;
   height: var(--real-height);
+
+  &.invisibleUi {
+    visibility: hidden;
+  }
 }
 .root-map {
   height: calc(100vh - #{$mobilenavsize} - #{$root-card-bar});

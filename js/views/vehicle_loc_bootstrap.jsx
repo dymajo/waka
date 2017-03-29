@@ -13,7 +13,8 @@ class VehicleLocationBootstrap extends React.Component {
     this.state = {
       showContent: false,
       tripInfo: {},
-      lineInfo: []
+      lineInfo: [],
+      runAnimation: false
     }
 
     this.lineMountCb = this.lineMountCb.bind(this)
@@ -26,6 +27,15 @@ class VehicleLocationBootstrap extends React.Component {
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
   }
   componentWillMount() {
+    this.setState({
+      runAnimation: true
+    })
+    setTimeout(() => {
+      this.setState({
+        runAnimation: false
+      })
+    }, UiStore.animationTiming)
+
     if ('line_id' in this.props.params) {
       return this.lineMountCb(this.props)
     }
@@ -155,8 +165,12 @@ class VehicleLocationBootstrap extends React.Component {
   }
   render() {
     let content = null
-    let lineSelect = this.state.tripInfo.route_long_name
-    if (this.state.showContent === true) {
+    let lineSelect = this.state.tripInfo.route_long_name || ''
+    lineSelect = lineSelect.replace(/ Train Station/g, '')
+    let styles = {}
+    if (this.state.runAnimation && UiStore.getAnimationIn()) {
+      styles.animation = UiStore.getAnimationIn()
+    } else if (this.state.showContent === true) {
       if ('line_id' in this.props.params) {
         let stopInfo = [-36.844229, 174.767823]
         content = (<this.VehicleLocation 
@@ -198,9 +212,13 @@ class VehicleLocationBootstrap extends React.Component {
       } else {
         code = code[0]
       }
+      if (typeof(this.state.tripInfo.agency_id) === 'undefined') {
+        code = ''
+      }
     }
+
     return (
-      <div className='vehicle-location-container' ref="container">
+      <div className='vehicle-location-container' ref="container" style={styles}>
         <header className='material-header'>
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>

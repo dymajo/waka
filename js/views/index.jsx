@@ -19,7 +19,8 @@ class Index extends React.Component {
       animate: false,
       back: false,
       showPin: false,
-      hideUi: false
+      hideUi: false,
+      invisibleUi: false
     }
     this.Search = null // Map Component, dynamic load
 
@@ -49,11 +50,6 @@ class Index extends React.Component {
     if (window.location.pathname === '/') {
       this.loadMapDynamic()
     }
-    setTimeout(() => {
-      this.setState({
-        animate: true
-      })  
-    }, 300)
     this.refs.touchcard.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
   }
   componentDidUpdate() {
@@ -78,14 +74,33 @@ class Index extends React.Component {
     const n = nextProps.location.pathname
     const p = this.props.location.pathname
     if (n.split('/')[1] !== p.split('/')[1] && n.length > 2 && p.length > 2) {
-      this.setState({
-        animate: false
-      })
+      UiStore.state.canAnimate = false
       setTimeout(() => {
-        this.setState({
-          animate: true
+        UiStore.state.canAnimate = true
+      }, UiStore.animationTiming + 25)
+    }
+    if (n.replace('/s/', '/').split('/').length > 2) {
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          if (this.state.invisibleUi) {
+            return
+          }
+          this.setState({
+            invisibleUi: true
+          })
         })
-      }, 275)
+      }, UiStore.animationTiming + 25)
+    } else {
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          if (!this.state.invisibleUi) {
+            return
+          }
+          this.setState({
+            invisibleUi: false
+          })
+        })
+      }, UiStore.animationTiming + 25)
     }
   }
   loadMapDynamic() {
@@ -319,6 +334,10 @@ class Index extends React.Component {
     let modal = null
     if (this.state.showPin) {
       modal = <Pin onHide={this.togglePin} />
+    }
+
+    if (this.state.invisibleUi) {
+      rootClassName += ' invisibleUi'
     }
     return (
       <div className={className}>
