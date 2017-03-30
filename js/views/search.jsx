@@ -268,6 +268,7 @@ class Search extends React.Component {
           ref="map"
           onMoveend={this.moveEnd}
           center={this.state.position} 
+          maxZoom={18}
           zoom={18}
           zoomControl={false}
           className="map">

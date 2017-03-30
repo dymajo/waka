@@ -266,6 +266,7 @@ class vehicle_location extends React.Component {
         <div className='vehicle-location-map'>
           <Map center={this.state.position} 
             onZoomend={this.zoomstart}
+            maxZoom={18}
             zoom={zoom}>
             <TileLayer
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
