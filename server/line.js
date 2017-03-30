@@ -2,6 +2,7 @@ var request = require('request')
 var azure = require('azure-storage')
 var wkx = require('wkx')
 var cache = require('./cache')
+var sitemap = require('./sitemap')
 
 var tableSvc = azure.createTableService()
 var blobSvc = azure.createBlobService()
@@ -361,6 +362,7 @@ function cacheOperatorsAndShapes() {
       // query was successful
       if (result.entries.length > 0) {
         lineOperators[todo[index]] = result.entries[0].agency_id._  
+        sitemap.push('/l/' + todo[index])
       } else {
         console.warn('could not find agency for', todo[index])
       }
