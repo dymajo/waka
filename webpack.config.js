@@ -29,8 +29,12 @@ let config = {
   },
   devtool: 'cheap-module-source-map',
   module: {
-    loaders: [
-      { test: /\.(js|jsx)?$/, loader: 'babel-loader', include: [fs.realpathSync(__dirname + '/js')] }
+    rules: [
+      { 
+        test: /\.(js|jsx)?$/,
+        use: 'babel-loader',
+        include: [fs.realpathSync(__dirname + '/js')]
+      }
     ]
   },
   plugins: [
@@ -50,11 +54,24 @@ let config = {
   ]
 }
 if (process.env.NODE_ENV === 'production') {
+  delete config.devtool
   config.plugins.push(
     new webpack.optimize.UglifyJsPlugin({
       compress: {
-        warnings: false
-      }
+        warnings: false,
+        screw_ie8: true,
+        conditionals: true,
+        unused: true,
+        comparisons: true,
+        sequences: true,
+        dead_code: true,
+        evaluate: true,
+        if_return: true,
+        join_vars: true,
+      },
+      output: {
+        comments: false
+      },
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
