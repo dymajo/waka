@@ -39,7 +39,7 @@ var exceptionCache = {
     if (exceptionCache.additions.indexOf(service) != -1) {
       return true
     }
-    if (parseInt(frequency[today]) === 1) {
+    if (parseInt(frequency[(today+6) % 7]) === 1) {
       return true
     }
     return false
@@ -214,7 +214,10 @@ var station = {
       // we going to query the things
       const time = moment().tz('Pacific/Auckland')
       let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
-      const today = moment.utc('00:01', 'HH:mm')
+      var y = time.year()
+      var m = time.month()
+      var d = time.date()
+      const today = moment(Date.UTC(y, m, d, 0, 1))
 
       // i hope at doesn't do 24 hour services soon 
       // but then again I do because we should be a world class city
