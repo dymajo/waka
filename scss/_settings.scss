@@ -248,3 +248,8 @@
 .tgl-flat:checked + .tgl-btn + .tgl-lbl span:nth-child(2) {
   display: inline;
 }
+
+.http-not-found .settings {
+  height: 100vh;
+  height: var(--real-height);
+}

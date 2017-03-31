@@ -165,24 +165,33 @@ var station = {
   },
   stopInfo: function(req, res) {
     if (req.params.station) {
-      let stop = req.params.station.trim()
-      tableSvc.retrieveEntity('stops', 'allstops', stop, function(err, result, response) {
-        if (err) {
-          return res.status(404).send({
-            'error': 'station not found'
-          })
-        }
-        res.send({
-          stop_name: result.stop_name._,
-          stop_lat: result.stop_lat._,
-          stop_lon: result.stop_lon._
-        })
+      station.stopInfoInternal(req.params.station).then(function(data) {
+        res.send(data)
+      }).catch(function(err) {
+        res.status(404).send(err)  
       })
     } else {
       res.status(404).send({
         'error': 'please specify a station'
       })
     }
+  },
+  stopInfoInternal: function(stop) {
+    return new Promise(function(resolve, reject) {
+      stop = stop.trim()
+      tableSvc.retrieveEntity('stops', 'allstops', stop, function(err, result) {
+        if (err) {
+          return reject({
+            'error': 'station not found'
+          })
+        }
+        resolve({
+          stop_name: result.stop_name._,
+          stop_lat: result.stop_lat._,
+          stop_lon: result.stop_lon._
+        })
+      })
+    })
   },
   stopTimes: function(req, res, force) {
     if (req.query.force) {

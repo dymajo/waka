@@ -390,6 +390,7 @@ function cacheOperatorsAndShapes() {
 cache.ready.push(cacheOperatorsAndShapes)
 
 var line = {
+  _friendlyNames: friendlyNames,
   getLines: function(req, res) {
     res.send({
       friendlyNames: friendlyNames,

@@ -1,0 +1,55 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+
+    title= title
+    meta(name="description" content=description)
+    link(rel="stylesheet" href="/style.css")
+
+    //- progressive web app shizzle
+    meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0")
+    meta(name="apple-mobile-web-app-capable" content="yes")
+    meta(name="mobile-web-app-capable" content="yes")
+    meta(name="apple-mobile-web-app-title" content="Transit")
+    meta(name="apple-mobile-web-app-status-bar-style" content="default")
+    link(rel="apple-touch-icon" href="/branding/apple-touch-icon.png")
+    meta(name="format-detection" content="telephone=no")
+    meta(name="theme-color" content="#273D52")
+    link(rel="manifest" href="/manifest.json")
+
+    //- facebook tags
+    meta(property="og:url" content=canonical)
+    meta(property="og:title" content=title)
+    meta(property="og:description" content=description)
+    meta(property="og:image" content="https://transit.dymajo.com/splash.jpg")
+
+    //- twitter tags
+    meta(name="twitter:card" content="summary")
+    meta(name="twitter:site" content="@dymajoltd")
+    meta(name="twitter:title" content=title)
+    meta(name="twitter:description" content=description)
+    meta(name="twitter:image" content="https://transit.dymajo.com/branding/app.png")
+
+    //- favicons
+    link(rel="shortcut icon" href="/branding/favicon.ico")
+    link(rel="icon" sizes="16x16 32x32 64x64" href="/branding/favicon.ico")
+    link(rel="icon" type="image/png" sizes="64x64" href="/branding/favicon-64.png")
+    link(rel="icon" type="image/png" sizes="32x32" href="/branding/favicon-32.png")
+    link(rel="icon" type="image/png" sizes="16x16" href="/branding/favicon-16.png")
+
+    //- google translate fixes
+    meta(name="google" content="notranslate")
+    meta(http-equiv="Content-Language" content="en_US")
+
+    //- font
+    link(href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet")
+  body
+    div(id="app")
+      noscript DYMAJO Transit requires JavaScript to be enabled.
+
+    script(src="/generated/vendor.bundle.js")
+    script(src="/generated/app.bundle.js")
+    script
+        include ga.js    
+    script(async src="https://www.google-analytics.com/analytics.js")
