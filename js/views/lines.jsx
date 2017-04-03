@@ -239,7 +239,6 @@ class Lines extends React.Component {
 
     return(
       <div>
-        {children}
         <div className={className} ref="container" style={styles}>
           <header className='material-header'>
             <div>
@@ -248,6 +247,7 @@ class Lines extends React.Component {
             </div>
           </header>
           {ret}
+          {children}
         </div>
       </div>
     )

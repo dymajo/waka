@@ -38,7 +38,7 @@ class SidebarItem extends React.Component {
   }
   render() {
     
-    var classname = 'ss'
+    var classname = (this.props.className || '') + ' ss'
     if (window.location.pathname == this.props.url) {
       classname += ' selected'
     }
@@ -126,6 +126,13 @@ class SavedSations extends React.Component {
             type="description"
             name="Welcome to Transit!"
             description="Transit is your realtime guide to AT Buses, Trains, and Ferries."
+          />
+          <SidebarItem
+            url="/l"
+            icon="lines-light.svg"
+            name="Lines"
+            className="lines-btn"
+            description="View all Bus, Train, and Ferry Services"
           />
           <SidebarItem
             type="install"

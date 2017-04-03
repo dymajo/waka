@@ -206,11 +206,15 @@
       padding-bottom: 10px;
     }
   }
-
   @media (min-width: 601px) {
     nav {
       box-shadow: 0 0 4px rgba(0,0,0,0.3);
       z-index: 3;
+    }
+  }
+  @media (max-width: 850px) {
+    .lines-btn {
+      display: none;
     }
   }
 
@@ -234,11 +238,6 @@
   }
 }
 
-@media (min-width: 851px) {
-  // .onboard {
-  //   display: none;
-  // }
-}
 .onboard li:last-child span {
   &:last-child {
     display: none;
