@@ -132,7 +132,7 @@ class SavedSations extends React.Component {
             action={this.props.togglePin}
             icon="pin.svg"
             name="Install App"
-            description="Add Transit to your home screen"
+            description={<div><span>Add Transit to your home screen</span><span>Send Transit to your phone</span></div>}
           />
         </ul>
       </div>

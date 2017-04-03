@@ -235,16 +235,23 @@
 }
 
 @media (min-width: 851px) {
-  .onboard {
+  // .onboard {
+  //   display: none;
+  // }
+}
+.onboard li:last-child span {
+  &:last-child {
     display: none;
   }
 }
 @media (min-width: 481px) {
-  .onboard .text-only {
-    border-bottom: 0;
-  }
-  .onboard li:last-child {
-    display: none;
+  .onboard li:last-child span {
+    &:first-child {
+      display: none;
+    }
+    &:last-child {
+      display: inline;
+    }
   }
 }
 @media (display-mode: standalone) {

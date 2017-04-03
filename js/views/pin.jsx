@@ -126,21 +126,20 @@ class Pin extends React.Component {
     if (this.state.hide) {
       className += ' hide'
     }
-    var desktopOut = ""
+    var desktopOut = ''
     if (!this.state.emailSent) {     
       desktopOut = <div>
             <h3>Email yourself a link to Transit!</h3>
             <form onSubmit={this.sendEmail}>
               <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
-              <button className="primary" type="submit">Send Link</button>
+              <button className="primary" type="submit">Send Link</button> <button onClick={this.triggerClose}>Cancel</button>
             </form>
           </div>
     } else {
-      console.log("done")
       desktopOut = <div>
-            <h3>Thanks! You should receive an email shortly.</h3>
-            <button onTouchTap={this.triggerClose}>Close</button>
-          </div>
+        <h3>Thanks! You should receive an email shortly.</h3>
+        <button onTouchTap={this.triggerClose}>Close</button>
+      </div>
     }
     return(
       <div className={className}>
