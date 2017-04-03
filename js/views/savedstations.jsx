@@ -89,11 +89,15 @@ class SavedSations extends React.Component {
     this.state = {
       stations: StationStore.getData(),
     }
+    this.triggerUpdate = this.triggerUpdate.bind(this)
   }
   triggerUpdate() {
     this.setState({
       stations: StationStore.getData()
     })
+  }
+  componentDidMount() {
+    StationStore.bind('change', this.triggerUpdate)
   }
   componentWillUnmount() {
     StationStore.unbind('change', this.triggerUpdate)
