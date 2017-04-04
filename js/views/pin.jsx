@@ -87,6 +87,7 @@ class Pin extends React.Component {
         output = <div className="ios-other">
           <p>You’ll need to open this app in Safari first!</p>
           <button className="primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
+          <br /><br />
         </div>
       } else if (/safari/.test(userAgent)) {
         output = <div className="ios-safari">
