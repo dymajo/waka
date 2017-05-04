@@ -8,6 +8,7 @@ const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 
 const Queue = require('./queue.js')
+const path = require('path')
 
 var tableSvc = azure.createTableService()
 var blobSvc = azure.createBlobService()
@@ -41,6 +42,9 @@ var cache = {
           cache.versions[version.version] = {startdate: version.startdate, enddate: version.enddate}
         })
 
+        // the magic - we check against the api to choose the correct version
+        cache.chooseVersion()
+
         let runCb = function() {
           if (firstRun) {
             // run all the callbacks
@@ -57,11 +61,10 @@ var cache = {
             cache.get()
               .then(cache.unzip)
               .then(cache.build)
+              .then(cache.upload)
+              .then(cache.uploadTimes)
               .then(function() {
-                cache.upload(function() {
-                  runCb()
-                  cache.uploadTimes()
-                })
+                runCb()
               })
           // objects are not equal, so we need to do a cache rebuild
           // } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
@@ -73,18 +76,17 @@ var cache = {
             if (JSON.stringify(cache.versions) === '{}') {
               console.log('cache does not need update at', new Date().toString())
               cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
-              runCb()  
+              runCb()
             } else {
               console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
               cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
               cache.get()
                 .then(cache.unzip)
                 .then(cache.build)
+                .then(cache.upload)
+                .then(cache.uploadTimes)
                 .then(function() {
-                  cache.upload(function() {
-                    runCb()
-                    cache.uploadTimes()
-                  })
+                  runCb()
                 })
             }
           }
@@ -92,7 +94,8 @@ var cache = {
       })
     })
   },
-  currentVersion: function() {
+  currentVersionString: null,
+  chooseVersion: function() {
     const time = moment().tz('Pacific/Auckland')
     const currentDate = moment(Date.UTC(time.year(), time.month(), time.date(), 0, 0))
     let currentVersion = null
@@ -109,9 +112,30 @@ var cache = {
       }
     })
     if (currentVersion === null) {
-      return Object.keys(cache.versions)[0]
+      currentVersion = Object.keys(cache.versions)[0]
     }
-    return currentVersion
+    cache.currentVersionString = currentVersion
+
+    // Now that we've tried to figure out the current version, lets go to AT and see the real current version
+    options.url = 'https://api.at.govt.nz/v2/public/realtime/tripupdates'
+    request(options, function(err, response, body) {
+      if (err) {
+        return console.error(err)
+      }
+      let data = JSON.parse(body)
+      // if there's data
+      if (data.response.entity.length > 0) {
+        const update = data.response.entity[0]
+        const newVersion = update.trip_update.trip.trip_id.split('-')[1]
+        cache.currentVersionString = newVersion
+        console.log('chosen version', newVersion)
+      } else {
+        console.log('the buses have gone to sleep at', new Date().toString())
+      }
+    })
+  },
+  currentVersion: function() {
+    return cache.currentVersionString
   },
 
   ready: [],
@@ -130,9 +154,9 @@ var cache = {
   unzip: function() {
     return new Promise(function(resolve, reject) {
       console.log('Unzipping GTFS Data')
-      extract(zipLocation, {dir: 'cache'}, function (err) {
+      extract(zipLocation, {dir: path.resolve(__dirname, '../cache')}, function (err) {
         if (err) {
-          return reject('Failed to Unzip!')
+          return reject(err)
         }
         console.log('Unzip Success!')
         resolve()
