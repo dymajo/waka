@@ -55,7 +55,7 @@ const lineGroups = [
   },
   {
     name: 'Waiheke Island',
-    items: ['1','1a','2','3','4']
+    items: ['1','2','3','4']
   }
 ]
 const friendlyNames = {
@@ -329,7 +329,7 @@ const allLines = {
   'N97': [['Civic Centre To Birkenhead Via Beach Haven And Glenfield Rd']],
 
   '1': [['Matiatia Wharf', 'Onetangi']],
-  '1a': [['Matiatia Wharf', 'Onetangi', 'Seaview Rd']],
+  // '1a': [['Matiatia Wharf', 'Onetangi', 'Seaview Rd']],
   '2': [['Matiatia Wharf', 'Rocky Bay']],
   '3': [['Matiatia Wharf', 'Rocky Bay', 'Ostend & Onetangi'], ['Matiatia', 'Rocky Bay', 'Onetangi and Ostend']],
   '4': [['Matiatia Wharf', 'Onetangi Direct']],
