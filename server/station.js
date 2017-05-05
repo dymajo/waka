@@ -197,6 +197,10 @@ var station = {
     if (req.query.force) {
       force = true
     }
+    let fastData = false
+    if (req.params.fast === 'fast') {
+      fastData = true
+    }
     if (!req.params.station) {
       console.log(req.params.station)
       return res.status(404).send({
@@ -286,6 +290,24 @@ var station = {
       sending.trips.sort(function(a, b) {
         return a.arrival_time_seconds - b.arrival_time_seconds
       })
+
+      const tripsToKeepNo = 5
+      // reduce to only 5 of each route to make faster
+      if (fastData === true) {
+        const tripsToKeep = {}
+        const tripsToKeepStore = []
+        sending.trips.forEach(function(trip) {
+          const prefix = trip.trip_id.substring(0, 5) + trip.stop_sequence.toString()
+          if (typeof(tripsToKeep[prefix]) === 'undefined') {
+            tripsToKeep[prefix] = 1
+            tripsToKeepStore.push(trip)
+          } else if (tripsToKeep[prefix] <= tripsToKeepNo) {
+            tripsToKeep[prefix]++
+            tripsToKeepStore.push(trip)
+          }
+        })
+        sending.trips = tripsToKeepStore
+      }
 
       var tmpTripStore = {}
       var tripPartitionQueue = {}
