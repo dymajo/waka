@@ -23,35 +23,71 @@ class TripItem extends React.Component {
     const background = StationStore.getColor(trip.agency_id, route_code)
     let via = trip.route_long_name.split('Via')
     if (via.length > 1) {
-      via = <small>via {via[1]}</small>
+      via = <small>via {via[1].split(' And')[0]}</small>
     } else {
       via = null
     }
 
     const times = []
     console.log(this.props)
-    this.props.collection.forEach(function(trip) {
+    this.props.collection.forEach((trip) => {
       // console.log(trip)
       const arrival = new Date()
       arrival.setHours(0)
       arrival.setMinutes(0)
       arrival.setSeconds(parseInt(trip.arrival_time_seconds))
 
-      // makes times like 4:9 -> 4:09
+      // non realtime bit
       let date = Math.round((arrival - new Date()) / 60000)
-      if (date > 0) {
-        times.push(date.toString())  
+
+      // calculates the realtime component
+      if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].delay) {
+        arrival.setSeconds(arrival.getSeconds() + (this.props.realtime[trip.trip_id].delay))
+        let time = Math.abs(Math.round((arrival.getTime()-new Date().getTime())/60000))
+        let stops_away_no = trip.stop_sequence - this.props.realtime[trip.trip_id].stop_sequence
+
+        if (time === 0 || stops_away_no === 0) {
+          times.push({realtime: 'delay', time: 'Due'})
+        } else {
+          times.push({realtime: 'delay', time: time.toString(), stops: stops_away_no})
+        }
+      } else if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].distance) {
+        let time = date
+        if (time <= 0) {
+          time = 'Due'
+        }
+        times.push({realtime: 'distance', time: time, distance: Math.round(this.props.realtime[trip.trip_id].distance)})
+      } else if (date > 0) {
+        times.push({realtime: false, time: date.toString()})
       } else {
-        times.push('Due')
+        times.push({realtime: false, time: 'Due'})
       }
     })
     let latest = times[0]
-    if (latest !== 'Due') {
-      latest = latest + 'min'
+    if (latest.time === 'Due') {
+      latest = <h3><span className="number-small">{latest.time}</span></h3>
+    } else if (latest.realtime === 'delay') {
+      if (latest.stops > 1) {
+        latest = <h3 className="realtime"><span className="number-small">{latest.stops}</span> stops <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
+      } else {
+        latest = <h3 className="realtime"><span className="number-small">{latest.stops}</span> stop <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
+      }
+    } else if (latest.realtime === 'distance') {
+      if (latest.distance > 0) {
+        latest = <h3 className="realtime"><span className="number-small">{latest.distance}</span>km <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
+      } else {
+        latest = <h3 className="realtime"><span className="number">{latest.time}</span>m</h3>
+      }
+    } else {
+      latest = <h3><span className="number">{latest.time}</span>m</h3>
     }
     let andIn = null
     if (times.length > 1) {
-      andIn = <h4>and in <strong>{times.slice(1, 3).join(', ')}</strong> min</h4>
+      const timesarr = [times[1].time]
+      if (times.length > 2) {
+        timesarr.push(times[2].time)
+      }
+      andIn = <h4>and in <strong>{timesarr.join(', ')}</strong> min</h4>
     }
 
     return (
@@ -62,7 +98,7 @@ class TripItem extends React.Component {
           </h2>
         </div>
         <div className="right">
-          <h3>{latest}</h3>
+          {latest}
           {andIn}
         </div>
       </li>

@@ -59,10 +59,10 @@ export class stationStore extends Events {
       return '#2756a4'
 
     case 'HE': // Howick and Eastern
-      return '#0096d6'
+      return '#2196F3'
 
     case 'NZBGW': // NZ Bus - Go West
-      return '#08ac54'
+      return '#4CAF50'
 
     case 'NZBML': // NZ Bus - metrolink
       switch (code) {
@@ -76,7 +76,7 @@ export class stationStore extends Events {
         return '#f7991c'
       
       default:
-        return '#152a85'
+        return '#0759b0'
       }
 
     case 'NZBNS': // NZ Bus - North Star
@@ -102,7 +102,7 @@ export class stationStore extends Events {
       }
 
     case 'WBC': // Waiheke Bus Company
-      return '#01bdf2'
+      return '#2196F3'
 
     case 'EXPNZ': // Explore Waiheke - supposed to be closed?
       return '#ffe81c'
@@ -123,7 +123,7 @@ export class stationStore extends Events {
       return '#2756a4'
 
     case 'ABEXP': //Skybus
-      return '#ee3124'
+      return '#F44336'
 
     default: //MSB, PBC, BAYES - Schools
       return '#17232f'

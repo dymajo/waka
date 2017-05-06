@@ -476,7 +476,6 @@ class Station extends React.Component {
         trip.trip_headsign = 'City Link'
       }
       if (this.state.realtime[trip.trip_id] && this.state.realtime[trip.trip_id].delay) {
-        console.log(trip, this.state.realtime[trip.trip_id])
         if (trip.stop_sequence - this.state.realtime[trip.trip_id].stop_sequence < 0) {
           return
         }
@@ -513,7 +512,6 @@ class Station extends React.Component {
         )
       })
     })
-    console.log(all)
 
     // draws the html
     var header
