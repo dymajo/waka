@@ -217,7 +217,7 @@ $bgheight: 125px;
 	    position: relative;
 
 	    &.offset {
-	    	padding-top: $navsize + $bgheight - 32px;
+	    	padding-top: $navsize + $bgheight - 33px;
 
 	    	.shadow-bar {
 	    		border-bottom: 0;
@@ -247,219 +247,65 @@ $bgheight: 125px;
 		list-style-type: none;
 		padding: 0;
 		margin: 0;
-
-		li ul {
-			width: 100%;
-			background: #f8f8f8;
-
-			&.active {
-				background: #fff;
-
-				// &:hover {
-				// 	background: #f7f8fb;
-				// }
-
-				&:active {
-					background: darken(#f7f8fb,4);
-				}
-
-				li:nth-child(4) {
-					display: inline-block;
-					float: right;
-					font-size: 48px;
-					padding: 5px 15px 10px;
-					color: #777;	
-				}
-			}
-		}
-	}
-
-	.platform {
-		float: right;
-		color: #bbb;
-		display: inline-block;
-		text-align: center;
 	}
 
 	.hidden {
 		display: none;
 	}
+}
+.colored-trip {
+	color: #fff;
+	border-bottom: 1px solid rgba(#000, 0.2);
+	padding: 7px 14px 9px;
+	display: flex;
 
-	.active {
-		li:nth-child(3) {
-			color: #555;
-		}
+	&:nth-child(2) {
+		border-top: 1px solid rgba(#000, 0.2);
 	}
 
-	.via {
-		li {
-			&:nth-child(2) {
-				padding-top: 6px;
-				padding-bottom: 5px;
-
-				@media(max-width: 1200px) {
-					padding-top: 3px;
-				}
-			}
-		}
+	.left {
+		flex: 1;
+	}
+	.right {
+		text-align: right;
 	}
 
-	li li {
-		display: inline-block;
-		padding: 12px 5px;
-		font-size: 18px;
-		vertical-align: top;
-		line-height: 28px;
-		cursor: default;
+	h1, h2, h3, h4 {
+		margin: 0;
+	}
+	h1 {
+		font-size: 28px;
+		line-height: 34px;
+	}
+	h2 {
+		font-size: 14px;
+		font-weight: 600;
 
 		small {
-			font-weight: normal;
-			letter-spacing: -0.5px;
-			color: #444;
-			display: block;
-			line-height: 1.25;
-			margin-top: -5px;
-			text-overflow: ellipsis;
-    	overflow: hidden;
+			font-size: 10px;
+			font-weight: 400;
 		}
 
-		&:nth-child(1) {
-			width: 76px;
-			text-align: right;
-			padding-left: 10px;
-			padding-right: 7px;
+		.direction {
+			vertical-align: top;
+			margin: 4px 1px 0 -3px;
 
-			div {
-				font-weight: bold;
-				display: inline-block;
-				border: 2px solid rgba(0,0,0,0.2);
-				text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
-				border-radius: 2px;
-				line-height: 1;
-				padding: 4px;
-				color: #fff;
-				font-size: 16px;
-
-				&.cf {
-					width: 16px;
-					padding: 4px;
-					border-color: transparent;
-					font-weight: 600;
-					border-radius: 50%;
-					text-align: center;
-					text-shadow: 0 0 0 #000;
-					font-weight: 600;
-				}
+			&.in {
+				transform: rotate(180deg);
 			}
-		}
-		&:nth-child(2) {
-			padding-left: 10px;
-			font-weight: 600;
-			width: 350px;
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			color: $atblue;
-			letter-spacing: -0.5px;
-		}
-		&:nth-child(3) {
-			font-weight: bold;
-			text-transform: uppercase;
-			font-size: 15px;
-			letter-spacing: -0.25px;
-			color: #777;
-
-			time {
-				color: #27ae60;
-				text-transform: lowercase;
-				font-variant: small-caps;
-			}
-		}
-		&:nth-child(4) {
-			display: none;
 		}
 	}
 
-	@media(max-width: 1200px) {
-		li li {
-			font-size: 16px;
-			padding: 10px 5px;
-			&:nth-child(1) {
-				width: 56px;
-				div {
-					font-size: 14px;
-
-					&.cf {
-						width: 14px;
-						padding: 4px;
-					}
-				}
-			}
-			&:nth-child(2) {
-				width: 250px;
-			}
-			&:nth-child(3) {
-				font-size: 14px;
-			}
-		}
+	h3 {
+		font-size: 16px;
+		font-weight: 400;
 	}
-	@media(max-width: 925px) {
-		li li {
-			&:nth-child(2) {
-				width: 200px;
-			}
-		}
+
+	h4 {
+		font-size: 11px;
+		font-weight: 400;
 	}
-	@media(max-width: 550px) {
-		li li {
-			font-size: 15px;
-			padding: 10px 5px;
-			&:nth-child(1) {
-				width: 46px;
-				padding-right: 0;
-				div {
-					padding: 4px 2px;
-					font-size: 13px;
 
-					&.cf {
-						width: 13px;
-					}
-				}
-			}
-			&:nth-child(2) {
-				width: 37vw;
-			}
-			&:nth-child(3) {
-				font-size: 13px;
-			}
-		}
-		ul ul.active li:nth-child(4) {
-			font-size: 32px;
-			padding-top: 6px;
-		}
-	}
-	@media(max-width: 400px) {
-		li li {
-			font-size: 14px;
-
-			&:nth-child(1) {
-				padding-left: 5px;
-			}
-
-			&:nth-child(2) {
-				width: 35vw;
-			}
-
-			&:nth-child(3) {
-				font-size: 12px;
-			}
-		}
-		ul ul.active li:nth-child(4) {
-			font-size: 32px;
-			padding-left: 5px;
-			padding-right: 12px;
-		}
-	}
 }
 
 .saveModal {

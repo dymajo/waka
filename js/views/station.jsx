@@ -4,9 +4,7 @@ import { iOS } from '../models/ios.js'
 import { webp } from '../models/webp'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
-import TripItem from './tripitem.jsx'
-
-let swipeview = require('../swipeviewjs/swipe.js')
+import TripItem from './tripitem_new.jsx'
 
 // hack
 let liveRefresh = undefined
@@ -31,7 +29,6 @@ class Station extends React.Component {
       loading: true,
       saveModal: false,
       webp: webp.support,
-      stickyScroll: false,
       stop_lat: undefined,
       stop_lon: undefined,
       runAnimation: false
@@ -43,12 +40,7 @@ class Station extends React.Component {
     this.triggerSaveCancel = this.triggerSaveCancel.bind(this)
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
-    this.triggerScroll = this.triggerScroll.bind(this)
-    this.triggerSwiped = this.triggerSwiped.bind(this)
-    this.triggerBackSwiped = this.triggerBackSwiped.bind(this)
-    this.triggerTouchStart = this.triggerTouchStart.bind(this)
-    this.triggerTouchMove = this.triggerTouchMove.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+
     this.goingBack = this.goingBack.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
@@ -143,7 +135,7 @@ class Station extends React.Component {
       }
     }
 
-    allRequests[1] = fetch(`/a/station/${newProps.routeParams.station}/times`).then((response) => {
+    allRequests[1] = fetch(`/a/station/${newProps.routeParams.station}/times/fast`).then((response) => {
       response.json().then((data) => {
         this.tripsCb(data.trips)
       })
@@ -282,59 +274,6 @@ class Station extends React.Component {
       name: e.currentTarget.value
     })
   }
-  triggerScroll(e) {
-    if (e.target.scrollTop > 181) {
-      if (this.state.stickyScroll === false) {
-        this.setState({
-          stickyScroll: true
-        })
-      }
-    } else {
-      if (this.state.stickyScroll === true) {
-        this.setState({
-          stickyScroll: false
-        })
-      }
-    }
-  }
-  triggerSwiped(index) {
-    var len = swipeview.contentEl.children[index].children
-    var h = 0
-    for (var i=0; i<len.length; i++) {
-      if (len[i].className !== 'hidden') {
-        h += 48
-      }
-    }
-    // remove one for extra element in first one
-    if (index === 0) {
-      h = h - 48
-    }
-    // oh fuck typescript with these fucking hacks
-    var elemH = ReactDOM.findDOMNode(this.refs.scroll).offsetHeight
-    if (h < elemH) {
-      h = elemH
-      if (this.state.trips.length * 48 < h-181) {
-        h = h - 181
-      }
-    }
-    return h
-  }
-  triggerBackSwiped(swipedAway) {
-    if (swipedAway) {
-      // runs with the no animate flag
-      UiStore.navigateSavedStations('/', true)
-    }
-  }
-  triggerTouchStart(e) {
-    swipeview.contentTouchStart(e.nativeEvent)
-    iOS.triggerStart(e)
-  }
-  triggerTouchMove(e) {
-    swipeview.contentTouchMove(e, this.state.stickyScroll || this.state.loading)
-  }
-  triggerTouchEnd(e) {
-    swipeview.contentTouchEnd(e.nativeEvent, this.triggerSwiped)
-  }
   componentWillMount() {
     this.setState({
       runAnimation: true
@@ -346,21 +285,6 @@ class Station extends React.Component {
     }, UiStore.animationTiming)
   }
   componentDidMount() {
-    swipeview.index = 0
-    swipeview.containerEl = ReactDOM.findDOMNode(this.refs.container)
-    
-    // only have back gesture on ios standalone
-    if (iOS.detect() && window.navigator.standalone) {
-      swipeview.iOSBack = swipeview.containerEl
-      swipeview.iOSBackCb = this.triggerBackSwiped
-    }
-    swipeview.contentEl = ReactDOM.findDOMNode(this.refs.swipecontent)
-    swipeview.headerEl = ReactDOM.findDOMNode(this.refs.swipeheader)
-    swipeview.setSizes()
-
-    this.refs.scroll.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
-    window.addEventListener('resize', swipeview.setSizes)
-
     requestAnimationFrame(() => {
       if (this.props.routeParams.station.split('+').length === 1) {
         this.getData(this.props)
@@ -368,8 +292,6 @@ class Station extends React.Component {
         this.getMultiData(this.props)
       }
     })
-
-    ReactDOM.findDOMNode(this.refs.scroll).addEventListener('scroll', this.triggerScroll)
 
     // now we call our function again to get the new times
     // every 30 seconds
@@ -383,21 +305,13 @@ class Station extends React.Component {
     UiStore.bind('goingBack', this.goingBack)
   }
   componentDidUpdate() {
-    // this seems bad 
-    swipeview.height = this.triggerSwiped(swipeview.index)
-    swipeview.setSizes()
-
     if (this.props.children === null && this.state.name !== '') {
       document.title = this.state.name + ' - Transit'
     }
   }
-  componentWillUnmount() {
-    this.refs.scroll.removeEventListener('touchmove', this.triggerTouchMove, {passive: false})
-    window.removeEventListener('resize', swipeview.setSizes)
-    
+  componentWillUnmount() {    
     // unbind our trigger so it doesn't have more updates
     StationStore.unbind('change', this.triggerUpdate)
-    ReactDOM.findDOMNode(this.refs.scroll).removeEventListener('scroll', this.triggerScroll)
 
     // cancel all the requests
     //console.log('unmounting all')
@@ -425,8 +339,6 @@ class Station extends React.Component {
     }
 
     const cb = () => {
-      swipeview.index = 0
-      //console.log('new props... killnug old requests')
       allRequests.forEach(function (request) {
         if (typeof(request) !== 'undefined') {
           // Can't do this with the request api ugh
@@ -542,10 +454,8 @@ class Station extends React.Component {
       scrollable += ' enable-scrolling'
     }
 
-    var inbound = []
-    var outbound = []
-    var all = []
-    var inboundLabel = 'Inbound'
+    let all = []
+    const reducer = new Map()
     this.state.trips.forEach((trip, index) => {
       if (typeof(trip.stop_sequence) === 'undefined') {
         return
@@ -565,58 +475,50 @@ class Station extends React.Component {
       } else if (trip.route_short_name === 'CTY') {
         trip.trip_headsign = 'City Link'
       }
-      var key = trip.trip_id + index
-      var item = <TripItem 
-        code={trip.route_short_name}
-        time={trip.arrival_time_seconds}
-        name={trip.trip_headsign}
-        long_name={trip.route_long_name}
-        key={key} // because what if they use a multistop
-        trip_id={trip.trip_id}
-        agency_id={trip.agency_id}
-        station={trip.station}
-        stop_code={this.props.routeParams.station}
-        stop_sequence={trip.stop_sequence}
-        realtime={this.state.realtime[trip.trip_id]}
-      />
-      if (trip.direction_id === '0') {
-        inbound.push(item)
-        // if (inboundLabel === 'Inbound') {
-          // Removed for Now
-          // var h = trip.trip_headsign
-          // // hardcoded because confusing AT uses different headsigns
-          // if (h.match('Britomart') || h === 'City Centre' || h === 'Civic Centre' || h.match('Downtown')) {
-          //   inboundLabel = 'Citybound'
-          // }
-        // }
+      if (this.state.realtime[trip.trip_id] && this.state.realtime[trip.trip_id].delay) {
+        console.log(trip, this.state.realtime[trip.trip_id])
+        if (trip.stop_sequence - this.state.realtime[trip.trip_id].stop_sequence < 0) {
+          return
+        }
+      } else if (false) {
+        // do something with the trains?
       } else {
-        outbound.push(item)
+        const arrival = new Date()
+        arrival.setHours(0)
+        arrival.setMinutes(0)
+        arrival.setSeconds(parseInt(trip.arrival_time_seconds))
+        // Let buses be 2 mins late
+        if (Math.round((arrival - new Date()) / 60000) < -2) {
+          return
+        }
       }
-      all.push(item)
+      // this is a GROUP BY basically
+      if (!reducer.has(trip.route_short_name)) {
+        reducer.set(trip.route_short_name, new Map())
+      }
+      // removes platforms and weirdness
+      let lname = trip.route_long_name.replace(/ \d/g, '').toLowerCase()
+      if (!reducer.get(trip.route_short_name).has(lname)) {
+        reducer.get(trip.route_short_name).set(lname, [])
+      }
+      reducer.get(trip.route_short_name).get(lname).push(trip)  
     })
+    reducer.forEach((value, key) => {
+      // console.log(value)
+      [...value.entries()].sort(function(a, b) {
+        return a[1][0].stop_sequence - b[1][0].stop_sequence
+      }).forEach((tripCollection) => {
+        all.push(
+          <TripItem key={tripCollection[0]} collection={tripCollection[1]} realtime={this.state.realtime} />
+        )
+      })
+    })
+    console.log(all)
 
     // draws the html
     var header
-    var scrollwrap = 'scrollwrap'
+    var scrollwrap = 'scrollwrap offset'
     all = <div className="swipe-pane">{loading}{all}</div>
-    if (inbound.length === 0 || outbound.length === 0) {
-      header = <ul className="invisible"><li></li></ul>
-      inbound = null
-      outbound = null
-      scrollwrap += ' offset'
-    } else if (this.state.loading) {
-      scrollwrap += ' offset'
-    } else {
-      outbound = <div className="swipe-pane">{outbound}</div>
-      inbound = <div className="swipe-pane">{inbound}</div>
-      var headerClass = ['','','']
-      headerClass[swipeview.index]  = ' active'
-      header = <ul>
-        <li className={headerClass[0]} onTouchTap={swipeview.navigate(0, this.triggerSwiped)}>All</li>
-        <li className={headerClass[1]} onTouchTap={swipeview.navigate(1, this.triggerSwiped)}>Outbound</li>
-        <li className={headerClass[2]} onTouchTap={swipeview.navigate(2, this.triggerSwiped)}>{inboundLabel}</li>
-      </ul>
-    }
     let styles = {}
     if (this.state.runAnimation && UiStore.getAnimationIn()) {
       styles.animation = UiStore.getAnimationIn()
@@ -643,11 +545,6 @@ class Station extends React.Component {
           </div>
         </header>
         <ul className={scrollable}
-            onTouchStart={this.triggerTouchStart}
-            // fuck you chrome
-            // onTouchMove={this.triggerTouchMove}
-            onTouchEnd={this.triggerTouchEnd}
-            onTouchCancel={this.triggerTouchEnd}
             ref="scroll">
           <div className={scrollwrap}>
             <div className="bg">
@@ -664,17 +561,9 @@ class Station extends React.Component {
                   })}
                 </div>
               </div>
-              <div className="shadow-bar">
-                <div className="swipe-header bar" ref="swipeheader">
-                  {header}
-                  <div className="swipe-bar"></div>
-                </div>
-              </div>
             </div>
             <div className="swipe-content" ref="swipecontent">
               {all}
-              {outbound}
-              {inbound}
             </div>
           </div>
         </ul>
