@@ -275,8 +275,10 @@ class Station extends React.Component {
     })
   }
   componentWillMount() {
+    console.log('fancy mode', UiStore.state.lastUrl === '/')
     this.setState({
-      runAnimation: true
+      runAnimation: true,
+      fancyMode: (UiStore.state.lastUrl === '/')
     })
     setTimeout(() => {
       this.setState({
@@ -380,6 +382,9 @@ class Station extends React.Component {
     var iconPop
 
     let className = 'station'
+    if (this.state.fancyMode) {
+      className += ' fancy'
+    }
     if (this.state.name !== '') {
       if (icon === 'bus') {
         iconStr = 'Bus Stop ' + this.state.stop
@@ -516,7 +521,6 @@ class Station extends React.Component {
     // draws the html
     var header
     var scrollwrap = 'scrollwrap offset'
-    all = <div className="swipe-pane">{loading}{all}</div>
     let styles = {}
     if (this.state.runAnimation && UiStore.getAnimationIn()) {
       styles.animation = UiStore.getAnimationIn()
@@ -534,34 +538,19 @@ class Station extends React.Component {
             <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
           </div>
         </div>
-        <header className="material-header">
-          <div>
-            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
-            {saveButton}
-            <h1>{this.state.name}</h1>
-            <h2>{iconStr}</h2>
-          </div>
-        </header>
         <ul className={scrollable}
             ref="scroll">
           <div className={scrollwrap}>
-            <div className="bg">
-              {iconPop}
-              <div className="bgwrap">
-                <div style={offset}>
-                  {url.map(function(item, index) {
-                    return <img src={item} key={index} />
-                  })}
-                </div>
-                <div style={offsetx}>
-                  {urlx.map(function(item, index) {
-                    return <img src={item} key={index} />
-                  })}
-                </div>
+            <header className="material-header">
+              <div>
+                <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+                {saveButton}
+                <h1>{this.state.name}</h1>
+                <h2>{iconStr}</h2>
               </div>
-            </div>
+            </header>
             <div className="swipe-content" ref="swipecontent">
-              {all}
+              {loading}{all}
             </div>
           </div>
         </ul>

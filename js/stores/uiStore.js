@@ -11,7 +11,8 @@ export class uiStore extends Events {
       noAnimate: false,
       goingBack: false,
       totalNavigations: 0,
-      currentUrl: '/',
+      currentUrl: null,
+      lastUrl: null,
       oldNavigate: [],
       mapView: false
     }
@@ -92,7 +93,8 @@ export class uiStore extends Events {
   handleState(e) {
     this.state.totalNavigations++
   }
-  currentState(e) { 
+  currentState(e) {
+    this.state.lastUrl = this.state.currentUrl
     this.state.currentUrl = window.location.pathname
     localStorage.setItem('CurrentUrl', this.state.currentUrl)
   }

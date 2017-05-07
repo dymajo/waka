@@ -29,7 +29,6 @@ class TripItem extends React.Component {
     }
 
     const times = []
-    console.log(this.props)
     this.props.collection.forEach((trip) => {
       // console.log(trip)
       const arrival = new Date()

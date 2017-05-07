@@ -300,15 +300,7 @@ class Search extends React.Component {
             }
 
             return (
-              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]}>
-                <Popup>
-                  <span>
-                    <img src={`/icons/${icon}.svg`} />
-                    <h2>{stop.stop_name}</h2>
-                    <h3>Stop {stop.stop_id}</h3>
-                    <button onClick={this.viewServices(stop.stop_id)}>View Services</button>
-                  </span>
-                </Popup>
+              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)}>
               </Marker>
             )
           })}

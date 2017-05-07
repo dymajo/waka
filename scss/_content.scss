@@ -29,8 +29,8 @@ $bgheight: 125px;
 
 		img {
 			width: 22px;
-	    padding: 17px 0;
-	    vertical-align: top;
+			padding: 17px 0;
+			vertical-align: top;
 		}
 	}
 	.more {
@@ -97,106 +97,45 @@ $bgheight: 125px;
 	// Safari Fix
 	height: 100%;
 
-	header {
-		height: $bgheight + $mobilenavsize;
+	.station {
+		background: $default-back;
 	}
 
-	.shadow-bar {
-		box-shadow: 0 0 2px rgba(0,0,0,0.4);
-		border-bottom: 1px solid #ddd;
-		background: #fff;
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		height: 32px;
-	}
-	.bar {
-		box-sizing: border-box;
-		width: 100%;
-		height: 100%;
-		background: #fff;
-		color: #999;
-		font-weight: bold;
-		font-size: 12px;
-		text-transform: uppercase;
-		line-height: 31px;
-		max-width: 700px;
-		margin: 0 auto;
-
-		ul {
-			display: flex;
-		}
-
-		li {
-			cursor: default;
-			display: inline-block;
-			padding: 0 9px;
-			text-align: center;
-			flex: 1;
-			transition: 300ms ease color;
-
-			&:active {
-				background: rgba(0,0,0,0.03)
-			}
+	.station.fancy {
+		background: none;
+		.material-header {
+			position: sticky;
 			
-			&.active {
-				color: $atblue;
-			}
-		}
-	}
-	.bg {
-		height: $navsize + $bgheight;
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		background-size: auto $bgheight + 24;
-		background-position: 50% 0;
-		background-repeat: no-repeat;
-		overflow: hidden;
-
-		.bgwrap {
-			// display: flex;
-			// width: 100%;
-			height: 148px;
-			overflow: hidden;
-
 			div {
-				height: 256px;
-				display: flex;
-			}
+				background-color: $atblue;
+				border-top: 1px solid darken($atblue, 15);
+				border-bottom: 1px solid darken($atblue, 15);
 
-			img {
-				width: 256px;
-				height: 256px;
-				flex-shrink: 0;
-			}
-		}
-		.iconPop {
-			width: 25px;
-			position: absolute;
-			left: calc(50% - 12px);
-			top: ($bgheight - 45px) / 2;
-
-			@media (min-width: 851px) {
-				display: none;
+				h1 {
+					color: #fff;
+				}
+				h2 {
+					color: #ddd;
+				}
 			}
 		}
-
-		
+		.scrollable {
+			.scrollwrap {
+				padding-top: calc(var(--real-height) - #{$mobilenavsize});
+			}
+		}
 	}
 	.scrollable {
 		overflow-y: auto;
 		position: absolute;
 		left: 0;
 		right: 0;
-		top: $navsize;
+		top: 0;
 		bottom: 0;
 		overflow-x: hidden;
 		background-size: 100% auto;
-    	background-repeat: no-repeat;
-    	background-position: 50% 0;
+		background-repeat: no-repeat;
+		background-position: 50% 0;
 		will-change: scroll;
 
 		-ms-overflow-style: -ms-autohiding-scrollbar;
@@ -204,43 +143,32 @@ $bgheight: 125px;
 
 		div > li {
 			position: relative;
-			z-index: 2;
 		}
 		.scrollwrap {
-			padding-top: $navsize + $bgheight;
+			padding-top: $navsize;
 			box-sizing: border-box;
-			background: linear-gradient($default-back, $default-back);
-	    background-repeat: no-repeat;
-	    background-position: 0 $navsize + $bgheight;
-	    // height: 100%;
-	    overflow: hidden;
-	    position: relative;
-
-	    &.offset {
-	    	padding-top: $navsize + $bgheight - 33px;
-
-	    	.shadow-bar {
-	    		border-bottom: 0;
-	    		background: transparent;
-	    	}
-	    	.bar {
-	    		visibility: hidden;
-	    	}
-	    }
+			position: relative;
+		}
+		.material-header {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			z-index: 1;
 		}
 	}
 	.error {
 		position: absolute;
-    z-index: 0;
-    line-height: 48px;
-    text-align: center;
-    width: 100%;
-    letter-spacing: -0.5px;
-    font-weight: 600;
+		z-index: 0;
+		line-height: 48px;
+		text-align: center;
+		width: 100%;
+		letter-spacing: -0.5px;
+		font-weight: 600;
 
-    @media (max-width: 450px) {
-    	font-size: 15px;
-    }
+		@media (max-width: 450px) {
+			font-size: 15px;
+		}
 	}
 
 	ul {
@@ -268,8 +196,8 @@ $bgheight: 125px;
 	}
 	.right {
 		text-align: right;
-	    display: flex;
-    	flex-direction: column;
+			display: flex;
+			flex-direction: column;
 		justify-content: center;
 	}
 
@@ -419,7 +347,7 @@ $bgheight: 125px;
 .spinner {
   width: 40px;
   height: 40px;
-  margin: 100px auto;
+  margin: 20px auto;
   background-color: lighten($atblue, 15);
   border-radius: 100%;
   animation: sk-scaleout 1.0s infinite ease-in-out;
@@ -427,12 +355,12 @@ $bgheight: 125px;
 
 @keyframes sk-scaleout {
   0% { 
-    -webkit-transform: scale(0);
-    transform: scale(0);
+		-webkit-transform: scale(0);
+		transform: scale(0);
   } 100% {
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
-    opacity: 0;
+		-webkit-transform: scale(1.0);
+		transform: scale(1.0);
+		opacity: 0;
   }
 }
 .station.swipe-animate {
@@ -442,27 +370,11 @@ $bgheight: 125px;
 // It's absolutely insane that SASS cannot import .css files
 // Included here in swipeview.css
 .swipe-content {
-  // position: absolute;
-  width: 300vw;
-  display: flex;
-  // fixes iphone
-  -webkit-backface-visibility: hidden;
-  -webkit-perspective: 1000;
-  backface-visibility: hidden;
-  perspective: 1000;
-  overflow: hidden;
-  will-change: transform;
+	overflow: hidden;
+ 	background: $default-back;
 }
 .swipe-content.swipe-animate, .swipe-bar.swipe-animate {
   transition: transform 0.3s ease-out;
-}
-.swipe-pane {
-  width: 100vw;
-  position: relative;
-
-  @media (min-width: 851px) {
-	  max-width: calc(100vw - #{$sidebar-width});
-  }
 }
 .swipe-header {
 	.invisible {
