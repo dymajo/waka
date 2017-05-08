@@ -127,11 +127,18 @@ class Search extends React.Component {
   componentWillReceiveProps() {
     if (window.location.pathname === '/') {
       this.watchPosition()
+      this.setState({
+        showIcons: true
+      })
     } else {
+      this.setState({
+        showIcons: false
+      })
       requestAnimationFrame(function() {
         navigator.geolocation.clearWatch(geoID)
       })
     }
+
 
   }
   componentWillUnmount() {
@@ -241,8 +248,9 @@ class Search extends React.Component {
 
     var positionMap = {}
 
+    const searchClass = 'search' + (this.state.showIcons ? '' : ' hide-icons')
     return (
-      <div className="search">
+      <div className={searchClass}>
         <div className={findModal}>
           <div>
             <h2>Find Stop</h2>

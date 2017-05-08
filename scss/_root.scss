@@ -5,6 +5,7 @@ $transition: 250ms ease transform;
   position: relative;
   height: 100vh;
   height: var(--real-height);
+  -webkit-tap-highlight-color: transparent;
 
   @media (max-width: 850px) {
     &.invisibleUi {

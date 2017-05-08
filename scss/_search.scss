@@ -5,6 +5,11 @@
 .search {
   height: 100%;
 }
+.hide-icons {
+  .currentLocationButton, .routeButton {
+    opacity: 0;
+  }  
+}
 .currentLocationButton, .routeButton {
   position: absolute;
   z-index: 501;
@@ -17,6 +22,7 @@
   width: 55px;
   height: 55px;
   outline: 0;
+  transition: 250ms ease opacity;
   
   &:hover {
     background: #f7f7f7;

@@ -31,7 +31,8 @@ class Station extends React.Component {
       webp: webp.support,
       stop_lat: undefined,
       stop_lon: undefined,
-      runAnimation: false
+      runAnimation: false,
+      fancyMode: false
     }
     this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
@@ -40,6 +41,10 @@ class Station extends React.Component {
     this.triggerSaveCancel = this.triggerSaveCancel.bind(this)
     this.triggerSaveChange = this.triggerSaveChange.bind(this)
     this.triggerUpdate = this.triggerUpdate.bind(this)
+    this.triggerScroll = this.triggerScroll.bind(this)
+    this.triggerScrollTap = this.triggerScrollTap.bind(this)
+    this.triggerTouchStart = this.triggerTouchStart.bind(this)
+    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
 
     this.goingBack = this.goingBack.bind(this)
 
@@ -180,6 +185,14 @@ class Station extends React.Component {
 
   }
   tripsCb(tripData) {
+    // scroll when loaded
+    if (this.state.trips.length === 0 && this.state.fancyMode) {
+      requestAnimationFrame(() => {
+        // TODO: ANIMATE THIS SCROLL
+        this.refs.scroll.scrollTop = 250
+      })
+    }
+
     if (typeof(tripData.length) === 'undefined' || tripData.length === 0) {
       return this.setStatePartial({
         loading: false
@@ -274,8 +287,30 @@ class Station extends React.Component {
       name: e.currentTarget.value
     })
   }
+  triggerTouchStart() {
+    this.isBeingTouched = true
+  }
+  triggerTouchEnd() {
+    this.isBeingTouched = false
+    if (this.refs.scroll.scrollTop < 40 && this.state.fancyMode) {
+      UiStore.navigateSavedStations('/')
+    }
+  }
+  triggerScroll(e) {
+    const pos = e.currentTarget.scrollTop
+    clearTimeout(this.timeout)
+    this.timeout = setTimeout(() => {
+      if (pos < 40 && !this.isBeingTouched && this.state.fancyMode) {
+        UiStore.navigateSavedStations('/')
+      }
+    }, 50)
+  }
+  triggerScrollTap(e) {
+    if (e.target.className.match('scrollwrap') && this.state.fancyMode) {
+      UiStore.navigateSavedStations('/')
+    }
+  }
   componentWillMount() {
-    console.log('fancy mode', UiStore.state.lastUrl === '/')
     this.setState({
       runAnimation: true,
       fancyMode: (UiStore.state.lastUrl === '/')
@@ -294,6 +329,10 @@ class Station extends React.Component {
         this.getMultiData(this.props)
       }
     })
+    // scroll top header into view
+    if (this.state.fancyMode) {
+      this.refs.scroll.scrollTop = 71
+    }
 
     // now we call our function again to get the new times
     // every 30 seconds
@@ -381,9 +420,11 @@ class Station extends React.Component {
     var iconStr = this.state.description
     var iconPop
 
+    let topIcon = <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
     let className = 'station'
     if (this.state.fancyMode) {
       className += ' fancy'
+      topIcon = <span className="back mode"><img src={`/icons/${icon}.svg`} /></span>
     }
     if (this.state.name !== '') {
       if (icon === 'bus') {
@@ -539,11 +580,17 @@ class Station extends React.Component {
           </div>
         </div>
         <ul className={scrollable}
-            ref="scroll">
+            ref="scroll"
+            onTouchTap={this.triggerScrollTap}
+            onScroll={this.triggerScroll}
+            onTouchStart={this.triggerTouchStart}
+            onTouchEnd={this.triggerTouchEnd}
+            onTouchCancel={this.triggerTouchEnd}
+          >
           <div className={scrollwrap}>
             <header className="material-header">
               <div>
-                <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+                {topIcon}
                 {saveButton}
                 <h1>{this.state.name}</h1>
                 <h2>{iconStr}</h2>

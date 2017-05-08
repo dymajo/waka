@@ -16,6 +16,14 @@ $bgheight: 125px;
 			vertical-align: top;
 			padding-top: 16px;
 		}
+
+		&.mode {
+			width: 42px;
+			img {
+				padding-top: 12px;
+				width: 42px;
+			}
+		}
 	}
 
 	.logo {
@@ -105,14 +113,18 @@ $bgheight: 125px;
 		background: none;
 		.material-header {
 			position: sticky;
+			height: $mobilenavsize + 10px;
 			
-			div {
+			> div {
 				background-color: $atblue;
-				border-top: 1px solid darken($atblue, 15);
-				border-bottom: 1px solid darken($atblue, 15);
+				border-top: 1px solid darken($atblue, 10);
+				border-bottom: 1px solid darken($atblue, 10);
+				height: $mobilenavsize + 9px;
+				padding: 0 8px;
 
 				h1 {
 					color: #fff;
+					padding-top: 14px;
 				}
 				h2 {
 					color: #ddd;
@@ -121,7 +133,7 @@ $bgheight: 125px;
 		}
 		.scrollable {
 			.scrollwrap {
-				padding-top: calc(var(--real-height) - #{$mobilenavsize});
+				padding-top: calc(var(--real-height) + 5px);
 			}
 		}
 	}
@@ -133,9 +145,6 @@ $bgheight: 125px;
 		top: 0;
 		bottom: 0;
 		overflow-x: hidden;
-		background-size: 100% auto;
-		background-repeat: no-repeat;
-		background-position: 50% 0;
 		will-change: scroll;
 
 		-ms-overflow-style: -ms-autohiding-scrollbar;
@@ -160,11 +169,12 @@ $bgheight: 125px;
 	.error {
 		position: absolute;
 		z-index: 0;
-		line-height: 48px;
+		line-height: 60px;
 		text-align: center;
 		width: 100%;
 		letter-spacing: -0.5px;
 		font-weight: 600;
+		background: $default-back;
 
 		@media (max-width: 450px) {
 			font-size: 15px;
