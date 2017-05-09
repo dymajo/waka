@@ -16,16 +16,28 @@ class TripItem extends React.Component {
   }
   render() {
     const trip = this.props.collection[0]
-    const route_code = trip.route_short_name
+    let route_code = trip.route_short_name
+
     const headsign = trip.trip_headsign.split('/')[0]
     const dir = trip.direction_id === '1' ? 'in' : ''
     const direction = <img src="/icons/direction.svg" className={'direction ' + dir} />
     const background = StationStore.getColor(trip.agency_id, route_code)
     let via = trip.route_long_name.split('Via')
-    if (via.length > 1) {
+    if (via.length > 1 && SettingsStore.getState().longName === true) {
       via = <small>via {via[1].split(' And')[0]}</small>
     } else {
       via = null
+    }
+
+    let route_class = ''
+    let route_style = {}
+    if (route_code === 'EAST' || route_code === 'WEST' || route_code === 'ONE' || route_code === 'STH' || route_code === 'PUK' || route_code === 'NEX') {
+      route_code = route_code.slice(0,1)
+      if (route_code === 'P') {
+        route_code = 'S'
+      }
+      route_class = 'cf'
+      route_style = {color: background}
     }
 
     const times = []
@@ -92,7 +104,7 @@ class TripItem extends React.Component {
     return (
       <li onTouchTap={this.triggerClick} className="colored-trip" style={{background: background}}>
         <div className="left">
-          <h1>{route_code}</h1>
+          <h1 className={route_class} style={route_style}>{route_code}</h1>
           <h2>{direction}{headsign} {via}
           </h2>
         </div>

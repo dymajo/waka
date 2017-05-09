@@ -424,7 +424,9 @@ class Station extends React.Component {
     let className = 'station'
     if (this.state.fancyMode) {
       className += ' fancy'
-      topIcon = <span className="back mode"><img src={`/icons/${icon}.svg`} /></span>
+      if (this.state.name !== '') {
+        topIcon = <span className="back mode"><img src={`/icons/${icon}-dark.svg`} /></span>
+      }
     }
     if (this.state.name !== '') {
       if (icon === 'bus') {
@@ -491,7 +493,7 @@ class Station extends React.Component {
     }
 
     var scrollable = 'scrollable'
-    var loading = <div className="error">There are no services in the next two hours.</div>
+    var loading
     if (this.state.loading) {
       loading = (
         <div className="spinner" />
@@ -558,6 +560,11 @@ class Station extends React.Component {
         )
       })
     })
+
+    // realtime check needed?
+    if (all.length === 0) {
+      loading = <div className="error">There are no services in the next two hours.</div>
+    }
 
     // draws the html
     var header

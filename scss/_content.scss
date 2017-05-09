@@ -112,6 +112,7 @@ $bgheight: 125px;
 	.station.fancy {
 		background: none;
 		.material-header {
+			position: -webkit-sticky;
 			position: sticky;
 			height: $mobilenavsize + 10px;
 			
@@ -150,9 +151,9 @@ $bgheight: 125px;
 		-ms-overflow-style: -ms-autohiding-scrollbar;
 		-ms-scroll-rails: railed;
 
-		div > li {
-			position: relative;
-		}
+		// div > li {
+		// 	position: relative;
+		// }
 		.scrollwrap {
 			padding-top: $navsize;
 			box-sizing: border-box;
@@ -197,8 +198,20 @@ $bgheight: 125px;
 	padding: 7px 0 9px 12px;
 	display: flex;
 
-	&:nth-child(2) {
+	&:first-child {
 		border-top: 1px solid rgba(#000, 0.25);
+	}
+
+	.cf {
+		$size: 30px;
+		background: #fff;
+		width: $size;
+		height: $size;
+		line-height: $size;
+		margin: 3px 0;
+		border-radius: 50%;
+		font-size: 18px;
+		text-align: center;
 	}
 
 	.left {
