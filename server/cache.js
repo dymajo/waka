@@ -61,10 +61,12 @@ var cache = {
             cache.get()
               .then(cache.unzip)
               .then(cache.build)
-              .then(cache.upload)
-              .then(cache.uploadTimes)
               .then(function() {
-                runCb()
+                cache.upload(function() {
+                  cache.uploadTimes().then(function() {
+                    runCb()
+                  })
+                })
               })
           // objects are not equal, so we need to do a cache rebuild
           // } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
@@ -83,10 +85,12 @@ var cache = {
               cache.get()
                 .then(cache.unzip)
                 .then(cache.build)
-                .then(cache.upload)
-                .then(cache.uploadTimes)
                 .then(function() {
-                  runCb()
+                  cache.upload(function() {
+                    cache.uploadTimes().then(function() {
+                      runCb()
+                    })
+                  })
                 })
             }
           }
