@@ -533,7 +533,7 @@ class Station extends React.Component {
         const arrival = new Date()
         arrival.setHours(0)
         arrival.setMinutes(0)
-        arrival.setSeconds(parseInt(trip.arrival_time_seconds))
+        arrival.setSeconds(parseInt(trip.arrival_time_seconds) % 86400)
         // Let buses be 2 mins late
         if (Math.round((arrival - new Date()) / 60000) < -2) {
           return
@@ -562,7 +562,7 @@ class Station extends React.Component {
     })
 
     // realtime check needed?
-    if (all.length === 0) {
+    if (all.length === 0 && this.state.loading === false) {
       loading = <div className="error">There are no services in the next two hours.</div>
     }
 

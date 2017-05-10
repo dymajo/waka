@@ -38,15 +38,16 @@ class TripItem extends React.Component {
       }
       route_class = 'cf'
       route_style = {color: background}
+    } else if (isNaN(parseInt(route_code.slice(0,1)))) {
+      route_class = 'text'
     }
 
     const times = []
     this.props.collection.forEach((trip) => {
-      // console.log(trip)
       const arrival = new Date()
       arrival.setHours(0)
       arrival.setMinutes(0)
-      arrival.setSeconds(parseInt(trip.arrival_time_seconds))
+      arrival.setSeconds(parseInt(trip.arrival_time_seconds) % 86400)
 
       // non realtime bit
       let date = Math.round((arrival - new Date()) / 60000)
@@ -76,7 +77,11 @@ class TripItem extends React.Component {
     })
     let latest = times[0]
     if (latest.time === 'Due') {
-      latest = <h3><span className="number-small">{latest.time}</span></h3>
+      let className = ''
+      if (latest.realtime !== false) {
+        className = 'realtime due'
+      }
+      latest = <h3 className={className}><span className="number-small">{latest.time}</span></h3>
     } else if (latest.realtime === 'delay') {
       if (latest.stops > 1) {
         latest = <h3 className="realtime"><span className="number-small">{latest.stops}</span> stops <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
