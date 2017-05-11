@@ -25,6 +25,8 @@ export class stationStore extends Events {
     if (localStorage.getItem('StationOrder')) {
       this.StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
     }
+
+    this.stationCache = {}
   }
   getIcon(station) {
     var icon = 'bus'

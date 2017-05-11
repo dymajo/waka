@@ -154,6 +154,9 @@ class Search extends React.Component {
   getData(lat, lng, dist) {
     fetch(`/a/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
       response.json().then((data) => {
+        data.forEach(function(item) {
+          StationStore.stationCache[item.stop_id] = item 
+        })
         this.setState({
           stops: data
         })

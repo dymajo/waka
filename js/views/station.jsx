@@ -99,21 +99,23 @@ class Station extends React.Component {
     // don't do this
     if (!refreshMode) {
       var getStationData = () => {
-        allRequests[0] = fetch(`/a/station/${newProps.routeParams.station}`).then((response) => {
-          response.json().then((data) => {
-            requestAnimationFrame(() => {
-              var name = data.stop_name.replace(' Train Station', '')
-              name = name.replace(' Ferry Terminal', '')
+        const cb = (data) => {
+          var name = data.stop_name.replace(' Train Station', '')
+          name = name.replace(' Ferry Terminal', '')
 
-              this.setState({
-                name: name,
-                description: `${data.stop_name}`,
-                stop: this.props.routeParams.station,
-                stop_lat: data.stop_lat, 
-                stop_lon: data.stop_lon
-              })
-            })
+          this.setState({
+            name: name,
+            description: `${data.stop_name}`,
+            stop: this.props.routeParams.station,
+            stop_lat: data.stop_lat, 
+            stop_lon: data.stop_lon
           })
+        }
+        if (typeof(StationStore.stationCache[newProps.routeParams.station]) !== 'undefined') {
+          return cb(StationStore.stationCache[newProps.routeParams.station])
+        }
+        allRequests[0] = fetch(`/a/station/${newProps.routeParams.station}`).then((response) => {
+          response.json().then(cb)
         })
       }
       var cachedName = StationStore.getData()[newProps.routeParams.station]
