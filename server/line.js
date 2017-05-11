@@ -343,7 +343,7 @@ function cacheOperatorsAndShapes() {
     todo.push(key)
   }
 
-  let version = Object.keys(cache.versions)[0].split('_')[1]
+  let version = cache.currentVersion().split('_')[1]
   let getOperator = function(index) {
     if (index >= todo.length) {
       console.log('Completed Lookup of Agencies')
