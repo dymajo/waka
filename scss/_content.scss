@@ -261,6 +261,10 @@ $bgheight: 125px;
 		font-weight: bold;
 		padding-right: 12px;
 
+		img {
+			// margin-right: 4px;
+		}
+
 		&.realtime {
 			background: url(icons/realtime.svg);
 			background-position: calc(100% - 2px) 9px;
@@ -287,7 +291,19 @@ $bgheight: 125px;
 	h4 {
 		font-size: 12px;
 		font-weight: 400;
-		padding-right: 12px;
+		margin-right: 12px;
+
+		.last {
+			text-transform: uppercase;
+			padding: 1px 4px;
+			display: inline-block;
+			border: 1px solid rgba(#fff, 0.5);
+			border-radius: 2px;
+			font-size: 10px;
+			margin-top: 1px;
+			margin-right: -1px;
+			letter-spacing: 0.5px;
+		}
 	}
 
 }

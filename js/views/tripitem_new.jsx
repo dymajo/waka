@@ -58,14 +58,14 @@ class TripItem extends React.Component {
         let time = Math.abs(Math.round((arrival.getTime()-new Date().getTime())/60000))
         let stops_away_no = trip.stop_sequence - this.props.realtime[trip.trip_id].stop_sequence
 
-        if (time === 0 || stops_away_no === 0) {
-          times.push({realtime: 'delay', time: 'Due'})
+        if ((time === 0 || stops_away_no === 0) && times.length === 0) {
+          times.push({realtime: 'delay', time: 'Due', dd: this.props.realtime[trip.trip_id].double_decker})
         } else {
-          times.push({realtime: 'delay', time: time.toString(), stops: stops_away_no})
+          times.push({realtime: 'delay', time: time.toString(), stops: stops_away_no, dd: this.props.realtime[trip.trip_id].double_decker})
         }
       } else if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].distance) {
         let time = date
-        if (time <= 0) {
+        if (time <= 0 && times.length === 0) {
           time = 'Due'
         }
         times.push({realtime: 'distance', time: time, distance: Math.round(this.props.realtime[trip.trip_id].distance)})
@@ -76,17 +76,21 @@ class TripItem extends React.Component {
       }
     })
     let latest = times[0]
+    let dd = null
+    if (latest.dd === true) {
+      dd = <img className="dd" src="/icons/big.svg" />
+    }
     if (latest.time === 'Due') {
       let className = ''
       if (latest.realtime !== false) {
         className = 'realtime due'
       }
-      latest = <h3 className={className}><span className="number-small">{latest.time}</span></h3>
+      latest = <h3 className={className}>{dd} <span className="number-small">{latest.time}</span></h3>
     } else if (latest.realtime === 'delay') {
       if (latest.stops > 1) {
-        latest = <h3 className="realtime"><span className="number-small">{latest.stops}</span> stops <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
+        latest = <h3 className="realtime">{dd} <span className="number-small">{latest.stops}</span> stops <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
       } else {
-        latest = <h3 className="realtime"><span className="number-small">{latest.stops}</span> stop <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
+        latest = <h3 className="realtime">{dd} <span className="number-small">{latest.stops}</span> stop <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
       }
     } else if (latest.realtime === 'distance') {
       if (latest.distance > 0) {
@@ -104,6 +108,8 @@ class TripItem extends React.Component {
         timesarr.push(times[2].time)
       }
       andIn = <h4>and in <strong>{timesarr.join(', ')}</strong> min</h4>
+    } else {
+      andIn = <h4><span className="last">Last</span></h4>
     }
 
     return (
