@@ -209,6 +209,9 @@ class Station extends React.Component {
     var queryString = []
     tripData.forEach(function(trip) {
       var arrival = new Date()
+      if (arrival.getHours() < 5) {
+        arrival.setDate(arrival.getDate() - 1)
+      }
       arrival.setHours(0)
       arrival.setMinutes(0)
       arrival.setSeconds(parseInt(trip.arrival_time_seconds))

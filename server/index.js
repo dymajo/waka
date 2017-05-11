@@ -31,7 +31,7 @@ router.get('/stops/trip/:trip_id', line.getStopsFromTrip)
 router.get('/stops/shape/:shape_id', line.getStopsFromShape)
 router.get('/shape/:shape_id', line.getShape)
 router.get('/vehicle/:vehicle', vehicle.getVehicle)
-router.post('/realtime', realtime.getTrips)
+router.post('/realtime', realtime.getTripsEndpoint)
 router.post('/vehicle_location', realtime.getVehicleLocation)
 router.post('/email', email.sendEmail)
 
