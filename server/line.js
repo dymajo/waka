@@ -410,7 +410,7 @@ var line = {
     })
   },
   _getLine(lineId, cb) {
-    let version = Object.keys(cache.versions)[0].split('_')[1]
+    let version = cache.currentVersion().split('_')[1]
     let query = new azure.TableQuery()
       .where('PartitionKey eq ? and route_short_name eq ?', version, lineId)
     tableSvc.queryEntities('routeShapes', query, null, function(err, result){
@@ -605,7 +605,7 @@ var line = {
   },
   getStopsFromShape: function(req, res) {
     let shape_id = req.params.shape_id
-    let version = Object.keys(cache.versions)[0].split('_')[1]
+    let version = cache.currentVersion().split('_')[1]
     let query = new azure.TableQuery()
       .select('RowKey')
       .top(1)
