@@ -186,21 +186,29 @@ class Station extends React.Component {
     })
 
   }
-  tripsCb(tripData) {
-    // scroll when loaded
-    if (this.state.trips.length === 0 && this.state.fancyMode) {
-      requestAnimationFrame(() => {
-        // TODO: ANIMATE THIS SCROLL
-        this.refs.scroll.scrollTop = 250
-      })
-    }
-
+  tripsCb(tripData) {    
     if (typeof(tripData.length) === 'undefined' || tripData.length === 0) {
+      // scroll when loaded
+      if (this.state.trips.length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71) {
+        requestAnimationFrame(() => {
+          // TODO: ANIMATE THIS SCROLL
+          this.refs.scroll.scrollTop = 250
+        })
+      }
+
       return this.setStatePartial({
         loading: false
       })
     }
     tripData.sort(tripsSort)
+
+    if (this.state.trips.length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71 && tripData[0].route_type !== '3') {
+      requestAnimationFrame(() => {
+        // TODO: ANIMATE THIS SCROLL
+        // TODO: don't change order
+        this.refs.scroll.scrollTop = 250
+      })
+    }
 
     this.setState({
       trips: tripData,
@@ -253,6 +261,13 @@ class Station extends React.Component {
             }
           }
         } 
+        if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71 && tripData[0].route_type === '3') {
+          requestAnimationFrame(() => {
+            // TODO: ANIMATE THIS SCROLL
+            // TODO: don't change order
+            this.refs.scroll.scrollTop = 250
+          })
+        }
         this.setState({
           realtime: rtData
         })

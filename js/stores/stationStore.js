@@ -87,8 +87,8 @@ export class stationStore extends Events {
     case 'NZBWP': // NZ Bus - Waka Pacific
       return '#0f91ab'
 
-    case 'UE': // Urban Express
-      return '#281260'
+    case 'UE': // Urban Express / Same as Pavolich
+      return '#776242'
 
     case 'BTL': // Birkenhead Transport
       return '#b2975b'
@@ -126,6 +126,9 @@ export class stationStore extends Events {
 
     case 'ABEXP': //Skybus
       return '#F44336'
+
+    case 'PC': // Pavolich
+      return '#776242'
 
     default: //MSB, PBC, BAYES - Schools
       return '#17232f'

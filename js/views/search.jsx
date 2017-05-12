@@ -29,6 +29,25 @@ const ferryIcon = Icon({
   iconRetinaUrl: '/icons/ferry-icon-2x.png',
   iconSize: [30, 49]
 })
+const busSelection = Icon({
+  iconUrl: '/icons/bus-fill.svg',
+  iconRetinaUrl: '/icons/bus-fill.svg',
+  iconSize: [24, 24],
+  className: 'currentSelectionIcon'
+})
+const trainSelection = Icon({
+  iconUrl: '/icons/train-fill.svg',
+  iconRetinaUrl: '/icons/train-fill.svg',
+  iconSize: [28, 28],
+  className: 'currentSelectionIcon larger'
+})
+const ferrySelection = Icon({
+  iconUrl: '/icons/ferry-fill.svg',
+  iconRetinaUrl: '/icons/ferry-fill.svg',
+  iconSize: [28, 28],
+  className: 'currentSelectionIcon larger'
+})
+
 let geoID = undefined
 
 class Search extends React.Component {
@@ -39,6 +58,7 @@ class Search extends React.Component {
       stops: [],
       position: SettingsStore.getState().lastLocation,
       currentPosition: [0,0],
+      currentStation: null,
       back: false,
       accuracy: 0,
       error: '',
@@ -55,6 +75,7 @@ class Search extends React.Component {
     this.triggerSearch = this.triggerSearch.bind(this)
     this.moveEnd = this.moveEnd.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
+    this.viewServices = this.viewServices.bind(this)
 
     UiStore.bind('goingBack', this.triggerBack)
   }
@@ -128,7 +149,8 @@ class Search extends React.Component {
     if (window.location.pathname === '/') {
       this.watchPosition()
       this.setState({
-        showIcons: true
+        showIcons: true,
+        currentStation: null
       })
     } else {
       this.setState({
@@ -193,7 +215,10 @@ class Search extends React.Component {
     browserHistory.push(`/s/${this.state.station}`)
   }
   viewServices(station) {
-    return function() {
+    return () => {
+      this.setState({
+        currentStation: station
+      })
       browserHistory.push(`/s/${station}`)
     }
   }
@@ -229,6 +254,19 @@ class Search extends React.Component {
     })
   }
   render() {
+
+    let stationMarker = null
+    if (this.state.currentStation) {
+      const item = StationStore.stationCache[this.state.currentStation]
+      const icon = StationStore.getIcon(item.stop_id)
+      let markericon = busSelection
+      if (icon === 'train') {
+        markericon = trainSelection
+      } else if (icon === 'ferry') {
+        markericon = ferrySelection
+      }            
+      stationMarker = <Marker icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
+    }
 
     // this is the key for now
     let retina = ''
@@ -311,12 +349,12 @@ class Search extends React.Component {
             }
 
             return (
-              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)}>
-              </Marker>
+              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)} />
             )
           })}
           <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
           <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
+          {stationMarker}
         </Map>
       </div>
     )

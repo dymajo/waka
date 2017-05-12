@@ -108,7 +108,7 @@ class TripItem extends React.Component {
         timesarr.push(times[2].time)
       }
       andIn = <h4>and in <strong>{timesarr.join(', ')}</strong> min</h4>
-    } else {
+    } else if (parseInt(times[0].time) < 60) {
       andIn = <h4><span className="last">Last</span></h4>
     }
 
