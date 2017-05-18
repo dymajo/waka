@@ -32,7 +32,9 @@ class Station extends React.Component {
       stop_lat: undefined,
       stop_lon: undefined,
       runAnimation: false,
-      fancyMode: false
+      fancyMode: false,
+      currentTrips: [],
+      definedOrder: [],
     }
     this.setStatePartial = this.setStatePartial.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
@@ -45,6 +47,7 @@ class Station extends React.Component {
     this.triggerScrollTap = this.triggerScrollTap.bind(this)
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+    this.reduceTrips = this.reduceTrips.bind(this)
 
     this.goingBack = this.goingBack.bind(this)
 
@@ -214,6 +217,7 @@ class Station extends React.Component {
       trips: tripData,
       loading: false
     })
+    this.reduceTrips(tripData)
 
     // realtime request for buses and trains
     // not ferries though
@@ -244,6 +248,7 @@ class Station extends React.Component {
     } else {
       requestData = JSON.stringify({trips: queryString})
     }
+
     // now we do a request to the realtime API
     allRequests[2] = fetch('/a/realtime', {
       method: 'POST',
@@ -271,8 +276,93 @@ class Station extends React.Component {
         this.setState({
           realtime: rtData
         })
+        this.reduceTrips(tripData, rtData)
       })
     })
+  }
+  reduceTrips(data, rtData = {}) {
+    const reducer = new Map()
+    data.forEach((trip, index) => {
+      if (typeof(trip.stop_sequence) === 'undefined') {
+        return
+      }
+      if (trip.route_short_name === 'OUT') {
+        if (trip.direction_id === '0') {
+          trip.trip_headsign = 'Clockwise Outer Link'
+        } else {
+          trip.trip_headsign = 'Anticlockwise Outer Link'
+        }
+      } else if (trip.route_short_name === 'INN') {
+        if (trip.direction_id === '0') {
+          trip.trip_headsign = 'Clockwise Inner Link'
+        } else {
+          trip.trip_headsign = 'Anticlockwise Inner Link'
+        }
+      } else if (trip.route_short_name === 'CTY') {
+        trip.trip_headsign = 'City Link'
+      }
+      if (rtData[trip.trip_id] && rtData[trip.trip_id].delay) {
+        if (trip.stop_sequence - rtData[trip.trip_id].stop_sequence < 0) {
+          return
+        }
+      } else if (false) {
+        // do something with the trains?
+      } else {
+        const arrival = new Date()
+        arrival.setHours(0)
+        arrival.setMinutes(0)
+        arrival.setSeconds(parseInt(trip.arrival_time_seconds) % 86400)
+        // Let buses be 2 mins late
+        if (Math.round((arrival - new Date()) / 60000) < -2) {
+          return
+        }
+      }
+      // this is a GROUP BY basically
+      if (!reducer.has(trip.route_short_name)) {
+        reducer.set(trip.route_short_name, new Map())
+      }
+      // removes platforms and weirdness
+      let lname = trip.route_long_name.replace(/ \d/g, '').toLowerCase()
+      if (!reducer.get(trip.route_short_name).has(lname)) {
+        reducer.get(trip.route_short_name).set(lname, [])
+      }
+      reducer.get(trip.route_short_name).get(lname).push(trip)  
+    })
+    let all = []
+    let same = true
+    reducer.forEach((value, key) => {
+      if (this.state.definedOrder.indexOf(key) === -1) {
+        same = false
+      }
+    })
+    const sortFn = function(a, b) {
+      return a[1][0].stop_sequence - b[1][0].stop_sequence
+    }
+    if (this.state.definedOrder.length === 0 || same === false) {
+      let newOrder = []
+      reducer.forEach((value, key) => {
+        [...value.entries()].sort(sortFn).forEach((tripCollection) => {
+          all.push(tripCollection)
+        })
+        if (Object.keys(this.state.realtime).length > 0) {
+          newOrder.push(key)
+        }
+      })
+      window.jono = reducer
+      this.setState({
+        currentTrips: all,
+        definedOrder: newOrder,
+      })
+    } else {
+      this.state.definedOrder.forEach((key) => {
+        [...reducer.get(key).entries()].sort(sortFn).forEach((tripCollection) => {
+          all.push(tripCollection)
+        })
+      })
+      this.setState({
+        currentTrips: all,
+      })
+    }
   }
   triggerBack() {
     UiStore.navigateSavedStations('/')
@@ -519,63 +609,8 @@ class Station extends React.Component {
       scrollable += ' enable-scrolling'
     }
 
-    let all = []
-    const reducer = new Map()
-    this.state.trips.forEach((trip, index) => {
-      if (typeof(trip.stop_sequence) === 'undefined') {
-        return
-      }
-      if (trip.route_short_name === 'OUT') {
-        if (trip.direction_id === '0') {
-          trip.trip_headsign = 'Clockwise Outer Link'
-        } else {
-          trip.trip_headsign = 'Anticlockwise Outer Link'
-        }
-      } else if (trip.route_short_name === 'INN') {
-        if (trip.direction_id === '0') {
-          trip.trip_headsign = 'Clockwise Inner Link'
-        } else {
-          trip.trip_headsign = 'Anticlockwise Inner Link'
-        }
-      } else if (trip.route_short_name === 'CTY') {
-        trip.trip_headsign = 'City Link'
-      }
-      if (this.state.realtime[trip.trip_id] && this.state.realtime[trip.trip_id].delay) {
-        if (trip.stop_sequence - this.state.realtime[trip.trip_id].stop_sequence < 0) {
-          return
-        }
-      } else if (false) {
-        // do something with the trains?
-      } else {
-        const arrival = new Date()
-        arrival.setHours(0)
-        arrival.setMinutes(0)
-        arrival.setSeconds(parseInt(trip.arrival_time_seconds) % 86400)
-        // Let buses be 2 mins late
-        if (Math.round((arrival - new Date()) / 60000) < -2) {
-          return
-        }
-      }
-      // this is a GROUP BY basically
-      if (!reducer.has(trip.route_short_name)) {
-        reducer.set(trip.route_short_name, new Map())
-      }
-      // removes platforms and weirdness
-      let lname = trip.route_long_name.replace(/ \d/g, '').toLowerCase()
-      if (!reducer.get(trip.route_short_name).has(lname)) {
-        reducer.get(trip.route_short_name).set(lname, [])
-      }
-      reducer.get(trip.route_short_name).get(lname).push(trip)  
-    })
-    reducer.forEach((value, key) => {
-      // console.log(value)
-      [...value.entries()].sort(function(a, b) {
-        return a[1][0].stop_sequence - b[1][0].stop_sequence
-      }).forEach((tripCollection) => {
-        all.push(
-          <TripItem key={tripCollection[0]} collection={tripCollection[1]} realtime={this.state.realtime} />
-        )
-      })
+    let all = this.state.currentTrips.map((item) => {
+      return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} />
     })
 
     // realtime check needed?
