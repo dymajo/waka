@@ -111,7 +111,7 @@ $bgheight: 125px;
 
 	.station.fancy {
 		background: none;
-		.material-header {
+		.scrollwrap .material-header {
 			position: -webkit-sticky;
 			position: sticky;
 			height: $mobilenavsize + 10px;
@@ -195,8 +195,44 @@ $bgheight: 125px;
 .colored-trip {
 	color: #fff;
 	border-bottom: 1px solid rgba(#000, 0.25);
-	padding: 7px 0 9px 12px;
-	display: flex;
+
+	.main {
+		padding: 7px 0 9px 12px;
+		display: flex;
+
+		&:active {
+			background: rgba(#000, 0.1);
+		}
+	}
+	.bottom {
+		height: 0;
+		overflow: hidden;
+		transition: 250ms ease height;
+		background: rgba(#000, 0.15);
+		display: flex;
+
+		button {
+			flex: 1;
+			border: 0;
+			background: transparent;
+			color: #fff;
+			font-weight: 600;
+			font-size: 14px;
+			outline: 0;
+
+			&:active {
+				background: rgba(#000, 0.1);
+			}
+
+			img {
+				vertical-align: top;
+				margin-right: 7px;
+			}
+		}
+	}
+	&.expanded .bottom {
+		height: 38px;
+	}
 
 	&:first-child {
 		border-top: 1px solid rgba(#000, 0.25);

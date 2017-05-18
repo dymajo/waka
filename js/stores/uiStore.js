@@ -39,6 +39,9 @@ export class uiStore extends Events {
       this.state.canAnimate = true
     }, this.animationTiming * 3)
   }
+  setExpandedItem(name) { 
+    this.trigger('expandChange', name)
+  }
   getState() {
     return this.state
   }

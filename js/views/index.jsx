@@ -75,29 +75,30 @@ class Index extends React.Component {
         UiStore.state.canAnimate = true
       }, UiStore.animationTiming + 25)
     }
-    if (n.replace('/s/', '/').split('/').length > 2) {
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          if (this.state.invisibleUi) {
-            return
-          }
-          this.setState({
-            invisibleUi: true
-          })
-        })
-      }, UiStore.animationTiming + 25)
-    } else {
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          if (!this.state.invisibleUi) {
-            return
-          }
-          this.setState({
-            invisibleUi: false
-          })
-        })
-      }, UiStore.animationTiming + 25)
-    }
+    // Originally done for Perf Reasons, but we can't really do anymore due to new UI
+    // if (n.replace('/s/', '/').split('/').length > 2) {
+    //   setTimeout(() => {
+    //     requestAnimationFrame(() => {
+    //       if (this.state.invisibleUi) {
+    //         return
+    //       }
+    //       this.setState({
+    //         invisibleUi: true
+    //       })
+    //     })
+    //   }, UiStore.animationTiming + 25)
+    // } else {
+    //   setTimeout(() => {
+    //     requestAnimationFrame(() => {
+    //       if (!this.state.invisibleUi) {
+    //         return
+    //       }
+    //       this.setState({
+    //         invisibleUi: false
+    //       })
+    //     })
+    //   }, UiStore.animationTiming + 25)
+    // }
   }
   loadMapDynamic() {
     // doesn't do anything if already loaded

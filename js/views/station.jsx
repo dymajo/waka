@@ -48,7 +48,7 @@ class Station extends React.Component {
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.reduceTrips = this.reduceTrips.bind(this)
-
+    this.expandChange = this.expandChange.bind(this)
     this.goingBack = this.goingBack.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
@@ -111,7 +111,7 @@ class Station extends React.Component {
             description: `${data.stop_name}`,
             stop: this.props.routeParams.station,
             stop_lat: data.stop_lat, 
-            stop_lon: data.stop_lon
+            stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
           })
         }
         if (typeof(StationStore.stationCache[newProps.routeParams.station]) !== 'undefined') {
@@ -451,6 +451,7 @@ class Station extends React.Component {
       }
     }, 30000)
     UiStore.bind('goingBack', this.goingBack)
+    UiStore.bind('expandChange', this.expandChange)
   }
   componentDidUpdate() {
     if (this.props.children === null && this.state.name !== '') {
@@ -458,8 +459,8 @@ class Station extends React.Component {
     }
   }
   componentWillUnmount() {    
-    // unbind our trigger so it doesn't have more updates
     StationStore.unbind('change', this.triggerUpdate)
+    UiStore.unbind('expandChange', this.expandChange)
 
     // cancel all the requests
     //console.log('unmounting all')
@@ -472,6 +473,16 @@ class Station extends React.Component {
     clearInterval(liveRefresh)
 
     UiStore.unbind('goingBack', this.goingBack)
+  }
+  expandChange(item) {
+    setTimeout(() => {
+      const itemPos = this.refs.swipecontent.children[item[1]].getBoundingClientRect()
+      if (itemPos.height > 72 && itemPos.top + itemPos.height > document.documentElement.clientHeight) {
+        // calculates how much it overflows and adds it
+        const overflowAmount = itemPos.top + itemPos.height - document.documentElement.clientHeight
+        this.refs.scroll.scrollTop = this.refs.scroll.scrollTop + overflowAmount
+      }
+    }, 250)
   }
   goingBack() {
     if (UiStore.state.goingBack && this.props.children === null) {
@@ -609,8 +620,8 @@ class Station extends React.Component {
       scrollable += ' enable-scrolling'
     }
 
-    let all = this.state.currentTrips.map((item) => {
-      return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} />
+    let all = this.state.currentTrips.map((item, key) => {
+      return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} index={key} />
     })
 
     // realtime check needed?

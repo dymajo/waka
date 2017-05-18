@@ -1,6 +1,7 @@
 import React from 'react'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
+import { UiStore } from '../stores/uiStore.js'
 import { browserHistory } from 'react-router'
 
 // 3 minutes until we'll hide the trip
@@ -10,9 +11,35 @@ class TripItem extends React.Component {
   constructor(props) {
     super(props)
     this.triggerClick = this.triggerClick.bind(this)
+    this.triggerMap = this.triggerMap.bind(this)
+    this.expandChange = this.expandChange.bind(this)
+
+    this.state = {
+      expanded: false
+    }
+  }
+  componentWillMount() {
+    UiStore.bind('expandChange', this.expandChange)
+  }
+  componentWillUnmount() {
+    UiStore.unbind('expandChange', this.expandChange)
   }
   triggerClick() {
-    browserHistory.push(window.location.pathname + '/' + this.props.trip_id)
+    UiStore.setExpandedItem([this.props.collection[0].trip_id, this.props.index])
+  }
+  triggerMap() {
+    browserHistory.push(window.location.pathname + '/' + this.props.collection[0].trip_id)
+  }
+  expandChange(item) {
+    if (item[0] === this.props.collection[0].trip_id) { 
+      this.setState({
+        expanded: !this.state.expanded
+      })
+    } else if (this.state.expanded === true) {
+      this.setState({
+        expanded: false
+      })
+    }
   }
   render() {
     const trip = this.props.collection[0]
@@ -111,17 +138,26 @@ class TripItem extends React.Component {
     } else if (parseInt(times[0].time) < 60) {
       andIn = <h4><span className="last">Last</span></h4>
     }
-
+    let className = 'colored-trip'
+    if (this.state.expanded) {
+      className += ' expanded'
+    }
     return (
-      <li onTouchTap={this.triggerClick} className="colored-trip" style={{background: background}}>
-        <div className="left">
-          <h1 className={route_class} style={route_style}>{route_code}</h1>
-          <h2>{direction}{headsign} {via}
-          </h2>
+      <li className={className} style={{background: background}}>
+        <div className="main" onTouchTap={this.triggerClick}>
+          <div className="left">
+            <h1 className={route_class} style={route_style}>{route_code}</h1>
+            <h2>{direction}{headsign} {via}
+            </h2>
+          </div>
+          <div className="right">
+            {latest}
+            {andIn}
+          </div>
         </div>
-        <div className="right">
-          {latest}
-          {andIn}
+        <div className="bottom">
+          <button onTouchTap={this.triggerMap}><img src="/icons/map.svg"/>Map</button>
+          <button><img src="/icons/timetable.svg"/>Timetable</button>
         </div>
       </li>
     )
