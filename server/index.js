@@ -21,6 +21,7 @@ router.get('/station/search', search.getStopsLatLng)
 router.get('/station/:station', station.stopInfo)
 router.get('/station/:station/times', station.stopTimes)
 router.get('/station/:station/times/:fast', station.stopTimes)
+router.get('/station/:station/timetable/:route/:direction', station.timetable)
 router.get('/station/:station/clean', function(req, res) {
   station.clean(req.params.station)
   res.send({'status': 'cleaning'})

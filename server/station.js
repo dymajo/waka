@@ -397,6 +397,118 @@ var station = {
 
     })
 
+  },
+  timetable: function(req, res) {
+    if (parseInt(req.params.direction) > 1 || parseInt(req.params.direction) < 0) {
+      return res.status(400).send({error: 'Direction is not valid.'})
+    }
+    new Promise(function(resolve, reject) {
+      const currentVersion = cache.currentVersion()
+      const azCurrentVersion = currentVersion.split('_').join('-').split('.').join('-')
+      const parser = csvparse({delimiter: ','})
+
+      const time = moment().tz('Pacific/Auckland')
+      let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
+      var y = time.year()
+      var m = time.month()
+      var d = time.date()
+      const today = moment(Date.UTC(y, m, d, 0, 1))
+
+      // i hope at doesn't do 24 hour services soon 
+      // but then again I do because we should be a world class city
+      if (time.hour() < 5) {
+        currentTime += 86400
+        today.subtract(1, 'day')
+      }
+      
+      let trips = []
+
+      // read through file, test exceptions
+      parser.on('readable', function(){
+        const record = parser.read()
+
+        // console.log(record)
+        if (record === null) {
+          return resolve(trips)
+        }
+
+        const service_id = record[2] + '-' + currentVersion
+        const frequency = record[3]
+        if (exceptionCache.existsToday(today.day(), frequency, service_id)) {
+          trips.push(record)
+        }
+      })
+
+      blobSvc.getBlobProperties(azCurrentVersion, req.params.station + '.txt', function(error) {
+        if (error) {
+          if (error.statusCode === 404) {
+            res.status(404).send({
+              error: 'not found yo my yo'
+            })  
+          } else {
+            res.status(500).send(error)
+          }
+          return reject()
+        }
+        blobSvc.createReadStream(azCurrentVersion, req.params.station + '.txt').pipe(parser)
+      })
+    }).then(function(data) {
+      const currentVersion = cache.currentVersion()
+      const azCurrentVersion = currentVersion.split('_')[1]
+      let finalTripsArray = []
+      const prefixBlacklist = []
+      const getTrip = function(queue, index, callback) {
+        // finished
+        if (index === queue.length) {
+          console.log(index, queue.length)
+          return callback()
+        }
+        // skips over things that are blacklisted to be wrong
+        const prefix = queue[index][1].substring(0, 5) + queue[index][4]
+        if (prefixBlacklist.indexOf(prefix) !== -1) {
+          return getTrip(queue, index+1, callback)
+        }
+        // console.log(queue[index][0], currentVersion)
+        tableSvc.retrieveEntity('trips', azCurrentVersion, queue[index][1] + '-' + currentVersion, function(error, trip, response) {
+          if (error) {
+            // ignore not found trips
+            if (error.statusCode != 404) {
+              // fail if needed, but still resolve
+              console.warn(error)
+            }
+            return getTrip(queue, index+1, callback)
+          }
+
+          if (trip.direction_id._ !== req.params.direction || trip.route_short_name._ !== req.params.route) {
+            prefixBlacklist.push(queue[index][1].substring(0, 5) + queue[index][4])
+            return getTrip(queue, index+1, callback)
+          }
+            
+          finalTripsArray.push({
+            arrival_time_seconds: queue[index][0],
+            stop_sequence: parseInt(queue[index][4]),
+            trip_id: trip.RowKey._,
+            route_long_name: trip.route_long_name._,
+            agency_id: trip.agency_id._,
+            direction_id: trip.direction_id._,
+            end_date: trip.end_date._,
+            frequency: trip.frequency._,
+            shape_id: trip.shape_id._,
+            route_short_name: trip.route_short_name._,
+            route_type: trip.route_type._,
+            start_date: trip.start_date._,
+            trip_headsign: trip.trip_headsign._
+          })
+
+          // should have all gone well :)
+          return getTrip(queue, index+1, callback)
+        })
+      }
+
+      getTrip(data, 0, function() {
+        res.send(finalTripsArray)
+      })
+    })
   }
 }
 // on first run
