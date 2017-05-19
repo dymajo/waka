@@ -219,7 +219,11 @@ class Search extends React.Component {
       this.setState({
         currentStation: station
       })
+      UiStore.state.fancyMode = true
       browserHistory.push(`/s/${station}`)
+      setTimeout(() => {
+        UiStore.state.fancyMode = false
+      }, 300)
     }
   }
   moveEnd(e) {

@@ -351,16 +351,18 @@ class Station extends React.Component {
           newOrder.push(key)
         }
       })
-      window.jono = reducer
       this.setState({
         currentTrips: all,
         definedOrder: newOrder,
       })
     } else {
       this.state.definedOrder.forEach((key) => {
-        [...reducer.get(key).entries()].sort(sortFn).forEach((tripCollection) => {
-          all.push(tripCollection)
-        })
+        const data = reducer.get(key)
+        if (typeof(data) !== 'undefined') {
+          [...data.entries()].sort(sortFn).forEach((tripCollection) => {
+            all.push(tripCollection)
+          })
+        }
       })
       this.setState({
         currentTrips: all,
@@ -423,7 +425,7 @@ class Station extends React.Component {
   componentWillMount() {
     this.setState({
       runAnimation: true,
-      fancyMode: (UiStore.state.lastUrl === '/')
+      fancyMode: UiStore.state.fancyMode
     })
     setTimeout(() => {
       this.setState({
@@ -497,6 +499,13 @@ class Station extends React.Component {
   componentWillReceiveProps(newProps) {
     // basically don't do anything if the station doesn't change
     if (this.props.params.station === newProps.params.station) {
+      setTimeout(() => {
+        if (this.state.fancyMode) {
+          this.setState({
+            fancyMode: false
+          })
+        }
+      }, 300)
       return
     }
 
@@ -515,7 +524,9 @@ class Station extends React.Component {
         realtime: {},
         loading: true,
         saveModal: false,
-        webp: webp.support
+        webp: webp.support,
+        currentTrips: [],
+        definedOrder: [],
       })
       // wait a second :/
       requestAnimationFrame(() => {

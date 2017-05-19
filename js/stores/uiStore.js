@@ -14,7 +14,8 @@ export class uiStore extends Events {
       currentUrl: null,
       lastUrl: null,
       oldNavigate: [],
-      mapView: false
+      mapView: false,
+      fancyMode: false,
     }
     // constant used for setTimeouts
     this.animationTiming = 250 + 25
