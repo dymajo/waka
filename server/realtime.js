@@ -1,4 +1,5 @@
 var request = require('request')
+var cache = require('./cache')
 
 var tripUpdatesOptions = {
   url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
@@ -46,12 +47,54 @@ var isDoubleDecker = function(vehicle) {
 
 
 var realtime = {
+  currentData: {},
+  currentDataFails: 0,
+  schedulePull: function() {
+    const newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
+    newOpts.url = 'https://api.at.govt.nz/v2/public/realtime/tripupdates'
+    request(newOpts, function(err, response, body) {
+      if (err) {
+        console.warn(err)
+        realtime.currentDataFails++
+        setTimeout(realtime.schedulePull, 20000)
+        return
+      }
+      try {
+        body = JSON.parse(body)  
+      } catch(err) {
+        console.warn('rt error', err)
+        realtime.currentDataFails++
+        setTimeout(realtime.schedulePull, 20000)
+        return
+      }
+      if (body.response.entity) {
+        const newData = {}
+        body.response.entity.forEach(function(trip) {
+          newData[trip.trip_update.trip.trip_id] = trip.trip_update
+        })
+        realtime.currentData = newData
+        realtime.currentDataFails = 0
+      } else {
+        console.log('could not get at data')  
+      }
+      setTimeout(realtime.schedulePull, 20000)
+    })
+  },
+  getTripsEndpoint: function(req, res) {
+    if (!req.body.trips) {
+      res.send({
+        message: 'please send trips'
+      })
+      return
+    }
+    // falls back to API if we're out of date
+    if (req.body.train || realtime.currentDataFails > 3) {
+      realtime.getTrips(req, res)
+    } else {
+      realtime.getTripsCached(req, res)
+    }
+  },
 	getTrips: function(req, res) {
-		if (!req.body.trips) {
-			res.send({
-				message: 'please send trips'
-			})
-		}
     var realtimeInfo = {}
     req.body.trips.forEach(function(trip) {
       realtimeInfo[trip] = {}
@@ -107,6 +150,26 @@ var realtime = {
         res.send(realtimeInfo) // ???
       })
   },
+  getTripsCached: function(req, res) {
+    // this is essentially the same function as above, but just pulls from cache
+    var realtimeInfo = {}
+    req.body.trips.forEach(function(trip) {
+      realtimeInfo[trip] = {}
+      const data = realtime.currentData[trip]
+      if (typeof(data) !== 'undefined') {
+        const timeUpdate = data.stop_time_update.departure || data.stop_time_update.arrival || {}
+        realtimeInfo[trip] = {
+          stop_sequence: data.stop_time_update.stop_sequence,
+          delay: timeUpdate.delay,
+          timestamp: timeUpdate.time,
+          v_id: data.vehicle.id,
+          double_decker: isDoubleDecker(data.vehicle.id)
+        }
+      }
+    })
+
+    res.send(realtimeInfo)
+  },
   getVehicleLocation: function(req, res) {
     var vehicleInfo = {}
     req.body.trips.forEach(function(trip) {
@@ -146,4 +209,5 @@ var realtime = {
         
   }
 }
+cache.ready.push(realtime.schedulePull)
 module.exports = realtime

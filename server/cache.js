@@ -61,10 +61,12 @@ var cache = {
             cache.get()
               .then(cache.unzip)
               .then(cache.build)
-              .then(cache.upload)
-              .then(cache.uploadTimes)
               .then(function() {
-                runCb()
+                cache.upload(function() {
+                  cache.uploadTimes().then(function() {
+                    runCb()
+                  })
+                })
               })
           // objects are not equal, so we need to do a cache rebuild
           // } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
@@ -83,10 +85,12 @@ var cache = {
               cache.get()
                 .then(cache.unzip)
                 .then(cache.build)
-                .then(cache.upload)
-                .then(cache.uploadTimes)
                 .then(function() {
-                  runCb()
+                  cache.upload(function() {
+                    cache.uploadTimes().then(function() {
+                      runCb()
+                    })
+                  })
                 })
             }
           }
@@ -745,6 +749,7 @@ var cache = {
             uploadFile(uploadQueues[path[0]].dequeue())  
           } else {
             console.log(path[0], 'upload complete')
+            resolve()
           }
         })
       }
@@ -754,6 +759,10 @@ var cache = {
 
         if (length === 0) {
           uploadToAzure()
+        }
+
+        if (typeof(item) === 'undefined') {
+          return
         }
         
         fs.appendFile(`cache/stops/${item[0]}/${item[1]}.txt`, item[2].join('\n') + '\n', (err) => {
@@ -794,9 +803,15 @@ var cache = {
           try {
             fs.mkdirSync('cache/stops/' + trip_id[1])  
           } catch(err) {
+            allStopsData[trip_id[1]] = false
             console.warn('could not create', trip_id[1])
             return
           }
+        }
+        // skips ones that have already been uploaded
+        if (allStopsData[trip_id[1]] === false) {
+          callback(null)
+          return
         }
         if (typeof(allStopsData[trip_id[1]][stop_id]) === 'undefined') {
           allStopsData[trip_id[1]][stop_id] = []
@@ -829,13 +844,22 @@ var cache = {
       parser.on('finish', function() {
         console.log('finishing up')
         Object.keys(allStopsData).forEach(function(partition) {
-          Object.keys(allStopsData[partition]).forEach(function(key) {
-            azureQueue.enqueue([partition, key, allStopsData[partition][key]])
-          })
+          if (allStopsData[partition] === false) {
+            console.log('skipping', partition)
+          } else {
+            Object.keys(allStopsData[partition]).forEach(function(key) {
+              azureQueue.enqueue([partition, key, allStopsData[partition][key]])
+            })
+          }
         })
 
-        for (let i=0; i<threads; i++) {
-          uploadBatchesQueue(azureQueue.dequeue())  
+        // upload azure thingo
+        if (azureQueue.getLength() > 0) {
+          for (let i=0; i<threads; i++) {
+            uploadBatchesQueue(azureQueue.dequeue())
+          }
+        } else {
+          return resolve()
         }
       })
       input.pipe(parser).pipe(uploader)
