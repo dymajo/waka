@@ -402,8 +402,9 @@ var station = {
     if (parseInt(req.params.direction) > 1 || parseInt(req.params.direction) < 0) {
       return res.status(400).send({error: 'Direction is not valid.'})
     }
-    new Promise(function(resolve, reject) {
-      const currentVersion = cache.currentVersion()
+    const currentVersion = cache.currentVersion()
+    let promises = []
+    promises.push(new Promise(function(resolve, reject) {
       const azCurrentVersion = currentVersion.split('_').join('-').split('.').join('-')
       const parser = csvparse({delimiter: ','})
 
@@ -452,62 +453,53 @@ var station = {
         }
         blobSvc.createReadStream(azCurrentVersion, req.params.station + '.txt').pipe(parser)
       })
-    }).then(function(data) {
-      const currentVersion = cache.currentVersion()
+    }))
+    promises.push(new Promise(function(resolve, reject) {
       const azCurrentVersion = currentVersion.split('_')[1]
-      let finalTripsArray = []
-      const prefixBlacklist = []
-      const getTrip = function(queue, index, callback) {
-        // finished
-        if (index === queue.length) {
-          console.log(index, queue.length)
-          return callback()
-        }
-        // skips over things that are blacklisted to be wrong
-        const prefix = queue[index][1].substring(0, 5) + queue[index][4]
-        if (prefixBlacklist.indexOf(prefix) !== -1) {
-          return getTrip(queue, index+1, callback)
-        }
-        // console.log(queue[index][0], currentVersion)
-        tableSvc.retrieveEntity('trips', azCurrentVersion, queue[index][1] + '-' + currentVersion, function(error, trip, response) {
-          if (error) {
-            // ignore not found trips
-            if (error.statusCode != 404) {
-              // fail if needed, but still resolve
-              console.warn(error)
-            }
-            return getTrip(queue, index+1, callback)
-          }
 
-          if (trip.direction_id._ !== req.params.direction || trip.route_short_name._ !== req.params.route) {
-            prefixBlacklist.push(queue[index][1].substring(0, 5) + queue[index][4])
-            return getTrip(queue, index+1, callback)
-          }
-            
-          finalTripsArray.push({
-            arrival_time_seconds: queue[index][0],
-            stop_sequence: parseInt(queue[index][4]),
-            trip_id: trip.RowKey._,
-            route_long_name: trip.route_long_name._,
-            agency_id: trip.agency_id._,
-            direction_id: trip.direction_id._,
-            end_date: trip.end_date._,
-            frequency: trip.frequency._,
-            shape_id: trip.shape_id._,
-            route_short_name: trip.route_short_name._,
-            route_type: trip.route_type._,
-            start_date: trip.start_date._,
-            trip_headsign: trip.trip_headsign._
-          })
+      const query = new azure.TableQuery()
+        .select(['RowKey','route_id','shape_id','trip_headsign','route_long_name','frequency','start_date','end_date','agency_id'])
+        .where('PartitionKey eq ?', azCurrentVersion)
+        .and('route_short_name eq ?', req.params.route)
+        .and('direction_id eq ?', req.params.direction)
 
-          // should have all gone well :)
-          return getTrip(queue, index+1, callback)
+      tableSvc.queryEntities('trips', query, null, function(err, result, response) {
+        const trips = {}
+        result.entries.forEach(function(entry) {
+          trips[entry.RowKey._] = {
+            route_id: entry.route_id._,
+            shape_id: entry.shape_id._,
+            trip_headsign: entry.trip_headsign._,
+            route_long_name: entry.route_long_name._,
+            frequency: entry.frequency._,
+            start_date: entry.start_date._,
+            end_date: entry.end_date._,
+            agency_id: entry.agency_id._,
+          }
         })
-      }
-
-      getTrip(data, 0, function() {
-        res.send(finalTripsArray)
+        resolve(trips)
       })
+    }))
+    Promise.all(promises).then(function(data) {
+      const result = []
+      data[0].forEach(function(record) {
+        // console.log(record)
+        const trip_id = record[1] + '-' + currentVersion
+        const obj = {
+          arrival_time_seconds: parseInt(record[0]),
+          trip_id: trip_id,
+          service_id: record[2] + '-' + currentVersion,
+          frequency: record[3],
+          stop_sequence: parseInt(record[4])
+        }
+        if (trip_id in data[1]) {
+          Object.assign(obj, data[1][trip_id])
+          result.push(obj)
+        }
+      })
+      res.send(result)
+    }).catch(function(err) {
+      res.send(err)
     })
   }
 }
