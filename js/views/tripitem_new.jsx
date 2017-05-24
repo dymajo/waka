@@ -12,6 +12,7 @@ class TripItem extends React.Component {
     super(props)
     this.triggerClick = this.triggerClick.bind(this)
     this.triggerMap = this.triggerMap.bind(this)
+    this.triggerTimetable = this.triggerTimetable.bind(this)
     this.expandChange = this.expandChange.bind(this)
 
     this.state = {
@@ -28,7 +29,11 @@ class TripItem extends React.Component {
     UiStore.setExpandedItem([this.props.collection[0].trip_id, this.props.index])
   }
   triggerMap() {
-    browserHistory.push(window.location.pathname + '/' + this.props.collection[0].trip_id)
+    browserHistory.push(window.location.pathname + '/realtime/' + this.props.collection[0].trip_id)
+  }
+  triggerTimetable() {
+    const i = this.props.collection[0]
+    browserHistory.push(window.location.pathname + '/timetable/' + i.route_short_name + '-' + i.direction_id)
   }
   expandChange(item) {
     if (item[0] === this.props.collection[0].trip_id) { 
@@ -157,7 +162,7 @@ class TripItem extends React.Component {
         </div>
         <div className="bottom">
           <button onTouchTap={this.triggerMap}><img src="/icons/map.svg"/>Map</button>
-          <button><img src="/icons/timetable.svg"/>Timetable</button>
+          <button onTouchTap={this.triggerTimetable}><img src="/icons/timetable.svg"/>Timetable</button>
         </div>
       </li>
     )

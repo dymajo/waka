@@ -125,7 +125,11 @@ class VehicleLocationBootstrap extends React.Component {
   }
   triggerBack(){
     let newUrl = window.location.pathname.split('/')
-    newUrl.splice(-1)
+    if (newUrl[3] === 'realtime') {
+      newUrl.splice(-2)  
+    } else {
+      newUrl.splice(-1)
+    }
     UiStore.navigateSavedStations(newUrl.join('/'))
   }
   triggerChange(e) {

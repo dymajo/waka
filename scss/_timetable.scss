@@ -1,0 +1,51 @@
+.timetable-container {
+  background: #fff;
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+
+  .line-pill {
+  	float: right;
+  	margin: 15px 0;
+
+    &.cf {
+      margin: 14px 0;
+    }
+  }
+}
+.timetable-content {
+  height: calc(100vh - 48px);
+  height: calc(var(--real-height) - #{$mobilenavsize});
+  overflow-y: auto;
+
+  ul {
+  	padding: 0 14px 14px;
+  }
+  li {
+  	display: flex;
+  	padding: 9px 7px;
+  	border-bottom: 1px solid #eee;
+  	color: #222;
+
+  	.left {
+  		flex: 1;
+  		font-weight: 600;
+  	}
+  	.right {
+  		padding-left: 10px;
+  	}
+  	&.opacity {
+  		opacity: 0.6;
+  	}
+
+  	&.seperator {
+  		font-weight: bold;
+  		font-size: 14px;
+  		padding: 22px 7px 4px;
+  		border-bottom: 2px solid #ddd;
+  		color: #555;
+  	}
+  }
+}

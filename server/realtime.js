@@ -67,7 +67,7 @@ var realtime = {
         setTimeout(realtime.schedulePull, 20000)
         return
       }
-      if (body.response.entity) {
+      if (body.response && body.response.entity) {
         const newData = {}
         body.response.entity.forEach(function(trip) {
           newData[trip.trip_update.trip.trip_id] = trip.trip_update

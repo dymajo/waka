@@ -47,7 +47,7 @@ const staticrender = {
 
           success()
         }).catch(notFound)
-      } else if (path.length === 4) {
+      } else if (path.length === 5) {
         title = 'Realtime Trip Info' + defaultName
         description = 'View live vehicle location in DYMAJO Transit.'
         success()
