@@ -30,7 +30,6 @@ class Settings extends React.Component {
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.goingBack = this.goingBack.bind(this)
   }
   componentWillMount() {

@@ -9,6 +9,9 @@ export default class Timetable extends React.Component {
     super(props)
     
     this.tripMountCb = this.tripMountCb.bind(this)
+    this.triggerTouchStart = this.triggerTouchStart.bind(this)
+    this.triggerTouchMove = this.triggerTouchMove.bind(this)
+    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.goingBack = this.goingBack.bind(this)
 
     this.state = {
@@ -29,14 +32,62 @@ export default class Timetable extends React.Component {
         runAnimation: false
       })
     }, UiStore.animationTiming)
+
   }
   componentDidMount() {
     this.getData()
+    document.title = this.props.params.route_name.split('-')[0] + ' Timetable - Transit'
+    if (iOS.detect() && window.navigator.standalone === true) {
+      this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
+      this.refs.container.addEventListener('touchmove', this.triggerTouchMove)
+      this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
+      this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
+    }
     UiStore.bind('goingBack', this.goingBack)
   }
   componentWillUnmount() {
-
+    if (iOS.detect() && window.navigator.standalone === true) {
+      this.refs.container.removeEventListener('touchstart', this.triggerTouchStart)
+      this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
+      this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
+      this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    }
     UiStore.unbind('goingBack', this.goingBack)
+  }
+  triggerTouchStart(event) {
+    // This is a hack to detect flicks  
+    this.longTouch = false
+    setTimeout(() => {
+      this.longTouch = true
+    }, 250)
+
+    this.touchStartPos = event.touches[0].pageX
+    // this.refs.container.setAttribute('')
+  }
+  triggerTouchMove(event) {
+    if (this.touchStartPos <= 7) {
+      this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
+      this.refs.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
+    }
+  }
+  triggerTouchEnd(event) {
+    if (this.touchStartPos <= 7) {
+      this.touchStartPos = 100
+      let swipedAway = false
+      if (this.newPos > window.innerWidth/2 || this.longTouch === false) {
+        // rejects touches that don't really move
+        if (this.newPos > 3) {
+          swipedAway = true
+        }
+      }
+      if (swipedAway) {
+        // navigate backwards with no animate flag
+        UiStore.navigateSavedStations('/', true)
+        this.refs.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
+      } else {
+        this.refs.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
+      }
+    }
   }
   goingBack() {
     if (UiStore.state.goingBack) {
@@ -94,7 +145,7 @@ export default class Timetable extends React.Component {
           // sets scroll height
           if (found) {
             // adds height of header to it
-            this.refs.container.scrollTop = this.refs['time' + time].getBoundingClientRect().top - 56
+            this.refs.scrollcontainer.scrollTop = this.refs['time' + time].getBoundingClientRect().top - 56
           }
         })
       })
@@ -146,7 +197,7 @@ export default class Timetable extends React.Component {
 
     const currentTime = parseInt(new Date().getHours().toString() + ('0' + new Date().getMinutes()).slice(-2))
     return (
-      <div className='timetable-container' style={styles}>
+      <div className='timetable-container' ref="container" style={styles}>
         <header className='material-header'>
           <div>
           <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
@@ -157,40 +208,42 @@ export default class Timetable extends React.Component {
           <h2>{this.props.stopName}</h2>
           </div>
         </header>
-        <div className="timetable-content" ref="container">
-          {loading}
-          <ul>
-            {this.state.trips.map(function(item, key) {
-              if ('seperator' in item) {
-                let timeString = (item.seperator % 12 === 0 ? 12 : item.seperator % 12) + ':00'
-                timeString += item.seperator >= 12 ? ' PM' : ' AM'
-                return <li key={key} ref={'time'+item.seperator} className="seperator">{timeString}</li>
-              }
-              const absotime = parseInt(item.date.getUTCHours() + ('0' + item.date.getUTCMinutes()).slice(-2))
-              const name = item.route_long_name.split('Via')
-              let timestring = (item.date.getUTCHours() % 12 === 0 ? 12 : item.date.getUTCHours() % 12) + ':' + ('0' + item.date.getUTCMinutes()).slice(-2)
-              timestring += item.date.getUTCHours() >= 12 ? ' PM' : ' AM'
+        <div className="timetable-content enable-scrolling" ref="scrollcontainer" onTouchStart={iOS.triggerStart}>
+          <div className="scrollwrap">
+            {loading}
+            <ul>
+              {this.state.trips.map(function(item, key) {
+                if ('seperator' in item) {
+                  let timeString = (item.seperator % 12 === 0 ? 12 : item.seperator % 12) + ':00'
+                  timeString += item.seperator >= 12 ? ' PM' : ' AM'
+                  return <li key={key} ref={'time'+item.seperator} className="seperator">{timeString}</li>
+                }
+                const absotime = parseInt(item.date.getUTCHours() + ('0' + item.date.getUTCMinutes()).slice(-2))
+                const name = item.route_long_name.split('Via')
+                let timestring = (item.date.getUTCHours() % 12 === 0 ? 12 : item.date.getUTCHours() % 12) + ':' + ('0' + item.date.getUTCMinutes()).slice(-2)
+                timestring += item.date.getUTCHours() >= 12 ? ' PM' : ' AM'
 
-              let className = ''
-              if (absotime > currentTime && opacity === false) {
-                opacity = true
-              }
-              if (!opacity) {
-                className += 'opacity'
-              }
-              return (
-                <li key={key} className={className}>
-                  <div className="left">
-                    {item.trip_headsign}
-                    {name.length > 1 ? <small> via {name[1]}</small> : ''}
-                  </div>
-                  <div className="right">
-                    {timestring}
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
+                let className = ''
+                if (absotime > currentTime && opacity === false) {
+                  opacity = true
+                }
+                if (!opacity) {
+                  className += 'opacity'
+                }
+                return (
+                  <li key={key} className={className}>
+                    <div className="left">
+                      {item.trip_headsign}
+                      {name.length > 1 ? <small> via {name[1]}</small> : ''}
+                    </div>
+                    <div className="right">
+                      {timestring}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </div>
       </div>
     )
