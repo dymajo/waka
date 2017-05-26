@@ -66,6 +66,7 @@ export default class Timetable extends React.Component {
   }
   triggerTouchMove(event) {
     if (this.touchStartPos <= 7) {
+      event.preventDefault()
       this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
       this.refs.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
     }

@@ -27,7 +27,9 @@ export class uiStore extends Events {
       }
     }
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      if (this.state.currentUrl !== window.location.pathname) {
+      if (this.state.currentUrl === null) {
+        browserHistory.push('/')
+      } else if (this.state.currentUrl !== window.location.pathname) {
         browserHistory.push(this.state.currentUrl)
       }
     }
@@ -117,7 +119,7 @@ export class uiStore extends Events {
   currentState(e) {
     this.state.lastUrl = this.state.currentUrl
     this.state.currentUrl = window.location.pathname
-    localStorage.setItem('CurrentUrl', this.state.currentUrl)
+    localStorage.setItem('CurrentUrl', window.location.pathname.split('/').slice(0,3).join('/'))
   }
   handleReactChange(prevState, nextState, replace, callback) {
     var p = prevState.location.pathname

@@ -399,7 +399,8 @@ class Station extends React.Component {
       name: e.currentTarget.value
     })
   }
-  triggerTouchStart() {
+  triggerTouchStart(e) {
+    iOS.triggerStart(e)
     this.isBeingTouched = true
   }
   triggerTouchEnd() {
@@ -662,6 +663,21 @@ class Station extends React.Component {
       }
     }
 
+    var header = (
+      <header className="material-header">
+        <div>
+          {topIcon}
+          {saveButton}
+          <h1>{this.state.name}</h1>
+          <h2>{iconStr}</h2>
+        </div>
+      </header>
+    )
+    let headerPos = [header, null]
+    if (this.state.fancyMode) {
+      headerPos = [null, header]
+    }
+
     return (
       <div className={className} ref="container" style={styles}>
         <div className={saveModal}>
@@ -672,6 +688,7 @@ class Station extends React.Component {
             <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
           </div>
         </div>
+        {headerPos[0]}
         <ul className={scrollable}
             ref="scroll"
             onTouchTap={this.triggerScrollTap}
@@ -681,14 +698,7 @@ class Station extends React.Component {
             onTouchCancel={this.triggerTouchEnd}
           >
           <div className={scrollwrap}>
-            <header className="material-header">
-              <div>
-                {topIcon}
-                {saveButton}
-                <h1>{this.state.name}</h1>
-                <h2>{iconStr}</h2>
-              </div>
-            </header>
+            {headerPos[1]}
             <div className="swipe-content" ref="swipecontent">
               {loading}{all}
             </div>

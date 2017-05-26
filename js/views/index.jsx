@@ -162,6 +162,9 @@ class Index extends React.Component {
       this.longtouch = null
       this.scrolllock = null
     }
+    if (this.state.mapView && this.refs.touchcard.scrollTop !== 0) {
+      this.refs.touchcard.scrollTop = 0
+    }
   }
   triggerTouchMove(e) {
     // cancels if they're not at the top of the card
