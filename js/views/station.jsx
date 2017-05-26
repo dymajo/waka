@@ -609,12 +609,13 @@ class Station extends React.Component {
     var saveButton
     var addButton
     var cancelButton
+    var dark  = this.state.fancyMode ? '-dark' : ''
     if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
-      saveButton = <span className="save" onTouchTap={this.triggerSave}><img src="/icons/unsaved.svg" /></span>  
+      saveButton = <span className="save" onTouchTap={this.triggerSave}><img src={'/icons/unsaved' + dark + '.svg'} /></span>  
       cancelButton = 'Cancel'
       addButton = 'Add Stop'
     } else {
-      saveButton = <span className="remove" onTouchTap={this.triggerSave}><img src="/icons/saved.svg" /></span>
+      saveButton = <span className="remove" onTouchTap={this.triggerSave}><img src={'/icons/saved' + dark + '.svg'} /></span>
       cancelButton = 'Remove Stop'
       addButton = 'Rename'
     }
@@ -647,10 +648,18 @@ class Station extends React.Component {
     var header
     var scrollwrap = 'scrollwrap offset'
     let styles = {}
-    if (this.state.runAnimation && UiStore.getAnimationIn()) {
-      styles.animation = UiStore.getAnimationIn()
-    } else if (this.state.goingBack) {
-      Object.assign(styles, UiStore.getAnimationOut())
+    if (this.state.fancyMode) {
+      if (this.state.runAnimation && UiStore.getModalAnimationIn()) {
+        styles.animation = UiStore.getModalAnimationIn()
+      } else if (this.state.goingBack) {
+        Object.assign(styles, UiStore.getModalAnimationOut())
+      }
+    } else {
+      if (this.state.runAnimation && UiStore.getAnimationIn()) {
+        styles.animation = UiStore.getAnimationIn()
+      } else if (this.state.goingBack) {
+        Object.assign(styles, UiStore.getAnimationOut())
+      }
     }
 
     return (

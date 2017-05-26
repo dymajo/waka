@@ -70,6 +70,23 @@ export class uiStore extends Events {
       pointerEvents: 'none',
     }
   }
+  getModalAnimationIn() {
+    if (this.state.canAnimate === false) {
+      return null
+    }
+    return '250ms ss-to-stop-station ease 1'
+  }
+  getModalAnimationOut() {
+    if (this.state.canAnimate === false) {
+      return null
+    }
+    return {
+      animation: '250ms stop-to-ss-station ease 1',
+      transform: 'translate3d(0,15px,0)',
+      opacity: '0',
+      pointerEvents: 'none',
+    }
+  }
   navigateSavedStations(path, noAnimate) {
     if (window.location.pathname === path) {
       return

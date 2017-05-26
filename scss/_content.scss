@@ -131,11 +131,20 @@ $bgheight: 125px;
 					color: #ddd;
 				}
 			}
+			.save img {
+				padding: 22px 6px;
+			}
 		}
 		.scrollable {
 			.scrollwrap {
 				padding-top: calc(var(--real-height) + 5px);
 			}
+		}
+		.spinner {
+			margin: 0 auto;
+		}
+		.swipe-content {
+			background: #eee;
 		}
 	}
 	.scrollable {
@@ -445,39 +454,4 @@ $bgheight: 125px;
 		transform: scale(1.0);
 		opacity: 0;
   }
-}
-.station.swipe-animate {
-  transition: transform 0.3s ease-out;
-}
-
-// It's absolutely insane that SASS cannot import .css files
-// Included here in swipeview.css
-.swipe-content {
-	overflow: hidden;
- 	background: $default-back;
-}
-.swipe-content.swipe-animate, .swipe-bar.swipe-animate {
-  transition: transform 0.3s ease-out;
-}
-.swipe-header {
-	.invisible {
-  	visibility: hidden;
-
-  	& + .swipe-bar {
-  		visibility: hidden;
-  	}
-  }
-  .single + .swipe-bar {
-  	visibility: hidden;
-  }
-}
-.swipe-bar {
-  border-bottom: 2px solid $atblue;
-  top: -1px;
-  position:relative;
-  // fixes iphone
-  -webkit-backface-visibility: hidden;
-  -webkit-perspective: 1000;
-  backface-visibility: hidden;
-  perspective: 1000;
 }

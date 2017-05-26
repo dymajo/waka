@@ -32,12 +32,16 @@
   	.left {
   		flex: 1;
   		font-weight: 600;
+  		letter-spacing: -0.5px;
   	}
   	.right {
   		padding-left: 10px;
   	}
   	&.opacity {
-  		opacity: 0.6;
+  		opacity: 0.5;
+  	}
+  	small {
+  		color: #666;
   	}
 
   	&.seperator {

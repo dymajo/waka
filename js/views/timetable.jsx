@@ -93,7 +93,8 @@ export default class Timetable extends React.Component {
           }
           // sets scroll height
           if (found) {
-            this.refs.container.scrollTop = this.refs['time' + time].getBoundingClientRect().top
+            // adds height of header to it
+            this.refs.container.scrollTop = this.refs['time' + time].getBoundingClientRect().top - 56
           }
         })
       })

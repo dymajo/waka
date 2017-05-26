@@ -82,7 +82,7 @@ export class stationStore extends Events {
       }
 
     case 'NZBNS': // NZ Bus - North Star
-      return '#fcba2e'
+      return '#f39c12'
 
     case 'NZBWP': // NZ Bus - Waka Pacific
       return '#0f91ab'
