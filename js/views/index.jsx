@@ -219,6 +219,10 @@ class Index extends React.Component {
     let equality = false
     if (this.state.mapView === true) {
       equality = this.touchstartpos < newPos
+      // this is like scrolling up on the bar - stops the scroll on body in iOS
+      if (equality && iOS.detect()) {
+        e.preventDefault()
+      }
     } else if (this.state.mapView === false) {
       equality = this.touchstartpos > newPos
     }

@@ -223,7 +223,7 @@ class Search extends React.Component {
       browserHistory.push(`/s/${station}`)
       setTimeout(() => {
         UiStore.state.fancyMode = false
-      }, 300)
+      }, 500) // extra delay to help events to bubble
     }
   }
   moveEnd(e) {
