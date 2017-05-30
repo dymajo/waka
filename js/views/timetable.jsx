@@ -2,6 +2,7 @@ import React from 'react'
 
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
+import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
 export default class Timetable extends React.Component {
@@ -215,14 +216,25 @@ export default class Timetable extends React.Component {
             <ul>
               {this.state.trips.map(function(item, key) {
                 if ('seperator' in item) {
-                  let timeString = (item.seperator % 12 === 0 ? 12 : item.seperator % 12) + ':00'
-                  timeString += item.seperator >= 12 ? ' PM' : ' AM'
+                  let timeString
+                  if (SettingsStore.state.clock) {
+                    timeString = item.seperator + ':00'
+                  } else {
+                    timeString = (item.seperator % 12 === 0 ? 12 : item.seperator % 12) + ':00'
+                    timeString += item.seperator >= 12 ? ' PM' : ' AM'
+                  }
                   return <li key={key} ref={'time'+item.seperator} className="seperator">{timeString}</li>
                 }
                 const absotime = parseInt(item.date.getUTCHours() + ('0' + item.date.getUTCMinutes()).slice(-2))
                 const name = item.route_long_name.split('Via')
-                let timestring = (item.date.getUTCHours() % 12 === 0 ? 12 : item.date.getUTCHours() % 12) + ':' + ('0' + item.date.getUTCMinutes()).slice(-2)
-                timestring += item.date.getUTCHours() >= 12 ? ' PM' : ' AM'
+
+                let timestring
+                if (SettingsStore.state.clock) {
+                  timestring = item.date.getUTCHours() + ':' + ('0' + item.date.getUTCMinutes()).slice(-2)
+                } else {
+                  timestring = (item.date.getUTCHours() % 12 === 0 ? 12 : item.date.getUTCHours() % 12) + ':' + ('0' + item.date.getUTCMinutes()).slice(-2)
+                  timestring += item.date.getUTCHours() >= 12 ? ' PM' : ' AM'
+                }
 
                 let className = ''
                 if (absotime > currentTime && opacity === false) {

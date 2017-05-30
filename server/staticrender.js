@@ -48,9 +48,17 @@ const staticrender = {
           success()
         }).catch(notFound)
       } else if (path.length === 5) {
-        title = 'Realtime Trip Info' + defaultName
-        description = 'View live vehicle location in DYMAJO Transit.'
-        success()
+        if (path[3] === 'timetable') {
+          title = path[4].split('-')[0] + ' Timetable' + defaultName
+          description = 'View timetable in DYMAJO Transit.'
+          success()
+        } else if (path[3] === 'realtime') {
+          title = 'Realtime Trip Info' + defaultName
+          description = 'View live vehicle location in DYMAJO Transit.'
+          success()
+        } else {
+          return notFound()  
+        }
       } else {
         return notFound()
       }
