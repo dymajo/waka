@@ -5,6 +5,7 @@ import { webp } from '../models/webp'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import TripItem from './tripitem_new.jsx'
+import zenscroll from 'zenscroll'
 
 // hack
 let liveRefresh = undefined
@@ -194,8 +195,7 @@ class Station extends React.Component {
       // scroll when loaded
       if (this.state.trips.length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71) {
         requestAnimationFrame(() => {
-          // TODO: ANIMATE THIS SCROLL
-          this.refs.scroll.scrollTop = 250
+          this.scroller.toY(250)
         })
       }
 
@@ -207,9 +207,7 @@ class Station extends React.Component {
 
     if (this.state.trips.length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71 && tripData[0].route_type !== '3') {
       requestAnimationFrame(() => {
-        // TODO: ANIMATE THIS SCROLL
-        // TODO: don't change order
-        this.refs.scroll.scrollTop = 250
+        this.scroller.toY(250)
       })
     }
 
@@ -271,9 +269,7 @@ class Station extends React.Component {
         } 
         if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71 && tripData[0].route_type === '3') {
           requestAnimationFrame(() => {
-            // TODO: ANIMATE THIS SCROLL
-            // TODO: don't change order
-            this.refs.scroll.scrollTop = 250
+            this.scroller.toY(250)
           })
         }
         this.setState({
@@ -458,6 +454,8 @@ class Station extends React.Component {
     }, 30000)
     UiStore.bind('goingBack', this.goingBack)
     UiStore.bind('expandChange', this.expandChange)
+
+    this.scroller = zenscroll.createScroller(this.refs.scroll)
   }
   componentDidUpdate() {
     if (this.props.children === null && this.state.name !== '') {

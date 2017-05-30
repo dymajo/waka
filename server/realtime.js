@@ -124,7 +124,7 @@ var realtime = {
             error: err
           })
         }
-        if (body.response.entity) {
+        if (body && body.response && body.response.entity) {
           if (req.body.train) {
             body.response.entity.forEach(function(trip) {
               realtimeInfo[trip.vehicle.trip.trip_id] = {
