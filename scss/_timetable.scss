@@ -53,3 +53,20 @@
   	}
   }
 }
+
+@media (min-width: 851px) {
+  $cap: 800px;
+  .timetable-container {
+    background: #eee;
+
+    .material-header {
+      max-width: $cap;
+    }
+  }
+  .timetable-content {
+    max-width: $cap;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    min-height: calc(var(--real-height) - 56px);
+    background: #fff;
+  }
+}

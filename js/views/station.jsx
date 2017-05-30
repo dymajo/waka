@@ -420,9 +420,10 @@ class Station extends React.Component {
     }
   }
   componentWillMount() {
+    // doesn't load fancymode on desktop :) 
     this.setState({
       runAnimation: true,
-      fancyMode: UiStore.state.fancyMode
+      fancyMode: UiStore.state.fancyMode && window.innerWidth <= 850
     })
     setTimeout(() => {
       this.setState({

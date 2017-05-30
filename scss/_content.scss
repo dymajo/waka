@@ -140,9 +140,6 @@ $bgheight: 125px;
 				padding-top: calc(var(--real-height) + 5px);
 			}
 		}
-		.spinner {
-			margin: 0 auto;
-		}
 		.swipe-content {
 			background: #eee;
 		}
@@ -201,6 +198,25 @@ $bgheight: 125px;
 		display: none;
 	}
 }
+
+// DESKTOP STYLEZ
+@media (min-width: 851px) {
+	$cap: 800px;
+	.content .station {
+		background: #eee;
+
+		> .material-header {
+			max-width: $cap;
+		}
+	}
+	.swipe-content {
+		max-width: $cap;
+		box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+		min-height: calc(var(--real-height) - 56px);
+		background: $default-back;
+	}
+}
+
 .colored-trip {
 	color: #fff;
 	border-bottom: 1px solid rgba(#000, 0.25);
@@ -439,7 +455,7 @@ $bgheight: 125px;
 .spinner {
   width: 40px;
   height: 40px;
-  margin: 20px auto;
+  margin: 0 auto;
   background-color: lighten($atblue, 15);
   border-radius: 100%;
   animation: sk-scaleout 1.0s infinite ease-in-out;
@@ -447,11 +463,11 @@ $bgheight: 125px;
 
 @keyframes sk-scaleout {
   0% { 
-		-webkit-transform: scale(0);
-		transform: scale(0);
+		-webkit-transform: scale(0) translate3d(0, 20px, 0);
+		transform: scale(0) translate3d(0, 20px, 0);
   } 100% {
-		-webkit-transform: scale(1.0);
-		transform: scale(1.0);
+		-webkit-transform: scale(1.0) translate3d(0, 20px, 0);
+		transform: scale(1.0) translate3d(0, 20px, 0);
 		opacity: 0;
   }
 }
