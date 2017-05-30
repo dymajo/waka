@@ -67,6 +67,7 @@
     "request": "^2.74.0",
     "sendgrid": "^4.3.0",
     "stream-transform": "^0.1.2",
-    "wkx": "^0.4.0"
+    "wkx": "^0.4.0",
+    "zenscroll": "^4.0.0"
   }
 }

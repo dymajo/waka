@@ -25,6 +25,8 @@ export class stationStore extends Events {
     if (localStorage.getItem('StationOrder')) {
       this.StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
     }
+
+    this.stationCache = {}
   }
   getIcon(station) {
     var icon = 'bus'
@@ -59,10 +61,10 @@ export class stationStore extends Events {
       return '#2756a4'
 
     case 'HE': // Howick and Eastern
-      return '#0096d6'
+      return '#2196F3'
 
     case 'NZBGW': // NZ Bus - Go West
-      return '#08ac54'
+      return '#4CAF50'
 
     case 'NZBML': // NZ Bus - metrolink
       switch (code) {
@@ -76,17 +78,17 @@ export class stationStore extends Events {
         return '#f7991c'
       
       default:
-        return '#152a85'
+        return '#0759b0'
       }
 
     case 'NZBNS': // NZ Bus - North Star
-      return '#fcba2e'
+      return '#f39c12'
 
     case 'NZBWP': // NZ Bus - Waka Pacific
       return '#0f91ab'
 
-    case 'UE': // Urban Express
-      return '#281260'
+    case 'UE': // Urban Express / Same as Pavolich
+      return '#776242'
 
     case 'BTL': // Birkenhead Transport
       return '#b2975b'
@@ -102,7 +104,7 @@ export class stationStore extends Events {
       }
 
     case 'WBC': // Waiheke Bus Company
-      return '#01bdf2'
+      return '#2196F3'
 
     case 'EXPNZ': // Explore Waiheke - supposed to be closed?
       return '#ffe81c'
@@ -123,7 +125,10 @@ export class stationStore extends Events {
       return '#2756a4'
 
     case 'ABEXP': //Skybus
-      return '#ee3124'
+      return '#F44336'
+
+    case 'PC': // Pavolich
+      return '#776242'
 
     default: //MSB, PBC, BAYES - Schools
       return '#17232f'

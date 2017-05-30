@@ -11,6 +11,7 @@ import NoMatch from './views/nomatch.jsx'
 import Lines from './views/lines.jsx'
 import TestLines from './views/test_lines.jsx'
 import VehicleLocationBootstrap from './views/vehicle_loc_bootstrap.jsx'
+import Timetable from './views/timetable.jsx'
 
 import autotrack from 'autotrack' // google analytics
 import injectTapEventPlugin from 'react-tap-event-plugin'
@@ -23,7 +24,8 @@ class App extends React.Component {
       <Router history={browserHistory}>
         <Route path="/" component={Index} onChange={UiStore.handleReactChange}>
           <Route path="s/:station" component={Station}>
-            <Route path=":trip_id" component={VehicleLocationBootstrap} />
+            <Route path="realtime/:trip_id" component={VehicleLocationBootstrap} />
+            <Route path="timetable/:route_name" component={Timetable} />
           </Route>
           <Route path='l' component={Lines}>
             <Route path=":line_id" component={VehicleLocationBootstrap} />

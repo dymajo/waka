@@ -256,8 +256,12 @@ var station = {
         const service_id = record[2] + '-' + currentVersion
         const frequency = record[3]
 
+        let interval = 7200
+        if (fastData === true) {
+          interval = 10800
+        }
         if (exceptionCache.existsToday(today.day(), frequency, service_id) &&
-          arrivalTime < currentTime + 7200 &&
+          arrivalTime < currentTime + interval &&
           arrivalTime > currentTime - 1200) {
           possibleTrips[record[1]+ '-' +  currentVersion] = {
             arrival_time_seconds: arrivalTime,
@@ -423,6 +427,7 @@ var station = {
       }
       
       let trips = []
+      let tripsHashTable = {}
 
       // read through file, test exceptions
       parser.on('readable', function(){
@@ -435,8 +440,9 @@ var station = {
 
         const service_id = record[2] + '-' + currentVersion
         const frequency = record[3]
-        if (exceptionCache.existsToday(today.day(), frequency, service_id)) {
+        if (exceptionCache.existsToday(today.day(), frequency, service_id) && typeof(tripsHashTable[record[2]]) === 'undefined') {
           trips.push(record)
+          tripsHashTable[record[2]] = true
         }
       })
 

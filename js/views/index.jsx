@@ -75,29 +75,30 @@ class Index extends React.Component {
         UiStore.state.canAnimate = true
       }, UiStore.animationTiming + 25)
     }
-    if (n.replace('/s/', '/').split('/').length > 2) {
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          if (this.state.invisibleUi) {
-            return
-          }
-          this.setState({
-            invisibleUi: true
-          })
-        })
-      }, UiStore.animationTiming + 25)
-    } else {
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          if (!this.state.invisibleUi) {
-            return
-          }
-          this.setState({
-            invisibleUi: false
-          })
-        })
-      }, UiStore.animationTiming + 25)
-    }
+    // Originally done for Perf Reasons, but we can't really do anymore due to new UI
+    // if (n.replace('/s/', '/').split('/').length > 2) {
+    //   setTimeout(() => {
+    //     requestAnimationFrame(() => {
+    //       if (this.state.invisibleUi) {
+    //         return
+    //       }
+    //       this.setState({
+    //         invisibleUi: true
+    //       })
+    //     })
+    //   }, UiStore.animationTiming + 25)
+    // } else {
+    //   setTimeout(() => {
+    //     requestAnimationFrame(() => {
+    //       if (!this.state.invisibleUi) {
+    //         return
+    //       }
+    //       this.setState({
+    //         invisibleUi: false
+    //       })
+    //     })
+    //   }, UiStore.animationTiming + 25)
+    // }
   }
   loadMapDynamic() {
     // doesn't do anything if already loaded
@@ -161,6 +162,9 @@ class Index extends React.Component {
       this.longtouch = null
       this.scrolllock = null
     }
+    if (this.state.mapView && this.refs.touchcard.scrollTop !== 0) {
+      this.refs.touchcard.scrollTop = 0
+    }
   }
   triggerTouchMove(e) {
     // cancels if they're not at the top of the card
@@ -215,6 +219,10 @@ class Index extends React.Component {
     let equality = false
     if (this.state.mapView === true) {
       equality = this.touchstartpos < newPos
+      // this is like scrolling up on the bar - stops the scroll on body in iOS
+      if (equality && iOS.detect()) {
+        e.preventDefault()
+      }
     } else if (this.state.mapView === false) {
       equality = this.touchstartpos > newPos
     }

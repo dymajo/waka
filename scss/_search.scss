@@ -5,6 +5,26 @@
 .search {
   height: 100%;
 }
+.hide-icons {
+  .currentLocationButton, .routeButton {
+    opacity: 0;
+  }  
+}
+.leaflet-marker-icon.currentSelectionIcon {
+  background: $atblue;
+  padding: 7px;
+  border-radius: 50%;
+  z-index: 10000 !important;
+  margin-left: -19px !important;
+  margin-top: -31px !important;
+  box-shadow: 0 1px 2px rgba(#000, 0.25);
+
+  &.larger {
+    margin-left: -22px !important;
+    margin-top: -30px !important;
+    padding: 8px;
+  }
+}
 .currentLocationButton, .routeButton {
   position: absolute;
   z-index: 501;
@@ -17,6 +37,7 @@
   width: 55px;
   height: 55px;
   outline: 0;
+  transition: 250ms ease opacity;
   
   &:hover {
     background: #f7f7f7;

@@ -11,9 +11,11 @@ export class uiStore extends Events {
       noAnimate: false,
       goingBack: false,
       totalNavigations: 0,
-      currentUrl: '/',
+      currentUrl: null,
+      lastUrl: null,
       oldNavigate: [],
-      mapView: false
+      mapView: false,
+      fancyMode: false,
     }
     // constant used for setTimeouts
     this.animationTiming = 250 + 25
@@ -25,7 +27,9 @@ export class uiStore extends Events {
       }
     }
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-      if (this.state.currentUrl !== window.location.pathname) {
+      if (this.state.currentUrl === null) {
+        browserHistory.push('/')
+      } else if (this.state.currentUrl !== window.location.pathname) {
         browserHistory.push(this.state.currentUrl)
       }
     }
@@ -37,6 +41,9 @@ export class uiStore extends Events {
     setTimeout(() => {
       this.state.canAnimate = true
     }, this.animationTiming * 3)
+  }
+  setExpandedItem(name) { 
+    this.trigger('expandChange', name)
   }
   getState() {
     return this.state
@@ -57,6 +64,23 @@ export class uiStore extends Events {
         animation: '250ms stop-to-ss-station-ios ease 1',
         transform: 'translate3d(100vw,0,0)',
       }
+    }
+    return {
+      animation: '250ms stop-to-ss-station ease 1',
+      transform: 'translate3d(0,15px,0)',
+      opacity: '0',
+      pointerEvents: 'none',
+    }
+  }
+  getModalAnimationIn() {
+    if (this.state.canAnimate === false) {
+      return null
+    }
+    return '250ms ss-to-stop-station ease 1'
+  }
+  getModalAnimationOut() {
+    if (this.state.canAnimate === false) {
+      return null
     }
     return {
       animation: '250ms stop-to-ss-station ease 1',
@@ -92,9 +116,10 @@ export class uiStore extends Events {
   handleState(e) {
     this.state.totalNavigations++
   }
-  currentState(e) { 
+  currentState(e) {
+    this.state.lastUrl = this.state.currentUrl
     this.state.currentUrl = window.location.pathname
-    localStorage.setItem('CurrentUrl', this.state.currentUrl)
+    localStorage.setItem('CurrentUrl', window.location.pathname.split('/').slice(0,3).join('/'))
   }
   handleReactChange(prevState, nextState, replace, callback) {
     var p = prevState.location.pathname

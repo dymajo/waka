@@ -29,6 +29,25 @@ const ferryIcon = Icon({
   iconRetinaUrl: '/icons/ferry-icon-2x.png',
   iconSize: [30, 49]
 })
+const busSelection = Icon({
+  iconUrl: '/icons/bus-fill.svg',
+  iconRetinaUrl: '/icons/bus-fill.svg',
+  iconSize: [24, 24],
+  className: 'currentSelectionIcon'
+})
+const trainSelection = Icon({
+  iconUrl: '/icons/train-fill.svg',
+  iconRetinaUrl: '/icons/train-fill.svg',
+  iconSize: [28, 28],
+  className: 'currentSelectionIcon larger'
+})
+const ferrySelection = Icon({
+  iconUrl: '/icons/ferry-fill.svg',
+  iconRetinaUrl: '/icons/ferry-fill.svg',
+  iconSize: [28, 28],
+  className: 'currentSelectionIcon larger'
+})
+
 let geoID = undefined
 
 class Search extends React.Component {
@@ -39,6 +58,7 @@ class Search extends React.Component {
       stops: [],
       position: SettingsStore.getState().lastLocation,
       currentPosition: [0,0],
+      currentStation: null,
       back: false,
       accuracy: 0,
       error: '',
@@ -55,6 +75,7 @@ class Search extends React.Component {
     this.triggerSearch = this.triggerSearch.bind(this)
     this.moveEnd = this.moveEnd.bind(this)
     this.triggerBack = this.triggerBack.bind(this)
+    this.viewServices = this.viewServices.bind(this)
 
     UiStore.bind('goingBack', this.triggerBack)
   }
@@ -127,11 +148,19 @@ class Search extends React.Component {
   componentWillReceiveProps() {
     if (window.location.pathname === '/') {
       this.watchPosition()
+      this.setState({
+        showIcons: true,
+        currentStation: null
+      })
     } else {
+      this.setState({
+        showIcons: false
+      })
       requestAnimationFrame(function() {
         navigator.geolocation.clearWatch(geoID)
       })
     }
+
 
   }
   componentWillUnmount() {
@@ -147,6 +176,9 @@ class Search extends React.Component {
   getData(lat, lng, dist) {
     fetch(`/a/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
       response.json().then((data) => {
+        data.forEach(function(item) {
+          StationStore.stationCache[item.stop_id] = item 
+        })
         this.setState({
           stops: data
         })
@@ -183,8 +215,15 @@ class Search extends React.Component {
     browserHistory.push(`/s/${this.state.station}`)
   }
   viewServices(station) {
-    return function() {
+    return () => {
+      this.setState({
+        currentStation: station
+      })
+      UiStore.state.fancyMode = true
       browserHistory.push(`/s/${station}`)
+      setTimeout(() => {
+        UiStore.state.fancyMode = false
+      }, 500) // extra delay to help events to bubble
     }
   }
   moveEnd(e) {
@@ -220,6 +259,19 @@ class Search extends React.Component {
   }
   render() {
 
+    let stationMarker = null
+    if (this.state.currentStation) {
+      const item = StationStore.stationCache[this.state.currentStation]
+      const icon = StationStore.getIcon(item.stop_id)
+      let markericon = busSelection
+      if (icon === 'train') {
+        markericon = trainSelection
+      } else if (icon === 'ferry') {
+        markericon = ferrySelection
+      }            
+      stationMarker = <Marker icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
+    }
+
     // this is the key for now
     let retina = ''
     if (window.devicePixelRatio > 1) {
@@ -241,8 +293,9 @@ class Search extends React.Component {
 
     var positionMap = {}
 
+    const searchClass = 'search' + (this.state.showIcons ? '' : ' hide-icons')
     return (
-      <div className="search">
+      <div className={searchClass}>
         <div className={findModal}>
           <div>
             <h2>Find Stop</h2>
@@ -300,20 +353,12 @@ class Search extends React.Component {
             }
 
             return (
-              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]}>
-                <Popup>
-                  <span>
-                    <img src={`/icons/${icon}.svg`} />
-                    <h2>{stop.stop_name}</h2>
-                    <h3>Stop {stop.stop_id}</h3>
-                    <button onClick={this.viewServices(stop.stop_id)}>View Services</button>
-                  </span>
-                </Popup>
-              </Marker>
+              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)} />
             )
           })}
           <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
           <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
+          {stationMarker}
         </Map>
       </div>
     )
