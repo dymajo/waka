@@ -128,7 +128,7 @@ var cache = {
       }
       let data = JSON.parse(body)
       // if there's data
-      if (data.response.entity.length > 0) {
+      if (typeof(data.response) !== 'undefined' && typeof(data.response.entity) !== 'undefined' && data.response.entity.length > 0) {
         const update = data.response.entity[0]
         const newVersion = update.trip_update.trip.trip_id.split('-')[1]
         cache.currentVersionString = newVersion
