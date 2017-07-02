@@ -55,7 +55,7 @@ class TripItem extends React.Component {
     const direction = <img src="/icons/direction.svg" className={'direction ' + dir} />
     const background = StationStore.getColor(trip.agency_id, route_code)
     let via = trip.route_long_name.split('Via')
-    if (via.length > 1 && SettingsStore.getState().longName === true) {
+    if (via.length > 1 && (SettingsStore.getState().longName === true || this.props.vias)) {
       via = <small>via {via[1].split(' And')[0]}</small>
     } else {
       via = null

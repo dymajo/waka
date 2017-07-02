@@ -190,8 +190,8 @@ class Station extends React.Component {
     })
 
   }
-  tripsCb(tripData) {    
-    if (typeof(tripData.length) === 'undefined' || tripData.length === 0) {
+  tripsCb(tripData) {
+    if (typeof(tripData) === 'undefined' || typeof(tripData.length) === 'undefined' || tripData.length === 0) {
       // scroll when loaded
       if (this.state.trips.length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71) {
         requestAnimationFrame(() => {
@@ -321,7 +321,9 @@ class Station extends React.Component {
         reducer.set(trip.route_short_name, new Map())
       }
       // removes platforms and weirdness
-      let lname = trip.route_long_name.replace(/ \d/g, '').toLowerCase()
+      // this line doesn't group as well
+      // let lname = trip.route_long_name.replace(/ \d/g, '').toLowerCase()
+      let lname = trip.route_short_name + trip.trip_headsign + ' via' + (trip.route_long_name.toLowerCase().split('via')[1] || '')
       if (!reducer.get(trip.route_short_name).has(lname)) {
         reducer.get(trip.route_short_name).set(lname, [])
       }
@@ -340,7 +342,21 @@ class Station extends React.Component {
     if (this.state.definedOrder.length === 0 || same === false) {
       let newOrder = []
       reducer.forEach((value, key) => {
+        // looks for duplicated headsigns, and adds vias.
+        const duplicates = [...value.keys()].map(i => i.split(' via')[0]).reduce((result, item) => {
+          if (item in result) {
+            result[item] = 1
+          } else {
+            result[item] = 0
+          }
+          return result
+        }, {});
+
         [...value.entries()].sort(sortFn).forEach((tripCollection) => {
+          tripCollection.push(false)
+          if (duplicates[tripCollection[0].split(' via')[0]] > 0) {
+            tripCollection[2] = true
+          }
           all.push(tripCollection)
         })
         if (Object.keys(this.state.realtime).length > 0) {
@@ -636,7 +652,7 @@ class Station extends React.Component {
     }
 
     let all = this.state.currentTrips.map((item, key) => {
-      return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} index={key} />
+      return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} index={key} vias={item[2]} />
     })
 
     // realtime check needed?

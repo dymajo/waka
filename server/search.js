@@ -25,7 +25,7 @@ var search = {
           .and('stop_lon > ? and stop_lon < ?', lng -  lngDist, lng + lngDist)
 
       tableSvc.queryEntities('stops', query, null, function(err, result) {
-        if (result.entries === null) {
+        if (result === null || result.entries === null) {
           res.send([])
         }
         res.send(result.entries.filter(function(stop) {
