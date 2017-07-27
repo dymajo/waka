@@ -403,7 +403,7 @@ var station = {
 
   },
   timetable: function(req, res) {
-    if (parseInt(req.params.direction) > 1 || parseInt(req.params.direction) < 0) {
+    if (parseInt(req.params.direction) > 2 || parseInt(req.params.direction) < 0) {
       return res.status(400).send({error: 'Direction is not valid.'})
     }
     const currentVersion = cache.currentVersion()
@@ -467,7 +467,10 @@ var station = {
         .select(['RowKey','route_id','shape_id','trip_headsign','route_long_name','frequency','start_date','end_date','agency_id'])
         .where('PartitionKey eq ?', azCurrentVersion)
         .and('route_short_name eq ?', req.params.route)
-        .and('direction_id eq ?', req.params.direction)
+
+      if (req.params.direction !== '2') {
+        query.and('direction_id eq ?', req.params.direction)
+      }
 
       tableSvc.queryEntities('trips', query, null, function(err, result, response) {
         const trips = {}

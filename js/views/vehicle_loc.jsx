@@ -61,6 +61,7 @@ class vehicle_location extends React.Component {
     this.getWKB = this.getWKB.bind(this)
     this.convert = this.convert.bind(this)
     this.zoomstart = this.zoomstart.bind(this)
+    this.viewTimetable = this.viewTimetable.bind(this)
   }
 
   getShapeData(newProps = this.props) {
@@ -236,6 +237,11 @@ class vehicle_location extends React.Component {
       browserHistory.push(`/s/${stop}`)
     }
   }
+  viewTimetable(stop) {
+    return () => {
+      browserHistory.push(`/s/${stop}/timetable/${this.props.params.line_id}-2`)
+    }
+  }
 
   render(){
     let color = '#000000'
@@ -298,6 +304,7 @@ class vehicle_location extends React.Component {
                       <h2>{stop[3]}</h2>
                       <h3>Stop {stop[2]}</h3>
                       <button onClick={this.viewServices(stop[2])}>View Services</button>
+                      <button className="timetable-button" onClick={this.viewTimetable(stop[2])}>Timetable</button>
                     </span>
                   </Popup>
                 </Marker>
