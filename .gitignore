@@ -42,6 +42,7 @@ dist/*.js
 dist/*.map
 cache/*.json
 cache/*.txt
+cache/*/*.txt
 cache/stops/*/*.txt
 cache/*.zip
 cache/maps/*.png
