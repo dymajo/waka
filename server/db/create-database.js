@@ -27,7 +27,8 @@ CREATE TABLE stops (
 	stop_code nvarchar(50),
 	stop_name nvarchar(100) NOT NULL,
 	stop_desc nvarchar(150),
-	lat_lon geography NOT NULL,
+	stop_lat decimal(10,6) NOT NULL,
+	stop_lon decimal(10,6) NOT NULL,
 	zone_id nvarchar(50),
 	stop_url nvarchar(100),
 	location_type int,
@@ -82,8 +83,10 @@ CREATE TABLE stop_times (
 	prefix nvarchar(50) NOT NULL,
 	version nvarchar(50) NOT NULL,
 	trip_id nvarchar(100) NOT NULL,
-	arrival_time nvarchar(50) NOT NULL,
-	departure_time nvarchar(50) NOT NULL,
+	arrival_time time(0) NOT NULL,
+	departure_time time(0) NOT NULL,
+	arrival_time_24 bit NOT NULL,
+	departure_time_24 bit NOT NULL,
 	stop_id nvarchar(100) NOT NULL,
 	stop_sequence int NOT NULL,
 	stop_headsign nvarchar(100),
@@ -133,7 +136,7 @@ async function start() {
 	await connection.get().request().query(calendar)
 	await connection.get().request().query(calendar_dates)
 	connection.get().close()
-	
+
 	console.log('Done!')
 }
 
