@@ -3,6 +3,8 @@ var tableSvc = azure.createTableService()
 var cache = require('./cache')
 const fs = require('fs')
 var sitemap = require('./sitemap')
+const sql = require('mssql')
+const connection = require('./db/connection.js')
 
 var search = {
   getStopsLatLng(req, res) {
@@ -20,27 +22,30 @@ var search = {
       let latDist = req.query.distance / 100000
       let lngDist = req.query.distance / 65000
 
-      let query = new azure.TableQuery()
-          .where('stop_lat > ? and stop_lat < ?', lat - latDist, lat + latDist)
-          .and('stop_lon > ? and stop_lon < ?', lng -  lngDist, lng + lngDist)
-
-      tableSvc.queryEntities('stops', query, null, function(err, result) {
-        if (result === null || result.entries === null) {
-          res.send([])
-        }
-        res.send(result.entries.filter(function(stop) {
-          if (stop.location_type._ === 0) {
-            return true
-          }
-          return false
-        }).map(function(stop) {
-          return {
-            stop_id: stop.RowKey._,
-            stop_name: stop.stop_name._,
-            stop_lat: stop.stop_lat._,
-            stop_lng: stop.stop_lon._
-          }
-        }))
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('prefix', sql.VarChar, req.params.prefix || 'nz-akl')
+      sqlRequest.input('version', sql.VarChar, cache.currentVersion())
+      sqlRequest.input('stop_lat_gt', sql.Decimal(10,6), lat - latDist)
+      sqlRequest.input('stop_lat_lt', sql.Decimal(10,6), lat + latDist)
+      sqlRequest.input('stop_lon_gt', sql.Decimal(10,6), lng - lngDist)
+      sqlRequest.input('stop_lon_lt', sql.Decimal(10,6), lng + lngDist)
+      sqlRequest.query(`
+        select 
+          stop_id,
+          stop_name,
+          stop_lat,
+          stop_lon as stop_lng
+        from stops
+        where 
+          prefix = @prefix 
+          and version = @version
+          and location_type = 0
+          and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
+          and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
+      ).then((result) => {
+        res.send(result.recordset)
+      }).catch((err) => {
+        res.status(500).send(err)
       })
     } else {
       res.status(400).send({

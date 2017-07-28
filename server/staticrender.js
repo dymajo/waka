@@ -34,7 +34,7 @@ const staticrender = {
       if (path.length === 2) {
         return notFound()
       } else if (path.length === 3) {
-        station.stopInfoInternal(path[2]).then(function(data) {
+        station._stopInfo(path[2], 'nz-akl').then(function(data) {
           title = data.stop_name + defaultName
           description = 'Realtime departures and timetable for '
           if (data.stop_name.toLowerCase().match('train station')|| 

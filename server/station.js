@@ -5,6 +5,8 @@ var moment = require('moment-timezone')
 var azure = require('azure-storage')
 var cache = require('./cache')
 var line = require('./line')
+const sql = require('mssql')
+const connection = require('./db/connection.js')
 
 var tableSvc = azure.createTableService()
 var blobSvc = azure.createBlobService()
@@ -97,75 +99,9 @@ var exceptionCache = {
 }
 
 var station = {
-  cacheCheck(stop) {
-    tableSvc.retrieveEntity('meta', 'stoptimes', stop, function(err, result, response) {
-      if (err) {
-        if (err.statusCode === 404) {
-          // this is mainly to upgrade the database to not break deprecation, so we set last updated to a day ago
-          var date = new Date() 
-          date.setDate(date.getDate() - 1);
-          var task = {
-            PartitionKey: {'_': 'stoptimes'},
-            RowKey: {'_': stop.toString()},
-            date: {'_': date, '$':'Edm.DateTime'}
-          }
-          tableSvc.insertOrReplaceEntity('meta', task, function (error, result, response) {
-            if (error) {
-              console.log(error)
-            }
-            console.log(`saved temp stoptimes date for ${stop}`)
-          })
-        } else {
-          console.log(err)
-        }
-        return
-      }
-      if(new Date().getTime() - result.date._.getTime() > 86400000) {
-        // if it was last updated a day ago, redo the caches
-        // TODO: update this to versions api haha
-        station.getTripsFromAt(stop).then(function() {
-          station.clean(stop)
-        })
-      }
-    })
-  },
-  getFastDataFromAt(stop, cb) {
-    console.log(stop, ': Getting Fast Data From AT')
-    var newOpts = JSON.parse(JSON.stringify(options))
-    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/stopinfo/' + parseInt(stop)
-
-    const httpRequest = function(resolve, reject) {
-      request(newOpts, function(err, response, body) {
-        if (err) {
-          reject(err)
-        }
-        let filteredTrips = []
-        try {
-          filteredTrips = JSON.parse(body)
-        } catch(err) {
-          // retries
-          console.error(err, body)
-          return httpRequest(resolve, reject)
-        }
-        filteredTrips = filteredTrips.response.map(function(trip) {
-          let depTimeSplit = trip.departure_time.split(':')
-          let arrTime = parseInt(depTimeSplit[0]*3600) + parseInt(depTimeSplit[1]*60) + parseInt(depTimeSplit[2])
-          return {
-            trip_id: trip.trip_id,
-            arrival_time_seconds: arrTime,
-            stop_sequence: trip.stop_sequence
-          }
-        })
-        resolve(filteredTrips)
-      })
-    }
-    return new Promise(function(resolve, reject) {
-      httpRequest(resolve, reject)
-    })
-  },
   stopInfo: function(req, res) {
     if (req.params.station) {
-      station.stopInfoInternal(req.params.station).then(function(data) {
+      station._stopInfo(req.params.station, req.params.prefix || 'nz-akl').then(function(data) {
         res.send(data)
       }).catch(function(err) {
         res.status(404).send(err)  
@@ -176,19 +112,24 @@ var station = {
       })
     }
   },
-  stopInfoInternal: function(stop) {
+  _stopInfo: function(stop, prefix) {
     return new Promise(function(resolve, reject) {
       stop = stop.trim()
-      tableSvc.retrieveEntity('stops', 'allstops', stop, function(err, result) {
-        if (err) {
-          return reject({
-            'error': 'station not found'
-          })
-        }
+
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('prefix', sql.VarChar, prefix)
+      sqlRequest.input('version', sql.VarChar, cache.currentVersion())
+      sqlRequest.input('stop_id', sql.VarChar, stop)
+      sqlRequest.query(`select stop_name, stop_lat, stop_lon from stops where prefix = @prefix and version = @version and stop_id = @stop_id`).then((result) => {
+        const data = result.recordset[0]
         resolve({
-          stop_name: result.stop_name._,
-          stop_lat: result.stop_lat._,
-          stop_lon: result.stop_lon._
+          stop_name: data.stop_name,
+          stop_lat: data.stop_lat,
+          stop_lon: data.stop_lon,
+        })
+      }).catch(err => {
+        return reject({
+          error: 'station not found'
         })
       })
     })

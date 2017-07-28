@@ -21,7 +21,7 @@ async function doShit() {
   })
   at.files.forEach((file) => {
     console.log(file)
-    importer.upload('../cache/at.zipunarchived', file, at.prefix, '1').then(() => {
+    importer.upload('../cache/at.zipunarchived', file, at.prefix, '20170724124507_v56.18').then(() => {
       console.log('done')
     }).catch((err) => {
       console.log(err)

@@ -36,4 +36,9 @@ router.post('/realtime', realtime.getTripsEndpoint)
 router.post('/vehicle_location', realtime.getVehicleLocation)
 router.post('/email', email.sendEmail)
 
+// NEW API V2
+router.get('/:prefix/station', station.stopInfo)
+router.get('/:prefix/station/search', search.getStopsLatLng)
+router.get('/:prefix/station/:station', station.stopInfo)
+
 module.exports = router
