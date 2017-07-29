@@ -1,3 +1,5 @@
+const fs = require('fs')
+const path = require('path')
 const sql = require('mssql')
 const connection = require('./connection.js')
 
@@ -75,6 +77,11 @@ CREATE TABLE trips (
 	CONSTRAINT uc_Trips UNIQUE (prefix, version, trip_id)
 )
 `
+const trips_index = `
+CREATE NONCLUSTERED INDEX id_Trips
+ON trips (prefix, version)
+INCLUDE (route_id, service_id, trip_id, trip_headsign, direction_id, shape_id)
+`
 
 // TODO: add indicies
 const stop_times = `
@@ -97,8 +104,9 @@ CREATE TABLE stop_times (
 )
 `
 const stop_times_index = `
-	CREATE NONCLUSTERED INDEX id_Stop_Times
-	ON stop_times (prefix, version, stop_id, departure_time)
+CREATE NONCLUSTERED INDEX id_Stop_Times
+ON stop_times (prefix, version, stop_id, departure_time)
+INCLUDE (trip_id, arrival_time, arrival_time_24, stop_sequence)
 `
 
 const calendar = `
@@ -140,17 +148,22 @@ const calendar_dates_index = `
 
 async function start() {
 	console.log('Creating Tables...')
-
 	await connection.get().request().query(agency)
 	await connection.get().request().query(stops)
 	await connection.get().request().query(routes)
 	await connection.get().request().query(trips)
+	await connection.get().request().query(trips_index)
 	await connection.get().request().query(stop_times)
 	await connection.get().request().query(stop_times_index)
 	await connection.get().request().query(calendar)
 	await connection.get().request().query(calendar_index)
 	await connection.get().request().query(calendar_dates)
 	await connection.get().request().query(calendar_dates_index)
+
+	console.log('Creating Procedures...')
+	const GetStopTimes = fs.readFileSync(path.resolve(__dirname, './procs/GetStopTimes.sql')) // no promises :| 
+	await connection.get().request().batch(GetStopTimes.toString())	
+
 	connection.get().close()
 
 	console.log('Done!')

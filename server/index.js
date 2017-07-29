@@ -40,5 +40,7 @@ router.post('/email', email.sendEmail)
 router.get('/:prefix/station', station.stopInfo)
 router.get('/:prefix/station/search', search.getStopsLatLng)
 router.get('/:prefix/station/:station', station.stopInfo)
+router.get('/:prefix/station/:station/times', station.stopTimes)
+router.get('/:prefix/station/:station/times/:fast', station.stopTimes)
 
 module.exports = router

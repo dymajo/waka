@@ -131,8 +131,8 @@ class gtfsImport {
         const stringDate = row[rowSchema[column]]
         const date = new Date(0)
         date.setFullYear(stringDate.slice(0,4))
-        date.setMonth(stringDate.slice(4,6))
-        date.setDate(stringDate.slice(6,8))
+        date.setUTCMonth(parseInt(stringDate.slice(4,6)) - 1) // dates start from 0??
+        date.setUTCDate(stringDate.slice(6,8))
         return date
       // i hate this library
       } else if (column === 'monday' || column === 'tuesday' || column === 'wednesday' || column === 'thursday' || column === 'friday' || column === 'saturday' || column === 'sunday') {
