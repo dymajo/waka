@@ -28,6 +28,7 @@ router.get('/line/:line', line.getLine)
 router.get('/stops/trip/:trip_id', line.getStopsFromTrip)
 router.get('/stops/shape/:shape_id', line.getStopsFromShape)
 router.get('/shape/:shape_id', line.getShape)
+
 router.get('/vehicle/:vehicle', vehicle.getVehicle)
 router.post('/realtime', realtime.getTripsEndpoint)
 router.post('/vehicle_location', realtime.getVehicleLocation)
@@ -40,5 +41,10 @@ router.get('/:prefix/station/:station', station.stopInfo)
 router.get('/:prefix/station/:station/times', station.stopTimes)
 router.get('/:prefix/station/:station/times/:fast', station.stopTimes)
 router.get('/:prefix/station/:station/timetable/:route/:direction', station.timetable)
+router.get('/:prefix/lines', line.getLines)
+router.get('/:prefix/line/:line', line.getLine)
+router.get('/:prefix/stops/trip/:trip_id', line.getStopsFromTrip)
+router.get('/:prefix/stops/shape/:shape_id', line.getStopsFromShape)
+router.get('/:prefix/shape/:shape_id', line.getShape)
 
 module.exports = router

@@ -108,6 +108,10 @@ CREATE NONCLUSTERED INDEX id_Stop_Times
 ON stop_times (prefix, version, stop_id, departure_time)
 INCLUDE (trip_id, arrival_time, arrival_time_24, stop_sequence)
 `
+const stop_times_index2 = `
+CREATE NONCLUSTERED INDEX id_Stop_Times_Trips
+ON stop_times (prefix, version, trip_id)
+`
 
 const calendar = `
 CREATE TABLE calendar (
@@ -155,6 +159,7 @@ async function start() {
 	await connection.get().request().query(trips_index)
 	await connection.get().request().query(stop_times)
 	await connection.get().request().query(stop_times_index)
+	await connection.get().request().query(stop_times_index2)
 	await connection.get().request().query(calendar)
 	await connection.get().request().query(calendar_index)
 	await connection.get().request().query(calendar_dates)

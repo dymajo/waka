@@ -8,6 +8,8 @@ const lineData = require('./lineData')
 const lineGroups = lineData.lineGroups
 const friendlyNames = lineData.friendlyNames
 const allLines = lineData.allLines
+const sql = require('mssql')
+const connection = require('./db/connection.js')
 
 var tableSvc = azure.createTableService()
 var blobSvc = azure.createBlobService()
@@ -26,7 +28,7 @@ var shapeWKBOptions = {
 }
 let lineOperators = {}
 
-function cacheOperatorsAndShapes() {
+function cacheOperatorsAndShapes(prefix = 'nz-akl') {
   let todo = []
   let shapeCount = 0
   let shapesToCache = []
@@ -41,24 +43,28 @@ function cacheOperatorsAndShapes() {
       return
     }
     // caches the operator
-    let query = new azure.TableQuery()
-      .select(['agency_id'])
-      .top(1)
-      .where('PartitionKey eq ? and route_short_name eq ?', version, todo[index])
-
-    tableSvc.queryEntities('trips', query, null, function(error, result) {
-      if(error) {
-        console.warn(error)
-      }
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('prefix', sql.VarChar(50), prefix)
+    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion())
+    sqlRequest.input('route_short_name', sql.VarChar(50), todo[index])
+    sqlRequest.query(`
+      SELECT top(1)
+        agency_id
+      FROM routes 
+      where 
+        prefix = @prefix and
+        version = @version and
+        route_short_name = @route_short_name
+    `).then(result => {
       // query was successful
-      if (result.entries.length > 0) {
-        lineOperators[todo[index]] = result.entries[0].agency_id._  
+      if (result.recordset.length > 0) {
+        lineOperators[todo[index]] = result.recordset[0].agency_id
         sitemap.push('/l/' + todo[index])
       } else {
         console.warn('could not find agency for', todo[index])
       }
       getOperator(index + 1)
-    })
+    }).catch(err => console.warn(err))
 
     // caches the shape 
     line._getLine(todo[index], function(err, data) {
@@ -73,7 +79,7 @@ function cacheOperatorsAndShapes() {
         console.log('Collected List of Shapes To Cache')
         line.cacheShapes(shapesToCache)
       }
-    })
+    }, 'nz-akl')
   }
   getOperator(0)
 }
@@ -98,25 +104,40 @@ var line = {
         return res.status(500).send(err)
       }
       res.send(data)
-    })
+    }, req.params.prefix)
   },
-  _getLine(lineId, cb) {
-    let version = cache.currentVersion().split('_')[1]
-    let query = new azure.TableQuery()
-      .where('PartitionKey eq ? and route_short_name eq ?', version, lineId)
-    tableSvc.queryEntities('routeShapes', query, null, function(err, result){
-      if (err) {
-        cb(err, null)
-      }
-      var versions = {}
-      var results = []
-      result.entries.forEach(function(route) {
+  _getLine(lineId, cb, prefix = 'nz-akl') {
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('prefix', sql.VarChar(50), prefix)
+    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion())
+    sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
+    sqlRequest.query(`
+      SELECT 
+        routes.route_id,
+        routes.agency_id,
+        routes.route_short_name,
+        routes.route_long_name,
+        routes.route_type,
+        trips.shape_id,
+        trips.trip_headsign
+      FROM routes
+      LEFT JOIN trips on 
+        trips.route_id = routes.route_id
+      WHERE 
+        routes.prefix = @prefix and
+        routes.version = @version and
+        routes.route_short_name = @route_short_name`).then(result => {
+      const versions = {}
+      const results = []
+
+      result.recordset.forEach(function(route) {
+        // hacks to be compatabible with table storage
+        Object.keys(route).forEach((item) => {
+          route[item] = {'_': route[item]}
+        })
+
         // checks to make it's the right route (the whole exception thing)
         if (line.exceptionCheck(route) === false){
-          return
-        }
-        // make sure it's a current version of the geom
-        if (typeof(cache.versions[route.RowKey._.split('-')[1]]) === 'undefined') {
           return
         }
         // make sure it's not already in the response
@@ -127,7 +148,7 @@ var line = {
         }
 
         let result = {
-          route_id: route.RowKey._,
+          route_id: route.route_id._,
           route_long_name: route.route_long_name._,
           route_short_name: route.route_short_name._,
           shape_id: route.shape_id._,
@@ -140,6 +161,8 @@ var line = {
         results.push(result)
       })
       cb(null, results)
+    }).catch(err => {
+      cb(err, null)
     })
   },
 
@@ -272,43 +295,42 @@ var line = {
   },
 
   getStopsFromTrip: function(req, res){
-    var trip_id = req.params.trip_id
-    // var pkey = trip_id.split('_').slice(-1)[0]
-    var newOpts = JSON.parse(JSON.stringify(shapeWKBOptions))     
-    newOpts.url = 'https://api.at.govt.nz/v2/gtfs/stops/tripId/' + trip_id
-    request(newOpts, function(err, response, body){
-      if (err) {
-        console.log(err)
-        res.status(500).send({
-          error: err
-        })
-        return
-      }
-      res.send(JSON.parse(body).response.map(function(item){
-        return {
-          stop_id: item.stop_id,
-          stop_name: item.stop_name,
-          stop_lat: item.stop_lat,
-          stop_lon: item.stop_lon,         
-        }
-      }))
-    })  
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('prefix', sql.VarChar(50), req.params.prefix || 'nz-akl')
+    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion())
+    sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
+    sqlRequest.query(`
+      SELECT 
+        stops.stop_id,
+        stops.stop_name,
+        stops.stop_lat,
+        stops.stop_lon,
+        stop_times.departure_time,
+        stop_times.departure_time_24,
+        stop_times.stop_sequence
+      FROM stop_times
+      LEFT JOIN stops
+        on stops.stop_id = stop_times.stop_id and
+        stops.prefix = stop_times.prefix and
+        stops.version = stop_times.version
+      WHERE
+        stop_times.prefix = @prefix and
+        stop_times.version = @version and
+        stop_times.trip_id = @trip_id
+      ORDER BY stop_sequence`
+    ).then((result) => {
+      res.send(result.recordset)
+    }).catch((err) => {
+      res.status(500).send(err)
+    })
   },
   getStopsFromShape: function(req, res) {
-    let shape_id = req.params.shape_id
-    let version = cache.currentVersion().split('_')[1]
-    let query = new azure.TableQuery()
-      .select('RowKey')
-      .top(1)
-      .where('PartitionKey eq ? and shape_id eq ?', version, shape_id)
-    tableSvc.queryEntities('trips', query, null, function(err, result) {
-      if (result.entries.length < 1) {
-        return res.status(404).send({
-          'error': 'shape not found'
-        })
-      }
-      // pass it on to another controller with hacks
-      let trip_id = result.entries[0].RowKey._
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('prefix', sql.VarChar(50), req.params.prefix || 'nz-akl')
+    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion())
+    sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
+    sqlRequest.query(`SELECT TOP(1) trip_id FROM trips WHERE trips.prefix = @prefix and trips.version = @version and trips.shape_id = @shape_id`).then((result) => {
+      let trip_id = result.recordset[0].trip_id
       req.params.trip_id =  trip_id
       line.getStopsFromTrip(req, res)
     })
