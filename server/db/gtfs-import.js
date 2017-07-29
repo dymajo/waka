@@ -102,13 +102,13 @@ class gtfsImport {
       table.columns.add('prefix', sql.VarChar(50), {nullable: false})
       table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('service_id', sql.VarChar(100), {nullable: false})
-      table.columns.add('monday', sql.Int, {nullable: false})
-      table.columns.add('tuesday', sql.Int, {nullable: false})
-      table.columns.add('wednesday', sql.Int, {nullable: false})
-      table.columns.add('thursday', sql.Int, {nullable: false})
-      table.columns.add('friday', sql.Int, {nullable: false})
-      table.columns.add('saturday', sql.Int, {nullable: false})
-      table.columns.add('sunday', sql.Int, {nullable: false})
+      table.columns.add('monday', sql.Bit, {nullable: false})
+      table.columns.add('tuesday', sql.Bit, {nullable: false})
+      table.columns.add('wednesday', sql.Bit, {nullable: false})
+      table.columns.add('thursday', sql.Bit, {nullable: false})
+      table.columns.add('friday', sql.Bit, {nullable: false})
+      table.columns.add('saturday', sql.Bit, {nullable: false})
+      table.columns.add('sunday', sql.Bit, {nullable: false})
       table.columns.add('start_date', sql.Date, {nullable: false})
       table.columns.add('end_date', sql.Date, {nullable: false})
     } else if (name === 'calendar_dates') {
@@ -134,6 +134,9 @@ class gtfsImport {
         date.setMonth(stringDate.slice(4,6))
         date.setDate(stringDate.slice(6,8))
         return date
+      // i hate this library
+      } else if (column === 'monday' || column === 'tuesday' || column === 'wednesday' || column === 'thursday' || column === 'friday' || column === 'saturday' || column === 'sunday') {
+        return row[rowSchema[column]] === '1'
       } else if (column === 'arrival_time' || column === 'departure_time') {
         const splitRow = row[rowSchema[column]].split(':')
         // modulo and set the bit

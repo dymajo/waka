@@ -96,6 +96,10 @@ CREATE TABLE stop_times (
 	timepoint int
 )
 `
+const stop_times_index = `
+	CREATE NONCLUSTERED INDEX id_Stop_Times
+	ON stop_times (prefix, version, stop_id, departure_time)
+`
 
 const calendar = `
 CREATE TABLE calendar (
@@ -103,17 +107,22 @@ CREATE TABLE calendar (
 	prefix nvarchar(50) NOT NULL,
 	version nvarchar(50) NOT NULL,
 	service_id nvarchar(100) NOT NULL,
-	monday int NOT NULL,
-	tuesday int NOT NULL,
-	wednesday int NOT NULL,
-	thursday int NOT NULL,
-	friday int NOT NULL,
-	saturday int NOT NULL,
-	sunday int NOT NULL,
+	monday bit NOT NULL,
+	tuesday bit NOT NULL,
+	wednesday bit NOT NULL,
+	thursday bit NOT NULL,
+	friday bit NOT NULL,
+	saturday bit NOT NULL,
+	sunday bit NOT NULL,
 	start_date date NOT NULL,
 	end_date date NOT NULL,
 )
 `
+const calendar_index = `
+	CREATE NONCLUSTERED INDEX id_Calendar
+	ON calendar (prefix, version, service_id)
+`
+
 const calendar_dates = `
 CREATE TABLE calendar_dates (
 	uid uniqueidentifier NOT NULL DEFAULT NEWID() PRIMARY KEY,
@@ -124,6 +133,10 @@ CREATE TABLE calendar_dates (
 	exception_type int NOT NULL,
 )
 `
+const calendar_dates_index = `
+	CREATE NONCLUSTERED INDEX id_Calendar_Dates
+	ON calendar_dates (prefix, version, service_id, date)
+`
 
 async function start() {
 	console.log('Creating Tables...')
@@ -133,8 +146,11 @@ async function start() {
 	await connection.get().request().query(routes)
 	await connection.get().request().query(trips)
 	await connection.get().request().query(stop_times)
+	await connection.get().request().query(stop_times_index)
 	await connection.get().request().query(calendar)
+	await connection.get().request().query(calendar_index)
 	await connection.get().request().query(calendar_dates)
+	await connection.get().request().query(calendar_dates_index)
 	connection.get().close()
 
 	console.log('Done!')
