@@ -22,10 +22,7 @@ router.get('/station/:station', station.stopInfo)
 router.get('/station/:station/times', station.stopTimes)
 router.get('/station/:station/times/:fast', station.stopTimes)
 router.get('/station/:station/timetable/:route/:direction', station.timetable)
-router.get('/station/:station/clean', function(req, res) {
-  station.clean(req.params.station)
-  res.send({'status': 'cleaning'})
-})
+
 router.get('/lines', line.getLines)
 router.get('/line/:line', line.getLine)
 router.get('/stops/trip/:trip_id', line.getStopsFromTrip)
@@ -42,5 +39,6 @@ router.get('/:prefix/station/search', search.getStopsLatLng)
 router.get('/:prefix/station/:station', station.stopInfo)
 router.get('/:prefix/station/:station/times', station.stopTimes)
 router.get('/:prefix/station/:station/times/:fast', station.stopTimes)
+router.get('/:prefix/station/:station/timetable/:route/:direction', station.timetable)
 
 module.exports = router

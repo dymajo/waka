@@ -106,116 +106,47 @@ var station = {
         res.send(sending)
 
         line.cacheShapes(sending.trips)
+      }).catch(function(err) {
+        res.status(500).send(err)
       })
   },
   timetable: function(req, res) {
     if (parseInt(req.params.direction) > 2 || parseInt(req.params.direction) < 0) {
       return res.status(400).send({error: 'Direction is not valid.'})
     }
+    let sending = {}
     const currentVersion = cache.currentVersion()
-    let promises = []
-    promises.push(new Promise(function(resolve, reject) {
-      const azCurrentVersion = currentVersion.split('_').join('-').split('.').join('-')
-      const parser = csvparse({delimiter: ','})
+    const prefix = req.params.prefix || 'nz-akl'
 
-      const time = moment().tz('Pacific/Auckland')
-      let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute())).getTime()/1000
-      var y = time.year()
-      var m = time.month()
-      var d = time.date()
-      const today = moment(Date.UTC(y, m, d, 0, 1))
+    const time = moment().tz('Pacific/Auckland')
 
-      // i hope at doesn't do 24 hour services soon 
-      // but then again I do because we should be a world class city
-      if (time.hour() < 5) {
-        currentTime += 86400
-        today.subtract(1, 'day')
-      }
-      
-      let trips = []
-      let tripsHashTable = {}
+    const today = new Date(0)
+    today.setFullYear(time.year())
+    today.setUTCMonth(time.month())
+    today.setUTCDate(time.date())
 
-      // read through file, test exceptions
-      parser.on('readable', function(){
-        const record = parser.read()
-
-        // console.log(record)
-        if (record === null) {
-          return resolve(trips)
-        }
-
-        const service_id = record[2] + '-' + currentVersion
-        const frequency = record[3]
-        if (exceptionCache.existsToday(today.day(), frequency, service_id) && typeof(tripsHashTable[record[2]]) === 'undefined') {
-          trips.push(record)
-          tripsHashTable[record[2]] = true
-        }
-      })
-
-      blobSvc.getBlobProperties(azCurrentVersion, req.params.station + '.txt', function(error) {
-        if (error) {
-          if (error.statusCode === 404) {
-            res.status(404).send({
-              error: 'not found yo my yo'
-            })  
-          } else {
-            res.status(500).send(error)
+    connection.get().request()
+      .input('prefix', sql.VarChar(50), prefix)
+      .input('version', sql.VarChar(50), cache.currentVersion())
+      .input('stop_id', sql.VarChar(100), req.params.station)
+      .input('route_short_name', sql.VarChar(50), req.params.route)
+      .input('date', sql.Date, today)
+      .input('direction', sql.Int, req.params.direction)
+      .execute('GetTimetable')
+      .then((trips) => {
+        sending.trips = trips.recordset.map((record) => {
+          record.arrival_time_seconds = new Date(record.arrival_time).getTime()/1000
+          if (record.arrival_time_24) {
+            record.arrival_time_seconds += 86400
           }
-          return reject()
-        }
-        blobSvc.createReadStream(azCurrentVersion, req.params.station + '.txt').pipe(parser)
-      })
-    }))
-    promises.push(new Promise(function(resolve, reject) {
-      const azCurrentVersion = currentVersion.split('_')[1]
-
-      const query = new azure.TableQuery()
-        .select(['RowKey','route_id','shape_id','trip_headsign','route_long_name','frequency','start_date','end_date','agency_id'])
-        .where('PartitionKey eq ?', azCurrentVersion)
-        .and('route_short_name eq ?', req.params.route)
-
-      if (req.params.direction !== '2') {
-        query.and('direction_id eq ?', req.params.direction)
-      }
-
-      tableSvc.queryEntities('trips', query, null, function(err, result, response) {
-        const trips = {}
-        result.entries.forEach(function(entry) {
-          trips[entry.RowKey._] = {
-            route_id: entry.route_id._,
-            shape_id: entry.shape_id._,
-            trip_headsign: entry.trip_headsign._,
-            route_long_name: entry.route_long_name._,
-            frequency: entry.frequency._,
-            start_date: entry.start_date._,
-            end_date: entry.end_date._,
-            agency_id: entry.agency_id._,
-          }
+          delete record.arrival_time
+          delete record.arrival_time_24
+          return record
         })
-        resolve(trips)
+        res.send(sending.trips)
+      }).catch(function(err) {
+        res.status(500).send(err)
       })
-    }))
-    Promise.all(promises).then(function(data) {
-      const result = []
-      data[0].forEach(function(record) {
-        // console.log(record)
-        const trip_id = record[1] + '-' + currentVersion
-        const obj = {
-          arrival_time_seconds: parseInt(record[0]),
-          trip_id: trip_id,
-          service_id: record[2] + '-' + currentVersion,
-          frequency: record[3],
-          stop_sequence: parseInt(record[4])
-        }
-        if (trip_id in data[1]) {
-          Object.assign(obj, data[1][trip_id])
-          result.push(obj)
-        }
-      })
-      res.send(result)
-    }).catch(function(err) {
-      res.send(err)
-    })
   }
 }
 module.exports = station
