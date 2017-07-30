@@ -162,17 +162,8 @@ async function importAt() {
   const result = await sqlRequest.query(`select version from versions where prefix = 'nz-akl'`)
   const ignoreVersions = result.recordset.map(item => item.version)
 
-  const promises = []
-  at.files.forEach(file => {  
-    promises.push(
-      importer.upload(zipLocation + 'unarchived', file, at.prefix, version, ignoreVersions)
-    )
-  })
-
-  // Promise.all
-  let results = []
-  for (let promise of promises) {
-    results.push(await promise);
+  for (let file of at.files) {
+    await importer.upload(zipLocation + 'unarchived', file, at.prefix, version, ignoreVersions)
   }
 
   // It was a success
@@ -190,6 +181,18 @@ async function importAt() {
       END
     `)
   }
+
+  const versionKey = {
+    PartitionKey: {'_':'all'},
+    RowKey: {'_': 'cache-version'},
+    version: {'_': JSON.stringify(cache.versions)}
+  }
+  tableSvc.insertOrReplaceEntity('meta', versionKey, function (error, result, response) {
+    if (error) {
+      console.log(error)
+    }
+    console.log('saved new meta version')
+  })
 
   return 'Success!'
 }
