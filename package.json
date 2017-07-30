@@ -58,6 +58,7 @@
     "leaflet": "^1.0.3",
     "moment": "^2.14.1",
     "moment-timezone": "^0.5.5",
+    "mssql": "^4.0.4",
     "pug": "^2.0.0-beta11",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",

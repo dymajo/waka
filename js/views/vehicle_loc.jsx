@@ -66,10 +66,10 @@ class vehicle_location extends React.Component {
 
   getShapeData(newProps = this.props) {
     let showIcons = true
-    let url = `/a/stops/trip/${newProps.params.trip_id}`
+    let url = `/a/nz-akl/stops/trip/${newProps.params.trip_id}`
     if ('line_id' in newProps.params) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
-        url = `/a/stops/shape/${newProps.tripInfo.shape_id}`
+        url = `/a/nz-akl/stops/shape/${newProps.tripInfo.shape_id}`
       } else {
         return
       }
@@ -99,7 +99,7 @@ class vehicle_location extends React.Component {
   getWKB(newProps = this.props, force = false){
     if (typeof(this.state.line) === 'undefined' || force === true) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
-        fetch(`/a/shape/${newProps.tripInfo.shape_id}`).then((response) => {
+        fetch(`/a/nz-akl/shape/${newProps.tripInfo.shape_id}`).then((response) => {
           response.text().then(this.convert)
         })
       }

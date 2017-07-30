@@ -264,7 +264,7 @@ class TestLines extends React.Component {
   test() {
     let test = (index) => {
       let route = variants[index]
-      fetch('/a/line/'+route[0]).then((res) => {
+      fetch('/a/nz-akl/line/'+route[0]).then((res) => {
         res.json().then((data) => {
           // return at the end
           let results = this.state.results.slice()

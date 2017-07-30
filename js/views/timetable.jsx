@@ -106,7 +106,7 @@ export default class Timetable extends React.Component {
       return a.arrival_time_seconds - b.arrival_time_seconds
     }
     const r = this.props.params.route_name.split('-')
-    fetch(`/a/station/${this.props.params.station}/timetable/${r[0]}/${r[1]}`).then((request) => {
+    fetch(`/a/nz-akl/station/${this.props.params.station}/timetable/${r[0]}/${r[1]}`).then((request) => {
       request.json().then((data) => {
         data.sort(sortfn)
 
