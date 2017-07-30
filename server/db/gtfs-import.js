@@ -5,6 +5,7 @@ const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 const fs = require('fs')
 const path = require('path')
+const config = require('../../config.js')
 
 const schemas = {
   agency: ['prefix', 'version', 'agency_id', 'agency_name', 'agency_url', 'agency_timezone', 'agency_lang', 'agency_phone', 'agency_fare_url', 'agency_email'],
@@ -225,7 +226,7 @@ class gtfsImport {
         }
 
         // assembles our CSV into JSON
-        if (transactions < 100000) {
+        if (transactions < config.transactionLimit) {
           processRow()
           callback(null)
         } else {
