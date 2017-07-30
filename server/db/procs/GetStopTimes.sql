@@ -16,6 +16,8 @@ BEGIN
 	DECLARE @DepatureFuture INT = 180;
 	DECLARE @Day INT = DATEPART(dw, @date);
 
+	DECLARE @DateDifference INT = DATEDIFF(MINUTE, DATEADD(MINUTE, @DepatureDelay, @departure_time), DATEADD(MINUTE, @DepatureFuture, @departure_time));
+
 	SELECT
 		stop_times.trip_id,
 		stop_times.stop_sequence,
@@ -52,7 +54,8 @@ BEGIN
 		stop_times.prefix = @prefix and
 		stop_times.version = @version and
 		stop_times.stop_id = @stop_id and
-		departure_time > DATEADD(MINUTE, @DepatureDelay, @departure_time) and departure_time < DATEADD(MINUTE, @DepatureFuture, @departure_time) and
+		((@DateDifference > 0 and departure_time BETWEEN DATEADD(MINUTE, @DepatureDelay, @departure_time) and DATEADD(MINUTE, @DepatureFuture, @departure_time)) or 
+		(@DateDifference <= 0 and departure_time > DATEADD(MINUTE, @DepatureDelay, @departure_time) or departure_time < DATEADD(MINUTE, @DepatureFuture, @departure_time))) and
 		(exception_type is null or exception_type != 2) and
 		@date >= calendar.start_date and
 		@date <= calendar.end_date and
