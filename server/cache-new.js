@@ -13,7 +13,7 @@ async function doShit() {
 
   metlink.files.forEach((file) => {
     console.log(file)
-    importer.upload('../cache/metlink.zipunarchived', file, metlink.prefix, '1').then(() => {
+    importer.upload('../cache/metlink.zipunarchived', file, metlink.prefix, '20170430_20170726-163908').then(() => {
       console.log('done')
     }).catch((err) => {
       console.log(err)
@@ -21,7 +21,7 @@ async function doShit() {
   })
   at.files.forEach((file) => {
     console.log(file)
-    importer.upload('../cache/at.zipunarchived', file, at.prefix, '20170724124507_v56.18').then(() => {
+    importer.upload('../cache/at.zipunarchived', file, at.prefix, ['20170724124507_v56.18', '20170705140526_v55.10']).then(() => {
       console.log('done')
     }).catch((err) => {
       console.log(err)

@@ -162,11 +162,11 @@ class gtfsImport {
     })
   }
 
-  upload(location, config, prefix, version) {
+  upload(location, config, prefix, version, ignoreVersion) {
     let table = this.getTable(config.table)
     if (table === null) return
 
-    const logstr = config.table + ' ' + prefix + ' ' + version + ' :'
+    const logstr = config.table + ' ' + prefix + ' :'
 
     return new Promise((resolve, reject) => {
       const input = fs.createReadStream(path.resolve(location, config.name))
@@ -198,7 +198,24 @@ class gtfsImport {
           if (row && row.length > 1) {
             const record = this._mapRowToRecord(row, headers, schemas[config.table])
             record[0] = prefix
-            record[1] = version
+
+            // fancy mappings for multiple versions in one file
+            if (typeof version === 'object') {
+              record[1] = version[0] // default
+              const joined = record.join(',')
+              version.forEach(v => {
+                if (joined.match(v) !== null) {
+                  record[1] = v
+                }
+              })
+            } else {
+              record[1] = version
+            }
+
+            // if it's already uploaded, don't reupload the row
+            if (ignoreVersion.indexOf(record[1]) !== -1) {
+              return 
+            }
 
             table.rows.add(...record)
 

@@ -8,12 +8,6 @@ var line = require('./line')
 const sql = require('mssql')
 const connection = require('./db/connection.js')
 
-var tableSvc = azure.createTableService()
-var blobSvc = azure.createBlobService()
-tableSvc.createTableIfNotExists('stoptimes', function(error, result, response) {
-  if (error) throw error
-})
-
 var options = {
   url: 'https://api.at.govt.nz/v2/gtfs/stopTimes/stopId/',
   headers: {

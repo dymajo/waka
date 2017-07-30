@@ -57,14 +57,14 @@ var search = {
     // we're going to do a directory listing instead of actually querying the database.
     // mainly because I put the db together badly, and it could have old shit info.
     // wheras the newest version of the cache should always be correct. I think.
-    fs.readdir('cache/stops/' + cache.currentVersion(), function(err, files) {
-      if (err) {
-        return console.error(err)
-      }
-      files.forEach(function(file) {
-        sitemap.push('/s/' + file.replace('.txt', ''))
-      })
-    })
+    // fs.readdir('cache/stops/' + cache.currentVersion(), function(err, files) {
+    //   if (err) {
+    //     return console.error(err)
+    //   }
+    //   files.forEach(function(file) {
+    //     sitemap.push('/s/' + file.replace('.txt', ''))
+    //   })
+    // })
   }
 }
 cache.ready.push(search.buildSitemap)

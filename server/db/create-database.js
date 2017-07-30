@@ -150,6 +150,14 @@ const calendar_dates_index = `
 	ON calendar_dates (prefix, version, service_id, date)
 `
 
+const versions = `
+CREATE TABLE versions (
+	uid uniqueidentifier NOT NULL DEFAULT NEWID() PRIMARY KEY,
+	prefix nvarchar(50) NOT NULL,
+	version nvarchar(50) NOT NULL
+)
+`
+
 async function start() {
 	console.log('Creating Tables...')
 	await connection.get().request().query(agency)
@@ -164,6 +172,7 @@ async function start() {
 	await connection.get().request().query(calendar_index)
 	await connection.get().request().query(calendar_dates)
 	await connection.get().request().query(calendar_dates_index)
+	await connection.get().request().query(versions)
 
 	console.log('Creating Procedures...')
 	const GetStopTimes = fs.readFileSync(path.resolve(__dirname, './procs/GetStopTimes.sql')) // no promises :| 
