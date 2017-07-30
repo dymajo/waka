@@ -74,7 +74,7 @@ class Lines extends React.Component {
     if (this.props.children === null) {
       document.title = 'Lines - Transit'
     }
-    fetch('/a/lines').then((response)=>{
+    fetch('/a/nz-akl/lines').then((response)=>{
       response.json().then((data) => {
         let groupShow = {}
         data.groups.forEach(function(group) {

@@ -60,7 +60,7 @@ class VehicleLocationBootstrap extends React.Component {
     })
 
     if ('line_id' in this.props.params) {
-      fetch(`/a/line/${this.props.params.line_id}`).then((response) => {
+      fetch(`/a/nz-akl/line/${this.props.params.line_id}`).then((response) => {
         response.json().then((data) => {
           let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
           tripInfo.route_long_name = data[0].route_long_name

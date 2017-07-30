@@ -118,7 +118,7 @@ class Station extends React.Component {
         if (typeof(StationStore.stationCache[newProps.routeParams.station]) !== 'undefined') {
           return cb(StationStore.stationCache[newProps.routeParams.station])
         }
-        allRequests[0] = fetch(`/a/station/${newProps.routeParams.station}`).then((response) => {
+        allRequests[0] = fetch(`/a/nz-akl/station/${newProps.routeParams.station}`).then((response) => {
           response.json().then(cb)
         })
       }
@@ -146,49 +146,15 @@ class Station extends React.Component {
       }
     }
 
-    allRequests[1] = fetch(`/a/station/${newProps.routeParams.station}/times/fast`).then((response) => {
+    allRequests[1] = fetch(`/a/nz-akl/station/${newProps.routeParams.station}/times`).then((response) => {
       response.json().then((data) => {
         this.tripsCb(data.trips)
       })
     })
   }
   getMultiData(newProps, refreshMode = false) {
-    var stations = newProps.routeParams.station.split('+')
-    // too many stations
-    if (stations.length > 7) {
-      return this.setState({
-        loading: false
-      })
-    }
-
-
-    var name = StationStore.getMulti(newProps.routeParams.station)
-    this.setStatePartial({
-      name: name,
-      description: `Busway Stops ${stations.join(', ')}`,
-      stop: stations[0]
-    })
-
-    var tripData = []
-    var promises = []
-    stations.forEach(function(station) {
-      promises.push(new Promise(function(resolve, reject) {
-        fetch(`/a/station/${station}/times`).then((response) => {
-          response.json().then((data) => {
-            data.trips.forEach(function(trip) {
-              trip.station = station
-              tripData.push(trip)
-            })
-            resolve()
-          })
-        })
-      }))
-    })
-
-    Promise.all(promises).then(() => {
-      this.tripsCb(tripData)
-    })
-
+    // TODO
+   return
   }
   tripsCb(tripData) {
     if (typeof(tripData) === 'undefined' || typeof(tripData.length) === 'undefined' || tripData.length === 0) {

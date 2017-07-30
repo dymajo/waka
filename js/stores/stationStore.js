@@ -204,7 +204,7 @@ export class stationStore extends Events {
     if (stopNumber.split('+').length > 1) {
       stopNumberReq = stopNumber.split('+')[0]
     }
-    fetch(`/a/station/${stopNumberReq}`).then((response) => {
+    fetch(`/a/nz-akl/station/${stopNumberReq}`).then((response) => {
       response.json().then((data) => {
         var description = `Stop ${stopNumber} / ${data.stop_name}`
         if (stopNumber.split('+').length > 1) {
