@@ -205,7 +205,7 @@ class vehicle_location extends React.Component {
         return
       }
       let busPositions = {}
-      fetch('/a/vehicle_location', {
+      fetch('/a/nz-akl/vehicle_location', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

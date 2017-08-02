@@ -10,13 +10,6 @@ import zenscroll from 'zenscroll'
 // hack
 let liveRefresh = undefined
 let allRequests = [undefined, undefined, undefined]
-let tripsSort = function(a,b) {
-  var rv = Math.floor(a.arrival_time_seconds/60) - Math.floor(b.arrival_time_seconds/60)
-  if (rv === 0) {
-    rv = a.route_short_name.localeCompare(b.route_short_name)
-  }
-  return rv
-}
 
 class Station extends React.Component {
   constructor(props) {
@@ -49,6 +42,8 @@ class Station extends React.Component {
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.reduceTrips = this.reduceTrips.bind(this)
+    this.getRealtimeData = this.getRealtimeData.bind(this)
+    this.realtimeCb = this.realtimeCb.bind(this)
     this.expandChange = this.expandChange.bind(this)
     this.goingBack = this.goingBack.bind(this)
 
@@ -148,7 +143,7 @@ class Station extends React.Component {
 
     allRequests[1] = fetch(`/a/nz-akl/station/${newProps.routeParams.station}/times`).then((response) => {
       response.json().then((data) => {
-        this.tripsCb(data.trips)
+        this.tripsCb(data.trips, data.realtime)
       })
     })
   }
@@ -156,7 +151,7 @@ class Station extends React.Component {
     // TODO
    return
   }
-  tripsCb(tripData) {
+  tripsCb(tripData, rtData) {
     if (typeof(tripData) === 'undefined' || typeof(tripData.length) === 'undefined' || tripData.length === 0) {
       // scroll when loaded
       if (this.state.trips.length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71) {
@@ -169,7 +164,6 @@ class Station extends React.Component {
         loading: false
       })
     }
-    tripData.sort(tripsSort)
 
     if (this.state.trips.length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71 && tripData[0].route_type !== '3') {
       requestAnimationFrame(() => {
@@ -177,12 +171,19 @@ class Station extends React.Component {
       })
     }
 
+    if (Object.keys(rtData).length > 0) {
+      return this.realtimeCb(tripData, rtData)
+    }
+
     this.setState({
       trips: tripData,
       loading: false
     })
-    this.reduceTrips(tripData)
 
+    this.reduceTrips(tripData)
+    this.getRealtimeData(tripData)
+  }
+  getRealtimeData(tripData) {
     // realtime request for buses and trains
     // not ferries though
     if (tripData[0].route_type === '4') {
@@ -197,7 +198,7 @@ class Station extends React.Component {
       }
       arrival.setHours(0)
       arrival.setMinutes(0)
-      arrival.setSeconds(parseInt(trip.arrival_time_seconds))
+      arrival.setSeconds(parseInt(trip.departure_time_seconds))
 
       // only gets realtime info for things +30mins away
       if (arrival.getTime() < (new Date().getTime() + 1800000)) {
@@ -217,7 +218,7 @@ class Station extends React.Component {
     }
 
     // now we do a request to the realtime API
-    allRequests[2] = fetch('/a/realtime', {
+    allRequests[2] = fetch('/a/nz-akl/realtime', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -225,25 +226,30 @@ class Station extends React.Component {
       body: requestData
     }).then((response) => {
       response.json().then((rtData) => {
-        if (tripData[0].route_type === '2') {
-          for (var key in rtData) {
-            rtData[key] = {
-              v_id: rtData[key].v_id,
-              distance: this.getDistanceFromLatLonInKm(rtData[key].latitude, rtData[key].longitude, this.state.stop_lat, this.state.stop_lon)
-            }
-          }
-        } 
-        if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71 && tripData[0].route_type === '3') {
-          requestAnimationFrame(() => {
-            this.scroller.toY(250)
-          })
-        }
-        this.setState({
-          realtime: rtData
-        })
-        this.reduceTrips(tripData, rtData)
+        this.realtimeCb(tripData, rtData)
       })
     })
+  }
+  realtimeCb(tripData, rtData) {
+    if (tripData[0].route_type === '2') {
+      for (var key in rtData) {
+        rtData[key] = {
+          v_id: rtData[key].v_id,
+          distance: this.getDistanceFromLatLonInKm(rtData[key].latitude, rtData[key].longitude, this.state.stop_lat, this.state.stop_lon)
+        }
+      }
+    } 
+    if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && this.refs.scroll.scrollTop === 71 && tripData[0].route_type === '3') {
+      requestAnimationFrame(() => {
+        this.scroller.toY(250)
+      })
+    }
+    this.setState({
+      trips: tripData,
+      loading: false,
+      realtime: rtData
+    })
+    this.reduceTrips(tripData, rtData)
   }
   reduceTrips(data, rtData = {}) {
     const reducer = new Map()
@@ -276,7 +282,7 @@ class Station extends React.Component {
         const arrival = new Date()
         arrival.setHours(0)
         arrival.setMinutes(0)
-        arrival.setSeconds(parseInt(trip.arrival_time_seconds) % 86400)
+        arrival.setSeconds(parseInt(trip.departure_time_seconds) % 86400)
         // Let buses be 2 mins late
         if (Math.round((arrival - new Date()) / 60000) < -2) {
           return
@@ -415,26 +421,22 @@ class Station extends React.Component {
   }
   componentDidMount() {
     requestAnimationFrame(() => {
-      if (this.props.routeParams.station.split('+').length === 1) {
-        this.getData(this.props)
-      } else {
-        this.getMultiData(this.props)
-      }
+      this.getData(this.props)
     })
     // scroll top header into view
     if (this.state.fancyMode) {
       this.refs.scroll.scrollTop = 71
     }
 
-    // now we call our function again to get the new times
-    // every 30 seconds
+    // times: every 3 minutes
+    // realtime: every 20 seconds
     liveRefresh = setInterval(() => {
-      if (this.props.routeParams.station.split('+').length === 1) {
-        this.getData(this.props, true)
-      } else {
-        this.getMultiData(this.props, true)
-      }
-    }, 30000)
+      this.getData(this.props)
+    }, 180000)
+    liveRefresh = setInterval(() => {
+      this.getRealtimeData(this.state.trips)
+    }, 20000)
+
     UiStore.bind('goingBack', this.goingBack)
     UiStore.bind('expandChange', this.expandChange)
 

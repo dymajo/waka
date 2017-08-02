@@ -79,7 +79,7 @@ class TripItem extends React.Component {
       const arrival = new Date()
       arrival.setHours(0)
       arrival.setMinutes(0)
-      arrival.setSeconds(parseInt(trip.arrival_time_seconds) % 86400)
+      arrival.setSeconds(parseInt(trip.departure_time_seconds) % 86400)
 
       // non realtime bit
       let date = Math.round((arrival - new Date()) / 60000)

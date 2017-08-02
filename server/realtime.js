@@ -87,45 +87,48 @@ var realtime = {
       })
       return
     }
+    const prefix = req.params.prefix || 'nz-akl'
+    if (prefix !== 'nz-akl') {
+      res.send({
+        message: 'realtime not available '
+      })
+      return
+    }
     // falls back to API if we're out of date
     if (req.body.train || realtime.currentDataFails > 3) {
-      realtime.getTrips(req, res)
+      realtime.getTripsAuckland(req.body.trips, req.body.train)
     } else {
-      realtime.getTripsCached(req, res)
+      const rt = realtime.getTripsCachedAuckland(req.body.trips)
+      res.send(rt)
     }
   },
-	getTrips: function(req, res) {
+	getTripsAuckland: function(trips, train = false) {
     var realtimeInfo = {}
-    req.body.trips.forEach(function(trip) {
+    trips.forEach(function(trip) {
       realtimeInfo[trip] = {}
     })
-    //console.log(realtimeInfo)
+
+    return new Promise((resolve, reject) => {
       var newOpts
-      if (req.body.train) {
+      if (train) {
         newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
       } else {
         newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
       }
     
       // i feel like we should sanatize this or something...
-      newOpts.url += '?tripid=' + req.body.trips.join(',')
+      newOpts.url += '?tripid=' + trips.join(',')
       request(newOpts, function(err, response, body) {
         if (err) {
-          res.send({
-            error: err
-          })
-          return
+          return reject(err)
         }
         try {
           body = JSON.parse(body)  
         } catch(err) {
-          console.log('rt error', err)
-          return res.send({
-            error: err
-          })
+          return reject(err)
         }
         if (body && body.response && body.response.entity) {
-          if (req.body.train) {
+          if (train) {
             body.response.entity.forEach(function(trip) {
               realtimeInfo[trip.vehicle.trip.trip_id] = {
                 v_id: trip.vehicle.vehicle.id,
@@ -147,14 +150,14 @@ var realtime = {
             })
           }
         }
-        res.send(realtimeInfo) // ???
+        resolve(realtimeInfo) // ???
       })
+    })
   },
-  getTripsCached: function(req, res) {
+  getTripsCachedAuckland: function(trips) {
     // this is essentially the same function as above, but just pulls from cache
-    var realtimeInfo = {}
-    req.body.trips.forEach(function(trip) {
-      realtimeInfo[trip] = {}
+    const realtimeInfo = {}
+    trips.forEach(function(trip) {
       const data = realtime.currentData[trip]
       if (typeof(data) !== 'undefined') {
         const timeUpdate = data.stop_time_update.departure || data.stop_time_update.arrival || {}
@@ -168,7 +171,7 @@ var realtime = {
       }
     })
 
-    res.send(realtimeInfo)
+    return realtimeInfo
   },
   getVehicleLocation: function(req, res) {
     var vehicleInfo = {}

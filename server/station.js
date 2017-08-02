@@ -7,6 +7,7 @@ var cache = require('./cache')
 var line = require('./line')
 const sql = require('mssql')
 const connection = require('./db/connection.js')
+const realtime = require('./realtime.js')
 
 var options = {
   url: 'https://api.at.govt.nz/v2/gtfs/stopTimes/stopId/',
@@ -80,6 +81,7 @@ var station = {
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date())
 
+    const realtimeTrips = []
     connection.get().request()
       .input('prefix', sql.VarChar(50), prefix)
       .input('version', sql.VarChar(50), cache.currentVersion())
@@ -93,11 +95,23 @@ var station = {
           if (record.arrival_time_24) {
             record.arrival_time_seconds += 86400
           }
+          record.departure_time_seconds = record.arrival_time_seconds // compat
+
+          // 30mins of realtime 
+          if (record.departure_time_seconds < (sending.currentTime + 1800) || record.arrival_time_24) {
+            realtimeTrips.push(record.trip_id)
+          }
+
           delete record.arrival_time
           delete record.arrival_time_24
           return record
         })
-        res.send(sending)
+        if (prefix === 'nz-akl') {
+          sending.realtime = realtime.getTripsCachedAuckland(realtimeTrips) 
+          res.send(sending)
+        } else {
+          res.send(sending)
+        }
 
         line.cacheShapes(sending.trips)
       }).catch(function(err) {
@@ -133,6 +147,8 @@ var station = {
           if (record.arrival_time_24) {
             record.arrival_time_seconds += 86400
           }
+          record.departure_time_seconds = record.arrival_time_seconds
+
           delete record.arrival_time
           delete record.arrival_time_24
           return record
