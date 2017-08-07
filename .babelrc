@@ -1,4 +1,11 @@
 {
-  "presets": ["latest"],
-  "plugins": ["transform-react-jsx"]
+  "presets": [
+    [
+      "env",
+      {
+        "modules": false
+      }
+    ],
+    "react"
+  ]
 }

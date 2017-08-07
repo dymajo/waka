@@ -2,7 +2,6 @@ var http = require('http')
 var express = require('express')
 var bodyParser = require('body-parser')
 var staticrender = require('./server/staticrender')
-// var compression = require('compression')
 
 var app = express()
 app.disable('x-powered-by')

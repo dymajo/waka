@@ -42,7 +42,7 @@ const ferryIcon = Icon({
   className: 'vehIcon'
 })
 
-class vehicle_location extends React.Component {
+export default class vehicle_location extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -320,11 +320,3 @@ class vehicle_location extends React.Component {
     )
   }
 }
-vehicle_location.propTypes = {
-  params: React.PropTypes.object.isRequired,
-  tripInfo: React.PropTypes.object,
-  stopInfo: React.PropTypes.array,
-  trips: React.PropTypes.array,
-  realtime: React.PropTypes.object
-}
-export default vehicle_location

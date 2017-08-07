@@ -1,6 +1,6 @@
 'use strict'
 const webpack = require('webpack')
-const fs = require('fs')
+const path = require('path')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 const ConsoleNotifierPlugin = function () {}
@@ -33,7 +33,11 @@ let config = {
       { 
         test: /\.(js|jsx)?$/,
         use: 'babel-loader',
-        include: [fs.realpathSync(__dirname + '/js')]
+        include: [
+          path.resolve(__dirname + '/js'),
+          path.resolve(__dirname, 'node_modules/autotrack'), // compat with autotrack, as it's published in es6
+          path.resolve(__dirname, 'node_modules/dom-utils'), // autotrack
+        ]
       }
     ]
   },
@@ -50,7 +54,8 @@ let config = {
       name: 'app',
       async: true,
       minChunks: 2
-    })
+    }),
+    new webpack.optimize.ModuleConcatenationPlugin()
   ]
 }
 if (process.env.NODE_ENV === 'production') {

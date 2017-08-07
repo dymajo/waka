@@ -52,8 +52,8 @@ class VehicleLocationBootstrap extends React.Component {
     }
   }
   componentDidMount() {
-    require.ensure(['react-leaflet'], () => {
-      this.VehicleLocation = require('./vehicle_loc.jsx').default
+    System.import('./vehicle_loc.jsx').then(module => {
+      this.VehicleLocation = module.default
       this.setState({
         showContent: true
       })
@@ -255,9 +255,4 @@ class VehicleLocationBootstrap extends React.Component {
     )
   }
 }
-
-VehicleLocationBootstrap.propTypes = {
-  params: React.PropTypes.object
-}
-
 export default VehicleLocationBootstrap

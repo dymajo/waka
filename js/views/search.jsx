@@ -1,18 +1,19 @@
-import * as React from 'react'
+import React from 'react'
 import { Link, browserHistory } from 'react-router'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
+import leaflet from 'leaflet'
+import * as reactLeaflet from 'react-leaflet'
 
-let leaflet = require('react-leaflet')
-let Map = leaflet.Map
-let Marker = leaflet.Marker
-let Popup = leaflet.Popup
-let TileLayer = leaflet.TileLayer
-let ZoomControl = leaflet.ZoomControl
-let Icon = require('leaflet').icon
-let Circle = leaflet.Circle
-let CircleMarker = leaflet.CircleMarker
+const Icon = leaflet.icon
+const LeafletMap = reactLeaflet.Map
+const Marker = reactLeaflet.Marker
+const Popup = reactLeaflet.Popup
+const TileLayer = reactLeaflet.TileLayer
+const ZoomControl = reactLeaflet.ZoomControl
+const Circle = reactLeaflet.Circle
+const CircleMarker = reactLeaflet.CircleMarker
 
 const busIcon = Icon({
   iconUrl: '/icons/bus-icon.png',
@@ -317,7 +318,7 @@ class Search extends React.Component {
         <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
         </button>
-        <Map
+        <LeafletMap
           ref="map"
           onMoveend={this.moveEnd}
           center={this.state.position} 
@@ -359,7 +360,7 @@ class Search extends React.Component {
           <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
           <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
           {stationMarker}
-        </Map>
+        </LeafletMap>
       </div>
     )
   }
