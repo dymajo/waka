@@ -7,7 +7,6 @@ import { UiStore } from './stores/uiStore.js'
 import Index from './views/index.jsx'
 import Timetable from './views/timetable.jsx'
 
-import autotrack from 'autotrack' // google analytics
 import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
 
