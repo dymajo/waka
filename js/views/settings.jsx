@@ -17,59 +17,42 @@ const apis = [
   ['https://www.openstreetmap.org/', 'OpenStreetMap', 'Map Data'],
 ]
 
+const style = UiStore.getAnimation()
+
 class Settings extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       credits: false,
-      runAnimation: false,
-      goingBack: false
+      animation: 'unmounted'
     }
-
-    this.triggerCredits = this.triggerCredits.bind(this)
-    this.triggerTouchStart = this.triggerTouchStart.bind(this)
-    this.triggerTouchMove = this.triggerTouchMove.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
-    this.goingBack = this.goingBack.bind(this)
-  }
-  componentWillMount() {
-    this.setState({
-      runAnimation: true
-    })
-    setTimeout(() => {
-      this.setState({
-        runAnimation: false
-      })
-    }, UiStore.animationTiming)
   }
   componentDidMount() {
     document.title = 'Settings - Transit'
     if (iOS.detect() && window.navigator.standalone === true) {
-      this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
-      this.refs.container.addEventListener('touchmove', this.triggerTouchMove)
-      this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
-      this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
+      this.container.addEventListener('touchstart', this.triggerTouchStart)
+      this.container.addEventListener('touchmove', this.triggerTouchMove)
+      this.container.addEventListener('touchend', this.triggerTouchEnd)
+      this.container.addEventListener('touchcancel', this.triggerTouchEnd)
     }
-    UiStore.bind('goingBack', this.goingBack)
+    UiStore.bind('animation', this.animation)
   }
   componentWillUnmount() {
     if (iOS.detect() && window.navigator.standalone === true) {
-      this.refs.container.removeEventListener('touchstart', this.triggerTouchStart)
-      this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
-      this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
-      this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+      this.container.removeEventListener('touchstart', this.triggerTouchStart)
+      this.container.removeEventListener('touchmove', this.triggerTouchMove)
+      this.container.removeEventListener('touchend', this.triggerTouchEnd)
+      this.container.removeEventListener('touchcancel', this.triggerTouchEnd)
     }
-    UiStore.unbind('goingBack', this.goingBack)
+    UiStore.unbind('animation', this.animation)
   }
-  goingBack() {
-    if (UiStore.state.goingBack) {
-      this.setState({
-        goingBack: true
-      })
-    }
+  animation = (data) => {
+    this.setState({
+      animation: data[0]
+    })
   }
 
-  triggerTouchStart(event) {
+  triggerTouchStart = (event) => {
     // This is a hack to detect flicks  
     this.longTouch = false
     setTimeout(() => {
@@ -77,16 +60,15 @@ class Settings extends React.Component {
     }, 250)
 
     this.touchStartPos = event.touches[0].pageX
-    // this.refs.container.setAttribute('')
   }
-  triggerTouchMove(event) {
+  triggerTouchMove = (event) => {
     if (this.touchStartPos <= 7) {
       event.preventDefault()
       this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
-      this.refs.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
+      this.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
     }
   }
-  triggerTouchEnd(event) {
+  triggerTouchEnd = () => {
     if (this.touchStartPos <= 7) {
       this.touchStartPos = 100
       let swipedAway = false
@@ -98,19 +80,19 @@ class Settings extends React.Component {
       }
       if (swipedAway) {
         // navigate backwards with no animate flag
-        UiStore.navigateSavedStations('/', true)
-        this.refs.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
+        UiStore.goBack(this.props.history, '/', true)
+        this.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
       } else {
-        this.refs.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
+        this.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
       }
     }
   }
 
-  triggerBack() {
-    UiStore.navigateSavedStations('/')
+  triggerBack = () => {
+    UiStore.goBack(this.props.history, '/')
   }
 
-  triggerCredits() {
+  triggerCredits = () => {
     this.setState({
       credits: true
     })
@@ -123,6 +105,7 @@ class Settings extends React.Component {
   }
 
   render() {
+
     var button
     var className = 'creditscontainer'
     if (this.state.credits) {
@@ -131,15 +114,8 @@ class Settings extends React.Component {
       button = <button onTouchTap={this.triggerCredits}><img src="icons/credits.svg" />View Credits</button>
     }
 
-    let styles = {}
-    if (this.state.runAnimation && UiStore.getAnimationIn()) {
-      styles.animation = UiStore.getAnimationIn()
-    } else if (this.state.goingBack) {
-      Object.assign(styles, UiStore.getAnimationOut())
-    }
-
     return(
-      <div className="settingsContainer" ref="container" style={styles}>
+      <div className="settingsContainer" ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
@@ -154,9 +130,9 @@ class Settings extends React.Component {
                 <span className="app">Transit </span>
                 <span className="version">v{localStorage.getItem('AppVersion')}</span>
               </div>
-              <div className="copyright"><a className="subtle" rel="noopener" href="https://dymajo.com" target="_blank">&copy; 2016 - 2017 DYMAJO LTD</a></div>
-              <div className="sourcecode">This app is licensed under the <a className="subtle" rel="noopener" href="https://github.com/consindo/dymajo-transit/blob/master/LICENSE" target="_blank">MIT License</a>.<br />
-              Contributions are welcome!<br /><a href="https://github.com/consindo/dymajo-transit" rel="noopener" target="_blank">github.com/consindo/dymajo-transit</a></div>
+              <div className="copyright"><a className="subtle" rel="noopener noreferrer" href="https://dymajo.com" target="_blank">&copy; 2016 - 2017 DYMAJO LTD</a></div>
+              <div className="sourcecode">This app is licensed under the <a className="subtle" rel="noopener noreferrer" href="https://github.com/consindo/dymajo-transit/blob/master/LICENSE" target="_blank">MIT License</a>.<br />
+              Contributions are welcome!<br /><a href="https://github.com/consindo/dymajo-transit" rel="noopener noreferrer" target="_blank">github.com/consindo/dymajo-transit</a></div>
             </div>
             <div className="container">
               <h1>Settings</h1>
@@ -174,7 +150,7 @@ class Settings extends React.Component {
                   <img src="/icons/feedback.svg" />
                   Send Feedback
                 </a>
-                <a className="button" rel="noopener" href="https://twitter.com/dymajoltd" target="_blank">
+                <a className="button" rel="noopener noreferrer" href="https://twitter.com/dymajoltd" target="_blank">
                   <img src="/icons/twitter.svg" style={{margin: '-6px 3px -6px -6px', width: '36px'}} />
                   Twitter
                 </a>
@@ -187,7 +163,7 @@ class Settings extends React.Component {
                   {this.renderLinks(apis)}
                   <div className="love">Made with 💙 in Auckland NZ</div>
                 </div>
-                <a className="button" href="https://www.patreon.com/dymajo" rel="noopener" target="_blank"><img src="/icons/patron.svg" />Become a Patron</a>
+                <a className="button" href="https://www.patreon.com/dymajo" rel="noopener noreferrer" target="_blank"><img src="/icons/patron.svg" />Become a Patron</a>
               </div>
             </div>
           </div>

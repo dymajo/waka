@@ -1,9 +1,11 @@
-import * as React from 'react'
-import { Link, browserHistory } from 'react-router'
+import React from 'react'
+import { Switch, withRouter, Route } from 'react-router-dom'
 
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore'
 import { UiStore } from '../stores/uiStore.js'
+
+const style = UiStore.getAnimation()
 
 class Lines extends React.Component {
   constructor(props){
@@ -14,16 +16,13 @@ class Lines extends React.Component {
       groups: null,
       groupShow: {},
       friendlyNames: {},
-      runAnimation: false
+      animation: 'unmounted'
     }
-    this.triggerChange = this.triggerChange.bind(this)
-    this.triggerGroup = this.triggerGroup.bind(this)
 
     this.triggerTouchStart = this.triggerTouchStart.bind(this)
     this.triggerTouchMove = this.triggerTouchMove.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
-    this.goingBack = this.goingBack.bind(this)
   }
   
   viewLine(line){
@@ -31,16 +30,16 @@ class Lines extends React.Component {
       browserHistory.push(`/l/${line}`)
     }
   }
-  triggerBack() {
-    UiStore.navigateSavedStations('/')
+  triggerBack = () => {
+    UiStore.goBack(this.props.history, '/')
   }
 
-  triggerChange(e) {
+  triggerChange = e => {
     this.setState({
       service: e.currentTarget.value
     })
   }
-  triggerGroup(group) {
+  triggerGroup = group => {
     return (e) => {
       e.preventDefault()
       let groupShow = JSON.parse(JSON.stringify(this.state.groupShow))
@@ -53,16 +52,6 @@ class Lines extends React.Component {
         groupShow: groupShow
       })
     }
-  }
-  componentWillMount() {
-    this.setState({
-      runAnimation: true
-    })
-    setTimeout(() => {
-      this.setState({
-        runAnimation: false
-      })
-    }, UiStore.animationTiming)
   }
   componentDidUpdate() {
     if (this.props.children === null) {
@@ -96,7 +85,7 @@ class Lines extends React.Component {
       this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
     }
-    UiStore.bind('goingBack', this.goingBack)
+    UiStore.bind('animation', this.animation)
   }
   componentWillUnmount() {
     if (iOS.detect() && window.navigator.standalone === true) {
@@ -105,14 +94,7 @@ class Lines extends React.Component {
       this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
       this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
     }
-    UiStore.unbind('goingBack', this.goingBack)
-  }
-  goingBack() {
-    if (UiStore.state.goingBack && this.props.children === null) {
-      this.setState({
-        goingBack: true
-      })
-    }
+    UiStore.unbind('animation', this.animation)
   }
 
   triggerTouchStart(event) {
@@ -147,7 +129,7 @@ class Lines extends React.Component {
       }
       if (swipedAway) {
         // navigate backwards with no animate flag
-        UiStore.navigateSavedStations('/', true)
+        UiStore.goBack(this.props.history, '/', true)
         this.refs.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
       } else {
         this.refs.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
@@ -157,9 +139,26 @@ class Lines extends React.Component {
   disable(e) {
     e.preventDefault()
   }
-  hijack(link) {
-    return function() {
-      browserHistory.push(link)
+  hijack = link => {
+    return () => {
+      this.props.history.push(link)
+    }
+  }
+
+  animation = (data) => {
+    // ensures correct element
+    if (data[1] !== this.refs.container) {
+      return
+    // doesn't run if we're decending from down the tree up
+    } else if (data[0] === 'exiting' && window.location.pathname.split('/').length > 2) {
+      return
+    // doesn't run if we're decending further down the tree
+    } else if (data[0] === 'entering' && UiStore.state.exiting.split('/').length > 2) {
+      return
+    } else {
+      this.setState({
+        animation: data[0]
+      })
     }
   }
 
@@ -231,28 +230,18 @@ class Lines extends React.Component {
       })
     }
 
-    let styles = {}
-    if (this.state.runAnimation && UiStore.getAnimationIn() && this.props.children === null) {
-      styles.animation = UiStore.getAnimationIn()
-    } else if (this.state.goingBack) {
-      Object.assign(styles, UiStore.getAnimationOut())
-    }
-
     return(
-      <div>
-        <div className={className} ref="container" style={styles}>
-          <header className='material-header'>
-            <div>
-              <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
-              <h1>All Lines</h1>
-            </div>
-          </header>
-          {ret}
-          {children}
-        </div>
+      <div className={className} ref="container" style={style[this.state.animation]}>
+        <header className='material-header'>
+          <div>
+            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+            <h1>All Lines</h1>
+          </div>
+        </header>
+        {ret}
       </div>
     )
   }
 }
-
-export default Lines
+const LinesWithRouter = withRouter(Lines)
+export default LinesWithRouter

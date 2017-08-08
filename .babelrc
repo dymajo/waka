@@ -7,5 +7,6 @@
       }
     ],
     "react"
-  ]
+  ],
+  "plugins": ["transform-class-properties"]
 }

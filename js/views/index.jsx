@@ -1,8 +1,18 @@
 import React from 'react'
-import { browserHistory } from 'react-router'
+import { withRouter, Switch, Route } from 'react-router-dom'
+import { TransitionGroup, Transition } from 'react-transition-group'
 import { iOS } from '../models/ios.js'
 import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
+
+// routes
+import Station from './station.jsx'
+import Lines from './lines.jsx'
+import Settings from './settings.jsx'
+import TestLines from './test_lines.jsx'
+import Timetable from './timetable.jsx'
+import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
+import NoMatch from './nomatch.jsx'
 
 import SavedStations from './savedstations.jsx'
 import Pin from './pin.jsx'
@@ -19,11 +29,12 @@ class Index extends React.Component {
       animate: false,
       showPin: false,
       hideUi: false,
-      invisibleUi: false
+      invisibleUi: false,
+      in: false
     }
     this.Search = null // Map Component, dynamic load
 
-    document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px');
+    document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
 
     this.touchstartpos = null // actual start pos
     this.fakestartpos = null  // used for non janky animations
@@ -39,7 +50,7 @@ class Index extends React.Component {
     this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
 
     window.onresize = function() {
-      document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px');
+      document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
     }
   }
   componentDidMount() {
@@ -133,8 +144,8 @@ class Index extends React.Component {
       showPin: !this.state.showPin
     })
   }
-  toggleLines() {
-    browserHistory.push('/l')
+  toggleLines = () => {
+    this.props.history.push('/l')
   }
   triggerTouchStart(e) {
     // only start the pull down if they're at the top of the card
@@ -294,14 +305,25 @@ class Index extends React.Component {
       this.refs.touchmap.style.transform = ''
     })
   }
-  triggerSettings() {
+  triggerSettings = () => {
     if (window.location.pathname === '/settings') {
-      browserHistory.push('/')
+      this.props.history.push('/')
     } else {
-      browserHistory.push('/settings')
+      this.props.history.push('/settings')
+    }
+  }
+  triggerStateUpdate = (key) => {
+    return (node) => {
+      if (node) {
+        if (key === 'entered') {
+          UiStore.state.exiting = window.location.pathname
+        }
+        UiStore.trigger('animation', [key, node])
+      }
     }
   }
   render() {
+
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
     var className = 'panes'
     if (iOS.detect()) {
@@ -336,12 +358,13 @@ class Index extends React.Component {
     if (this.state.invisibleUi) {
       rootClassName += ' invisibleUi'
     }
+
     return (
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
           <header className="material-header branding-header">
             <div>
-            <span className="more" onTouchTap={this.triggerSettings}><img src="/icons/settings.svg" /></span>
+              <span className="more" onTouchTap={this.triggerSettings}><img src="/icons/settings.svg" /></span>
               <h1 className="full-height">
                 <img className="logo" src='/icons/icon.svg' width='18' />
                 <strong>DYMAJO Transit</strong></h1>
@@ -381,11 +404,36 @@ class Index extends React.Component {
           </div>
         </div>
         <div className={contentClassname}>
-        {this.props.children}
+          <TransitionGroup>
+            <Transition
+              timeout={300}
+              key={this.props.location.key}
+              onEntering={this.triggerStateUpdate('entering')}
+              onEntered={this.triggerStateUpdate('entered')}
+              onExiting={this.triggerStateUpdate('exiting')}
+              onExited={this.triggerStateUpdate('exited')}
+            >
+              <Switch location={this.props.location} key={this.props.location.key} >
+                <Route path="/" exact />
+
+                <Route path="/s/:station/realtime/:trip_id" component={VehicleLocationBootstrap} />
+                <Route path="/s/:station/timetable/:route_name" component={Timetable} />
+                <Route path="/s/:station" component={Station} />
+
+                <Route path="/l/:line_id" component={VehicleLocationBootstrap} />
+                <Route path="/l" component={Lines} />
+
+                <Route path="/settings" component={Settings}/>
+                <Route path="/testlines" component={TestLines} />
+                <Route component={NoMatch} />
+              </Switch>
+            </Transition>
+          </TransitionGroup>
         </div>
         {modal}
       </div>
     )
   }
 }
-export default Index
+const IndexWithHistory = withRouter(Index)
+export default IndexWithHistory

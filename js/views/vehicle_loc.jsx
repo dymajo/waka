@@ -1,5 +1,5 @@
 import React from 'react'
-import { browserHistory } from 'react-router'
+import { withRouter } from 'react-router-dom'
 import { StationStore } from '../stores/stationStore.js'
 
 let leaflet = require('react-leaflet')
@@ -42,7 +42,7 @@ const ferryIcon = Icon({
   className: 'vehIcon'
 })
 
-export default class vehicle_location extends React.Component {
+class vehicle_location extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -232,14 +232,14 @@ export default class vehicle_location extends React.Component {
       })
     }
   }
-  viewServices(stop) {
-    return function() {
-      browserHistory.push(`/s/${stop}`)
+  viewServices = (stop) => {
+    return () => {
+      this.props.history.push(`/s/${stop}`)
     }
   }
-  viewTimetable(stop) {
+  viewTimetable = (stop) => {
     return () => {
-      browserHistory.push(`/s/${stop}/timetable/${this.props.params.line_id}-2`)
+      this.props.history.push(`/s/${stop}/timetable/${this.props.params.line_id}-2`)
     }
   }
 
@@ -295,19 +295,19 @@ export default class vehicle_location extends React.Component {
               }
               return ([(
                 <CircleMarker className='CircleMarker' key={stop[2]} center={[stop[0], stop[1]]} radius={7} color={color} />
-                ),
+              ),
                 (
-                <Marker icon={hiddenIcon} key={stop[2]+'invis'} position={[stop[0], stop[1]]}>
-                  <Popup>
-                    <span>
-                      <img src={`/icons/${icon}.svg`} />
-                      <h2>{stop[3]}</h2>
-                      <h3>Stop {stop[2]}</h3>
-                      <button onClick={this.viewServices(stop[2])}>View Services</button>
-                      <button className="timetable-button" onClick={this.viewTimetable(stop[2])}>Timetable</button>
-                    </span>
-                  </Popup>
-                </Marker>
+                  <Marker icon={hiddenIcon} key={stop[2]+'invis'} position={[stop[0], stop[1]]}>
+                    <Popup>
+                      <span>
+                        <img src={`/icons/${icon}.svg`} />
+                        <h2>{stop[3]}</h2>
+                        <h3>Stop {stop[2]}</h3>
+                        <button onClick={this.viewServices(stop[2])}>View Services</button>
+                        <button className="timetable-button" onClick={this.viewTimetable(stop[2])}>Timetable</button>
+                      </span>
+                    </Popup>
+                  </Marker>
                 )
               ])
             })}
@@ -320,3 +320,5 @@ export default class vehicle_location extends React.Component {
     )
   }
 }
+const VehicleLocationWithHistory = withRouter(vehicle_location)
+export default VehicleLocationWithHistory

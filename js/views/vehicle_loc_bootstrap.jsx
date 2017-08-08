@@ -1,5 +1,4 @@
 import React from 'react'
-import { browserHistory } from 'react-router'
 
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
@@ -37,14 +36,14 @@ class VehicleLocationBootstrap extends React.Component {
       })
     }, UiStore.animationTiming)
 
-    if ('line_id' in this.props.params) {
+    if ('line_id' in this.props.match.params) {
       return this.lineMountCb(this.props)
     }
     this.tripMountCb(this.props)
   }
   componentDidUpdate() {
     if (typeof(this.state.tripInfo.route_long_name) !== 'undefined') {
-      if ('line_id' in this.props.params) {
+      if ('line_id' in this.props.match.params) {
         document.title = this.state.tripInfo.route_short_name + ' - ' + this.state.tripInfo.route_long_name + ' - Transit'
       } else {
         document.title = this.state.tripInfo.route_short_name + ' - Live Location - Transit'
@@ -59,8 +58,8 @@ class VehicleLocationBootstrap extends React.Component {
       })
     })
 
-    if ('line_id' in this.props.params) {
-      fetch(`/a/nz-akl/line/${this.props.params.line_id}`).then((response) => {
+    if ('line_id' in this.props.match.params) {
+      fetch(`/a/nz-akl/line/${this.props.match.params.line_id}`).then((response) => {
         response.json().then((data) => {
           let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
           tripInfo.route_long_name = data[0].route_long_name
@@ -99,17 +98,17 @@ class VehicleLocationBootstrap extends React.Component {
     }
   }
   componentWillReceiveProps(newProps) {
-    if ('line_id' in newProps.params) {
+    if ('line_id' in newProps.match.params) {
       return this.lineMountCb(newProps)
     }
     this.tripMountCb(newProps)
   }
   lineMountCb(newProps) {
     let tripInfo = {
-      route_short_name: newProps.params.line_id
+      route_short_name: newProps.match.params.line_id
     } 
     if (typeof(newProps.operators) !== 'undefined') {
-      tripInfo.agency_id = newProps.operators[newProps.params.line_id]
+      tripInfo.agency_id = newProps.operators[newProps.match.params.line_id]
     }
     this.setState({
       tripInfo: tripInfo
@@ -117,20 +116,20 @@ class VehicleLocationBootstrap extends React.Component {
   }
   tripMountCb(newProps) {
     let tripNodeMatches = (item) => {
-      return item.trip_id === newProps.params.trip_id
+      return item.trip_id === newProps.match.params.trip_id
     }
     this.setState({
       tripInfo: newProps.trips.find(tripNodeMatches) || this.state.tripInfo
     })
   }
-  triggerBack(){
+  triggerBack = () => {
     let newUrl = window.location.pathname.split('/')
     if (newUrl[3] === 'realtime') {
       newUrl.splice(-2)  
     } else {
       newUrl.splice(-1)
     }
-    UiStore.navigateSavedStations(newUrl.join('/'))
+    UiStore.goBack(this.props.history, newUrl.join('/'))
   }
   triggerChange(e) {
     let newLine = this.state.lineInfo[e.currentTarget.value]
@@ -185,14 +184,14 @@ class VehicleLocationBootstrap extends React.Component {
     if (this.state.runAnimation && UiStore.getAnimationIn()) {
       styles.animation = UiStore.getAnimationIn()
     } else if (this.state.showContent === true) {
-      if ('line_id' in this.props.params) {
+      if ('line_id' in this.props.match.params) {
         let stopInfo = [-36.844229, 174.767823]
         content = (<this.VehicleLocation 
-            params={this.props.params}
-            lineInfo={this.state.lineInfo}
-            tripInfo={this.state.tripInfo}
-            stopInfo={stopInfo}
-          />
+          params={this.props.match.params}
+          lineInfo={this.state.lineInfo}
+          tripInfo={this.state.tripInfo}
+          stopInfo={stopInfo}
+        />
         )
         if (this.state.lineInfo.length > 1) {
           lineSelect = this.state.lineInfo.map(function(line, key) {
@@ -208,7 +207,7 @@ class VehicleLocationBootstrap extends React.Component {
         content = (
           <this.VehicleLocation 
             realtime={this.props.realtime}
-            params={this.props.params}
+            params={this.props.match.params}
             trips={this.props.trips}
             tripInfo={this.state.tripInfo}
             stopInfo={stopInfo}

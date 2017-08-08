@@ -54,8 +54,7 @@ let config = {
       name: 'app',
       async: true,
       minChunks: 2
-    }),
-    new webpack.optimize.ModuleConcatenationPlugin()
+    })
   ]
 }
 if (process.env.NODE_ENV === 'production') {
@@ -81,7 +80,8 @@ if (process.env.NODE_ENV === 'production') {
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
       openAnalyzer: false
-    })
+    }),
+    new webpack.optimize.ModuleConcatenationPlugin()
   )
 } else {
   config.plugins.push(

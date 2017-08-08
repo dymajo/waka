@@ -1,34 +1,34 @@
 import React from 'react'
-import { browserHistory } from 'react-router'
+import { withRouter } from 'react-router-dom'
 import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
-class SidebarItem extends React.Component {
+class SidebarItemVanilla extends React.Component {
   constructor(props) {
     super(props)
     this.triggerTap = this.triggerTap.bind(this)
   }
-  triggerTap() {
+  triggerTap = () => {
     if (this.props.type === 'install') {
       this.props.action()
     } else if (this.props.type !== 'url') {
-      browserHistory.push(this.props.url)
+      this.props.history.push(this.props.url)
     }
   }
   getColor(icon) {
     switch(icon) {
-      case 'n':
-        return '#0056a9'
-      case 'e':
-        return '#f39c12'
-      case 'o':
-        return '#21b4e3'
-      case 's':
-        return '#e52f2b'
-      case 'w':
-        return '#4f9734'
-      default:
-        return '#000'
+    case 'n':
+      return '#0056a9'
+    case 'e':
+      return '#f39c12'
+    case 'o':
+      return '#21b4e3'
+    case 's':
+      return '#e52f2b'
+    case 'w':
+      return '#4f9734'
+    default:
+      return '#000'
     }
   }
   reject(e) {
@@ -82,6 +82,7 @@ class SidebarItem extends React.Component {
     }
   }
 }
+const SidebarItem = withRouter(SidebarItemVanilla)
 
 class SavedSations extends React.Component {
   constructor(props) {

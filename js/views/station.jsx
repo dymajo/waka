@@ -1,7 +1,6 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import React from 'react'
+import { withRouter } from 'react-router'
 import { iOS } from '../models/ios.js'
-import { webp } from '../models/webp'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import TripItem from './tripitem_new.jsx'
@@ -10,6 +9,9 @@ import zenscroll from 'zenscroll'
 // hack
 let liveRefresh = undefined
 let allRequests = [undefined, undefined, undefined]
+
+const normalStyle = UiStore.getAnimation()
+const fancyStyle = UiStore.getAnimation('fancy')
 
 class Station extends React.Component {
   constructor(props) {
@@ -22,16 +24,15 @@ class Station extends React.Component {
       realtime: {},
       loading: true,
       saveModal: false,
-      webp: webp.support,
       stop_lat: undefined,
       stop_lon: undefined,
       runAnimation: false,
       fancyMode: false,
       currentTrips: [],
       definedOrder: [],
+      animation: 'unmounted',
     }
     this.setStatePartial = this.setStatePartial.bind(this)
-    this.triggerBack = this.triggerBack.bind(this)
     this.triggerSave = this.triggerSave.bind(this)
     this.triggerSaveAdd = this.triggerSaveAdd.bind(this)
     this.triggerSaveCancel = this.triggerSaveCancel.bind(this)
@@ -45,7 +46,6 @@ class Station extends React.Component {
     this.getRealtimeData = this.getRealtimeData.bind(this)
     this.realtimeCb = this.realtimeCb.bind(this)
     this.expandChange = this.expandChange.bind(this)
-    this.goingBack = this.goingBack.bind(this)
 
     StationStore.bind('change', this.triggerUpdate)
   }
@@ -79,12 +79,11 @@ class Station extends React.Component {
       trips: (typeof(newState.trips) !== 'undefined' ? newState.trips : this.state.trips),
       realtime: (typeof(newState.realtime) !== 'undefined' ? newState.realtime : this.state.realtime),
       loading: (typeof(newState.loading) !== 'undefined' ? newState.loading : this.state.loading),
-      saveModal: (typeof(newState.saveModal) !== 'undefined' ? newState.saveModal : this.state.saveModal),
-      webp: this.state.webp
+      saveModal: (typeof(newState.saveModal) !== 'undefined' ? newState.saveModal : this.state.saveModal)
     })
   }
   triggerUpdate() {
-    var cachedName = StationStore.getData()[this.props.routeParams.station]
+    var cachedName = StationStore.getData()[this.props.match.params.station]
     if (typeof(cachedName) !== 'undefined') {
       this.setStatePartial({
         name: cachedName.name
@@ -105,19 +104,19 @@ class Station extends React.Component {
           this.setState({
             name: name,
             description: `${data.stop_name}`,
-            stop: this.props.routeParams.station,
+            stop: this.props.match.params.station,
             stop_lat: data.stop_lat, 
             stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
           })
         }
-        if (typeof(StationStore.stationCache[newProps.routeParams.station]) !== 'undefined') {
-          return cb(StationStore.stationCache[newProps.routeParams.station])
+        if (typeof(StationStore.stationCache[newProps.match.params.station]) !== 'undefined') {
+          return cb(StationStore.stationCache[newProps.match.params.station])
         }
-        allRequests[0] = fetch(`/a/nz-akl/station/${newProps.routeParams.station}`).then((response) => {
+        allRequests[0] = fetch(`/a/nz-akl/station/${newProps.match.params.station}`).then((response) => {
           response.json().then(cb)
         })
       }
-      var cachedName = StationStore.getData()[newProps.routeParams.station]
+      var cachedName = StationStore.getData()[newProps.match.params.station]
       if (typeof(cachedName) !== 'undefined') {
         // workaround for users upgrading from v0.1 to v0.2
         // lat, lng didn't used to be sent, now it is
@@ -128,7 +127,7 @@ class Station extends React.Component {
             this.setState({
               name: cachedName.name,
               description: cachedName.description,
-              stop: newProps.routeParams.station,
+              stop: newProps.match.params.station,
               stop_lat: cachedName.stop_lat, 
               stop_lon: cachedName.stop_lon
             })
@@ -141,7 +140,7 @@ class Station extends React.Component {
       }
     }
 
-    allRequests[1] = fetch(`/a/nz-akl/station/${newProps.routeParams.station}/times`).then((response) => {
+    allRequests[1] = fetch(`/a/nz-akl/station/${newProps.match.params.station}/times`).then((response) => {
       response.json().then((data) => {
         this.tripsCb(data.trips, data.realtime)
       })
@@ -353,8 +352,8 @@ class Station extends React.Component {
       })
     }
   }
-  triggerBack() {
-    UiStore.navigateSavedStations('/')
+  triggerBack = () => {
+    UiStore.goBack(this.props.history, '/')
   }
   triggerSave() {
     this.setStatePartial({
@@ -368,11 +367,11 @@ class Station extends React.Component {
     this.setStatePartial({
       saveModal: false
     })
-    StationStore.addStop(this.props.routeParams.station, this.state.name);
+    StationStore.addStop(this.props.match.params.station, this.state.name)
     ReactDOM.findDOMNode(this.refs.saveInput).blur()
   }
   triggerSaveCancel() {
-    StationStore.removeStop(this.props.routeParams.station)
+    StationStore.removeStop(this.props.match.params.station)
     this.setStatePartial({
       saveModal: false
     })
@@ -390,7 +389,7 @@ class Station extends React.Component {
   triggerTouchEnd() {
     this.isBeingTouched = false
     if (this.refs.scroll.scrollTop < 40 && this.state.fancyMode) {
-      UiStore.navigateSavedStations('/')
+      UiStore.goBack(this.props.history, '/', true)
     }
   }
   triggerScroll(e) {
@@ -398,26 +397,20 @@ class Station extends React.Component {
     clearTimeout(this.timeout)
     this.timeout = setTimeout(() => {
       if (pos < 40 && !this.isBeingTouched && this.state.fancyMode) {
-        UiStore.navigateSavedStations('/')
+        UiStore.goBack(this.props.history, '/', true)
       }
     }, 50)
   }
   triggerScrollTap(e) {
     if (e.target.className.match('scrollwrap') && this.state.fancyMode) {
-      UiStore.navigateSavedStations('/')
+      UiStore.goBack(this.props.history, '/')
     }
   }
   componentWillMount() {
     // doesn't load fancymode on desktop :) 
     this.setState({
-      runAnimation: true,
       fancyMode: UiStore.state.fancyMode && window.innerWidth <= 850
     })
-    setTimeout(() => {
-      this.setState({
-        runAnimation: false
-      })
-    }, UiStore.animationTiming)
   }
   componentDidMount() {
     requestAnimationFrame(() => {
@@ -437,7 +430,7 @@ class Station extends React.Component {
       this.getRealtimeData(this.state.trips)
     }, 20000)
 
-    UiStore.bind('goingBack', this.goingBack)
+    UiStore.bind('animation', this.animation)
     UiStore.bind('expandChange', this.expandChange)
 
     this.scroller = zenscroll.createScroller(this.refs.scroll)
@@ -461,7 +454,7 @@ class Station extends React.Component {
     })
     clearInterval(liveRefresh)
 
-    UiStore.unbind('goingBack', this.goingBack)
+    UiStore.unbind('animation', this.animation)
   }
   expandChange(item) {
     setTimeout(() => {
@@ -473,23 +466,21 @@ class Station extends React.Component {
       }
     }, 250)
   }
-  goingBack() {
-    if (UiStore.state.goingBack && this.props.children === null) {
-      this.setState({
-        goingBack: true
-      })
-    }
+  animation = (data) => {
+    this.setState({
+      animation: data[0]
+    })
   }
   componentWillReceiveProps(newProps) {
     // basically don't do anything if the station doesn't change
-    if (this.props.params.station === newProps.params.station) {
-      setTimeout(() => {
-        if (this.state.fancyMode) {
-          this.setState({
-            fancyMode: false
-          })
-        }
-      }, 300)
+    if (this.props.match.params.station === newProps.match.params.station) {
+    //   setTimeout(() => {
+    //     if (this.state.fancyMode) {
+    //       this.setState({
+    //         fancyMode: false
+    //       })
+    //     }
+    //   }, 300)
       return
     }
 
@@ -508,13 +499,12 @@ class Station extends React.Component {
         realtime: {},
         loading: true,
         saveModal: false,
-        webp: webp.support,
         currentTrips: [],
         definedOrder: [],
       })
       // wait a second :/
       requestAnimationFrame(() => {
-        if (this.props.routeParams.station.split('+').length === 1) {
+        if (this.props.match.params.station.split('+').length === 1) {
           this.getData(newProps)
         } else {
           this.getMultiData(newProps)
@@ -594,7 +584,7 @@ class Station extends React.Component {
     var addButton
     var cancelButton
     var dark  = this.state.fancyMode ? '-dark' : ''
-    if (StationStore.getOrder().indexOf(this.props.routeParams.station) === -1) {
+    if (StationStore.getOrder().indexOf(this.props.match.params.station) === -1) {
       saveButton = <span className="save" onTouchTap={this.triggerSave}><img src={'/icons/unsaved' + dark + '.svg'} /></span>  
       cancelButton = 'Cancel'
       addButton = 'Add Stop'
@@ -631,19 +621,11 @@ class Station extends React.Component {
     // draws the html
     var header
     var scrollwrap = 'scrollwrap offset'
-    let styles = {}
+    let styles
     if (this.state.fancyMode) {
-      if (this.state.runAnimation && UiStore.getModalAnimationIn()) {
-        styles.animation = UiStore.getModalAnimationIn()
-      } else if (this.state.goingBack) {
-        Object.assign(styles, UiStore.getModalAnimationOut())
-      }
+      styles = fancyStyle[this.state.animation]
     } else {
-      if (this.state.runAnimation && UiStore.getAnimationIn()) {
-        styles.animation = UiStore.getAnimationIn()
-      } else if (this.state.goingBack) {
-        Object.assign(styles, UiStore.getAnimationOut())
-      }
+      styles = normalStyle[this.state.animation]
     }
 
     var header = (
@@ -673,13 +655,13 @@ class Station extends React.Component {
         </div>
         {headerPos[0]}
         <ul className={scrollable}
-            ref="scroll"
-            onTouchTap={this.triggerScrollTap}
-            onScroll={this.triggerScroll}
-            onTouchStart={this.triggerTouchStart}
-            onTouchEnd={this.triggerTouchEnd}
-            onTouchCancel={this.triggerTouchEnd}
-          >
+          ref="scroll"
+          onTouchTap={this.triggerScrollTap}
+          onScroll={this.triggerScroll}
+          onTouchStart={this.triggerTouchStart}
+          onTouchEnd={this.triggerTouchEnd}
+          onTouchCancel={this.triggerTouchEnd}
+        >
           <div className={scrollwrap}>
             {headerPos[1]}
             <div className="swipe-content" ref="swipecontent">
@@ -687,6 +669,7 @@ class Station extends React.Component {
             </div>
           </div>
         </ul>
+
         {this.props.children && React.cloneElement(this.props.children, {
           stopName: this.state.name,
           trips: this.state.trips,
@@ -697,4 +680,5 @@ class Station extends React.Component {
     )
   }
 }
-export default Station
+const StationWithRouter = withRouter(Station)
+export default StationWithRouter

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, browserHistory } from 'react-router'
+import { withRouter } from 'react-router'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
@@ -213,7 +213,7 @@ class Search extends React.Component {
       e.preventDefault()
     }
     this.refs.searchInput.blur()
-    browserHistory.push(`/s/${this.state.station}`)
+    this.props.history.push(`/s/${this.state.station}`)
   }
   viewServices(station) {
     return () => {
@@ -221,7 +221,7 @@ class Search extends React.Component {
         currentStation: station
       })
       UiStore.state.fancyMode = true
-      browserHistory.push(`/s/${station}`)
+      this.props.history.push(`/s/${station}`)
       setTimeout(() => {
         UiStore.state.fancyMode = false
       }, 500) // extra delay to help events to bubble
@@ -365,4 +365,5 @@ class Search extends React.Component {
     )
   }
 }
-export default Search
+const SearchWithRouter = withRouter(Search)
+export default SearchWithRouter

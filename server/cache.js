@@ -2,7 +2,6 @@ var azure = require('azure-storage');
 var request = require('request')
 var moment = require('moment-timezone')
 var fs = require('fs')
-var deepEqual = require('deep-equal')
 const extract = require('extract-zip')
 const csvparse = require('csv-parse')
 const transform = require('stream-transform')

@@ -37,7 +37,7 @@ export default class Timetable extends React.Component {
   }
   componentDidMount() {
     this.getData()
-    document.title = this.props.params.route_name.split('-')[0] + ' Timetable - Transit'
+    document.title = this.props.match.params.route_name.split('-')[0] + ' Timetable - Transit'
     if (iOS.detect() && window.navigator.standalone === true) {
       this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
       this.refs.container.addEventListener('touchmove', this.triggerTouchMove)
@@ -105,8 +105,8 @@ export default class Timetable extends React.Component {
     const sortfn = function(a, b) {
       return a.arrival_time_seconds - b.arrival_time_seconds
     }
-    const r = this.props.params.route_name.split('-')
-    fetch(`/a/nz-akl/station/${this.props.params.station}/timetable/${r[0]}/${r[1]}`).then((request) => {
+    const r = this.props.match.params.route_name.split('-')
+    fetch(`/a/nz-akl/station/${this.props.match.params.station}/timetable/${r[0]}/${r[1]}`).then((request) => {
       request.json().then((data) => {
         data.sort(sortfn)
 
@@ -154,7 +154,7 @@ export default class Timetable extends React.Component {
     })
   }
   tripMountCb(newProps) {
-    const route = newProps.params.route_name.split('-')[0]
+    const route = newProps.match.params.route_name.split('-')[0]
     let tripNodeMatches = (item) => {
       return item.route_short_name === route
     }

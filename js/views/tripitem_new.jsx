@@ -2,7 +2,7 @@ import React from 'react'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
-import { browserHistory } from 'react-router'
+import { withRouter } from 'react-router'
 
 // 3 minutes until we'll hide the trip
 const tripDelay = 3 * 6000
@@ -28,12 +28,12 @@ class TripItem extends React.Component {
   triggerClick() {
     UiStore.setExpandedItem([this.props.collection[0].trip_id, this.props.index])
   }
-  triggerMap() {
-    browserHistory.push(window.location.pathname + '/realtime/' + this.props.collection[0].trip_id)
+  triggerMap = () => {
+    this.props.history.push(window.location.pathname + '/realtime/' + this.props.collection[0].trip_id)
   }
-  triggerTimetable() {
+  triggerTimetable = () => {
     const i = this.props.collection[0]
-    browserHistory.push(window.location.pathname + '/timetable/' + i.route_short_name + '-' + i.direction_id)
+    this.props.history.push(window.location.pathname + '/timetable/' + i.route_short_name + '-' + i.direction_id)
   }
   expandChange(item) {
     if (item[0] === this.props.collection[0].trip_id) { 
@@ -169,4 +169,5 @@ class TripItem extends React.Component {
   }
   
 }
-export default TripItem
+const TripItemWithHistory = withRouter(TripItem)
+export default TripItemWithHistory

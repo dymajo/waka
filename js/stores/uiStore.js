@@ -1,5 +1,5 @@
 import Events from './events'
-import { browserHistory } from 'react-router'
+import createHistory from 'history/createBrowserHistory'
 import { iOS } from '../models/ios.js'
 
 export class uiStore extends Events {
@@ -16,6 +16,7 @@ export class uiStore extends Events {
       oldNavigate: [],
       mapView: false,
       fancyMode: false,
+      exiting: window.location.pathname
     }
     // constant used for setTimeouts
     this.animationTiming = 250 + 25
@@ -28,13 +29,14 @@ export class uiStore extends Events {
     }
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
       if (this.state.currentUrl === null) {
-        browserHistory.push('/')
+        this.browserHistory.push('/')
       } else if (this.state.currentUrl !== window.location.pathname) {
-        browserHistory.push(this.state.currentUrl)
+        this.browserHistory.push(this.state.currentUrl)
       }
     }
-    browserHistory.listenBefore(this.handleState.bind(this))
-    browserHistory.listen(this.currentState.bind(this))
+    console.log('binding...')
+    this.browserHistory.listen(this.handleState)
+    // browserHistory.listen(this.currentState.bind(this))
 
     this.handleReactChange = this.handleReactChange.bind(this)
 
@@ -42,6 +44,9 @@ export class uiStore extends Events {
       this.state.canAnimate = true
     }, this.animationTiming * 3)
   }
+
+  browserHistory = createHistory()
+
   setExpandedItem(name) { 
     this.trigger('expandChange', name)
   }
@@ -72,6 +77,44 @@ export class uiStore extends Events {
       pointerEvents: 'none',
     }
   }
+  getAnimation(styleType) {
+    if (styleType === 'fancy') {
+      return {
+        entering: {
+          animation: '250ms ss-to-stop-station ease 1'
+        },
+        exiting: {
+          animation: '250ms stop-to-ss-station ease 1',
+          transform: 'translate3d(0,15px,0)',
+          opacity: '0',
+          pointerEvents: 'none',
+        }
+      }
+    }
+    if (iOS.detect()) {
+      return {
+        entering: {
+          animation: '250ms ss-to-stop-station-ios ease 1',
+        },
+        exiting: {
+          animation: '250ms stop-to-ss-station-ios ease 1',
+          transform: 'translate3d(100vw,0,0)',
+          pointerEvents: 'none',
+        }
+      }
+    }
+    return {
+      entering: {
+        animation: '250ms ss-to-stop-station ease 1',
+      },
+      exiting: {
+        animation: '250ms stop-to-ss-station ease 1',
+        transform: 'translate3d(0,15px,0)',
+        opacity: '0',
+        pointerEvents: 'none',
+      }
+    }
+  }
   getModalAnimationIn() {
     if (this.state.canAnimate === false) {
       return null
@@ -89,7 +132,17 @@ export class uiStore extends Events {
       pointerEvents: 'none',
     }
   }
+  goBack = (history, path, noAnimate = false) => {
+    if (window.location.pathname === path) {
+      return
+    } else if (this.state.totalNavigations > 0) {
+      history.goBack()
+    } else {
+      history.push(path)
+    }
+  }
   navigateSavedStations(path, noAnimate) {
+    return
     if (window.location.pathname === path) {
       return
     } else if (this.state.totalNavigations > 0) {
@@ -113,13 +166,8 @@ export class uiStore extends Events {
     // handle state picks up back and forwards, so, you have to subtract two
     this.state.totalNavigations = this.state.totalNavigations - 2
   }
-  handleState(e) {
+  handleState = () => {
     this.state.totalNavigations++
-  }
-  currentState(e) {
-    this.state.lastUrl = this.state.currentUrl
-    this.state.currentUrl = window.location.pathname
-    localStorage.setItem('CurrentUrl', window.location.pathname.split('/').slice(0,3).join('/'))
   }
   handleReactChange(prevState, nextState, replace, callback) {
     var p = prevState.location.pathname
