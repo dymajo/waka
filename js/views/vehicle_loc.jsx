@@ -107,8 +107,8 @@ class vehicle_location extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if ('line_id' in newProps.params) {
-      if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
+    if ('line_id' in newProps.params) { 
+      if (typeof(newProps.tripInfo.shape_id) !== 'undefined' && newProps.tripInfo.shape_id !== this.props.tripInfo.shape_id) {
         this.setState({line: undefined})  
         this.getWKB(newProps, true)
         this.getShapeData(newProps)
@@ -156,11 +156,6 @@ class vehicle_location extends React.Component {
     requestAnimationFrame(function() {
       navigator.geolocation.clearWatch(geoID)
     })
-  }
-  triggerBack(){
-    let newUrl = window.location.pathname.split('/')
-    newUrl.splice(-1)
-    browserHistory.push(newUrl.join('/'))
   }
 
   zoomstart(e){   

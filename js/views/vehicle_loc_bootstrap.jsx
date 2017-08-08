@@ -1,41 +1,28 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
+const style = UiStore.getAnimation()
+
 // this is hacked so it handles the current location
 // and just normal people looking up a line
 class VehicleLocationBootstrap extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      showContent: false,
-      tripInfo: {},
-      lineInfo: [],
-      runAnimation: false
-    }
-
-    this.lineMountCb = this.lineMountCb.bind(this)
-    this.tripMountCb = this.tripMountCb.bind(this)
-    this.triggerChange = this.triggerChange.bind(this)
-
-    this.triggerTouchStart = this.triggerTouchStart.bind(this)
-    this.triggerTouchMove = this.triggerTouchMove.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
-    this.goingBack = this.goingBack.bind(this)
+  state = {
+    showContent: false,
+    tripInfo: {},
+    lineInfo: [],
+    animation: 'unmounted',
   }
-  componentWillMount() {
-    this.setState({
-      runAnimation: true
-    })
-    setTimeout(() => {
-      this.setState({
-        runAnimation: false
-      })
-    }, UiStore.animationTiming)
 
+  static propTypes = {
+    match: PropTypes.object,
+    history: PropTypes.object,
+  }
+
+  componentWillMount() {
     if ('line_id' in this.props.match.params) {
       return this.lineMountCb(this.props)
     }
@@ -74,47 +61,49 @@ class VehicleLocationBootstrap extends React.Component {
       })
     }
     if (iOS.detect() && window.navigator.standalone === true) {
-      this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
-      this.refs.container.addEventListener('touchmove', this.triggerTouchMove)
-      this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
-      this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
+      this.container.addEventListener('touchstart', this.triggerTouchStart)
+      this.container.addEventListener('touchmove', this.triggerTouchMove)
+      this.container.addEventListener('touchend', this.triggerTouchEnd)
+      this.container.addEventListener('touchcancel', this.triggerTouchEnd)
     }
-    UiStore.bind('goingBack', this.goingBack)
+    UiStore.bind('animation', this.animation)
   }
   componentWillUnmount() {
     if (iOS.detect() && window.navigator.standalone === true) {
-      this.refs.container.removeEventListener('touchstart', this.triggerTouchStart)
-      this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
-      this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
-      this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+      this.container.removeEventListener('touchstart', this.triggerTouchStart)
+      this.container.removeEventListener('touchmove', this.triggerTouchMove)
+      this.container.removeEventListener('touchend', this.triggerTouchEnd)
+      this.container.removeEventListener('touchcancel', this.triggerTouchEnd)
     }
-    UiStore.unbind('goingBack', this.goingBack)
+    UiStore.unbind('animation', this.animation)
   }
-  goingBack() {
-    if (UiStore.state.goingBack) {
-      this.setState({
-        goingBack: true
-      })
+
+  animation = (data) => {
+    if (data[1] !== this.container) {
+      return
     }
+    this.setState({
+      animation: data[0]
+    })
   }
+
   componentWillReceiveProps(newProps) {
-    if ('line_id' in newProps.match.params) {
-      return this.lineMountCb(newProps)
+    if ('line_id' in newProps.match.params && newProps.match.params.line_id !== this.props.match.line_id) {
+      return
     }
     this.tripMountCb(newProps)
   }
-  lineMountCb(newProps) {
-    let tripInfo = {
-      route_short_name: newProps.match.params.line_id
-    } 
-    if (typeof(newProps.operators) !== 'undefined') {
-      tripInfo.agency_id = newProps.operators[newProps.match.params.line_id]
-    }
-    this.setState({
-      tripInfo: tripInfo
+  lineMountCb = (newProps) => {
+    StationStore.getLines().then((data) => {
+      this.setState({
+        tripInfo: {
+          route_short_name: newProps.match.params.line_id,
+          agency_id: data.operators[newProps.match.params.line_id]
+        }
+      })
     })
   }
-  tripMountCb(newProps) {
+  tripMountCb = (newProps) => {
     let tripNodeMatches = (item) => {
       return item.trip_id === newProps.match.params.trip_id
     }
@@ -131,7 +120,7 @@ class VehicleLocationBootstrap extends React.Component {
     }
     UiStore.goBack(this.props.history, newUrl.join('/'))
   }
-  triggerChange(e) {
+  triggerChange = e => {
     let newLine = this.state.lineInfo[e.currentTarget.value]
     let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
 
@@ -141,7 +130,7 @@ class VehicleLocationBootstrap extends React.Component {
       tripInfo: tripInfo
     })
   }
-  triggerTouchStart(event) {
+  triggerTouchStart = event => {
     // This is a hack to detect flicks  
     this.longTouch = false
     setTimeout(() => {
@@ -149,15 +138,14 @@ class VehicleLocationBootstrap extends React.Component {
     }, 250)
 
     this.touchStartPos = event.touches[0].pageX
-    // this.refs.container.setAttribute('')
   }
-  triggerTouchMove(event) {
+  triggerTouchMove = event => {
     if (this.touchStartPos <= 7) {
       this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
-      this.refs.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
+      this.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
     }
   }
-  triggerTouchEnd(event) {
+  triggerTouchEnd = () => {
     if (this.touchStartPos <= 7) {
       this.touchStartPos = 100
       let swipedAway = false
@@ -169,10 +157,10 @@ class VehicleLocationBootstrap extends React.Component {
       }
       if (swipedAway) {
         // navigate backwards with no animate flag
-        UiStore.navigateSavedStations('/', true)
-        this.refs.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
+        UiStore.goBack('/', true)
+        this.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
       } else {
-        this.refs.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
+        this.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
       }
     }
   }
@@ -180,10 +168,22 @@ class VehicleLocationBootstrap extends React.Component {
     let content = null
     let lineSelect = this.state.tripInfo.route_long_name || ''
     lineSelect = lineSelect.replace(/ Train Station/g, '')
-    let styles = {}
-    if (this.state.runAnimation && UiStore.getAnimationIn()) {
-      styles.animation = UiStore.getAnimationIn()
-    } else if (this.state.showContent === true) {
+    
+    let roundelStyle = 'line-pill'
+    let code = this.state.tripInfo.route_short_name
+    if (code === 'WEST' || code === 'EAST' || code === 'ONE' || code === 'STH' || code === 'NEX' || code === 'PUK') {
+      roundelStyle += ' cf'
+      if (code === 'PUK') {
+        code = 'S'
+      } else {
+        code = code[0]
+      }
+      if (typeof(this.state.tripInfo.agency_id) === 'undefined') {
+        code = ''
+      }
+    }
+
+    if (this.state.showContent === true && this.state.animation !== 'entering') {
       if ('line_id' in this.props.match.params) {
         let stopInfo = [-36.844229, 174.767823]
         content = (<this.VehicleLocation 
@@ -216,26 +216,8 @@ class VehicleLocationBootstrap extends React.Component {
       }
     }
 
-    if (this.state.goingBack) {
-      Object.assign(styles, UiStore.getAnimationOut())
-    }
-
-    let roundelStyle = 'line-pill'
-    let code = this.state.tripInfo.route_short_name
-    if (code === 'WEST' || code === 'EAST' || code === 'ONE' || code === 'STH' || code === 'NEX' || code === 'PUK') {
-      roundelStyle += ' cf'
-      if (code === 'PUK') {
-        code = 'S'
-      } else {
-        code = code[0]
-      }
-      if (typeof(this.state.tripInfo.agency_id) === 'undefined') {
-        code = ''
-      }
-    }
-
     return (
-      <div className='vehicle-location-container' ref="container" style={styles}>
+      <div className='vehicle-location-container' ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>

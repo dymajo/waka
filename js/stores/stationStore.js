@@ -28,6 +28,8 @@ export class stationStore extends Events {
 
     this.stationCache = {}
   }
+  lineCache = {}
+
   getIcon(station) {
     var icon = 'bus'
     if (this.trainStations.indexOf(station) != -1) {
@@ -154,36 +156,6 @@ export class stationStore extends Events {
       return 'Multi Station'
     }
   }
-  getPlatform(id) {
-    var mappings = {
-      '7034': 'Northbound',
-      '7004': 'To City',
-      '7036': 'Northbound',
-      '1315': 'To City',
-      '4063': 'Platform 1',
-      '4065': 'Platform 2',
-      '4083': 'Platform 3a',
-      '4087': 'Platform 3b',
-      '4085': 'Platform 4a',
-      '4089': 'Platform 4b',
-      '3355': 'Platform 1',
-      '3360': 'Platform 2',
-      '3362': 'Platform 3a',
-      '3353': 'Platform 3b',
-      '3221': 'Platform 1',
-      '3219': 'Platform 2',
-      '3238': 'Platform 3a',
-      '3240': 'Platform 3b',
-      '4222': 'Platform 2',
-      '4225': 'Platform 3a',
-      '4223': 'Platform 3b',
-      '4227': 'Platform 1a',
-      '4229': 'Platform 1b',
-      '4226': 'Platform 2a',
-      '4228': 'Platform 2b'
-    }
-    return mappings[id]
-  }
   // persists data to localStorage
   saveData() {
     localStorage.setItem('StationData', JSON.stringify(this.StationData))
@@ -231,6 +203,22 @@ export class stationStore extends Events {
     this.trigger('change')
 
     this.saveData()
+  }
+  getLines() {
+    return new Promise((resolve, reject) => {
+      if (Object.keys(this.lineCache).length === 0) {
+        fetch('/a/nz-akl/lines').then((response)=>{
+          response.json().then((data) => {
+            this.lineCache = data
+            resolve(data)
+          })
+        }).catch((err) => {
+          reject(err)
+        })
+      } else {
+        resolve(this.lineCache)
+      }
+    })
   }
 }
 export let StationStore = new stationStore()

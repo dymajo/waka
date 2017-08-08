@@ -1,5 +1,6 @@
 import React from 'react'
-import { Switch, withRouter, Route } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
 
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore'
@@ -8,37 +9,22 @@ import { UiStore } from '../stores/uiStore.js'
 const style = UiStore.getAnimation()
 
 class Lines extends React.Component {
-  constructor(props){
-    super(props)
-    this.state = {
-      service: '',
-      allLines: undefined,
-      groups: null,
-      groupShow: {},
-      friendlyNames: {},
-      animation: 'unmounted'
-    }
+  state = {
+    allLines: undefined,
+    groups: null,
+    groupShow: {},
+    friendlyNames: {},
+    animation: 'unmounted'
+  }
 
-    this.triggerTouchStart = this.triggerTouchStart.bind(this)
-    this.triggerTouchMove = this.triggerTouchMove.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
+  static propTypes = {
+    history: PropTypes.object
   }
-  
-  viewLine(line){
-    return function() {
-      browserHistory.push(`/l/${line}`)
-    }
-  }
+
   triggerBack = () => {
     UiStore.goBack(this.props.history, '/')
   }
 
-  triggerChange = e => {
-    this.setState({
-      service: e.currentTarget.value
-    })
-  }
   triggerGroup = group => {
     return (e) => {
       e.preventDefault()
@@ -53,55 +39,42 @@ class Lines extends React.Component {
       })
     }
   }
-  componentDidUpdate() {
-    if (this.props.children === null) {
-      document.title = 'Lines - Transit'
-    }
-  }
-
   componentDidMount() {
-    if (this.props.children === null) {
-      document.title = 'Lines - Transit'
-    }
-    fetch('/a/nz-akl/lines').then((response)=>{
-      response.json().then((data) => {
-        let groupShow = {}
-        data.groups.forEach(function(group) {
-          groupShow[group.name] = ''
-        })
-        this.setState({
-          allLines: data.lines,
-          groups: data.groups,
-          operators: data.operators,
-          friendlyNames: data.friendlyNames,
-          groupShow: groupShow
-        })       
+    document.title = 'Lines - Transit'
+
+    StationStore.getLines().then((data) => {
+      let groupShow = {}
+      data.groups.forEach(function(group) {
+        groupShow[group.name] = ''
       })
+      this.setState({
+        allLines: data.lines,
+        groups: data.groups,
+        operators: data.operators,
+        friendlyNames: data.friendlyNames,
+        groupShow: groupShow
+      })  
     })
 
     if (iOS.detect() && window.navigator.standalone === true) {
-      this.refs.container.addEventListener('touchstart', this.triggerTouchStart)
-      this.refs.container.addEventListener('touchmove', this.triggerTouchMove)
-      this.refs.container.addEventListener('touchend', this.triggerTouchEnd)
-      this.refs.container.addEventListener('touchcancel', this.triggerTouchEnd)
+      this.container.addEventListener('touchstart', this.triggerTouchStart)
+      this.container.addEventListener('touchmove', this.triggerTouchMove)
+      this.container.addEventListener('touchend', this.triggerTouchEnd)
+      this.container.addEventListener('touchcancel', this.triggerTouchEnd)
     }
     UiStore.bind('animation', this.animation)
   }
   componentWillUnmount() {
     if (iOS.detect() && window.navigator.standalone === true) {
-      this.refs.container.removeEventListener('touchstart', this.triggerTouchStart)
-      this.refs.container.removeEventListener('touchmove', this.triggerTouchMove)
-      this.refs.container.removeEventListener('touchend', this.triggerTouchEnd)
-      this.refs.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+      this.container.removeEventListener('touchstart', this.triggerTouchStart)
+      this.container.removeEventListener('touchmove', this.triggerTouchMove)
+      this.container.removeEventListener('touchend', this.triggerTouchEnd)
+      this.container.removeEventListener('touchcancel', this.triggerTouchEnd)
     }
     UiStore.unbind('animation', this.animation)
   }
 
-  triggerTouchStart(event) {
-    if (this.props.children !== null) {
-      this.touchStartPos = 100
-      return
-    }
+  triggerTouchStart = event => {
     // This is a hack to detect flicks  
     this.longTouch = false
     setTimeout(() => {
@@ -110,14 +83,14 @@ class Lines extends React.Component {
 
     this.touchStartPos = event.touches[0].pageX
   }
-  triggerTouchMove(event) {
+  triggerTouchMove = event => {
     if (this.touchStartPos <= 7) {
       event.preventDefault()
       this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
-      this.refs.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
+      this.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
     }
   }
-  triggerTouchEnd(event) {
+  triggerTouchEnd = () => {
     if (this.touchStartPos <= 7) {
       this.touchStartPos = 100
       let swipedAway = false
@@ -130,9 +103,9 @@ class Lines extends React.Component {
       if (swipedAway) {
         // navigate backwards with no animate flag
         UiStore.goBack(this.props.history, '/', true)
-        this.refs.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
+        this.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
       } else {
-        this.refs.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
+        this.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
       }
     }
   }
@@ -147,7 +120,7 @@ class Lines extends React.Component {
 
   animation = (data) => {
     // ensures correct element
-    if (data[1] !== this.refs.container) {
+    if (data[1] !== this.container) {
       return
     // doesn't run if we're decending from down the tree up
     } else if (data[0] === 'exiting' && window.location.pathname.split('/').length > 2) {
@@ -163,7 +136,7 @@ class Lines extends React.Component {
   }
 
   render() {
-    let ret, children
+    let ret
     let className = 'lines-container'
     // there needs to be a sorting function in here probably
     if (this.state.groups !== null) {
@@ -224,14 +197,8 @@ class Lines extends React.Component {
       </div>
     )
 
-    if (this.props.children !== null) {
-      children = this.props.children && React.cloneElement(this.props.children, {
-        operators: this.state.operators
-      })
-    }
-
     return(
-      <div className={className} ref="container" style={style[this.state.animation]}>
+      <div className={className} ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
           <div>
             <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
