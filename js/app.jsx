@@ -1,8 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
+import createHistory from 'history/createBrowserHistory'
 import { iOS } from './models/ios.js'
 import { UiStore } from './stores/uiStore.js'
+
 
 import Index from './views/index.jsx'
 import Timetable from './views/timetable.jsx'
@@ -14,7 +16,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <Router history={UiStore.browserHistory}>
+      <Router history={createHistory()}>
         <Index />
       </Router>
     )

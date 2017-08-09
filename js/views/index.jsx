@@ -2,7 +2,6 @@ import React from 'react'
 import { withRouter, Switch, Route } from 'react-router-dom'
 import { TransitionGroup, Transition } from 'react-transition-group'
 import { iOS } from '../models/ios.js'
-import { StationStore, StationMap } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
 // routes
@@ -58,21 +57,11 @@ class Index extends React.Component {
       this.loadMapDynamic()
     }
     this.refs.touchcard.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
+
+    this.props.history.listen(UiStore.handleState)
   }
   componentDidUpdate() {
-    if (this.props.children === null) {
-      document.title = 'Transit'
-    } else {
-      if (this.state.hideUi === true && UiStore.state.oldNavigate.length === 0) {
-        this.setState({
-          hideUi: false
-        })
-      } else if (this.state.hideUi === false && UiStore.state.oldNavigate.length > 0) {
-        this.setState({
-          hideUi: true
-        })
-      }
-    }
+    document.title = 'Transit'
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {

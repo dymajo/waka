@@ -290,5 +290,18 @@ export class stationStore extends Events {
       })
     })
   }
+  getTimetable(station, route, direction) {
+    const sortfn = function(a, b) {
+      return a.arrival_time_seconds - b.arrival_time_seconds
+    }
+    return new Promise((resolve, reject) => {
+      fetch(`/a/nz-akl/station/${station}/timetable/${route}/${direction}`).then((request) => {
+        request.json().then((data) => {
+          data.sort(sortfn)
+          resolve(data)
+        })
+      }).catch(reject)
+    })
+  }
 }
 export let StationStore = new stationStore()

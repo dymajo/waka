@@ -336,9 +336,20 @@ class Station extends React.Component {
     }, 250)
   }
   animation = (data) => {
-    this.setState({
-      animation: data[0]
-    })
+    // ensures correct element
+    if (data[1] !== this.container) {
+      return
+    // doesn't run if we're descending from down the tree up
+    } else if (data[0] === 'exiting' && window.location.pathname.split('/').length > 3) {
+      return
+    // doesn't run if we're descending further down the tree
+    } else if (data[0] === 'entering' && UiStore.state.exiting.split('/').length > 3) {
+      return
+    } else {
+      this.setState({
+        animation: data[0]
+      })
+    }
   }
   componentWillReceiveProps(newProps) {
     // basically don't do anything if the station doesn't change
@@ -448,7 +459,7 @@ class Station extends React.Component {
     }
 
     return (
-      <div className={className} style={styles}>
+      <div className={className} style={styles} ref={e => this.container = e}>
         <div className={saveModal}>
           <div>
             <h2>Choose a Name</h2>
