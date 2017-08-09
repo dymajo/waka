@@ -297,9 +297,18 @@ class Station extends React.Component {
       this.scroll.scrollTop = 71
     }
 
+    // uses cached data if it's still fresh
+    if (StationStore.timesFor[0] === this.props.match.params.station &&
+        new Date().getTime() - StationStore.timesFor[1].getTime() < 120000) {
+      this.getData(this.props, false)
+      this.tripsCb()
+      StationStore.getRealtime(StationStore.tripData)
+    } else {
+      this.getData(this.props)
+    }
+
     // times: every 3 minutes
     // realtime: every 20 seconds
-    this.getData(this.props)
     liveRefresh = setInterval(() => {
       this.getData(this.props)
     }, 180000)

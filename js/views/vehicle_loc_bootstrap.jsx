@@ -13,6 +13,7 @@ class VehicleLocationBootstrap extends React.Component {
   state = {
     showContent: false,
     tripInfo: {},
+    stopInfo: {},
     lineInfo: [],
     animation: 'unmounted',
   }
@@ -86,13 +87,6 @@ class VehicleLocationBootstrap extends React.Component {
       animation: data[0]
     })
   }
-
-  componentWillReceiveProps(newProps) {
-    if ('line_id' in newProps.match.params && newProps.match.params.line_id !== this.props.match.line_id) {
-      return
-    }
-    this.tripMountCb(newProps)
-  }
   lineMountCb = (newProps) => {
     StationStore.getLines().then((data) => {
       this.setState({
@@ -104,11 +98,14 @@ class VehicleLocationBootstrap extends React.Component {
     })
   }
   tripMountCb = (newProps) => {
-    let tripNodeMatches = (item) => {
+    const tripNodeMatches = (item) => {
       return item.trip_id === newProps.match.params.trip_id
     }
-    this.setState({
-      tripInfo: newProps.trips.find(tripNodeMatches) || this.state.tripInfo
+    StationStore.getData(this.props.match.params.station).then((data) => {
+      this.setState({
+        tripInfo: StationStore.tripData.find(tripNodeMatches) || this.state.tripInfo,
+        stopInfo: data
+      })
     })
   }
   triggerBack = () => {
@@ -183,7 +180,7 @@ class VehicleLocationBootstrap extends React.Component {
       }
     }
 
-    if (this.state.showContent === true && this.state.animation !== 'entering') {
+    if (this.state.showContent === true && (this.state.animation !== 'entering' || this.state.animation !== 'unmounted')) {
       if ('line_id' in this.props.match.params) {
         let stopInfo = [-36.844229, 174.767823]
         content = (<this.VehicleLocation 
@@ -200,15 +197,15 @@ class VehicleLocationBootstrap extends React.Component {
           lineSelect = <select onChange={this.triggerChange}>{lineSelect}</select>
         }
       } else {
-        let stopInfo = this.props.stopInfo
+        let stopInfo = [this.state.stopInfo.stop_lat, this.state.stopInfo.stop_lon || this.state.stopInfo.stop_lng]
         if (typeof(stopInfo[0]) === 'undefined') {
           stopInfo = [-36.844229, 174.767823]
         }
         content = (
           <this.VehicleLocation 
-            realtime={this.props.realtime}
+            trips={StationStore.tripData}
+            realtime={StationStore.realtimeData}
             params={this.props.match.params}
-            trips={this.props.trips}
             tripInfo={this.state.tripInfo}
             stopInfo={stopInfo}
           />

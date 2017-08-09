@@ -26,6 +26,7 @@ export class stationStore extends Events {
       this.StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
     }
   }
+  timesFor = [null, new Date(0)]
   stationCache = {}
   tripData = []
   realtimeData = {}
@@ -236,6 +237,7 @@ export class stationStore extends Events {
   getTimes(station) {
     fetch(`/a/nz-akl/station/${station}/times`).then((response) => {
       response.json().then((data) => {
+        this.timesFor = [station, new Date()]
         this.tripData = data.trips
         this.realtimeData = data.realtime
         this.trigger('times', station)

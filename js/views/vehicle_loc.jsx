@@ -234,7 +234,8 @@ class vehicle_location extends React.Component {
   }
   viewTimetable = (stop) => {
     return () => {
-      this.props.history.push(`/s/${stop}/timetable/${this.props.params.line_id}-2`)
+      const line_id = this.props.params.line_id || this.props.tripInfo.route_short_name
+      this.props.history.push(`/s/${stop}/timetable/${line_id}-2`)
     }
   }
 
