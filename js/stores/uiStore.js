@@ -34,7 +34,6 @@ export class uiStore extends Events {
         this.browserHistory.push(this.state.currentUrl)
       }
     }
-    console.log('binding...')
     this.browserHistory.listen(this.handleState)
     // browserHistory.listen(this.currentState.bind(this))
 

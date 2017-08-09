@@ -25,9 +25,10 @@ export class stationStore extends Events {
     if (localStorage.getItem('StationOrder')) {
       this.StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
     }
-
-    this.stationCache = {}
   }
+  stationCache = {}
+  tripData = []
+  realtimeData = {}
   lineCache = {}
 
   getIcon(station) {
@@ -161,8 +162,20 @@ export class stationStore extends Events {
     localStorage.setItem('StationData', JSON.stringify(this.StationData))
     localStorage.setItem('StationOrder', JSON.stringify(this.StationOrder))
   }
-  getData() {
-    return this.StationData
+  getData(station) {
+    if (typeof station === 'undefined') {
+      return this.StationData
+    }
+    return new Promise((resolve, reject) => {
+      if (typeof this.StationData[station] !== 'undefined') {
+        return resolve(this.StationData[station])
+      } else if (typeof this.stationCache[station] !== 'undefined') {
+        return resolve(this.stationCache[station])
+      }
+      fetch(`/a/nz-akl/station/${station}`).then((response) => {
+        response.json().then(resolve)
+      }).catch(err => reject(err))
+    })
   }
   getOrder() {
     return this.StationOrder
@@ -218,6 +231,63 @@ export class stationStore extends Events {
       } else {
         resolve(this.lineCache)
       }
+    })
+  }
+  getTimes(station) {
+    fetch(`/a/nz-akl/station/${station}/times`).then((response) => {
+      response.json().then((data) => {
+        this.tripData = data.trips
+        this.realtimeData = data.realtime
+        this.trigger('times', station)
+      })
+    })
+  }
+  getRealtime(tripData) {
+    // realtime request for buses and trains
+    // not ferries though
+    if (tripData[0].route_type === '4') {
+      return
+    }
+
+    const queryString = tripData.filter(function(trip) {
+      const arrival = new Date()
+      if (arrival.getHours() < 5) {
+        arrival.setDate(arrival.getDate() - 1)
+      }
+      arrival.setHours(0)
+      arrival.setMinutes(0)
+      arrival.setSeconds(parseInt(trip.departure_time_seconds))
+
+      // only gets realtime info for things +30mins away
+      if (arrival.getTime() < (new Date().getTime() + 1800000)) {
+        return true
+      }
+      return false
+    }).map(trip => trip.trip_id)
+
+    // we need to pass an extra param for train trips
+    var requestData
+    if (tripData[0].route_type === '2') {
+      requestData = JSON.stringify({
+        trips: queryString,
+        train: true
+      })
+    } else {
+      requestData = JSON.stringify({trips: queryString})
+    }
+
+    // now we do a request to the realtime API
+    fetch('/a/nz-akl/realtime', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: requestData
+    }).then((response) => {
+      response.json().then((data) => {
+        this.realtimeData = data
+        this.trigger('realtime')
+      })
     })
   }
 }
