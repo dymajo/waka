@@ -74,6 +74,18 @@ class TripItem extends React.Component {
       route_class = 'text'
     }
 
+    this.props.collection.sort((a, b) => {
+      let aTime = a.departure_time_seconds
+      let bTime = b.departure_time_seconds
+      if (this.props.realtime[a.trip_id] && this.props.realtime[a.trip_id].delay) {
+        aTime = aTime + this.props.realtime[a.trip_id].delay
+      }
+      if (this.props.realtime[b.trip_id] && this.props.realtime[b.trip_id].delay) {
+        bTime = bTime + this.props.realtime[b.trip_id].delay
+      }
+      return aTime - bTime
+    })
+
     const times = []
     this.props.collection.forEach((trip) => {
       const arrival = new Date()
