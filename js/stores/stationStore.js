@@ -247,7 +247,7 @@ export class stationStore extends Events {
   getRealtime(tripData) {
     // realtime request for buses and trains
     // not ferries though
-    if (tripData[0].route_type === '4') {
+    if (tripData.length === 0 || tripData[0].route_type === '4') {
       return
     }
 

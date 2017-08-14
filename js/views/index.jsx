@@ -28,7 +28,6 @@ class Index extends React.Component {
       animate: false,
       showPin: false,
       hideUi: false,
-      invisibleUi: false,
       in: false
     }
     this.Search = null // Map Component, dynamic load
@@ -75,30 +74,6 @@ class Index extends React.Component {
         UiStore.state.canAnimate = true
       }, UiStore.animationTiming + 25)
     }
-    // Originally done for Perf Reasons, but we can't really do anymore due to new UI
-    // if (n.replace('/s/', '/').split('/').length > 2) {
-    //   setTimeout(() => {
-    //     requestAnimationFrame(() => {
-    //       if (this.state.invisibleUi) {
-    //         return
-    //       }
-    //       this.setState({
-    //         invisibleUi: true
-    //       })
-    //     })
-    //   }, UiStore.animationTiming + 25)
-    // } else {
-    //   setTimeout(() => {
-    //     requestAnimationFrame(() => {
-    //       if (!this.state.invisibleUi) {
-    //         return
-    //       }
-    //       this.setState({
-    //         invisibleUi: false
-    //       })
-    //     })
-    //   }, UiStore.animationTiming + 25)
-    // }
   }
   loadMapDynamic() {
     // doesn't do anything if already loaded
@@ -134,7 +109,7 @@ class Index extends React.Component {
     })
   }
   toggleLines = () => {
-    this.props.history.push('/l')
+    this.props.history.push('/l/nz-akl')
   }
   triggerTouchStart(e) {
     // only start the pull down if they're at the top of the card
@@ -344,10 +319,6 @@ class Index extends React.Component {
       modal = <Pin onHide={this.togglePin} />
     }
 
-    if (this.state.invisibleUi) {
-      rootClassName += ' invisibleUi'
-    }
-
     return (
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
@@ -405,12 +376,12 @@ class Index extends React.Component {
               <Switch location={this.props.location} key={this.props.location.key} >
                 <Route path="/" exact />
 
-                <Route path="/s/:station/realtime/:trip_id" component={VehicleLocationBootstrap} />
-                <Route path="/s/:station/timetable/:route_name" component={Timetable} />
-                <Route path="/s/:station" component={Station} />
+                <Route path="/s/:region/:station/realtime/:trip_id" component={VehicleLocationBootstrap} />
+                <Route path="/s/:region/:station/timetable/:route_name" component={Timetable} />
+                <Route path="/s/:region/:station" component={Station} />
 
-                <Route path="/l/:line_id" component={VehicleLocationBootstrap} />
-                <Route path="/l" component={Lines} />
+                <Route path="/l/:region/:line_id" component={VehicleLocationBootstrap} />
+                <Route path="/l/:region" component={Lines} />
 
                 <Route path="/settings" component={Settings}/>
                 <Route path="/testlines" component={TestLines} />

@@ -30,7 +30,7 @@ $transition: 250ms ease transform;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1;
+  z-index: 6;
   box-sizing: border-box;
   transition: $transition;
   will-change: transform;
@@ -46,6 +46,9 @@ $transition: 250ms ease transform;
 }
 // only applies to mobile touch devices
 @media (max-width: 850px) {
+.root-card {
+  z-index: 1;
+}
 .map-view {
   .root-map {
     transform: translate3d(0,0,0);

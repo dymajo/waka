@@ -56,6 +56,8 @@ export default class Timetable extends React.Component {
   animation = (data) => {
     if (data[1] !== this.container) {
       return
+    } else if (data[0] === 'exiting' && UiStore.state.exiting.substring(0, window.location.pathname.length) !== window.location.pathname) {
+      return
     }
     this.setState({
       animation: data[0]
@@ -94,13 +96,6 @@ export default class Timetable extends React.Component {
       } else {
         this.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
       }
-    }
-  }
-  goingBack() {
-    if (UiStore.state.goingBack) {
-      this.setState({
-        goingBack: true
-      })
     }
   }
   getData() {

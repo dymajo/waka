@@ -123,10 +123,12 @@ class Lines extends React.Component {
     if (data[1] !== this.container) {
       return
     // doesn't run if we're decending from down the tree up
-    } else if (data[0] === 'exiting' && window.location.pathname.split('/').length > 2) {
+    } else if (data[0] === 'exiting' && window.location.pathname !== '/') {
       return
     // doesn't run if we're decending further down the tree
-    } else if (data[0] === 'entering' && UiStore.state.exiting.split('/').length > 2) {
+    } else if (data[0] === 'entering' &&
+        (UiStore.state.exiting.substring(0, window.location.pathname.length) === window.location.pathname &&
+        window.location.pathname !== UiStore.state.exiting)) {
       return
     } else {
       this.setState({
@@ -163,7 +165,7 @@ class Lines extends React.Component {
             }
           }
           return (
-            <a className="line-item" key={key} href={'/l/'+item} onClick={this.disable} onTouchTap={this.hijack('/l/'+item)}>
+            <a className="line-item" key={key} href={'/l/nz-akl/'+item} onClick={this.disable} onTouchTap={this.hijack('/l/nz-akl/'+item)}>
               <span className="line-pill-wrapper">
                 <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(operator, item)}}>{code}</span>
               </span>

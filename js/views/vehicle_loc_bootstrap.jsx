@@ -82,6 +82,8 @@ class VehicleLocationBootstrap extends React.Component {
   animation = (data) => {
     if (data[1] !== this.container) {
       return
+    } else if (data[0] === 'exiting' && UiStore.state.exiting.substring(0, window.location.pathname.length) !== window.location.pathname) {
+      return
     }
     this.setState({
       animation: data[0]

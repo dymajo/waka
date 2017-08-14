@@ -58,10 +58,14 @@ $bgheight: 125px;
 		right: 0;
 		height: $mobilenavsize;
 		padding: 0 14px;
-		z-index: 2;
+		z-index: 7;
 		background: #fff;
 		box-shadow: 0 0 4px rgba(0,0,0,0.4);
 		// background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.0));
+
+		@media (max-width: 850px) {
+			z-index: 2;
+		}
 	}
 	h1 {
 		margin: 0;

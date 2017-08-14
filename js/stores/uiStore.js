@@ -59,6 +59,7 @@ export class uiStore extends Events {
       return {
         entering: {
           animation: '250ms ss-to-stop-station-ios ease 1',
+          zIndex: 5,
         },
         exiting: {
           animation: '250ms stop-to-ss-station-ios ease 1',
@@ -70,6 +71,7 @@ export class uiStore extends Events {
     return {
       entering: {
         animation: '250ms ss-to-stop-station ease 1',
+        zIndex: 5,
       },
       exiting: {
         animation: '250ms stop-to-ss-station ease 1',

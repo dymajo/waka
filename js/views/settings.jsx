@@ -47,9 +47,16 @@ class Settings extends React.Component {
     UiStore.unbind('animation', this.animation)
   }
   animation = (data) => {
-    this.setState({
-      animation: data[0]
-    })
+    if (data[1] !== this.container) {
+      return
+    // doesn't run if we're decending from down the tree up
+    } else if (data[0] === 'exiting' && window.location.pathname !== '/') {
+      return
+    } else {
+      this.setState({
+        animation: data[0]
+      })
+    }
   }
 
   triggerTouchStart = (event) => {

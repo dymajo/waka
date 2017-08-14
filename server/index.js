@@ -15,7 +15,6 @@ console.log('using SendGrid API Key: '+ process.env.SENDGRID_API_KEY)
 cache.check()
 setInterval(cache.check, 1800000)
 
-router.get('/sitemap.txt', sitemap.serve)
 router.get('/station', station.stopInfo)
 router.get('/station/search', search.getStopsLatLng)
 router.get('/station/:station', station.stopInfo)

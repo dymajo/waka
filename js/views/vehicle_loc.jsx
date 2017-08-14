@@ -229,13 +229,13 @@ class vehicle_location extends React.Component {
   }
   viewServices = (stop) => {
     return () => {
-      this.props.history.push(`/s/${stop}`)
+      this.props.history.push(`/s/nz-akl/${stop}`)
     }
   }
   viewTimetable = (stop) => {
     return () => {
       const line_id = this.props.params.line_id || this.props.tripInfo.route_short_name
-      this.props.history.push(`/s/${stop}/timetable/${line_id}-2`)
+      this.props.history.push(`/s/nz-akl/${stop}/timetable/${line_id}-2`)
     }
   }
 

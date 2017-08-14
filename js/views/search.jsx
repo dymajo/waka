@@ -213,7 +213,7 @@ class Search extends React.Component {
       e.preventDefault()
     }
     this.refs.searchInput.blur()
-    this.props.history.push(`/s/${this.state.station}`)
+    this.props.history.push(`/s/nz-akl/${this.state.station}`)
   }
   viewServices(station) {
     return () => {
@@ -221,7 +221,7 @@ class Search extends React.Component {
         currentStation: station
       })
       UiStore.state.fancyMode = true
-      this.props.history.push(`/s/${station}`)
+      this.props.history.push(`/s/nz-akl/${station}`)
       setTimeout(() => {
         UiStore.state.fancyMode = false
       }, 500) // extra delay to help events to bubble

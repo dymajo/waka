@@ -129,7 +129,7 @@ class SavedSations extends React.Component {
             description="Transit is your realtime guide to AT Buses, Trains, and Ferries."
           />
           <SidebarItem
-            url="/l"
+            url="/l/nz-akl"
             icon="lines-light.svg"
             name="Lines"
             className="lines-btn"
@@ -154,7 +154,7 @@ class SavedSations extends React.Component {
           {StationStore.getOrder().map((station) => {
             return <SidebarItem
               key={station}
-              url={`/s/${station}`}
+              url={`/s/nz-akl/${station}`}
               name={stations[station].name} 
               icon={stations[station].icon + '.svg'}
               description={stations[station].description} 

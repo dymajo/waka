@@ -349,10 +349,10 @@ class Station extends React.Component {
     if (data[1] !== this.container) {
       return
     // doesn't run if we're descending from down the tree up
-    } else if (data[0] === 'exiting' && window.location.pathname.split('/').length > 3) {
+    } else if (data[0] === 'exiting' && window.location.pathname !== '/') {
       return
     // doesn't run if we're descending further down the tree
-    } else if (data[0] === 'entering' && UiStore.state.exiting.split('/').length > 3) {
+    } else if (data[0] === 'entering' && UiStore.state.exiting.split('/').length > 4) {
       return
     } else {
       this.setState({
