@@ -136,13 +136,13 @@ class Station extends React.Component {
         return
       }
       if (trip.route_short_name === 'OUT') {
-        if (trip.direction_id === '0') {
+        if (trip.direction_id === 0) {
           trip.trip_headsign = 'Clockwise Outer Link'
         } else {
           trip.trip_headsign = 'Anticlockwise Outer Link'
         }
       } else if (trip.route_short_name === 'INN') {
-        if (trip.direction_id === '0') {
+        if (trip.direction_id === 0) {
           trip.trip_headsign = 'Clockwise Inner Link'
         } else {
           trip.trip_headsign = 'Anticlockwise Inner Link'

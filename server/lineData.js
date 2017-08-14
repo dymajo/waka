@@ -9,7 +9,7 @@ const lineGroups = [
   },
   {
     name: 'City & Isthmus',
-    items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','220','221','221X','223','223X','243','243X','246','248','248X','249','255','258','258X','267','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
+    items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','220','221','221X','223','223X','243','243X','246','248','248X','249','255','255F','258','258F','258X','267','267F','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
   },
   {
     name: 'East',
@@ -96,10 +96,13 @@ const allLines = {
   '248': [['City Centre', 'Blockhouse Bay', 'Sandringham Rd']],
   '248X': [['City Centre', 'Blockhouse Bay', 'Sandringham Rd Express']],
   '249': [['City Centre', 'Blckhouse Bay and New Lynn', 'Sandringham Rd'], ['City Centre', 'New Lynn and Blckhouse Bay', 'Sandringham Rd']],
-  '255': [['City Centre', 'May Rd'], ['City Centre', 'May Rd', 'Flyover']],
-  '258': [['City Centre', 'Blockhouse Bay', 'Dominion Rd'], ['City Centre', 'Blockhouse Bay', 'Flyover']],
+  '255': [['City Centre', 'May Rd']],
+  '255F': [['City Centre', 'May Rd', 'Flyover']],
+  '258': [['City Centre', 'Blockhouse Bay', 'Dominion Rd']],
+  '258F': [['City Centre', 'Blockhouse Bay', 'Flyover']],
   '258X': [['City Centre', 'Blockhouse Bay', 'Dominion Rd Express']],
-  '267': [['City Centre', 'Lynfield'], ['City Centre', 'Lynfield', 'Flyover']],
+  '267': [['City Centre', 'Lynfield']],
+  '267F': [['City Centre', 'Lynfield', 'Flyover']],
   '267X': [['City Centre', 'Lynfield Express'], ['City Centre Express', 'Lynfield']],
   '274': [['Britomart', 'Three Kings']],
   '277': [['Britomart', 'Waikowhai']],
