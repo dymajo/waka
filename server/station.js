@@ -81,6 +81,11 @@ var station = {
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date())
 
+    // midnight fix
+    if (time.hour() < 5) {
+      today.subtract(1, 'day')
+    }
+
     const realtimeTrips = []
     connection.get().request()
       .input('prefix', sql.VarChar(50), prefix)

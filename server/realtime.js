@@ -102,7 +102,7 @@ var realtime = {
       res.send(rt)
     }
   },
-	getTripsAuckland: function(trips, train = false) {
+  getTripsAuckland: function(trips, train = false) {
     var realtimeInfo = {}
     trips.forEach(function(trip) {
       realtimeInfo[trip] = {}

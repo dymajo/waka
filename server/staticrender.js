@@ -31,10 +31,12 @@ const staticrender = {
       canonical = 'https://transit.dymajo.com'
       success()
     } else if (path[1] === 's') {
-      if (path.length === 2) {
-        return notFound()
-      } else if (path.length === 3) {
-        station._stopInfo(path[2], 'nz-akl').then(function(data) {
+      if (path.length === 3) {
+        path.splice(2, 0, 'nz-akl')
+        return res.redirect(301, path.join('/'))
+        // return res.redirect(301, ca)
+      } else if (path.length === 4) {
+        station._stopInfo(path[3], 'nz-akl').then(function(data) {
           title = data.stop_name + defaultName
           description = 'Realtime departures and timetable for '
           if (data.stop_name.toLowerCase().match('train station')|| 
@@ -47,12 +49,12 @@ const staticrender = {
 
           success()
         }).catch(notFound)
-      } else if (path.length === 5) {
-        if (path[3] === 'timetable') {
-          title = path[4].split('-')[0] + ' Timetable' + defaultName
+      } else if (path.length === 6) {
+        if (path[4] === 'timetable') {
+          title = path[5].split('-')[0] + ' Timetable' + defaultName
           description = 'View timetable in DYMAJO Transit.'
           success()
-        } else if (path[3] === 'realtime') {
+        } else if (path[4] === 'realtime') {
           title = 'Realtime Trip Info' + defaultName
           description = 'View live vehicle location in DYMAJO Transit.'
           success()
@@ -64,12 +66,15 @@ const staticrender = {
       }
     } else if (path[1] === 'l') {
       if (path.length === 2) {
+        path.splice(2, 0, 'nz-akl')
+        return res.redirect(301, path.join('/'))
+      } else if (path.length === 3) {
         title = 'Lines' + defaultName
         description = 'View all Auckland Bus, Train, and Ferry Services.'
         success()
-      } else if (path.length === 3) {
-        path[2] = path[2].trim()
-        line._getLine(path[2], function(err, data) {
+      } else if (path.length === 4) {
+        path[3] = path[3].trim()
+        line._getLine(path[3], function(err, data) {
           if (data.length === 0) {
             return notFound()
           } else {

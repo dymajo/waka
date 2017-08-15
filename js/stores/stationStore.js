@@ -269,7 +269,7 @@ export class stationStore extends Events {
 
     // we need to pass an extra param for train trips
     var requestData
-    if (tripData[0].route_type === '2') {
+    if (tripData[0].route_type === 2) {
       requestData = JSON.stringify({
         trips: queryString,
         train: true
