@@ -98,6 +98,7 @@ class Search extends React.Component {
     findModal: false,
     showIcons: true,
   }
+  geoID = undefined
   watchPosition = () => {
     this.geoID = navigator.geolocation.watchPosition((position) => {
       if (this.state.currentPosition[0] === 0){
@@ -176,19 +177,11 @@ class Search extends React.Component {
       this.setState({
         showIcons: false
       })
-      requestAnimationFrame(function() {
-        navigator.geolocation.clearWatch(this.geoID)
-      })
+      navigator.geolocation.clearWatch(this.geoID)
     }
   }
   componentWillUnmount() {
-    // can't do anything about this for now
-    // if (typeof(dataRequest) !== 'undefined') {
-    //   dataRequest.abort()
-    // }
-    requestAnimationFrame(function() {
-      navigator.geolocation.clearWatch(this.geoID)
-    })
+    navigator.geolocation.clearWatch(this.geoID)
   }
   getData(lat, lng, dist) {
     fetch(`/a/nz-akl/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {

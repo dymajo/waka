@@ -61,21 +61,9 @@ class VehicleLocationBootstrap extends React.Component {
         })
       })
     }
-    if (iOS.detect() && window.navigator.standalone === true) {
-      this.container.addEventListener('touchstart', this.triggerTouchStart)
-      this.container.addEventListener('touchmove', this.triggerTouchMove)
-      this.container.addEventListener('touchend', this.triggerTouchEnd)
-      this.container.addEventListener('touchcancel', this.triggerTouchEnd)
-    }
     UiStore.bind('animation', this.animation)
   }
   componentWillUnmount() {
-    if (iOS.detect() && window.navigator.standalone === true) {
-      this.container.removeEventListener('touchstart', this.triggerTouchStart)
-      this.container.removeEventListener('touchmove', this.triggerTouchMove)
-      this.container.removeEventListener('touchend', this.triggerTouchEnd)
-      this.container.removeEventListener('touchcancel', this.triggerTouchEnd)
-    }
     UiStore.unbind('animation', this.animation)
   }
 
@@ -128,40 +116,6 @@ class VehicleLocationBootstrap extends React.Component {
     this.setState({
       tripInfo: tripInfo
     })
-  }
-  triggerTouchStart = event => {
-    // This is a hack to detect flicks  
-    this.longTouch = false
-    setTimeout(() => {
-      this.longTouch = true
-    }, 250)
-
-    this.touchStartPos = event.touches[0].pageX
-  }
-  triggerTouchMove = event => {
-    if (this.touchStartPos <= 7) {
-      this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
-      this.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
-    }
-  }
-  triggerTouchEnd = () => {
-    if (this.touchStartPos <= 7) {
-      this.touchStartPos = 100
-      let swipedAway = false
-      if (this.newPos > window.innerWidth/2 || this.longTouch === false) {
-        // rejects touches that don't really move
-        if (this.newPos > 3) {
-          swipedAway = true
-        }
-      }
-      if (swipedAway) {
-        // navigate backwards with no animate flag
-        UiStore.goBack('/', true)
-        this.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
-      } else {
-        this.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
-      }
-    }
   }
   render() {
     let content = null

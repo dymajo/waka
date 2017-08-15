@@ -20,6 +20,7 @@ class Lines extends React.Component {
   static propTypes = {
     history: PropTypes.object
   }
+  animationOverride = false
 
   triggerBack = () => {
     UiStore.goBack(this.props.history, '/')
@@ -102,6 +103,7 @@ class Lines extends React.Component {
       }
       if (swipedAway) {
         // navigate backwards with no animate flag
+        this.animationOverride = true
         UiStore.goBack(this.props.history, '/', true)
         this.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
       } else {
@@ -120,7 +122,7 @@ class Lines extends React.Component {
 
   animation = (data) => {
     // ensures correct element
-    if (data[1] !== this.container) {
+    if (data[1] !== this.container || this.animationOverride === true) {
       return
     // doesn't run if we're decending from down the tree up
     } else if (data[0] === 'exiting' && window.location.pathname !== '/') {

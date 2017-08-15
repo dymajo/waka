@@ -20,13 +20,12 @@ const apis = [
 const style = UiStore.getAnimation()
 
 class Settings extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      credits: false,
-      animation: 'unmounted'
-    }
+  state = {
+    credits: false,
+    animation: 'unmounted'
   }
+  animationOverride = false
+
   componentDidMount() {
     document.title = 'Settings - Transit'
     if (iOS.detect() && window.navigator.standalone === true) {
@@ -47,7 +46,7 @@ class Settings extends React.Component {
     UiStore.unbind('animation', this.animation)
   }
   animation = (data) => {
-    if (data[1] !== this.container) {
+    if (data[1] !== this.container || this.animationOverride === true) {
       return
     // doesn't run if we're decending from down the tree up
     } else if (data[0] === 'exiting' && window.location.pathname !== '/') {
@@ -87,6 +86,7 @@ class Settings extends React.Component {
       }
       if (swipedAway) {
         // navigate backwards with no animate flag
+        this.animationOverride = true
         UiStore.goBack(this.props.history, '/', true)
         this.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
       } else {
