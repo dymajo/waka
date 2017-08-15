@@ -28,7 +28,7 @@ let config = {
     filename: 'generated/[name].bundle.js',
     chunkFilename: 'generated/[id].chunk.js'
   },
-  devtool: 'cheap-module-source-map',
+  devtool: 'eval-source-map',
   module: {
     rules: [
       { 

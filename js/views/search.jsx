@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
@@ -82,39 +83,23 @@ const ferrySelection = Icon({
   className: 'currentSelectionIcon larger'
 })
 
-let geoID = undefined
-
 class Search extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      station: '',
-      stops: [],
-      position: SettingsStore.getState().lastLocation,
-      currentPosition: [0,0],
-      currentStation: null,
-      back: false,
-      accuracy: 0,
-      error: '',
-      findModal: false
-    }
-  
-    this.watchPosition = this.watchPosition.bind(this)
-    this.getAndSetCurrentPosition = this.getAndSetCurrentPosition.bind(this)
-    this.setCurrentPosition = this.setCurrentPosition.bind(this)
-    this.currentLocateButton = this.currentLocateButton.bind(this)
-    this.toggleFind = this.toggleFind.bind(this)
-    this.triggerChange = this.triggerChange.bind(this)
-    this.triggerKeyUp = this.triggerKeyUp.bind(this)
-    this.triggerSearch = this.triggerSearch.bind(this)
-    this.moveEnd = this.moveEnd.bind(this)
-    this.triggerBack = this.triggerBack.bind(this)
-    this.viewServices = this.viewServices.bind(this)
-
-    UiStore.bind('goingBack', this.triggerBack)
+  static propTypes = {
+    history: PropTypes.object,
   }
-  watchPosition() {
-    geoID = navigator.geolocation.watchPosition((position) => {
+  state = {
+    station: '',
+    stops: [],
+    position: SettingsStore.getState().lastLocation,
+    currentPosition: [0,0],
+    currentStation: null,
+    accuracy: 0,
+    error: '',
+    findModal: false,
+    showIcons: true,
+  }
+  watchPosition = () => {
+    this.geoID = navigator.geolocation.watchPosition((position) => {
       if (this.state.currentPosition[0] === 0){
         this.setCurrentPosition(position)
 
@@ -136,15 +121,12 @@ class Search extends React.Component {
       timeout: 5000
     })
   }
-  getAndSetCurrentPosition() {
+  getAndSetCurrentPosition = () => {
     this.setState({
       position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000]
     })
   }
-
-  setCurrentPosition(position) {
-    //console.log('getting new position')
-    //console.log(position.coords.accuracy)
+  setCurrentPosition = (position) => {
     let pos = [position.coords.latitude, position.coords.longitude]
     this.setState({
       currentPosition: pos,
@@ -155,7 +137,7 @@ class Search extends React.Component {
       SettingsStore.saveState()
     })
   }
-  currentLocateButton() {
+  currentLocateButton = () => {
     if (this.state.error === '') {
       this.getAndSetCurrentPosition()
     } else {
@@ -174,8 +156,12 @@ class Search extends React.Component {
   }
   componentDidMount() {
     this.getData(this.state.position[0], this.state.position[1], 250)
-    if (window.location.pathname === '/') {
-      this.watchPosition()
+    if (window.location.pathname === '/' && 'permissions' in navigator) {
+      navigator.permissions.query({name:'geolocation'}).then(e => {
+        if (e.state === 'granted') {
+          this.watchPosition()
+        }
+      })
     }
   }
   // stops requesting location when not in use
@@ -191,11 +177,9 @@ class Search extends React.Component {
         showIcons: false
       })
       requestAnimationFrame(function() {
-        navigator.geolocation.clearWatch(geoID)
+        navigator.geolocation.clearWatch(this.geoID)
       })
     }
-
-
   }
   componentWillUnmount() {
     // can't do anything about this for now
@@ -203,9 +187,8 @@ class Search extends React.Component {
     //   dataRequest.abort()
     // }
     requestAnimationFrame(function() {
-      navigator.geolocation.clearWatch(geoID)
+      navigator.geolocation.clearWatch(this.geoID)
     })
-    UiStore.unbind('goingBack', this.triggerBack)
   }
   getData(lat, lng, dist) {
     fetch(`/a/nz-akl/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
@@ -219,36 +202,36 @@ class Search extends React.Component {
       })
     })
   }
-  toggleFind() {
+  toggleFind = () => {
     this.setState({
       findModal: !this.state.findModal
     })
     setTimeout(() => {
       if (this.state.findModal === true) {
-        this.refs.searchInput.focus()
+        this.searchInput.focus()
       } else {
-        this.refs.searchInput.blur()
+        this.searchInput.blur()
       }
     }, 200)
   }
-  triggerChange(e) {
+  triggerChange = (e) => {
     this.setState({
       station: e.currentTarget.value
     })
   }
-  triggerKeyUp(e) {
+  triggerKeyUp = (e) => {
     if (e.keyCode === 13) {
       this.triggerSearch(undefined)
     }
   }
-  triggerSearch(e) {
+  triggerSearch = (e) => {
     if (e) {
       e.preventDefault()
     }
-    this.refs.searchInput.blur()
+    this.searchInput.blur()
     this.props.history.push(`/s/nz-akl/${this.state.station}`)
   }
-  viewServices(station) {
+  viewServices = (station) => {
     return () => {
       this.setState({
         currentStation: station
@@ -260,7 +243,7 @@ class Search extends React.Component {
       }, 500) // extra delay to help events to bubble
     }
   }
-  moveEnd(e) {
+  moveEnd = (e) => {
     var zoom = e.target.getZoom()
     // we're basing this off screensize
     var screensize = document.body.offsetWidth
@@ -286,11 +269,6 @@ class Search extends React.Component {
     var newPos = e.target.getCenter()
     this.getData(newPos.lat, newPos.lng, dist)
   }
-  triggerBack() {
-    this.setState({
-      back: UiStore.getState().goingBack
-    })
-  }
   render() {
 
     let stationMarker = null
@@ -304,19 +282,6 @@ class Search extends React.Component {
         markericon = ferrySelection
       }            
       stationMarker = <Marker icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
-    }
-
-    // this is the key for now
-    let retina = ''
-    if (window.devicePixelRatio > 1) {
-      retina = '@2x'
-    }
-    var classname = 'searchContainer'
-    if (window.location.pathname === '/s') {
-      classname += ' activepane'
-    }
-    if (this.state.back) {
-      classname += ' goingback'
     }
 
     // css class is saveModal
@@ -344,20 +309,19 @@ class Search extends React.Component {
               value={this.state.station}
               onKeyUp={this.triggerKeyUp}
               onChange={this.triggerChange} 
-              ref="searchInput"
+              ref={e => this.searchInput = e}
             />
             <button className="cancel" onTouchTap={this.toggleFind}>Cancel</button>
             <button className="submit" onTouchTap={this.triggerSearch}>Go</button>
           </div>
         </div>
-        <button className="routeButton" onTouchTap={this.toggleFind}>
+        <button className="routeButton" onTouchTap={this.toggleFind} alt="Find Stop" title="Find Stop">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         </button>
-        <button className="currentLocationButton" onTouchTap={this.currentLocateButton}>
+        <button className="currentLocationButton" onTouchTap={this.currentLocateButton} alt="Locate Me">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
         </button>
         <LeafletMap
-          ref="map"
           onMoveend={this.moveEnd}
           center={this.state.position} 
           maxZoom={18}
