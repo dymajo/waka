@@ -43,6 +43,7 @@ $bgheight: 125px;
 	}
 	.more {
 		float: right;
+		padding: 0 10px;
 
 		img {
 			height: 22px;
@@ -57,7 +58,7 @@ $bgheight: 125px;
 		left: 0;
 		right: 0;
 		height: $mobilenavsize;
-		padding: 0 14px;
+		padding: 0 4px 0 14px;
 		z-index: 7;
 		background: #fff;
 		box-shadow: 0 0 4px rgba(0,0,0,0.4);
