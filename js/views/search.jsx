@@ -9,11 +9,44 @@ import * as reactLeaflet from 'react-leaflet'
 const Icon = leaflet.icon
 const LeafletMap = reactLeaflet.Map
 const Marker = reactLeaflet.Marker
-const Popup = reactLeaflet.Popup
 const TileLayer = reactLeaflet.TileLayer
 const ZoomControl = reactLeaflet.ZoomControl
 const Circle = reactLeaflet.Circle
 const CircleMarker = reactLeaflet.CircleMarker
+
+const getMarker = function(iconType, name) { 
+  if (iconType === 'bus') {
+    name = name.trim().substring(0, 3).replace(/ /g, '').toUpperCase()
+    const dynamic = `
+    <svg width="25" height="31" viewBox="0 0 25 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Canvas" transform="translate(-634 -926)">
+    <g id="Group">
+    <g id="Rectangle 8">
+    <use xlink:href="#path0_fill" transform="translate(634 926)" fill="#3498DB"/>
+    </g>
+    <g id="Polygon">
+    <use xlink:href="#path1_fill" transform="matrix(1 0 0 -1 641.737 957)" fill="#3498DB"/>
+    </g>
+    <g id="GG">
+      <use xlink:href="#text" transform="translate(634 926)" fill="#fff"/>
+    </g>
+    </g>
+    </g>
+    <defs>
+    <text id="text" text-anchor="middle" x="12.5" y="19" font-family="sans-serif" font-size="15" font-weight="700">
+    ${name}
+    </text>
+    <path id="path0_fill" d="M 0 2C 0 0.89543 0.89543 0 2 0L 23 0C 24.1046 0 25 0.89543 25 2L 25 23C 25 24.1046 24.1046 25 23 25L 2 25C 0.89543 25 0 24.1046 0 23L 0 2Z"/>
+    <path id="path1_fill" d="M 4.76314 0L 9.52628 6L -3.91703e-09 6L 4.76314 0Z"/>
+    </defs>
+    </svg>
+    `
+    return Icon({
+      iconUrl: 'data:image/svg+xml;charset=utf-8,'+dynamic,
+      iconSize: [25, 41]
+    })
+  }
+}
 
 const busIcon = Icon({
   iconUrl: '/icons/bus-icon.png',
@@ -294,6 +327,11 @@ class Search extends React.Component {
 
     var positionMap = {}
 
+    let bigCircle
+    if (this.state.accuracy < 500) {
+      bigCircle = <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
+    }
+
     const searchClass = 'search' + (this.state.showIcons ? '' : ' hide-icons')
     return (
       <div className={searchClass}>
@@ -332,13 +370,23 @@ class Search extends React.Component {
             attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           {this.state.stops.map((stop) => {
-            var icon = StationStore.getIcon(stop.stop_id)
-            var markericon = busIcon
+            const icon = StationStore.getIcon(stop.stop_id)
+            let markericon
             if (icon === 'train') {
               markericon = trainIcon
             } else if (icon === 'ferry') {
               markericon = ferryIcon
-            }              
+            } else {
+              const stopSplit = stop.stop_name.split('Stop')
+              const platformSplit = stop.stop_name.split('Platform')
+              if (stopSplit.length > 1) {
+                markericon = getMarker('bus', stopSplit[1])
+              } else if (platformSplit.length > 1) {
+                markericon = getMarker('bus', platformSplit[1])
+              } else {
+                markericon = busIcon
+              }
+            }       
 
             // jono's awesome collison detection
             // basically checks if something is already there
@@ -357,7 +405,7 @@ class Search extends React.Component {
               <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)} />
             )
           })}
-          <Circle className="bigCurrentLocationCircle" center={this.state.currentPosition} radius={(this.state.accuracy)}/> 
+          {bigCircle}
           <CircleMarker className="smallCurrentLocationCircle" center={this.state.currentPosition} radius={7} /> 
           {stationMarker}
         </LeafletMap>
