@@ -2,6 +2,7 @@
 const webpack = require('webpack')
 const path = require('path')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const ManifestPlugin = require('webpack-manifest-plugin')
 
 const ConsoleNotifierPlugin = function () {}
 
@@ -26,7 +27,7 @@ let config = {
     path: __dirname + '/dist/',
     publicPath: '/',
     filename: 'generated/[name].bundle.js',
-    chunkFilename: 'generated/[id].chunk.js'
+    chunkFilename: 'generated/[id].chunk.js',
   },
   devtool: 'eval-source-map',
   module: {
@@ -55,10 +56,15 @@ let config = {
       name: 'app',
       async: true,
       minChunks: 2
+    }),
+    new ManifestPlugin({
+      fileName: 'assets.json',
     })
   ]
 }
 if (process.env.NODE_ENV === 'production') {
+  config.output.filename = 'generated/[name].[chunkhash].bundle.js'
+  config.output.chunkFilename = 'generated/[name].[chunkhash].chunk.js'
   delete config.devtool
   config.plugins.push(
     new webpack.optimize.UglifyJsPlugin({

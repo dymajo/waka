@@ -2,6 +2,7 @@ const station = require('./station')
 const line = require('./line')
 const pug = require('pug')
 const template = pug.compileFile('./dist/template.pug')
+const manifest = require('../dist/assets.json')
 
 const defaultName = ' - Transit'
 
@@ -15,14 +16,20 @@ const staticrender = {
     const notFound = function() {
       res.status(404).send(template({
         title: 'Not Found - Transit',
-        description: 'Sorry, but the page you were trying to view does not exist.'
+        description: 'Sorry, but the page you were trying to view does not exist.',
+        vendorpath: '/' + manifest['vendor.js'],
+        apppath: '/' + manifest['app.js'],
+        analyticspath: '/' + manifest['analytics.js'],
       }))
     }
     const success = function() {
       res.send(template({
         title: title,
         description: description,
-        canonical: canonical
+        canonical: canonical,
+        vendorpath: '/' + manifest['vendor.js'],
+        apppath: '/' + manifest['app.js'],
+        analyticspath: '/' + manifest['analytics.js'],
       }))
     }
 

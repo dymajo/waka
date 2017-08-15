@@ -48,9 +48,9 @@ html(lang="en")
     div(id="app")
       noscript DYMAJO Transit requires JavaScript to be enabled.
 
-    script(src="/generated/vendor.bundle.js")
-    script(src="/generated/app.bundle.js")
+    script(src=vendorpath)
+    script(src=apppath)
     script
         include ga.template
     script(async src="https://www.google-analytics.com/analytics.js")
-    script(async src="/generated/analytics.bundle.js")
+    script(async src=analyticspath)
