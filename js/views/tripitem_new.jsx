@@ -51,7 +51,7 @@ class TripItem extends React.Component {
     let route_code = trip.route_short_name
 
     const headsign = trip.trip_headsign.split('/')[0]
-    const dir = trip.direction_id === '1' ? 'in' : ''
+    const dir = trip.direction_id === 1 ? 'in' : ''
     const direction = <img src="/icons/direction.svg" className={'direction ' + dir} />
     const background = StationStore.getColor(trip.agency_id, route_code)
     let via = trip.route_long_name.split('Via')
@@ -119,45 +119,88 @@ class TripItem extends React.Component {
         times.push({realtime: false, time: 'Due'})
       }
     })
-    let latest = times[0]
-    let dd = null
-    if (latest.dd === true) {
-      dd = <img className="dd" src="/icons/big.svg" />
-    }
-    if (latest.time === 'Due') {
-      let className = ''
-      if (latest.realtime !== false) {
-        className = 'realtime due'
-      }
-      latest = <h3 className={className}>{dd} <span className="number-small">{latest.time}</span></h3>
-    } else if (latest.realtime === 'delay') {
-      if (latest.stops > 1) {
-        latest = <h3 className="realtime">{dd} <span className="number-small">{latest.stops}</span> stops <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
-      } else {
-        latest = <h3 className="realtime">{dd} <span className="number-small">{latest.stops}</span> stop <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
-      }
-    } else if (latest.realtime === 'distance') {
-      if (latest.distance > 0) {
-        latest = <h3 className="realtime"><span className="number-small">{latest.distance}</span>km <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
-      } else {
-        latest = <h3 className="realtime"><span className="number">{latest.time}</span>m</h3>
-      }
-    } else {
-      latest = <h3><span className="number">{latest.time}</span>m</h3>
-    }
-    let andIn = null
-    if (times.length > 1) {
-      const timesarr = [times[1].time]
-      if (times.length > 2) {
-        timesarr.push(times[2].time)
-      }
-      andIn = <h4>and in <strong>{timesarr.join(', ')}</strong> min</h4>
-    } else if (parseInt(times[0].time) < 60) {
-      andIn = <h4><span className="last">Last</span></h4>
-    }
+
     let className = 'colored-trip'
+    let inner
     if (this.state.expanded) {
       className += ' expanded'
+    }
+    if (this.state.expanded && times.length > 1) {
+      inner = (
+        <div className="right">
+          {times.slice(0,3).map((item, key) => {
+            const realtime = item.realtime !== false ? 'realtime' : ''
+            const className = ''
+            if (item.time === 'Due') {
+              return (
+                <h4 className={realtime} key={key}>
+                  <strong>{item.time}</strong>
+                </h4>
+              )
+            } else if (item.realtime === 'delay') {
+              return (
+                <h4 className={className} key={key}>
+                  <strong>{item.stops}</strong>
+                  {item.stops > 1 ? ' stops ' : ' stop '}
+                  <span className="opacity">&middot;</span> <strong>{item.time}</strong> min
+                </h4>
+              )
+            } else if (item.realtime === 'distance') {
+              return (
+                <h4 className={className} key={key}>
+                  <strong>{item.time}</strong> min
+                </h4>
+              )
+            } else {
+              return (
+                <h4 className={className} key={key}>
+                  <strong>{item.time}</strong> min
+                </h4>
+              )
+            }
+          })}
+        </div>
+      )
+    } else {
+      let latest = times[0]
+      let dd = null
+      let className = latest.realtime !== false ? 'realtime' : ''
+      if (latest.dd === true) {
+        dd = <img className="dd" src="/icons/big.svg" />
+      }
+      if (latest.time === 'Due') {
+        if (latest.realtime !== false) {
+          className += ' due'
+        }
+        latest = <h3 className={className}>{dd} <span className="number-small">{latest.time}</span></h3>
+      } else if (latest.realtime === 'delay') {
+        latest = (
+          <h3 className={className}>{dd} <span className="number-small">{latest.stops}</span>
+            {latest.stops > 1 ? ' stops ' : ' stop '}
+            <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m
+          </h3>
+        )
+      } else if (latest.realtime === 'distance' && latest.distance > 0) {
+        latest = <h3 className={className}><span className="number-small">{latest.distance}</span>km <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
+      } else {
+        latest = <h3 className={className}><span className="number">{latest.time}</span>m</h3>
+      }
+      let andIn = null
+      if (times.length > 1) {
+        const timesarr = [times[1].time]
+        if (times.length > 2) {
+          timesarr.push(times[2].time)
+        }
+        andIn = <h4>and in <strong>{timesarr.join(', ')}</strong> min</h4>
+      } else if (parseInt(times[0].time) < 60) {
+        andIn = <h4><span className="last">Last</span></h4>
+      }
+      inner = (
+        <div className="right">
+          {latest}
+          {andIn}
+        </div>
+      )
     }
     return (
       <li className={className} style={{background: background}}>
@@ -167,10 +210,7 @@ class TripItem extends React.Component {
             <h2>{direction}{headsign} {via}
             </h2>
           </div>
-          <div className="right">
-            {latest}
-            {andIn}
-          </div>
+          {inner}
         </div>
         <div className="bottom">
           <button onTouchTap={this.triggerMap}><img src="/icons/map.svg"/>Map</button>

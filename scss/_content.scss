@@ -358,6 +358,18 @@ $bgheight: 125px;
 		font-weight: 400;
 		margin-right: 12px;
 
+		&.realtime {
+			&::after {
+				content: "";
+				background: url(icons/realtime.svg);
+				background-position: -2px -2px;
+				background-repeat: no-repeat;
+				width: 8px;
+				height: 13px;
+				display: inline-block;
+			}
+		}
+
 		.last {
 			text-transform: uppercase;
 			padding: 1px 4px;
