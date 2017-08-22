@@ -63,6 +63,8 @@
 
 	.inner {
 		padding: 1rem;
+		max-height: 60vh;
+    overflow-y: auto;
 	}
 
 	input[type="text"], input[type="tel"] {
@@ -140,7 +142,7 @@
 				margin-right: 0.5rem;
 				border: 2px solid $atblue;
 				border-radius: 2px;
-				color: #fff;
+				color: transparent;
 				font-size: 14px;
 				transition: 75ms ease-in background;
 			}
@@ -149,6 +151,7 @@
 		&:checked + label {
 			&::before {
 				background: $atblue;
+				color: #fff;
 			}
 		}
 	}

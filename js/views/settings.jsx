@@ -15,6 +15,7 @@ const apis = [
   ['https://azure.microsoft.com', 'Microsoft Azure', 'Application Server'],
   ['https://github.com', 'GitHub', 'Project Hosting'],
   ['https://www.openstreetmap.org/', 'OpenStreetMap', 'Map Data'],
+  ['https://material.io/icons/', 'Material Design', 'Icons'],
 ]
 
 const style = UiStore.getAnimation()
@@ -170,7 +171,6 @@ class Settings extends React.Component {
                   {this.renderLinks(apis)}
                   <div className="love">Made with 💙 in Auckland NZ</div>
                 </div>
-                <a className="button" href="https://www.patreon.com/dymajo" rel="noopener noreferrer" target="_blank"><img src="/icons/patron.svg" />Become a Patron</a>
               </div>
             </div>
           </div>

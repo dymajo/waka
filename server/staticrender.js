@@ -43,6 +43,12 @@ const staticrender = {
         return res.redirect(301, path.join('/'))
         // return res.redirect(301, ca)
       } else if (path.length === 4) {
+        if (path[3].split('+').length > 1) {
+          title = 'Multi Stop' + defaultName
+          description = 'Realtime departures and timetable.'
+          success()
+          return
+        }
         station._stopInfo(path[3], 'nz-akl').then(function(data) {
           title = data.stop_name + defaultName
           description = 'Realtime departures and timetable for '
