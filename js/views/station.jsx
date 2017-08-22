@@ -265,12 +265,15 @@ class Station extends React.Component {
       if (item[1] === false) otherwise.push(item[0])
     })
 
+    const newId = stations.join('+')
     StationStore.removeStop(this.props.match.params.station)
     stations.forEach((station) => StationStore.removeStop(station))
-    otherwise.forEach((station) => StationStore.addStop(station, this.props.match.params.region))
-    StationStore.addStop(stations.join('+'), this.state.name, this.props.match.params.region)
+    otherwise.forEach((station) => StationStore.addStop(station, null, this.props.match.params.region))
+    StationStore.addStop(newId, this.state.name, this.props.match.params.region)
 
-    this.saveInput.blur()
+    if (newId !== this.props.match.params.station && newId !== '') {
+      this.props.history.replace(`/s/${this.props.match.params.region}/${newId}`)
+    }
   }
   triggerSaveCancel = () => {
     this.setState({ saveModal: false })

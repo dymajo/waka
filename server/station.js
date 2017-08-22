@@ -83,7 +83,7 @@ var station = {
 
     // midnight fix
     if (time.hour() < 5) {
-      today.subtract(1, 'day')
+      today.setTime(today.getTime() - (1000 * 60 * 60 * 24))
     }
 
     const realtimeTrips = []

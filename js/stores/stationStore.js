@@ -153,6 +153,13 @@ export class stationStore extends Events {
       } else if (typeof this.stationCache[station] !== 'undefined') {
         return resolve(this.stationCache[station])
       }
+      if (station.split('+').length > 1) {
+        return resolve({
+          stop_lat: 0,
+          stop_lon: 0,
+          stop_name: 'Multi Stop'
+        })
+      }
       fetch(`/a/${region}/station/${station}`).then((response) => {
         if (response.status === 404) {
           throw new Error(response.status)
