@@ -230,14 +230,25 @@ export class stationStore extends Events {
       }
     })
   }
-  getTimes(station) {
-    fetch(`/a/nz-akl/station/${station}/times`).then((response) => {
-      response.json().then((data) => {
-        this.timesFor = [station, new Date()]
-        this.tripData = data.trips
-        this.realtimeData = data.realtime
-        this.trigger('times', station)
+  getTimes(stations) {
+    const promises = stations.split('+').map((station) => {
+      return new Promise((resolve, reject) => {
+        fetch(`/a/nz-akl/station/${station}/times`).then((response) => {    
+          response.json().then(resolve)
+        })
       })
+    })
+    Promise.all(promises).then((allData) => {
+      let trips = []
+      let realtime = {}
+      allData.forEach((data) => {
+        trips = trips.concat(data.trips)
+        realtime = Object.assign(realtime, data.realtime)
+      })
+      this.timesFor = [stations, new Date()]
+      this.tripData = trips
+      this.realtimeData = realtime
+      this.trigger('times', stations)
     })
   }
   getRealtime(tripData) {

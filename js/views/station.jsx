@@ -434,6 +434,9 @@ class Station extends React.Component {
       if (icon === 'bus') {
         iconStr = 'Bus Stop ' + stop
       }
+      if (this.props.match.params.station.split('+').length > 1) {
+        iconStr = 'Stops ' + stop.split('+').join(', ')
+      }
     }
 
     let modalHeader, saveButton, combined, removeBtn
