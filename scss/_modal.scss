@@ -15,7 +15,7 @@
 	.modal {
 		background: #fff;
 		max-width: 290px;
-		margin: 20vh auto 0;
+		margin: 15vh auto 0;
 		border: 2px solid $atblue;
 		border-radius: 3px;
 		box-shadow: 0 1px 4px rgba(#000, 0.3);
@@ -41,43 +41,53 @@
 		font-size: 1rem;
 	}
 
+	h3 {
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		margin: 0 0 0.25rem;
+		letter-spacing: -0.5px;
+		color: #000;
+	}
+
 	.inner {
 		padding: 1rem;
 	}
 
-	input {
+	input[type="text"], input[type="tel"] {
 		border-radius: 3px;
 		width: 100%;
 		box-sizing: border-box;
 		border: 2px solid #ccc;
-		margin-bottom: 10px;
 		outline: 0;
 		padding: 7px 10px;
 		-webkit-appearance: none;
+		margin-bottom: 0.5rem;
+
+		&:first-child:last-child {
+			margin: 0;
+		}
 
 		&:focus {
 			border-color: $atblue;
 		}		
 	}
+	ul {
+		margin-bottom: 1rem;
+	}
 	button {
-		width: calc(50% - 5px);
+		width: 50%;
 		box-sizing: border-box;
-		border: 2px solid $atblue;
+		border: 0;
+		border-top: 2px solid $atblue;
 		color: $atblue;
 		background: transparent;
-		font-family: "Open Sans", sans-serif;
-		padding: 7px 0;
+		padding: 0.5rem 0;
 		outline: 0;
 		font-size: 14px;
 		font-weight: bold;
 		text-transform: uppercase;
 		display: inline-block;
 		margin-top: 0;
-		border-radius: 3px;
-		
-		&.cancel {
-			margin-right: 10px;
-		}
 
 		&:active {
 			background: $atblue;
@@ -91,6 +101,13 @@
 			&:active {
 				background: darken($atblue, 10);
 			}
+		}
+		&.inline {
+			border: 2px solid $atblue;
+			font-size: 13px;
+			padding: 0.25rem 1rem;
+			width: auto;
+			border-radius: 3px;
 		}
 	}
 }

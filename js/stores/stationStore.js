@@ -138,26 +138,6 @@ export class stationStore extends Events {
       return '#17232f'
     }
   }
-  getMulti(id) {
-    switch (id) {
-    case('7034+7004'):
-      return 'Sturdee Street'
-    case('7036+1315'):
-      return 'Victoria Park'
-    case('4063+4065+4083+4087+4085+4089'):
-      return 'Akoranga Station'
-    case('3355+3360+3362+3353'):
-      return 'Smales Farm Station'
-    case('3221+3219+3238+3240'):
-      return 'Sunnynook Station'
-    case('4222+4225+4223'):
-      return 'Constellation Park & Ride'
-    case('4227+4229+4226+4228'):
-      return 'Albany Park & Ride'
-    default:
-      return 'Multi Station'
-    }
-  }
   // persists data to localStorage
   saveData() {
     localStorage.setItem('StationData', JSON.stringify(this.StationData))
@@ -174,7 +154,11 @@ export class stationStore extends Events {
         return resolve(this.stationCache[station])
       }
       fetch(`/a/nz-akl/station/${station}`).then((response) => {
-        response.json().then(resolve)
+        if (response.status === 404) {
+          throw new Error(response.status)
+        } else {
+          response.json().then(resolve)
+        }
       }).catch(err => reject(err))
     })
   }
@@ -182,41 +166,47 @@ export class stationStore extends Events {
     return this.StationOrder
   }
   addStop(stopNumber, stopName) {
-    // so we don't have duplicates
-    if (typeof(this.StationData[stopNumber]) === 'undefined') {
-      this.StationOrder.push(stopNumber)
+    if (stopNumber.trim() === '') {
+      return
     }
-    var stopNumberReq = stopNumber
+
+    let stopNumberReq = stopNumber
     if (stopNumber.split('+').length > 1) {
       stopNumberReq = stopNumber.split('+')[0]
     }
     fetch(`/a/nz-akl/station/${stopNumberReq}`).then((response) => {
       response.json().then((data) => {
-        var description = `Stop ${stopNumber} / ${data.stop_name}`
+        let description = `Stop ${stopNumber} / ${data.stop_name}`
+        let icon = this.getIcon(stopNumber)
         if (stopNumber.split('+').length > 1) {
-          description = 'Northern Busway / ' + this.getMulti(stopNumber)
+          description = 'Stops ' + stopNumber.split('+').join(', ')
+          icon = 'multi'
+        }
+        // so we don't have duplicates
+        if (typeof(this.StationData[stopNumber]) === 'undefined') {
+          this.StationOrder.push(stopNumber)
         }
         this.StationData[stopNumber] = {
-          name: stopName,
+          name: stopName || data.stop_name,
           stop_lat: data.stop_lat,
           stop_lon: data.stop_lon,
           description: description,
-          icon: this.getIcon(stopNumber)
+          icon: icon
         }
+
         this.trigger('change')
         this.saveData()
       })
     })
   }
   removeStop(stopNumber) {
-    var index = this.StationOrder.indexOf(stopNumber)
+    const index = this.StationOrder.indexOf(stopNumber)
     if (index > -1) {
       this.StationOrder.splice(index, 1)
+      delete this.StationData[stopNumber]
+      this.trigger('change')
+      this.saveData()
     }
-    delete this.StationData[stopNumber]
-    this.trigger('change')
-
-    this.saveData()
   }
   getLines() {
     return new Promise((resolve, reject) => {

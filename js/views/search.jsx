@@ -304,9 +304,9 @@ class Search extends React.Component {
                 onChange={this.triggerChange} 
                 ref={e => this.searchInput = e}
               />
-              <button className="cancel" onTouchTap={this.toggleFind}>Cancel</button>
-              <button className="submit" onTouchTap={this.triggerSearch}>Go</button>
             </div>
+            <button className="cancel" onTouchTap={this.toggleFind}>Cancel</button>
+            <button className="submit" onTouchTap={this.triggerSearch}>Go</button>
           </div>
         </div>
         <button className="routeButton" onTouchTap={this.toggleFind} alt="Find Stop" title="Find Stop">

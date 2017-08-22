@@ -22,6 +22,7 @@ class Station extends React.Component {
     name: '',
     description: '',
     trips: [],
+    checked: {},
     realtime: {},
     loading: true,
     saveModal: null,
@@ -31,6 +32,14 @@ class Station extends React.Component {
     currentTrips: [],
     definedOrder: [],
     animation: 'unmounted',
+  }
+
+  constructor(props) {
+    super(props)
+    this.state.checked = this.props.match.params.station.split('+').reduce((result, item) => {
+      result[item] = true
+      return result
+    }, {})
   }
   // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
   getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
@@ -66,6 +75,8 @@ class Station extends React.Component {
         stop_lat: data.stop_lat, 
         stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
       })
+    }).catch((err) => {
+      console.log('error!')
     })
 
     if (getTimes) {
@@ -246,20 +257,32 @@ class Station extends React.Component {
     this.setState({
       saveModal: false
     })
-    StationStore.addStop(this.props.match.params.station, this.state.name)
+
+    const stations = []
+    const otherwise = []
+    Object.entries(this.state.checked).forEach((item) => {
+      if (item[1] === true) stations.push(item[0])
+      if (item[1] === false) otherwise.push(item[0])
+    })
+
+    StationStore.removeStop(this.props.match.params.station)
+    stations.forEach((station) => StationStore.removeStop(station))
+    otherwise.forEach((station) => StationStore.addStop(station))
+    StationStore.addStop(stations.join('+'), this.state.name)
+
     this.saveInput.blur()
   }
   triggerSaveCancel = () => {
-    StationStore.removeStop(this.props.match.params.station)
-    this.setState({
-      saveModal: false
-    })
-    this.saveInput.blur()
+    this.setState({ saveModal: false })
   }
   triggerSaveChange = (e) => {
     this.setState({
       name: e.currentTarget.value
     })
+  }
+  triggerRemove = (e) => {
+    StationStore.removeStop(this.props.match.params.station)
+    this.setState({ saveModal: false })
   }
   triggerTouchStart = (e) => {
     iOS.triggerStart(e)
@@ -360,6 +383,15 @@ class Station extends React.Component {
       })
     }
   }
+  triggerCheckbox = (item) => {
+    return (e) => {
+      const checked = JSON.parse(JSON.stringify(this.state.checked))
+      checked[item] = e.currentTarget.checked
+      this.setState({
+        checked: checked
+      })
+    }
+  }
   componentWillReceiveProps(newProps) {
     // basically don't do anything if the station doesn't change
     if (this.props.match.params.station === newProps.match.params.station) {
@@ -404,18 +436,47 @@ class Station extends React.Component {
       }
     }
 
-    let saveButton
-    var addButton
-    var cancelButton
+    let modalHeader, saveButton, combined, removeBtn
     var dark  = this.state.fancyMode ? '-dark' : ''
     if (StationStore.getOrder().indexOf(stop) === -1) {
+      modalHeader = 'Save Station'
       saveButton = <span className="header-right save" onTouchTap={this.triggerSave}><img src={'/icons/unsaved' + dark + '.svg'} /></span>  
-      cancelButton = 'Cancel'
-      addButton = 'Add Stop'
     } else {
+      modalHeader = 'Edit Station'
       saveButton = <span className="header-right remove" onTouchTap={this.triggerSave}><img src={'/icons/saved' + dark + '.svg'} /></span>
-      cancelButton = 'Remove Stop'
-      addButton = 'Rename'
+
+      if (this.props.match.params.station.split('+').length === 1) {
+        removeBtn = <button className="inline" onTouchTap={this.triggerRemove}>Remove Stop</button>
+      }
+    }
+
+    const mergers = Object.keys(this.state.checked)
+    StationStore.getOrder().forEach((item) => {
+      if (item !== this.props.match.params.station 
+        && mergers.indexOf(item) === -1
+        && item.split('+').length === 1
+      ) {
+        mergers.push(item)
+      }
+    })
+    mergers.sort()
+
+    if (mergers.length > 1) {
+      combined = (
+        <div>
+          <h3>Merge Stops</h3>
+          <ul>
+            {mergers.filter(i => i !== this.props.match.params.station).map((item) => {
+              return (
+                <li key={item}>
+                  <input onChange={this.triggerCheckbox(item)} type="checkbox" checked={this.state.checked[item] || false} />
+                  <label>{item}</label>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )
     }
 
     let saveModal = 'modal-wrapper'
@@ -471,12 +532,15 @@ class Station extends React.Component {
       <div className={className} style={styles} ref={e => this.container = e}>
         <div className={saveModal}>
           <div className="modal">
-            <h2>Save Station</h2>
+            <h2>{modalHeader}</h2>
             <div className="inner">
+              <h3>Stop Name</h3>
               <input type="text" value={this.state.name} onChange={this.triggerSaveChange} ref={e => this.saveInput = e} />
-              <button className="cancel" onTouchTap={this.triggerSaveCancel}>{cancelButton}</button>
-              <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
+              {combined}
+              {removeBtn}
             </div>
+            <button className="cancel" onTouchTap={this.triggerSaveCancel}>Cancel</button>
+            <button className="submit" onTouchTap={this.triggerSaveAdd}>Save</button>
           </div>
         </div>
         {headerPos[0]}
