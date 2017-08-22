@@ -8,6 +8,7 @@ $root-card-bar: 56px;
 $default-back: #f8f8f8;
 $big-offset: 32px;
 $sidebar-width: 350px;
+$standard-shadow: 0 0 4px rgba(0,0,0,0.4);
 
 body {
   --real-height: 100vh;
@@ -17,12 +18,15 @@ html, body, #app {
   height: 100%;
   width: 100vw;
   overflow: hidden;
-  font-family: 'Open Sans', sans-serif;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select:  none;
   background: #eee;
+}
+
+html, body, input {
+  font-family: 'Open Sans', sans-serif;
 }
 
 .panes {
@@ -45,6 +49,7 @@ noscript {
 @import "_search";
 @import "_searchswitch";
 @import "_content";
+@import "_modal";
 @import "_settings";
 @import "_splash";
 @import "_ios";

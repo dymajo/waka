@@ -203,9 +203,9 @@ class Lines extends React.Component {
 
     return(
       <div className={className} ref={e => this.container = e} style={style[this.state.animation]}>
-        <header className='material-header'>
-          <div>
-            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+        <header className="material-header">
+          <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <div className="header-expand">
             <h1>All Lines</h1>
           </div>
         </header>

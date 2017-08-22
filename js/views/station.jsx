@@ -24,7 +24,7 @@ class Station extends React.Component {
     trips: [],
     realtime: {},
     loading: true,
-    saveModal: false,
+    saveModal: null,
     stop_lat: undefined,
     stop_lon: undefined,
     fancyMode: false,
@@ -390,12 +390,12 @@ class Station extends React.Component {
     const icon = StationStore.getIcon(stop)
     let iconStr = this.state.description
 
-    let topIcon = <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+    let topIcon = <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
     let className = 'station'
     if (this.state.fancyMode) {
       className += ' fancy'
       if (this.state.name !== '') {
-        topIcon = <span className="back mode"><img src={`/icons/${icon}-dark.svg`} /></span>
+        topIcon = <span className="header-left mode"><img src={`/icons/${icon}-dark.svg`} /></span>
       }
     }
     if (this.state.name !== '') {
@@ -404,23 +404,23 @@ class Station extends React.Component {
       }
     }
 
-    var saveButton
+    let saveButton
     var addButton
     var cancelButton
     var dark  = this.state.fancyMode ? '-dark' : ''
     if (StationStore.getOrder().indexOf(stop) === -1) {
-      saveButton = <span className="save" onTouchTap={this.triggerSave}><img src={'/icons/unsaved' + dark + '.svg'} /></span>  
+      saveButton = <span className="header-right save" onTouchTap={this.triggerSave}><img src={'/icons/unsaved' + dark + '.svg'} /></span>  
       cancelButton = 'Cancel'
       addButton = 'Add Stop'
     } else {
-      saveButton = <span className="remove" onTouchTap={this.triggerSave}><img src={'/icons/saved' + dark + '.svg'} /></span>
+      saveButton = <span className="header-right remove" onTouchTap={this.triggerSave}><img src={'/icons/saved' + dark + '.svg'} /></span>
       cancelButton = 'Remove Stop'
       addButton = 'Rename'
     }
 
-    var saveModal = 'saveModal'
-    if (!this.state.saveModal) {
-      saveModal += ' hidden'
+    let saveModal = 'modal-wrapper'
+    if (this.state.saveModal === true) {
+      saveModal += ' show'
     }
 
     var scrollable = 'scrollable'
@@ -453,12 +453,12 @@ class Station extends React.Component {
     name = name.replace(' Ferry Terminal', '')
     const header = (
       <header className="material-header">
-        <div>
-          {topIcon}
-          {saveButton}
+        {topIcon}
+        <div className="header-expand">
           <h1>{name}</h1>
           <h2>{iconStr}</h2>
         </div>
+        {saveButton}
       </header>
     )
 
@@ -470,11 +470,13 @@ class Station extends React.Component {
     return (
       <div className={className} style={styles} ref={e => this.container = e}>
         <div className={saveModal}>
-          <div>
-            <h2>Choose a Name</h2>
-            <input type="text" value={this.state.name} onChange={this.triggerSaveChange} ref={e => this.saveInput = e} />
-            <button className="cancel" onTouchTap={this.triggerSaveCancel}>{cancelButton}</button>
-            <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
+          <div className="modal">
+            <h2>Save Station</h2>
+            <div className="inner">
+              <input type="text" value={this.state.name} onChange={this.triggerSaveChange} ref={e => this.saveInput = e} />
+              <button className="cancel" onTouchTap={this.triggerSaveCancel}>{cancelButton}</button>
+              <button className="submit" onTouchTap={this.triggerSaveAdd}>{addButton}</button>
+            </div>
           </div>
         </div>
         {headerPos[0]}

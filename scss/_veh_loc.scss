@@ -83,7 +83,7 @@
 
 .vehicle-location-map {
   position: relative;
-  z-index: 8;
+  z-index: 0;
   height: calc(100vh - #{$mobilenavsize});
   height: calc(var(--real-height) - #{$mobilenavsize});
 

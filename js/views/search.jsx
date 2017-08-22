@@ -277,10 +277,9 @@ class Search extends React.Component {
       stationMarker = <Marker icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
     }
 
-    // css class is saveModal
-    var findModal = 'saveModal'
-    if (!this.state.findModal) {
-      findModal += ' hidden'
+    let findModal = 'modal-wrapper'
+    if (this.state.findModal === true) {
+      findModal += ' show'
     }
 
     var positionMap = {}
@@ -294,18 +293,20 @@ class Search extends React.Component {
     return (
       <div className={searchClass}>
         <div className={findModal}>
-          <div>
+          <div className="modal">
             <h2>Find Stop</h2>
-            <input type="tel"
-              placeholder="Enter Stop Number"
-              maxLength="4"
-              value={this.state.station}
-              onKeyUp={this.triggerKeyUp}
-              onChange={this.triggerChange} 
-              ref={e => this.searchInput = e}
-            />
-            <button className="cancel" onTouchTap={this.toggleFind}>Cancel</button>
-            <button className="submit" onTouchTap={this.triggerSearch}>Go</button>
+            <div className="inner">
+              <input type="tel"
+                placeholder="Enter Stop Number"
+                maxLength="4"
+                value={this.state.station}
+                onKeyUp={this.triggerKeyUp}
+                onChange={this.triggerChange} 
+                ref={e => this.searchInput = e}
+              />
+              <button className="cancel" onTouchTap={this.toggleFind}>Cancel</button>
+              <button className="submit" onTouchTap={this.triggerSearch}>Go</button>
+            </div>
           </div>
         </div>
         <button className="routeButton" onTouchTap={this.toggleFind} alt="Find Stop" title="Find Stop">

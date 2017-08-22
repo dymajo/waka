@@ -127,13 +127,13 @@ export default class Timetable extends React.Component {
     const currentTime = parseInt(new Date().getHours().toString() + ('0' + new Date().getMinutes()).slice(-2))
     return (
       <div className='timetable-container' ref={e => this.container = e} style={style[this.state.animation]}>
-        <header className='material-header'>
-          <div>
-            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+        <header className="material-header">
+          <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <div className="header-expand">
             <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
               {code}
             </span>
-            <h1 className='line-name'>Timetable</h1>
+            <h1 className="line-name">Timetable</h1>
             <h2>{this.state.stopName}</h2>
           </div>
         </header>

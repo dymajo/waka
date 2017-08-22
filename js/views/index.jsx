@@ -323,12 +323,13 @@ class Index extends React.Component {
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
           <header className="material-header branding-header">
-            <div>
-              <span className="more" onTouchTap={this.triggerSettings}><img src="/icons/settings.svg" /></span>
+            <span className="header-left header-left-sm"><img src='/icons/icon.svg' /></span>
+            <div className="header-expand">
               <h1 className="full-height">
-                <img className="logo" src='/icons/icon.svg' width='18' />
+                
                 <strong>DYMAJO Transit</strong></h1>
             </div>
+            <span className="header-right" onTouchTap={this.triggerSettings}><img src="/icons/settings.svg" /></span>
           </header>
           <div className="root-map" ref="touchmap">
             {map}

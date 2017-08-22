@@ -124,8 +124,8 @@ class Settings extends React.Component {
     return(
       <div className="settingsContainer" ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
-          <div>
-            <span className="back" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <div className="header-content">
             <h1>Settings</h1>
           </div>
         </header>
