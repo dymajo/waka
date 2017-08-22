@@ -165,8 +165,8 @@ export class stationStore extends Events {
       return this.StationData
     }
     return new Promise((resolve, reject) => {
-      if (typeof this.StationData[station] !== 'undefined') {
-        return resolve(this.StationData[station])
+      if (typeof this.StationData[region + '|' + station] !== 'undefined') {
+        return resolve(this.StationData[region + '|' + station])
       } else if (typeof this.stationCache[station] !== 'undefined') {
         return resolve(this.stationCache[station])
       }
@@ -211,11 +211,12 @@ export class stationStore extends Events {
         let description = `Stop ${no} / ${data.stop_name}`
         let icon = this.getIcon(no)
 
+        let zName = stopName
         if (stopNumber.split('+').length > 1) {
-          stopName = data.stop_name
+          zName = data.stop_name
         }
         this.StationData[region + '|' + no] = {
-          name: stopName || data.stop_name,
+          name: zName || data.stop_name,
           stop_lat: data.stop_lat,
           stop_lon: data.stop_lon,
           description: description,

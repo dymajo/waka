@@ -249,9 +249,6 @@ class Station extends React.Component {
     this.setState({
       saveModal: true
     })
-    setTimeout(() => {
-      this.saveInput.focus()
-    }, 200)
   }
   triggerSaveAdd = () => {
     this.setState({
