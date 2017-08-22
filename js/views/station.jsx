@@ -267,8 +267,8 @@ class Station extends React.Component {
 
     StationStore.removeStop(this.props.match.params.station)
     stations.forEach((station) => StationStore.removeStop(station))
-    otherwise.forEach((station) => StationStore.addStop(station))
-    StationStore.addStop(stations.join('+'), this.state.name)
+    otherwise.forEach((station) => StationStore.addStop(station, this.props.match.params.region))
+    StationStore.addStop(stations.join('+'), this.state.name, this.props.match.params.region)
 
     this.saveInput.blur()
   }
@@ -451,7 +451,7 @@ class Station extends React.Component {
     }
 
     const mergers = Object.keys(this.state.checked)
-    StationStore.getOrder().forEach((item) => {
+    StationStore.getOrder(this.props.match.params.region).forEach((item) => {
       if (item !== this.props.match.params.station 
         && mergers.indexOf(item) === -1
         && item.split('+').length === 1

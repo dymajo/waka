@@ -143,7 +143,7 @@ export class stationStore extends Events {
     localStorage.setItem('StationData', JSON.stringify(this.StationData))
     localStorage.setItem('StationOrder', JSON.stringify(this.StationOrder))
   }
-  getData(station) {
+  getData(station, region = 'nz-akl') {
     if (typeof station === 'undefined') {
       return this.StationData
     }
@@ -153,7 +153,7 @@ export class stationStore extends Events {
       } else if (typeof this.stationCache[station] !== 'undefined') {
         return resolve(this.stationCache[station])
       }
-      fetch(`/a/nz-akl/station/${station}`).then((response) => {
+      fetch(`/a/${region}/station/${station}`).then((response) => {
         if (response.status === 404) {
           throw new Error(response.status)
         } else {
@@ -162,10 +162,15 @@ export class stationStore extends Events {
       }).catch(err => reject(err))
     })
   }
-  getOrder() {
+  getOrder(region = null) {
+    if (region) {
+      return this.StationOrder.filter((item) => {
+        return this.StationData[item].region === region || typeof(this.StationData[item].region) === 'undefined'
+      })
+    }
     return this.StationOrder
   }
-  addStop(stopNumber, stopName) {
+  addStop(stopNumber, stopName, region) {
     if (stopNumber.trim() === '') {
       return
     }
@@ -174,7 +179,7 @@ export class stationStore extends Events {
     if (stopNumber.split('+').length > 1) {
       stopNumberReq = stopNumber.split('+')[0]
     }
-    fetch(`/a/nz-akl/station/${stopNumberReq}`).then((response) => {
+    fetch(`/a/${region}/station/${stopNumberReq}`).then((response) => {
       response.json().then((data) => {
         let description = `Stop ${stopNumber} / ${data.stop_name}`
         let icon = this.getIcon(stopNumber)
@@ -191,7 +196,8 @@ export class stationStore extends Events {
           stop_lat: data.stop_lat,
           stop_lon: data.stop_lon,
           description: description,
-          icon: icon
+          icon: icon,
+          region: region
         }
 
         this.trigger('change')

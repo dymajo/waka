@@ -154,7 +154,7 @@ class SavedSations extends React.Component {
           {StationStore.getOrder().map((station) => {
             return <SidebarItem
               key={station}
-              url={`/s/nz-akl/${station}`}
+              url={`/s/${StationStore.StationData[station].region || 'nz-akl'}/${station}`}
               name={stations[station].name} 
               icon={stations[station].icon + '.svg'}
               description={stations[station].description} 
