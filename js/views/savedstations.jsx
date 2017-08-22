@@ -152,9 +152,10 @@ class SavedSations extends React.Component {
         {message}
         <ul>
           {StationStore.getOrder().map((station) => {
+            const url = station.split('|').slice(-1)
             return <SidebarItem
               key={station}
-              url={`/s/${StationStore.StationData[station].region || 'nz-akl'}/${station}`}
+              url={`/s/${StationStore.StationData[station].region || 'nz-akl'}/${url}`}
               name={stations[station].name} 
               icon={stations[station].icon + '.svg'}
               description={stations[station].description} 

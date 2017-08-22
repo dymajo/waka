@@ -37,7 +37,7 @@ class Station extends React.Component {
   constructor(props) {
     super(props)
     this.state.checked = this.props.match.params.station.split('+').reduce((result, item) => {
-      result[item] = true
+      result[this.props.match.params.region + '|' + item] = true
       return result
     }, {})
   }
@@ -261,13 +261,13 @@ class Station extends React.Component {
     const stations = []
     const otherwise = []
     Object.entries(this.state.checked).forEach((item) => {
-      if (item[1] === true) stations.push(item[0])
-      if (item[1] === false) otherwise.push(item[0])
+      if (item[1] === true) stations.push(item[0].split('|').slice(-1)[0])
+      if (item[1] === false) otherwise.push(item[0].split('|').slice(-1)[0])
     })
 
     const newId = stations.join('+')
-    StationStore.removeStop(this.props.match.params.station)
-    stations.forEach((station) => StationStore.removeStop(station))
+    StationStore.removeStop(this.props.match.params.region + '|' + this.props.match.params.station)
+    stations.forEach((station) => StationStore.removeStop(this.props.match.params.region + '|' + station))
     otherwise.forEach((station) => StationStore.addStop(station, null, this.props.match.params.region))
     StationStore.addStop(newId, this.state.name, this.props.match.params.region)
 
@@ -284,7 +284,7 @@ class Station extends React.Component {
     })
   }
   triggerRemove = (e) => {
-    StationStore.removeStop(this.props.match.params.station)
+    StationStore.removeStop(this.props.match.params.region + '|' + this.props.match.params.station)
     this.setState({ saveModal: false })
   }
   triggerTouchStart = (e) => {
@@ -421,7 +421,9 @@ class Station extends React.Component {
     this.getData(newProps)
   }
   render() {
+    const region = this.props.match.params.region
     const stop = this.props.match.params.station
+    const regionStop = region + '|' + stop
     const icon = StationStore.getIcon(stop)
     let iconStr = this.state.description
 
@@ -444,7 +446,7 @@ class Station extends React.Component {
 
     let modalHeader, saveButton, combined, removeBtn
     var dark  = this.state.fancyMode ? '-dark' : ''
-    if (StationStore.getOrder().indexOf(stop) === -1) {
+    if (StationStore.getOrder().indexOf(regionStop) === -1) {
       modalHeader = 'Save Station'
       saveButton = <span className="header-right save" onTouchTap={this.triggerSave}><img src={'/icons/unsaved' + dark + '.svg'} /></span>  
     } else {
@@ -457,8 +459,8 @@ class Station extends React.Component {
     }
 
     const mergers = Object.keys(this.state.checked)
-    StationStore.getOrder(this.props.match.params.region).forEach((item) => {
-      if (item !== this.props.match.params.station 
+    StationStore.getOrder(region).forEach((item) => {
+      if (item !== stop
         && mergers.indexOf(item) === -1
         && item.split('+').length === 1
       ) {
@@ -472,11 +474,11 @@ class Station extends React.Component {
         <div>
           <h3>Merge Stops</h3>
           <ul>
-            {mergers.filter(i => i !== this.props.match.params.station).map((item) => {
+            {mergers.filter(i => i !== regionStop).map((item) => {
               return (
                 <li key={item}>
-                  <input onChange={this.triggerCheckbox(item)} type="checkbox" checked={this.state.checked[item] || false} />
-                  <label>{item}</label>
+                  <input id={'merge-' + item} onChange={this.triggerCheckbox(item)} type="checkbox" checked={this.state.checked[item] || false} />
+                  <label htmlFor={'merge-' + item}>{item.split('|').slice(-1)[0]} - {(StationStore.StationData[item] || {}).name}</label>
                 </li>
               )
             })}

@@ -19,12 +19,29 @@ export class stationStore extends Events {
     this.StationData = {}
     if (localStorage.getItem('StationData')) {
       this.StationData = JSON.parse(localStorage.getItem('StationData'))
+
+      Object.keys(this.StationData).forEach((item) => {
+        if (item.split('|').length !== 2) {
+          this.StationData['nz-akl' + '|' + item] = this.StationData[item]
+          delete this.StationData[item]
+        }
+      })
     }
 
     this.StationOrder = []
     if (localStorage.getItem('StationOrder')) {
       this.StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
+
+      // Upgrades...
+      this.StationOrder = this.StationOrder.map((item) => {
+        if (item.split('|').length !== 2) {
+          return 'nz-akl' + '|' + item
+        }
+        return item
+      })
     }
+
+    this.saveData()
   }
   timesFor = [null, new Date(0)]
   stationCache = {}
@@ -181,24 +198,23 @@ export class stationStore extends Events {
     if (stopNumber.trim() === '') {
       return
     }
+    const promises = stopNumber.split('+').map((station) => {
+      return new Promise((resolve, reject) => {
+        fetch(`/a/${region}/station/${station}`).then((response) => {
+          response.json().then(resolve)
+        })
+      })
+    })
+    Promise.all(promises).then((dataCollection) => {
+      dataCollection.forEach((data, key) => {
+        let no = stopNumber.split('+')[key]
+        let description = `Stop ${no} / ${data.stop_name}`
+        let icon = this.getIcon(no)
 
-    let stopNumberReq = stopNumber
-    if (stopNumber.split('+').length > 1) {
-      stopNumberReq = stopNumber.split('+')[0]
-    }
-    fetch(`/a/${region}/station/${stopNumberReq}`).then((response) => {
-      response.json().then((data) => {
-        let description = `Stop ${stopNumber} / ${data.stop_name}`
-        let icon = this.getIcon(stopNumber)
         if (stopNumber.split('+').length > 1) {
-          description = 'Stops ' + stopNumber.split('+').join(', ')
-          icon = 'multi'
+          stopName = data.stop_name
         }
-        // so we don't have duplicates
-        if (typeof(this.StationData[stopNumber]) === 'undefined') {
-          this.StationOrder.push(stopNumber)
-        }
-        this.StationData[stopNumber] = {
+        this.StationData[region + '|' + no] = {
           name: stopName || data.stop_name,
           stop_lat: data.stop_lat,
           stop_lon: data.stop_lon,
@@ -206,10 +222,25 @@ export class stationStore extends Events {
           icon: icon,
           region: region
         }
-
-        this.trigger('change')
-        this.saveData()
       })
+
+      if (stopNumber.split('+').length > 1) {
+        this.StationData[region + '|' + stopNumber] = {
+          name: stopName || 'Multi Stop',
+          stop_lat: 0,
+          stop_lon: 0,
+          description: 'Stops ' + stopNumber.split('+').join(', '),
+          icon: 'multi',
+          region: region
+        }
+      }
+
+      // so we don't have duplicates
+      if (this.StationOrder.indexOf(region + '|' + stopNumber) === -1) {
+        this.StationOrder.push(region + '|' + stopNumber)
+      }
+      this.trigger('change')
+      this.saveData()
     })
   }
   removeStop(stopNumber) {
@@ -261,7 +292,13 @@ export class stationStore extends Events {
   getRealtime(tripData) {
     // realtime request for buses and trains
     // not ferries though
-    if (tripData.length === 0 || tripData[0].route_type === '4') {
+    let route_type
+    if (this.timesFor[0].split('+').length > 1) {
+      route_type = 3
+    } else if (tripData.length > 0) {
+      route_type = tripData[0].route_type
+    }
+    if (tripData.length === 0 || tripData[0].route_type === 4) {
       return
     }
 
@@ -282,8 +319,8 @@ export class stationStore extends Events {
     }).map(trip => trip.trip_id)
 
     // we need to pass an extra param for train trips
-    var requestData
-    if (tripData[0].route_type === 2) {
+    let requestData
+    if (route_type === 2) {
       requestData = JSON.stringify({
         trips: queryString,
         train: true

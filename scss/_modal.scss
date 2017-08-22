@@ -49,6 +49,18 @@
 		color: #000;
 	}
 
+	ul {
+		margin-bottom: 0.5rem;
+	}
+
+	li {
+		overflow: hidden;
+    height: 22px;
+    text-overflow: ellipsis;
+	  margin-bottom: 3px;
+    white-space: pre;
+	}
+
 	.inner {
 		padding: 1rem;
 	}
@@ -70,9 +82,6 @@
 		&:focus {
 			border-color: $atblue;
 		}		
-	}
-	ul {
-		margin-bottom: 1rem;
 	}
 	button {
 		width: 50%;
@@ -108,6 +117,39 @@
 			padding: 0.25rem 1rem;
 			width: auto;
 			border-radius: 3px;
+		}
+	}
+
+	input[type="checkbox"] {
+		display: none;
+
+		+ label {
+			display: inline-block;
+	    vertical-align: top;
+	    font-size: 15px;
+	    line-height: 22px;
+
+			&::before {
+				content: '✔';
+				text-align: center;
+				vertical-align: top;
+				width: 18px;
+				height: 18px;
+				line-height: 18px;
+				display: inline-block;
+				margin-right: 0.5rem;
+				border: 2px solid $atblue;
+				border-radius: 2px;
+				color: #fff;
+				font-size: 14px;
+				transition: 75ms ease-in background;
+			}
+		}
+
+		&:checked + label {
+			&::before {
+				background: $atblue;
+			}
 		}
 	}
 }
