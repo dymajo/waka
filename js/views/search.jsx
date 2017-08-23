@@ -185,7 +185,7 @@ class Search extends React.Component {
     navigator.geolocation.clearWatch(this.geoID)
   }
   getData(lat, lng, dist) {
-    fetch(`${local}/nz-akl/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
+    fetch(`${local.endpoint}/nz-akl/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
       response.json().then((data) => {
         data.forEach(function(item) {
           StationStore.stationCache[item.stop_id] = item

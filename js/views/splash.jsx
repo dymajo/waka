@@ -59,7 +59,7 @@ class Splash extends React.Component {
             <button className="send" onTouchTap={this.triggerPin}>Send to Phone</button>
           </div>
           <footer>
-            <p>&copy; {new Date().getUTCFullYear()} DYMAJO Ltd &middot; <small>V</small>{localStorage.getItem('AppVersion')}</p>
+            <p>&copy; {new Date().getUTCFullYear()} DYMAJO Ltd &middot; <small>V</small>{local.endpointStorage.getItem('AppVersion')}</p>
           </footer>
         </div>
       </div>

@@ -53,7 +53,7 @@ class Pin extends React.Component {
 
   sendEmail(e){
     e.preventDefault()
-    fetch(`${local}/email`, {
+    fetch(`${local.endpoint}/email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

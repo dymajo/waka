@@ -67,10 +67,10 @@ class vehicle_location extends React.Component {
 
   getShapeData(newProps = this.props) {
     let showIcons = true
-    let url = `${local}/nz-akl/stops/trip/${newProps.params.trip_id}`
+    let url = `${local.endpoint}/nz-akl/stops/trip/${newProps.params.trip_id}`
     if ('line_id' in newProps.params) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
-        url = `${local}/nz-akl/stops/shape/${newProps.tripInfo.shape_id}`
+        url = `${local.endpoint}/nz-akl/stops/shape/${newProps.tripInfo.shape_id}`
       } else {
         return
       }
@@ -100,7 +100,7 @@ class vehicle_location extends React.Component {
   getWKB(newProps = this.props, force = false){
     if (typeof(this.state.line) === 'undefined' || force === true) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
-        fetch(`${local}/nz-akl/shape/${newProps.tripInfo.shape_id}`).then((response) => {
+        fetch(`${local.endpoint}/nz-akl/shape/${newProps.tripInfo.shape_id}`).then((response) => {
           response.text().then(this.convert)
         })
       }
@@ -201,7 +201,7 @@ class vehicle_location extends React.Component {
         return
       }
       let busPositions = {}
-      fetch(`${local}/nz-akl/vehicle_location`, {
+      fetch(`${local.endpoint}/nz-akl/vehicle_location`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -178,7 +178,7 @@ export class stationStore extends Events {
           stop_name: 'Multi Stop'
         })
       }
-      fetch(`${local}/${region}/station/${station}`).then((response) => {
+      fetch(`${local.endpoint}/${region}/station/${station}`).then((response) => {
         if (response.status === 404) {
           throw new Error(response.status)
         } else {
@@ -201,7 +201,7 @@ export class stationStore extends Events {
     }
     const promises = stopNumber.split('+').map((station) => {
       return new Promise((resolve, reject) => {
-        fetch(`${local}/${region}/station/${station}`).then((response) => {
+        fetch(`${local.endpoint}/${region}/station/${station}`).then((response) => {
           response.json().then(resolve)
         })
       })
@@ -257,7 +257,7 @@ export class stationStore extends Events {
   getLines() {
     return new Promise((resolve, reject) => {
       if (Object.keys(this.lineCache).length === 0) {
-        fetch(`${local}/nz-akl/lines`).then((response)=>{
+        fetch(`${local.endpoint}/nz-akl/lines`).then((response)=>{
           response.json().then((data) => {
             this.lineCache = data
             resolve(data)
@@ -273,7 +273,7 @@ export class stationStore extends Events {
   getTimes(stations) {
     const promises = stations.split('+').map((station) => {
       return new Promise((resolve, reject) => {
-        fetch(`${local}/nz-akl/station/${station}/times`).then((response) => {    
+        fetch(`${local.endpoint}/nz-akl/station/${station}/times`).then((response) => {    
           response.json().then(resolve)
         })
       })
@@ -332,7 +332,7 @@ export class stationStore extends Events {
     }
 
     // now we do a request to the realtime API
-    fetch(`${local}/nz-akl/realtime`, {
+    fetch(`${local.endpoint}/nz-akl/realtime`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -350,7 +350,7 @@ export class stationStore extends Events {
       return a.arrival_time_seconds - b.arrival_time_seconds
     }
     return new Promise((resolve, reject) => {
-      fetch(`${local}/nz-akl/station/${station}/timetable/${route}/${direction}`).then((request) => {
+      fetch(`${local.endpoint}/nz-akl/station/${station}/timetable/${route}/${direction}`).then((request) => {
         request.json().then((data) => {
           data.sort(sortfn)
           resolve(data)
