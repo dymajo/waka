@@ -9,6 +9,9 @@ app.use(bodyParser.json()) // can parse post requests
 // compression performed by nginx
 // set headers for every request
 app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8009')
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST')
   res.setHeader('X-Frame-Options', 'SAMEORIGIN')
   res.setHeader('X-Content-Type-Options', 'nosniff')
   res.setHeader('X-XSS-Protection', '1; mode=block')
@@ -25,7 +28,6 @@ app.use(function(req, res, next) {
 })
 
 var cb = function(req, res) {
-  res.set('Link',  `</style.css>; rel=preload; as='style', </generated/vendor.bundle.js>; rel=preload; as='script', </generated/app.bundle.js>; rel=preload; as='script'`)
   res.sendFile(__dirname + '/dist/index.html')
 }
 app.use('/a', require('./server'))
