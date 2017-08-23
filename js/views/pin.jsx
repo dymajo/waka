@@ -2,6 +2,7 @@
 import { browserHistory } from 'react-router'
 import { iOS } from '../models/ios.js'
 import Clipboard from 'clipboard'
+import local from '../../local'
 
 let clipboard = undefined
 class Pin extends React.Component {
@@ -52,7 +53,7 @@ class Pin extends React.Component {
 
   sendEmail(e){
     e.preventDefault()
-    fetch('/a/email', {
+    fetch(`${local}/email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -6,6 +6,7 @@ import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import leaflet from 'leaflet'
 import * as reactLeaflet from 'react-leaflet'
+import local from '../../local'
 
 const Icon = leaflet.icon
 const LeafletMap = reactLeaflet.Map
@@ -184,7 +185,7 @@ class Search extends React.Component {
     navigator.geolocation.clearWatch(this.geoID)
   }
   getData(lat, lng, dist) {
-    fetch(`/a/nz-akl/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
+    fetch(`${local}/nz-akl/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
       response.json().then((data) => {
         data.forEach(function(item) {
           StationStore.stationCache[item.stop_id] = item

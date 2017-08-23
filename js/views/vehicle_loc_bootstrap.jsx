@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import local from '../../local'
 
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
@@ -47,7 +48,7 @@ class VehicleLocationBootstrap extends React.Component {
     })
 
     if ('line_id' in this.props.match.params) {
-      fetch(`/a/nz-akl/line/${this.props.match.params.line_id}`).then((response) => {
+      fetch(`${local}/nz-akl/line/${this.props.match.params.line_id}`).then((response) => {
         response.json().then((data) => {
           let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
           tripInfo.route_long_name = data[0].route_long_name
