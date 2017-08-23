@@ -171,7 +171,7 @@ class VehicleLocationBootstrap extends React.Component {
     }
 
     return (
-      <div className='vehicle-location-container' ref={e => this.container = e} stsyle={style[this.state.animation]}>
+      <div className='vehicle-location-container' ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
           <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
           <div className="header-expand">

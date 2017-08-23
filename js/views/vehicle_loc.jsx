@@ -2,6 +2,7 @@ import React from 'react'
 import local from '../../local'
 import { withRouter } from 'react-router-dom'
 import { StationStore } from '../stores/stationStore.js'
+import { SettingsStore } from '../stores/settingsStore.js'
 
 let leaflet = require('react-leaflet')
 let wkx = require('wkx')
@@ -64,6 +65,67 @@ class vehicle_location extends React.Component {
     this.zoomstart = this.zoomstart.bind(this)
     this.viewTimetable = this.viewTimetable.bind(this)
   }
+  geoID = undefined
+  watchPosition = () => {
+    this.geoID = navigator.geolocation.watchPosition((position) => {
+      if (this.state.currentPosition[0] === 0){
+        this.setCurrentPosition(position)
+
+        // hardcoded for auckland only
+        if (this.state.currentPosition[0] > -38 && this.state.currentPosition[0] < -36
+          && this.state.currentPosition[1] > 173 && this.state.currentPosition[1] < 175) {
+          this.getAndSetCurrentPosition()
+        }
+      } else {
+        this.setCurrentPosition(position)
+      }   
+    }, (error) => {
+      //will remove for release
+      this.setState({
+        error: error.message
+      })
+    }, {
+      enableHighAccuracy: true,
+      timeout: 5000
+    })
+  }
+
+  getAndSetCurrentPosition = () => {
+    this.setState({
+      position: [this.state.currentPosition[0] + Math.random()/100000, this.state.currentPosition[1] + Math.random()/100000]
+    })
+  }
+
+  setCurrentPosition = (position) => {
+    let pos = [position.coords.latitude, position.coords.longitude]
+    this.setState({
+      currentPosition: pos,
+      accuracy: position.coords.accuracy
+    })
+    requestAnimationFrame(() => {
+      SettingsStore.state.lastLocation = pos
+      SettingsStore.saveState()
+    })
+  }
+
+  currentLocateButton = () => {
+    if (this.state.error === '') {
+      this.getAndSetCurrentPosition()
+    } else {
+      if (this.state.error.toLowerCase() === 'timeout expired') {
+        // look like something happens
+        this.getAndSetCurrentPosition()
+        // then update it
+        navigator.geolocation.getCurrentPosition((position) => {
+          console.log(position, 'wrong')
+          this.setCurrentPosition(position)
+          this.getAndSetCurrentPosition()
+        })
+      } else {
+        alert(this.state.error)
+      }
+    }
+  } 
 
   getShapeData(newProps = this.props) {
     let showIcons = true
@@ -113,9 +175,11 @@ class vehicle_location extends React.Component {
         this.setState({line: undefined})  
         this.getWKB(newProps, true)
         this.getShapeData(newProps)
+        this.watchPosition()
       }
     } else {
       this.getWKB(newProps)
+      navigator.geolocation.clearWatch(this.geoID)
     }
   }
 
@@ -136,22 +200,23 @@ class vehicle_location extends React.Component {
   }
   
   componentDidMount() {
+    this.watchPosition()
     this.getWKB()
     this.getShapeData()
     this.getPositionData(this.props)
     liveRefresh = setInterval(() => {
       this.getPositionData(this.props)  
-    }, 10000)    
+    }, 10000)
+    // if ('permissions' in navigator) {
+    //   navigator.permissions.query({name:'geolocation'}).then(e => {
+    //     if (e.state === 'granted') {
+    //       console.log('we are logging your position')
+    //       this.watchPosition()
+    //     }
+    //   })
+    // }    
   }
   
-  currentLocateButton() {
-    if (this.state.error === '') {
-      this.getAndSetCurrentPosition()
-    } else {
-      alert(this.state.error)
-    }
-  }
-
   componentWillUnmount() {
     clearInterval(liveRefresh)
     requestAnimationFrame(function() {
@@ -267,6 +332,9 @@ class vehicle_location extends React.Component {
     return (
       <div>
         <div className='vehicle-location-map'>
+        <button className="routeButton" onTouchTap={this.currentLocateButton} alt="Locate Me">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        </button>
           <Map center={this.state.position} 
             onZoomend={this.zoomstart}
             maxZoom={18}

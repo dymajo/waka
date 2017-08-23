@@ -9,7 +9,7 @@ This is a transit app! Check it out.
 - `npm run watch-js` to watch and recompile js
 - `npm run watch-css` to watch and recompile css
 - `node localserver.js` to run just the client!
-- Change the endpoint in config.js to `https://transit.dymajo.com/a` to use the live data. There's an exception for localhost:8009.
+- Change the endpoint in local.js to `https://transit.dymajo.com/a` to use the live data. There's an exception for localhost:8009.
 - Go to `http://localhost:8009`
 
 ## Server Development
