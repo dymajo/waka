@@ -136,7 +136,7 @@ class Settings extends React.Component {
               <div className="logo" id="logo">
                 <span className="company">Dymajo </span>
                 <span className="app">Transit </span>
-                <span className="version">v{local.endpointStorage.getItem('AppVersion')}</span>
+                <span className="version">v{localStorage.getItem('AppVersion')}</span>
               </div>
               <div className="copyright"><a className="subtle" rel="noopener noreferrer" href="https://dymajo.com" target="_blank">&copy; 2016 - 2017 DYMAJO LTD</a></div>
               <div className="sourcecode">This app is licensed under the <a className="subtle" rel="noopener noreferrer" href="https://github.com/consindo/dymajo-transit/blob/master/LICENSE" target="_blank">MIT License</a>.<br />
