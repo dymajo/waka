@@ -92,18 +92,6 @@
   }
 }
 
-.bigCurrentLocationCircle {
-  stroke: none;
-  //opacity: 0.15;
-  fill: lighten($lightblue, 6);
-}
-
-.smallCurrentLocationCircle {
-  fill-opacity: 1;
-  fill: $lightblue;
-  stroke: white;
-  stroke-width: 2
-}
 .line {
   stroke-width: 5;
 }

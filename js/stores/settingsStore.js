@@ -3,7 +3,7 @@ export class settingsStore {
     this.state = {
       clock: true,
       longName: false,
-      lastLocation: [-36.844229, 174.767823]
+      lastLocation: [-36.844229, 174.767823] // britomart
     }
     if (localStorage.getItem('SettingsData')) {
       var preState = JSON.parse(localStorage.getItem('SettingsData'))

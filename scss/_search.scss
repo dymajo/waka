@@ -25,7 +25,7 @@
     padding: 8px;
   }
 }
-.currentLocationButton, .routeButton {
+.circle-button {
   position: absolute;
   z-index: 501;
   right: 14px;
@@ -50,18 +50,17 @@
   svg {
     width: 24px;
     padding-top: 4px;
-  }
-}
-.currentLocationButton {
-  bottom: 82px;
-
-  svg {
     fill: #666;
   }
 }
-.routeButton {
-  background: $lightblue;
+.top-button {
+  bottom: 82px;
+}
+.bottom-button {
   bottom: 14px;
+}
+.blue-button {
+  background: $lightblue;
 
   &:hover {
     background: darken($lightblue, 5);
