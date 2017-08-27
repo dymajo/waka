@@ -75,7 +75,7 @@ class Pin extends React.Component {
     var userAgent = window.navigator.userAgent.toLowerCase()
     var output = <div className="other">
       <p>We don't know what browser you're using. 😕😕😕</p>
-      <button className="primary" onTouchTap={this.triggerClose}>Maybe next time.</button>
+      <button className="nice-button primary" onTouchTap={this.triggerClose}>Maybe next time.</button>
     </div>
     var linktext = 'Copy Link'
     if (this.state.copied) {
@@ -87,20 +87,20 @@ class Pin extends React.Component {
           /fbios/.test(userAgent) || /twitter/.test(userAgent)) {
         output = <div className="ios-other">
           <p>You’ll need to open this app in Safari first!</p>
-          <button className="primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
+          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
           <br /><br />
         </div>
       } else if (/safari/.test(userAgent)) {
         output = <div className="ios-safari">
           <p>Tap the <img src="/icons/ios-share.png" alt="share" /> button, then tap <strong>add to home screen</strong>.</p>
-          <button className="primary" onTouchTap={this.triggerClose}>Thanks!</button>
+          <button className="nice-button primary" onTouchTap={this.triggerClose}>Thanks!</button>
         </div>
       // yeah so chrome and ff both identy themselves as safari like wtf
       } else {
         output = <div className="ios-other">
           <p>You’ll need to open this app in Safari first!</p>
           <p><a href="https://transit.dymajo.com" onClick={this.doNothing}>transit.dymajo.com</a></p>
-          <button className="primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
+          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
         </div>
       }
     }
@@ -108,19 +108,19 @@ class Pin extends React.Component {
       if (/firefox/.test(userAgent) || /samsung/.test(userAgent)) {
         output = <div className="android-other">
           <p>You’ll need to open this page in Chrome first!</p>
-          <button className="primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
+          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
         </div>
       } else {
         output = <div className="android-chrome">
           <p>Tap the <img src="/icons/android-menu.png" alt="share" /> button, then tap <strong>add to home screen</strong>.</p>
-          <button className="primary" onTouchTap={this.triggerClose}>Thanks!</button>
+          <button className="nice-button primary" onTouchTap={this.triggerClose}>Thanks!</button>
         </div>
       }
     }
     if (/edge/.test(userAgent)) {
       output = <div className="windows-edge">
         <p>Tap the dots button, then tap <strong>pin to start</strong>.</p>
-        <button className="primary" onTouchTap={this.triggerClose}>Thanks!</button>
+        <button className="nice-button primary" onTouchTap={this.triggerClose}>Thanks!</button>
       </div>
     }
 
@@ -131,12 +131,12 @@ class Pin extends React.Component {
     var desktopOut = ''
     if (!this.state.emailSent) {     
       desktopOut = <div>
-            <h3>Email yourself a link to Transit!</h3>
-            <form onSubmit={this.sendEmail}>
-              <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
-              <button className="primary" type="submit">Send Link</button> <button onClick={this.triggerClose}>Cancel</button>
-            </form>
-          </div>
+        <h3>Email yourself a link to Transit!</h3>
+        <form onSubmit={this.sendEmail}>
+          <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
+          <button className="nice-button primary" type="submit">Send Link</button> <button onClick={this.triggerClose}>Cancel</button>
+        </form>
+      </div>
     } else {
       desktopOut = <div>
         <h3>Thanks! You should receive an email shortly.</h3>

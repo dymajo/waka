@@ -31,52 +31,6 @@
   right: 0;
   z-index: 5;
 
-  button {
-    border: 0;
-    padding: 10px 30px;
-    color: #444;
-    background: transparent;
-    letter-spacing: -0.5px;
-    font-weight: 600;
-    font-size: 17px;
-    border: 1px solid #999;
-    margin: 5px;
-    outline: 0;
-    border-radius: 3px;
-    -webkit-tap-highlight-color: transparent;
-
-    &.primary {
-      color:#fff;
-      background: darken($lightblue, 10);
-      border-color: darken($lightblue, 10);
-
-      &:hover {
-        background: darken($lightblue, 15);
-        border-color: darken($lightblue, 15);
-      }
-
-      &:active {
-        background: darken($lightblue, 20);
-        border-color: darken($lightblue, 20);
-      }
-    }
-
-    &:hover {
-      background: rgba(0,0,0,0.04);
-    }
-    &:active {
-      background: rgba(0,0,0,0.1);
-    }
-    &.pin {
-      display: none;
-
-      img {
-        margin-right: 2px;
-        opacity: 0.8;
-      }
-    }
-  }
-
   &.hide {
     animation: hidePin 300ms ease 1;
     opacity: 0;

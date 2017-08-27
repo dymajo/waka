@@ -257,13 +257,17 @@ export class stationStore extends Events {
   getLines() {
     return new Promise((resolve, reject) => {
       if (Object.keys(this.lineCache).length === 0) {
+        if (!navigator.onLine) {
+          reject('You are not connected to the internet.')
+          return
+        }
         fetch(`${local.endpoint}/nz-akl/lines`).then((response)=>{
           response.json().then((data) => {
             this.lineCache = data
             resolve(data)
           })
-        }).catch((err) => {
-          reject(err)
+        }).catch(() => {
+          reject('We couldn\'t download the lines.')
         })
       } else {
         resolve(this.lineCache)

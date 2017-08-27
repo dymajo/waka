@@ -155,19 +155,6 @@ $bgheight: 125px;
 			z-index: 1;
 		}
 	}
-	.error {
-		z-index: 0;
-		line-height: 60px;
-		text-align: center;
-		width: 100%;
-		letter-spacing: -0.5px;
-		font-weight: 600;
-		background: $default-back;
-
-		@media (max-width: 450px) {
-			font-size: 15px;
-		}
-	}
 
 	ul {
 		list-style-type: none;
@@ -177,6 +164,24 @@ $bgheight: 125px;
 
 	.hidden {
 		display: none;
+	}
+}
+
+.error {
+	z-index: 0;
+	text-align: center;
+	width: 100%;
+	letter-spacing: -0.5px;
+	font-weight: 600;
+	background: $default-back;
+
+	p {
+		line-height: 60px;
+		margin: 0;
+	}
+
+	@media (max-width: 450px) {
+		font-size: 15px;
 	}
 }
 

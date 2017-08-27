@@ -15,6 +15,7 @@ class Lines extends React.Component {
     history: PropTypes.object
   }
   state = {
+    error: null,
     allLines: undefined,
     groups: null,
     groupShow: {},
@@ -43,7 +44,36 @@ class Lines extends React.Component {
   }
   componentDidMount() {
     document.title = 'Lines - Transit'
+    if (iOS.detect() && window.navigator.standalone === true) {
+      this.container.addEventListener('touchstart', this.triggerTouchStart)
+      this.container.addEventListener('touchmove', this.triggerTouchMove)
+      this.container.addEventListener('touchend', this.triggerTouchEnd)
+      this.container.addEventListener('touchcancel', this.triggerTouchEnd)
+    }
+    window.addEventListener('online',  this.triggerGetLines)
+    UiStore.bind('animation', this.animation)
 
+    this.getLines()
+  }
+  componentWillUnmount() {
+    if (iOS.detect() && window.navigator.standalone === true) {
+      this.container.removeEventListener('touchstart', this.triggerTouchStart)
+      this.container.removeEventListener('touchmove', this.triggerTouchMove)
+      this.container.removeEventListener('touchend', this.triggerTouchEnd)
+      this.container.removeEventListener('touchcancel', this.triggerTouchEnd)
+    }
+    window.removeEventListener('online',  this.triggerGetLines)
+    UiStore.unbind('animation', this.animation)
+  }
+
+  triggerGetLines = () => {
+    this.setState({
+      error: null
+    })
+    this.getLines()
+  }
+
+  getLines = () => {
     StationStore.getLines().then((data) => {
       let groupShow = {}
       data.groups.forEach(function(group) {
@@ -56,26 +86,13 @@ class Lines extends React.Component {
         friendlyNames: data.friendlyNames,
         groupShow: groupShow
       })  
+    }).catch((err) => {
+      this.setState({
+        error: err
+      })
     })
-
-    if (iOS.detect() && window.navigator.standalone === true) {
-      this.container.addEventListener('touchstart', this.triggerTouchStart)
-      this.container.addEventListener('touchmove', this.triggerTouchMove)
-      this.container.addEventListener('touchend', this.triggerTouchEnd)
-      this.container.addEventListener('touchcancel', this.triggerTouchEnd)
-    }
-    UiStore.bind('animation', this.animation)
   }
-  componentWillUnmount() {
-    if (iOS.detect() && window.navigator.standalone === true) {
-      this.container.removeEventListener('touchstart', this.triggerTouchStart)
-      this.container.removeEventListener('touchmove', this.triggerTouchMove)
-      this.container.removeEventListener('touchend', this.triggerTouchEnd)
-      this.container.removeEventListener('touchcancel', this.triggerTouchEnd)
-    }
-    UiStore.unbind('animation', this.animation)
-  }
-
+ 
   triggerTouchStart = event => {
     // This is a hack to detect flicks  
     this.longTouch = false
@@ -144,7 +161,7 @@ class Lines extends React.Component {
     let ret
     let className = 'lines-container'
     // there needs to be a sorting function in here probably
-    if (this.state.groups !== null) {
+    if (this.state.groups !== null && this.state.error === null) {
       ret = []
       this.state.groups.forEach((group) => {
         ret.push(<h2 key={group.name}>{group.name}</h2>)
@@ -193,6 +210,13 @@ class Lines extends React.Component {
           <div className={className} key={key}>{innerLineList}</div>
         )
       })
+    } else if (this.state.error !== null) {
+      ret = (
+        <div className="error">
+          <p>{this.state.error}</p>
+          <button className="nice-button primary" onClick={this.triggerGetLines}>Retry</button>
+        </div>
+      )
     } else {
       ret = <div className="spinner" />
     }

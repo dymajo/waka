@@ -7,7 +7,6 @@ import BackIcon from '../../dist/icons/back.svg'
 import ClockIcon from '../../dist/icons/clock.svg'
 import LongnamesIcon from '../../dist/icons/longnames.svg'
 import FeedbackIcon from '../../dist/icons/feedback.svg'
-import TwitterIcon from '../../dist/icons/twitter.svg'
 import CreditsIcon from '../../dist/icons/credits.svg'
 
 const authors = [
@@ -166,10 +165,6 @@ class Settings extends React.Component {
                 <a className="button" href="mailto:hello@dymajo.com">
                   <FeedbackIcon />
                   Send Feedback
-                </a>
-                <a className="button" rel="noopener noreferrer" href="https://twitter.com/dymajoltd" target="_blank">
-                  <TwitterIcon style={{margin: '-6px 3px -6px -6px', width: '36px'}} />
-                  Twitter
                 </a>
                 {button}
                 <div className={className}>
