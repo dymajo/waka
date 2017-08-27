@@ -16,6 +16,9 @@ $bgheight: 125px;
 		img {
 			width: 100%;
 		}
+		svg {
+			margin: auto 0;
+		}
 	}
 	.header-left-sm, .header-right-sm {
 		padding: 0 0.25rem;
@@ -95,10 +98,23 @@ $bgheight: 125px;
 				color: #ddd;
 			}
 
-			> div {
-				// height: $mobilenavsize + 9px;
-				// padding: 0 8px;
+			svg {
+				fill: #fff;
+			}
 
+			.mode svg {
+				fill: transparent;
+			}
+			.mode {
+				&.bus svg {
+					stroke: #56CCF2;
+				}
+				&.train svg {
+					stroke: #32D074;
+				}
+				&.ferry svg {
+					stroke: #F2994A;
+				}
 			}
 		}
 		.scrollable {

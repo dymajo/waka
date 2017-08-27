@@ -7,6 +7,19 @@ import { UiStore } from '../stores/uiStore.js'
 import TripItem from './tripitem_new.jsx'
 import zenscroll from 'zenscroll'
 
+import BackIcon from '../../dist/icons/back.svg'
+import SavedIcon from '../../dist/icons/saved.svg'
+import UnsavedIcon from '../../dist/icons/unsaved.svg'
+import TrainIcon from '../../dist/icons/train.svg'
+import FerryIcon from '../../dist/icons/ferry.svg'
+import BusIcon from '../../dist/icons/bus.svg'
+
+const iconMap = {
+  train: <TrainIcon />,
+  ferry: <FerryIcon />,
+  bus: <BusIcon />
+}
+
 // hack
 let liveRefresh, realtimeRefresh
 
@@ -424,12 +437,12 @@ class Station extends React.Component {
     const icon = StationStore.getIcon(stop)
     let iconStr = this.state.description
 
-    let topIcon = <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+    let topIcon = <span className="header-left" onTouchTap={this.triggerBack}><BackIcon /></span>
     let className = 'station'
     if (this.state.fancyMode) {
       className += ' fancy'
       if (this.state.name !== '') {
-        topIcon = <span className="header-left mode"><img src={`/icons/${icon}-dark.svg`} /></span>
+        topIcon = <span className={'header-left mode ' + icon}>{iconMap[icon]}</span>
       }
     }
     if (this.state.name !== '') {
@@ -442,13 +455,12 @@ class Station extends React.Component {
     }
 
     let modalHeader, saveButton, combined, removeBtn
-    var dark  = this.state.fancyMode ? '-dark' : ''
     if (StationStore.getOrder().indexOf(regionStop) === -1) {
       modalHeader = 'Save Station'
-      saveButton = <span className="header-right save" onTouchTap={this.triggerSave}><img src={'/icons/unsaved' + dark + '.svg'} /></span>  
+      saveButton = <span className="header-right save" onTouchTap={this.triggerSave}><UnsavedIcon /></span>  
     } else {
       modalHeader = 'Edit Station'
-      saveButton = <span className="header-right remove" onTouchTap={this.triggerSave}><img src={'/icons/saved' + dark + '.svg'} /></span>
+      saveButton = <span className="header-right remove" onTouchTap={this.triggerSave}><SavedIcon /></span>
 
       if (this.props.match.params.station.split('+').length === 1) {
         removeBtn = <button className="inline" onTouchTap={this.triggerRemove}>Remove Stop</button>

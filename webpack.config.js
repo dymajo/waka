@@ -54,11 +54,25 @@ let config = {
           }, {
             loader: 'resolve-url-loader'
           }, {
-            loader: 'sass-loader'
+            loader: 'sass-loader',
           }],
           // use style-loader in development
           fallback: 'style-loader'
         })
+      },
+      {
+        test: /\.svg$/,
+        use: [{
+          loader: 'react-svg-loader',
+          options: {
+            es5: true,
+            svgo: {
+              plugins: [{
+                removeAttrs: {attrs: 'xmlns.*'}
+              }]
+            }
+          }
+        }]
       }
     ]
   },

@@ -95,3 +95,10 @@
 .leaflet-marker-icon {
   margin-top: -36px !important;
 }
+.leaflet-popup-content {
+  svg {
+    display: block;
+    position: relative;
+    margin: 0 auto;
+  }
+}

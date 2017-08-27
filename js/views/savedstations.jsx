@@ -1,12 +1,42 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
-import { StationStore, StationMap } from '../stores/stationStore.js'
+import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
+import LinesIcon from '../../dist/icons/lines.svg'
+import PinIcon from '../../dist/icons/pin.svg'
+import MultiIcon from '../../dist/icons/multi.svg'
+import TrainIcon from '../../dist/icons/train.svg'
+import FerryIcon from '../../dist/icons/ferry.svg'
+import BusIcon from '../../dist/icons/bus.svg'
+import ATIcon from '../../dist/icons/at.svg'
+import DymajoIcon from '../../dist/icons/dymajo.svg'
+
+const iconMap = {
+  'lines.svg': <LinesIcon />,
+  'pin.svg': <PinIcon />,
+  'multi.svg': <MultiIcon />,
+  'train.svg': <TrainIcon />,
+  'ferry.svg': <FerryIcon />,
+  'bus.svg': <BusIcon />,
+  'at.svg': <ATIcon />,
+  'dymajo.svg': <DymajoIcon />,
+}
+
 class SidebarItemVanilla extends React.Component {
-  constructor(props) {
-    super(props)
-    this.triggerTap = this.triggerTap.bind(this)
+  static propTypes = {
+    className: PropTypes.string,
+    icon: PropTypes.string,
+    type: PropTypes.string,
+    action: PropTypes.func,
+    url: PropTypes.string,
+    name: PropTypes.string,
+    description: PropTypes.node,
+    history: PropTypes.object
+  }
+  getIcon(icon) {
+    return iconMap[icon] || <img src={`/icons/${icon}`} />
   }
   triggerTap = () => {
     if (this.props.type === 'install') {
@@ -15,71 +45,44 @@ class SidebarItemVanilla extends React.Component {
       this.props.history.push(this.props.url)
     }
   }
-  getColor(icon) {
-    switch(icon) {
-    case 'n':
-      return '#0056a9'
-    case 'e':
-      return '#f39c12'
-    case 'o':
-      return '#21b4e3'
-    case 's':
-      return '#e52f2b'
-    case 'w':
-      return '#4f9734'
-    default:
-      return '#000'
-    }
-  }
   reject(e) {
     if (UiStore.state.mapView) {
       e.preventDefault()
     }
   }
   render() {
-    
     var classname = (this.props.className || '') + ' ss'
     if (window.location.pathname == this.props.url) {
       classname += ' selected'
     }
-    if (this.props.type === 'cf') {
-      classname = classname.replace('ss', 'cf')
-      var col = this.getColor
-      var icon = this.props.name[0].toLowerCase()
-      return (
-        <li className={classname} onTouchTap={this.triggerTap}>
-          <div className="gicon" style={{backgroundColor: col(icon)}}>{icon}</div>
+    let item = (
+      <li className={classname} onTouchTap={this.triggerTap}>
+        <div className="icon">
+          {this.getIcon(this.props.icon)}
+        </div>
+        <div className="text-wrapper">
           <div className="name">{this.props.name}</div>
-        </li>
+          <div className="description">{this.props.description}</div>
+        </div>
+      </li>
+    )
+    if (this.props.type === 'url') {
+      return (
+        <a href={this.props.url} target="_blank" rel="noopener" onClick={this.reject}>
+          {item}
+        </a>
       )
-    } else {
-      let item = (
-        <li className={classname} onTouchTap={this.triggerTap}>
-          <div className="icon"><img src={`/icons/${this.props.icon}`} /></div>
+    } else if (this.props.type === 'description') {
+      return (
+        <li className={classname + ' text-only'}>
           <div className="text-wrapper">
             <div className="name">{this.props.name}</div>
             <div className="description">{this.props.description}</div>
           </div>
         </li>
       )
-      if (this.props.type === 'url') {
-        return (
-          <a href={this.props.url} target="_blank" rel="noopener" onClick={this.reject}>
-            {item}
-          </a>
-        )
-      } else if (this.props.type === 'description') {
-        return (
-          <li className={classname + ' text-only'}>
-            <div className="text-wrapper">
-              <div className="name">{this.props.name}</div>
-              <div className="description">{this.props.description}</div>
-            </div>
-          </li>
-        )
-      }
-      return item
     }
+    return item
   }
 }
 const SidebarItem = withRouter(SidebarItemVanilla)
@@ -130,7 +133,7 @@ class SavedSations extends React.Component {
           />
           <SidebarItem
             url="/l/nz-akl"
-            icon="lines-light.svg"
+            icon="lines.svg"
             name="Lines"
             className="lines-btn"
             description="View all Bus, Train, and Ferry Services"
@@ -167,14 +170,14 @@ class SavedSations extends React.Component {
           <SidebarItem
             type="url"
             url="https://twitter.com/AklTransport"
-            icon="atlogo.png"
+            icon="at.svg"
             name="Auckland Transport"
             description="@AklTransport on Twitter"
           />
           <SidebarItem
             type="url"
             url="https://twitter.com/DYMAJOLtd"
-            icon="dymajo.png"
+            icon="dymajo.svg"
             name="DYMAJO"
             description="@DYMAJOLtd on Twitter"
           />

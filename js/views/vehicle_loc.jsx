@@ -5,6 +5,17 @@ import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { CurrentLocation } from '../stores/currentLocation.js'
 
+import LocateIcon from '../../dist/icons/locate.svg'
+import TrainIcon from '../../dist/icons/train.svg'
+import FerryIcon from '../../dist/icons/ferry.svg'
+import BusIcon from '../../dist/icons/bus.svg'
+
+const iconMap = {
+  train: <TrainIcon />,
+  ferry: <FerryIcon />,
+  bus: <BusIcon />
+}
+
 let leaflet = require('react-leaflet')
 let wkx = require('wkx')
 let Buffer = require('buffer').Buffer
@@ -58,7 +69,7 @@ class vehicle_location extends React.Component {
       busPosition: []
     }
   }
-    getShapeData = (newProps = this.props) => {
+  getShapeData = (newProps = this.props) => {
     let showIcons = true
     let url = `${local.endpoint}/nz-akl/stops/trip/${newProps.params.trip_id}`
     if ('line_id' in newProps.params) {
@@ -277,9 +288,9 @@ class vehicle_location extends React.Component {
     return (
       <div>
         <div className='vehicle-location-map'>
-        <button className="circle-button bottom-button" onTouchTap={this.triggerCurrentLocation} alt="Locate Me">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
-        </button>
+          <button className="circle-button bottom-button" onTouchTap={this.triggerCurrentLocation} alt="Locate Me">
+            <LocateIcon />
+          </button>
           <Map center={this.state.position} 
             onZoomend={this.zoomstart}
             maxZoom={18}
@@ -310,7 +321,7 @@ class vehicle_location extends React.Component {
                   <Marker icon={hiddenIcon} key={stop[2]+'invis'} position={[stop[0], stop[1]]}>
                     <Popup>
                       <span>
-                        <img src={`/icons/${icon}.svg`} />
+                        {iconMap[icon]}
                         <h2>{stop[3]}</h2>
                         <h3>Stop {stop[2]}</h3>
                         <button onClick={this.viewServices(stop[2])}>View Services</button>

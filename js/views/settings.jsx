@@ -3,6 +3,13 @@ import { iOS } from '../models/ios.js'
 import { UiStore } from '../stores/uiStore.js'
 import Toggle from './toggle.jsx'
 
+import BackIcon from '../../dist/icons/back.svg'
+import ClockIcon from '../../dist/icons/clock.svg'
+import LongnamesIcon from '../../dist/icons/longnames.svg'
+import FeedbackIcon from '../../dist/icons/feedback.svg'
+import TwitterIcon from '../../dist/icons/twitter.svg'
+import CreditsIcon from '../../dist/icons/credits.svg'
+
 const authors = [
   ['https://jono.nz', 'Jono Cooper',  'Design, Code'],
   ['http://mattdavidson.kiwi', 'Matt Davidson',  'Code'],
@@ -119,13 +126,15 @@ class Settings extends React.Component {
     if (this.state.credits) {
       className += ' visible'
     } else {
-      button = <button onTouchTap={this.triggerCredits}><img src="icons/credits.svg" />View Credits</button>
+      button = <button onTouchTap={this.triggerCredits}><CreditsIcon />View Credits</button>
     }
 
     return(
       <div className="settingsContainer" ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
-          <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <span className="header-left" onTouchTap={this.triggerBack}>
+            <BackIcon/>
+          </span>
           <div className="header-content">
             <h1>Settings</h1>
           </div>
@@ -145,21 +154,21 @@ class Settings extends React.Component {
             <div className="container">
               <h1>Settings</h1>
               <Toggle id="clock">
-                <img src="/icons/clock.svg" />
+                <ClockIcon />
                 24hr Time
               </Toggle>
               <Toggle id="longName">
-                <img src="/icons/longnames.svg" />
+                <LongnamesIcon />
                 Long Route Names
               </Toggle>
               <h1>More</h1>
               <div className="credits">
                 <a className="button" href="mailto:hello@dymajo.com">
-                  <img src="/icons/feedback.svg" />
+                  <FeedbackIcon />
                   Send Feedback
                 </a>
                 <a className="button" rel="noopener noreferrer" href="https://twitter.com/dymajoltd" target="_blank">
-                  <img src="/icons/twitter.svg" style={{margin: '-6px 3px -6px -6px', width: '36px'}} />
+                  <TwitterIcon style={{margin: '-6px 3px -6px -6px', width: '36px'}} />
                   Twitter
                 </a>
                 {button}

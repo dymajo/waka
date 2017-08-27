@@ -16,6 +16,12 @@ import NoMatch from './nomatch.jsx'
 import SavedStations from './savedstations.jsx'
 import Pin from './pin.jsx'
 
+// static
+import LogoIcon from '../../dist/icons/icon.svg'
+import SettingsIcon from '../../dist/icons/settings.svg'
+import StationIcon from '../../dist/icons/station.svg'
+import LinesIcon from '../../dist/icons/lines.svg'
+
 const paddingHeight = 250
 const barHeight = 56
 const animationSpeed = 250
@@ -324,13 +330,15 @@ class Index extends React.Component {
         <div className={rootClassName} ref="rootcontainer">
           <header className="material-header branding-header">
             <span className="header-left header-left-sm">
-              <img src='/icons/icon.svg' />
+              <LogoIcon />
             </span>
             <div className="header-expand">
               <h1 className="full-height">
                 <strong>DYMAJO Transit</strong></h1>
             </div>
-            <span className="header-right" onTouchTap={this.triggerSettings}><img src="/icons/settings.svg" /></span>
+            <span className="header-right" onTouchTap={this.triggerSettings}>
+              <SettingsIcon />
+            </span>
           </header>
           <div className="root-map" ref="touchmap">
             {map}
@@ -346,19 +354,13 @@ class Index extends React.Component {
             <div className="root-card-padding-button" onTouchTap={this.toggleStations}></div>
             <div className="root-card-bar">
               <button onTouchTap={this.toggleStations}>
-                <img src="/icons/station.svg" />
+                <StationIcon />
                 Stations
               </button>
               <button onTouchTap={this.toggleLines}>
-                <img src="/icons/lines.svg" />
+                <LinesIcon />
                 Lines
               </button>
-              {/*
-              <button>
-                <img src="/icons/alert.svg" />
-                Status
-              </button>
-              */}
             </div>
             <div className="root-card-content">
               <SavedStations togglePin={this.togglePin} />

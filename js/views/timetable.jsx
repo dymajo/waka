@@ -6,6 +6,8 @@ import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
+import BackIcon from '../../dist/icons/back.svg'
+
 const style = UiStore.getAnimation()
 
 export default class Timetable extends React.Component {
@@ -128,7 +130,7 @@ export default class Timetable extends React.Component {
     return (
       <div className='timetable-container' ref={e => this.container = e} style={style[this.state.animation]}>
         <header className="material-header">
-          <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <span className="header-left" onTouchTap={this.triggerBack}><BackIcon /></span>
           <div className="header-expand">
             <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
               {code}

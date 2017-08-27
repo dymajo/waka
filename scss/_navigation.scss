@@ -4,10 +4,6 @@
 
   max-width: 480px;
 
-  .cf .name {
-    line-height: 30px;
-  }
-
   a {
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
@@ -35,21 +31,6 @@
     font-size: 12px;
   }
 
-  .gicon {
-    color: #fff;
-    display: inline-block;
-    height: 30px;
-    width: 30px;
-    font-size: 16px;
-    line-height: 30px;
-    text-align: center;
-    margin: 0 10px 0 5px;
-    font-weight: normal;
-    border-radius: 50%;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-
   button {
     border: 0;
     color: #444;
@@ -75,8 +56,9 @@
     @media (max-width: 480px) {
       font-size: 16px;
       padding: 8px 20px;
-      img {
+      img, svg {
         width: 16px;
+        height: auto;
         margin-top: 3px;
         margin-right: 5px;
         vertical-align: top;
@@ -161,8 +143,9 @@
     width: 36px;
     text-align: center;
 
-    img {
+    img, svg {
       width: 36px;
+      height: auto;
     }
   }
 

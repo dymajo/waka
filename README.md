@@ -6,8 +6,7 @@ This is a transit app! Check it out.
 ## Client Development
 - You'll need node.js & npm installed. (at least v8)
 - `npm install` to install deps.
-- `npm run watch-js` to watch and recompile js
-- `npm run watch-css` to watch and recompile css
+- `npm run watch` to watch and recompile js & css
 - `node localserver.js` to run just the client!
 - Change the endpoint in local.js to `https://transit.dymajo.com/a` to use the live data. There's an exception for localhost:8009.
 - Go to `http://localhost:8009`
@@ -29,5 +28,4 @@ This is a transit app! Check it out.
 
 ### Server
 - `node app` to run server.
-- `npm run build-js` to production build js
-- `npm run build-css` to production build css
+- `npm run build` to production build js & css

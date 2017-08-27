@@ -6,6 +6,8 @@ import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 
+import BackIcon from '../../dist/icons/back.svg'
+
 const style = UiStore.getAnimation()
 
 // this is hacked so it handles the current location
@@ -173,7 +175,7 @@ class VehicleLocationBootstrap extends React.Component {
     return (
       <div className='vehicle-location-container' ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
-          <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <span className="header-left" onTouchTap={this.triggerBack}><BackIcon /></span>
           <div className="header-expand">
             <h1 className='line-name'>
               <section className="line-pill-wrapper-header">

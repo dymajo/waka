@@ -6,19 +6,20 @@ import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore'
 import { UiStore } from '../stores/uiStore.js'
 
+import BackIcon from '../../dist/icons/back.svg'
+
 const style = UiStore.getAnimation()
 
 class Lines extends React.Component {
+  static propTypes = {
+    history: PropTypes.object
+  }
   state = {
     allLines: undefined,
     groups: null,
     groupShow: {},
     friendlyNames: {},
     animation: 'unmounted'
-  }
-
-  static propTypes = {
-    history: PropTypes.object
   }
   animationOverride = false
 
@@ -204,7 +205,9 @@ class Lines extends React.Component {
     return(
       <div className={className} ref={e => this.container = e} style={style[this.state.animation]}>
         <header className="material-header">
-          <span className="header-left" onTouchTap={this.triggerBack}><img src="/icons/back.svg" /></span>
+          <span className="header-left" onTouchTap={this.triggerBack}>
+            <BackIcon />
+          </span>
           <div className="header-expand">
             <h1>All Lines</h1>
           </div>
