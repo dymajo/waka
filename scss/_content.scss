@@ -292,7 +292,7 @@ $bgheight: 125px;
 		}
 
 		&.realtime {
-			background: url(icons/realtime.svg);
+			background: url(/icons/realtime.svg);
 			background-position: calc(100% - 2px) 9px;
 			background-repeat: no-repeat;
 
@@ -322,7 +322,7 @@ $bgheight: 125px;
 		&.realtime {
 			&::after {
 				content: "";
-				background: url(icons/realtime.svg);
+				background: url(/icons/realtime.svg);
 				background-position: -2px -2px;
 				background-repeat: no-repeat;
 				width: 8px;

@@ -1,19 +1,25 @@
-'use strict'
 const webpack = require('webpack')
 const path = require('path')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const ManifestPlugin = require('webpack-manifest-plugin')
+const OfflinePlugin = require('offline-plugin')
 
-const ConsoleNotifierPlugin = function () {}
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-ConsoleNotifierPlugin.prototype.compilationDone = (stats) => {
-  const log = (error) => {
+const extractSass = new ExtractTextPlugin({
+  filename: 'generated/[name].[contenthash].css',
+  disable: process.env.NODE_ENV !== 'production'
+})
+const ConsoleNotifierPlugin = function() {}
+
+ConsoleNotifierPlugin.prototype.compilationDone = stats => {
+  const log = error => {
     console.log(error.error.toString())
   }
   stats.compilation.errors.forEach(log)
 }
 
-ConsoleNotifierPlugin.prototype.apply = function (compiler) {
+ConsoleNotifierPlugin.prototype.apply = function(compiler) {
   compiler.plugin('done', this.compilationDone.bind(this))
 }
 
@@ -27,26 +33,41 @@ let config = {
     path: __dirname + '/dist/',
     publicPath: '/',
     filename: 'generated/[name].bundle.js',
-    chunkFilename: 'generated/[id].chunk.js',
+    chunkFilename: 'generated/[id].chunk.js'
   },
   devtool: 'eval-source-map',
   module: {
     rules: [
-      { 
+      {
         test: /\.(js|jsx)?$/,
         use: 'babel-loader',
         include: [
           path.resolve(__dirname + '/js'),
           path.resolve(__dirname, 'node_modules/autotrack'), // compat with autotrack, as it's published in es6
-          path.resolve(__dirname, 'node_modules/dom-utils'), // autotrack
+          path.resolve(__dirname, 'node_modules/dom-utils') // autotrack
         ]
+      },
+      {
+        test: /\.scss$/,
+        use: extractSass.extract({
+          use: [{
+            loader: 'css-loader'
+          }, {
+            loader: 'resolve-url-loader'
+          }, {
+            loader: 'sass-loader'
+          }],
+          // use style-loader in development
+          fallback: 'style-loader'
+        })
       }
     ]
   },
   plugins: [
+    extractSass,
     new webpack.DefinePlugin({
       'process.env': {
-        'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV)
       }
     }),
     new webpack.optimize.CommonsChunkPlugin({
@@ -58,7 +79,7 @@ let config = {
       minChunks: 2
     }),
     new ManifestPlugin({
-      fileName: 'assets.json',
+      fileName: 'assets.json'
     })
   ]
 }
@@ -78,21 +99,28 @@ if (process.env.NODE_ENV === 'production') {
         dead_code: true,
         evaluate: true,
         if_return: true,
-        join_vars: true,
+        join_vars: true
       },
       output: {
         comments: false
-      },
+      }
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
       openAnalyzer: false
     }),
-    new webpack.optimize.ModuleConcatenationPlugin()
+    new webpack.optimize.ModuleConcatenationPlugin(),
   )
 } else {
-  config.plugins.push(
-    new ConsoleNotifierPlugin()
-  )
+  config.plugins.push(new ConsoleNotifierPlugin())
 }
+config.plugins.push(
+  new OfflinePlugin({
+    // caches the root url
+    externals: ['/'],
+    ServiceWorker: {
+      navigateFallbackURL: '/'
+    }
+  })
+)
 module.exports = config

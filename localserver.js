@@ -22,7 +22,7 @@ const server = function(req, res) {
     vendorpath: '/' + manifest['vendor.js'],
     apppath: '/' + manifest['app.js'],
     analyticspath: '/' + manifest['analytics.js'],
-    csspath: '/style.css?' + manifest['app.js'].split('.')[1]
+    csspath: '/' + manifest['app.css']
   }))
 }
 app.use('/scss', express.static(__dirname + '/scss'))

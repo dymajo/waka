@@ -48,6 +48,7 @@ cache/*.zip
 cache/maps/*.png
 cache/maps/*.webp
 dist/generated/*
+appcache
 
 # vs code 
 .vscode

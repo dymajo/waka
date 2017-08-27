@@ -149,7 +149,6 @@ class Search extends React.Component {
 
   }
   mapmove = () => {
-    console.log(this.state.position, CurrentLocation.state.position)
     this.setState({
       position: CurrentLocation.state.position.slice(),
       positionMarker: CurrentLocation.state.position.slice(),
