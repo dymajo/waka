@@ -11,6 +11,7 @@ This is a transit app! Check it out.
 - `node localserver.js` to run just the client!
 - Change the endpoint in local.js to `https://transit.dymajo.com/a` to use the live data. There's an exception for localhost:8009.
 - Go to `http://localhost:8009`
+- Disable the Service Worker in devtools if you want to see your changes.
 
 ## Server Development
 

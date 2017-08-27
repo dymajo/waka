@@ -7,8 +7,7 @@ const OfflinePlugin = require('offline-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const extractSass = new ExtractTextPlugin({
-  filename: 'generated/[name].[contenthash].css',
-  disable: process.env.NODE_ENV !== 'production'
+  filename: process.env.NODE_ENV === 'production' ? 'generated/[name].[contenthash].css' : 'generated/[name].css'
 })
 const ConsoleNotifierPlugin = function() {}
 
@@ -117,7 +116,12 @@ if (process.env.NODE_ENV === 'production') {
 config.plugins.push(
   new OfflinePlugin({
     // caches the root url
-    externals: ['/'],
+    externals: [
+      '/',
+      '/fonts/OpenSansRegular.woff2',
+      '/fonts/OpenSansSemiBold.woff2',
+      '/fonts/OpenSansBold.woff2',
+    ],
     ServiceWorker: {
       navigateFallbackURL: '/'
     }
