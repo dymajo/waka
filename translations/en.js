@@ -71,7 +71,8 @@ export default {
     bus: 'Bus Stop',
     train: 'Train Station',
     ferry: 'Ferry Terminal',
-    noservices: 'There are no services in the next two hours.'
+    noservices: 'There are no services in the next two hours.',
+    error: 'We couldn’t get stop times for this station.'
   },
   stationedit: {
     title: 'Edit Station',
@@ -97,6 +98,7 @@ export default {
   timetable: {
     title: 'Timetable',
     header: '%{route} Timetable - %{appname}',
+    error: 'We couldn’t get the timetable for this route.'
   },
   vech_loc: {
     header: '%{route} - Live Location - %{appname}',

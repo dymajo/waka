@@ -105,10 +105,15 @@
 .offline-container {
   position: absolute;
   box-sizing: border-box;
-  width: 100%;
+  left: 0;
+  right: 0;
   bottom: 0;
   background: rgba(#000, 0.85);
   color: #fff;
   text-align: center;
-  padding: 1rem;
+  padding: 0.5rem 1rem 1rem;
+
+  @media (min-width: 851px) {
+    left: $sidebar-width;
+  }
 }

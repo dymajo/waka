@@ -21,29 +21,21 @@ export default class Timetable extends React.Component {
     tripInfo: {},
     animation: 'unmounted',
     loading: true,
-    stopName: ''
+    stopName: '',
+    error: null
   }
   times = {}
 
   componentDidMount() {
-    const route = this.props.match.params.route_name.split('-')[0]
-    const tripNodeMatches = (item) => {
-      return item.route_short_name === route
-    }
-    StationStore.getData(this.props.match.params.station).then((data) => {
-      this.setState({
-        tripInfo: StationStore.tripData.find(tripNodeMatches) || this.state.tripInfo,
-        stopName: data.name || data.stop_name
-      })
-    })
-
     this.getData()
     const routeName = this.props.match.params.route_name.split('-')[0]
     document.title = t('timetable.header', {route: routeName, appname: t('app.name')})
     UiStore.bind('animation', this.animation)
+    window.addEventListener('online',  this.triggerRetry)
   }
   componentWillUnmount() {
     UiStore.unbind('animation', this.animation)
+    window.removeEventListener('online',  this.triggerRetry)
   }
   animation = (data) => {
     if (data[1] !== this.container) {
@@ -56,6 +48,24 @@ export default class Timetable extends React.Component {
     })
   }
   getData() {
+    if (!navigator.onLine) {
+      this.setState({
+        error: t('app.nointernet'),
+        loading: false
+      })
+      return
+    }
+    const route = this.props.match.params.route_name.split('-')[0]
+    const tripNodeMatches = (item) => {
+      return item.route_short_name === route
+    }
+    StationStore.getData(this.props.match.params.station).then((data) => {
+      this.setState({
+        tripInfo: StationStore.tripData.find(tripNodeMatches) || this.state.tripInfo,
+        stopName: data.name || data.stop_name
+      })
+    })
+
     const r = this.props.match.params.route_name.split('-')
     StationStore.getTimetable(this.props.match.params.station, r[0], r[1]).then((data) => {
       const tripsArr = []
@@ -98,12 +108,24 @@ export default class Timetable extends React.Component {
           this.scrollContainer.scrollTop = this.times['time' + time].getBoundingClientRect().top - 56
         }
       })
+    }).catch(() => {
+      this.setState({
+        error: t('timetable.error'),
+        loading: false
+      })
     })
   }
   triggerBack = () => {
     let newUrl = window.location.pathname.split('/')
     newUrl.splice(-2)  
     UiStore.goBack(this.props.history, newUrl.join('/'))
+  }
+  triggerRetry = () => {
+    this.setState({
+      error: null,
+      loading: true
+    })
+    this.getData(this.props)
   }
   render() {
     let roundelStyle = 'line-pill'
@@ -125,6 +147,13 @@ export default class Timetable extends React.Component {
     if (this.state.loading) {
       loading = (
         <div className="spinner" />
+      )
+    } else if (this.state.error !== null) {
+      loading = (
+        <div className="error">
+          <p>{this.state.error}</p> 
+          <button className="nice-button primary" onTouchTap={this.triggerRetry}>{t('app.errorRetry')}</button>
+        </div>
       )
     }
 

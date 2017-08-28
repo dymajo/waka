@@ -275,11 +275,17 @@ export class stationStore extends Events {
       }
     })
   }
-  getTimes(stations) {
+  getTimes = (stations) => {
+    if (!navigator.onLine) {
+      this.trigger('error', t('app.nointernet'))
+      return
+    }
     const promises = stations.split('+').map((station) => {
       return new Promise((resolve, reject) => {
         fetch(`${local.endpoint}/nz-akl/station/${station}/times`).then((response) => {    
           response.json().then(resolve)
+        }).catch((err) => {
+          reject(err)
         })
       })
     })
@@ -294,6 +300,8 @@ export class stationStore extends Events {
       this.tripData = trips
       this.realtimeData = realtime
       this.trigger('times', stations)
+    }).catch(() => {
+      this.trigger('error', t('station.error'))
     })
   }
   getRealtime(tripData) {

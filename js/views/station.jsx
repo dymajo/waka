@@ -39,6 +39,7 @@ class Station extends React.Component {
     checked: {},
     realtime: {},
     loading: true,
+    error: null,
     saveModal: null,
     stop_lat: undefined,
     stop_lon: undefined,
@@ -329,6 +330,16 @@ class Station extends React.Component {
     })
   }
   componentDidMount() {
+    StationStore.bind('change', this.triggerUpdate)
+    StationStore.bind('times', this.tripsCb)
+    StationStore.bind('realtime', this.realtimeCb)
+    StationStore.bind('error', this.handleError)
+    UiStore.bind('animation', this.animation)
+    UiStore.bind('expandChange', this.expandChange)
+    window.addEventListener('online',  this.triggerRetry)
+
+    this.scroller = zenscroll.createScroller(this.scroll)
+
     // scroll top header into view
     if (this.state.fancyMode) {
       this.scroll.scrollTop = 71
@@ -352,21 +363,15 @@ class Station extends React.Component {
     realtimeRefresh = setInterval(() => {
       StationStore.getRealtime(this.state.trips)
     }, 20000)
-
-    StationStore.bind('change', this.triggerUpdate)
-    StationStore.bind('times', this.tripsCb)
-    StationStore.bind('realtime', this.realtimeCb)
-    UiStore.bind('animation', this.animation)
-    UiStore.bind('expandChange', this.expandChange)
-
-    this.scroller = zenscroll.createScroller(this.scroll)
   }
   componentWillUnmount() {    
     StationStore.unbind('change', this.triggerUpdate)
     StationStore.unbind('times', this.tripsCb)
     StationStore.unbind('realtime', this.realtimeCb)
+    StationStore.unbind('error', this.handleError)
     UiStore.unbind('animation', this.animation)
     UiStore.unbind('expandChange', this.expandChange)
+    window.removeEventListener('online',  this.triggerRetry)
 
     clearInterval(liveRefresh)
     clearInterval(realtimeRefresh)
@@ -405,6 +410,23 @@ class Station extends React.Component {
         checked: checked
       })
     }
+  }
+  handleError = (error) => {
+    this.setState({
+      error: error,
+      loading: false
+    })
+    requestAnimationFrame(() => {
+      this.scroller.toY(250)
+    })
+
+  }
+  triggerRetry = () => {
+    this.setState({
+      error: null,
+      loading: true
+    })
+    this.getData(this.props)
   }
   componentWillReceiveProps(newProps) {
     // basically don't do anything if the station doesn't change
@@ -508,8 +530,10 @@ class Station extends React.Component {
       loading = (
         <div className="spinner" />
       )
+    } else if (this.state.error !== null) {
+      loading = <div className="error"><p>{this.state.error}</p><button className="nice-button primary" onTouchTap={this.triggerRetry}>{t('app.errorRetry')}</button></div>
     } else if (this.state.currentTrips.length === 0) {
-      loading = <div className="error">{t('station.noservices')}</div>
+      loading = <div className="error"><p>{t('station.noservices')}</p></div>
     } else {
       scrollable += ' enable-scrolling'
     }
