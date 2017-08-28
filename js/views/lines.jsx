@@ -215,7 +215,7 @@ class Lines extends React.Component {
       ret = (
         <div className="error">
           <p>{this.state.error}</p>
-          <button className="nice-button primary" onClick={this.triggerGetLines}>Retry</button>
+          <button className="nice-button primary" onClick={this.triggerGetLines}>{t('app.errorRetry')}</button>
         </div>
       )
     } else {

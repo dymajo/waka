@@ -111,12 +111,15 @@ class Search extends React.Component {
     currentStation: null,
     findModal: false,
     showIcons: true,
+    loadmap: true,
+    online: window.navigator.onLine
   }
   componentDidMount() {
+    window.addEventListener('online',  this.triggerRetry)
+    window.addEventListener('offline',  this.goOffline)
     CurrentLocation.bind('pinmove', this.pinmove)
     CurrentLocation.bind('mapmove', this.mapmove)
     this.getData(this.state.position[0], this.state.position[1], 250)
-
     
     if (CurrentLocation.state.hasGranted) {
       CurrentLocation.startWatch()
@@ -138,6 +141,8 @@ class Search extends React.Component {
     }
   }
   componentWillUnmount() {
+    window.removeEventListener('online',  this.triggerRetry)
+    window.removeEventListener('offline',  this.goOffline)
     CurrentLocation.unbind('pinmove', this.pinmove)
     CurrentLocation.unbind('mapmove', this.mapmove)
     CurrentLocation.stopWatch()
@@ -241,6 +246,23 @@ class Search extends React.Component {
     var newPos = e.target.getCenter()
     this.getData(newPos.lat, newPos.lng, dist)
   }
+  triggerRetry = () => {
+    this.setState({
+      loadmap: false,
+      online: window.navigator.onLine
+    })
+    setTimeout(() => {
+      this.setState({
+        loadmap: true
+      })
+      this.getData(this.state.position[0], this.state.position[1], 250)
+    }, 50)
+  }
+  goOffline = () => {
+    this.setState({
+      online: false
+    })
+  }
   render() {
     let stationMarker = null
     if (this.state.currentStation) {
@@ -267,32 +289,30 @@ class Search extends React.Component {
       bigCircle = <Circle className="bigCurrentLocationCircle" center={CurrentLocation.state.position} radius={(CurrentLocation.state.accuracy)}/> 
     }
 
-    const searchClass = 'search' + (this.state.showIcons ? '' : ' hide-icons')
-    return (
-      <div className={searchClass}>
-        <div className={findModal}>
-          <div className="modal">
-            <h2>{t('search.find.title')}</h2>
-            <div className="inner">
-              <input type="tel"
-                placeholder={t('search.find.description')}
-                maxLength="4"
-                value={this.state.station}
-                onKeyUp={this.triggerKeyUp}
-                onChange={this.triggerChange} 
-                ref={e => this.searchInput = e}
-              />
-            </div>
-            <button className="cancel" onTouchTap={this.toggleFind}>{t('search.find.cancel')}</button>
-            <button className="submit" onTouchTap={this.triggerSearch}>{t('search.find.confirm')}</button>
-          </div>
+    let offline = null, button1 = null, button2 = null
+    if (!this.state.online) {
+      offline = (
+        <div className="offline-container">
+          <p>You are not connected to the internet.</p>
+          <button className="nice-button primary" onClick={this.triggerRetry}>Retry</button>
         </div>
+      )
+    } else {
+      button1 = (
         <button className="circle-button blue-button bottom-button" onTouchTap={this.toggleFind} alt="Find Stop" title="Find Stop">
           <SearchIcon />  
         </button>
+      )
+      button2 = (
         <button className="circle-button top-button" onTouchTap={this.triggerCurrentLocation} alt="Locate Me">
           <LocateIcon />
         </button>
+      )
+    }
+
+    let mapview
+    if (this.state.loadmap) {
+      mapview = (
         <LeafletMap
           onMoveend={this.moveEnd}
           center={this.state.position} 
@@ -345,6 +365,33 @@ class Search extends React.Component {
           <CircleMarker className="smallCurrentLocationCircle" center={this.state.positionMarker} radius={7} /> 
           {stationMarker}
         </LeafletMap>
+      )
+    }
+
+    const searchClass = 'search' + (this.state.showIcons ? '' : ' hide-icons')
+    return (
+      <div className={searchClass}>
+        <div className={findModal}>
+          <div className="modal">
+            <h2>{t('search.find.title')}</h2>
+            <div className="inner">
+              <input type="tel"
+                placeholder={t('search.find.description')}
+                maxLength="4"
+                value={this.state.station}
+                onKeyUp={this.triggerKeyUp}
+                onChange={this.triggerChange} 
+                ref={e => this.searchInput = e}
+              />
+            </div>
+            <button className="cancel" onTouchTap={this.toggleFind}>{t('search.find.cancel')}</button>
+            <button className="submit" onTouchTap={this.triggerSearch}>{t('search.find.confirm')}</button>
+          </div>
+        </div>
+        {button1}
+        {button2}
+        {mapview}
+        {offline}
       </div>
     )
   }

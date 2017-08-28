@@ -102,3 +102,13 @@
     margin: 0 auto;
   }
 }
+.offline-container {
+  position: absolute;
+  box-sizing: border-box;
+  width: 100%;
+  bottom: 0;
+  background: rgba(#000, 0.85);
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+}

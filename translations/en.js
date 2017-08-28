@@ -2,7 +2,8 @@ export default {
   app: {
     name: 'Transit',
     nointernet: 'You are not connected to the internet.',
-    error: 'An error occured.'
+    error: 'An error occured.',
+    errorRetry: 'Retry',
   },
   root: {
     stationsLabel: 'Stations',
