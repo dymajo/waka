@@ -2,6 +2,7 @@ import React from 'react'
 import { iOS } from '../models/ios.js'
 import { UiStore } from '../stores/uiStore.js'
 import Toggle from './toggle.jsx'
+import { t } from '../stores/translationStore.js'
 
 import BackIcon from '../../dist/icons/back.svg'
 import ClockIcon from '../../dist/icons/clock.svg'
@@ -34,7 +35,7 @@ class Settings extends React.Component {
   animationOverride = false
 
   componentDidMount() {
-    document.title = 'Settings - Transit'
+    document.title = t('settings.title') + ' - ' + t('app.name')
     if (iOS.detect() && window.navigator.standalone === true) {
       this.container.addEventListener('touchstart', this.triggerTouchStart)
       this.container.addEventListener('touchmove', this.triggerTouchMove)
@@ -125,7 +126,7 @@ class Settings extends React.Component {
     if (this.state.credits) {
       className += ' visible'
     } else {
-      button = <button onTouchTap={this.triggerCredits}><CreditsIcon />View Credits</button>
+      button = <button onTouchTap={this.triggerCredits}><CreditsIcon />{t('settings.more.credits')}</button>
     }
 
     return(
@@ -135,7 +136,7 @@ class Settings extends React.Component {
             <BackIcon/>
           </span>
           <div className="header-content">
-            <h1>Settings</h1>
+            <h1>{t('settings.title')}</h1>
           </div>
         </header>
         <div className="settings enable-scrolling" onTouchStart={iOS.triggerStart}>
@@ -143,28 +144,28 @@ class Settings extends React.Component {
             <div className="logobox">
               <div className="logo" id="logo">
                 <span className="company">Dymajo </span>
-                <span className="app">Transit </span>
+                <span className="app">{t('app.name')} </span>
                 <span className="version">v{localStorage.getItem('AppVersion')}</span>
               </div>
               <div className="copyright"><a className="subtle" rel="noopener noreferrer" href="https://dymajo.com" target="_blank">&copy; 2016 - 2017 DYMAJO LTD</a></div>
-              <div className="sourcecode">This app is licensed under the <a className="subtle" rel="noopener noreferrer" href="https://github.com/consindo/dymajo-transit/blob/master/LICENSE" target="_blank">MIT License</a>.<br />
-              Contributions are welcome!<br /><a href="https://github.com/consindo/dymajo-transit" rel="noopener noreferrer" target="_blank">github.com/consindo/dymajo-transit</a></div>
+              <div className="sourcecode">{t('settings.license')}<br />
+                {t('settings.contributions')}<br /><a href="https://github.com/consindo/dymajo-transit" rel="noopener noreferrer" target="_blank">github.com/consindo/dymajo-transit</a></div>
             </div>
             <div className="container">
-              <h1>Settings</h1>
+              <h1>{t('settings.preferences.title')}</h1>
               <Toggle id="clock">
                 <ClockIcon />
-                24hr Time
+                {t('settings.preferences.hrs')}
               </Toggle>
               <Toggle id="longName">
                 <LongnamesIcon />
-                Long Route Names
+                {t('settings.preferences.longnames')}
               </Toggle>
-              <h1>More</h1>
+              <h1>{t('settings.more.title')}</h1>
               <div className="credits">
                 <a className="button" href="mailto:hello@dymajo.com">
                   <FeedbackIcon />
-                  Send Feedback
+                  {t('settings.more.feedback')}
                 </a>
                 {button}
                 <div className={className}>

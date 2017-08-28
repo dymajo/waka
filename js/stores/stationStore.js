@@ -1,5 +1,6 @@
 import Events from './events'
 import local from '../../local'
+import { t } from './translationStore.js'
 
 export class stationStore extends Events {
   constructor(props) {
@@ -175,7 +176,7 @@ export class stationStore extends Events {
         return resolve({
           stop_lat: 0,
           stop_lon: 0,
-          stop_name: 'Multi Stop'
+          stop_name: t('savedStations.multi')
         })
       }
       fetch(`${local.endpoint}/${region}/station/${station}`).then((response) => {
@@ -209,7 +210,7 @@ export class stationStore extends Events {
     Promise.all(promises).then((dataCollection) => {
       dataCollection.forEach((data, key) => {
         let no = stopNumber.split('+')[key]
-        let description = `Stop ${no} / ${data.stop_name}`
+        let description = t('savedStations.stop', {number: `${no} / ${data.stop_name}`})
         let icon = this.getIcon(no)
 
         let zName = stopName
@@ -228,10 +229,10 @@ export class stationStore extends Events {
 
       if (stopNumber.split('+').length > 1) {
         this.StationData[region + '|' + stopNumber] = {
-          name: stopName || 'Multi Stop',
+          name: stopName || t('savedStations.multi'),
           stop_lat: 0,
           stop_lon: 0,
-          description: 'Stops ' + stopNumber.split('+').join(', '),
+          description: t('savedStations.stops', {number: stopNumber.split('+').join(', ')}),
           icon: 'multi',
           region: region
         }
@@ -258,7 +259,7 @@ export class stationStore extends Events {
     return new Promise((resolve, reject) => {
       if (Object.keys(this.lineCache).length === 0) {
         if (!navigator.onLine) {
-          reject('You are not connected to the internet.')
+          reject(t('app.nointernet'))
           return
         }
         fetch(`${local.endpoint}/nz-akl/lines`).then((response)=>{
@@ -267,7 +268,7 @@ export class stationStore extends Events {
             resolve(data)
           })
         }).catch(() => {
-          reject('We couldn\'t download the lines.')
+          reject(t('lines.error'))
         })
       } else {
         resolve(this.lineCache)

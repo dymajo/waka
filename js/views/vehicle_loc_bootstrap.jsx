@@ -5,6 +5,7 @@ import local from '../../local'
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
+import { t } from '../stores/translationStore.js'
 
 import BackIcon from '../../dist/icons/back.svg'
 
@@ -35,9 +36,9 @@ class VehicleLocationBootstrap extends React.Component {
   componentDidUpdate() {
     if (typeof(this.state.tripInfo.route_long_name) !== 'undefined') {
       if ('line_id' in this.props.match.params) {
-        document.title = this.state.tripInfo.route_short_name + ' - ' + this.state.tripInfo.route_long_name + ' - Transit'
+        document.title = this.state.tripInfo.route_short_name + ' - ' + this.state.tripInfo.route_long_name + ' - ' + t('app.name')
       } else {
-        document.title = this.state.tripInfo.route_short_name + ' - Live Location - Transit'
+        document.title = t('vech_loc.header', {route: this.state.tripInfo.route_short_name, appname: t('app.name')})
       }
     }
   }

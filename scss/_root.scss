@@ -111,6 +111,7 @@ $transition: 250ms ease transform;
     img, svg {
       display: block;
       margin: -2px auto 2px;
+      fill: $atblue;
     }
 
     &:first-child img {

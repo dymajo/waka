@@ -5,6 +5,7 @@ import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
+import { t } from '../stores/translationStore.js'
 
 import BackIcon from '../../dist/icons/back.svg'
 
@@ -37,7 +38,8 @@ export default class Timetable extends React.Component {
     })
 
     this.getData()
-    document.title = this.props.match.params.route_name.split('-')[0] + ' Timetable - Transit'
+    const routeName = this.props.match.params.route_name.split('-')[0]
+    document.title = t('timetable.header', {route: routeName, appname: t('app.name')})
     UiStore.bind('animation', this.animation)
   }
   componentWillUnmount() {
@@ -135,7 +137,7 @@ export default class Timetable extends React.Component {
             <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
               {code}
             </span>
-            <h1 className="line-name">Timetable</h1>
+            <h1 className="line-name">{t('timetable.title')}</h1>
             <h2>{this.state.stopName}</h2>
           </div>
         </header>

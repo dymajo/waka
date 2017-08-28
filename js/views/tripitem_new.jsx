@@ -3,6 +3,12 @@ import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { withRouter } from 'react-router'
+import { t } from '../stores/translationStore.js'
+
+import DirectionIcon from '../../dist/icons/direction.svg'
+import BigIcon from '../../dist/icons/big.svg'
+import MapIcon from '../../dist/icons/station.svg'
+import TimetableIcon from '../../dist/icons/timetable.svg'
 
 // 3 minutes until we'll hide the trip
 const tripDelay = 3 * 6000
@@ -52,11 +58,11 @@ class TripItem extends React.Component {
 
     const headsign = trip.trip_headsign.split('/')[0]
     const dir = trip.direction_id === 1 ? 'in' : ''
-    const direction = <img src="/icons/direction.svg" className={'direction ' + dir} />
+    const direction = <DirectionIcon className={'direction ' + dir} />
     const background = StationStore.getColor(trip.agency_id, route_code)
     let via = trip.route_long_name.split('Via')
     if (via.length > 1 && (SettingsStore.getState().longName === true || this.props.vias)) {
-      via = <small>via {via[1].split(' And')[0]}</small>
+      via = <small>{t('tripitem.via', {location: via[1].split(' And')[0]})}</small>
     } else {
       via = null
     }
@@ -103,20 +109,20 @@ class TripItem extends React.Component {
         let stops_away_no = trip.stop_sequence - this.props.realtime[trip.trip_id].stop_sequence
 
         if ((time === 0 || stops_away_no === 0) && times.length === 0) {
-          times.push({realtime: 'delay', time: 'Due', dd: this.props.realtime[trip.trip_id].double_decker})
+          times.push({realtime: 'delay', time: t('tripitem.due'), dd: this.props.realtime[trip.trip_id].double_decker})
         } else {
           times.push({realtime: 'delay', time: time.toString(), stops: stops_away_no, dd: this.props.realtime[trip.trip_id].double_decker})
         }
       } else if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].distance) {
         let time = date
         if (time <= 0 && times.length === 0) {
-          time = 'Due'
+          time = t('tripitem.due')
         }
         times.push({realtime: 'distance', time: time, distance: Math.round(this.props.realtime[trip.trip_id].distance)})
       } else if (date > 0) {
         times.push({realtime: false, time: date.toString()})
       } else {
-        times.push({realtime: false, time: 'Due'})
+        times.push({realtime: false, time: t('tripitem.due')})
       }
     })
 
@@ -131,30 +137,26 @@ class TripItem extends React.Component {
           {times.slice(0,3).map((item, key) => {
             const realtime = item.realtime !== false ? 'realtime' : ''
             const className = ''
-            if (item.time === 'Due') {
+            if (item.time === t('tripitem.due')) {
               return (
                 <h4 className={realtime} key={key}>
                   <strong>{item.time}</strong>
                 </h4>
               )
             } else if (item.realtime === 'delay') {
+              const stops = t('tripitem.stops', {smart_count: item.stops}).split('&')
+              const min = t('tripitem.min', {smart_count: parseInt(item.time)}).split('&')
               return (
                 <h4 className={className} key={key}>
-                  <strong>{item.stops}</strong>
-                  {item.stops > 1 ? ' stops ' : ' stop '}
-                  <span className="opacity">&middot;</span> <strong>{item.time}</strong> min
-                </h4>
-              )
-            } else if (item.realtime === 'distance') {
-              return (
-                <h4 className={className} key={key}>
-                  <strong>{item.time}</strong> min
+                  <strong>{stops[0]}</strong>{stops[1]}&nbsp;
+                  <span className="opacity">&middot;</span> <strong>{min[0]}</strong> {min[1]}
                 </h4>
               )
             } else {
+              const min = t('tripitem.min', {smart_count: item.time}).split('&')
               return (
                 <h4 className={className} key={key}>
-                  <strong>{item.time}</strong> min
+                  <strong>{min[0]}</strong> {min[1]}
                 </h4>
               )
             }
@@ -166,24 +168,29 @@ class TripItem extends React.Component {
       let dd = null
       let className = latest.realtime !== false ? 'realtime' : ''
       if (latest.dd === true) {
-        dd = <img className="dd" src="/icons/big.svg" />
+        dd = <BigIcon className="dd" />
       }
-      if (latest.time === 'Due') {
+      if (latest.time === t('tripitem.due')) {
         if (latest.realtime !== false) {
           className += ' due'
         }
         latest = <h3 className={className}>{dd} <span className="number-small">{latest.time}</span></h3>
       } else if (latest.realtime === 'delay') {
+        const stops = t('tripitem.stops', {smart_count: latest.stops}).split('&')
+        const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
         latest = (
-          <h3 className={className}>{dd} <span className="number-small">{latest.stops}</span>
-            {latest.stops > 1 ? ' stops ' : ' stop '}
-            <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m
+          <h3 className={className}>{dd} <span className="number-small">{stops[0]}</span>
+            {stops[1]}&nbsp;
+            <span className="opacity">&middot;</span> <span className="number">{minsaway[0]}</span>{minsaway[1]}
           </h3>
         )
       } else if (latest.realtime === 'distance' && latest.distance > 0) {
-        latest = <h3 className={className}><span className="number-small">{latest.distance}</span>km <span className="opacity">&middot;</span> <span className="number">{latest.time}</span>m</h3>
+        const kmaway = t('tripitem.minsaway', {time: latest.distance}).split('&')
+        const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
+        latest = <h3 className={className}><span className="number-small">{kmaway[0]}</span>{kmaway[1]} <span className="opacity">&middot;</span> <span className="number">{minsaway[0]}</span>{minsaway[1]}</h3>
       } else {
-        latest = <h3 className={className}><span className="number">{latest.time}</span>m</h3>
+        const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
+        latest = <h3 className={className}><span className="number">{minsaway[0]}</span>{minsaway[1]}</h3>
       }
       let andIn = null
       if (times.length > 1) {
@@ -191,9 +198,10 @@ class TripItem extends React.Component {
         if (times.length > 2) {
           timesarr.push(times[2].time)
         }
-        andIn = <h4>and in <strong>{timesarr.join(', ')}</strong> min</h4>
+        const and = t('tripitem.and', {times: timesarr.join(', ')}).split('&')
+        andIn = <h4>{and[0]} <strong>{and[1]}</strong>{and[2]}</h4>
       } else if (parseInt(times[0].time) < 60) {
-        andIn = <h4><span className="last">Last</span></h4>
+        andIn = <h4><span className="last">{t('tripitem.last')}</span></h4>
       }
       inner = (
         <div className="right">
@@ -213,8 +221,12 @@ class TripItem extends React.Component {
           {inner}
         </div>
         <div className="bottom">
-          <button onTouchTap={this.triggerMap}><img src="/icons/map.svg"/>Map</button>
-          <button onTouchTap={this.triggerTimetable}><img src="/icons/timetable.svg"/>Timetable</button>
+          <button onTouchTap={this.triggerMap}>
+            <MapIcon/>{t('tripitem.map')}
+          </button>
+          <button onTouchTap={this.triggerTimetable}>
+            <TimetableIcon/>{t('tripitem.timetable')}
+          </button>
         </div>
       </li>
     )

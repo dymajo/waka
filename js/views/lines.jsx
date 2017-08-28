@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore'
 import { UiStore } from '../stores/uiStore.js'
+import { t } from '../stores/translationStore.js'
 
 import BackIcon from '../../dist/icons/back.svg'
 
@@ -43,7 +44,7 @@ class Lines extends React.Component {
     }
   }
   componentDidMount() {
-    document.title = 'Lines - Transit'
+    document.title = t('lines.title') + ' - ' + t('app.name')
     if (iOS.detect() && window.navigator.standalone === true) {
       this.container.addEventListener('touchstart', this.triggerTouchStart)
       this.container.addEventListener('touchmove', this.triggerTouchMove)
@@ -195,9 +196,9 @@ class Lines extends React.Component {
         })
         let label = group.items.length - 3 
         if (this.state.groupShow[group.name] === 'show') {
-          label += ' less ▴'
+          label = t('lines.less', {number: label}) + ' ▴'
         } else {
-          label += ' more ▾'
+          label = t('lines.more', {number: label}) + ' ▾'
         }
         innerLineList.push(
           <div className="line-item expand" key={group.name + 'expand'} onTouchTap={this.triggerGroup(group.name)}>
@@ -233,7 +234,7 @@ class Lines extends React.Component {
             <BackIcon />
           </span>
           <div className="header-expand">
-            <h1>All Lines</h1>
+            <h1>{t('lines.title')}</h1>
           </div>
         </header>
         {ret}

@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
+import { t } from '../stores/translationStore.js'
 import TripItem from './tripitem_new.jsx'
 import zenscroll from 'zenscroll'
 
@@ -81,7 +82,7 @@ class Station extends React.Component {
         name = data.name
         description = data.description
       }
-      document.title = name + ' - Transit'
+      document.title = name + ' - ' + t('app.name')
       this.setState({
         name: name,
         description: description,
@@ -447,19 +448,19 @@ class Station extends React.Component {
     }
     if (this.state.name !== '') {
       if (icon === 'bus') {
-        iconStr = 'Bus Stop ' + stop
+        iconStr = t('station.bus') + ' ' + stop
       }
       if (this.props.match.params.station.split('+').length > 1) {
-        iconStr = 'Stops ' + stop.split('+').join(', ')
+        iconStr = t('savedStations.stops', {number: stop.split('+').join(', ')})
       }
     }
 
     let modalHeader, saveButton, combined, removeBtn
     if (StationStore.getOrder().indexOf(regionStop) === -1) {
-      modalHeader = 'Save Station'
+      modalHeader = t('stationedit.title2')
       saveButton = <span className="header-right save" onTouchTap={this.triggerSave}><UnsavedIcon /></span>  
     } else {
-      modalHeader = 'Edit Station'
+      modalHeader = t('stationedit.title')
       saveButton = <span className="header-right remove" onTouchTap={this.triggerSave}><SavedIcon /></span>
 
       if (this.props.match.params.station.split('+').length === 1) {
@@ -481,7 +482,7 @@ class Station extends React.Component {
     if (mergers.length > 1) {
       combined = (
         <div>
-          <h3>Merge Stops</h3>
+          <h3>{t('stationedit.merge')}</h3>
           <ul>
             {mergers.filter(i => i !== regionStop).map((item) => {
               return (
@@ -508,7 +509,7 @@ class Station extends React.Component {
         <div className="spinner" />
       )
     } else if (this.state.currentTrips.length === 0) {
-      loading = <div className="error">There are no services in the next two hours.</div>
+      loading = <div className="error">{t('station.noservices')}</div>
     } else {
       scrollable += ' enable-scrolling'
     }
@@ -551,13 +552,13 @@ class Station extends React.Component {
           <div className="modal">
             <h2>{modalHeader}</h2>
             <div className="inner">
-              <h3>Stop Name</h3>
+              <h3>{t('stationedit.name')}</h3>
               <input type="text" value={this.state.name} onChange={this.triggerSaveChange} ref={e => this.saveInput = e} />
               {combined}
               {removeBtn}
             </div>
-            <button className="cancel" onTouchTap={this.triggerSaveCancel}>Cancel</button>
-            <button className="submit" onTouchTap={this.triggerSaveAdd}>Save</button>
+            <button className="cancel" onTouchTap={this.triggerSaveCancel}>{t('stationedit.cancel')}</button>
+            <button className="submit" onTouchTap={this.triggerSaveAdd}>{t('stationedit.confirm')}</button>
           </div>
         </div>
         {headerPos[0]}

@@ -3,6 +3,7 @@ import { withRouter, Switch, Route } from 'react-router-dom'
 import { TransitionGroup, Transition } from 'react-transition-group'
 import { iOS } from '../models/ios.js'
 import { UiStore } from '../stores/uiStore.js'
+import { t } from '../stores/translationStore.js'
 
 // routes
 import Station from './station.jsx'
@@ -45,14 +46,6 @@ class Index extends React.Component {
     this.touchlastpos = null // used to detect flick
     this.scrolllock = false  // used so you know the difference between scroll & transform
 
-    this.loadMapDynamic = this.loadMapDynamic.bind(this)
-    this.toggleStations = this.toggleStations.bind(this)
-    this.toggleLines = this.toggleLines.bind(this)
-    this.togglePin = this.togglePin.bind(this)
-    this.triggerTouchStart = this.triggerTouchStart.bind(this)
-    this.triggerTouchMove = this.triggerTouchMove.bind(this)
-    this.triggerTouchEnd = this.triggerTouchEnd.bind(this)
-
     window.onresize = function() {
       document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
     }
@@ -65,12 +58,10 @@ class Index extends React.Component {
 
     this.props.history.listen(UiStore.handleState)
   }
-  componentDidUpdate() {
-    document.title = 'Transit'
-  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {
       this.loadMapDynamic()
+      document.title = t('app.name')
     }
     const n = nextProps.location.pathname
     const p = this.props.location.pathname
@@ -81,7 +72,7 @@ class Index extends React.Component {
       }, UiStore.animationTiming + 25)
     }
   }
-  loadMapDynamic() {
+  loadMapDynamic = () => {
     // doesn't do anything if already loaded
     if (this.Search !== null) {
       return
@@ -98,7 +89,7 @@ class Index extends React.Component {
       })
     })
   }
-  toggleStations() {
+  toggleStations = () => {
     requestAnimationFrame(() => {
       if (this.state.mapView === false) {
         this.refs.touchcard.scrollTop = 0
@@ -109,7 +100,7 @@ class Index extends React.Component {
       })
     })
   }
-  togglePin() {
+  togglePin = () => {
     this.setState({
       showPin: !this.state.showPin
     })
@@ -117,7 +108,7 @@ class Index extends React.Component {
   toggleLines = () => {
     this.props.history.push('/l/nz-akl')
   }
-  triggerTouchStart(e) {
+  triggerTouchStart = (e) => {
     // only start the pull down if they're at the top of the card
     if (this.refs.touchcard.scrollTop === 0 && window.innerWidth < 851) {
       this.touchstartpos = e.touches[0].clientY
@@ -147,7 +138,7 @@ class Index extends React.Component {
       this.refs.touchcard.scrollTop = 0
     }
   }
-  triggerTouchMove(e) {
+  triggerTouchMove = (e) => {
     // cancels if they're not at the top of the card
     if (this.touchstartpos === null) {
       return
@@ -218,7 +209,7 @@ class Index extends React.Component {
       this.scrolllock = false
     }
   }
-  triggerTouchEnd(e) {
+  triggerTouchEnd = (e) => {
     // cancels if the event never started
     if (this.touchstartpos === null) {
       return
@@ -334,7 +325,7 @@ class Index extends React.Component {
             </span>
             <div className="header-expand">
               <h1 className="full-height">
-                <strong>DYMAJO Transit</strong></h1>
+                <strong>{t('app.name')}</strong></h1>
             </div>
             <span className="header-right" onTouchTap={this.triggerSettings}>
               <SettingsIcon />
@@ -355,11 +346,11 @@ class Index extends React.Component {
             <div className="root-card-bar">
               <button onTouchTap={this.toggleStations}>
                 <StationIcon />
-                Stations
+                {t('root.stationsLabel')}
               </button>
               <button onTouchTap={this.toggleLines}>
                 <LinesIcon />
-                Lines
+                {t('root.linesLabel')}
               </button>
             </div>
             <div className="root-card-content">

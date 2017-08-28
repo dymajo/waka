@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { CurrentLocation } from '../stores/currentLocation.js'
+import { t } from '../stores/translationStore.js'
 
 import LocateIcon from '../../dist/icons/locate.svg'
 import TrainIcon from '../../dist/icons/train.svg'
@@ -323,9 +324,9 @@ class vehicle_location extends React.Component {
                       <span>
                         {iconMap[icon]}
                         <h2>{stop[3]}</h2>
-                        <h3>Stop {stop[2]}</h3>
-                        <button onClick={this.viewServices(stop[2])}>View Services</button>
-                        <button className="timetable-button" onClick={this.viewTimetable(stop[2])}>Timetable</button>
+                        <h3>{t('vech_loc.stop', {number: stop[2]})}</h3>
+                        <button onClick={this.viewServices(stop[2])}>{t('vech_loc.services')}</button>
+                        <button className="timetable-button" onClick={this.viewTimetable(stop[2])}>{t('vech_loc.timetable')}</button>
                       </span>
                     </Popup>
                   </Marker>

@@ -12,6 +12,7 @@ import { CurrentLocation } from '../stores/currentLocation.js'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
+import { t } from '../stores/translationStore.js'
 
 import SearchIcon from '../../dist/icons/search.svg'
 import LocateIcon from '../../dist/icons/locate.svg'
@@ -271,10 +272,10 @@ class Search extends React.Component {
       <div className={searchClass}>
         <div className={findModal}>
           <div className="modal">
-            <h2>Find Stop</h2>
+            <h2>{t('search.find.title')}</h2>
             <div className="inner">
               <input type="tel"
-                placeholder="Enter Stop Number"
+                placeholder={t('search.find.description')}
                 maxLength="4"
                 value={this.state.station}
                 onKeyUp={this.triggerKeyUp}
@@ -282,8 +283,8 @@ class Search extends React.Component {
                 ref={e => this.searchInput = e}
               />
             </div>
-            <button className="cancel" onTouchTap={this.toggleFind}>Cancel</button>
-            <button className="submit" onTouchTap={this.triggerSearch}>Go</button>
+            <button className="cancel" onTouchTap={this.toggleFind}>{t('search.find.cancel')}</button>
+            <button className="submit" onTouchTap={this.triggerSearch}>{t('search.find.confirm')}</button>
           </div>
         </div>
         <button className="circle-button blue-button bottom-button" onTouchTap={this.toggleFind} alt="Find Stop" title="Find Stop">

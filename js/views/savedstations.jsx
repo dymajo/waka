@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
+import { t } from '../stores/translationStore.js'
 
 import LinesIcon from '../../dist/icons/lines.svg'
 import PinIcon from '../../dist/icons/pin.svg'
@@ -113,45 +114,39 @@ class SavedSations extends React.Component {
   }
   render() {
     let stations = this.state.stations
+    const onboarding = <div className="onboard">
+      <h2></h2>
+      <ul>
+        <SidebarItem
+          type="description"
+          name={t('onboarding.welcome.name', {appname: t('app.name')})}
+          description={t('onboarding.welcome.description', {appname: t('app.name')})}
+        />
+        <SidebarItem
+          url="/l/nz-akl"
+          icon="lines.svg"
+          className="lines-btn"
+          name={t('onboarding.lines.name')}
+          description={t('onboarding.lines.description')}
+        />
+        <SidebarItem
+          type="install"
+          action={this.props.togglePin}
+          icon="pin.svg"
+          name={t('onboarding.install.name')}
+          description={<div><span>{t('onboarding.install.description', {appname: t('app.name')})}</span><span>{t('onboarding.install.description2', {appname: t('app.name')})}</span></div>}
+        />
+      </ul>
+    </div>
+
     let message
     if (StationStore.getOrder().length === 0) {
-      message = (
-        <p>You haven’t saved any stations yet.<br />
-        Save them and they’ll show up here!<br />
-        </p>
-      )
-    }
-    let onboarding = null
-    if (true) {
-      onboarding = <div className="onboard">
-        <h2></h2>
-        <ul>
-          <SidebarItem
-            type="description"
-            name="Welcome to Transit!"
-            description="Transit is your realtime guide to AT Buses, Trains, and Ferries."
-          />
-          <SidebarItem
-            url="/l/nz-akl"
-            icon="lines.svg"
-            name="Lines"
-            className="lines-btn"
-            description="View all Bus, Train, and Ferry Services"
-          />
-          <SidebarItem
-            type="install"
-            action={this.props.togglePin}
-            icon="pin.svg"
-            name="Install App"
-            description={<div><span>Add Transit to your home screen</span><span>Send Transit to your phone</span></div>}
-          />
-        </ul>
-      </div>
+      message = <p>{t('savedStations.empty')}<br />{t('savedStations.empty2')}</p>
     }
     return (
       <div className="savedstations">
         {onboarding}
-        <h2>Saved Stations</h2>
+        <h2>{t('savedStations.title')}</h2>
         {message}
         <ul>
           {StationStore.getOrder().map((station) => {
@@ -165,21 +160,21 @@ class SavedSations extends React.Component {
             />
           })}
         </ul>
-        <h2>Service Alerts</h2>
+        <h2>{t('serviceAlerts.title')}</h2>
         <ul>
           <SidebarItem
             type="url"
             url="https://twitter.com/AklTransport"
             icon="at.svg"
             name="Auckland Transport"
-            description="@AklTransport on Twitter"
+            description={t('serviceAlerts.twitter', {account: 'AklTransport'})}
           />
           <SidebarItem
             type="url"
             url="https://twitter.com/DYMAJOLtd"
             icon="dymajo.svg"
             name="DYMAJO"
-            description="@DYMAJOLtd on Twitter"
+            description={t('serviceAlerts.twitter', {account: 'DYMAJOLtd'})}
           />
         </ul>
         <a className="label version" href="https://github.com/consindo/dymajo-transit" target="_blank" rel="noopener" onClick={this.reject}>
