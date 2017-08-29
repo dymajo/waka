@@ -114,7 +114,7 @@ class Station extends React.Component {
       })
     }
 
-    if (this.state.trips.length === 0 && this.state.fancyMode && this.scroll.scrollTop === 71 && tripData[0].route_type !== '3') {
+    if (this.state.trips.length === 0 && this.state.fancyMode && this.scroll.scrollTop === 71 && tripData[0].route_type !== 3) {
       requestAnimationFrame(() => {
         this.scroller.toY(250)
       })
@@ -135,7 +135,7 @@ class Station extends React.Component {
   realtimeCb = () => {
     const tripData = StationStore.tripData
     const rtData = StationStore.realtimeData
-    if (tripData[0].route_type === '2') {
+    if (tripData[0].route_type === 2) {
       for (var key in rtData) {
         rtData[key] = {
           v_id: rtData[key].v_id,
@@ -143,7 +143,7 @@ class Station extends React.Component {
         }
       }
     } 
-    if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && this.scroll.scrollTop === 71 && tripData[0].route_type === '3') {
+    if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && this.scroll.scrollTop === 71 && tripData[0].route_type === 3) {
       requestAnimationFrame(() => {
         this.scroller.toY(250)
       })

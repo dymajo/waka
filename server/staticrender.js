@@ -31,7 +31,7 @@ const staticrender = {
         vendorpath: '/' + manifest['vendor.js'],
         apppath: '/' + manifest['app.js'],
         analyticspath: '/' + manifest['analytics.js'],
-        csspath: '/style.css?' + manifest['app.js'].split('.')[1]
+        csspath: '/' + manifest['app.css']
       }))
     }
 

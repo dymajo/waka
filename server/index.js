@@ -46,6 +46,7 @@ router.get('/:prefix/stops/trip/:trip_id', line.getStopsFromTrip)
 router.get('/:prefix/stops/shape/:shape_id', line.getStopsFromShape)
 router.get('/:prefix/shape/:shape_id', line.getShape)
 router.post('/:prefix/realtime', realtime.getTripsEndpoint)
+router.post('/:prefix/realtimebypass', realtime.endpointBypass)
 router.post('/:prefix/vehicle_location', realtime.getVehicleLocation)
 
 module.exports = router

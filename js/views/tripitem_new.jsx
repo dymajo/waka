@@ -185,7 +185,7 @@ class TripItem extends React.Component {
           </h3>
         )
       } else if (latest.realtime === 'distance' && latest.distance > 0) {
-        const kmaway = t('tripitem.minsaway', {time: latest.distance}).split('&')
+        const kmaway = t('tripitem.kmaway', {distance: latest.distance}).split('&')
         const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
         latest = <h3 className={className}><span className="number-small">{kmaway[0]}</span>{kmaway[1]} <span className="opacity">&middot;</span> <span className="number">{minsaway[0]}</span>{minsaway[1]}</h3>
       } else {

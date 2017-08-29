@@ -100,15 +100,20 @@ var station = {
           if (record.arrival_time_24) {
             record.arrival_time_seconds += 86400
           }
-          record.departure_time_seconds = record.arrival_time_seconds // compat
+          record.departure_time_seconds = new Date(record.departure_time).getTime()/1000
+          if (record.departure_time_24) {
+            record.departure_time_seconds += 86400
+          }
 
           // 30mins of realtime 
-          if (record.departure_time_seconds < (sending.currentTime + 1800) || record.arrival_time_24) {
+          if (record.departure_time_seconds < (sending.currentTime + 1800) || record.departure_time_24) {
             realtimeTrips.push(record.trip_id)
           }
 
           delete record.arrival_time
           delete record.arrival_time_24
+          delete record.departure_time
+          delete record.departure_time_24
           return record
         })
         if (prefix === 'nz-akl') {

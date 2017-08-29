@@ -96,11 +96,18 @@ var realtime = {
     }
     // falls back to API if we're out of date
     if (req.body.train || realtime.currentDataFails > 3) {
-      realtime.getTripsAuckland(req.body.trips, req.body.train)
+      realtime.getTripsAuckland(req.body.trips, req.body.train).then((data) => {
+        res.send(data)
+      })
     } else {
       const rt = realtime.getTripsCachedAuckland(req.body.trips)
       res.send(rt)
     }
+  },
+  endpointBypass: function(req, res) {
+    realtime.getTripsAuckland(req.body.trips, req.body.train).then((data) => {
+      res.send(data)
+    })
   },
   getTripsAuckland: function(trips, train = false) {
     var realtimeInfo = {}
