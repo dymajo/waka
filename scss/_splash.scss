@@ -31,6 +31,10 @@
   right: 0;
   z-index: 5;
 
+  @media (min-width: 851px) {
+    left: $sidebar-width;
+  }
+
   &.hide {
     animation: hidePin 300ms ease 1;
     opacity: 0;

@@ -134,7 +134,7 @@ class Pin extends React.Component {
         <h3>Email yourself a link to Transit!</h3>
         <form onSubmit={this.sendEmail}>
           <input value={this.state.email} type="email" placeholder="Email Address" onChange={this.triggerChange}/><br/>
-          <button className="nice-button primary" type="submit">Send Link</button> <button onClick={this.triggerClose}>Cancel</button>
+          <button className="nice-button primary" type="submit">Send Link</button> <button className="nice-button" onClick={this.triggerClose}>Cancel</button>
         </form>
       </div>
     } else {

@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import local from '../../local'
 
-import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
@@ -14,24 +13,17 @@ const style = UiStore.getAnimation()
 // this is hacked so it handles the current location
 // and just normal people looking up a line
 class VehicleLocationBootstrap extends React.Component {
+  static propTypes = {
+    match: PropTypes.object,
+    history: PropTypes.object,
+  }
   state = {
     showContent: false,
     tripInfo: {},
     stopInfo: {},
     lineInfo: [],
     animation: 'unmounted',
-  }
-
-  static propTypes = {
-    match: PropTypes.object,
-    history: PropTypes.object,
-  }
-
-  componentWillMount() {
-    if ('line_id' in this.props.match.params) {
-      return this.lineMountCb(this.props)
-    }
-    this.tripMountCb(this.props)
+    online: window.navigator.onLine
   }
   componentDidUpdate() {
     if (typeof(this.state.tripInfo.route_long_name) !== 'undefined') {
@@ -43,6 +35,10 @@ class VehicleLocationBootstrap extends React.Component {
     }
   }
   componentDidMount() {
+    window.addEventListener('online',  this.triggerRetry)
+    window.addEventListener('offline',  this.goOffline)
+    UiStore.bind('animation', this.animation)
+
     System.import('./vehicle_loc.jsx').then(module => {
       this.VehicleLocation = module.default
       this.setState({
@@ -51,23 +47,15 @@ class VehicleLocationBootstrap extends React.Component {
     })
 
     if ('line_id' in this.props.match.params) {
-      fetch(`${local.endpoint}/nz-akl/line/${this.props.match.params.line_id}`).then((response) => {
-        response.json().then((data) => {
-          let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
-          tripInfo.route_long_name = data[0].route_long_name
-          tripInfo.shape_id = data[0].shape_id
-          tripInfo.route_type = data[0].route_type
-          // tripInfo.route_type = data[]
-          this.setState({
-            lineInfo: data,
-            tripInfo: tripInfo
-          })
-        })
-      })
+      this.lineMountCb(this.props)
+      this.getLineData()
+    } else {
+      this.tripMountCb(this.props)
     }
-    UiStore.bind('animation', this.animation)
   }
   componentWillUnmount() {
+    window.removeEventListener('online',  this.triggerRetry)
+    window.removeEventListener('offline',  this.goOffline)
     UiStore.unbind('animation', this.animation)
   }
 
@@ -91,6 +79,21 @@ class VehicleLocationBootstrap extends React.Component {
       })
     })
   }
+  getLineData = () => {
+    fetch(`${local.endpoint}/nz-akl/line/${this.props.match.params.line_id}`).then((response) => {
+      response.json().then((data) => {
+        let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
+        tripInfo.route_long_name = data[0].route_long_name
+        tripInfo.shape_id = data[0].shape_id
+        tripInfo.route_type = data[0].route_type
+        // tripInfo.route_type = data[]
+        this.setState({
+          lineInfo: data,
+          tripInfo: tripInfo
+        })
+      })
+    })
+  }
   tripMountCb = (newProps) => {
     const tripNodeMatches = (item) => {
       return item.trip_id === newProps.match.params.trip_id
@@ -104,7 +107,7 @@ class VehicleLocationBootstrap extends React.Component {
   }
   triggerBack = () => {
     let newUrl = window.location.pathname.split('/')
-    if (newUrl[3] === 'realtime') {
+    if (newUrl[4] === 'realtime') {
       newUrl.splice(-2)  
     } else {
       newUrl.splice(-1)
@@ -119,6 +122,28 @@ class VehicleLocationBootstrap extends React.Component {
     tripInfo.shape_id = newLine.shape_id
     this.setState({
       tripInfo: tripInfo
+    })
+  }
+  triggerRetry = () => {
+    this.setState({
+      showContent: false,
+      online: window.navigator.onLine
+    })
+    setTimeout(() => {
+      this.setState({
+        showContent: true
+      })
+
+      if ('line_id' in this.props.match.params) {
+        this.lineMountCb(this.props)
+        this.getLineData()
+        return 
+      }
+    }, 50)
+  }
+  goOffline = () => {
+    this.setState({
+      online: false
     })
   }
   render() {
@@ -173,6 +198,16 @@ class VehicleLocationBootstrap extends React.Component {
       }
     }
 
+    let offline = null
+    if (!this.state.online) {
+      offline = (
+        <div className="offline-container">
+          <p>You are not connected to the internet.</p>
+          <button className="nice-button primary" onClick={this.triggerRetry}>Retry</button>
+        </div>
+      )
+    }
+
     return (
       <div className='vehicle-location-container' ref={e => this.container = e} style={style[this.state.animation]}>
         <header className='material-header'>
@@ -189,6 +224,7 @@ class VehicleLocationBootstrap extends React.Component {
           </div>
         </header>
         {content}
+        {offline}
       </div>
     )
   }

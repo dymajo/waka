@@ -1,10 +1,11 @@
-const http = require('http')
 const express = require('express')
 const pug = require('pug')
 const template = pug.compileFile('./dist/template.pug')
 const manifest = require('./dist/assets.json')
 
+const compression = require('compression')
 const app = express()
+app.use(compression())
 
 // redirects trailing slash to /
 app.use(function(req, res, next) {
@@ -33,5 +34,5 @@ app.get('/*', server)
 // the router routes stuff through this port
 const port = 8009
 app.listen(port, function() {
-	console.log('Test Server listening on localhost:' + port)
-});
+  console.log('Test Server listening on localhost:' + port)
+})

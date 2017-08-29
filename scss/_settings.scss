@@ -9,7 +9,7 @@
     @media (min-width: 851px) {
       top: 0;
       left: $sidebar-width;
-      z-index: 0;
+      z-index: 0 !important;
     }
 
     .material-header {

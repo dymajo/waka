@@ -128,7 +128,9 @@ class Search extends React.Component {
   // stops requesting location when not in use
   componentWillReceiveProps() {
     if (window.location.pathname === '/') {
-      CurrentLocation.startWatch()
+      if (window.innerWidth <= 850) {
+        CurrentLocation.startWatch()
+      }
       this.setState({
         showIcons: true,
         currentStation: null
