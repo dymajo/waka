@@ -289,7 +289,7 @@ class vehicle_location extends React.Component {
     return (
       <div>
         <div className='vehicle-location-map'>
-          <button className="circle-button bottom-button" onTouchTap={this.triggerCurrentLocation} alt="Locate Me">
+          <button className="circle-button bottom-button" onTouchTap={this.triggerCurrentLocation} aria-label="Locate Me">
             <LocateIcon />
           </button>
           <Map center={this.state.position} 

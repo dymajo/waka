@@ -138,8 +138,8 @@
 
   // the emoji
   .icon {
-    padding: 4px 2px 0px 2px;
-    margin-right: 5px;
+    padding: 0 2px 0px 2px;
+    margin: 0.25rem 0.25rem 0 0;
     width: 36px;
     text-align: center;
 
@@ -150,13 +150,14 @@
   }
 
   .text-wrapper {
-    padding: 5px 0;
+    padding: 0 0 0.25rem;
     flex: 1;
   }
 
   .name {
     letter-spacing: -0.5px;
-    line-height: 1;
+    line-height: 1.25;
+    margin-top: 0.25rem;
     font-size: 18px;
     font-weight: 600;
     color: $atblue;
@@ -221,13 +222,13 @@
   }
 }
 
-.onboard li:last-child span {
+.onboard li:nth-child(3) span {
   &:last-child {
     display: none;
   }
 }
 @media (min-width: 481px) {
-  .onboard li:last-child span {
+  .onboard li:nth-child(3) span {
     &:first-child {
       display: none;
     }
@@ -244,6 +245,11 @@
 .ios-standalone .onboard {
   display: none;
 }
+.onboard {
+  svg {
+    fill: $atblue;
+  }
+}
 
 .station {
   position: absolute;
@@ -255,7 +261,7 @@
 
   @media (min-width: 851px) {
     left: $sidebar-width;
-    z-index: 0 !important;
+    z-index: 0;
   }
 }
 

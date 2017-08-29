@@ -101,7 +101,7 @@ const staticrender = {
       } else {
         return notFound()
       }
-    } else if (path[1] === 'settings' && path.length === 2){
+    } else if ((path[1] === 'settings' || path[1] === 'sponsor') && path.length === 2){
       return success()
     } else {
       return notFound()

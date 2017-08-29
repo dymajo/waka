@@ -276,7 +276,7 @@ class Search extends React.Component {
       } else if (icon === 'ferry') {
         markericon = ferrySelection
       }            
-      stationMarker = <Marker icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
+      stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
     }
 
     let findModal = 'modal-wrapper'
@@ -301,12 +301,12 @@ class Search extends React.Component {
       )
     } else {
       button1 = (
-        <button className="circle-button blue-button bottom-button" onTouchTap={this.toggleFind} alt="Find Stop" title="Find Stop">
+        <button className="circle-button blue-button bottom-button" onTouchTap={this.toggleFind} aria-label="Find Stop" title="Find Stop">
           <SearchIcon />  
         </button>
       )
       button2 = (
-        <button className="circle-button top-button" onTouchTap={this.triggerCurrentLocation} alt="Locate Me">
+        <button className="circle-button top-button" onTouchTap={this.triggerCurrentLocation} aria-label="Locate Me">
           <LocateIcon />
         </button>
       )
@@ -360,7 +360,7 @@ class Search extends React.Component {
             }
 
             return (
-              <Marker icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)} />
+              <Marker alt={t('station.' + icon)} icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)} />
             )
           })}
           {bigCircle}
@@ -379,6 +379,7 @@ class Search extends React.Component {
             <div className="inner">
               <input type="tel"
                 placeholder={t('search.find.description')}
+                aria-label={t('search.find.description')}
                 maxLength="4"
                 value={this.state.station}
                 onKeyUp={this.triggerKeyUp}

@@ -9,6 +9,7 @@ import { t } from '../stores/translationStore.js'
 import Station from './station.jsx'
 import Lines from './lines.jsx'
 import Settings from './settings.jsx'
+import Sponsor from './sponsor.jsx'
 import TestLines from './test_lines.jsx'
 import Timetable from './timetable.jsx'
 import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
@@ -379,6 +380,7 @@ class Index extends React.Component {
                 <Route path="/l/:region" component={Lines} />
 
                 <Route path="/settings" component={Settings}/>
+                <Route path="/sponsor" component={Sponsor}/>
                 <Route path="/testlines" component={TestLines} />
                 <Route component={NoMatch} />
               </Switch>

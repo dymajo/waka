@@ -20,6 +20,7 @@
     &:hover {
       background: darken($lightblue, 15);
       border-color: darken($lightblue, 15);
+      text-decoration: none;
     }
 
     &:active {
@@ -30,6 +31,7 @@
 
   &:hover {
     background: rgba(0,0,0,0.04);
+    text-decoration: none;
   }
   &:active {
     background: rgba(0,0,0,0.1);

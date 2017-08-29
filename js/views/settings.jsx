@@ -115,7 +115,7 @@ class Settings extends React.Component {
 
   renderLinks(items) {
     return <ul>{items.map((function(item, key) {
-      return <li key={key}><a target="_blank" rel="noopener" href={item[0]}>{item[1]}</a> &ndash; {item[2]}</li>
+      return <li key={key}><a target="_blank" rel="noopener noreferrer" href={item[0]}>{item[1]}</a> &ndash; {item[2]}</li>
     }))}</ul>
   }
 

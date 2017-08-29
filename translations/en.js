@@ -23,6 +23,10 @@ export default {
       description: 'Add %{appname} to your home screen.',
       description2: 'Send %{appname} to your phone.',
     },
+    sponsor: {
+      name: 'Become a Sponsor',
+      description: 'Contribute to help support development!'
+    }
   },
   savedStations: {
     title: 'Saved Stations',
@@ -66,6 +70,20 @@ export default {
       feedback: 'Send Feedback',
       credits: 'View Credits',
     }
+  },
+  sponsor: {
+    title: 'Contribute',
+    slug: '%{appname} is free, open source software.',
+    slug2: 'Help us build the world’s best transit app.',
+    email: 'Get in Touch',
+    sponsorTitle: 'Become a Sponsor',
+    sponsorDescription: 'If you want your business to appear on the map or elsewhere in the app, you can become a sponsor!',
+    patreonTitle: 'Patreon',
+    patreonDescription: 'Help cover our costs and support development by become a patron.',
+    contributeTitle: 'Contribute Code',
+    contributeDescription: 'Want to improve %{appname} directly? %{appname} is open source software, so check out the issues and submit a pull request!',
+    translateTitle: 'Translations',
+    translateDescription: 'Spot an issue in a translation, or want to translate %{appname} into another language?',
   },
   station: {
     bus: 'Bus Stop',

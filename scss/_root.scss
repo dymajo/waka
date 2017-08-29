@@ -7,10 +7,10 @@ $transition: 250ms ease transform;
   height: var(--real-height);
   -webkit-tap-highlight-color: transparent;
 
-  @media (max-width: 850px) {
-    &.invisibleUi {
-      visibility: hidden;
-    }  
+  @media (min-width: 850px) {
+    .material-header {
+      z-index: 6;
+    }
   }
 }
 .root-map {

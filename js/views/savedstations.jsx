@@ -13,6 +13,7 @@ import FerryIcon from '../../dist/icons/ferry.svg'
 import BusIcon from '../../dist/icons/bus.svg'
 import ATIcon from '../../dist/icons/at.svg'
 import DymajoIcon from '../../dist/icons/dymajo.svg'
+import PatronIcon from '../../dist/icons/patron.svg'
 
 const iconMap = {
   'lines.svg': <LinesIcon />,
@@ -23,6 +24,7 @@ const iconMap = {
   'bus.svg': <BusIcon />,
   'at.svg': <ATIcon />,
   'dymajo.svg': <DymajoIcon />,
+  'patron.svg': <PatronIcon />,
 }
 
 class SidebarItemVanilla extends React.Component {
@@ -135,6 +137,12 @@ class SavedSations extends React.Component {
           icon="pin.svg"
           name={t('onboarding.install.name')}
           description={<div><span>{t('onboarding.install.description', {appname: t('app.name')})}</span><span>{t('onboarding.install.description2', {appname: t('app.name')})}</span></div>}
+        />
+        <SidebarItem
+          url="/sponsor"
+          icon="patron.svg"
+          name={t('onboarding.sponsor.name')}
+          description={t('onboarding.sponsor.description', {appname: t('app.name')})}
         />
       </ul>
     </div>

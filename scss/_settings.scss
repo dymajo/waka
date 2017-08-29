@@ -9,7 +9,7 @@
     @media (min-width: 851px) {
       top: 0;
       left: $sidebar-width;
-      z-index: 0 !important;
+      z-index: 0;
     }
 
     .material-header {
@@ -43,14 +43,42 @@
     background: $default-back;
     overflow-y: auto;
     box-sizing: border-box;
+    padding-bottom: 2rem;
 
     h1 {
         font-weight: 600;
-        margin: 0 0 7px;
-        font-size: 14px;
-        padding: 14px 14px 7px;
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        padding: 1rem 1rem 0.25rem;
         border-bottom: 1px solid #ddd;
-        color: #666;
+        color: #222;
+        letter-spacing: -0.5px;
+    }
+
+    h2 {
+      font-weight: 600;
+      margin: 1.5rem 1rem 1rem;
+      font-size: 1.125rem;
+      letter-spacing: -0.5px;
+      white-space: pre-wrap;
+
+      @media (max-width: 450px) {
+        font-size: 1rem;
+      }
+    }
+
+    p {
+      padding: 0 1rem;
+      max-width: 500px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .nice-button {
+      margin: 0.75rem 1rem;
+      padding: 0.5rem 1.25rem;
+      font-size: 15px;
+      display: inline-block;
     }
 
     svg, img {
