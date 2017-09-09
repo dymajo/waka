@@ -131,7 +131,10 @@ var cache = {
       }
     })
   },
-  currentVersion: function() {
+  currentVersion: function(prefix = 'nz-akl') {
+    if (prefix === 'nz-wlg') {
+      return '20170828_20170808-090059'
+    }
     return cache.currentVersionString
   },
 

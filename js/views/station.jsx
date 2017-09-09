@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
 import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
+import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
 import TripItem from './tripitem_new.jsx'
@@ -76,7 +77,7 @@ class Station extends React.Component {
     this.getData(this.props, false)
   }
   getData(newProps, getTimes = true) {
-    StationStore.getData(newProps.match.params.station).then((data) => {
+    StationStore.getData(newProps.match.params.station, newProps.match.params.region).then((data) => {
       let name = data.stop_name
       let description = data.stop_name
       if (data.description) {
@@ -90,12 +91,14 @@ class Station extends React.Component {
         stop_lat: data.stop_lat, 
         stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
       })
+      SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon]
+      SettingsStore.saveState()
     }).catch((err) => {
       console.log('error!')
     })
 
     if (getTimes) {
-      StationStore.getTimes(newProps.match.params.station)
+      StationStore.getTimes(newProps.match.params.station, newProps.match.params.region)
     }
   }
   tripsCb = () => {
@@ -199,7 +202,7 @@ class Station extends React.Component {
       // removes platforms and weirdness
       // this line doesn't group as well
       // let lname = trip.route_long_name.replace(/ \d/g, '').toLowerCase()
-      let lname = trip.route_short_name + trip.trip_headsign + ' via' + (trip.route_long_name.toLowerCase().split('via')[1] || '')
+      let lname = trip.route_short_name + trip.trip_headsign + trip.direction_id + ' via' + (trip.route_long_name.toLowerCase().split('via')[1] || '')
       if (!reducer.get(trip.route_short_name).has(lname)) {
         reducer.get(trip.route_short_name).set(lname, [])
       }

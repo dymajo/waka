@@ -18,6 +18,9 @@ export class settingsStore {
     return this.state
   }
   saveState() {
+    if (this.state.lastLocation[0] === 0) {
+      this.state.lastLocation = [-36.844229, 174.767823]
+    }
     localStorage.setItem('SettingsData', JSON.stringify(this.state))
   }
   toggle(item) {

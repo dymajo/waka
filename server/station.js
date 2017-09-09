@@ -36,7 +36,7 @@ var station = {
 
       const sqlRequest = connection.get().request()
       sqlRequest.input('prefix', sql.VarChar, prefix)
-      sqlRequest.input('version', sql.VarChar, cache.currentVersion())
+      sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
       sqlRequest.input('stop_id', sql.VarChar, stop)
       sqlRequest.query(`select stop_name, stop_lat, stop_lon from stops where prefix = @prefix and version = @version and stop_id = @stop_id`).then((result) => {
         const data = result.recordset[0]
@@ -89,7 +89,7 @@ var station = {
     const realtimeTrips = []
     connection.get().request()
       .input('prefix', sql.VarChar(50), prefix)
-      .input('version', sql.VarChar(50), cache.currentVersion())
+      .input('version', sql.VarChar(50), cache.currentVersion(prefix))
       .input('stop_id', sql.VarChar(100), req.params.station)
       .input('departure_time', sql.Time, currentTime)
       .input('date', sql.Date, today)
@@ -119,11 +119,12 @@ var station = {
         if (prefix === 'nz-akl') {
           sending.realtime = realtime.getTripsCachedAuckland(realtimeTrips) 
           res.send(sending)
+          line.cacheShapes(sending.trips)
         } else {
           res.send(sending)
         }
 
-        line.cacheShapes(sending.trips)
+        
       }).catch(function(err) {
         res.status(500).send(err)
       })
@@ -133,8 +134,8 @@ var station = {
       return res.status(400).send({error: 'Direction is not valid.'})
     }
     let sending = {}
-    const currentVersion = cache.currentVersion()
     const prefix = req.params.prefix || 'nz-akl'
+    const currentVersion = cache.currentVersion(prefix)
 
     const time = moment().tz('Pacific/Auckland')
 
@@ -145,7 +146,7 @@ var station = {
 
     connection.get().request()
       .input('prefix', sql.VarChar(50), prefix)
-      .input('version', sql.VarChar(50), cache.currentVersion())
+      .input('version', sql.VarChar(50), currentVersion)
       .input('stop_id', sql.VarChar(100), req.params.station)
       .input('route_short_name', sql.VarChar(50), req.params.route)
       .input('date', sql.Date, today)

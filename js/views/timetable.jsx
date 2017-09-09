@@ -59,7 +59,7 @@ export default class Timetable extends React.Component {
     const tripNodeMatches = (item) => {
       return item.route_short_name === route
     }
-    StationStore.getData(this.props.match.params.station).then((data) => {
+    StationStore.getData(this.props.match.params.station, this.props.match.params.region).then((data) => {
       this.setState({
         tripInfo: StationStore.tripData.find(tripNodeMatches) || this.state.tripInfo,
         stopName: data.name || data.stop_name
@@ -67,7 +67,7 @@ export default class Timetable extends React.Component {
     })
 
     const r = this.props.match.params.route_name.split('-')
-    StationStore.getTimetable(this.props.match.params.station, r[0], r[1]).then((data) => {
+    StationStore.getTimetable(this.props.match.params.station, r[0], r[1], this.props.match.params.region).then((data) => {
       const tripsArr = []
       let lastTrip = null
       data.forEach((trip) => {
@@ -206,7 +206,7 @@ export default class Timetable extends React.Component {
                 return (
                   <li key={key} className={className}>
                     <div className="left">
-                      {item.trip_headsign}
+                      {item.trip_headsign || StationStore.getHeadsign(this.props.match.params.region, item.route_long_name, item.direction_id)}
                       {name.length > 1 ? <small> via {name[1]}</small> : ''}
                     </div>
                     <div className="right">

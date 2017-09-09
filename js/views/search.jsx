@@ -167,7 +167,7 @@ class Search extends React.Component {
     })
   }
   getData(lat, lng, dist) {
-    fetch(`${local.endpoint}/nz-akl/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
+    fetch(`${local.endpoint}/auto/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
       response.json().then((data) => {
         data.forEach(function(item) {
           StationStore.stationCache[item.stop_id] = item
@@ -210,13 +210,13 @@ class Search extends React.Component {
   triggerCurrentLocation = () => {
     CurrentLocation.currentLocationButton()
   }
-  viewServices = (station) => {
+  viewServices = (station, region = 'nz-akl') => {
     return () => {
       this.setState({
         currentStation: station
       })
       UiStore.state.fancyMode = true
-      this.props.history.push(`/s/nz-akl/${station}`)
+      this.props.history.push(`/s/${region}/${station}`)
       setTimeout(() => {
         UiStore.state.fancyMode = false
       }, 500) // extra delay to help events to bubble
@@ -319,7 +319,7 @@ class Search extends React.Component {
           onMoveend={this.moveEnd}
           center={this.state.position} 
           maxZoom={18}
-          zoom={18}
+          zoom={17}
           zoomControl={false}
           className="map">
           <ZoomControl position="bottomleft" />
@@ -360,7 +360,7 @@ class Search extends React.Component {
             }
 
             return (
-              <Marker alt={t('station.' + icon)} icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id)} />
+              <Marker alt={t('station.' + icon)} icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id, stop.stop_region)} />
             )
           })}
           {bigCircle}

@@ -157,6 +157,22 @@ export class stationStore extends Events {
       return '#17232f'
     }
   }
+  getHeadsign(prefix, longname, direction) {
+    if (prefix === 'nz-wlg') {
+      let rawname = longname.split('(')
+      if (rawname.length > 1) {
+        rawname = rawname[1].replace(')', '')
+      } else {
+        rawname = longname
+      }
+      rawname = rawname.split(' - ')
+      if (direction === 1) {
+        rawname.reverse()
+      }
+      return rawname[0]
+    }
+    return longname
+  }
   // persists data to localStorage
   saveData() {
     localStorage.setItem('StationData', JSON.stringify(this.StationData))
@@ -275,14 +291,14 @@ export class stationStore extends Events {
       }
     })
   }
-  getTimes = (stations) => {
+  getTimes = (stations, region = 'nz-akl') => {
     if (!navigator.onLine) {
       this.trigger('error', t('app.nointernet'))
       return
     }
     const promises = stations.split('+').map((station) => {
       return new Promise((resolve, reject) => {
-        fetch(`${local.endpoint}/nz-akl/station/${station}/times`).then((response) => {    
+        fetch(`${local.endpoint}/${region}/station/${station}/times`).then((response) => {    
           response.json().then(resolve)
         }).catch((err) => {
           reject(err)
@@ -358,12 +374,12 @@ export class stationStore extends Events {
       })
     })
   }
-  getTimetable(station, route, direction) {
+  getTimetable(station, route, direction, region = 'nz-akl') {
     const sortfn = function(a, b) {
       return a.arrival_time_seconds - b.arrival_time_seconds
     }
     return new Promise((resolve, reject) => {
-      fetch(`${local.endpoint}/nz-akl/station/${station}/timetable/${route}/${direction}`).then((request) => {
+      fetch(`${local.endpoint}/${region}/station/${station}/timetable/${route}/${direction}`).then((request) => {
         request.json().then((data) => {
           data.sort(sortfn)
           resolve(data)

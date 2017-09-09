@@ -7,6 +7,12 @@ const sql = require('mssql')
 const connection = require('./db/connection.js')
 
 var search = {
+  getRegion(lat, lng) {
+    if (lat < -40.6) {
+      return 'nz-wlg'
+    }
+    return 'nz-akl'
+  },
   getStopsLatLng(req, res) {
     // no caching here, maybe we need it?
     if (req.query.lat && req.query.lng && req.query.distance) {
@@ -21,10 +27,11 @@ var search = {
       let lng = parseFloat(req.query.lng)
       let latDist = req.query.distance / 100000
       let lngDist = req.query.distance / 65000
+      let prefix = req.params.prefix === 'auto' ? search.getRegion(lat, lng) : req.params.prefix
 
       const sqlRequest = connection.get().request()
-      sqlRequest.input('prefix', sql.VarChar, req.params.prefix || 'nz-akl')
-      sqlRequest.input('version', sql.VarChar, cache.currentVersion())
+      sqlRequest.input('prefix', sql.VarChar, prefix)
+      sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
       sqlRequest.input('stop_lat_gt', sql.Decimal(10,6), lat - latDist)
       sqlRequest.input('stop_lat_lt', sql.Decimal(10,6), lat + latDist)
       sqlRequest.input('stop_lon_gt', sql.Decimal(10,6), lng - lngDist)
@@ -43,7 +50,10 @@ var search = {
           and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
           and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
       ).then((result) => {
-        res.send(result.recordset)
+        res.send(result.recordset.map(item => {
+          item.stop_region = prefix
+          return item
+        }))
       }).catch((err) => {
         res.status(500).send(err)
       })
