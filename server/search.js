@@ -38,8 +38,8 @@ var search = {
       INNER JOIN trips ON trips.trip_id = stop_times.trip_id
       INNER JOIN routes on routes.route_id = trips.route_id
       WHERE
-        stops.prefix = 'nz-wlg'
-        and stops.version = '20170828_20170808-090059'
+        stops.prefix = @prefix
+        and stops.version = @version
         and route_type <> 3`
     ).then((result) => {
       const route_types = {}
