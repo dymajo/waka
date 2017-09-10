@@ -38,13 +38,42 @@ var station = {
       sqlRequest.input('prefix', sql.VarChar, prefix)
       sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
       sqlRequest.input('stop_id', sql.VarChar, stop)
-      sqlRequest.query(`select stop_name, stop_lat, stop_lon from stops where prefix = @prefix and version = @version and stop_id = @stop_id`).then((result) => {
+      sqlRequest.query(`
+        SELECT 
+          stops.prefix as stop_region,
+          stops.stop_id, 
+          stops.stop_name,
+          stops.stop_desc,
+          stops.stop_lat,
+          stops.stop_lon,
+          stops.zone_id,
+          stops.location_type,
+          stops.parent_station,
+          stops.stop_timezone,
+          stops.wheelchair_boarding,
+          routes.route_type
+        FROM
+          stops
+        INNER JOIN
+          stop_times
+        ON stop_times.uid = (
+            SELECT TOP 1 uid 
+            FROM    stop_times
+            WHERE 
+            stop_times.prefix = stops.prefix and
+            stop_times.version = stops.version and
+            stop_times.stop_id = stops.stop_id
+        )
+        INNER JOIN trips ON trips.trip_id = stop_times.trip_id
+        INNER JOIN routes on routes.route_id = trips.route_id
+        WHERE
+          stops.prefix = @prefix
+          and stops.version = @version
+          and stops.stop_id = @stop_id
+      `).then((result) => {
         const data = result.recordset[0]
-        resolve({
-          stop_name: data.stop_name,
-          stop_lat: data.stop_lat,
-          stop_lon: data.stop_lon,
-        })
+        delete data.uid
+        resolve(data)
       }).catch(err => {
         return reject({
           error: 'station not found'

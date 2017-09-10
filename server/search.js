@@ -13,6 +13,44 @@ var search = {
     }
     return 'nz-akl'
   },
+
+  // This gets cached on launch
+  stopsRouteType: {},
+  getStopsRouteType(prefix) {
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('prefix', sql.VarChar, prefix)
+    sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
+    sqlRequest.query(`
+      SELECT 
+        stops.stop_id, routes.route_type
+      FROM
+        stops
+      INNER JOIN
+        stop_times
+      ON stop_times.uid = (
+          SELECT TOP 1 uid 
+          FROM    stop_times
+          WHERE 
+          stop_times.prefix = stops.prefix and
+          stop_times.version = stops.version and
+          stop_times.stop_id = stops.stop_id
+      )
+      INNER JOIN trips ON trips.trip_id = stop_times.trip_id
+      INNER JOIN routes on routes.route_id = trips.route_id
+      WHERE
+        stops.prefix = 'nz-wlg'
+        and stops.version = '20170828_20170808-090059'
+        and route_type <> 3`
+    ).then((result) => {
+      const route_types = {}
+      result.recordset.forEach((stop) => {
+        route_types[stop.stop_id] = stop.route_type
+      })
+      search.stopsRouteType[prefix] = route_types
+    }).catch((err) => {
+      console.error(err)
+    })
+  },
   getStopsLatLng(req, res) {
     // no caching here, maybe we need it?
     if (req.query.lat && req.query.lng && req.query.distance) {
@@ -52,6 +90,7 @@ var search = {
       ).then((result) => {
         res.send(result.recordset.map(item => {
           item.stop_region = prefix
+          item.route_type = search.stopsRouteType[prefix][item.stop_id] || 3
           return item
         }))
       }).catch((err) => {
@@ -78,4 +117,7 @@ var search = {
   }
 }
 cache.ready.push(search.buildSitemap)
+// TODO: it won't update without the server being restarted
+cache.ready.push(() => search.getStopsRouteType('nz-akl'))
+cache.ready.push(() => search.getStopsRouteType('nz-wlg')) 
 module.exports = search

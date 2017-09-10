@@ -70,6 +70,11 @@ const trainIcon = Icon({
   iconRetinaUrl: '/icons/train-icon-2x.png',
   iconSize: [30, 49]
 })
+const cablecarIcon = Icon({
+  iconUrl: '/icons/cablecar-icon.png',
+  iconRetinaUrl: '/icons/cablecar-icon-2x.png',
+  iconSize: [30, 49]
+})
 
 const ferryIcon = Icon({
   iconUrl: '/icons/ferry-icon.png',
@@ -87,6 +92,12 @@ const busSelection = Icon({
 const trainSelection = Icon({
   iconUrl: '/icons/train-fill.svg',
   iconRetinaUrl: '/icons/train-fill.svg',
+  iconSize: [28, 28],
+  className: 'currentSelectionIcon larger'
+})
+const cablecarSelection = Icon({
+  iconUrl: '/icons/cablecar-fill.svg',
+  iconRetinaUrl: '/icons/cablecar-fill.svg',
   iconSize: [28, 28],
   className: 'currentSelectionIcon larger'
 })
@@ -269,13 +280,18 @@ class Search extends React.Component {
     let stationMarker = null
     if (this.state.currentStation) {
       const item = StationStore.stationCache[this.state.currentStation]
-      const icon = StationStore.getIcon(item.stop_id)
+      let icon = 'bus'
       let markericon = busSelection
-      if (icon === 'train') {
+      if (item.route_type === 2) {
+        icon = 'train'
         markericon = trainSelection
-      } else if (icon === 'ferry') {
+      } else if (item.route_type === 4) {
+        icon = 'ferry'
         markericon = ferrySelection
-      }            
+      } else if (item.route_type === 5) {
+        icon = 'cablecar'
+        markericon = cablecarSelection
+      }
       stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
     }
 
@@ -328,13 +344,18 @@ class Search extends React.Component {
             attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           {this.state.stops.map((stop) => {
-            const icon = StationStore.getIcon(stop.stop_id)
-            let markericon
-            if (icon === 'train') {
+            let icon, markericon
+            if (stop.route_type === 2) {
+              icon = 'train'
               markericon = trainIcon
-            } else if (icon === 'ferry') {
+            } else if (stop.route_type === 4) {
+              icon = 'ferry'
               markericon = ferryIcon
+            } else if (stop.route_type === 5) {
+              icon = 'cablecar'
+              markericon = cablecarIcon
             } else {
+              icon = 'bus'
               const stopSplit = stop.stop_name.split('Stop')
               const platformSplit = stop.stop_name.split('Platform')
               if (stopSplit.length > 1) {

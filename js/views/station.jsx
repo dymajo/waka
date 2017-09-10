@@ -91,7 +91,7 @@ class Station extends React.Component {
         stop_lat: data.stop_lat, 
         stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
       })
-      SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon]
+      SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lng]
       SettingsStore.saveState()
     }).catch((err) => {
       console.log('error!')
