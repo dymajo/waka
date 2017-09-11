@@ -1,20 +1,17 @@
-var request = require('request')
-var azure = require('azure-storage')
-var wkx = require('wkx')
-var cache = require('./cache')
-var sitemap = require('./sitemap')
+const request = require('request')
+const azure = require('azure-storage')
+const cache = require('../cache')
 
-const lineData = require('./lineData')
-const lineGroups = lineData.lineGroups
-const friendlyNames = lineData.friendlyNames
-const allLines = lineData.allLines
+const lineDataAkl = require('./nz-akl')
+const lineDataWlg = require('./nz-wlg')
+const allLines = lineDataAkl.allLines
 const sql = require('mssql')
-const connection = require('./db/connection.js')
+const connection = require('../db/connection.js')
 
 var tableSvc = azure.createTableService()
 var blobSvc = azure.createBlobService()
 
-blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response){
+blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response) {
   if (error) {
     throw error
   }
@@ -59,7 +56,6 @@ function cacheOperatorsAndShapes(prefix = 'nz-akl') {
       // query was successful
       if (result.recordset.length > 0) {
         lineOperators[todo[index]] = result.recordset[0].agency_id
-        sitemap.push('/l/' + todo[index])
       } else {
         console.warn('could not find agency for', todo[index])
       }
@@ -87,12 +83,21 @@ function cacheOperatorsAndShapes(prefix = 'nz-akl') {
 cache.ready.push(cacheOperatorsAndShapes)
 
 var line = {
-  _friendlyNames: friendlyNames,
   getLines: function(req, res) {
+    if (req.params.prefix === 'nz-wlg') {
+      res.send({
+        friendlyNames: lineDataWlg.friendlyNames,
+        groups: lineDataWlg.lineGroups,
+        lines: lineDataWlg.allLines,
+        operators: lineDataWlg.lineOperators
+      })
+      return
+    }
+
     res.send({
-      friendlyNames: friendlyNames,
-      groups: lineGroups,
-      lines: allLines,
+      friendlyNames: lineDataAkl.friendlyNames,
+      groups: lineDataAkl.lineGroups,
+      lines: lineDataAkl.allLines,
       operators: lineOperators
     })
   },

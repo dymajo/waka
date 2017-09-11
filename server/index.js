@@ -2,7 +2,7 @@ var router = require('express').Router()
 var station = require('./station')
 var cache = require('./cache')
 var realtime = require('./realtime')
-var line = require('./line')
+var line = require('./lines/index')
 var email = require('./email')
 var vehicle = require('./vehicle')
 var search = require('./search')
@@ -14,15 +14,14 @@ console.log('using SendGrid API Key: '+ process.env.SENDGRID_API_KEY)
 cache.check()
 setInterval(cache.check, 1800000)
 
-// TODO: 301 redirects
-router.get('/station', station.stopInfo)
-router.get('/station/search', search.getStopsLatLng)
-router.get('/station/:station', station.stopInfo)
-router.get('/station/:station/times', station.stopTimes)
-router.get('/station/:station/times/:fast', station.stopTimes)
-router.get('/station/:station/timetable/:route/:direction', station.timetable)
+const redirect = (req, res) => {
+  res.redirect('/a/nz-akl' + req.path)
+}
+router.get('/station', redirect)
+router.get('/station/*', redirect)
+router.get('/lines', redirect)
 
-router.get('/lines', line.getLines)
+// TODO: 301 redirects
 router.get('/line/:line', line.getLine)
 router.get('/stops/trip/:trip_id', line.getStopsFromTrip)
 router.get('/stops/shape/:shape_id', line.getStopsFromShape)

@@ -46,8 +46,6 @@ var cache = {
           cache.versions[version.version] = {startdate: version.startdate, enddate: version.enddate}
         })
 
-        // the magic - we check against the api to choose the correct version
-        cache.chooseVersion()
 
         let runCb = function() {
           if (firstRun) {
@@ -59,76 +57,83 @@ var cache = {
           }
         }
 
-        tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
-          if (result === null) {
-            console.log('building the cache for the first time')
-            importAt().then(() => {
-              console.log('Import Success')
-              runCb()
-            })
-          // objects are not equal, so we need to do a cache rebuild
-          // } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
-            
-          } else {
-            for (let version in JSON.parse(result.version._)) {
-              delete cache.versions[version]
-            }
-            if (JSON.stringify(cache.versions) === '{}') {
-              console.log('cache does not need update at', new Date().toString())
-              cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
-              runCb()
-
-            } else {
-              console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
-              cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
+        // the magic - we check against the api to choose the correct version
+        cache.chooseVersion().then(() => {
+          tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
+            if (result === null) {
+              console.log('building the cache for the first time')
               importAt().then(() => {
                 console.log('Import Success')
                 runCb()
               })
+            // objects are not equal, so we need to do a cache rebuild
+            // } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
+              
+            } else {
+              for (let version in JSON.parse(result.version._)) {
+                delete cache.versions[version]
+              }
+              if (JSON.stringify(cache.versions) === '{}') {
+                console.log('cache does not need update at', new Date().toString())
+                cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
+                runCb()
+
+              } else {
+                console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
+                cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
+                importAt().then(() => {
+                  console.log('Import Success')
+                  runCb()
+                })
+              }
             }
-          }
+          })
         })
       })
     })
   },
   currentVersionString: null,
   chooseVersion: function() {
-    const time = moment().tz('Pacific/Auckland')
-    const currentDate = moment(Date.UTC(time.year(), time.month(), time.date(), 0, 0))
-    let currentVersion = null
-    Object.keys(cache.versions).forEach(function(version) {
-      if (moment.utc(cache.versions[version].startdate).isBefore(currentDate) &&
-        moment.utc(cache.versions[version].enddate).add(1, 'days').isAfter(currentDate)) {
-        if (currentVersion !== null) {
-          if (moment.utc(cache.versions[version].startdate).isAfter(moment.utc(cache.versions[currentVersion].startdate))) {
-            currentVersion = version
+    return new Promise((resolve, reject) => {
+      const time = moment().tz('Pacific/Auckland')
+      const currentDate = moment(Date.UTC(time.year(), time.month(), time.date(), 0, 0))
+      let currentVersion = null
+      Object.keys(cache.versions).forEach(function(version) {
+        if (moment.utc(cache.versions[version].startdate).isBefore(currentDate) &&
+          moment.utc(cache.versions[version].enddate).add(1, 'days').isAfter(currentDate)) {
+          if (currentVersion !== null) {
+            if (moment.utc(cache.versions[version].startdate).isAfter(moment.utc(cache.versions[currentVersion].startdate))) {
+              currentVersion = version
+            }
+          } else {
+            currentVersion = version  
           }
-        } else {
-          currentVersion = version  
         }
+      })
+      if (currentVersion === null) {
+        currentVersion = Object.keys(cache.versions)[0]
       }
-    })
-    if (currentVersion === null) {
-      currentVersion = Object.keys(cache.versions)[0]
-    }
-    cache.currentVersionString = currentVersion
+      cache.currentVersionString = currentVersion
 
-    // Now that we've tried to figure out the current version, lets go to AT and see the real current version
-    options.url = 'https://api.at.govt.nz/v2/public/realtime/tripupdates'
-    request(options, function(err, response, body) {
-      if (err) {
-        return console.error(err)
-      }
-      let data = JSON.parse(body)
-      // if there's data
-      if (typeof(data.response) !== 'undefined' && typeof(data.response.entity) !== 'undefined' && data.response.entity.length > 0) {
-        const update = data.response.entity[0]
-        const newVersion = update.trip_update.trip.trip_id.split('-')[1]
-        cache.currentVersionString = newVersion
-        console.log('chosen version', newVersion)
-      } else {
-        console.log('the buses have gone to sleep at', new Date().toString())
-      }
+      // Now that we've tried to figure out the current version, lets go to AT and see the real current version
+      options.url = 'https://api.at.govt.nz/v2/public/realtime/tripupdates'
+      request(options, function(err, response, body) {
+        if (err) {
+          console.warn(err)
+          return resolve()
+        }
+        let data = JSON.parse(body)
+        // if there's data
+        if (typeof(data.response) !== 'undefined' && typeof(data.response.entity) !== 'undefined' && data.response.entity.length > 0) {
+          const update = data.response.entity[0]
+          const newVersion = update.trip_update.trip.trip_id.split('-')[1]
+          cache.currentVersionString = newVersion
+          console.log('nz-akl version:', newVersion)
+        } else {
+          console.log('the buses have gone to sleep at', new Date().toString())
+        }
+        resolve()
+      })
     })
   },
   currentVersion: function(prefix = 'nz-akl') {

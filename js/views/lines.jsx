@@ -13,7 +13,8 @@ const style = UiStore.getAnimation()
 
 class Lines extends React.Component {
   static propTypes = {
-    history: PropTypes.object
+    history: PropTypes.object,
+    match: PropTypes.object
   }
   state = {
     error: null,
@@ -75,7 +76,7 @@ class Lines extends React.Component {
   }
 
   getLines = () => {
-    StationStore.getLines().then((data) => {
+    StationStore.getLines(this.props.match.params.region).then((data) => {
       let groupShow = {}
       data.groups.forEach(function(group) {
         groupShow[group.name] = ''

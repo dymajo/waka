@@ -177,8 +177,8 @@ class Search extends React.Component {
       initialPosition: false
     })
   }
-  getData(lat, lng, dist) {
-    fetch(`${local.endpoint}/auto/station/search?lat=${lat.toFixed(4)}&lng=${lng.toFixed(4)}&distance=${dist}`).then((response) => {
+  getData(lat, lon, dist) {
+    fetch(`${local.endpoint}/auto/station/search?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}&distance=${dist}`).then((response) => {
       response.json().then((data) => {
         data.forEach(function(item) {
           StationStore.stationCache[item.stop_id] = item
@@ -292,7 +292,7 @@ class Search extends React.Component {
         icon = 'cablecar'
         markericon = cablecarSelection
       }
-      stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lng]} /> 
+      stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
     }
 
     let findModal = 'modal-wrapper'

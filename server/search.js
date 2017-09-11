@@ -53,7 +53,7 @@ var search = {
   },
   getStopsLatLng(req, res) {
     // no caching here, maybe we need it?
-    if (req.query.lat && req.query.lng && req.query.distance) {
+    if (req.query.lat && (req.query.lng || req.query.lon) && req.query.distance) {
       // limit of the distance value
       if (req.query.distance > 1250) {
         return res.status(400).send({
@@ -62,24 +62,24 @@ var search = {
       }
 
       let lat = parseFloat(req.query.lat)
-      let lng = parseFloat(req.query.lng)
+      let lon = parseFloat(req.query.lng || req.query.lon)
       let latDist = req.query.distance / 100000
-      let lngDist = req.query.distance / 65000
-      let prefix = req.params.prefix === 'auto' ? search.getRegion(lat, lng) : req.params.prefix
+      let lonDist = req.query.distance / 65000
+      let prefix = req.params.prefix === 'auto' ? search.getRegion(lat, lon) : req.params.prefix
 
       const sqlRequest = connection.get().request()
       sqlRequest.input('prefix', sql.VarChar, prefix)
       sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
       sqlRequest.input('stop_lat_gt', sql.Decimal(10,6), lat - latDist)
       sqlRequest.input('stop_lat_lt', sql.Decimal(10,6), lat + latDist)
-      sqlRequest.input('stop_lon_gt', sql.Decimal(10,6), lng - lngDist)
-      sqlRequest.input('stop_lon_lt', sql.Decimal(10,6), lng + lngDist)
+      sqlRequest.input('stop_lon_gt', sql.Decimal(10,6), lon - lonDist)
+      sqlRequest.input('stop_lon_lt', sql.Decimal(10,6), lon + lonDist)
       sqlRequest.query(`
         select 
           stop_id,
           stop_name,
           stop_lat,
-          stop_lon as stop_lng
+          stop_lon
         from stops
         where 
           prefix = @prefix 
@@ -90,6 +90,7 @@ var search = {
       ).then((result) => {
         res.send(result.recordset.map(item => {
           item.stop_region = prefix
+          item.stop_lng = item.stop_lon // this is fucking dumb
           item.route_type = search.stopsRouteType[prefix][item.stop_id] || 3
           return item
         }))
@@ -117,7 +118,6 @@ var search = {
   }
 }
 cache.ready.push(search.buildSitemap)
-// TODO: it won't update without the server being restarted
 cache.ready.push(() => search.getStopsRouteType('nz-akl'))
 cache.ready.push(() => search.getStopsRouteType('nz-wlg')) 
 module.exports = search

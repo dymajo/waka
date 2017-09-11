@@ -7,7 +7,7 @@ const template = {
 }
 
 const station = require('../station.js')
-const line = require('../line.js')
+const line = require('../lines/index.js')
 const manifest = require('../../dist/assets.json')
 
 const defaultName = ' - Transit'

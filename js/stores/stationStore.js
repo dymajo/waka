@@ -271,14 +271,14 @@ export class stationStore extends Events {
       this.saveData()
     }
   }
-  getLines() {
+  getLines(prefix = 'nz-akl') {
     return new Promise((resolve, reject) => {
       if (Object.keys(this.lineCache).length === 0) {
         if (!navigator.onLine) {
           reject(t('app.nointernet'))
           return
         }
-        fetch(`${local.endpoint}/nz-akl/lines`).then((response)=>{
+        fetch(`${local.endpoint}/${prefix}/lines`).then((response)=>{
           response.json().then((data) => {
             this.lineCache = data
             resolve(data)
