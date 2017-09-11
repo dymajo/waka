@@ -35,15 +35,6 @@ html, body, input, button {
   height: 100%;
 }
 
-noscript {
-  padding: 15px;
-  display: block;
-
-  @media (max-width: 480px) {
-    text-align: center;
-  }
-}
-
 @import "_mixins";
 @import "_buttons";
 @import "_leaflet";

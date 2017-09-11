@@ -64,7 +64,7 @@ class SidebarItemVanilla extends React.Component {
           {this.getIcon(this.props.icon)}
         </div>
         <div className="text-wrapper">
-          <div className="name">{this.props.name}</div>
+          <h3 className="name">{this.props.name}</h3>
           <div className="description">{this.props.description}</div>
         </div>
       </li>
@@ -79,7 +79,7 @@ class SidebarItemVanilla extends React.Component {
       return (
         <li className={classname + ' text-only'}>
           <div className="text-wrapper">
-            <div className="name">{this.props.name}</div>
+            <h1 className="name">{this.props.name}</h1>
             <div className="description">{this.props.description}</div>
           </div>
         </li>
@@ -117,7 +117,6 @@ class SavedSations extends React.Component {
   render() {
     let stations = this.state.stations
     const onboarding = <div className="onboard">
-      <h2></h2>
       <ul>
         <SidebarItem
           type="description"
@@ -152,7 +151,7 @@ class SavedSations extends React.Component {
       message = <p>{t('savedStations.empty')}<br />{t('savedStations.empty2')}</p>
     }
     return (
-      <div className="savedstations">
+      <div className="root-card-content">
         {onboarding}
         <h2>{t('savedStations.title')}</h2>
         {message}

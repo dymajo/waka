@@ -235,6 +235,10 @@ $bgheight: 125px;
 				background: rgba(#000, 0.1);
 			}
 
+			&:first-child svg {
+				margin-right: 2px;
+			}
+
 			svg {
 				fill: #fff;
 				vertical-align: top;

@@ -354,9 +354,7 @@ class Index extends React.Component {
                 {t('root.linesLabel')}
               </button>
             </div>
-            <div className="root-card-content">
-              <SavedStations togglePin={this.togglePin} />
-            </div>
+            <SavedStations togglePin={this.togglePin} />
           </div>
         </div>
         <div className={contentClassname}>

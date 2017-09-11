@@ -1,0 +1,106 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+
+    title= title
+    meta(name="description" content=description)
+    link(rel="stylesheet" href=csspath)
+
+    //- progressive web app shizzle
+    meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0")
+    meta(name="apple-mobile-web-app-capable" content="yes")
+    meta(name="mobile-web-app-capable" content="yes")
+    meta(name="apple-mobile-web-app-title" content="Transit")
+    meta(name="apple-mobile-web-app-status-bar-style" content="default")
+    link(rel="apple-touch-icon" href="/branding/apple-touch-icon.png")
+    meta(name="format-detection" content="telephone=no")
+    meta(name="theme-color" content="#273D52")
+    link(rel="manifest" href="/manifest.json")
+
+    //- facebook tags
+    meta(property="og:url" content=canonical)
+    meta(property="og:title" content=title)
+    meta(property="og:description" content=description)
+    meta(property="og:image" content="https://transit.dymajo.com/splash.jpg")
+
+    //- twitter tags
+    meta(name="twitter:card" content="summary")
+    meta(name="twitter:site" content="@dymajoltd")
+    meta(name="twitter:title" content=title)
+    meta(name="twitter:description" content=description)
+    meta(name="twitter:image" content="https://transit.dymajo.com/branding/app.png")
+
+    //- favicons
+    link(rel="shortcut icon" href="/branding/favicon.ico")
+    link(rel="icon" sizes="16x16 32x32 64x64" href="/branding/favicon.ico")
+    link(rel="icon" type="image/png" sizes="64x64" href="/branding/favicon-64.png")
+    link(rel="icon" type="image/png" sizes="32x32" href="/branding/favicon-32.png")
+    link(rel="icon" type="image/png" sizes="16x16" href="/branding/favicon-16.png")
+
+    //- google translate fixes
+    meta(name="google" content="notranslate")
+    meta(http-equiv="Content-Language" content="en_US")
+
+  body
+    div(id="app")
+      block root
+        div(class="root-container")
+          header(class="material-header branding-header")
+            span(class="header-left header-left-sm")
+              svg(width="18" height="18" viewBox="0 0 48 48" fill="#273D52")
+                path(d="M28.7 27.3l6.2-13.7c.2-.5 0-.7-.5-.5l-13.7 6.2a2.74 2.74 0 0 0-1.3 1.3l-6.2 13.7c-.2.5 0 .7.5.5l13.7-6.2a4 4 0 0 0 1.3-1.3zm-6.4-1.6a2.33 2.33 0 1 1 3.3 0 2.35 2.35 0 0 1-3.3 0zM24 48a24 24 0 1 1 24-24 24.07 24.07 0 0 1-24 24zm0-42a18 18 0 1 0 18 18A18.05 18.05 0 0 0 24 6z")
+            div(class="header-expand")
+              h1(class="full-height")
+                strong Transit
+          div(class="root-card")
+            div(class="root-card-padding-button")
+            div(class="root-card-bar")
+                a(href="s")
+                  img(src="/icons/station.svg" alt="Stations Icon")
+                  span Stations
+                a(href="l")
+                  img(src="/icons/lines.svg" alt="Lines Icon")
+                  span Lines
+            div(class="root-card-content")
+              div(class="onboard")
+                ul
+                  li(class=" ss text-only")
+                    div(class="text-wrapper")
+                      h1(class="name") Welcome to Transit
+                      div(class="description") Transit is your realtime guide to Auckland Buses, Trains, and Ferries.
+                  li(class="lines-btn ss")
+                    div(class="icon")
+                      img(src="/icons/lines.svg" alt="Lines Icon")
+                    div(class="text-wrapper")
+                      a(href="l")
+                        h3(class="name") Lines
+                      div(class="description") View all Bus, Train, and Ferry services.
+                  noscript
+                    li(class="lines-btn ss")
+                      div(class="icon")
+                        img(src="/icons/station.svg" alt="Stations Icon")
+                      div(class="text-wrapper")
+                        a(href="s")
+                          h3(class="name") Stations
+                        div(class="description") View all transit stations.
+                  li(class="ss")
+                    div(class="icon")
+                      img(src="/icons/patron.svg" alt="Sponsor Icon")
+                    div(class="text-wrapper")
+                      a(href="sponsor")
+                        h3(class="name") Sponsor
+                      div(class="description") Contribute to help support development!
+
+              noscript
+                p DYMAJO Transit is realtime, interactive and faster with JavaScript enabled.
+
+      div(class="content")
+        block content
+
+    script(src=vendorpath)
+    script(src=apppath)
+    script
+        include ga.template
+    script(async src="https://www.google-analytics.com/analytics.js")
+    script(async src=analyticspath)

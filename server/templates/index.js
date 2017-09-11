@@ -1,10 +1,49 @@
-const station = require('./station')
-const line = require('./line')
+const router = require('express').Router()
 const pug = require('pug')
-const template = pug.compileFile('./dist/template.pug')
-const manifest = require('../dist/assets.json')
+
+const template = {
+  layout: pug.compileFile('server/templates/layout.pug'),
+  stations: pug.compileFile('server/templates/stations.pug'),
+}
+
+const station = require('../station.js')
+const line = require('../line.js')
+const manifest = require('../../dist/assets.json')
 
 const defaultName = ' - Transit'
+const defaults = {
+  title: 'Transit',
+  vendorpath: '/' + manifest['vendor.js'],
+  apppath: '/' + manifest['app.js'],
+  analyticspath: '/' + manifest['analytics.js'],
+  csspath: '/' + manifest['app.css']
+}
+
+const success = function(templateName, title, description, canonical) {
+  const content = Object.assign(defaults, {
+    title: title,
+    description: description,
+    canonical: canonical
+  })
+  return template[templateName](content)
+}
+
+
+let title = 'DYMAJO Transit'
+let description = 'Your way around Auckland. Realtime, beautiful, and runs on all of your devices.'
+let canonical = 'https://transit.dymajo.com'
+
+router.get('/', (req, res) => {
+  res.send(success('layout', title, description, canonical + req.path))
+})
+router.get('/s', (req, res) => {
+  res.send(success('stations', title, description, canonical + req.path))
+})
+router.get('/*', (req, res) => {
+  res.send(success('layout', title, description, canonical + req.path))
+})
+
+module.exports = router
 
 // TODO: Make this play perfectly with the router in the client side
 const staticrender = {
@@ -23,17 +62,7 @@ const staticrender = {
         csspath: '/' + manifest['app.css']
       }))
     }
-    const success = function() {
-      res.send(template({
-        title: title,
-        description: description,
-        canonical: canonical,
-        vendorpath: '/' + manifest['vendor.js'],
-        apppath: '/' + manifest['app.js'],
-        analyticspath: '/' + manifest['analytics.js'],
-        csspath: '/' + manifest['app.css']
-      }))
-    }
+    
 
     let path = req.path.split('/')
     if (path[1] === '') {
@@ -108,4 +137,3 @@ const staticrender = {
     }
   }
 }
-module.exports = staticrender

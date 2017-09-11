@@ -1,7 +1,6 @@
-var http = require('http')
 var express = require('express')
 var bodyParser = require('body-parser')
-var staticrender = require('./server/staticrender')
+const templateEngine = require('./server/templates/index')
 
 var app = express()
 app.disable('x-powered-by')
@@ -27,14 +26,11 @@ app.use(function(req, res, next) {
   }
 })
 
-var cb = function(req, res) {
-  res.sendFile(__dirname + '/dist/index.html')
-}
 app.use('/a', require('./server'))
 app.use('/scss', express.static(__dirname + '/scss'))
-app.get('/', staticrender.serve)
+app.get('/', templateEngine)
 app.use('/', express.static(__dirname + '/dist'))
-app.get('/*', staticrender.serve)
+app.get('/*', templateEngine)
  
 // the router routes stuff through this port
 var port = 8000
@@ -42,5 +38,5 @@ if (process.env.NODE_ENV === 'dev') {
   port = 8001
 }
 app.listen(port, function() {
-	console.log('listening on localhost:' + port)
-});
+  console.log('listening on localhost:' + port)
+})

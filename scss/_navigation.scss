@@ -1,9 +1,4 @@
-.savedstations {
-  margin: 0 auto;
-  padding: 0;
-
-  max-width: 480px;
-
+.root-card-content {
   a {
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
@@ -131,7 +126,7 @@
       box-shadow: 0 1px 3px rgba(#000, 0.3);
     }
 
-    li:last-child {
+    li:last-child:not(.lines-btn) {
       border-bottom: 0;
     }
   }
@@ -157,7 +152,7 @@
   .name {
     letter-spacing: -0.5px;
     line-height: 1.25;
-    margin-top: 0.25rem;
+    margin: 0.25rem 0 0;
     font-size: 18px;
     font-weight: 600;
     color: $atblue;
@@ -246,6 +241,7 @@
   display: none;
 }
 .onboard {
+  padding-top: 1rem;
   svg {
     fill: $atblue;
   }

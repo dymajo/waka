@@ -1,6 +1,6 @@
 const express = require('express')
 const pug = require('pug')
-const template = pug.compileFile('./dist/template.pug')
+const template = pug.compileFile('./server/templates/layout.pug')
 const manifest = require('./dist/assets.json')
 
 const compression = require('compression')
