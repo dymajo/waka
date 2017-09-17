@@ -52,7 +52,18 @@ export class stationStore extends Events {
   lineCache = {}
 
   getIcon(station) {
-    var icon = 'bus'
+    let icon = 'bus'
+    if (typeof(station) === 'number') {
+      if (station === 2) {
+        icon = 'train'
+      } else if (station === 4) {
+        icon = 'ferry'
+      } else if (station === 5) {
+        icon = 'cablecar'
+      }
+      return icon
+    }
+
     if (this.trainStations.indexOf(station) != -1) {
       icon = 'train'
     } else if (this.ferryStations.indexOf(station) != -1) {

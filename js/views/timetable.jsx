@@ -129,7 +129,7 @@ export default class Timetable extends React.Component {
   }
   render() {
     let roundelStyle = 'line-pill'
-    let code = this.state.tripInfo.route_short_name
+    let code = this.props.match.params.route_name.split('-')[0]
     if (code === 'WEST' || code === 'EAST' || code === 'ONE' || code === 'STH' || code === 'NEX' || code === 'PUK') {
       roundelStyle += ' cf'
       if (code === 'PUK') {
@@ -163,7 +163,7 @@ export default class Timetable extends React.Component {
         <header className="material-header">
           <span className="header-left" onTouchTap={this.triggerBack}><BackIcon /></span>
           <div className="header-expand">
-            <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
+            <span className={roundelStyle} style={{backgroundColor: (this.state.trips[1] || {}).route_color}}>
               {code}
             </span>
             <h1 className="line-name">{t('timetable.title')}</h1>

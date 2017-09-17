@@ -59,7 +59,7 @@ class TripItem extends React.Component {
     const headsign = (trip.trip_headsign || StationStore.getHeadsign(this.props.match.params.region, trip.route_long_name, trip.direction_id)).split('/')[0]
     const dir = trip.direction_id === 1 ? 'in' : ''
     const direction = <DirectionIcon className={'direction ' + dir} />
-    const background = StationStore.getColor(trip.agency_id, route_code)
+    const background = trip.route_color
     let via = trip.route_long_name.split('Via')
     if (via.length > 1 && (SettingsStore.getState().longName === true || this.props.vias)) {
       via = <small>{t('tripitem.via', {location: via[1].split(' And')[0]})}</small>

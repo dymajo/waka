@@ -134,6 +134,8 @@ var station = {
             record.departure_time_seconds += 86400
           }
 
+          record.route_color = line.getColor(prefix, record.route_short_name)
+
           // 30mins of realtime 
           if (record.departure_time_seconds < (sending.currentTime + 1800) || record.departure_time_24) {
             realtimeTrips.push(record.trip_id)
@@ -188,6 +190,8 @@ var station = {
             record.arrival_time_seconds += 86400
           }
           record.departure_time_seconds = record.arrival_time_seconds
+
+          record.route_color = line.getColor(prefix, req.params.route)
 
           delete record.arrival_time
           delete record.arrival_time_24

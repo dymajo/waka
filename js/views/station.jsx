@@ -42,6 +42,7 @@ class Station extends React.Component {
     loading: true,
     error: null,
     saveModal: null,
+    route_type: undefined,
     stop_lat: undefined,
     stop_lon: undefined,
     fancyMode: false,
@@ -88,6 +89,7 @@ class Station extends React.Component {
       this.setState({
         name: name,
         description: description,
+        route_type: data.route_type,
         stop_lat: data.stop_lat, 
         stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
       })
@@ -460,7 +462,7 @@ class Station extends React.Component {
     const region = this.props.match.params.region
     const stop = this.props.match.params.station
     const regionStop = region + '|' + stop
-    const icon = StationStore.getIcon(stop)
+    const icon = StationStore.getIcon(this.state.route_type || stop)
     let iconStr = this.state.description
 
     let topIcon = <span className="header-left" onTouchTap={this.triggerBack}><BackIcon /></span>
@@ -555,8 +557,12 @@ class Station extends React.Component {
     }
 
     let name = this.state.name
+    name = name.replace(' Interchange', ' -')
+    name = name.replace(' Bus Station', ' -')
     name = name.replace(' Train Station', '')
     name = name.replace(' Ferry Terminal', '')
+    name = name.replace('- Cable Car Station', '')
+    name = name.replace(' Station', '')
     const header = (
       <header className="material-header">
         {topIcon}

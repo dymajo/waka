@@ -85,6 +85,12 @@ function cacheOperatorsAndShapes(prefix = 'nz-akl') {
 cache.ready.push(cacheOperatorsAndShapes)
 
 var line = {
+  getColor: function(agency = 'nz-akl', route_short_name) {
+    if (agency === 'nz-wlg') {
+      return lineDataWlg.lineColors[route_short_name] || '#000'
+    }
+    return lineDataAkl.lineColors[route_short_name] || '#000'
+  },
   getLines: function(req, res) {
     if (req.params.prefix === 'nz-wlg') {
       res.send({
