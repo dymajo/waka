@@ -55,7 +55,9 @@ function cacheOperatorsAndShapes(prefix = 'nz-akl') {
     `).then(result => {
       // query was successful
       if (result.recordset.length > 0) {
-        lineOperators[todo[index]] = result.recordset[0].agency_id
+        const agency_id = result.recordset[0].agency_id
+        lineDataAkl.lineColors[todo[index]] = lineDataAkl.colorFn(agency_id, todo[index])
+        lineOperators[todo[index]] = agency_id
       } else {
         console.warn('could not find agency for', todo[index])
       }
@@ -87,6 +89,7 @@ var line = {
     if (req.params.prefix === 'nz-wlg') {
       res.send({
         friendlyNames: lineDataWlg.friendlyNames,
+        colors: lineDataWlg.lineColors,
         groups: lineDataWlg.lineGroups,
         lines: lineDataWlg.allLines,
         operators: lineDataWlg.lineOperators
@@ -96,6 +99,7 @@ var line = {
 
     res.send({
       friendlyNames: lineDataAkl.friendlyNames,
+      colors: lineDataAkl.lineColors,
       groups: lineDataAkl.lineGroups,
       lines: lineDataAkl.allLines,
       operators: lineOperators

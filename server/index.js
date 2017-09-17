@@ -6,9 +6,11 @@ var line = require('./lines/index')
 var email = require('./email')
 var vehicle = require('./vehicle')
 var search = require('./search')
+const colors = require('colors')
 
-console.log('using AT API Key: ' + process.env.atApiKey)
-console.log('using SendGrid API Key: '+ process.env.SENDGRID_API_KEY)
+if (typeof process.env.SENDGRID_API_KEY === 'undefined') {
+  console.log('SendGrid API Key is undefined.'.red)
+}
 
 // check the cache initally, then every half hour
 cache.check()

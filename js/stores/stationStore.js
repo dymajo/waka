@@ -60,6 +60,7 @@ export class stationStore extends Events {
     }
     return icon
   }
+  // deprecated
   getColor(agency_id, code){
     switch(agency_id){
     case 'AM': // Auckland Metro

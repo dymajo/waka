@@ -1,3 +1,101 @@
+const getColor = (agency_id, code) => {
+  switch(agency_id){
+  case 'AM': // Auckland Metro
+    switch (code) {
+    case 'WEST': // West Line
+      //return '#006553' official
+      return '#4f9734'
+    case 'STH': // South Line
+      //return '#a60048' official
+      return '#e52f2b'
+    case 'EAST': // East Line
+      return '#f39c12'
+    case 'PUK': // South Line
+      //return '#a60048'
+      return '#e52f2b'
+    case 'ONE': // ONE Line
+      return '#21b4e3'
+    default:
+      return '#17232f'
+    }
+  case 'FGL': // Fullers
+    return '#2756a4'
+
+  case 'HE': // Howick and Eastern
+    return '#2196F3'
+
+  case 'NZBGW': // NZ Bus - Go West
+    return '#4CAF50'
+
+  case 'NZBML': // NZ Bus - metrolink
+    switch (code) {
+    case 'CTY': // City Link
+      return '#ef3c34'
+
+    case 'INN': // Inner Link
+      return '#41b649'
+
+    case 'OUT': // Outer Link
+      return '#f7991c'
+    
+    default:
+      return '#0759b0'
+    }
+
+  case 'NZBNS': // NZ Bus - North Star
+    return '#f39c12'
+
+  case 'NZBWP': // NZ Bus - Waka Pacific
+    return '#0f91ab'
+
+  case 'UE': // Urban Express / Same as Pavolich
+    return '#776242'
+
+  case 'BTL': // Birkenhead Transport
+    return '#b2975b'
+
+  case 'RTH': // Ritchies
+    switch (code) {
+    case 'NEX': // Northern Express
+      //return '#0079c2' official
+      return '#0056a9' 
+    
+    default:
+      return '#ff6f2c'
+    }
+
+  case 'WBC': // Waiheke Bus Company
+    return '#2196F3'
+
+  case 'EXPNZ': // Explore Waiheke - supposed to be closed?
+    return '#ffe81c'
+
+  case 'BFL': // Belaire Ferries
+    return '#ffd503'
+
+  case 'ATAPT': // AT Airporter
+    return '#f7931d'
+
+  case 'SLPH': // Pine Harbour / Sealink
+    return '#d92732'
+
+  case 'GBT': // Go Bus
+    return '#58aa17'
+
+  case '360D': // 360 Discovery
+    return '#2756a4'
+
+  case 'ABEXP': //Skybus
+    return '#F44336'
+
+  case 'PC': // Pavolich
+    return '#776242'
+
+  default: //MSB, PBC, BAYES - Schools
+    return '#17232f'
+  }
+}
+
 const lineGroups = [
   {
     name: 'Congestion Free Network',
@@ -307,7 +405,9 @@ const allLines = {
 } 
 
 module.exports = {
+  lineColors: {},
   lineGroups: lineGroups,
   friendlyNames: friendlyNames,
   allLines: allLines,
+  colorFn: getColor,
 }

@@ -20,6 +20,7 @@ class Lines extends React.Component {
     error: null,
     allLines: undefined,
     groups: null,
+    colors: {},
     groupShow: {},
     friendlyNames: {},
     animation: 'unmounted'
@@ -83,6 +84,7 @@ class Lines extends React.Component {
       })
       this.setState({
         allLines: data.lines,
+        colors: data.colors,
         groups: data.groups,
         operators: data.operators,
         friendlyNames: data.friendlyNames,
@@ -189,7 +191,7 @@ class Lines extends React.Component {
           return (
             <a className="line-item" key={key} href={'/l/nz-akl/'+item} onClick={this.disable} onTouchTap={this.hijack('/l/nz-akl/'+item)}>
               <span className="line-pill-wrapper">
-                <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(operator, item)}}>{code}</span>
+                <span className={roundelStyle} style={{backgroundColor: this.state.colors[item] || '#000'}}>{code}</span>
               </span>
               <span className="line-label">{name}</span>
             </a>

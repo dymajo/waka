@@ -1,6 +1,7 @@
 var express = require('express')
 var bodyParser = require('body-parser')
 const templateEngine = require('./server/templates/index')
+const colors = require('colors')
 
 var app = express()
 app.disable('x-powered-by')
@@ -38,5 +39,5 @@ if (process.env.NODE_ENV === 'dev') {
   port = 8001
 }
 app.listen(port, function() {
-  console.log('listening on localhost:' + port)
+  console.log(('listening on localhost:' + port).green)
 })
