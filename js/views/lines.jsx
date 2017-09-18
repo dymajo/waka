@@ -189,12 +189,14 @@ class Lines extends React.Component {
             }
           }
           return (
-            <a className="line-item" key={key} href={'/l/nz-akl/'+item} onClick={this.disable} onTouchTap={this.hijack('/l/nz-akl/'+item)}>
-              <span className="line-pill-wrapper">
-                <span className={roundelStyle} style={{backgroundColor: this.state.colors[item] || '#000'}}>{code}</span>
-              </span>
-              <span className="line-label">{name}</span>
-            </a>
+            <li key={key}>
+              <a className="line-item" href={'/l/nz-akl/'+item} onClick={this.disable} onTouchTap={this.hijack('/l/nz-akl/'+item)}>
+                <span className="line-pill-wrapper">
+                  <span className={roundelStyle} style={{backgroundColor: this.state.colors[item] || '#000'}}>{code}</span>
+                </span>
+                <span className="line-label">{name}</span>
+              </a>
+            </li>
           )
         })
         let label = group.items.length - 3 
@@ -204,14 +206,14 @@ class Lines extends React.Component {
           label = t('lines.more', {number: label}) + ' ▾'
         }
         innerLineList.push(
-          <div className="line-item expand" key={group.name + 'expand'} onTouchTap={this.triggerGroup(group.name)}>
+          <li className="line-item expand" key={group.name + 'expand'} onTouchTap={this.triggerGroup(group.name)}>
             {label}
-          </div>
+          </li>
         )
         let key = group.name + 'innerLines'
         let className = 'inner-lines ' + this.state.groupShow[group.name]
         ret.push(
-          <div className={className} key={key}>{innerLineList}</div>
+          <ul className={className} key={key}>{innerLineList}</ul>
         )
       })
     } else if (this.state.error !== null) {
