@@ -4,6 +4,7 @@ const pug = require('pug')
 const template = {
   layout: pug.compileFile('server/templates/layout.pug'),
   stations: pug.compileFile('server/templates/stations.pug'),
+  lines: pug.compileFile('server/templates/lines.pug'),
 }
 
 const station = require('../station.js')
@@ -37,7 +38,10 @@ router.get('/', (req, res) => {
   res.send(success('layout', title, description, canonical + req.path))
 })
 router.get('/s', (req, res) => {
-  res.send(success('stations', title, description, canonical + req.path))
+  res.send(success('stations', 'Stations - ' + title, 'View stop time schedules and realtime information.', canonical + req.path))
+})
+router.get('/l', (req, res) => {
+  res.send(success('lines', 'Lines - ' + title, 'View all lines and stop locations.', canonical + req.path))
 })
 router.get('/*', (req, res) => {
   res.send(success('layout', title, description, canonical + req.path))

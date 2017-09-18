@@ -210,7 +210,7 @@ const getLines = () => {
     console.log('nz-wlg:'.green, 'Cached Lines')
   }).catch(err => console.warn(err))
 }
-cache.ready.push(getLines)
+cache.ready['nz-wlg'].push(getLines)
 
 module.exports = {
   lineColors: lineColors,

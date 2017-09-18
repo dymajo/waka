@@ -219,5 +219,5 @@ var realtime = {
         
   }
 }
-cache.ready.push(realtime.schedulePull)
+cache.ready['nz-akl'].push(realtime.schedulePull)
 module.exports = realtime

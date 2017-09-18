@@ -163,7 +163,7 @@ class Lines extends React.Component {
 
   render() {
     let ret
-    let className = 'lines-container'
+    let className = 'default-container'
     // there needs to be a sorting function in here probably
     if (this.state.groups !== null && this.state.error === null) {
       ret = []

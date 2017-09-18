@@ -8,6 +8,8 @@ const allLines = lineDataAkl.allLines
 const sql = require('mssql')
 const connection = require('../db/connection.js')
 
+const colors = require('colors')
+
 var tableSvc = azure.createTableService()
 var blobSvc = azure.createBlobService()
 
@@ -36,7 +38,7 @@ function cacheOperatorsAndShapes(prefix = 'nz-akl') {
   let version = cache.currentVersion().split('_')[1]
   let getOperator = function(index) {
     if (index >= todo.length) {
-      console.log('Completed Lookup of Agencies')
+      console.log('nz-akl:'.green, 'Completed Lookup of Agencies')
       return
     }
     // caches the operator
@@ -74,7 +76,7 @@ function cacheOperatorsAndShapes(prefix = 'nz-akl') {
         shapesToCache.push({shape_id: data[0].shape_id})
       }
       if (todo.length === shapeCount) {
-        console.log('Collected List of Shapes To Cache')
+        console.log('nz-akl:'.green, 'Collected List of Shapes To Cache')
         line.cacheShapes(shapesToCache)
       }
     }, 'nz-akl')
@@ -82,7 +84,7 @@ function cacheOperatorsAndShapes(prefix = 'nz-akl') {
   getOperator(0)
 }
 // runs after initial cache get
-cache.ready.push(cacheOperatorsAndShapes)
+cache.ready['nz-akl'].push(cacheOperatorsAndShapes)
 
 var line = {
   getColor: function(agency = 'nz-akl', route_short_name) {

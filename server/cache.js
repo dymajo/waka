@@ -37,6 +37,13 @@ var cache = {
         console.log(error)
       }
 
+      if (firstRun) {
+        connection.isReady.then(() => {
+          cache.ready['nz-wlg'].forEach(fn => fn())
+        })
+      }
+      
+
       options.url = 'https://api.at.govt.nz/v2/gtfs/versions'
       request(options, function(err, response, body) {
         var data = JSON.parse(body)
@@ -50,7 +57,7 @@ var cache = {
         let runCb = function() {
           if (firstRun) {
             // run all the callbacks
-            cache.ready.forEach(function(fn) {
+            cache.ready['nz-akl'].forEach(function(fn) {
               fn()
             })
             firstRun = false
@@ -74,12 +81,12 @@ var cache = {
                 delete cache.versions[version]
               }
               if (JSON.stringify(cache.versions) === '{}') {
-                console.log('cache does not need update at', new Date().toString())
+                console.log('nz-akl:'.green, new Date().toLocaleString(), 'cache update not required')
                 cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
                 runCb()
 
               } else {
-                console.log('cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
+                console.log('nz-akl:'.green, 'cache needs rebuild', '\nnew:', cache.versions, '\nold:', JSON.parse(result.version._))
                 cache.versions = Object.assign(cache.versions, JSON.parse(result.version._))
                 importAt().then(() => {
                   console.log('Import Success')
@@ -128,9 +135,9 @@ var cache = {
           const update = data.response.entity[0]
           const newVersion = update.trip_update.trip.trip_id.split('-')[1]
           cache.currentVersionString = newVersion
-          console.log('nz-akl version:', newVersion)
+          console.log('nz-akl:'.green, 'version', newVersion)
         } else {
-          console.log('the buses have gone to sleep at', new Date().toString())
+          console.log('the buses have gone to sleep at', new Date().toLocaleString())
         }
         resolve()
       })
@@ -143,7 +150,10 @@ var cache = {
     return cache.currentVersionString
   },
 
-  ready: []
+  ready: {
+    'nz-akl': [],
+    'nz-wlg': [],
+  }
 }
 
 function downloadAt() {

@@ -117,7 +117,6 @@ var search = {
     // })
   }
 }
-cache.ready.push(search.buildSitemap)
-cache.ready.push(() => search.getStopsRouteType('nz-akl'))
-cache.ready.push(() => search.getStopsRouteType('nz-wlg')) 
+cache.ready['nz-akl'].push(() => search.getStopsRouteType('nz-akl'))
+cache.ready['nz-wlg'].push(() => search.getStopsRouteType('nz-wlg')) 
 module.exports = search
