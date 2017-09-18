@@ -54,7 +54,7 @@ var station = {
           routes.route_type
         FROM
           stops
-        INNER JOIN
+        LEFT JOIN
           stop_times
         ON stop_times.uid = (
             SELECT TOP 1 uid 
@@ -64,8 +64,8 @@ var station = {
             stop_times.version = stops.version and
             stop_times.stop_id = stops.stop_id
         )
-        INNER JOIN trips ON trips.trip_id = stop_times.trip_id
-        INNER JOIN routes on routes.route_id = trips.route_id
+        LEFT JOIN trips ON trips.trip_id = stop_times.trip_id
+        LEFT JOIN routes on routes.route_id = trips.route_id
         WHERE
           stops.prefix = @prefix
           and stops.version = @version

@@ -94,26 +94,26 @@ var line = {
     return lineDataAkl.lineColors[route_short_name] || '#000'
   },
   getLines: function(req, res) {
-    if (req.params.prefix === 'nz-wlg') {
-      res.send({
+    res.send(line._getLines(req.params.prefix))
+  },
+  _getLines: function(prefix) {
+    if (prefix === 'nz-wlg') {
+      return {
         friendlyNames: lineDataWlg.friendlyNames,
         colors: lineDataWlg.lineColors,
         groups: lineDataWlg.lineGroups,
         lines: lineDataWlg.allLines,
         operators: lineDataWlg.lineOperators
-      })
-      return
+      }
     }
-
-    res.send({
+    return {
       friendlyNames: lineDataAkl.friendlyNames,
       colors: lineDataAkl.lineColors,
       groups: lineDataAkl.lineGroups,
       lines: lineDataAkl.allLines,
       operators: lineOperators
-    })
+    } 
   },
-
   getLine: function(req, res) {
     let lineId = req.params.line.trim()
     line._getLine(lineId, function(err, data) {

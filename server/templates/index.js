@@ -25,11 +25,13 @@ const prefixes = {
   'nz-wlg': 'Wellington',
 }
 
-const success = function(templateName, title, description, canonical) {
+const success = function(templateName, title, description, canonical, data = null, region = 'nz-akl') {
   const content = Object.assign(defaults, {
     title: title,
     description: description,
-    canonical: canonical
+    canonical: canonical,
+    data: data,
+    region: region,
   })
   return template[templateName](content)
 }
@@ -43,8 +45,6 @@ const notFound = function(res) {
     csspath: '/' + manifest['app.css']
   }))
 }
-
-
 
 let title = 'DYMAJO Transit'
 let description = 'Your way around Auckland. Realtime, beautiful, and runs on all of your devices.'
@@ -63,7 +63,7 @@ router.get('/l/:region', (req, res) => {
   if (typeof prefixes[req.params.region] === 'undefined') {
     return notFound(res)
   }
-  res.send(success('linesRegion', 'All Lines - ' + prefixes[req.params.region] + defaultName, 'View ' + prefixes[req.params.region] + ' lines and stop locations.', canonical + req.path))
+  res.send(success('linesRegion', 'All Lines - ' + prefixes[req.params.region] + defaultName, 'View ' + prefixes[req.params.region] + ' lines and stop locations.', canonical + req.path, line._getLines(req.params.region), req.params.region))
 })
 router.get('/*', (req, res) => {
   res.send(success('layout', title, description, canonical + req.path))

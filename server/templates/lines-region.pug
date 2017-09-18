@@ -9,5 +9,14 @@ block content
       div(class="header-expand")
         h1 All Lines
 
-    div(class="default-content")
-      p Blah
+    div(class="list-lines enable-scrolling")
+      div(class="scrollwrap")
+        each group in data.groups
+          h2= group.name
+          div(class="inner-lines show")
+            each line in group.items
+              - let color = 'background-color:'+data.colors[line]
+              a(class="line-item" href=('/l/' + region + '/' + line))
+                span(class="line-pill-wrapper")
+                  span(class="line-pill" style=color)= line
+                span(class="line-label")= data.friendlyNames[line] || data.lines[line][0].slice(0,2).join(' to ')

@@ -221,6 +221,13 @@ class Lines extends React.Component {
           <button className="nice-button primary" onClick={this.triggerGetLines}>{t('app.errorRetry')}</button>
         </div>
       )
+    } else if (window.defaultContent[1] && window.location.pathname === window.defaultContent[0]) {
+      let domElem = document.createElement('div')
+      domElem.innerHTML = window.defaultContent[1]
+      let dangerous = {__html: domElem.querySelector('.scrollwrap').innerHTML}
+      ret = (
+        <div dangerouslySetInnerHTML={dangerous}></div>
+      )
     } else {
       ret = <div className="spinner" />
     }
