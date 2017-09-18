@@ -202,13 +202,20 @@ class gtfsImport {
 
             // fancy mappings for multiple versions in one file
             if (typeof version === 'object') {
-              record[1] = version[0] // default
               const joined = record.join(',')
+              record[1] = null
               version.forEach(v => {
                 if (joined.match(v) !== null) {
                   record[1] = v
                 }
               })
+              if (record[1] === null) {
+                if (record[0] === 'nz-akl' && joined.match('_v') !== null) {
+                  return
+                } else {
+                  record[1] = version[0]
+                }
+              }
             } else {
               record[1] = version
             }
