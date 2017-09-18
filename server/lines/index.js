@@ -318,7 +318,7 @@ var line = {
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
     sqlRequest.query(`
       SELECT 
-        stops.stop_id,
+        stops.stop_code as stop_id,
         stops.stop_name,
         stops.stop_lat,
         stops.stop_lon,

@@ -41,7 +41,7 @@ var station = {
       sqlRequest.query(`
         SELECT 
           stops.prefix as stop_region,
-          stops.stop_id, 
+          stops.stop_code as stop_id, 
           stops.stop_name,
           stops.stop_desc,
           stops.stop_lat,
@@ -69,7 +69,7 @@ var station = {
         WHERE
           stops.prefix = @prefix
           and stops.version = @version
-          and stops.stop_id = @stop_id
+          and stops.stop_code = @stop_id
       `).then((result) => {
         const data = result.recordset[0]
         delete data.uid

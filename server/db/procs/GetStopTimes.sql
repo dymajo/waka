@@ -35,6 +35,10 @@ BEGIN
 		routes.route_type,
 		routes.agency_id
 	FROM stop_times
+	LEFT JOIN stops
+		on stop_times.stop_id = stops.stop_id and
+		stop_times.prefix = stops.prefix and 
+		stop_times.version = stops.version
 	LEFT JOIN trips
 		on stop_times.trip_id = trips.trip_id and
 		stop_times.prefix = trips.prefix and 
@@ -55,7 +59,7 @@ BEGIN
 	WHERE
 		stop_times.prefix = @prefix and
 		stop_times.version = @version and
-		stop_times.stop_id = @stop_id and
+		stops.stop_code = @stop_id and
 		(
 			departure_time > DATEADD(MINUTE, @DepatureDelay, @departure_time) and
 			departure_time < CASE WHEN @DateDifference > 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '23:59:59' END or

@@ -22,7 +22,7 @@ var search = {
     sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
     sqlRequest.query(`
       SELECT 
-        stops.stop_id, routes.route_type
+        stops.stop_code as stop_id, routes.route_type
       FROM
         stops
       INNER JOIN
@@ -76,7 +76,7 @@ var search = {
       sqlRequest.input('stop_lon_lt', sql.Decimal(10,6), lon + lonDist)
       sqlRequest.query(`
         select 
-          stop_id,
+          stop_code as stop_id,
           stop_name,
           stop_lat,
           stop_lon
