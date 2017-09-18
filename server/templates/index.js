@@ -5,6 +5,7 @@ const template = {
   layout: pug.compileFile('server/templates/layout.pug'),
   stations: pug.compileFile('server/templates/stations.pug'),
   lines: pug.compileFile('server/templates/lines.pug'),
+  linesRegion: pug.compileFile('server/templates/lines-region.pug'),
 }
 
 const station = require('../station.js')
@@ -19,6 +20,10 @@ const defaults = {
   analyticspath: '/' + manifest['analytics.js'],
   csspath: '/' + manifest['app.css']
 }
+const prefixes = {
+  'nz-akl': 'Auckland',
+  'nz-wlg': 'Wellington',
+}
 
 const success = function(templateName, title, description, canonical) {
   const content = Object.assign(defaults, {
@@ -28,6 +33,17 @@ const success = function(templateName, title, description, canonical) {
   })
   return template[templateName](content)
 }
+const notFound = function(res) {
+  res.status(404).send(template({
+    title: 'Not Found - Transit',
+    description: 'Sorry, but the page you were trying to view does not exist.',
+    vendorpath: '/' + manifest['vendor.js'],
+    apppath: '/' + manifest['app.js'],
+    analyticspath: '/' + manifest['analytics.js'],
+    csspath: '/' + manifest['app.css']
+  }))
+}
+
 
 
 let title = 'DYMAJO Transit'
@@ -38,10 +54,16 @@ router.get('/', (req, res) => {
   res.send(success('layout', title, description, canonical + req.path))
 })
 router.get('/s', (req, res) => {
-  res.send(success('stations', 'Stations - ' + title, 'View stop time schedules and realtime information.', canonical + req.path))
+  res.send(success('stations', 'Stations' + defaultName, 'View stop time schedules and realtime information.', canonical + req.path))
 })
 router.get('/l', (req, res) => {
-  res.send(success('lines', 'Lines - ' + title, 'View all lines and stop locations.', canonical + req.path))
+  res.send(success('lines', 'Lines' + defaultName, 'View all lines and stop locations.', canonical + req.path))
+})
+router.get('/l/:region', (req, res) => {
+  if (typeof prefixes[req.params.region] === 'undefined') {
+    return notFound(res)
+  }
+  res.send(success('linesRegion', 'All Lines - ' + prefixes[req.params.region] + defaultName, 'View ' + prefixes[req.params.region] + ' lines and stop locations.', canonical + req.path))
 })
 router.get('/*', (req, res) => {
   res.send(success('layout', title, description, canonical + req.path))
@@ -56,16 +78,6 @@ const staticrender = {
     let description = 'Your way around Auckland. Realtime, beautiful, and runs on all of your devices.'
     let canonical = 'https://transit.dymajo.com' + req.path
 
-    const notFound = function() {
-      res.status(404).send(template({
-        title: 'Not Found - Transit',
-        description: 'Sorry, but the page you were trying to view does not exist.',
-        vendorpath: '/' + manifest['vendor.js'],
-        apppath: '/' + manifest['app.js'],
-        analyticspath: '/' + manifest['analytics.js'],
-        csspath: '/' + manifest['app.css']
-      }))
-    }
     
 
     let path = req.path.split('/')

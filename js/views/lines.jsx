@@ -46,7 +46,7 @@ class Lines extends React.Component {
     }
   }
   componentDidMount() {
-    document.title = t('lines.title') + ' - ' + t('app.name')
+    document.title = t('lines.title') + ' - ' + t('regions.' + this.props.match.params.region) + ' - ' + t('app.name')
     if (iOS.detect() && window.navigator.standalone === true) {
       this.container.addEventListener('touchstart', this.triggerTouchStart)
       this.container.addEventListener('touchmove', this.triggerTouchMove)

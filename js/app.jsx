@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   startApp()
 })
 let startApp = function() {
+  window.defaultContent = [window.location.pathname, (document.querySelector('.default-container') || {}).innerHTML || null]
   ReactDOM.render(<App />, document.getElementById('app'))
 }
 document.ontouchmove = iOS.touchMoveFix

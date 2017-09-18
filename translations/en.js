@@ -5,6 +5,10 @@ export default {
     error: 'An error occured.',
     errorRetry: 'Retry',
   },
+  regions: {
+    'nz-akl': 'Auckland',
+    'nz-wlg': 'Wellington',
+  },
   root: {
     stationsLabel: 'Stations',
     linesLabel: 'Lines',
