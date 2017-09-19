@@ -266,15 +266,11 @@ class vehicle_location extends React.Component {
     let color = '#000000'
     let geoJson = null
     if (typeof(this.state.line) !== 'undefined') {
-      color = StationStore.getColor(this.props.tripInfo.agency_id, this.props.tripInfo.route_short_name)
-      //console.log(color)
+      color = this.props.tripInfo.route_color
       geoJson = <GeoJson className='line' data={this.state.line} style={{color: color}}/>
     }
 
-    let icon = StationStore.getIcon(this.props.params.station)
-    if (typeof(this.state.stops[0]) !== 'undefined') {
-      icon = StationStore.getIcon(this.state.stops[0][2])
-    }
+    let icon = StationStore.getIcon(this.props.tripInfo.route_type)
     let leafletIcon = busIcon
     if (icon === 'train') {
       leafletIcon = trainIcon

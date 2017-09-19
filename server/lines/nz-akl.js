@@ -1,5 +1,5 @@
 const getColor = (agency_id, code) => {
-  switch(agency_id){
+  switch(agency_id) {
   case 'AM': // Auckland Metro
     switch (code) {
     case 'WEST': // West Line
@@ -107,11 +107,11 @@ const lineGroups = [
   },
   {
     name: 'City & Isthmus',
-    items: ['CTY', 'INN', 'OUT','005','007','008','009','010','011','020','030','220','221','221X','223','223X','243','243X','246','248','248X','249','255','255F','258','258F','258X','267','267F','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
+    items: ['CTY', 'INN', 'OUT','SKY','005','007','008','009','010','011','020','030','220','221','221X','223','223X','243','243X','246','248','248X','249','255','255F','258','258F','258X','267','267F','267X','274','277','299','302','309','309X','31X','312','321','322','390','605','606','625','635','645','655','703','715','719','745','756','757','767','769','770','771']
   },
   {
     name: 'East',
-    items: ['500','501','515','525','532','545','550','551','552','565','575','580','589','595']
+    items: ['500','501','505','515','525','532','545','550','550X','551','552','565','575','580','589','595']
   },
   {
     name: 'South',
@@ -123,7 +123,7 @@ const lineGroups = [
   },
   {
     name: 'North',
-    items: ['555','560','76X','779','802X','803','804','813','815','822','839','843','85X','858','86X','863X','87X','873','873X','874X','875','879','880','881','882','886','887','891','891X','900X','905','911','913','915','920','921','922','945','945X','952','953','955','957','958','960','962','966','971','972','973','974','975','976','981','982','983','984','985','986','987','988','991X','992X']
+    items: ['555','560','76X','779','802X','803','804','813','815','822','839','843','85X','858','86X','863X','87X','873','873X','874X','875','877X','879','880','881','882','886','887','891','891X','900X','905','911','913','915','920','921','922','945','945X','952','953','955','957','958','960','962','966','971','972','973','974','975','976','981','982','983','984','985','986','987','988','991X','992X']
   },
   {
     name: 'Late Night',
@@ -146,6 +146,7 @@ const friendlyNames = {
   'OUT': 'Outer Link',
   '380': 'Airporter',
   'MTIA': 'Auckland to Waiheke Island',
+  'SKY': 'SkyBus',
 }
 const allLines = {
   // RAPID
@@ -172,6 +173,7 @@ const allLines = {
   // CITY
   'CTY': [['City Link', 'Wynyard Quarter', 'Greys Ave']],
   'INN': [['Inner Link Clockwise'],['Inner Link Anticlockwise']],
+  'SKY': [['Downtown', 'International Airport', 'Mt Eden Rd'], ['Downtown', 'International Airport', 'Dominion Rd']],
 
   // ISTHMUS
   'OUT': [['Outer Link Clockwise'],['Outer Link Anticlockwise']],
@@ -235,11 +237,13 @@ const allLines = {
   // EAST
   '500': [['Britomart', 'Mission Heights', 'Botany Town Centre']],
   '501': [['Britomart', 'Cockle Bay', 'Botany Town Centre']],
+  '505': [['Britomart', 'Sylvia Park', 'Ruawai Rd and Ellerslie']],
   '515': [['Britomart', 'Otahuhu Station', 'Ruawai Rd and Panama Rd']],
   '525': [['Britomart', 'Mt Wellington', 'Mt Wellington Highway'], ['Britomart', 'Sylvia Park', 'Mt Wellington Highway']],
   '532': [['Britomart', 'Otahuhu', 'Carbine Road'], ['Britomart', 'Otahuhu Station', 'Carbine Road']],
   '545': [['Botany Town Centre', 'Bucklands Beach', 'Highland Park']],
   '550': [['Britomart', 'Cockle Bay', 'Newmarket']],
+  '550X': [['Britomart', 'Cockle Bay Express'], ['Britomart Express', 'Cockle Bay']],
   '551': [['Britomart', 'North Park', 'Newmarket']],
   '552': [['Britomart', 'Bucklands Beach', 'Newmarket']],
   '565': [['Botany Town Centre', 'Half Moon Bay', 'Gossamer Dr']],
@@ -345,6 +349,7 @@ const allLines = {
   '873X': [['Mayoral Dr', 'Constellation Station Express', 'Sunnynook'], ['City Centre Express', 'Constellation Station', 'Sunnynook']],
   '874X': [['Mayoral Dr', 'Constellation Station Express'], ['City Centre Express', 'Constellation Station']],
   '875': [['Mayoral Dr', 'Browns Bay']],
+  '877X': [['Mayoral Dr', 'Torbay Express', 'Forrest Hill'], ['City Centre Express', 'Torbay', 'Forrest Hill']],
   '879': [['Mayoral Dr', 'Long Bay', 'Forrest Hill']],
   '880': [['Albany Loop Clockwise'], ['Albany Loop Anticlockwise']],
   '881': [['Newmarket', 'Albany Station']],

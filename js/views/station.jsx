@@ -22,9 +22,6 @@ const iconMap = {
   bus: <BusIcon />
 }
 
-// hack
-let liveRefresh, realtimeRefresh
-
 const normalStyle = UiStore.getAnimation()
 const fancyStyle = UiStore.getAnimation('fancy')
 
@@ -33,6 +30,8 @@ class Station extends React.Component {
     match: PropTypes.object,
     history: PropTypes.object,
   }
+  liveRefresh
+  realtimeRefresh
   state = {
     name: '',
     description: '',
@@ -86,10 +85,21 @@ class Station extends React.Component {
         description = data.description
       }
       document.title = name + ' - ' + t('app.name')
+
+      let route_type = data.route_type
+      if (data.icon === 'train') {
+        route_type = 2
+      } else if (data.icon === 'bus') {
+        route_type = 3
+      } else if (data.icon === 'ferry') {
+        route_type = 4
+      } else if (data.icon === 'cablecar') {
+        route_type = 5
+      }
       this.setState({
         name: name,
         description: description,
-        route_type: data.route_type,
+        route_type: route_type,
         stop_lat: data.stop_lat, 
         stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
       })
@@ -362,10 +372,10 @@ class Station extends React.Component {
 
     // times: every 3 minutes
     // realtime: every 20 seconds
-    liveRefresh = setInterval(() => {
+    this.liveRefresh = setInterval(() => {
       this.getData(this.props)
     }, 180000)
-    realtimeRefresh = setInterval(() => {
+    this.realtimeRefresh = setInterval(() => {
       StationStore.getRealtime(this.state.trips)
     }, 20000)
   }
@@ -378,8 +388,8 @@ class Station extends React.Component {
     UiStore.unbind('expandChange', this.expandChange)
     window.removeEventListener('online',  this.triggerRetry)
 
-    clearInterval(liveRefresh)
-    clearInterval(realtimeRefresh)
+    clearInterval(this.liveRefresh)
+    clearInterval(this.realtimeRefresh)
   }
   expandChange = (item) => {
     setTimeout(() => {
@@ -433,36 +443,11 @@ class Station extends React.Component {
     })
     this.getData(this.props)
   }
-  componentWillReceiveProps(newProps) {
-    // basically don't do anything if the station doesn't change
-    if (this.props.match.params.station === newProps.match.params.station) {
-    //   setTimeout(() => {
-    //     if (this.state.fancyMode) {
-    //       this.setState({
-    //         fancyMode: false
-    //       })
-    //     }
-    //   }, 300)
-      return
-    }
-
-    this.setState({
-      name: '',
-      description: '',
-      trips: [],
-      realtime: {},
-      loading: true,
-      saveModal: false,
-      currentTrips: [],
-      definedOrder: [],
-    })
-    this.getData(newProps)
-  }
   render() {
     const region = this.props.match.params.region
     const stop = this.props.match.params.station
     const regionStop = region + '|' + stop
-    const icon = StationStore.getIcon(this.state.route_type || stop)
+    const icon = StationStore.getIcon(this.state.route_type)
     let iconStr = this.state.description
 
     let topIcon = <span className="header-left" onTouchTap={this.triggerBack}><BackIcon /></span>

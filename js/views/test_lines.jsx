@@ -46,9 +46,9 @@ const variants = [
   ['248', 2],
   ['248X', 2],
   ['249', 2],
-  ['255', 4],
+  ['255', 2],
   ['255F', 2],
-  ['258', 4],
+  ['258', 2],
   ['258F', 2],
   ['258X', 2],
   ['267', 2],
@@ -87,11 +87,13 @@ const variants = [
   ['501', 2],
   ['500', 2],
   ['501', 2],
+  ['505', 2],
   ['515', 2],
   ['525', 2],
   ['532', 2],
   ['545', 2],
   ['550', 2],
+  ['550X', 2],
   ['551', 2],
   ['552', 2],
   ['565', 2],
@@ -195,6 +197,7 @@ const variants = [
   ['873X', 2],
   ['874X', 2],
   ['875', 2],
+  ['877X', 2],
   ['879', 2],
   ['880', 2],
   ['881', 2],
@@ -268,7 +271,7 @@ class TestLines extends React.Component {
   test() {
     let test = (index) => {
       let route = variants[index]
-      fetch('${local.endpoint}/nz-akl/line/'+route[0]).then((res) => {
+      fetch(`${local.endpoint}/nz-akl/line/`+route[0]).then((res) => {
         res.json().then((data) => {
           // return at the end
           let results = this.state.results.slice()

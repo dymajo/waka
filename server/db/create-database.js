@@ -40,6 +40,11 @@ CREATE TABLE stops (
 	CONSTRAINT uc_Stops UNIQUE (prefix, version, stop_id)
 )
 `
+const trips_index = `
+CREATE NONCLUSTERED INDEX id_Stops
+ON trips (prefix, version)
+INCLUDE (prefix, version, stop_code)
+`
 
 const routes = `
 CREATE TABLE routes (

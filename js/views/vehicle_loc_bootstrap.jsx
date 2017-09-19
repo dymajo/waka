@@ -86,7 +86,8 @@ class VehicleLocationBootstrap extends React.Component {
         tripInfo.route_long_name = data[0].route_long_name
         tripInfo.shape_id = data[0].shape_id
         tripInfo.route_type = data[0].route_type
-        // tripInfo.route_type = data[]
+        tripInfo.route_color = data[0].route_color
+        
         this.setState({
           lineInfo: data,
           tripInfo: tripInfo
@@ -215,7 +216,7 @@ class VehicleLocationBootstrap extends React.Component {
           <div className="header-expand">
             <h1 className='line-name'>
               <section className="line-pill-wrapper-header">
-                <span className={roundelStyle} style={{backgroundColor: StationStore.getColor(this.state.tripInfo.agency_id, this.state.tripInfo.route_short_name)}}>
+                <span className={roundelStyle} style={{backgroundColor: this.state.tripInfo.route_color}}>
                   {code}
                 </span>
               </section>

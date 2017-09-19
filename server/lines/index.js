@@ -168,6 +168,7 @@ var line = {
           route_id: route.route_id._,
           route_long_name: route.route_long_name._,
           route_short_name: route.route_short_name._,
+          route_color: line.getColor(prefix, route.route_short_name._),
           shape_id: route.shape_id._,
           route_type: route.route_type._  
         }

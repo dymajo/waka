@@ -5,18 +5,6 @@ import { t } from './translationStore.js'
 export class stationStore extends Events {
   constructor(props) {
     super(props)
-    this.trainStations = [
-      '0133','0115', // britomart, newmarket
-      '0277','0118','0122','0104','0119','0120','0105','0129','0123','0124','0121','0125','0126','0128','0127', // western line
-      '0114','0113','0112','0102','0606','0605', // onehunga line
-      '0140', '0111','0101','0109','0100','0108','0099','0098','0107','0106','0097','0134', // southern line
-      '0116','0117','0103','0130','0244','9218' // eastern line
-    ]
-    // not in any order
-    this.ferryStations = [
-      '9600','9610','9623','9630','9670','9690','9730',
-      '9660','9650','9720','9810','9640','9770','9760',
-      '9790','9740','9700','9604','9620','9603','9750']
 
     this.StationData = {}
     if (localStorage.getItem('StationData')) {
@@ -53,121 +41,14 @@ export class stationStore extends Events {
 
   getIcon(station) {
     let icon = 'bus'
-    if (typeof(station) === 'number') {
-      if (station === 2) {
-        icon = 'train'
-      } else if (station === 4) {
-        icon = 'ferry'
-      } else if (station === 5) {
-        icon = 'cablecar'
-      }
-      return icon
-    }
-
-    if (this.trainStations.indexOf(station) != -1) {
+    if (station === 2) {
       icon = 'train'
-    } else if (this.ferryStations.indexOf(station) != -1) {
+    } else if (station === 4) {
       icon = 'ferry'
+    } else if (station === 5) {
+      icon = 'cablecar'
     }
     return icon
-  }
-  // deprecated
-  getColor(agency_id, code){
-    switch(agency_id){
-    case 'AM': // Auckland Metro
-      switch (code) {
-      case 'WEST': // West Line
-        //return '#006553' official
-        return '#4f9734'
-      case 'STH': // South Line
-        //return '#a60048' official
-        return '#e52f2b'
-      case 'EAST': // East Line
-        return '#f39c12'
-      case 'PUK': // South Line
-        //return '#a60048'
-        return '#e52f2b'
-      case 'ONE': // ONE Line
-        return '#21b4e3'
-      default:
-        return '#17232f'
-      }
-    case 'FGL': // Fullers
-      return '#2756a4'
-
-    case 'HE': // Howick and Eastern
-      return '#2196F3'
-
-    case 'NZBGW': // NZ Bus - Go West
-      return '#4CAF50'
-
-    case 'NZBML': // NZ Bus - metrolink
-      switch (code) {
-      case 'CTY': // City Link
-        return '#ef3c34'
-
-      case 'INN': // Inner Link
-        return '#41b649'
-
-      case 'OUT': // Outer Link
-        return '#f7991c'
-      
-      default:
-        return '#0759b0'
-      }
-
-    case 'NZBNS': // NZ Bus - North Star
-      return '#f39c12'
-
-    case 'NZBWP': // NZ Bus - Waka Pacific
-      return '#0f91ab'
-
-    case 'UE': // Urban Express / Same as Pavolich
-      return '#776242'
-
-    case 'BTL': // Birkenhead Transport
-      return '#b2975b'
-
-    case 'RTH': // Ritchies
-      switch (code) {
-      case 'NEX': // Northern Express
-        //return '#0079c2' official
-        return '#0056a9' 
-      
-      default:
-        return '#ff6f2c'
-      }
-
-    case 'WBC': // Waiheke Bus Company
-      return '#2196F3'
-
-    case 'EXPNZ': // Explore Waiheke - supposed to be closed?
-      return '#ffe81c'
-
-    case 'BFL': // Belaire Ferries
-      return '#ffd503'
-
-    case 'ATAPT': // AT Airporter
-      return '#f7931d'
-
-    case 'SLPH': // Pine Harbour / Sealink
-      return '#d92732'
-
-    case 'GBT': // Go Bus
-      return '#58aa17'
-
-    case '360D': // 360 Discovery
-      return '#2756a4'
-
-    case 'ABEXP': //Skybus
-      return '#F44336'
-
-    case 'PC': // Pavolich
-      return '#776242'
-
-    default: //MSB, PBC, BAYES - Schools
-      return '#17232f'
-    }
   }
   getHeadsign(prefix, longname, direction) {
     if (prefix === 'nz-wlg') {
@@ -239,7 +120,7 @@ export class stationStore extends Events {
       dataCollection.forEach((data, key) => {
         let no = stopNumber.split('+')[key]
         let description = t('savedStations.stop', {number: `${no} / ${data.stop_name}`})
-        let icon = this.getIcon(no)
+        let icon = this.getIcon(data.route_type)
 
         let zName = stopName
         if (stopNumber.split('+').length > 1) {
@@ -323,6 +204,9 @@ export class stationStore extends Events {
       allData.forEach((data) => {
         trips = trips.concat(data.trips)
         realtime = Object.assign(realtime, data.realtime)
+      })
+      trips.sort((a,b) => {
+        return a.departure_time_seconds - b.departure_time_seconds
       })
       this.timesFor = [stations, new Date()]
       this.tripData = trips
