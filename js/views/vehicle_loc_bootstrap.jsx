@@ -70,7 +70,7 @@ class VehicleLocationBootstrap extends React.Component {
     })
   }
   lineMountCb = (newProps) => {
-    StationStore.getLines().then((data) => {
+    StationStore.getLines(newProps.match.params.region).then((data) => {
       this.setState({
         tripInfo: {
           route_short_name: newProps.match.params.line_id,
@@ -80,7 +80,7 @@ class VehicleLocationBootstrap extends React.Component {
     })
   }
   getLineData = () => {
-    fetch(`${local.endpoint}/nz-akl/line/${this.props.match.params.line_id}`).then((response) => {
+    fetch(`${local.endpoint}/${this.props.match.params.region}/line/${this.props.match.params.line_id}`).then((response) => {
       response.json().then((data) => {
         let tripInfo = JSON.parse(JSON.stringify(this.state.tripInfo))
         tripInfo.route_long_name = data[0].route_long_name

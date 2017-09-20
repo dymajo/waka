@@ -256,8 +256,9 @@ var line = {
 
   getStopsFromTrip: function(req, res){
     const sqlRequest = connection.get().request()
-    sqlRequest.input('prefix', sql.VarChar(50), req.params.prefix || 'nz-akl')
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion())
+    const prefix = req.params.prefix || 'nz-akl'
+    sqlRequest.input('prefix', sql.VarChar(50), prefix)
+    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion(prefix))
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
     sqlRequest.query(`
       SELECT 
@@ -286,8 +287,9 @@ var line = {
   },
   getStopsFromShape: function(req, res) {
     const sqlRequest = connection.get().request()
-    sqlRequest.input('prefix', sql.VarChar(50), req.params.prefix || 'nz-akl')
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion())
+    const prefix = req.params.prefix || 'nz-akl'
+    sqlRequest.input('prefix', sql.VarChar(50), prefix)
+    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion(prefix))
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
     sqlRequest.query(`SELECT TOP(1) trip_id FROM trips WHERE trips.prefix = @prefix and trips.version = @version and trips.shape_id = @shape_id`).then((result) => {
       let trip_id = result.recordset[0].trip_id

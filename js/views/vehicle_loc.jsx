@@ -72,10 +72,10 @@ class vehicle_location extends React.Component {
   }
   getShapeData = (newProps = this.props) => {
     let showIcons = true
-    let url = `${local.endpoint}/nz-akl/stops/trip/${newProps.params.trip_id}`
+    let url = `${local.endpoint}/${newProps.params.region}/stops/trip/${newProps.params.trip_id}`
     if ('line_id' in newProps.params) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
-        url = `${local.endpoint}/nz-akl/stops/shape/${newProps.tripInfo.shape_id}`
+        url = `${local.endpoint}/${newProps.params.region}/stops/shape/${encodeURIComponent(newProps.tripInfo.shape_id)}`
       } else {
         return
       }
@@ -105,8 +105,19 @@ class vehicle_location extends React.Component {
   getWKB = (newProps = this.props, force = false) => {
     if (typeof(this.state.line) === 'undefined' || force === true) {
       if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
-        fetch(`${local.endpoint}/nz-akl/shape/${newProps.tripInfo.shape_id}`).then((response) => {
-          response.text().then(this.convert)
+        fetch(`${local.endpoint}/${newProps.params.region}/shapejson/${encodeURIComponent(newProps.tripInfo.shape_id)}`).then((response) => {
+          response.json().then((geoJson) => {
+            let newState = {
+              line: geoJson
+            }
+            // this centers the line if we're looking at the line
+            if ('line_id' in this.props.params) {
+              // it's opposite for some reason, also we shouldn't mutate it
+              let center = geoJson.coordinates[Math.round(geoJson.coordinates.length/2)]
+              newState.position = center.slice().reverse()
+            }
+            this.setState(newState)
+          })
         })
       }
     }
@@ -124,22 +135,6 @@ class vehicle_location extends React.Component {
       this.getWKB(newProps)
       CurrentLocation.stopWatch()
     }
-  }
-
-  convert  = (data) => {
-    let wkb = new Buffer(data, 'hex')
-    let geoJson = wkx.Geometry.parse(wkb).toGeoJSON()
-
-    let newState = {
-      line: geoJson
-    }
-    // this centers the line if we're looking at the line
-    if ('line_id' in this.props.params) {
-      // it's opposite for some reason, also we shouldn't mutate it
-      let center = geoJson.coordinates[Math.round(geoJson.coordinates.length/2)]
-      newState.position = center.slice().reverse()
-    }
-    this.setState(newState)
   }
   
   componentDidMount() {
@@ -235,14 +230,14 @@ class vehicle_location extends React.Component {
 
   viewServices = (stop) => {
     return () => {
-      this.props.history.push(`/s/nz-akl/${stop}`)
+      this.props.history.push(`/s/${this.props.params.region}/${stop}`)
     }
   }
 
   viewTimetable = (stop) => {
     return () => {
       const line_id = this.props.params.line_id || this.props.tripInfo.route_short_name
-      this.props.history.push(`/s/nz-akl/${stop}/timetable/${line_id}-2`)
+      this.props.history.push(`/s/${this.props.params.region}/${stop}/timetable/${line_id}-2`)
     }
   }
 

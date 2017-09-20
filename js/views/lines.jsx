@@ -190,7 +190,7 @@ class Lines extends React.Component {
           }
           return (
             <li key={key}>
-              <a className="line-item" href={'/l/nz-akl/'+item} onClick={this.disable} onTouchTap={this.hijack('/l/nz-akl/'+item)}>
+              <a className="line-item" href={`/l/${this.props.match.params.region}/${item}`} onClick={this.disable} onTouchTap={this.hijack(`/l/${this.props.match.params.region}/${item}`)}>
                 <span className="line-pill-wrapper">
                   <span className={roundelStyle} style={{backgroundColor: this.state.colors[item] || '#000'}}>{code}</span>
                 </span>
