@@ -199,7 +199,7 @@ var line = {
     let prefix = req.params.prefix
     const containerName = encodeURIComponent((prefix+'-'+cache.currentVersion(prefix)).replace('_','-').replace('.','-'))
     const shape_id = req.params.shape_id
-    const fileName = encodeURIComponent(shape_id+'.json')
+    const fileName = encodeURIComponent(new Buffer(shape_id).toString('base64') + '.json')
     blobSvc.getBlobToStream(containerName, fileName, res, function(blobError) {
       if (blobError) {
         res.status(404)

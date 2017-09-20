@@ -56,7 +56,7 @@ class createShapes {
           if (!fs.existsSync(dir)){
             fs.mkdirSync(dir)
           }
-          fs.writeFileSync(path.resolve(dir, `${key}.json`), JSON.stringify(output[key]))
+          fs.writeFileSync(path.resolve(dir, `${new Buffer(key).toString('base64')}.json`), JSON.stringify(output[key]))
         })
         console.log('Written to disk!')
         resolve()
