@@ -116,6 +116,8 @@ var line = {
         trips.trip_headsign
       FROM routes
       LEFT JOIN trips on 
+        trips.prefix = routes.prefix and
+        trips.version = routes.version and
         trips.route_id = routes.route_id
       WHERE 
         routes.prefix = @prefix and
