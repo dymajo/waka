@@ -18,8 +18,6 @@ const iconMap = {
 }
 
 let leaflet = require('react-leaflet')
-let wkx = require('wkx')
-let Buffer = require('buffer').Buffer
 let Map = leaflet.Map
 let Marker = leaflet.Marker
 let Popup = leaflet.Popup

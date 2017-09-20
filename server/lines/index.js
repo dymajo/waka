@@ -19,18 +19,10 @@ blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response)
   }
 })
 
-var shapeWKBOptions = {
-  url: 'https://api.at.govt.nz/v2/gtfs/shapes/geometry/',
-  headers: {
-    'Ocp-Apim-Subscription-Key': process.env.atApiKey
-  }
-}
 let lineOperators = {}
 
 function cacheOperatorsAndShapes(prefix = 'nz-akl') {
   let todo = []
-  let shapeCount = 0
-  let shapesToCache = []
   for (var key in allLines) {
     todo.push(key)
   }
@@ -173,15 +165,7 @@ var line = {
     let shape_id = req.params.shape_id
     tableSvc.retrieveEntity('meta', 'shapewkb', shape_id, function(err, result, response) {
       if (err) {
-        line.getShapeFromAt([shape_id], function(wkb) {
-          if (wkb.length < 1) {
-            res.status(404).send({
-              error: 'not found'
-            })
-          } else {
-            res.send(wkb[0].the_geom)
-          }
-        })
+        res.status(404).send()
         return
       }
      

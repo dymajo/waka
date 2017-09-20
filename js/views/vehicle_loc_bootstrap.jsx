@@ -99,7 +99,7 @@ class VehicleLocationBootstrap extends React.Component {
     const tripNodeMatches = (item) => {
       return item.trip_id === newProps.match.params.trip_id
     }
-    StationStore.getData(this.props.match.params.station).then((data) => {
+    StationStore.getData(this.props.match.params.station, this.props.match.params.region).then((data) => {
       this.setState({
         tripInfo: StationStore.tripData.find(tripNodeMatches) || this.state.tripInfo,
         stopInfo: data

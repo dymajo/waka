@@ -12,7 +12,7 @@ export class settingsStore {
         this.state[attrname] = preState[attrname]
       }
     }
-    localStorage.setItem('AppVersion', '1.6.0')
+    localStorage.setItem('AppVersion', '1.6.1')
   }
   getState() {
     return this.state
