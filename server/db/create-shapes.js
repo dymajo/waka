@@ -8,7 +8,7 @@ const azure = require('azure-storage')
 const blobSvc = azure.createBlobService()
 
 class createShapes {
-  create(inputFile, outputDirectory) {
+  create(inputFile, outputDirectory, versions) {
     return new Promise((resolve, reject) => {
       const input = fs.createReadStream(inputFile)
       const parser = csvparse({delimiter: ','})
@@ -46,7 +46,17 @@ class createShapes {
       }).on('finish', () => {
         console.log('Created Shapes. Writing to disk...')
         Object.keys(output).forEach((key) => {
-          fs.writeFileSync(path.resolve(outputDirectory, `${key}.json`), JSON.stringify(output[key]))
+          let subfolder = (versions.length === 1 ? versions[0] : versions[0] + '-extra')
+          versions.forEach((version) => {
+            if (key.match(version)) {
+              subfolder = version
+            }
+          })
+          let dir = path.resolve(outputDirectory, subfolder)
+          if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir)
+          }
+          fs.writeFileSync(path.resolve(dir, `${key}.json`), JSON.stringify(output[key]))
         })
         console.log('Written to disk!')
         resolve()
@@ -87,6 +97,9 @@ class createShapes {
         }
         console.log(container.green +':', 'Blob Container Created.')
         fs.readdir(directory, function(err, files) {
+          if (err) {
+            console.error(err)
+          }
           uploadSingle(files, 0, uploadSingle)
         })    
       })

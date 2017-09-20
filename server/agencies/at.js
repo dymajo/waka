@@ -29,6 +29,7 @@ const config = {
 			name: 'calendar_dates.txt',
 			table: 'calendar_dates'
 		},
-	]
+	],
+	shapeFile: 'shapes.txt'
 }
 module.exports = config

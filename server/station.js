@@ -150,7 +150,6 @@ var station = {
         if (prefix === 'nz-akl') {
           sending.realtime = realtime.getTripsCachedAuckland(realtimeTrips) 
           res.send(sending)
-          line.cacheShapes(sending.trips)
         } else {
           res.send(sending)
         }

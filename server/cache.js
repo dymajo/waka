@@ -1,10 +1,11 @@
-var azure = require('azure-storage');
+var azure = require('azure-storage')
 var request = require('request')
 var moment = require('moment-timezone')
 var fs = require('fs')
 const extract = require('extract-zip')
 const csvparse = require('csv-parse')
 const transform = require('stream-transform')
+const rimraf = require('rimraf')
 
 const Queue = require('./queue.js')
 const path = require('path')
@@ -16,6 +17,7 @@ var tableSvc = azure.createTableService()
 const sql = require('mssql')
 const connection = require('./db/connection.js')
 const gtfsImport = require('./db/gtfs-import.js')
+const createShapes = require('./db/create-shapes.js')
 
 const zipLocation = path.resolve(__dirname, '../cache/at.zip')
 
@@ -182,6 +184,28 @@ async function importAt() {
   for (let file of at.files) {
     await importer.upload(zipLocation + 'unarchived', file, at.prefix, version, ignoreVersions)
   }
+
+  let atShapes = new createShapes()
+  const inputDir = path.resolve(zipLocation + 'unarchived', 'shapes.txt')
+  const outputDir = path.resolve(zipLocation + 'unarchived', 'shapes')
+
+  // cleans up old import if exists
+  if (fs.existsSync(outputDir)) {
+    await new Promise((resolve, reject) => {
+      rimraf(outputDir, resolve)
+    })
+  }
+  fs.mkdirSync(outputDir)
+
+  // creates the new datas
+  await atShapes.create(inputDir, outputDir, version)
+
+  const shapeFiles = fs.readdirSync(outputDir)
+  for (let singleVersion of shapeFiles) {
+    const containerName = (at.prefix + '-' + singleVersion).replace('.', '-').replace('_', '-')
+    await atShapes.upload(containerName, path.resolve(outputDir, singleVersion))
+  }
+  console.log('Uploaded All Shapes')
 
   // It was a success
   for (let v in version) {

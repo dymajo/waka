@@ -1,5 +1,10 @@
+const fs = require('fs')
+const path = require('path')
+const rimraf = require('rimraf')
+
 const connection = require('./db/connection.js')
 const gtfsImport = require('./db/gtfs-import.js')
+const createShapes = require('./db/create-shapes.js')
 
 const metlink = require('./agencies/metlink.js')
 const at = require('./agencies/at.js')
@@ -19,5 +24,18 @@ async function doShit() {
       console.log(err)
     })
   })
+
+  const outputDir = '../cache/metlink.zipunarchived/shapes'
+  // cleans up old import if exists
+  if (fs.existsSync(outputDir)) {
+    await new Promise((resolve, reject) => {
+      rimraf(outputDir, resolve)
+    })
+  }
+  fs.mkdirSync(outputDir)
+
+  let metlinkShapes = new createShapes()
+  await metlinkShapes.create('../cache/metlink.zipunarchived/shapes.txt', outputDir, ['20170828_20170808-090059'])
+  await metlinkShapes.upload('nz-wlg-20170828-20170808-090059', path.resolve(outputDir, '20170828_20170808-090059'))
 }
 connection.isReady.then(doShit)

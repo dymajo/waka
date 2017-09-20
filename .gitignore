@@ -45,6 +45,7 @@ cache/*.txt
 cache/*/*.txt
 cache/stops/*/*.txt
 cache/*.zip
+cache/*/*
 cache/maps/*.png
 cache/maps/*.webp
 dist/generated/*
