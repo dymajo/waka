@@ -2,6 +2,15 @@ var express = require('express')
 var bodyParser = require('body-parser')
 const templateEngine = require('./server/templates/index')
 const colors = require('colors')
+const appInsights = require('applicationinsights')
+
+if (process.env.AZURE_INSIGHTS) {
+  appInsights.setup(process.env.AZURE_INSIGHTS)
+  appInsights.start()
+  console.log('Started Azure Insights')
+} else {
+  console.log('Azure Insights API key is undefined.'.red)
+}
 
 var app = express()
 app.disable('x-powered-by')

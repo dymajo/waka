@@ -49,6 +49,7 @@
     "whatwg-fetch": "^2.0.1"
   },
   "dependencies": {
+    "applicationinsights": "^0.22.0",
     "autotrack": "^2.4.1",
     "azure-storage": "^2.2.2",
     "body-parser": "^1.17.2",
