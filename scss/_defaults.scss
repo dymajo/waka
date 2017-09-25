@@ -27,6 +27,16 @@
 }
 .default-content {
   padding: 0.5rem 1rem;
+  max-height: calc(100vh - #{$navsize});
+  max-height: calc(var(--real-height) - #{$navsize});
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  h2 {
+    color: $atblue;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
+  }
 
   a {
     color: $lightblue;

@@ -16,6 +16,36 @@ var search = {
 
   // This gets cached on launch
   stopsRouteType: {},
+  _allStops: function(prefix) {
+    return new Promise(function(resolve, reject) {
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('prefix', sql.VarChar, prefix)
+      sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
+      sqlRequest.query(`
+        SELECT
+          stop_code as stop_id,
+          stop_name
+        FROM
+          stops
+        WHERE
+          stops.prefix = @prefix
+          and stops.version = @version
+          and location_type = 0
+        ORDER BY
+          len(stop_code),
+          stop_code
+      `).then(result => {
+        resolve({
+          route_types: search.stopsRouteType[prefix] || {},
+          items: result.recordset
+        })
+      }).catch(err => {
+        return reject({
+          error: err
+        })
+      })
+    })
+  },
   getStopsRouteType(prefix) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('prefix', sql.VarChar, prefix)
