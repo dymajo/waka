@@ -7,7 +7,7 @@ var cache = require('./cache')
 var line = require('./lines/index')
 const sql = require('mssql')
 const connection = require('./db/connection.js')
-const realtime = require('./realtime.js')
+const realtime = require('./realtime/nz-akl.js')
 
 var options = {
   url: 'https://api.at.govt.nz/v2/gtfs/stopTimes/stopId/',

@@ -216,7 +216,7 @@ export class stationStore extends Events {
       this.trigger('error', t('station.error'))
     })
   }
-  getRealtime(tripData) {
+  getRealtime(tripData, stop_id = null, region = 'nz-akl') {
     // realtime request for buses and trains
     // not ferries though
     let route_type
@@ -229,7 +229,8 @@ export class stationStore extends Events {
       return
     }
 
-    const queryString = tripData.filter(function(trip) {
+    const queryString = {}
+    tripData.filter(function(trip) {
       const arrival = new Date()
       if (arrival.getHours() < 5) {
         arrival.setDate(arrival.getDate() - 1)
@@ -243,26 +244,26 @@ export class stationStore extends Events {
         return true
       }
       return false
-    }).map(trip => trip.trip_id)
+    }).forEach(trip => {
+      queryString[trip.trip_id] = trip.departure_time_seconds
+    })
 
     // we need to pass an extra param for train trips
-    let requestData
+    let requestData = {
+      stop_id: stop_id,
+      trips: queryString
+    }
     if (route_type === 2) {
-      requestData = JSON.stringify({
-        trips: queryString,
-        train: true
-      })
-    } else {
-      requestData = JSON.stringify({trips: queryString})
+      requestData.train = true
     }
 
     // now we do a request to the realtime API
-    fetch(`${local.endpoint}/nz-akl/realtime`, {
+    fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: requestData
+      body: JSON.stringify(requestData)
     }).then((response) => {
       response.json().then((data) => {
         this.realtimeData = data

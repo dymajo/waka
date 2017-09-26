@@ -145,7 +145,7 @@ class Station extends React.Component {
     })
 
     this.reduceTrips(tripData)
-    StationStore.getRealtime(tripData)
+    StationStore.getRealtime(tripData, this.props.match.params.station, this.props.match.params.region)
   }
   realtimeCb = () => {
     const tripData = StationStore.tripData
@@ -365,7 +365,7 @@ class Station extends React.Component {
         new Date().getTime() - StationStore.timesFor[1].getTime() < 120000) {
       this.getData(this.props, false)
       this.tripsCb()
-      StationStore.getRealtime(StationStore.tripData)
+      StationStore.getRealtime(StationStore.tripData, this.props.match.params.station, this.props.match.params.region)
     } else {
       this.getData(this.props)
     }
@@ -376,7 +376,7 @@ class Station extends React.Component {
       this.getData(this.props)
     }, 180000)
     this.realtimeRefresh = setInterval(() => {
-      StationStore.getRealtime(this.state.trips)
+      StationStore.getRealtime(this.state.trips, this.props.match.params.station, this.props.match.params.region)
     }, 20000)
   }
   componentWillUnmount() {    

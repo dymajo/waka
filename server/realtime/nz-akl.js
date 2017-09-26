@@ -1,5 +1,5 @@
 var request = require('request')
-var cache = require('./cache')
+var cache = require('../cache')
 
 var tripUpdatesOptions = {
   url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
@@ -81,19 +81,11 @@ var realtime = {
     })
   },
   getTripsEndpoint: function(req, res) {
-    if (!req.body.trips) {
-      res.send({
-        message: 'please send trips'
-      })
-      return
+    // compat with old version of api
+    if (req.body.trips.constructor !== Array) {
+      req.body.trips = Object.keys(req.body.trips)
     }
-    const prefix = req.params.prefix || 'nz-akl'
-    if (prefix !== 'nz-akl') {
-      res.send({
-        message: 'realtime not available '
-      })
-      return
-    }
+
     // falls back to API if we're out of date
     if (req.body.train || realtime.currentDataFails > 3) {
       realtime.getTripsAuckland(req.body.trips, req.body.train).then((data) => {
@@ -180,42 +172,42 @@ var realtime = {
 
     return realtimeInfo
   },
-  getVehicleLocation: function(req, res) {
+  getVehicleLocationEndpoint: function(req, res) {
     var vehicleInfo = {}
     req.body.trips.forEach(function(trip) {
       vehicleInfo[trip] = {}
     })
-    newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
-        newOpts.url += '?tripid=' + req.body.trips.join(',')
-        request(newOpts, function(err, response, body){
-          if (err) {
-            res.send({
-              error: err
-            })
-            return
-          }
-          try {
-            body = JSON.parse(body)  
-          } catch(err) {
-            console.log('rt error', err)
-            return res.send({
-              error: err
-            })
-          }
-          if (body.response.entity){
-            //console.log('1', body.response.entity)
-            // console.log('getting vehiclelocations')
-            body.response.entity.forEach(function(trip) {    
-              vehicleInfo[trip.vehicle.trip.trip_id] = {
-                latitude: trip.vehicle.position.latitude,
-                longitude: trip.vehicle.position.longitude,
-                bearing: trip.vehicle.position.bearing,
-              }
-              //console.log(vehicleInfo[trip.vehicle.trip.trip_id])
-            })
-          }
-        res.send(vehicleInfo)
+    const newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
+    newOpts.url += '?tripid=' + req.body.trips.join(',')
+    request(newOpts, function(err, response, body){
+      if (err) {
+        res.send({
+          error: err
         })
+        return
+      }
+      try {
+        body = JSON.parse(body)  
+      } catch(err) {
+        console.log('rt error', err)
+        return res.send({
+          error: err
+        })
+      }
+      if (body.response.entity){
+        //console.log('1', body.response.entity)
+        // console.log('getting vehiclelocations')
+        body.response.entity.forEach(function(trip) {    
+          vehicleInfo[trip.vehicle.trip.trip_id] = {
+            latitude: trip.vehicle.position.latitude,
+            longitude: trip.vehicle.position.longitude,
+            bearing: trip.vehicle.position.bearing,
+          }
+          //console.log(vehicleInfo[trip.vehicle.trip.trip_id])
+        })
+      }
+      res.send(vehicleInfo)
+    })
         
   }
 }

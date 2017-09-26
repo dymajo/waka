@@ -4,7 +4,6 @@ const cache = require('../cache')
 
 const lineDataAkl = require('./nz-akl')
 const lineDataWlg = require('./nz-wlg')
-const allLines = lineDataAkl.allLines
 const sql = require('mssql')
 const connection = require('../db/connection.js')
 
@@ -23,7 +22,7 @@ let lineOperators = {}
 
 function cacheOperatorsAndShapes(prefix = 'nz-akl') {
   let todo = []
-  for (var key in allLines) {
+  for (var key in lineDataAkl.allLines) {
     todo.push(key)
   }
 
@@ -133,7 +132,7 @@ var line = {
         })
 
         // checks to make it's the right route (the whole exception thing)
-        if (line.exceptionCheck(route) === false){
+        if (line.exceptionCheck(prefix, route) === false){
           return
         }
         // make sure it's not already in the response
@@ -152,7 +151,7 @@ var line = {
           route_type: route.route_type._  
         }
         // if it's the best match, inserts at the front
-        if (line.exceptionCheck(route, true) === true) {
+        if (line.exceptionCheck(prefix, route, true) === true) {
           return results.unshift(result)
         }
         results.push(result)
@@ -195,7 +194,16 @@ var line = {
     })
   },
 
-  exceptionCheck: function(route, bestMatchMode = false) {
+  exceptionCheck: function(prefix, route, bestMatchMode = false) {
+    let allLines
+    if (prefix === 'nz-akl') {
+      allLines = lineDataAkl.allLines
+    } else if (prefix === 'nz-wlg') {
+      allLines = lineDataWlg.allLines
+    } else {
+      return true
+    }
+
     // blanket thing for no schools
     if (route.trip_headsign._ === 'Schools'){
       return false
