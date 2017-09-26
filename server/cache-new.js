@@ -18,7 +18,7 @@ async function doShit() {
 
   metlink.files.forEach((file) => {
     console.log(file)
-    importer.upload('../cache/metlink.zipunarchived', file, metlink.prefix, '20170828_20170808-090059', []).then(() => {
+    importer.upload('../cache/metlink.zipunarchived', file, metlink.prefix, '20170918_20170914-111013', []).then(() => {
       console.log('done')
     }).catch((err) => {
       console.log(err)
@@ -35,8 +35,8 @@ async function doShit() {
   fs.mkdirSync(outputDir)
 
   let metlinkShapes = new createShapes()
-  await metlinkShapes.create('../cache/metlink.zipunarchived/shapes.txt', outputDir, ['20170828_20170808-090059'])
-  await metlinkShapes.upload('nz-wlg-20170828-20170808-090059', path.resolve(outputDir, '20170828_20170808-090059'))
+  await metlinkShapes.create('../cache/metlink.zipunarchived/shapes.txt', outputDir, ['20170918-20170914-111013'])
+  await metlinkShapes.upload('nz-wlg-20170918-20170914-111013', path.resolve(outputDir, '20170918-20170914-111013'))
 }
 async function doOtherShit() {
   const outputDir = '../cache/at.zipunarchived/shapes'
@@ -53,5 +53,5 @@ async function doOtherShit() {
   await atShapes.upload('nz-akl-20170918164808-v58-16', path.resolve(outputDir, '20170918164808_v58.16'))
   await atShapes.upload('nz-akl-20170918162843-v58-15', path.resolve(outputDir, '20170918162843_v58.15'))
 }
-// connection.isReady.then(doShit)
-connection.isReady.then(doOtherShit)
+connection.isReady.then(doShit)
+// connection.isReady.then(doOtherShit)

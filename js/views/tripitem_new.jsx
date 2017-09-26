@@ -106,7 +106,11 @@ class TripItem extends React.Component {
       if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].delay) {
         arrival.setSeconds(arrival.getSeconds() + (this.props.realtime[trip.trip_id].delay))
         let time = Math.abs(Math.round((arrival.getTime()-new Date().getTime())/60000))
+
         let stops_away_no = trip.stop_sequence - this.props.realtime[trip.trip_id].stop_sequence
+        if (this.props.realtime[trip.trip_id].stop_sequence === -100) {
+          stops_away_no = -100
+        }
 
         if ((time === 0 || stops_away_no === 0) && times.length === 0) {
           times.push({realtime: 'delay', time: t('tripitem.due'), dd: this.props.realtime[trip.trip_id].double_decker})
@@ -121,7 +125,10 @@ class TripItem extends React.Component {
         times.push({realtime: 'distance', time: time, distance: Math.round(this.props.realtime[trip.trip_id].distance)})
       } else if (date > 0) {
         times.push({realtime: false, time: date.toString()})
+      } else if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].departed) {
+        // do nothing?
       } else {
+        console.log(this.props.realtime[trip.trip_id], trip)
         times.push({realtime: false, time: t('tripitem.due')})
       }
     })
@@ -146,6 +153,13 @@ class TripItem extends React.Component {
             } else if (item.realtime === 'delay') {
               const stops = t('tripitem.stops', {smart_count: item.stops}).split('&')
               const min = t('tripitem.min', {smart_count: parseInt(item.time)}).split('&')
+              if (item.stops === -100) {
+                return (
+                  <h4 className={className} key={key}>
+                    <strong>{min[0]}</strong> {min[1]}
+                  </h4>
+                )
+              }
               return (
                 <h4 className={className} key={key}>
                   <strong>{stops[0]}</strong>{stops[1]}&nbsp;
@@ -178,12 +192,20 @@ class TripItem extends React.Component {
       } else if (latest.realtime === 'delay') {
         const stops = t('tripitem.stops', {smart_count: latest.stops}).split('&')
         const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
-        latest = (
-          <h3 className={className}>{dd} <span className="number-small">{stops[0]}</span>
-            {stops[1]}&nbsp;
-            <span className="opacity">&middot;</span> <span className="number">{minsaway[0]}</span>{minsaway[1]}
-          </h3>
-        )
+        if (latest.stops === -100) {
+          latest = (
+            <h3 className={className}>{dd} 
+              <span className="number">{minsaway[0]}</span>{minsaway[1]}
+            </h3>
+          )
+        } else {
+          latest = (
+            <h3 className={className}>{dd} <span className="number-small">{stops[0]}</span>
+              {stops[1]}&nbsp;
+              <span className="opacity">&middot;</span> <span className="number">{minsaway[0]}</span>{minsaway[1]}
+            </h3>
+          )
+        }
       } else if (latest.realtime === 'distance' && latest.distance > 0) {
         const kmaway = t('tripitem.kmaway', {distance: latest.distance}).split('&')
         const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')

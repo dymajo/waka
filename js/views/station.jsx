@@ -372,12 +372,13 @@ class Station extends React.Component {
 
     // times: every 3 minutes
     // realtime: every 20 seconds
+    const timeout = this.props.match.params.region === 'nz-akl' ? 20000 : 30000
     this.liveRefresh = setInterval(() => {
       this.getData(this.props)
     }, 180000)
     this.realtimeRefresh = setInterval(() => {
       StationStore.getRealtime(this.state.trips, this.props.match.params.station, this.props.match.params.region)
-    }, 20000)
+    }, timeout)
   }
   componentWillUnmount() {    
     StationStore.unbind('change', this.triggerUpdate)

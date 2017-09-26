@@ -245,7 +245,10 @@ export class stationStore extends Events {
       }
       return false
     }).forEach(trip => {
-      queryString[trip.trip_id] = trip.departure_time_seconds
+      queryString[trip.trip_id] = {
+        departure_time_seconds: trip.departure_time_seconds,
+        route_short_name: trip.route_short_name,
+      }
     })
 
     // we need to pass an extra param for train trips
