@@ -198,7 +198,7 @@ class vehicle_location extends React.Component {
         return
       }
       let busPositions = {}
-      fetch(`${local.endpoint}/nz-akl/vehicle_location`, {
+      fetch(`${local.endpoint}/${this.props.params.region}/vehicle_location`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
