@@ -187,6 +187,8 @@ async function start() {
   await connection.get().request().batch(GetMultipleStopTimes.toString())  
   const GetTimetable = fs.readFileSync(path.resolve(__dirname, './procs/GetTimetable.sql'))
   await connection.get().request().batch(GetTimetable.toString())  
+  const GetMultipleTimetable = fs.readFileSync(path.resolve(__dirname, './procs/GetMultipleTimetable.sql'))
+  await connection.get().request().batch(GetMultipleTimetable.toString())  
 
   connection.get().close()
 

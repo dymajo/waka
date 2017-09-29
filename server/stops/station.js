@@ -24,6 +24,13 @@ var station = {
     return new Promise(function(resolve, reject) {
       stop = stop.trim()
 
+      // returns data
+      let override = false
+      if (prefix === 'nz-wlg' && wlg.badStops.indexOf(stop) > -1) {
+        override = stop
+        stop = stop + '1'
+      }
+
       const sqlRequest = connection.get().request()
       sqlRequest.input('prefix', sql.VarChar, prefix)
       sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
@@ -63,6 +70,9 @@ var station = {
       `).then((result) => {
         const data = result.recordset[0]
         delete data.uid
+        if (override) {
+          data.stop_id = override
+        }
         resolve(data)
       }).catch(err => {
         return reject({
@@ -170,6 +180,12 @@ var station = {
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date())
 
+    // combines train stations platforms together
+    let procedure = 'GetTimetable'
+    if (prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
+      procedure = 'GetMultipleTimetable'
+    }
+
     connection.get().request()
       .input('prefix', sql.VarChar(50), prefix)
       .input('version', sql.VarChar(50), currentVersion)
@@ -177,7 +193,7 @@ var station = {
       .input('route_short_name', sql.VarChar(50), req.params.route)
       .input('date', sql.Date, today)
       .input('direction', sql.Int, req.params.direction)
-      .execute('GetTimetable')
+      .execute(procedure)
       .then((trips) => {
         sending.trips = trips.recordset.map((record) => {
           record.arrival_time_seconds = new Date(record.arrival_time).getTime()/1000
