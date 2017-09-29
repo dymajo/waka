@@ -10,8 +10,8 @@ const template = {
   linesRegion: pug.compileFile('server/templates/lines-region.pug')
 }
 
-const station = require('../station.js')
-const search = require('../search.js')
+const station = require('../stops/station.js')
+const search = require('../stops/search.js')
 const line = require('../lines/index.js')
 const manifest = require('../../dist/assets.json')
 

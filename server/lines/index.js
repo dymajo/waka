@@ -6,6 +6,7 @@ const lineDataAkl = require('./nz-akl')
 const lineDataWlg = require('./nz-wlg')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
+const search = require('../stops/search.js')
 
 const colors = require('colors')
 
@@ -274,7 +275,7 @@ var line = {
         stop_times.trip_id = @trip_id
       ORDER BY stop_sequence`
     ).then((result) => {
-      res.send(result.recordset)
+      res.send(search._stopsFilter(prefix, result.recordset))
     }).catch((err) => {
       res.status(500).send(err)
     })

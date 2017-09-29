@@ -12,6 +12,10 @@ const realtime = {
       return res.status(400).send({message: 'stop_id required'})
     }
     request({url: tripsUrl + req.body.stop_id}, function(err, response, body) {
+      if (err || response.statusCode === 400) {
+        return res.status(400).send({message: 'stop_id not found'})
+      }
+
       body = JSON.parse(body)
       // reduces things into a nice map
       const realtimeServices = {}

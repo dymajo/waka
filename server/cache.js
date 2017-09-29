@@ -7,7 +7,6 @@ const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 const rimraf = require('rimraf')
 
-const Queue = require('./queue.js')
 const path = require('path')
 
 const at = require('./agencies/at.js')

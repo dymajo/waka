@@ -1,10 +1,10 @@
 var router = require('express').Router()
-var station = require('./station')
+const search = require('./stops/search')
+const station = require('./stops/station')
 var cache = require('./cache')
 var line = require('./lines/index')
 var email = require('./email')
 var vehicle = require('./vehicle')
-var search = require('./search')
 const realtime = new (require('./realtime/index.js'))
 const colors = require('colors')
 

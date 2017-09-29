@@ -1,10 +1,7 @@
-var azure = require('azure-storage')
-var tableSvc = azure.createTableService()
-var cache = require('./cache')
-const fs = require('fs')
-var sitemap = require('./sitemap')
+const cache = require('../cache')
 const sql = require('mssql')
-const connection = require('./db/connection.js')
+const connection = require('../db/connection.js')
+const wlg = require('./nz-wlg.js')
 
 var search = {
   getRegion(lat, lng) {
@@ -12,6 +9,13 @@ var search = {
       return 'nz-wlg'
     }
     return 'nz-akl'
+  },
+
+  _stopsFilter(prefix = 'nz-akl', recordset, mode) {
+    if (prefix === 'nz-wlg') {
+      return wlg.filter(recordset, mode)
+    }
+    return recordset
   },
 
   // This gets cached on launch
@@ -37,7 +41,7 @@ var search = {
       `).then(result => {
         resolve({
           route_types: search.stopsRouteType[prefix] || {},
-          items: result.recordset
+          items: search._stopsFilter(prefix, result.recordset, 'delete')
         })
       }).catch(err => {
         return reject({
@@ -65,8 +69,8 @@ var search = {
           stop_times.version = stops.version and
           stop_times.stop_id = stops.stop_id
       )
-      INNER JOIN trips ON trips.trip_id = stop_times.trip_id
-      INNER JOIN routes on routes.route_id = trips.route_id
+      INNER JOIN trips ON trips.trip_id = stop_times.trip_id and trips.prefix = stop_times.prefix and trips.version = stop_times.version
+      INNER JOIN routes on routes.route_id = trips.route_id and routes.prefix = stop_times.prefix and routes.version = stop_times.version
       WHERE
         stops.prefix = @prefix
         and stops.version = @version
@@ -118,12 +122,12 @@ var search = {
           and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
           and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
       ).then((result) => {
-        res.send(result.recordset.map(item => {
+        res.send(search._stopsFilter(prefix, result.recordset.map(item => {
           item.stop_region = prefix
           item.stop_lng = item.stop_lon // this is fucking dumb
           item.route_type = search.stopsRouteType[prefix][item.stop_id] || 3
           return item
-        }))
+        })))
       }).catch((err) => {
         res.status(500).send(err)
       })
@@ -132,19 +136,6 @@ var search = {
         'message': 'please send all required params (lat, lng, distance)'
       })
     }
-  },
-  buildSitemap() {
-    // we're going to do a directory listing instead of actually querying the database.
-    // mainly because I put the db together badly, and it could have old shit info.
-    // wheras the newest version of the cache should always be correct. I think.
-    // fs.readdir('cache/stops/' + cache.currentVersion(), function(err, files) {
-    //   if (err) {
-    //     return console.error(err)
-    //   }
-    //   files.forEach(function(file) {
-    //     sitemap.push('/s/' + file.replace('.txt', ''))
-    //   })
-    // })
   }
 }
 cache.ready['nz-akl'].push(() => search.getStopsRouteType('nz-akl'))

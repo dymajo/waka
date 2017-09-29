@@ -1,20 +1,9 @@
-var fs = require('fs')
-const csvparse = require('csv-parse')
-var request = require('request')
-var moment = require('moment-timezone')
-var azure = require('azure-storage')
-var cache = require('./cache')
-var line = require('./lines/index')
+const moment = require('moment-timezone')
+const cache = require('../cache')
+const line = require('../lines/index')
 const sql = require('mssql')
-const connection = require('./db/connection.js')
-const realtime = require('./realtime/nz-akl.js')
-
-var options = {
-  url: 'https://api.at.govt.nz/v2/gtfs/stopTimes/stopId/',
-  headers: {
-    'Ocp-Apim-Subscription-Key': process.env.atApiKey
-  }
-}
+const connection = require('../db/connection.js')
+const realtime = require('../realtime/nz-akl.js')
 
 var station = {
   stopInfo: function(req, res) {
