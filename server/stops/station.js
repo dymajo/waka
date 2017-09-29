@@ -4,6 +4,7 @@ const line = require('../lines/index')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
 const realtime = require('../realtime/nz-akl.js')
+const wlg = require('./nz-wlg.js')
 
 var station = {
   stopInfo: function(req, res) {
@@ -104,6 +105,12 @@ var station = {
       today.setTime(today.getTime() - (1000 * 60 * 60 * 24))
     }
 
+    // combines train stations platforms together
+    let procedure = 'GetStopTimes'
+    if (prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
+      procedure = 'GetMultipleStopTimes'
+    }
+
     const realtimeTrips = []
     connection.get().request()
       .input('prefix', sql.VarChar(50), prefix)
@@ -111,7 +118,7 @@ var station = {
       .input('stop_id', sql.VarChar(100), req.params.station)
       .input('departure_time', sql.Time, currentTime)
       .input('date', sql.Date, today)
-      .execute('GetStopTimes')
+      .execute(procedure)
       .then((trips) => {
         sending.trips = trips.recordset.map((record) => {
           record.arrival_time_seconds = new Date(record.arrival_time).getTime()/1000

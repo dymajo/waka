@@ -183,6 +183,8 @@ async function start() {
   console.log('Creating Procedures...')
   const GetStopTimes = fs.readFileSync(path.resolve(__dirname, './procs/GetStopTimes.sql')) // no promises :| 
   await connection.get().request().batch(GetStopTimes.toString())  
+  const GetMultipleStopTimes = fs.readFileSync(path.resolve(__dirname, './procs/GetMultipleStopTimes.sql')) 
+  await connection.get().request().batch(GetMultipleStopTimes.toString())  
   const GetTimetable = fs.readFileSync(path.resolve(__dirname, './procs/GetTimetable.sql'))
   await connection.get().request().batch(GetTimetable.toString())  
 
