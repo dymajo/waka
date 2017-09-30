@@ -43,7 +43,6 @@ CREATE TABLE stops (
 const stops_index = `
 CREATE NONCLUSTERED INDEX id_Stops
 ON trips (prefix, version)
-INCLUDE (prefix, version, stop_code)
 `
 
 const routes = `
@@ -167,10 +166,10 @@ async function start() {
   console.log('Creating Tables...')
   await connection.get().request().query(agency)
   await connection.get().request().query(stops)
-  await connection.get().request().query(stops_index)
   await connection.get().request().query(routes)
   await connection.get().request().query(trips)
   await connection.get().request().query(trips_index)
+  await connection.get().request().query(stops_index)
   await connection.get().request().query(stop_times)
   await connection.get().request().query(stop_times_index)
   await connection.get().request().query(stop_times_index2)
