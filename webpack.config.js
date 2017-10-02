@@ -25,7 +25,7 @@ ConsoleNotifierPlugin.prototype.apply = function(compiler) {
 let config = {
   entry: {
     app: ['whatwg-fetch', './js/app.jsx'],
-    vendor: ['react', 'react-dom', 'react-router'],
+    vendor: ['react', 'react-dom', 'react-router', 'react-router-dom', 'react-transition-group', 'react-tap-event-plugin'],
     analytics: ['autotrack']
   },
   output: {

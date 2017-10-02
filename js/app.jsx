@@ -4,8 +4,7 @@ import style from '../scss/style.scss'
 // js
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
-import createHistory from 'history/createBrowserHistory'
+import { BrowserRouter, Route } from 'react-router-dom'
 import { iOS } from './models/ios.js'
 import { UiStore } from './stores/uiStore.js'
 import Runtime from 'offline-plugin/runtime'
@@ -20,9 +19,9 @@ class App extends React.Component {
 
   render() {
     return (
-      <Router history={createHistory()}>
+      <BrowserRouter>
         <Index />
-      </Router>
+      </BrowserRouter>
     )
   }
 }
