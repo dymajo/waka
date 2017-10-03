@@ -1,30 +1,44 @@
 const path = require('path')
-const child_process = require('child_process')
 const express = require('express')
 const colors = require('colors')
 const http = require('http')
 const httpProxy = require('http-proxy')
+const Worker = require('./worker.js')
+const connection = require('./connection.js')
 
-const child = path.join(__dirname, '../server-worker/index.js')
+const dbConfig = {
+  user: 'node',
+  password: 'node',
+  server: 'localhost', // You can use 'localhost\\instance' to connect to named instance 
+  database: 'Transit',
+  transactionLimit: 10000, // 5000 is good for azure, 100,000 seems to be fine for Local SQL Express
+  connectionTimeout: 60000,
+  requestTimeout: 60000
+}
 
 const mapper = {
   'nz-akl': {
     prefix: 'nz-akl',
-    version: 1,
+    version: '20170928152758_v59.3',
   },
   'nz-wlg': {
     prefix: 'nz-wlg',
-    version: 1,
+    version: '20170828_20170808-090059',
   },
 }
-Object.keys(mapper).forEach((prefix) => {
-  const proc = child_process.fork(child).on('message', function(message) {
-    if (message.type === 'portbroadcast') {
-      mapper[prefix].port = message.data
-      proc.send({type: 'config', data: mapper[prefix]})
-    } else {
-      console.log('retrieved from', prefix, message)
-    }
+mapper['nz-akl'].db = JSON.parse(JSON.stringify(dbConfig))
+mapper['nz-akl'].db.database = mapper['nz-akl'].prefix.replace(/-/g, '_') + '_' + mapper['nz-akl'].version.replace(/-/g, '_').replace(/\./g, '_')
+mapper['nz-wlg'].db = JSON.parse(JSON.stringify(dbConfig))
+mapper['nz-wlg'].db.database = mapper['nz-wlg'].prefix.replace(/-/g, '_') + '_' + mapper['nz-wlg'].version.replace(/-/g, '_').replace(/\./g, '_')
+
+connection.isReady.then(() => {
+  let akl = new Worker(mapper['nz-akl'])
+  akl.start().then(() => {
+    mapper['nz-akl'].port = akl.port
+  })
+  let wlg = new Worker(mapper['nz-wlg'])
+  wlg.start().then(() => {
+    mapper['nz-wlg'].port = wlg.port
   })
 })
 
