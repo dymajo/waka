@@ -4,8 +4,6 @@
 -- Description:	Retrieves stop times for a multi station
 -- =============================================
 CREATE PROCEDURE [dbo].[GetMultipleStopTimes]
-	@prefix nvarchar(50),
-	@version nvarchar(50),
 	@stop_id nvarchar(100),
 	@departure_time time,
 	@date date
@@ -33,8 +31,6 @@ BEGIN
 
 	INSERT INTO #results
 		EXEC [dbo].[GetStopTimes]
-			@prefix = @prefix,
-			@version = @version,
 			@stop_id = @stop_id,
 			@departure_time = @departure_time,
 			@date = @date
@@ -43,16 +39,12 @@ BEGIN
 	SET @y = @stop_id + '1';
 	INSERT INTO #results
 		EXEC [dbo].[GetStopTimes]
-			@prefix = @prefix,
-			@version = @version,
 			@stop_id = @y,
 			@departure_time = @departure_time,
 			@date = @date
 	SET @y = @stop_id + '2';
 	INSERT INTO #results
 		EXEC [dbo].[GetStopTimes]
-			@prefix = @prefix,
-			@version = @version,
 			@stop_id = @y,
 			@departure_time = @departure_time,
 			@date = @date

@@ -5,6 +5,7 @@ const http = require('http')
 const httpProxy = require('http-proxy')
 const Worker = require('./worker.js')
 const connection = require('./connection.js')
+const log = require('../server-common/logger.js')
 
 const dbConfig = {
   user: 'node',
@@ -54,5 +55,5 @@ const server = http.createServer(function(req, res) {
   proxy.web(req, res, { target: 'http://127.0.0.1:' + port })
 })
 
-console.log('Master'.red, 'Listening on Port 8000')
+log('Listening on Port 8000')
 server.listen(8000)

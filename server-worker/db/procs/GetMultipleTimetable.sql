@@ -4,8 +4,6 @@
 -- Description:	Retrieves timetable for a muti station.
 -- =============================================
 CREATE PROCEDURE [dbo].[GetMultipleTimetable]
-	@prefix nvarchar(50),
-	@version nvarchar(50),
 	@stop_id nvarchar(100),
 	@route_short_name nvarchar(50),
 	@date date,
@@ -30,8 +28,6 @@ BEGIN
 
 	INSERT INTO #results
 		EXEC [dbo].[GetTimetable]
-			@prefix = @prefix,
-			@version = @version,
 			@stop_id = @stop_id,
 			@route_short_name = @route_short_name,
 			@date = @date,
@@ -41,8 +37,6 @@ BEGIN
 	SET @y = @stop_id + '1';
 	INSERT INTO #results
 		EXEC [dbo].[GetTimetable]
-			@prefix = @prefix,
-			@version = @version,
 			@stop_id = @y,
 			@route_short_name = @route_short_name,
 			@date = @date,
@@ -51,8 +45,6 @@ BEGIN
 
 	INSERT INTO #results
 		EXEC [dbo].[GetTimetable]
-			@prefix = @prefix,
-			@version = @version,
 			@stop_id = @y,
 			@route_short_name = @route_short_name,
 			@date = @date,
