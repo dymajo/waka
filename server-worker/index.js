@@ -1,9 +1,10 @@
 const colors = require('colors')
 const express = require('express')
-const connection = require('./connection.js')
-global.pid = ('      ' + process.pid.toString(16)).slice(-6).green
+const connection = require('./db/connection.js')
+const createDb = require('./db/create.js')
+const log = require('../server-common/logger.js')
 
-console.log(global.pid, 'Worker Started')
+log('Worker Started')
 const app = express()
 const listener = app.listen(0, function() {
   process.send({type: 'portbroadcast', data: listener.address().port})
@@ -11,21 +12,27 @@ const listener = app.listen(0, function() {
 process.on('message', function(message) {
   if (message.type === 'config') {
     global.config = message.data
-    console.log(global.pid, 'prefix: '.magenta, global.config.prefix, '\n       version:'.magenta, global.config.version)
+    log('prefix: '.magenta, global.config.prefix, '\n       version:'.magenta, global.config.version)
 
     // connect to db
     connection.open().then(() => {
-      console.log(global.pid, 'Connected to Database')
+      log('Connected to Database')
 
       const sqlRequest = connection.get().request()
       sqlRequest.query(`
         select OBJECT_ID('agency', 'U') as 'dbcreated'
       `).then((data) => {
         if (data.recordset[0].dbcreated === null) {
-          console.log(global.pid, 'Building Database from Template')  
-          process.send({type: 'ready'})
+          log('Building Database from Template')  
+          const creator = new createDb()
+          creator.start().then(() => {
+            log('Worker Ready')
+            process.send({type: 'ready'})
+          }).catch(err => {
+            console.log(err)
+          })
         } else {
-          console.log(global.pid, 'Worker Ready')
+          log('Worker Ready')
           process.send({type: 'ready'})
         }
       })

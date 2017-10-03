@@ -4,8 +4,6 @@
 -- Description:	Retrieves stop times for a station.
 -- =============================================
 CREATE PROCEDURE [dbo].[GetStopTimes]
-	@prefix nvarchar(50),
-	@version nvarchar(50),
 	@stop_id nvarchar(100),
 	@departure_time time,
 	@date date
@@ -36,29 +34,17 @@ BEGIN
 		routes.agency_id
 	FROM stop_times
 	LEFT JOIN stops
-		on stop_times.stop_id = stops.stop_id and
-		stop_times.prefix = stops.prefix and 
-		stop_times.version = stops.version
+		on stop_times.stop_id = stops.stop_id
 	LEFT JOIN trips
-		on stop_times.trip_id = trips.trip_id and
-		stop_times.prefix = trips.prefix and 
-		stop_times.version = trips.version
+		on stop_times.trip_id = trips.trip_id
 	LEFT JOIN routes
-		on trips.route_id = routes.route_id and
-		stop_times.prefix = routes.prefix and
-		stop_times.version = routes.version
+		on trips.route_id = routes.route_id
 	LEFT JOIN calendar
-		on trips.service_id = calendar.service_id and
-		stop_times.prefix = calendar.prefix and 
-		stop_times.version = calendar.version
+		on trips.service_id = calendar.service_id
 	LEFT JOIN calendar_dates
 		on trips.service_id = calendar_dates.service_id and
-		stop_times.prefix = calendar_dates.prefix and 
-		stop_times.version = calendar_dates.version and
 		calendar_dates.date = @date
 	WHERE
-		stop_times.prefix = @prefix and
-		stop_times.version = @version and
 		stops.stop_code = @stop_id and
 		(
 			departure_time > DATEADD(MINUTE, @DepatureDelay, @departure_time) and
