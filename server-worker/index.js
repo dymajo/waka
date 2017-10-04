@@ -5,10 +5,6 @@ const createDb = require('./db/create.js')
 const log = require('../server-common/logger.js')
 
 log('Worker Started')
-const app = express()
-const listener = app.listen(0, function() {
-  process.send({type: 'portbroadcast', data: listener.address().port})
-})
 process.on('message', function(message) {
   if (message.type === 'config') {
     global.config = message.data
@@ -39,6 +35,9 @@ process.on('message', function(message) {
     })
   }
 })
-app.get('/', function(req, res) {
-  res.send('sent from ' + JSON.stringify(global.config))
+
+const app = express()
+const listener = app.listen(0, function() {
+  process.send({type: 'portbroadcast', data: listener.address().port})
 })
+app.use(require('./router.js'))

@@ -1,7 +1,5 @@
 CREATE TABLE calendar (
   id int NOT NULL IDENTITY(1,1) PRIMARY KEY,
-  prefix nvarchar(50) NOT NULL,
-  version nvarchar(50) NOT NULL,
   service_id nvarchar(100) NOT NULL,
   monday bit NOT NULL,
   tuesday bit NOT NULL,

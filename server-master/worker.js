@@ -1,12 +1,18 @@
 const path = require('path')
 const child_process = require('child_process')
 const sql = require('mssql')
+const request = require('request')
 const connection = require('./connection.js')
 const child = path.join(__dirname, '../server-worker/index.js')
+const log = require('../server-common/logger.js')
 
 class Worker {
   constructor(config) {
     this.config = config
+  }
+
+  url() {
+    return 'http://127.0.0.1:' + this.port
   }
 
   // Starts worker
@@ -53,7 +59,8 @@ class Worker {
   // Instructs worker to download & build GTFS
   import() {
     return new Promise((resolve, reject) => {
-      
+      log('Started Import on', this.config.prefix, this.config.version)
+      request(this.url() + '/internal/import')
     })
   }
   
