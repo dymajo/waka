@@ -1,7 +1,8 @@
-const cache = require('../cache')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
 const colors = require('colors')
+const cache = require('../cache.js')
+const log = require('../../server-common/logger.js')
 
 const regionEnum = {
   cf: 0,
@@ -174,12 +175,10 @@ const sortLines = (lines) => {
 
 const getLines = () => {
   const sqlRequest = connection.get().request()
-  sqlRequest.input('version', sql.VarChar(50), cache.currentVersion('nz-wlg'))
   sqlRequest.query(`
     SELECT
       route_short_name, route_long_name, agency_id, route_type
     FROM routes
-      where prefix = 'nz-wlg' and version = @version
     ORDER BY route_type, route_short_name
   `).then(result => {
     result.recordset.forEach((record) => {
@@ -207,10 +206,10 @@ const getLines = () => {
     })
 
     sortLines(lineGroups)
-    console.log('nz-wlg:'.green, 'Cached Lines')
+    log('nz-wlg'.magenta, 'Cached Lines')
   }).catch(err => console.warn(err))
 }
-cache.ready['nz-wlg'].push(getLines)
+cache.ready.push(getLines)
 
 module.exports = {
   lineColors: lineColors,
