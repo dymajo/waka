@@ -25,7 +25,8 @@ const defaults = {
 }
 const prefixes = {
   'nz-akl': 'Auckland',
-  'nz-wlg': 'Wellington'
+  'nz-wlg': 'Wellington',
+  'au-syd': 'Sydney'
 }
 
 const success = function(

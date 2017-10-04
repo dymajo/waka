@@ -11,7 +11,11 @@ var search = {
     if (lat < -40.6) {
       return 'nz-wlg'
     }
+    if (lng < 159){
+      return 'au-syd'
+    }
     return 'nz-akl'
+    
   },
 
   // This gets cached on launch
@@ -30,7 +34,7 @@ var search = {
         WHERE
           stops.prefix = @prefix
           and stops.version = @version
-          and location_type = 0
+          and (location_type = 0 OR location_type is NULL)
         ORDER BY
           len(stop_code),
           stop_code
@@ -76,6 +80,7 @@ var search = {
       result.recordset.forEach((stop) => {
         route_types[stop.stop_id] = stop.route_type
       })
+      console.log(result[0])
       search.stopsRouteType[prefix] = route_types
     }).catch((err) => {
       console.error(err)
@@ -97,6 +102,8 @@ var search = {
       let lonDist = req.query.distance / 65000
       let prefix = req.params.prefix === 'auto' ? search.getRegion(lat, lon) : req.params.prefix
 
+      console.log(prefix)
+
       const sqlRequest = connection.get().request()
       sqlRequest.input('prefix', sql.VarChar, prefix)
       sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
@@ -114,7 +121,7 @@ var search = {
         where 
           prefix = @prefix 
           and version = @version
-          and location_type = 0
+          and (location_type = 0 OR location_type is NULL)
           and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
           and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
       ).then((result) => {
@@ -125,7 +132,9 @@ var search = {
           return item
         }))
       }).catch((err) => {
+        console.log(err)
         res.status(500).send(err)
+        
       })
     } else {
       res.status(400).send({
@@ -149,4 +158,5 @@ var search = {
 }
 cache.ready['nz-akl'].push(() => search.getStopsRouteType('nz-akl'))
 cache.ready['nz-wlg'].push(() => search.getStopsRouteType('nz-wlg')) 
+cache.ready['au-syd'].push(() => search.getStopsRouteType('au-syd')) 
 module.exports = search

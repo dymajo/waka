@@ -42,6 +42,7 @@ var cache = {
       if (firstRun) {
         connection.isReady.then(() => {
           cache.ready['nz-wlg'].forEach(fn => fn())
+          cache.ready['au-syd'].forEach(fn => fn())
         })
       }
       
@@ -71,10 +72,11 @@ var cache = {
           tableSvc.retrieveEntity('meta', 'all', 'cache-version', function(err, result, response) {
             if (result === null) {
               console.log('building the cache for the first time')
-              importAt().then(() => {
-                console.log('Import Success')
-                runCb()
-              })
+              // importAt().then(() => {
+              //   console.log('Import Success')
+              //   runCb()
+              // })
+              runCb()
             // objects are not equal, so we need to do a cache rebuild
             // } else if (!deepEqual(cache.versions, JSON.parse(result.version._))) {
               
@@ -149,12 +151,16 @@ var cache = {
     if (prefix === 'nz-wlg') {
       return '20170918_20170914-111013'
     }
+    if (prefix === 'au-syd') {
+      return '2017102-1'
+    }
     return cache.currentVersionString
   },
 
   ready: {
     'nz-akl': [],
     'nz-wlg': [],
+    'au-syd': []
   }
 }
 

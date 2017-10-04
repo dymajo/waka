@@ -158,7 +158,11 @@ class gtfsImport {
         return arrival_time_24
       } else if (column === 'departure_time_24') {
         return departure_time_24
+      } else if (column === 'route_short_name' && row[rowSchema[column]] === ''){
+        row[rowSchema[column]] = row[rowSchema['route_long_name']].split(" ")[0]
       }
+
+
       return row[rowSchema[column]] || null
     })
   }
