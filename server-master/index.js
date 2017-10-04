@@ -13,6 +13,7 @@ const connection = require('./db/connection.js')
 async function cb() {
   await WorkerManager.load()
   await WorkerManager.startAll()
+  await WorkerManager.loadMappings()
 }
 
 connection.isReady.then(() => {
