@@ -1,3 +1,8 @@
+const connection = require('../db/connection.js')
+const sql = require('mssql')
+const cache = require('../cache.js')
+const log = require('../../server-common/logger.js')
+
 const getColor = (agency_id, code) => {
   switch(agency_id) {
   case 'AM': // Auckland Metro
@@ -409,9 +414,50 @@ const allLines = {
   '4': [['Matiatia Wharf', 'Onetangi Direct']],
 } 
 
+let lineOperators = {}
+let lineColors = {}
+
+function cacheOperatorsAndShapes() {
+  let todo = []
+  for (var key in allLines) {
+    todo.push(key)
+  }
+
+  let getOperator = function(index) {
+    if (index >= todo.length) {
+      log('nz-akl'.magenta, 'Completed Lookup of Agencies')
+      return
+    }
+    // caches the operator
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('route_short_name', sql.VarChar(50), todo[index])
+    sqlRequest.query(`
+      SELECT top(1)
+        agency_id
+      FROM routes 
+      where 
+        route_short_name = @route_short_name
+    `).then(result => {
+      // query was successful
+      if (result.recordset.length > 0) {
+        const agency_id = result.recordset[0].agency_id
+        lineColors[todo[index]] = getColor(agency_id, todo[index])
+        lineOperators[todo[index]] = agency_id
+      } else {
+        log('could not find agency for', todo[index])
+      }
+      getOperator(index + 1)
+    }).catch(err => console.warn(err))
+  }
+  getOperator(0)
+}
+// runs after initial cache get
+cache.ready.push(cacheOperatorsAndShapes)
+
 module.exports = {
-  lineColors: {},
+  lineColors: lineColors,
   lineGroups: lineGroups,
+  lineOperators: lineOperators,
   friendlyNames: friendlyNames,
   allLines: allLines,
   colorFn: getColor,

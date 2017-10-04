@@ -1,14 +1,15 @@
-const request = require('request')
 const azure = require('azure-storage')
-const cache = require('../cache')
-
-const lineDataAkl = require('./nz-akl')
-const lineDataWlg = require('./nz-wlg')
+const colors = require('colors')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
-const search = require('../stops/search.js')
 
-const colors = require('colors')
+const search = require('../stops/search.js')
+const cache = require('../cache.js')
+
+let lineData = {}
+cache.preReady.push(() => {
+  lineData = require('./' + global.config.prefix)
+})
 
 var tableSvc = azure.createTableService()
 var blobSvc = azure.createBlobService()
@@ -19,76 +20,20 @@ blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response)
   }
 })
 
-let lineOperators = {}
-
-function cacheOperatorsAndShapes(prefix = 'nz-akl') {
-  let todo = []
-  for (var key in lineDataAkl.allLines) {
-    todo.push(key)
-  }
-
-  let version = cache.currentVersion().split('_')[1]
-  let getOperator = function(index) {
-    if (index >= todo.length) {
-      console.log('nz-akl:'.green, 'Completed Lookup of Agencies')
-      return
-    }
-    // caches the operator
-    const sqlRequest = connection.get().request()
-    sqlRequest.input('prefix', sql.VarChar(50), prefix)
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion())
-    sqlRequest.input('route_short_name', sql.VarChar(50), todo[index])
-    sqlRequest.query(`
-      SELECT top(1)
-        agency_id
-      FROM routes 
-      where 
-        prefix = @prefix and
-        version = @version and
-        route_short_name = @route_short_name
-    `).then(result => {
-      // query was successful
-      if (result.recordset.length > 0) {
-        const agency_id = result.recordset[0].agency_id
-        lineDataAkl.lineColors[todo[index]] = lineDataAkl.colorFn(agency_id, todo[index])
-        lineOperators[todo[index]] = agency_id
-      } else {
-        console.warn('could not find agency for', todo[index])
-      }
-      getOperator(index + 1)
-    }).catch(err => console.warn(err))
-  }
-  getOperator(0)
-}
-// runs after initial cache get
-cache.ready['nz-akl'].push(cacheOperatorsAndShapes)
-
 var line = {
-  getColor: function(agency = 'nz-akl', route_short_name) {
-    if (agency === 'nz-wlg') {
-      return lineDataWlg.lineColors[route_short_name] || '#000'
-    }
-    return lineDataAkl.lineColors[route_short_name] || '#000'
+  getColor: function(route_short_name) {
+    return lineData.lineColors[route_short_name] || '#000'
   },
   getLines: function(req, res) {
-    res.send(line._getLines(req.params.prefix))
+    res.send(line._getLines())
   },
-  _getLines: function(prefix) {
-    if (prefix === 'nz-wlg') {
-      return {
-        friendlyNames: lineDataWlg.friendlyNames,
-        colors: lineDataWlg.lineColors,
-        groups: lineDataWlg.lineGroups,
-        lines: lineDataWlg.allLines,
-        operators: lineDataWlg.lineOperators
-      }
-    }
+  _getLines: function() {
     return {
-      friendlyNames: lineDataAkl.friendlyNames,
-      colors: lineDataAkl.lineColors,
-      groups: lineDataAkl.lineGroups,
-      lines: lineDataAkl.allLines,
-      operators: lineOperators
+      friendlyNames: lineData.friendlyNames,
+      colors: lineData.lineColors,
+      groups: lineData.lineGroups,
+      lines: lineData.allLines,
+      operators: lineData.lineOperators,
     } 
   },
   getLine: function(req, res) {
@@ -98,12 +43,10 @@ var line = {
         return res.status(500).send(err)
       }
       res.send(data)
-    }, req.params.prefix)
+    })
   },
-  _getLine(lineId, cb, prefix = 'nz-akl') {
+  _getLine(lineId, cb) {
     const sqlRequest = connection.get().request()
-    sqlRequest.input('prefix', sql.VarChar(50), prefix)
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion(prefix))
     sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
     sqlRequest.query(`
       SELECT 
@@ -116,12 +59,8 @@ var line = {
         trips.trip_headsign
       FROM routes
       LEFT JOIN trips on 
-        trips.prefix = routes.prefix and
-        trips.version = routes.version and
         trips.route_id = routes.route_id
       WHERE 
-        routes.prefix = @prefix and
-        routes.version = @version and
         routes.route_short_name = @route_short_name`).then(result => {
       const versions = {}
       const results = []
@@ -133,7 +72,7 @@ var line = {
         })
 
         // checks to make it's the right route (the whole exception thing)
-        if (line.exceptionCheck(prefix, route) === false){
+        if (line.exceptionCheck(route) === false){
           return
         }
         // make sure it's not already in the response
@@ -147,12 +86,12 @@ var line = {
           route_id: route.route_id._,
           route_long_name: route.route_long_name._,
           route_short_name: route.route_short_name._,
-          route_color: line.getColor(prefix, route.route_short_name._),
+          route_color: line.getColor(route.route_short_name._),
           shape_id: route.shape_id._,
           route_type: route.route_type._  
         }
         // if it's the best match, inserts at the front
-        if (line.exceptionCheck(prefix, route, true) === true) {
+        if (line.exceptionCheck(route, true) === true) {
           return results.unshift(result)
         }
         results.push(result)
@@ -182,8 +121,9 @@ var line = {
     })
   },
   getShapeJSON: function(req, res) {
-    let prefix = req.params.prefix
-    const containerName = encodeURIComponent((prefix+'-'+cache.currentVersion(prefix)).replace('_','-').replace('.','-'))
+    const prefix = global.config.prefix
+    const version = global.config.version
+    const containerName = encodeURIComponent((prefix+'-'+version).replace('_','-').replace('.','-'))
     const shape_id = req.params.shape_id
     const fileName = encodeURIComponent(new Buffer(shape_id).toString('base64') + '.json')
     blobSvc.getBlobToStream(containerName, fileName, res, function(blobError) {
@@ -195,12 +135,11 @@ var line = {
     })
   },
 
-  exceptionCheck: function(prefix, route, bestMatchMode = false) {
+  exceptionCheck: function(route, bestMatchMode = false) {
     let allLines
-    if (prefix === 'nz-akl') {
-      allLines = lineDataAkl.allLines
-    } else if (prefix === 'nz-wlg') {
-      allLines = lineDataWlg.allLines
+    const prefix = global.config.prefix
+    if (prefix === 'nz-akl' || prefix === 'nz-wlg') {
+      allLines = lineData.allLines
     } else {
       return true
     }
@@ -251,9 +190,6 @@ var line = {
 
   getStopsFromTrip: function(req, res){
     const sqlRequest = connection.get().request()
-    const prefix = req.params.prefix || 'nz-akl'
-    sqlRequest.input('prefix', sql.VarChar(50), prefix)
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion(prefix))
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
     sqlRequest.query(`
       SELECT 
@@ -266,27 +202,20 @@ var line = {
         stop_times.stop_sequence
       FROM stop_times
       LEFT JOIN stops
-        on stops.stop_id = stop_times.stop_id and
-        stops.prefix = stop_times.prefix and
-        stops.version = stop_times.version
+        on stops.stop_id = stop_times.stop_id
       WHERE
-        stop_times.prefix = @prefix and
-        stop_times.version = @version and
         stop_times.trip_id = @trip_id
       ORDER BY stop_sequence`
     ).then((result) => {
-      res.send(search._stopsFilter(prefix, result.recordset))
+      res.send(search._stopsFilter(result.recordset))
     }).catch((err) => {
       res.status(500).send(err)
     })
   },
   getStopsFromShape: function(req, res) {
     const sqlRequest = connection.get().request()
-    const prefix = req.params.prefix || 'nz-akl'
-    sqlRequest.input('prefix', sql.VarChar(50), prefix)
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion(prefix))
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
-    sqlRequest.query(`SELECT TOP(1) trip_id FROM trips WHERE trips.prefix = @prefix and trips.version = @version and trips.shape_id = @shape_id`).then((result) => {
+    sqlRequest.query('SELECT TOP(1) trip_id FROM trips WHERE trips.shape_id = @shape_id').then((result) => {
       let trip_id = result.recordset[0].trip_id
       req.params.trip_id =  trip_id
       line.getStopsFromTrip(req, res)

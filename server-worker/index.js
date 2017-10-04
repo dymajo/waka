@@ -3,6 +3,7 @@ const express = require('express')
 const connection = require('./db/connection.js')
 const createDb = require('./db/create.js')
 const log = require('../server-common/logger.js')
+const cache = require('./cache')
 
 log('Worker Started')
 process.on('message', function(message) {
@@ -29,6 +30,7 @@ process.on('message', function(message) {
           })
         } else {
           log('Worker Ready')
+          cache.runReady()
           process.send({type: 'ready'})
         }
       })
