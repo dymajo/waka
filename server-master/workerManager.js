@@ -44,7 +44,21 @@ const WorkerManager = {
     // set this in sql
   },
   loadMappings: function() {
-
+    // load from sql 
+  },
+  deleteMapping: function(prefix) {
+    delete WorkerManager._currentMapping[prefix]
+    // delete from sql
+  },
+  getAll: function() {
+    const ret = []
+    Object.keys(WorkerManager._workerTable).forEach((key) => {
+      const item = Object.assign({}, WorkerManager._workerTable[key])
+      item.port = WorkerManager._workerMap[key]
+      delete item.db
+      ret.push(item)
+    })
+    return ret
   },
   // adds a new worker config, saves to db
   add: function(conf) {
@@ -69,6 +83,7 @@ const WorkerManager = {
         INSERT INTO workers (prefix, version, status, startpolicy, dbconfig, dbname)
         VALUES (@prefix, @version, @status, @startpolicy, @dbconfig, @dbname)
       `).then(() => {
+        log('Added Worker', conf.prefix, conf.version)
         WorkerManager._workerTable[conf.prefix+'|'+conf.version] = conf
         resolve()
       }).catch(reject)
@@ -83,6 +98,7 @@ const WorkerManager = {
         result.recordset.forEach((item) => {
           WorkerManager._workerTable[item.prefix+'|'+item.version]  = item
         })
+        log('Loaded workers from Database')
         resolve()
       }).catch(reject)
     })
@@ -100,6 +116,7 @@ const WorkerManager = {
   // starts all the workers set to auto start
   startAll: function() {
     return new Promise((resolve, reject) => {
+      log('Starting all workers')
       let promises = []
       Object.keys(WorkerManager._workerTable).forEach((key) => {
         const item = WorkerManager._workerTable[key]
@@ -126,5 +143,24 @@ const WorkerManager = {
       }).catch(reject)
     })
   },
+  delete: function(prefix, version) {
+    return new Promise((resolve, reject) => {
+      // stops it, if startedw
+      if (typeof WorkerManager.getPort(prefix, version) !== 'undefined') {
+        WorkerManager.stop(prefix, version)
+      }
+
+      // delete in sql
+      delete WorkerManager._workerTable[prefix+'|'+version]
+
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('prefix', sql.VarChar(50), prefix)
+      sqlRequest.input('version', sql.VarChar(50), version)
+      sqlRequest.query('delete from workers where prefix = @prefix and version = @version').then((result) => {
+        log('Deleted Worker', prefix, version)
+        resolve(result)
+      }).catch(reject)
+    })
+  }
 }
 module.exports = WorkerManager
