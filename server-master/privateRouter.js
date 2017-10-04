@@ -59,5 +59,29 @@ router.post('/worker/delete', function(req, res) {
     res.status(500).send(err)
   })
 })
+router.get('/mapping', function(req, res) {
+  res.send(WorkerManager.getAllMappings())
+})
+router.post('/mapping/load', function(req, res) {
+  WorkerManager.loadMappings().then(() => {
+    res.send('Loaded mappings.')
+  }).catch((err) => {
+    res.status(500).send(err)
+  })
+})
+router.post('/mapping/set', function(req, res) {
+  WorkerManager.setMapping(req.body.prefix, req.body.version).then(() => {
+    res.send('Mapped Worker.')
+  }).catch((err) => {
+    res.status(500).send(err)
+  })
+})
+router.post('/mapping/delete', function(req, res) {
+  WorkerManager.deleteMapping(req.body.prefix).then(() => {
+    res.send('Deleted mapping.')
+  }).catch((err) => {
+    res.status(500).send(err)
+  })
+})
 
 module.exports = router

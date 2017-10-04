@@ -39,16 +39,55 @@ const WorkerManager = {
     }
     return 404
   },
+  getAllMappings: function() {
+    return WorkerManager._currentMapping
+  },
   setMapping: function(prefix, version) {
-    WorkerManager._currentMapping[prefix] = prefix + '|' + version
-    // set this in sql
+    return new Promise((resolve, reject) => {
+      // sets in db
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('prefix', sql.VarChar(50), prefix)
+      sqlRequest.input('version', sql.VarChar(50), version)
+      sqlRequest.query(`
+        delete from mappings where prefix = @prefix
+        insert into mappings (prefix, worker_id)
+          select @prefix, id from workers where prefix = @prefix and version = @version
+      `).then(() => {
+        WorkerManager._currentMapping[prefix] = prefix + '|' + version
+        log('Mapped', prefix, 'to', version)
+        resolve()
+      }).catch(reject)
+    })
   },
   loadMappings: function() {
-    // load from sql 
+    // load from sql
+    return new Promise((resolve, reject) => {
+      const sqlRequest = connection.get().request()
+      sqlRequest.query(`
+        select mappings.prefix as defaultmapping, workers.prefix, workers.version
+          from mappings
+        left join workers
+          on mappings.worker_id = workers.id
+      `).then((result) => {
+        const mappings = {}
+        result.recordset.forEach((row) => {
+          mappings[row.defaultmapping] = row.prefix+'|'+row.version
+        })
+        WorkerManager._currentMapping = mappings
+        log('Loaded mappings from database')
+        resolve()
+      }).catch(reject)
+    })
   },
   deleteMapping: function(prefix) {
-    delete WorkerManager._currentMapping[prefix]
-    // delete from sql
+    return new Promise((resolve, reject) => {
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('prefix', sql.VarChar(50), prefix)
+      sqlRequest.query('delete from mappings where prefix = @prefix').then(() => {
+        delete WorkerManager._currentMapping[prefix]
+        resolve()
+      }).catch(reject)
+    })
   },
   getAll: function() {
     const ret = []
@@ -151,12 +190,16 @@ const WorkerManager = {
       }
 
       // delete in sql
+      const dbname = WorkerManager._workerTable[prefix+'|'+version].dbname
       delete WorkerManager._workerTable[prefix+'|'+version]
 
       const sqlRequest = connection.get().request()
       sqlRequest.input('prefix', sql.VarChar(50), prefix)
       sqlRequest.input('version', sql.VarChar(50), version)
-      sqlRequest.query('delete from workers where prefix = @prefix and version = @version').then((result) => {
+      sqlRequest.query(`
+        drop database ${dbname}
+        delete from workers where prefix = @prefix and version = @version`
+      ).then((result) => {
         log('Deleted Worker', prefix, version)
         resolve(result)
       }).catch(reject)

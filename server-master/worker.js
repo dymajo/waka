@@ -61,6 +61,7 @@ class Worker {
   import(mode) {
     return new Promise((resolve, reject) => {
       log('Started Import on', this.config.prefix, this.config.version)
+      // go to sql, update the db
       request(this.url() + '/internal/import/' + mode)
     })
   }
