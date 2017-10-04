@@ -2,7 +2,7 @@ const path = require('path')
 const child_process = require('child_process')
 const sql = require('mssql')
 const request = require('request')
-const connection = require('./connection.js')
+const connection = require('./db/connection.js')
 const child = path.join(__dirname, '../server-worker/index.js')
 const log = require('../server-common/logger.js')
 
@@ -49,7 +49,8 @@ class Worker {
   // Stops worker
   stop() {
     return new Promise((resolve, reject) => {
-      this.process.on('exit', function() {
+      this.process.on('exit', () => {
+        log('Stopped Worker', this.config.prefix, this.config.version)
         resolve()
       })
       this.process.kill('SIGINT')

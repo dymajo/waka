@@ -5,60 +5,34 @@ const httpProxy = require('http-proxy')
 
 const WorkerManager = require('./workerManager.js')
 const privateRouter = require('./privateRouter.js')
+const createDb = require('./db/create.js')
 
 const log = require('../server-common/logger.js')
-const connection = require('./connection.js')
+const connection = require('./db/connection.js')
 
-const dbConfig = {
-  user: 'node',
-  password: 'node',
-  server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
-  database: 'Transit',
-  transactionLimit: 10000, // 5000 is good for azure, 100,000 seems to be fine for Local SQL Express
-  connectionTimeout: 60000,
-  requestTimeout: 60000
+async function cb() {
+  await WorkerManager.load()
+  await WorkerManager.startAll()
 }
-
-const mapper = {
-  'nz-akl': {
-    prefix: 'nz-akl',
-    version: '20170928161545_v59.4'
-  },
-  'nz-akl2': {
-    prefix: 'nz-akl',
-    version: '20170928152758_v59.3'
-  },
-  'nz-wlg': {
-    prefix: 'nz-wlg',
-    version: '20170828_20170808-090059'
-  }
-}
-mapper['nz-akl'].db = JSON.parse(JSON.stringify(dbConfig))
-mapper['nz-akl'].db.database =
-  mapper['nz-akl'].prefix.replace(/-/g, '_') +
-  '_' +
-  mapper['nz-akl'].version.replace(/-/g, '_').replace(/\./g, '_')
-mapper['nz-akl2'].db = JSON.parse(JSON.stringify(dbConfig))
-mapper['nz-akl2'].db.database =
-  mapper['nz-akl2'].prefix.replace(/-/g, '_') +
-  '_' +
-  mapper['nz-akl2'].version.replace(/-/g, '_').replace(/\./g, '_')
-mapper['nz-wlg'].db = JSON.parse(JSON.stringify(dbConfig))
-mapper['nz-wlg'].db.database =
-  mapper['nz-wlg'].prefix.replace(/-/g, '_') +
-  '_' +
-  mapper['nz-wlg'].version.replace(/-/g, '_').replace(/\./g, '_')
 
 connection.isReady.then(() => {
-  WorkerManager.add(mapper['nz-akl2'])
-  WorkerManager.add(mapper['nz-akl']).then(() => {
-    // sets the default version
-    WorkerManager.setMapping(mapper['nz-akl'].prefix, mapper['nz-akl'].version)
+  log('Connected to Database')
+  const sqlRequest = connection.get().request()
+  sqlRequest.query(`
+    select OBJECT_ID('workers', 'U') as 'dbcreated'
+  `).then((data) => {
+    if (data.recordset[0].dbcreated === null) {
+      const creator = new createDb()
+      creator.start().then(cb()).catch((err) => {
+        log(err)
+      })
+    } else {
+      cb()
+    }
+  }).catch((err) => {
+    log(err)
   })
-  WorkerManager.add(mapper['nz-wlg']).then(() => {
-    // sets the default version
-    WorkerManager.setMapping(mapper['nz-akl'].prefix, mapper['nz-akl'].version)
-  })
+  
 })
 
 const proxy = httpProxy.createProxyServer({

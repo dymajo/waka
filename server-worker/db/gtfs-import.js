@@ -5,7 +5,6 @@ const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 const fs = require('fs')
 const path = require('path')
-const appConfig = require('../../config.js')
 const log = require('../../server-common/logger.js')
 
 const schemas = {
@@ -199,7 +198,7 @@ class gtfsImport {
         }
 
         // assembles our CSV into JSON
-        if (transactions < appConfig.transactionLimit) {
+        if (transactions < global.config.db.transactionLimit) {
           processRow()
           callback(null)
         } else {
