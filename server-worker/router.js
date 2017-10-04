@@ -13,19 +13,26 @@ const signature = function() {
 router.get('/a/info', function(req, res) {
   res.send(signature())
 })
-router.get('/internal/import', function(req, res) {
-  log('Started Import')
+router.get('/internal/import/:mode', function(req, res) {
   res.send()
 
   const importer = new importers()
-  importer.start().then(() => {
+  const cb = () => {
     request({
       method: 'POST',
       uri: 'http://127.0.0.1:8001/import-complete',
       json: true,
       body: signature()
     })
-  })
+  }
+  if (req.params.mode === 'all') {
+    log('Started Import of All')
+    importer.start().then(cb)
+  } else if (req.params.mode === 'db') {
+    importer.db().then(cb)
+  } else if (req.params.mode === 'shapes') {
+    importer.shapes().then(cb)
+  }
 })
 
 module.exports = router

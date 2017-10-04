@@ -3,6 +3,7 @@ const path = require('path')
 const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 const colors = require('colors')
+const log = require('../../server-common/logger.js')
 
 const azure = require('azure-storage')
 const blobSvc = azure.createBlobService()
@@ -38,13 +39,13 @@ class createShapes {
           parseFloat(row[headers['shape_pt_lat']]),
         ])
         total++
-        if (total % 50000 === 0) {
-          console.log('Parsed', total, 'Points')
+        if (total % 100000 === 0) {
+          log('Parsed', total, 'Points')
         }
 
         return callback(null)
       }).on('finish', () => {
-        console.log('Created Shapes. Writing to disk...')
+        log('Created Shapes. Writing to disk...')
         Object.keys(output).forEach((key) => {
           let subfolder = (versions.length === 1 ? versions[0] : versions[0] + '-extra')
           versions.forEach((version) => {
@@ -58,13 +59,13 @@ class createShapes {
           }
           fs.writeFileSync(path.resolve(dir, `${new Buffer(key).toString('base64')}.json`), JSON.stringify(output[key]))
         })
-        console.log('Written to disk!')
+        log('Written to disk!')
         resolve()
       }).on('error', () => {
         reject()
       })
 
-      console.log('Building Shapes')
+      log('Building Shapes')
       input.pipe(parser).pipe(transformer)
     })
   }
@@ -73,7 +74,7 @@ class createShapes {
       let total = 0
       const uploadSingle = function(files, index, callback) {
         if (index === files.length) {
-          console.log(container.green +':', 'Upload Complete!', total, 'Shapes.')
+          log(container.magenta +':', 'Upload Complete!', total, 'Shapes.')
           return resolve()
         }
 
@@ -81,11 +82,11 @@ class createShapes {
         const fileLocation = path.resolve(directory, fileName)
         blobSvc.createBlockBlobFromLocalFile(container, encodeURIComponent(fileName), fileLocation, function(error) {
           if (error) {
-            console.error(container.green+':', 'Could not upload shape.', error)
+            console.error(container.magenta+':', 'Could not upload shape.', error)
           }
           total++
           if (total % 100 === 0) {
-            console.log(container.green+':', 'Uploaded', total, 'Shapes.')
+            log(container.magenta+':', 'Uploaded', total, 'Shapes.')
           }
           callback(files, index+1, callback)
         })
@@ -95,7 +96,7 @@ class createShapes {
         if (error) {
           throw error
         }
-        console.log(container.green +':', 'Blob Container Created.')
+        log(container.magenta +':', 'Blob Container Created.')
         fs.readdir(directory, function(err, files) {
           if (err) {
             console.error(err)

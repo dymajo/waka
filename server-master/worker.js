@@ -57,10 +57,10 @@ class Worker {
   }
 
   // Instructs worker to download & build GTFS
-  import() {
+  import(mode) {
     return new Promise((resolve, reject) => {
       log('Started Import on', this.config.prefix, this.config.version)
-      request(this.url() + '/internal/import')
+      request(this.url() + '/internal/import/' + mode)
     })
   }
   
