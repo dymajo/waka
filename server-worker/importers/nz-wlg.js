@@ -1,6 +1,6 @@
 const path = require('path')
 module.exports = {
-  zipLocation: path.join(__dirname, '../../cache/at.zip'),
+  zipLocation: path.join(__dirname, '../../cache/metlink.zip'),
   files: [
     {
       name: 'agency.txt',
@@ -10,32 +10,32 @@ module.exports = {
     {
       name: 'stops.txt',
       table: 'stops',
-      versioned: true,
+      versioned: false,
     },
     {
       name: 'routes.txt',
       table: 'routes',
-      versioned: true,
+      versioned: false,
     },
     {
       name: 'trips.txt',
       table: 'trips',
-      versioned: true,
+      versioned: false,
     },
     {
       name: 'stop_times.txt',
       table: 'stop_times',
-      versioned: true,
+      versioned: false,
     },
     {
       name: 'calendar.txt',
       table: 'calendar',
-      versioned: true,
+      versioned: false,
     },
     {
       name: 'calendar_dates.txt',
       table: 'calendar_dates',
-      versioned: true,
+      versioned: false,
     },
   ],
   shapeFile: 'shapes.txt'

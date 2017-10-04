@@ -1,6 +1,7 @@
 const log = require('../server-common/logger.js')
 const router = require('express').Router()
 const request = require('request')
+const importers = require('./importers/index.js')
 
 const signature = function() {
   return {
@@ -16,7 +17,7 @@ router.get('/internal/import', function(req, res) {
   log('Started Import')
   res.send()
 
-  const importer = new (require('./importers/nz-akl.js'))()
+  const importer = new importers()
   importer.start().then(() => {
     request({
       method: 'POST',
