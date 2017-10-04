@@ -6,26 +6,27 @@ const transform = require('stream-transform')
 const fs = require('fs')
 const path = require('path')
 const appConfig = require('../../config.js')
+const log = require('../../server-common/logger.js')
 
 const schemas = {
-  agency: ['prefix', 'version', 'agency_id', 'agency_name', 'agency_url', 'agency_timezone', 'agency_lang', 'agency_phone', 'agency_fare_url', 'agency_email'],
-  stops: ['prefix','version','stop_id','stop_code','stop_name','stop_desc','stop_lat','stop_lon','zone_id','stop_url','location_type','parent_station','stop_timezone','wheelchair_boarding'],
-  routes: ['prefix','version','route_id','agency_id','route_short_name','route_long_name','route_desc','route_type','route_url','route_color','route_text_color'],
-  trips: ['prefix','version','route_id','service_id','trip_id','trip_headsign','trip_short_name','direction_id','block_id','shape_id','wheelchair_accessible','bikes_allowed'],
-  stop_times: ['prefix', 'version', 'trip_id', 'arrival_time', 'departure_time', 'arrival_time_24', 'departure_time_24', 'stop_id', 'stop_sequence', 'stop_headsign', 'pickup_type', 'drop_off_type', 'shape_dist_traveled', 'timepoint'],
-  calendar: ['prefix','version','service_id','monday','tuesday','wednesday','thursday','friday','saturday','sunday','start_date','end_date'],
-  calendar_dates: ['prefix','version','service_id','date','exception_type'],
+  agency: ['agency_id', 'agency_name', 'agency_url', 'agency_timezone', 'agency_lang', 'agency_phone', 'agency_fare_url', 'agency_email'],
+  stops: ['stop_id','stop_code','stop_name','stop_desc','stop_lat','stop_lon','zone_id','stop_url','location_type','parent_station','stop_timezone','wheelchair_boarding'],
+  routes: ['route_id','agency_id','route_short_name','route_long_name','route_desc','route_type','route_url','route_color','route_text_color'],
+  trips: ['route_id','service_id','trip_id','trip_headsign','trip_short_name','direction_id','block_id','shape_id','wheelchair_accessible','bikes_allowed'],
+  stop_times: ['trip_id', 'arrival_time', 'departure_time', 'arrival_time_24', 'departure_time_24', 'stop_id', 'stop_sequence', 'stop_headsign', 'pickup_type', 'drop_off_type', 'shape_dist_traveled', 'timepoint'],
+  calendar: ['service_id','monday','tuesday','wednesday','thursday','friday','saturday','sunday','start_date','end_date'],
+  calendar_dates: ['service_id','date','exception_type'],
 }
 
 class gtfsImport {
   unzip(location) {
     return new Promise(function(resolve, reject) {
-      console.info('Unzipping GTFS Data')
+      log('Unzipping GTFS Data')
       extract(location, {dir: path.resolve(location + 'unarchived')}, function (err) {
         if (err) {
           return reject(err)
         }
-        console.info('Unzip Success!')
+        log('Unzip Success!')
         resolve()
       })
     })
@@ -34,8 +35,6 @@ class gtfsImport {
   getTable(name) {
     const table = new sql.Table(name)
     if (name === 'agency') {
-      table.columns.add('prefix', sql.VarChar(50), {nullable: false})
-      table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('agency_id', sql.VarChar(50), {nullable: false})
       table.columns.add('agency_name', sql.VarChar(100), {nullable: false})
       table.columns.add('agency_url', sql.VarChar(100), {nullable: false})
@@ -45,8 +44,6 @@ class gtfsImport {
       table.columns.add('agency_fare_url', sql.VarChar(100), {nullable: true})
       table.columns.add('agency_email', sql.VarChar(50), {nullable: true})
     } else if (name === 'stops') {
-      table.columns.add('prefix', sql.VarChar(50), {nullable: false})
-      table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('stop_id', sql.VarChar(100), {nullable: false})
       table.columns.add('stop_code', sql.VarChar(50), {nullable: true})
       table.columns.add('stop_name', sql.VarChar(100), {nullable: false})
@@ -60,8 +57,6 @@ class gtfsImport {
       table.columns.add('stop_timezone', sql.VarChar(100), {nullable: true})
       table.columns.add('wheelchair_boarding', sql.Int, {nullable: true})
     } else if (name === 'routes') {
-      table.columns.add('prefix', sql.VarChar(50), {nullable: false})
-      table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('route_id', sql.VarChar(100), {nullable: false})
       table.columns.add('agency_id', sql.VarChar(100), {nullable: true})
       table.columns.add('route_short_name', sql.VarChar(50), {nullable: false})
@@ -72,8 +67,6 @@ class gtfsImport {
       table.columns.add('route_color', sql.VarChar(50), {nullable: true})
       table.columns.add('route_text_color', sql.VarChar(50), {nullable: true})
     } else if (name === 'trips') {
-      table.columns.add('prefix', sql.VarChar(50), {nullable: false})
-      table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('route_id', sql.VarChar(100), {nullable: false})
       table.columns.add('service_id', sql.VarChar(100), {nullable: false})
       table.columns.add('trip_id', sql.VarChar(100), {nullable: false})
@@ -85,8 +78,6 @@ class gtfsImport {
       table.columns.add('wheelchair_accessible', sql.Int, {nullable: true})
       table.columns.add('bikes_allowed', sql.Int, {nullable: true})
     } else if (name === 'stop_times') {
-      table.columns.add('prefix', sql.VarChar(50), {nullable: false})
-      table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('trip_id', sql.VarChar(100), {nullable: false})
       table.columns.add('arrival_time', sql.Time(0), {nullable: false})
       table.columns.add('departure_time', sql.Time(0), {nullable: false})
@@ -100,8 +91,6 @@ class gtfsImport {
       table.columns.add('shape_dist_traveled', sql.VarChar(50), {nullable: true})
       table.columns.add('timepoint', sql.Int, {nullable: true})
     } else if (name === 'calendar') {
-      table.columns.add('prefix', sql.VarChar(50), {nullable: false})
-      table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('service_id', sql.VarChar(100), {nullable: false})
       table.columns.add('monday', sql.Bit, {nullable: false})
       table.columns.add('tuesday', sql.Bit, {nullable: false})
@@ -113,8 +102,6 @@ class gtfsImport {
       table.columns.add('start_date', sql.Date, {nullable: false})
       table.columns.add('end_date', sql.Date, {nullable: false})
     } else if (name === 'calendar_dates') {
-      table.columns.add('prefix', sql.VarChar(50), {nullable: false})
-      table.columns.add('version', sql.VarChar(50), {nullable: false})
       table.columns.add('service_id', sql.VarChar(100), {nullable: false})
       table.columns.add('date', sql.Date, {nullable: false})
       table.columns.add('exception_type', sql.Int, {nullable: false})
@@ -163,11 +150,11 @@ class gtfsImport {
     })
   }
 
-  upload(location, config, prefix, version, ignoreVersion) {
+  upload(location, config, version, containsVersion) {
     let table = this.getTable(config.table)
     if (table === null) return
 
-    const logstr = config.table + ' ' + prefix + ' :'
+    const logstr = config.table.toString().magenta
 
     return new Promise((resolve, reject) => {
       const input = fs.createReadStream(path.resolve(location, config.name))
@@ -198,30 +185,9 @@ class gtfsImport {
         const processRow = () => {
           if (row && row.length > 1) {
             const record = this._mapRowToRecord(row, headers, schemas[config.table])
-            record[0] = prefix
 
-            // fancy mappings for multiple versions in one file
-            if (typeof version === 'object') {
-              const joined = record.join(',')
-              record[1] = null
-              version.forEach(v => {
-                if (joined.match(v) !== null) {
-                  record[1] = v
-                }
-              })
-              if (record[1] === null) {
-                if (record[0] === 'nz-akl' && joined.match('_v') !== null) {
-                  return
-                } else {
-                  record[1] = version[0]
-                }
-              }
-            } else {
-              record[1] = version
-            }
-
-            // if it's already uploaded, don't reupload the row
-            if (ignoreVersion.indexOf(record[1]) !== -1) {
+            // check if the row is versioned, and whether to upload it
+            if (containsVersion && record.join(',').match(version) === null) {
               return 
             }
 
@@ -237,9 +203,9 @@ class gtfsImport {
           processRow()
           callback(null)
         } else {
-          console.log(logstr, totalTransactions/1000 + 'k Transactions')
+          log(logstr, totalTransactions/1000 + 'k Rows')
           commit(table).then(() => {
-            console.log(logstr, 'Committed.')
+            log(logstr, 'Transaction Committed.')
             transactions = 0
 
             table = this.getTable(config.table)
@@ -256,9 +222,9 @@ class gtfsImport {
         if (transactionsStr > 1000) {
           transactionsStr = Math.round(transactionsStr/1000) + 'k'
         }
-        console.log(logstr, transactionsStr, 'Transactions')
+        log(logstr, transactionsStr, 'Rows')
         commit(table).then(() => {
-          console.log(logstr, 'Committed.')
+          log(logstr, 'Transaction Committed.')
           resolve()
         })
       })

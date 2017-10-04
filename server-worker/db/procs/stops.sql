@@ -14,3 +14,5 @@ CREATE TABLE stops (
   wheelchair_boarding int,
   CONSTRAINT uc_Stops UNIQUE (stop_id)
 )
+CREATE NONCLUSTERED INDEX id_Stops
+ON stops (stop_code)
