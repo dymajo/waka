@@ -17,5 +17,30 @@ router.post('/import-complete', function(req, res) {
   log('client import complete', req.body)
   res.send('Thanks!')
 })
+router.post('/worker/add', function(req, res) {
+  WorkerManager.add(req.body)
+  res.send('Added worker.')
+})
+router.post('/worker/start', function(req, res) {
+  WorkerManager.start(req.body.prefix, req.body.version).then(() => {
+    res.send('Started Worker.')
+  }).catch((err) => {
+    res.status(500).send(err)
+  })
+})
+router.post('/worker/startall', function(req, res) {
+  WorkerManager.startAll().then(() => {
+    res.send('Started All Auto Workers.')
+  }).catch((err) => {
+    res.status(500).send(err)
+  })
+})
+router.post('/worker/stop', function(req, res) {
+  WorkerManager.stop(req.body.prefix, req.body.version).then(() => {
+    res.send('Stopped Worker.')
+  }).catch((err) => {
+    res.status(500).send(err)
+  })
+})
 
 module.exports = router

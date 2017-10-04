@@ -7,7 +7,10 @@ const connection = {
   },
   open: () => {
     pool1 = new sql.ConnectionPool(global.config.db, err => {
-      if (err) connection.reject()
+      if (err) {
+        console.error(err)
+        return connection.reject()
+      }
       connection.resolve()
     })
     return ready
