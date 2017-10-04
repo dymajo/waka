@@ -17,9 +17,19 @@ router.post('/import-complete', function(req, res) {
   log('client import complete', req.body)
   res.send('Thanks!')
 })
+router.get('/worker', function(req, res) {
+  const data = WorkerManager.getAll()
+  res.send(data)
+})
 router.post('/worker/add', function(req, res) {
-  WorkerManager.add(req.body)
-  res.send('Added worker.')
+  WorkerManager.add(req.body).then(() => {
+    res.send('Added worker.')
+  })
+})
+router.post('/worker/load', function(req, res) {
+  WorkerManager.load().then(() => {
+    res.send('Loaded workers')
+  })
 })
 router.post('/worker/start', function(req, res) {
   WorkerManager.start(req.body.prefix, req.body.version).then(() => {
@@ -38,6 +48,13 @@ router.post('/worker/startall', function(req, res) {
 router.post('/worker/stop', function(req, res) {
   WorkerManager.stop(req.body.prefix, req.body.version).then(() => {
     res.send('Stopped Worker.')
+  }).catch((err) => {
+    res.status(500).send(err)
+  })
+})
+router.post('/worker/delete', function(req, res) {
+  WorkerManager.delete(req.body.prefix, req.body.version).then(() => {
+    res.send('Deleted Worker.')
   }).catch((err) => {
     res.status(500).send(err)
   })
