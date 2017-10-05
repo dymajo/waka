@@ -189,7 +189,7 @@ var realtime = {
       try {
         body = JSON.parse(body)  
       } catch(err) {
-        console.log('rt error', err)
+        console.error('rt error', err)
         return res.send({
           error: err
         })
@@ -211,5 +211,5 @@ var realtime = {
         
   }
 }
-cache.ready['nz-akl'].push(realtime.schedulePull)
+cache.ready.push(realtime.schedulePull)
 module.exports = realtime

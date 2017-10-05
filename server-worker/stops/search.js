@@ -1,16 +1,9 @@
-// const cache = require('../cache')
+const cache = require('../cache')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
 const wlg = require('./nz-wlg.js')
 
 var search = {
-  getRegion(lat, lng) {
-    if (lat < -40.6) {
-      return 'nz-wlg'
-    }
-    return 'nz-akl'
-  },
-
   _stopsFilter(recordset, mode) {
     const prefix = global.config.prefix
     if (prefix === 'nz-wlg') {
@@ -124,6 +117,5 @@ var search = {
     }
   }
 }
-// cache.ready['nz-akl'].push(() => search.getStopsRouteType('nz-akl'))
-// cache.ready['nz-wlg'].push(() => search.getStopsRouteType('nz-wlg')) 
+cache.ready.push(() => search.getStopsRouteType)
 module.exports = search

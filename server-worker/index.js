@@ -1,5 +1,7 @@
 const colors = require('colors')
 const express = require('express')
+const bodyParser = require('body-parser')
+
 const connection = require('./db/connection.js')
 const createDb = require('./db/create.js')
 const log = require('../server-common/logger.js')
@@ -39,6 +41,7 @@ process.on('message', function(message) {
 })
 
 const app = express()
+app.use(bodyParser.json())
 const listener = app.listen(0, function() {
   process.send({type: 'portbroadcast', data: listener.address().port})
 })

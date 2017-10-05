@@ -1,15 +1,23 @@
 const moment = require('moment-timezone')
-const cache = require('../cache')
 const line = require('../lines/index')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
-const realtime = require('../realtime/nz-akl.js')
 const wlg = require('./nz-wlg.js')
+const cache = require('../cache.js')
+
+let rtFn = function() {
+  return {}
+}
+cache.preReady.push(() => {
+  if (global.config.prefix === 'nz-akl') {
+    rtFn = require('../realtime/nz-akl.js').getTripsCachedAuckland
+  }
+})
 
 var station = {
   stopInfo: function(req, res) {
     if (req.params.station) {
-      station._stopInfo(req.params.station, req.params.prefix || 'nz-akl').then(function(data) {
+      station._stopInfo(req.params.station).then(function(data) {
         res.send(data)
       }).catch(function(err) {
         res.status(404).send(err)  
@@ -20,24 +28,21 @@ var station = {
       })
     }
   },
-  _stopInfo: function(stop, prefix) {
+  _stopInfo: function(stop) {
     return new Promise(function(resolve, reject) {
       stop = stop.trim()
 
       // returns data
       let override = false
-      if (prefix === 'nz-wlg' && wlg.badStops.indexOf(stop) > -1) {
+      if (global.config.prefix === 'nz-wlg' && wlg.badStops.indexOf(stop) > -1) {
         override = stop
         stop = stop + '1'
       }
 
       const sqlRequest = connection.get().request()
-      sqlRequest.input('prefix', sql.VarChar, prefix)
-      sqlRequest.input('version', sql.VarChar, cache.currentVersion(prefix))
       sqlRequest.input('stop_id', sql.VarChar, stop)
       sqlRequest.query(`
         SELECT 
-          stops.prefix as stop_region,
           stops.stop_code as stop_id, 
           stops.stop_name,
           stops.stop_desc,
@@ -53,22 +58,19 @@ var station = {
           stops
         LEFT JOIN
           stop_times
-        ON stop_times.uid = (
-            SELECT TOP 1 uid 
+        ON stop_times.id = (
+            SELECT TOP 1 id 
             FROM    stop_times
             WHERE 
-            stop_times.prefix = stops.prefix and
-            stop_times.version = stops.version and
             stop_times.stop_id = stops.stop_id
         )
         LEFT JOIN trips ON trips.trip_id = stop_times.trip_id
         LEFT JOIN routes on routes.route_id = trips.route_id
         WHERE
-          stops.prefix = @prefix
-          and stops.version = @version
-          and stops.stop_code = @stop_id
+          stops.stop_code = @stop_id
       `).then((result) => {
         const data = result.recordset[0]
+        data.prefix = global.config.prefix
         delete data.uid
         if (override) {
           data.stop_id = override
@@ -88,14 +90,12 @@ var station = {
     //   fastData = true
     // }
     if (!req.params.station) {
-      console.log(req.params.station)
       return res.status(404).send({
         'error': 'please x specify a station'
       })
     }
 
     req.params.station = req.params.station.trim()
-    const prefix = req.params.prefix || 'nz-akl'
     
     let sending = {
       provider: 'sql-server'
@@ -117,14 +117,12 @@ var station = {
 
     // combines train stations platforms together
     let procedure = 'GetStopTimes'
-    if (prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
+    if (global.config.prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
       procedure = 'GetMultipleStopTimes'
     }
 
     const realtimeTrips = []
     connection.get().request()
-      .input('prefix', sql.VarChar(50), prefix)
-      .input('version', sql.VarChar(50), cache.currentVersion(prefix))
       .input('stop_id', sql.VarChar(100), req.params.station)
       .input('departure_time', sql.Time, currentTime)
       .input('date', sql.Date, today)
@@ -140,7 +138,7 @@ var station = {
             record.departure_time_seconds += 86400
           }
 
-          record.route_color = line.getColor(prefix, record.route_short_name)
+          record.route_color = line.getColor(record.route_short_name)
 
           // 30mins of realtime 
           if (record.departure_time_seconds < (sending.currentTime + 1800) || record.departure_time_24) {
@@ -153,13 +151,9 @@ var station = {
           delete record.departure_time_24
           return record
         })
-        if (prefix === 'nz-akl') {
-          sending.realtime = realtime.getTripsCachedAuckland(realtimeTrips) 
-          res.send(sending)
-        } else {
-          res.send(sending)
-        }
 
+        sending.realtime = rtFn(realtimeTrips) 
+        res.send(sending)
         
       }).catch(function(err) {
         res.status(500).send(err)
@@ -170,8 +164,6 @@ var station = {
       return res.status(400).send({error: 'Direction is not valid.'})
     }
     let sending = {}
-    const prefix = req.params.prefix || 'nz-akl'
-    const currentVersion = cache.currentVersion(prefix)
 
     const time = moment().tz('Pacific/Auckland')
 
@@ -182,13 +174,11 @@ var station = {
 
     // combines train stations platforms together
     let procedure = 'GetTimetable'
-    if (prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
+    if (global.config.prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
       procedure = 'GetMultipleTimetable'
     }
 
     connection.get().request()
-      .input('prefix', sql.VarChar(50), prefix)
-      .input('version', sql.VarChar(50), currentVersion)
       .input('stop_id', sql.VarChar(100), req.params.station)
       .input('route_short_name', sql.VarChar(50), req.params.route)
       .input('date', sql.Date, today)
@@ -202,7 +192,7 @@ var station = {
           }
           record.departure_time_seconds = record.arrival_time_seconds
 
-          record.route_color = line.getColor(prefix, req.params.route)
+          record.route_color = line.getColor(req.params.route)
 
           delete record.arrival_time
           delete record.arrival_time_24

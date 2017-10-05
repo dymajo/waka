@@ -37,7 +37,6 @@ connection.isReady.then(() => {
 })
 
 const publicApp = express()
-publicApp.use(bodyParser.json())
 publicApp.use(publicRouter)
 publicApp.listen(8000)
 log('Public API Started on Port 8000')

@@ -3,7 +3,10 @@ const router = require('express').Router()
 const request = require('request')
 
 const importers = require('./importers/index.js')
+const station = require('./stops/station.js')
+const search = require('./stops/search.js')
 const line = require('./lines/index.js')
+const realtime = new (require('./realtime/index.js'))
 
 const signature = function() {
   return {
@@ -15,12 +18,20 @@ router.get('/a/info', function(req, res) {
   res.send(signature())
 })
 
+router.get('/a/station', station.stopInfo)
+router.get('/a/station/search', search.getStopsLatLng)
+router.get('/a/station/:station', station.stopInfo)
+router.get('/a/station/:station/times', station.stopTimes)
+router.get('/a/station/:station/times/:fast', station.stopTimes)
+router.get('/a/station/:station/timetable/:route/:direction', station.timetable)
 router.get('/a/lines', line.getLines)
 router.get('/a/line/:line', line.getLine)
 router.get('/a/stops/trip/:trip_id', line.getStopsFromTrip)
 router.get('/a/stops/shape/:shape_id', line.getStopsFromShape)
 router.get('/a/shape/:shape_id', line.getShape)
 router.get('/a/shapejson/:shape_id', line.getShapeJSON)
+router.post('/a/realtime', realtime.stopInfo)
+router.post('/a/vehicle_location', realtime.vehicleLocation)
 
 router.get('/internal/import/:mode', function(req, res) {
   res.send()
