@@ -34,14 +34,4 @@ router.post('/realtime', realtime.stopInfo)
 router.post('/vehicle_location', realtime.vehicleLocation)
 router.post('/email', email.sendEmail)
 
-// NEW API V2
-router.get('/:prefix/station', station.stopInfo)
-router.get('/:prefix/station/search', search.getStopsLatLng)
-router.get('/:prefix/station/:station', station.stopInfo)
-router.get('/:prefix/station/:station/times', station.stopTimes)
-router.get('/:prefix/station/:station/times/:fast', station.stopTimes)
-router.get('/:prefix/station/:station/timetable/:route/:direction', station.timetable)
-router.post('/:prefix/realtime', realtime.stopInfo)
-router.post('/:prefix/vehicle_location', realtime.vehicleLocation)
-
 module.exports = router
