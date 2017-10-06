@@ -1,19 +1,17 @@
 const router = require('express').Router()
 const pug = require('pug')
+const request = require('request')
+const server = 'http://localhost:8000/a'
 
-const template = {
-  layout: pug.compileFile('server/templates/layout.pug'),
-  notFound: pug.compileFile('server/templates/404.pug'),
-  stations: pug.compileFile('server/templates/stations.pug'),
-  stationsRegion: pug.compileFile('server/templates/stations-region.pug'),
-  lines: pug.compileFile('server/templates/lines.pug'),
-  linesRegion: pug.compileFile('server/templates/lines-region.pug')
-}
-
-const station = require('../stops/station.js')
-const search = require('../stops/search.js')
-const line = require('../lines/index.js')
 const manifest = require('../../dist/assets.json')
+const template = {
+  layout: pug.compileFile('server-static/templates/layout.pug'),
+  notFound: pug.compileFile('server-static/templates/404.pug'),
+  stations: pug.compileFile('server-static/templates/stations.pug'),
+  stationsRegion: pug.compileFile('server-static/templates/stations-region.pug'),
+  lines: pug.compileFile('server-static/templates/lines.pug'),
+  linesRegion: pug.compileFile('server-static/templates/lines-region.pug')
+}
 
 const defaultName = ' - Transit'
 const defaults = {
@@ -144,16 +142,19 @@ router.get('/l/:region', (req, res) => {
     }
     return notFound(res)
   }
-  res.send(
-    success(
-      'linesRegion',
-      'All Lines - ' + prefixes[req.params.region] + defaultName,
-      'View ' + prefixes[req.params.region] + ' lines and stop locations.',
-      canonical + req.path,
-      line._getLines(req.params.region),
-      req.params.region
+  request(server + '/lines/' + req.params.region, function(err, response, body) {
+    console.log(body)
+    res.send(
+      success(
+        'linesRegion',
+        'All Lines - ' + prefixes[req.params.region] + defaultName,
+        'View ' + prefixes[req.params.region] + ' lines and stop locations.',
+        canonical + req.path,
+        line._getLines(req.params.region),
+        req.params.region
+      )
     )
-  )
+  })
 })
 router.get('/*', (req, res) => {
   res.send(success('layout', title, description, canonical + req.path))

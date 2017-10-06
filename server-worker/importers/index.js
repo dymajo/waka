@@ -12,7 +12,7 @@ class Importer {
     this.current = require('./' + global.config.prefix + '.js')
   }
   async start() {
-    // await this.download()
+    await this.download()
     await this.importer.unzip(this.current.zipLocation)
     await this.db()
     await this.shapes()
@@ -51,7 +51,7 @@ class Importer {
     return new Promise((resolve, reject) => {
       const url = 'https://atcdn.blob.core.windows.net/data/gtfs.zip'
       log('Downloading GTFS Data from AT')
-      const gtfsRequest = request({url: url}).pipe(fs.createWriteStream(this.zipLocation))
+      const gtfsRequest = request({url: url}).pipe(fs.createWriteStream(this.current.zipLocation))
       gtfsRequest.on('finish', function() {
         log('Finished Downloading GTFS Data')
         resolve()
