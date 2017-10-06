@@ -1,6 +1,8 @@
 const httpProxy = require('http-proxy')
 const router = require('express').Router()
+const log = require('../server-common/logger.js')
 
+const Static = require('./static.js')
 const WorkerManager = require('./workerManager.js')
 
 const proxy = httpProxy.createProxyServer({
@@ -23,7 +25,12 @@ const proxyHandle = function(req, res) {
     proxy.web(req, res, { target: 'http://127.0.0.1:' + port + '/a' + url })
   }
 }
+log('Starting Static Server')
+const staticServer = new Static()
+staticServer.start()
+router.all('/', staticServer.route)
 router.all('/a/:prefix', proxyHandle)
 router.all('/a/:prefix/*', proxyHandle)
+router.all('/*', staticServer.route)
 
 module.exports = router
