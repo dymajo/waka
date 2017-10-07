@@ -18,6 +18,7 @@ router.get('/a/info', function(req, res) {
   res.send(signature())
 })
 
+router.get('/a/stations', search.all)
 router.get('/a/station', station.stopInfo)
 router.get('/a/station/search', search.getStopsLatLng)
 router.get('/a/station/:station', station.stopInfo)
