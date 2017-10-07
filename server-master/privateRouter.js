@@ -1,3 +1,4 @@
+const colors = require('colors')
 const log = require('../server-common/logger.js')
 const router = require('express').Router()
 const WorkerManager = require('./workerManager.js')
@@ -6,16 +7,26 @@ const WorkerManager = require('./workerManager.js')
 router.post('/import-start/:mode', function(req, res) {
   const body = req.body
   const worker = WorkerManager.getWorker(WorkerManager.getPort(body.prefix, body.version))
+  let force = false
+  if (req.query.force) {
+    force = true
+  }
   if (worker) {
-    worker.import(req.params.mode)
-    res.send({message: 'Import Started.'})
+    worker.import(req.params.mode, force).then(() => {
+      res.send({message: 'Import Started.'})
+    }).catch(err => {
+      res.status(400).send(err)
+    })
   } else {
     res.status(400).send({message: 'Worker does not exist.'})
   }
 })
 router.post('/import-complete', function(req, res) {
-  log('client import complete', req.body)
+  const body = req.body
+  const worker = WorkerManager.getWorker(WorkerManager.getPort(body.prefix, body.version))
+  log(req.body.prefix.magenta, req.body.version.magenta, 'Client Import Complete')
   res.send('Thanks!')
+  worker.complete()
 })
 router.get('/worker', function(req, res) {
   const data = WorkerManager.getAll()
