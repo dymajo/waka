@@ -58,11 +58,37 @@ class Worker {
   }
 
   // Instructs worker to download & build GTFS
-  import(mode) {
+  import(mode, force = false) {
     return new Promise((resolve, reject) => {
-      log('Started Import on', this.config.prefix, this.config.version)
-      // go to sql, update the db
-      request(this.url() + '/internal/import/' + mode)
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('name', sql.VarChar, this.config.db.database)
+      sqlRequest.query(`
+        select status from workers where dbname = @name;
+      `).then(data => {
+        if (data.recordset[0].status === 'empty' || force === true) {
+          log('Started Import on', this.config.prefix, this.config.version)
+          // go to sql, update the db
+          request(this.url() + '/internal/import/' + mode, () => {
+            const sqlRequest = connection.get().request()
+            sqlRequest.input('name', sql.VarChar, this.config.db.database)
+            sqlRequest.query(`
+              update workers set status = 'importing' where dbname = @name;
+            `).then(resolve).catch(reject)
+          })
+        } else {
+          reject({message: 'import already started, force to try again'})
+        }
+      })
+    })
+  }
+
+  complete() {
+    return new Promise((resolve, reject) => {
+      const sqlRequest = connection.get().request()
+      sqlRequest.input('name', sql.VarChar, this.config.db.database)
+      sqlRequest.query(`
+        update workers set status = 'imported' where dbname = @name;
+      `).then(resolve).catch(reject)
     })
   }
   
