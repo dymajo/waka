@@ -1,163 +1,29 @@
-const router = require('express').Router()
-const pug = require('pug')
-const request = require('request')
-const server = 'http://localhost:8000/a'
+const express = require('express')
+const path = require('path')
+const router = express.Router()
+ 
+const Defaults = require('./defaults.js')
+const defaults = new Defaults()
 
-const manifest = require('../../dist/assets.json')
-const template = {
-  layout: pug.compileFile('server-static/templates/layout.pug'),
-  notFound: pug.compileFile('server-static/templates/404.pug'),
-  stations: pug.compileFile('server-static/templates/stations.pug'),
-  stationsRegion: pug.compileFile('server-static/templates/stations-region.pug'),
-  lines: pug.compileFile('server-static/templates/lines.pug'),
-  linesRegion: pug.compileFile('server-static/templates/lines-region.pug')
-}
+const email = require('./email.js')
+const Lines = require('./lines.js')
+const lines = new Lines()
 
-const defaultName = ' - Transit'
-const defaults = {
-  title: 'Transit',
-  vendorpath: '/' + manifest['vendor.js'],
-  apppath: '/' + manifest['app.js'],
-  analyticspath: '/' + manifest['analytics.js'],
-  csspath: '/' + manifest['app.css']
-}
-const prefixes = {
-  'nz-akl': 'Auckland',
-  'nz-wlg': 'Wellington'
-}
+const Stations = require('./stations.js')
+const stations = new Stations()
 
-const success = function(
-  templateName,
-  title,
-  description,
-  canonical,
-  data = null,
-  region = 'nz-akl'
-) {
-  const content = Object.assign(defaults, {
-    title: title,
-    description: description,
-    canonical: canonical,
-    data: data,
-    region: region
-  })
-  return template[templateName](content)
-}
-const notFound = function(res) {
-  res.status(404).send(
-    template.notFound({
-      title: 'Not Found - Transit',
-      description:
-        'Sorry, but the page you were trying to view does not exist.',
-      vendorpath: '/' + manifest['vendor.js'],
-      apppath: '/' + manifest['app.js'],
-      analyticspath: '/' + manifest['analytics.js'],
-      csspath: '/' + manifest['app.css']
-    })
-  )
-}
+router.get('/', defaults.index)
+router.post('/email', email.sendEmail)
 
-let title = 'DYMAJO Transit'
-let description =
-  'Your way around Auckland. Realtime, beautiful, and runs on all of your devices.'
-let canonical = 'https://transit.dymajo.com'
+router.get('/s', stations.index)
+router.get('/s/:region', stations.region)
 
-router.get('/', (req, res) => {
-  res.send(success('layout', title, description, canonical + req.path))
-})
-router.get('/s', (req, res) => {
-  res.send(
-    success(
-      'stations',
-      'Stations' + defaultName,
-      'View stop time schedules and realtime information.',
-      canonical + req.path
-    )
-  )
-})
-router.get('/s/:region', (req, res) => {
-  if (typeof prefixes[req.params.region] === 'undefined') {
-    if (!isNaN(parseFloat(req.params.region))) {
-      let path = req.path.split('/')
-      path.splice(2, 0, 'nz-akl')
-      return res.redirect(301, path.join('/'))
-    }
-    return notFound(res)
-  }
-  search._allStops(req.params.region).then((data) => {
-    if (data.items.length === 0) {
-      return notFound(res)
-    }
-    // groups by route type
-    const result = {}
-    data.items.forEach((item) => {
-      const rt = data.route_types[item.stop_id] || 3
+router.get('/l', lines.index)
+router.get('/l/:region', lines.region)
 
-      if (!(rt in result)) {
-        result[rt] = []  
-      }
-      result[rt].push(item)
-    })
-    const group_names = [
-      'Light Rail',
-      'Metro',
-      'Train',
-      'Bus',
-      'Ferry',
-      'Cable Car',
-      'Gondola',
-      'Funicular'
-    ]
+router.use('/scss', express.static(path.resolve(__dirname + '/../scss')))
+router.use('/', express.static(path.resolve(__dirname + '/../dist')))
 
-    res.send(
-      success(
-        'stationsRegion',
-        'All Stations - ' + prefixes[req.params.region] + defaultName,
-        'All ' + prefixes[req.params.region] + ' transit stations.',
-        canonical + req.path,
-        {group_names: group_names, data: result},
-        req.params.region
-      )
-    )
-  }).catch((err) => {
-    res.status(500)
-  })
-})
-router.get('/l', (req, res) => {
-  res.send(
-    success(
-      'lines',
-      'Lines' + defaultName,
-      'View all lines and stop locations.',
-      canonical + req.path
-    )
-  )
-})
-router.get('/l/:region', (req, res) => {
-  if (typeof prefixes[req.params.region] === 'undefined') {
-    if (!isNaN(parseFloat(req.params.region))) {
-      let path = req.path.split('/')
-      path.splice(2, 0, 'nz-akl')
-      return res.redirect(301, path.join('/'))
-    }
-    return notFound(res)
-  }
-  request(server + '/lines/' + req.params.region, function(err, response, body) {
-    console.log(body)
-    res.send(
-      success(
-        'linesRegion',
-        'All Lines - ' + prefixes[req.params.region] + defaultName,
-        'View ' + prefixes[req.params.region] + ' lines and stop locations.',
-        canonical + req.path,
-        line._getLines(req.params.region),
-        req.params.region
-      )
-    )
-  })
-})
-router.get('/*', (req, res) => {
-  res.send(success('layout', title, description, canonical + req.path))
-})
+router.get('/*', defaults.index)
 
 module.exports = router

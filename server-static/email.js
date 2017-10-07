@@ -1,6 +1,8 @@
-var helper = require('sendgrid').mail;
-var from_email = new helper.Email('hello@dymajo.com', "DYMAJO Transit");
-var subject = 'Your requested link to DYMAJO Transit';
+const colors = require('colors')
+const log = require('../server-common/logger.js')
+var helper = require('sendgrid').mail
+var from_email = new helper.Email('hello@dymajo.com', 'DYMAJO Transit')
+var subject = 'Your requested link to DYMAJO Transit'
 
 var emailBody = `
 <!doctype html>
@@ -343,34 +345,38 @@ var emailBody = `
   </body>
 </html>`
 var content = new helper.Content('text/html', emailBody)
-var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
+var sg = require('sendgrid')(process.env.SENDGRID_API_KEY)
 
+if (typeof process.env.SENDGRID_API_KEY === 'undefined') {
+  log('SendGrid API Key not found.'.red)
+}
+
+const cb = function(req, res) {
+  res.send('Success')
+  console.log(req.body.email)
+  //console.log(emailBody)
+  var to_email = new helper.Email(req.body.email)
+  var mail = new helper.Mail(from_email, subject, to_email, content)
+  //console.log(mail.toJSON())
+  var request = sg.emptyRequest({
+    method: 'POST',
+    path: '/v3/mail/send',
+    body: mail.toJSON()
+  })
+  sg.API(request, function(error, response) {
+    if (error) {
+      console.log('Error response received')
+    }
+  }) //send grid request
+}
 
 var email = {
-    sendEmail: function(req, res){
-        res.send("Success")
-        console.log(req.body.email)
-        //console.log(emailBody)
-        var to_email = new helper.Email(req.body.email);
-        var mail = new helper.Mail(from_email, subject, to_email, content);
-        //console.log(mail.toJSON())
-        var request = sg.emptyRequest({
-            method: 'POST',
-            path: '/v3/mail/send',
-            body: mail.toJSON(),
-        });
-        sg.API(request, function(error, response) {
-            if (error) {
-                console.log('Error response received');
-            }
-            console.log("Status code: ")
-            console.log(response.statusCode);
-            console.log("Body: ")
-            console.log(response.body);
-            console.log("Headers: ")
-            console.log(response.headers);
-        });//send grid request
+  sendEmail: function(req, res) {
+    if (typeof process.env.SENDGRID_API_KEY === 'undefined') {
+      return res.status(500).send('SendGrid not configured!')
     }
-} 
+    cb(req, res)
+  }
+}
 
 module.exports = email

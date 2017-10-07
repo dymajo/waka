@@ -14,6 +14,13 @@ var search = {
 
   // This gets cached on launch
   stopsRouteType: {},
+  all: function(req, res) {
+    search._allStops().then(data => {
+      res.send(data)
+    }).catch(err => {
+      res.status(500).send(err)
+    })
+  },
   _allStops: function() {
     return new Promise(function(resolve, reject) {
       const sqlRequest = connection.get().request()
@@ -49,8 +56,8 @@ var search = {
         stops
       INNER JOIN
         stop_times
-      ON stop_times.uid = (
-          SELECT TOP 1 uid 
+      ON stop_times.id = (
+          SELECT TOP 1 id 
           FROM    stop_times
           WHERE 
           stop_times.stop_id = stops.stop_id
@@ -117,5 +124,5 @@ var search = {
     }
   }
 }
-cache.ready.push(() => search.getStopsRouteType)
+cache.ready.push(search.getStopsRouteType)
 module.exports = search
