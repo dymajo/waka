@@ -1,11 +1,17 @@
 const colors = require('colors')
 const express = require('express')
 const bodyParser = require('body-parser')
+const appInsights = require('applicationinsights')
 
 const connection = require('./db/connection.js')
 const createDb = require('./db/create.js')
 const log = require('../server-common/logger.js')
 const cache = require('./cache')
+
+if (process.env.AZURE_INSIGHTS) {
+  appInsights.setup(process.env.AZURE_INSIGHTS)
+  appInsights.start()
+}
 
 log('Worker Started')
 process.on('message', function(message) {
@@ -42,6 +48,10 @@ process.on('message', function(message) {
 
 const app = express()
 app.use(bodyParser.json())
+app.use((req, res, next) => {
+  res.setHeader('X-Powered-By', 'dymajo-transit-worker')
+  next()
+})
 const listener = app.listen(0, function() {
   process.send({type: 'portbroadcast', data: listener.address().port})
 })
