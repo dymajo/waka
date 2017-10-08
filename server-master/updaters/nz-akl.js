@@ -15,6 +15,7 @@ class Auckland {
     if (!process.env.atApiKey) {
       log('Auckland Transport API Key not found.')
     }
+    this.mappingCheck = this.mappingCheck.bind(this)
   }
   start() {
     log('nz-akl'.magenta, 'Updater Started')
