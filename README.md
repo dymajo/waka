@@ -14,6 +14,10 @@ This is a transit app! Check it out.
 
 ## Server Development
 
+### Config
+- Main config in `/config.js`
+- Configure Database connection in `server-master/db/`
+
 ### Prereqs
 - Microsoft SQL Server Installed
 - Sign up for an account at <https://dev-portal.at.govt.nz>
