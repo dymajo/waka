@@ -18,7 +18,7 @@ const WorkerManager = {
       worker.start().then(() => {
         WorkerManager._currentWorkers[worker.port] = worker
         WorkerManager._workerMap[conf.prefix + '|' + conf.version] = worker.port
-        resolve()
+        resolve(worker)
       }).catch(reject)
     })
   },
@@ -52,6 +52,8 @@ const WorkerManager = {
         delete from mappings where prefix = @prefix
         insert into mappings (prefix, worker_id)
           select @prefix, id from workers where prefix = @prefix and version = @version
+        update workers set startpolicy = 'none' where prefix = @prefix and version != @version
+        update workers set startpolicy = 'auto' where prefix = @prefix and version = @version
       `).then(() => {
         WorkerManager._currentMapping[prefix] = prefix + '|' + version
         log('Mapped', prefix, 'to', version)
@@ -146,10 +148,14 @@ const WorkerManager = {
   start: function(prefix, version) {
     return new Promise((resolve, reject) => {
       if (typeof WorkerManager.getPort(prefix, version) !== 'undefined') {
-        return reject('already started')
+        return resolve('already started')
       }
       const conf = WorkerManager._workerTable[prefix+'|'+version]
-      WorkerManager.provision(conf).then(resolve).catch(reject)
+      if (typeof conf === 'undefined') {
+        reject(404)
+      } else {
+        WorkerManager.provision(conf).then(resolve).catch(reject)
+      }
     })
   },
   // starts all the workers set to auto start

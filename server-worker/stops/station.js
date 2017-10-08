@@ -103,6 +103,13 @@ var station = {
 
     const time = moment().tz('Pacific/Auckland')
     let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute()))
+    if (req.params.time) {
+      const split = req.params.time.split(':')
+      let tentativeDate = new Date(Date.UTC(1970,0,1,split[0],split[1]))
+      if (tentativeDate.toString !== 'Invalid Date') {
+        currentTime = tentativeDate
+      }
+    }
     sending.currentTime = currentTime.getTime()/1000
 
     const today = new Date(0)
@@ -135,7 +142,7 @@ var station = {
           }
           record.departure_time_seconds = new Date(record.departure_time).getTime()/1000
           if (record.departure_time_24) {
-            record.departure_time_seconds += 86400
+            record.departure_time_seconds += 86400    
           }
 
           record.route_color = line.getColor(record.route_short_name)

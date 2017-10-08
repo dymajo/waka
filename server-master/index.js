@@ -4,10 +4,12 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const appInsights = require('applicationinsights')
 
+const config = require('../config.js')
 const WorkerManager = require('./workerManager.js')
 const publicRouter = require('./publicRouter.js')
 const privateRouter = require('./privateRouter.js')
 const createDb = require('./db/create.js')
+const Updaters = require('./updaters/index.js')
 
 const log = require('../server-common/logger.js')
 const connection = require('./db/connection.js')
@@ -20,10 +22,13 @@ if (process.env.AZURE_INSIGHTS) {
   log('Azure Insights API key is undefined.'.red)
 }
 
+const updater = new Updaters()
+
 async function cb() {
   await WorkerManager.load()
   await WorkerManager.startAll()
   await WorkerManager.loadMappings()
+  await updater.start()
 }
 
 connection.isReady.then(() => {
@@ -66,11 +71,11 @@ publicApp.use(function(req, res, next) {
   }
 })
 publicApp.use(publicRouter)
-publicApp.listen(8000)
-log('Public API Started on Port 8000')
+publicApp.listen(config.publicport)
+log('Public API Started on Port', config.publicport)
 
 const privateApp = express()
 privateApp.use(bodyParser.json())
 privateApp.use(privateRouter)
-privateApp.listen(8001)
-log('Private API Started on Port 8001')
+privateApp.listen(config.privateport)
+log('Private API Started on Port', config.privateport)
