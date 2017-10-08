@@ -58,7 +58,12 @@ class Worker {
   }
 
   // Instructs worker to download & build GTFS
-  import(mode, force = false) {
+  import(mode, force = false, importCb) {
+    if (importCb) {
+      this.importCb = importCb
+    } else {
+      this.importCb = null
+    }
     return new Promise((resolve, reject) => {
       const sqlRequest = connection.get().request()
       sqlRequest.input('name', sql.VarChar, this.config.db.database)
@@ -69,6 +74,7 @@ class Worker {
           log('Started Import on', this.config.prefix, this.config.version)
           // go to sql, update the db
           request(this.url() + '/internal/import/' + mode, () => {
+            this.config.status = 'importing'
             const sqlRequest = connection.get().request()
             sqlRequest.input('name', sql.VarChar, this.config.db.database)
             sqlRequest.query(`
@@ -84,11 +90,25 @@ class Worker {
 
   complete() {
     return new Promise((resolve, reject) => {
+      this.config.status = 'imported'
       const sqlRequest = connection.get().request()
       sqlRequest.input('name', sql.VarChar, this.config.db.database)
       sqlRequest.query(`
         update workers set status = 'imported' where dbname = @name;
       `).then(resolve).catch(reject)
+
+      if (this.importCb) {
+        this.importCb()
+      }
+    })
+  }
+
+  // resolves when it's actually complete
+  importLongPromise(mode, force) {
+    return new Promise((resolve, reject) => {
+      this.import(mode, force, function() {
+        resolve()
+      })
     })
   }
   

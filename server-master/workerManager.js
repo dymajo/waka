@@ -91,6 +91,9 @@ const WorkerManager = {
       }).catch(reject)
     })
   },
+  get: function(prefix, version) {
+    return WorkerManager._workerTable[prefix+'|'+version] || null
+  },
   getAll: function() {
     const ret = []
     Object.keys(WorkerManager._workerTable).forEach((key) => {
@@ -148,7 +151,7 @@ const WorkerManager = {
   start: function(prefix, version) {
     return new Promise((resolve, reject) => {
       if (typeof WorkerManager.getPort(prefix, version) !== 'undefined') {
-        return resolve('already started')
+        return resolve(WorkerManager.getWorker(WorkerManager.getPort(prefix, version)))
       }
       const conf = WorkerManager._workerTable[prefix+'|'+version]
       if (typeof conf === 'undefined') {
