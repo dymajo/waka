@@ -198,12 +198,13 @@ class Station extends React.Component {
       // } else if (false) {
         // do something with the trains?
       } else {
-        const arrival = new Date()
+        const offsetTime = new Date().getTime() + StationStore.offsetTime
+        const arrival = new Date(offsetTime)
         arrival.setHours(0)
         arrival.setMinutes(0)
         arrival.setSeconds(parseInt(trip.departure_time_seconds) % 86400)
         // Let buses be 2 mins late
-        if (Math.round((arrival - new Date()) / 60000) < -2) {
+        if (Math.round((arrival - new Date(offsetTime)) / 60000) < -2) {
           return
         }
       }

@@ -93,19 +93,20 @@ class TripItem extends React.Component {
     })
 
     const times = []
+    const offsetTime = new Date().getTime() + StationStore.offsetTime
     this.props.collection.forEach((trip) => {
-      const arrival = new Date()
+      const arrival = new Date(offsetTime)
       arrival.setHours(0)
       arrival.setMinutes(0)
       arrival.setSeconds(parseInt(trip.departure_time_seconds) % 86400)
 
       // non realtime bit
-      let date = Math.round((arrival - new Date()) / 60000)
+      let date = Math.round((arrival - new Date(offsetTime)) / 60000)
 
       // calculates the realtime component
       if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].delay) {
         arrival.setSeconds(arrival.getSeconds() + (this.props.realtime[trip.trip_id].delay))
-        let time = Math.abs(Math.round((arrival.getTime()-new Date().getTime())/60000))
+        let time = Math.abs(Math.round((arrival.getTime()-new Date(offsetTime).getTime())/60000))
 
         let stops_away_no = trip.stop_sequence - this.props.realtime[trip.trip_id].stop_sequence
         if (this.props.realtime[trip.trip_id].stop_sequence === -100) {
@@ -128,7 +129,6 @@ class TripItem extends React.Component {
       } else if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].departed) {
         // do nothing?
       } else {
-        console.log(this.props.realtime[trip.trip_id], trip)
         times.push({realtime: false, time: t('tripitem.due')})
       }
     })

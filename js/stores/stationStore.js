@@ -199,6 +199,8 @@ export class stationStore extends Events {
       })
     })
     Promise.all(promises).then((allData) => {
+      this.setOffset(allData[0].currentTime)
+
       let trips = []
       let realtime = {}
       allData.forEach((data) => {
@@ -215,6 +217,14 @@ export class stationStore extends Events {
     }).catch(() => {
       this.trigger('error', t('station.error'))
     })
+  }
+  setOffset(time) {
+    let offsetTime = new Date()
+    offsetTime.setHours(0)
+    offsetTime.setMinutes(0)
+    offsetTime.setSeconds(0)
+    offsetTime.setSeconds(time)
+    this.offsetTime = offsetTime.getTime() - new Date().getTime()
   }
   getRealtime(tripData, stop_id = null, region = 'nz-akl') {
     // realtime request for buses and trains
@@ -281,6 +291,7 @@ export class stationStore extends Events {
     return new Promise((resolve, reject) => {
       fetch(`${local.endpoint}/${region}/station/${station}/timetable/${route}/${direction}`).then((request) => {
         request.json().then((data) => {
+          this.setOffset(data[0].currentTime)
           data.sort(sortfn)
           resolve(data)
         })

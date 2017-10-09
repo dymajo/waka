@@ -93,7 +93,7 @@ export default class Timetable extends React.Component {
       })
 
       requestAnimationFrame(() => {
-        let time = new Date().getHours()
+        let time = new Date(new Date().getTime() + StationStore.offsetTime).getHours()
         let found = false
         while (found === false && time > 0) {
           if (('time'+time) in this.times) {
@@ -156,8 +156,8 @@ export default class Timetable extends React.Component {
         </div>
       )
     }
-
-    const currentTime = parseInt(new Date().getHours().toString() + ('0' + new Date().getMinutes()).slice(-2))
+    const offsetTime = new Date().getTime() + StationStore.offsetTime
+    const currentTime = parseInt(new Date(offsetTime).getHours().toString() + ('0' + new Date(offsetTime).getMinutes()).slice(-2))
     return (
       <div className='timetable-container' ref={e => this.container = e} style={style[this.state.animation]}>
         <header className="material-header">

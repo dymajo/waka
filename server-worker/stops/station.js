@@ -173,6 +173,7 @@ var station = {
     let sending = {}
 
     const time = moment().tz('Pacific/Auckland')
+    const currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute()))
 
     const today = new Date(0)
     today.setFullYear(time.year())
@@ -200,6 +201,7 @@ var station = {
           record.departure_time_seconds = record.arrival_time_seconds
 
           record.route_color = line.getColor(req.params.route)
+          record.currentTime = currentTime.getTime()/1000
 
           delete record.arrival_time
           delete record.arrival_time_24
