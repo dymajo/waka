@@ -27,7 +27,7 @@ class DomController {
 
 class WorkerController {
   constructor() {
-    this.endpoint = 'http://localhost:8001'
+    this.endpoint = ''
     this.domController = new DomController()
   }
   start() {
