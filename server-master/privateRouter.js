@@ -1,6 +1,8 @@
 const colors = require('colors')
 const log = require('../server-common/logger.js')
-const router = require('express').Router()
+const express = require('express')
+const path = require('path')
+const router = express.Router()
 const WorkerManager = require('./workerManager.js')
 
 // tells worker to go and download shit
@@ -94,5 +96,6 @@ router.post('/mapping/delete', function(req, res) {
     res.status(500).send(err)
   })
 })
+router.use('/', express.static(path.resolve(__dirname + '/../dist-private')))
 
 module.exports = router
