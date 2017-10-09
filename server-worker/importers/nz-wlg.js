@@ -1,5 +1,9 @@
 const path = require('path')
-module.exports = {
+const request = require('request')
+const fs = require('fs')
+const log = require('../../server-common/logger.js')
+
+const wellington = {
   zipLocation: path.join(__dirname, '../../cache/metlink.zip'),
   files: [
     {
@@ -38,5 +42,18 @@ module.exports = {
       versioned: false,
     },
   ],
-  shapeFile: 'shapes.txt'
+  shapeFile: 'shapes.txt',
+  download: () => {
+    return new Promise((resolve, reject) => {
+      const url = 'https://www.metlink.org.nz/assets/Google_Transit/google-transit.zip'
+      log('Downloading GTFS Data from Metlink')
+      const gtfsRequest = request({url: url}).pipe(fs.createWriteStream(wellington.zipLocation))
+      gtfsRequest.on('finish', function() {
+        log('Finished Downloading GTFS Data')
+        resolve()
+      })
+      gtfsRequest.on('error', reject)
+    })
+  }
 }
+module.exports = wellington

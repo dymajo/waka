@@ -1,8 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 const rimraf = require('rimraf')
-const request = require('request')
-const log = require('../../server-common/logger.js')
+
+// const log = require('../../server-common/logger.js')
 const gtfsImport = require('../db/gtfs-import.js')
 const createShapes = require('../db/create-shapes.js')
 
@@ -12,7 +12,7 @@ class Importer {
     this.current = require('./' + global.config.prefix + '.js')
   }
   async start() {
-    await this.download()
+    await this.current.download()
     await this.importer.unzip(this.current.zipLocation)
     await this.db()
     await this.shapes()
@@ -46,18 +46,6 @@ class Importer {
 
     const containerName = (global.config.prefix + '-' + global.config.version).replace('.', '-').replace('_', '-')
     await creator.upload(containerName, path.resolve(outputDir, global.config.version))
-  }
-  download() {
-    return new Promise((resolve, reject) => {
-      const url = 'https://atcdn.blob.core.windows.net/data/gtfs.zip'
-      log('Downloading GTFS Data from AT')
-      const gtfsRequest = request({url: url}).pipe(fs.createWriteStream(this.current.zipLocation))
-      gtfsRequest.on('finish', function() {
-        log('Finished Downloading GTFS Data')
-        resolve()
-      })
-      gtfsRequest.on('error', reject)
-    })
   }
 }
 module.exports = Importer

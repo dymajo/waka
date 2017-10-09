@@ -1,5 +1,9 @@
 const path = require('path')
-module.exports = {
+const request = require('request')
+const fs = require('fs')
+const log = require('../../server-common/logger.js')
+
+const auckland = {
   zipLocation: path.join(__dirname, '../../cache/at.zip'),
   files: [
     {
@@ -38,5 +42,18 @@ module.exports = {
       versioned: true,
     },
   ],
-  shapeFile: 'shapes.txt'
+  shapeFile: 'shapes.txt',
+  download: () => {
+    return new Promise((resolve, reject) => {
+      const url = 'https://atcdn.blob.core.windows.net/data/gtfs.zip'
+      log('Downloading GTFS Data from AT')
+      const gtfsRequest = request({url: url}).pipe(fs.createWriteStream(auckland.zipLocation))
+      gtfsRequest.on('finish', function() {
+        log('Finished Downloading GTFS Data')
+        resolve()
+      })
+      gtfsRequest.on('error', reject)
+    })
+  }
 }
+module.exports = auckland
