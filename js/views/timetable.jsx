@@ -71,7 +71,7 @@ export default class Timetable extends React.Component {
       const tripsArr = []
       let lastTrip = null
       data.forEach((trip) => {
-        trip.date = new Date(trip.arrival_time_seconds * 1000)
+        trip.date = new Date(trip.departure_time_seconds * 1000)
         if (lastTrip) {
           if (lastTrip.getUTCHours() !== trip.date.getUTCHours()) {
             tripsArr.push({

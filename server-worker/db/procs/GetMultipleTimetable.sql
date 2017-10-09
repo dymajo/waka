@@ -19,8 +19,8 @@ BEGIN
 		trip_headsign nvarchar(50),
 		direction_id int,
 		stop_sequence int,
-		arrival_time time(0),
-		arrival_time_24 bit,
+		departure_time time(0),
+		departure_time_24 bit,
 		route_id nvarchar(50),
 		route_long_name nvarchar(100),
 		agency_id nvarchar(50)
@@ -50,7 +50,7 @@ BEGIN
 			@date = @date,
 			@direction = @direction
 
-	SELECT * FROM #results ORDER BY arrival_time_24, arrival_time;
+	SELECT * FROM #results ORDER BY departure_time_24, departure_time;
 	DROP table #results;
 
 END

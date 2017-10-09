@@ -16,8 +16,6 @@ BEGIN
 		stop_sequence int,
 		departure_time time(0),
 		departure_time_24 bit,
-		arrival_time time(0),
-		arrival_time_24 bit,
 		trip_headsign nvarchar(50),
 		shape_id nvarchar(50),
 		direction_id int,

@@ -20,8 +20,8 @@ BEGIN
 		trips.trip_headsign,
 		trips.direction_id,
 		stop_times.stop_sequence,
-		stop_times.arrival_time,
-		stop_times.arrival_time_24,
+		stop_times.departure_time,
+		stop_times.departure_time_24,
 		routes.route_id,
 		routes.route_long_name,
 		routes.agency_id

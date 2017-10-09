@@ -136,14 +136,11 @@ var station = {
       .execute(procedure)
       .then((trips) => {
         sending.trips = trips.recordset.map((record) => {
-          record.arrival_time_seconds = new Date(record.arrival_time).getTime()/1000
-          if (record.arrival_time_24) {
-            record.arrival_time_seconds += 86400
-          }
           record.departure_time_seconds = new Date(record.departure_time).getTime()/1000
           if (record.departure_time_24) {
             record.departure_time_seconds += 86400    
           }
+          record.arrival_time_seconds = record.departure_time_seconds
 
           record.route_color = line.getColor(record.route_short_name)
 
@@ -194,17 +191,17 @@ var station = {
       .execute(procedure)
       .then((trips) => {
         sending.trips = trips.recordset.map((record) => {
-          record.arrival_time_seconds = new Date(record.arrival_time).getTime()/1000
-          if (record.arrival_time_24) {
+          record.departure_time_seconds = new Date(record.departure_time || record.arrival_time).getTime()/1000
+          if (record.departure_time_24 || record.arrival_time_24) {
             record.arrival_time_seconds += 86400
           }
-          record.departure_time_seconds = record.arrival_time_seconds
+          record.arrival_time_seconds = record.departure_time_seconds
 
           record.route_color = line.getColor(req.params.route)
           record.currentTime = currentTime.getTime()/1000
 
-          delete record.arrival_time
-          delete record.arrival_time_24
+          delete record.departure_time
+          delete record.departure_time_24
           return record
         })
         res.send(sending.trips)

@@ -21,8 +21,6 @@ BEGIN
 		stop_times.stop_sequence,
 		stop_times.departure_time,
 		stop_times.departure_time_24,
-		stop_times.arrival_time,
-		stop_times.arrival_time_24,
 		trips.trip_headsign,
 		trips.shape_id,
 		trips.direction_id,

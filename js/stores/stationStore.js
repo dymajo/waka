@@ -286,7 +286,7 @@ export class stationStore extends Events {
   }
   getTimetable(station, route, direction, region = 'nz-akl') {
     const sortfn = function(a, b) {
-      return a.arrival_time_seconds - b.arrival_time_seconds
+      return a.departure_time_seconds - b.departure_time_seconds
     }
     return new Promise((resolve, reject) => {
       fetch(`${local.endpoint}/${region}/station/${station}/timetable/${route}/${direction}`).then((request) => {
