@@ -14,6 +14,7 @@ import BusIcon from '../../dist/icons/bus.svg'
 import ATIcon from '../../dist/icons/at.svg'
 import DymajoIcon from '../../dist/icons/dymajo.svg'
 import PatronIcon from '../../dist/icons/patron.svg'
+import CityIcon from '../../dist/icons/city.svg'
 
 const iconMap = {
   'lines.svg': <LinesIcon />,
@@ -25,6 +26,7 @@ const iconMap = {
   'at.svg': <ATIcon />,
   'dymajo.svg': <DymajoIcon />,
   'patron.svg': <PatronIcon />,
+  'city.svg': <CityIcon />,
 }
 
 class SidebarItemVanilla extends React.Component {
@@ -136,6 +138,13 @@ class SavedSations extends React.Component {
           icon="pin.svg"
           name={t('onboarding.install.name')}
           description={<div><span>{t('onboarding.install.description', {appname: t('app.name')})}</span><span>{t('onboarding.install.description2', {appname: t('app.name')})}</span></div>}
+        />
+        <SidebarItem
+          type="install"
+          action={this.props.toggleRegion}
+          icon="city.svg"
+          name={'Switch City'}
+          description={'Get directions in another city.'}
         />
         <SidebarItem
           url="/sponsor"

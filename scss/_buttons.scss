@@ -10,6 +10,8 @@
   margin: 5px;
   outline: 0;
   border-radius: 3px;
+  cursor: default;
+  text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 
   &.primary {
@@ -43,5 +45,9 @@
       margin-right: 2px;
       opacity: 0.8;
     }
+  }
+  &.small {
+    padding: 0.375rem 1.5rem;
+    font-size: 0.9rem;
   }
 }

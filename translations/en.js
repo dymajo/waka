@@ -7,7 +7,10 @@ export default {
   },
   regions: {
     'nz-akl': 'Auckland',
+    'nz-akl-long': 'Tāmaki Makaurau, Auckland',
     'nz-wlg': 'Wellington',
+    'nz-wlg-long': 'Te Whanganui-a-Tara, Wellington',
+    'vote': 'Want to use Transit in your city?'
   },
   root: {
     stationsLabel: 'Stations',
@@ -16,7 +19,7 @@ export default {
   onboarding: {
     welcome: {
       name: 'Welcome to %{appname}',
-      description: '%{appname} is your realtime guide to Auckland Buses, Trains, and Ferries.',
+      description: '%{appname} is your realtime guide to public transport in Auckland and Wellington.',
     },
     lines: {
       name: 'Lines',

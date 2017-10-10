@@ -9,6 +9,10 @@ $bgheight: 125px;
 	box-shadow: $standard-shadow;
 	z-index: 2;
 
+	&.no-shadow {
+		box-shadow: none;
+	}
+
 	.header-left, .header-right {
 		display: flex;
 		padding: 0 0.5rem;
@@ -20,6 +24,13 @@ $bgheight: 125px;
 			margin: auto 0;
 		}
 	}
+	.header-sm {
+		display: flex;
+		svg {
+			margin: auto 0;
+			fill: $atblue;
+		}
+	}
 	.header-left-sm, .header-right-sm {
 		padding: 0 0.25rem;
 	}
@@ -29,7 +40,14 @@ $bgheight: 125px;
 	.header-right {
 		padding-right: 0.75rem;
 	}
-
+	.menu {
+		h2 {
+			cursor: pointer;
+		}
+		h2:hover {
+			text-decoration: underline;
+		}
+	}
 	.mode {
 		width: 42px;
 	}
@@ -37,6 +55,7 @@ $bgheight: 125px;
 	.header-expand {
 		flex: 1;
 		overflow: hidden;
+		cursor: default;
 	}
 	h1 {
 		margin: 0;
@@ -67,6 +86,11 @@ $bgheight: 125px;
 		font-weight: 600;
 		letter-spacing: -0.5px;
 		line-height: 1.1;
+
+		small {
+			color: rgba(#000, 0.5);
+			font-size: 80%;
+		}
 	}
 }
 

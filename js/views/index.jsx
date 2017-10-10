@@ -14,6 +14,7 @@ import TestLines from './test_lines.jsx'
 import Timetable from './timetable.jsx'
 import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
 import NoMatch from './nomatch.jsx'
+import RegionPopover from './region-popover.jsx'
 
 import SavedStations from './savedstations.jsx'
 import Pin from './pin.jsx'
@@ -36,7 +37,8 @@ class Index extends React.Component {
       animate: false,
       showPin: false,
       hideUi: false,
-      in: false
+      in: false,
+      region: false,
     }
     this.Search = null // Map Component, dynamic load
 
@@ -46,6 +48,7 @@ class Index extends React.Component {
     this.fakestartpos = null  // used for non janky animations
     this.touchlastpos = null // used to detect flick
     this.scrolllock = false  // used so you know the difference between scroll & transform
+    this.canChange = true // used for the annoying 300ms bubbling
 
     window.onresize = function() {
       document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
@@ -284,6 +287,18 @@ class Index extends React.Component {
       }
     }
   }
+  toggleRegion = () => {
+    if (!this.canChange) {
+      return 
+    }
+    this.canChange = false
+    this.setState({
+      region: !this.state.region
+    })
+    setTimeout(() => {
+      this.canChange = true
+    }, 350)
+  }
   render() {
 
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
@@ -321,17 +336,21 @@ class Index extends React.Component {
       <div className={className}>
         <div className={rootClassName} ref="rootcontainer">
           <header className="material-header branding-header">
-            <span className="header-left header-left-sm">
+            <span className="header-left">
               <LogoIcon />
             </span>
-            <div className="header-expand">
-              <h1 className="full-height">
-                <strong>{t('app.name')}</strong></h1>
+            <div className="header-expand menu" onClick={this.toggleRegion}>
+              <h1><strong>{t('app.name')}</strong></h1>
+              <h2>{t('regions.nz-akl-long')} <small>▼</small></h2>
             </div>
             <span className="header-right" onTouchTap={this.triggerSettings}>
               <SettingsIcon />
             </span>
           </header>
+          <RegionPopover
+            visible={this.state.region}
+            toggle={this.toggleRegion}
+          />
           <div className="root-map" ref="touchmap">
             {map}
           </div>
@@ -354,7 +373,7 @@ class Index extends React.Component {
                 {t('root.linesLabel')}
               </button>
             </div>
-            <SavedStations togglePin={this.togglePin} />
+            <SavedStations togglePin={this.togglePin} toggleRegion={this.toggleRegion} />
           </div>
         </div>
         <div className={contentClassname}>

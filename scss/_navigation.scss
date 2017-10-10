@@ -139,8 +139,13 @@
     text-align: center;
 
     img, svg {
-      width: 36px;
       height: auto;
+      width: 36px;
+    }
+  }
+  ul:first-child li:not(:nth-child(2)) .icon {
+    img, svg {
+      width: 34px;
     }
   }
 
