@@ -130,6 +130,7 @@ class Search extends React.Component {
     window.addEventListener('offline',  this.goOffline)
     CurrentLocation.bind('pinmove', this.pinmove)
     CurrentLocation.bind('mapmove', this.mapmove)
+    CurrentLocation.bind('mapmove-silent', this.mapmovesilent)
     this.getData(this.state.position[0], this.state.position[1], 250)
     
     if (CurrentLocation.state.hasGranted) {
@@ -158,6 +159,7 @@ class Search extends React.Component {
     window.removeEventListener('offline',  this.goOffline)
     CurrentLocation.unbind('pinmove', this.pinmove)
     CurrentLocation.unbind('mapmove', this.mapmove)
+    CurrentLocation.unbind('mapmove-silent', this.mapmovesilent)
     CurrentLocation.stopWatch()
   }
   pinmove = () => {
@@ -174,6 +176,12 @@ class Search extends React.Component {
     this.setState({
       position: CurrentLocation.state.position.slice(),
       positionMarker: CurrentLocation.state.position.slice(),
+      initialPosition: false
+    })
+  }
+  mapmovesilent = () => {
+    this.setState({
+      position: CurrentLocation.state.position.slice(),
       initialPosition: false
     })
   }
@@ -240,6 +248,8 @@ class Search extends React.Component {
     if (document.body.offsetHeight > screensize) {
       screensize = document.body.offsetHeight
     }
+    var newPos = e.target.getCenter()
+    StationStore.getCity(newPos.lat, newPos.lng)
     var dist = Math.ceil(0.2 * screensize)
     if (zoom === 17) {
       dist = Math.ceil(0.35 * screensize)
@@ -255,8 +265,6 @@ class Search extends React.Component {
     if (dist > 1250) {
       dist = 1250
     }
-
-    var newPos = e.target.getCenter()
     this.getData(newPos.lat, newPos.lng, dist)
   }
   triggerRetry = () => {

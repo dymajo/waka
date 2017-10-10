@@ -1,9 +1,15 @@
 import React from 'react'
 import { t } from '../stores/translationStore.js'
+import { CurrentLocation } from '../stores/currentLocation.js'
 import BackIcon from '../../dist/icons/back.svg'
 
 export default class RegionPopover extends React.Component {
-
+  changeCity(city) {
+    return () => {
+      CurrentLocation.setCity(city)
+      this.props.toggle()
+    }
+  }
   render() {
     const className = 'region-popover ' + (this.props.visible ? 'show' : '')
     return (
@@ -16,11 +22,11 @@ export default class RegionPopover extends React.Component {
         </header>
         <div className="content">
           <ul>
-            <li className="nz-akl">
+            <li className="nz-akl" onTouchTap={this.changeCity('nz-akl')}>
               <h2>{t('regions.nz-akl-long').split(',')[0]}</h2>
               <h1>{t('regions.nz-akl-long').split(',')[1]}</h1>
             </li>
-            <li className="nz-wlg">
+            <li className="nz-wlg" onTouchTap={this.changeCity('nz-wlg')}>
               <h2>{t('regions.nz-wlg-long').split(',')[0]}</h2>
               <h1>{t('regions.nz-wlg-long').split(',')[1]}</h1>
             </li>

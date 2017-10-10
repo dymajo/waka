@@ -65,6 +65,14 @@ export class currentLocation extends Events { // ability to subscribe to locatio
     this.trigger(updateType)
   }
 
+  setCity(prefix) {
+    if (prefix === 'nz-akl') {
+      this.state.position = [-36.844229, 174.767823] // britomart
+    } else if (prefix === 'nz-wlg') {
+      this.state.position = [-41.278366, 174.779359] // wellington station
+    }
+    this.trigger('mapmove-silent')
+  }
 
   currentLocationButton() {
     if (this.geoID === null) {
@@ -79,7 +87,7 @@ export class currentLocation extends Events { // ability to subscribe to locatio
           this.state.hasGranted = true
           this.setCurrentPosition(position, 'mapmove')
         })
-        } else {
+      } else {
         alert(this.state.error)
       }
     }

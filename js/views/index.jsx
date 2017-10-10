@@ -3,6 +3,7 @@ import { withRouter, Switch, Route } from 'react-router-dom'
 import { TransitionGroup, Transition } from 'react-transition-group'
 import { iOS } from '../models/ios.js'
 import { UiStore } from '../stores/uiStore.js'
+import { StationStore } from '../stores/stationStore.js'
 import { t } from '../stores/translationStore.js'
 
 // routes
@@ -39,6 +40,7 @@ class Index extends React.Component {
       hideUi: false,
       in: false,
       region: false,
+      currentCity: StationStore.currentCity
     }
     this.Search = null // Map Component, dynamic load
 
@@ -48,7 +50,6 @@ class Index extends React.Component {
     this.fakestartpos = null  // used for non janky animations
     this.touchlastpos = null // used to detect flick
     this.scrolllock = false  // used so you know the difference between scroll & transform
-    this.canChange = true // used for the annoying 300ms bubbling
 
     window.onresize = function() {
       document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
@@ -61,6 +62,7 @@ class Index extends React.Component {
     this.refs.touchcard.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
 
     this.props.history.listen(UiStore.handleState)
+    StationStore.bind('newcity', this.newcity)
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {
@@ -75,6 +77,11 @@ class Index extends React.Component {
         UiStore.state.canAnimate = true
       }, UiStore.animationTiming + 25)
     }
+  }
+  newcity = () => {
+    this.setState({
+      currentCity: StationStore.currentCity
+    })
   }
   loadMapDynamic = () => {
     // doesn't do anything if already loaded
@@ -288,16 +295,9 @@ class Index extends React.Component {
     }
   }
   toggleRegion = () => {
-    if (!this.canChange) {
-      return 
-    }
-    this.canChange = false
     this.setState({
       region: !this.state.region
     })
-    setTimeout(() => {
-      this.canChange = true
-    }, 350)
   }
   render() {
 
@@ -331,6 +331,12 @@ class Index extends React.Component {
     if (this.state.showPin) {
       modal = <Pin onHide={this.togglePin} />
     }
+    let firstHeadingClass = 'full-height'
+    let secondHeading
+    if (this.state.currentCity !== 'none') {
+      firstHeadingClass = ''
+      secondHeading = <h2>{t('regions.'+this.state.currentCity+'-long')} <small>▼</small></h2>
+    }
 
     return (
       <div className={className}>
@@ -339,9 +345,9 @@ class Index extends React.Component {
             <span className="header-left">
               <LogoIcon />
             </span>
-            <div className="header-expand menu" onClick={this.toggleRegion}>
-              <h1><strong>{t('app.name')}</strong></h1>
-              <h2>{t('regions.nz-akl-long')} <small>▼</small></h2>
+            <div className="header-expand menu" onTouchTap={this.toggleRegion}>
+              <h1 className={firstHeadingClass}><strong>{t('app.name')}</strong></h1>
+              {secondHeading}
             </div>
             <span className="header-right" onTouchTap={this.triggerSettings}>
               <SettingsIcon />

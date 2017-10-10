@@ -1,12 +1,17 @@
 import Events from './events'
 import local from '../../local'
+import { SettingsStore } from './settingsStore.js'
 import { t } from './translationStore.js'
 
 export class stationStore extends Events {
   constructor(props) {
     super(props)
-
+    this.currentCity = 'none'
     this.StationData = {}
+
+    // sets the actual default city
+    this.getCity(...SettingsStore.state.lastLocation)
+
     if (localStorage.getItem('StationData')) {
       this.StationData = JSON.parse(localStorage.getItem('StationData'))
 
@@ -49,6 +54,18 @@ export class stationStore extends Events {
       icon = 'cablecar'
     }
     return icon
+  }
+  getCity(lat, lng) {
+    let newCity = 'none'
+    if (lat > -37.4 && lat < -36 && lng > 174 && lng < 175.2) {
+      newCity = 'nz-akl'
+    } else if (lat > -41.5 && lat < -40.5 && lng > 174.6 && lng < 175.8) {
+      newCity = 'nz-wlg'
+    }
+    if (this.currentCity !== newCity) {
+      this.currentCity = newCity
+      this.trigger('newcity')
+    }
   }
   getHeadsign(prefix, longname, direction) {
     if (prefix === 'nz-wlg') {
