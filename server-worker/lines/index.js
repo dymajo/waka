@@ -56,12 +56,25 @@ var line = {
         routes.route_long_name,
         routes.route_type,
         trips.shape_id,
-        trips.trip_headsign
+        trips.trip_headsign,
+        trips.direction_id,
+        count(trips.shape_id) as shape_score
       FROM routes
-      LEFT JOIN trips on 
-        trips.route_id = routes.route_id
+          LEFT JOIN trips on 
+          trips.route_id = routes.route_id
       WHERE 
-        routes.route_short_name = @route_short_name`).then(result => {
+          routes.route_short_name = @route_short_name
+      GROUP BY
+        routes.route_id,
+        routes.agency_id,
+        routes.route_short_name,
+        routes.route_long_name,
+        routes.route_type,
+        trips.shape_id,
+        trips.trip_headsign,
+        trips.direction_id
+      ORDER BY
+        shape_score desc`).then(result => {
       const versions = {}
       const results = []
 
@@ -76,8 +89,8 @@ var line = {
           return
         }
         // make sure it's not already in the response
-        if (typeof(versions[route.route_long_name._]) === 'undefined') {
-          versions[route.route_long_name._] = true
+        if (typeof(versions[route.route_long_name._ + (route.direction_id._ || '0')]) === 'undefined') {
+          versions[route.route_long_name._ + (route.direction_id._ || '0')] = true
         } else {
           return
         }
@@ -87,6 +100,7 @@ var line = {
           route_long_name: route.route_long_name._,
           route_short_name: route.route_short_name._,
           route_color: line.getColor(route.route_short_name._),
+          direction_id: route.direction_id._,
           shape_id: route.shape_id._,
           route_type: route.route_type._  
         }
@@ -96,6 +110,21 @@ var line = {
         }
         results.push(result)
       })
+      if (results.length === 2) {
+        if (results[0].route_long_name === results[1].route_long_name) {
+          let candidate = results[1]
+          if (results[0].direction_id !== 1) {
+            candidate = results[0]
+          }
+          let regexed = candidate.route_long_name.match(/\((.+?)\)/g)
+          if (regexed) {
+            const newName = '('+regexed[0].slice(1, -1).split(' - ').reverse().join(' - ')+')'
+            candidate.route_long_name = candidate.route_long_name.replace(/\((.+?)\)/g, newName)
+          } else {
+            candidate.route_long_name = candidate.route_long_name.split(' - ').reverse().join(' - ')
+          }
+        }
+      }
       cb(null, results)
     }).catch(err => {
       cb(err, null)
