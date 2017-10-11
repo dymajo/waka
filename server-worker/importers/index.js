@@ -12,11 +12,20 @@ class Importer {
     this.current = require('./' + global.config.prefix + '.js')
   }
   async start() {
-    await this.current.download()
-    await this.importer.unzip(this.current.zipLocation)
+    await this.download()
+    await this.unzip()
     await this.db()
     await this.shapes()
   }
+
+  async unzip() {
+    await this.importer.unzip(this.current.zipLocation)
+  }
+
+  async download() {
+    await this.current.download()
+  }
+
   async db() {
     for (let file of this.current.files) {
       await this.importer.upload(this.current.zipLocation + 'unarchived', file, global.config.version, file.versioned)

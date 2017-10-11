@@ -77,6 +77,9 @@ class WorkerController {
           <a class="dropdown-item" data-action="/import-start/shapes" href="#">Run Import Shapes</a>
           <a class="dropdown-item" data-action="/import-complete" href="#">Trigger Import Completion</a>
           <a class="dropdown-item" data-action="/worker/delete" href="#">Delete Worker</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" data-action="/import-start/download" href="#">Run Download</a>
+          <a class="dropdown-item" data-action="/import-start/unzip" href="#">Run Unzip</a>
         </div>
         `
       let ctrl = '<span class="badge badge-pill badge-warning">stopped</span>'

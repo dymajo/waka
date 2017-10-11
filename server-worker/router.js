@@ -54,6 +54,10 @@ router.get('/internal/import/:mode', function(req, res) {
     importer.db().then(cb)
   } else if (req.params.mode === 'shapes') {
     importer.shapes().then(cb)
+  } else if (req.params.mode === 'unzip') {
+    importer.unzip().then(cb)
+  } else if (req.params.mode === 'download') {
+    importer.download().then(cb)
   }
 })
 
