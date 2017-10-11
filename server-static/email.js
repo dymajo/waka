@@ -1,8 +1,8 @@
 const colors = require('colors')
 const log = require('../server-common/logger.js')
 var helper = require('sendgrid').mail
-var from_email = new helper.Email('hello@dymajo.com', 'DYMAJO Transit')
-var subject = 'Your requested link to DYMAJO Transit'
+var from_email = new helper.Email('hello@dymajo.com', 'Waka')
+var subject = 'Your requested link to Waka'
 
 var emailBody = `
 <!doctype html>
@@ -284,7 +284,7 @@ var emailBody = `
           <div class="content">
 
             <!-- START CENTERED WHITE CONTAINER -->
-            <span class="preheader">Here's your link to DYMAJO Transit</span>
+            <span class="preheader">Here's your link to Waka</span>
             <table class="main">
 
               <!-- START MAIN CONTENT AREA -->
@@ -294,7 +294,7 @@ var emailBody = `
                     <tr>
                       <td>
                         <h3>Hey!</h3>
-                        <p>Here's your link to DYMAJO Transit. You can use it on any of your devices!</p>
+                        <p>Here's your link to Waka. You can use it on any of your devices!</p>
                         
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                           <tbody>

@@ -32,9 +32,9 @@ export default class RegionPopover extends React.Component {
             </li>
           </ul>
           <div className="vote">
-            <p>{t('regions.vote')}</p>
+            <p>{t('regions.vote', {appname: t('app.name')})}</p>
             <a className="nice-button primary small" href="https://twitter.com/dymajoltd" rel="noopener noreferrer" target="_blank">
-              Let us know!
+              {t('regions.activator')}
             </a>
           </div>
         </div>

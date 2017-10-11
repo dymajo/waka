@@ -16,18 +16,18 @@
 
   &.primary {
     color:#fff;
-    background: darken($lightblue, 10);
-    border-color: darken($lightblue, 10);
+    background: $lightblue;
+    border-color: $lightblue;
 
     &:hover {
-      background: darken($lightblue, 15);
-      border-color: darken($lightblue, 15);
+      background: darken($lightblue, 5);
+      border-color: darken($lightblue, 5);
       text-decoration: none;
     }
 
     &:active {
-      background: darken($lightblue, 20);
-      border-color: darken($lightblue, 20);
+      background: darken($lightblue, 10);
+      border-color: darken($lightblue, 10);
     }
   }
 

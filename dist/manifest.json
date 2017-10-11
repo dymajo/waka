@@ -1,7 +1,7 @@
 {
-  "short_name": "Transit",
-  "name": "DYMAJO Transit",
-  "description": "The best way to get around Auckland!",
+  "short_name": "Waka",
+  "name": "Waka",
+  "description": "Your realtime guide to public transport in Auckland and Wellington.",
   "icons": [
     {
       "src": "/branding/launcher-icon-1x.png",

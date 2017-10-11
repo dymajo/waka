@@ -194,7 +194,7 @@ class SavedSations extends React.Component {
           />
         </ul>
         <a className="label version" href="https://github.com/consindo/dymajo-transit" target="_blank" rel="noopener" onClick={this.reject}>
-          DYMAJO Transit v{localStorage.getItem('AppVersion')}
+          DYMAJO Waka v{localStorage.getItem('AppVersion')}
         </a>
       </div>
     )

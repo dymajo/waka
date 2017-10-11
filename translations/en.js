@@ -1,6 +1,6 @@
 export default {
   app: {
-    name: 'Transit',
+    name: 'Waka',
     nointernet: 'You are not connected to the internet.',
     error: 'An error occured.',
     errorRetry: 'Retry',
@@ -10,7 +10,8 @@ export default {
     'nz-akl-long': 'Tāmaki Makaurau, Auckland',
     'nz-wlg': 'Wellington',
     'nz-wlg-long': 'Te Whanganui-a-Tara, Wellington',
-    'vote': 'Want to use Transit in your city?'
+    'vote': 'Want to use %{appname} in your city?',
+    'activator': 'Let us know!',
   },
   root: {
     stationsLabel: 'Stations',

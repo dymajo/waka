@@ -16,6 +16,8 @@ const authors = [
   ['https://twitter.com/itemic', 'Terran Kroft',  'Testing, Feedback'],
   ['https://github.com/blackdragon723', 'Dylan Wragge',  'Testing, Feedback'],
   ['http://www.generationzero.org/', 'Generation Zero',  'Artwork'],
+  ['https://twitter.com/pcman2000', 'Edward Zhang',  'Photography - Auckland'],
+  ['http://www.jeffsmithphotography.co.nz/', 'Jeff Smith',  'Photography - Wellington'],
 ]
 const apis = [
   ['https://at.govt.nz', 'Auckland Transport', 'API Usage'],
@@ -169,7 +171,7 @@ class Settings extends React.Component {
                 </a>
                 {button}
                 <div className={className}>
-                  <p>A number of people helped design, develop, and influence Transit.</p>
+                  <p>A number of people helped design, develop, and influence Waka.</p>
                   {this.renderLinks(authors)}
                   <h3>Special Thanks</h3>
                   <p>These are great things that are free, and we love them.</p>

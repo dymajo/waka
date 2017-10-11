@@ -10,7 +10,7 @@ const template = {
   linesRegion: pug.compileFile('server-static/templates/lines-region.pug')
 }
 
-const dtitle = 'DYMAJO Transit'
+const dtitle = 'Waka'
 const ddescription = 'Your way around Auckland. Realtime, beautiful, and runs on all of your devices.'
 const dcanonical = 'https://transit.dymajo.com'
 
@@ -23,7 +23,7 @@ const defaults = {
 
 class Defaults {
   constructor() {
-    this.name = ' - Transit'
+    this.name = ' - Waka'
     this.server = 'http://localhost:8000/a'
     this.prefixes = {
       'nz-akl': 'Auckland',
@@ -51,7 +51,7 @@ class Defaults {
   notFound(res) {
     res.status(404).send(
       template.notFound({
-        title: 'Not Found - Transit',
+        title: 'Not Found - Waka',
         description:
           'Sorry, but the page you were trying to view does not exist.',
         vendorpath: '/' + manifest['vendor.js'],

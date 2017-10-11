@@ -31,7 +31,7 @@ var search = {
         FROM
           stops
         WHERE
-          location_type = 0
+          location_type = 0 OR location_type IS NULL
         ORDER BY
           len(stop_code),
           stop_code
@@ -104,7 +104,7 @@ var search = {
           stop_lon
         from stops
         where 
-          location_type = 0
+          (location_type = 0 OR location_type IS NULL)
           and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
           and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
       ).then((result) => {
