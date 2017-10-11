@@ -65,6 +65,8 @@ export class stationStore extends Events {
     if (this.currentCity !== newCity) {
       this.currentCity = newCity
       this.trigger('newcity')
+      SettingsStore.state.lastLocation = [lat, lng]
+      SettingsStore.saveState()
     }
   }
   getHeadsign(prefix, longname, direction) {

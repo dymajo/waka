@@ -12,6 +12,7 @@ import TrainIcon from '../../dist/icons/train.svg'
 import FerryIcon from '../../dist/icons/ferry.svg'
 import BusIcon from '../../dist/icons/bus.svg'
 import ATIcon from '../../dist/icons/at.svg'
+import MetlinkIcon from '../../dist/icons/metlink.svg'
 import DymajoIcon from '../../dist/icons/dymajo.svg'
 import PatronIcon from '../../dist/icons/patron.svg'
 import CityIcon from '../../dist/icons/city.svg'
@@ -24,6 +25,7 @@ const iconMap = {
   'ferry.svg': <FerryIcon />,
   'bus.svg': <BusIcon />,
   'at.svg': <ATIcon />,
+  'metlink.svg': <MetlinkIcon />,
   'dymajo.svg': <DymajoIcon />,
   'patron.svg': <PatronIcon />,
   'city.svg': <CityIcon />,
@@ -47,6 +49,9 @@ class SidebarItemVanilla extends React.Component {
     if (this.props.type === 'install') {
       this.props.action()
     } else if (this.props.type !== 'url') {
+      if (this.props.url === '/l/') {
+        return this.props.action()
+      }
       this.props.history.push(this.props.url)
     }
   }
@@ -93,23 +98,27 @@ class SidebarItemVanilla extends React.Component {
 const SidebarItem = withRouter(SidebarItemVanilla)
 
 class SavedSations extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      stations: StationStore.getData(),
-    }
-    this.triggerUpdate = this.triggerUpdate.bind(this)
+  state = {
+    stations: StationStore.getData(),
+    currentCity: StationStore.currentCity,
   }
-  triggerUpdate() {
+  triggerUpdate = () => {
     this.setState({
       stations: StationStore.getData()
     })
   }
   componentDidMount() {
     StationStore.bind('change', this.triggerUpdate)
+    StationStore.bind('newcity', this.newcity)
   }
   componentWillUnmount() {
     StationStore.unbind('change', this.triggerUpdate)
+    StationStore.unbind('newcity', this.newcity)
+  }
+  newcity = () => {
+    this.setState({
+      currentCity: StationStore.currentCity
+    })
   }
   reject(e) {
     if (UiStore.state.mapView) {
@@ -117,6 +126,25 @@ class SavedSations extends React.Component {
     }
   }
   render() {
+    let twitterAcc
+    if (this.state.currentCity === 'nz-akl') {
+      twitterAcc = <SidebarItem
+        type="url"
+        url="https://twitter.com/AklTransport"
+        icon="at.svg"
+        name="Auckland Transport"
+        description={t('serviceAlerts.twitter', {account: 'AklTransport'})}
+      />
+    } else if (this.state.currentCity === 'nz-wlg') {
+      twitterAcc = <SidebarItem
+        type="url"
+        url="https://twitter.com/metlinkwgtn"
+        icon="metlink.svg"
+        name="Metlink"
+        description={t('serviceAlerts.twitter', {account: 'metlinkwgtn'})}
+      />
+    }
+
     let stations = this.state.stations
     const onboarding = <div className="onboard">
       <ul>
@@ -126,8 +154,9 @@ class SavedSations extends React.Component {
           description={t('onboarding.welcome.description', {appname: t('app.name')})}
         />
         <SidebarItem
-          url="/l/nz-akl"
+          url={'/l/' + (this.state.currentCity === 'none' ? '' : this.state.currentCity)}
           icon="lines.svg"
+          action={this.props.toggleRegion}
           className="lines-btn"
           name={t('onboarding.lines.name')}
           description={t('onboarding.lines.description')}
@@ -178,13 +207,7 @@ class SavedSations extends React.Component {
         </ul>
         <h2>{t('serviceAlerts.title')}</h2>
         <ul>
-          <SidebarItem
-            type="url"
-            url="https://twitter.com/AklTransport"
-            icon="at.svg"
-            name="Auckland Transport"
-            description={t('serviceAlerts.twitter', {account: 'AklTransport'})}
-          />
+          {twitterAcc}
           <SidebarItem
             type="url"
             url="https://twitter.com/DYMAJOLtd"

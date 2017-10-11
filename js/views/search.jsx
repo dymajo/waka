@@ -224,7 +224,8 @@ class Search extends React.Component {
       e.preventDefault()
     }
     this.searchInput.blur()
-    this.props.history.push(`/s/nz-akl/${this.state.station}`)
+    const prefix = StationStore.currentCity === 'none' ? 'nz-akl' : StationStore.currentCity
+    this.props.history.push(`/s/${prefix}/${this.state.station}`)
   }
   triggerCurrentLocation = () => {
     CurrentLocation.currentLocationButton()
@@ -303,7 +304,7 @@ class Search extends React.Component {
       stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
     }
 
-    let findModal = 'modal-wrapper'
+    let findModal = 'modal-wrapper find-modal'
     if (this.state.findModal === true) {
       findModal += ' show'
     }

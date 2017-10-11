@@ -55,6 +55,7 @@ class Lines extends React.Component {
     }
     window.addEventListener('online',  this.triggerGetLines)
     UiStore.bind('animation', this.animation)
+    StationStore.bind('newcity', this.newcity)
 
     this.getLines()
   }
@@ -67,8 +68,13 @@ class Lines extends React.Component {
     }
     window.removeEventListener('online',  this.triggerGetLines)
     UiStore.unbind('animation', this.animation)
+    StationStore.unbind('newcity', this.newcity)
   }
-
+  newcity = () => { 
+    if (StationStore.currentCity !== 'none') {
+      this.props.history.push('/l/' + StationStore.currentCity)
+    }
+  }
   triggerGetLines = () => {
     this.setState({
       error: null

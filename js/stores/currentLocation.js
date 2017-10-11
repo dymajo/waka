@@ -1,4 +1,5 @@
 import Events from './events'
+import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 
 export class currentLocation extends Events { // ability to subscribe to location updates
@@ -26,6 +27,7 @@ export class currentLocation extends Events { // ability to subscribe to locatio
       this.state.hasGranted = true
       if (this.state.position[0] === 0){ // if there's no current location loaded
         // settings for auckland only
+        // TODO ENSURE WELLINGTON
         if (this.state.position[0] > -38 && this.state.position[0] < -36 && this.state.position[1] > 173 && this.state.position[1] < 175) {
           this.resetCurrentPosition()
         } else {
@@ -72,6 +74,7 @@ export class currentLocation extends Events { // ability to subscribe to locatio
       this.state.position = [-41.278366, 174.779359] // wellington station
     }
     this.trigger('mapmove-silent')
+    StationStore.getCity(...this.state.position)
   }
 
   currentLocationButton() {
