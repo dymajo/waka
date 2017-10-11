@@ -103,11 +103,13 @@ var station = {
 
     const time = moment().tz('Pacific/Auckland')
     let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute()))
+    let midnightOverride = false
     if (req.params.time) {
       const split = req.params.time.split(':')
       let tentativeDate = new Date(Date.UTC(1970,0,1,split[0],split[1]))
       if (tentativeDate.toString !== 'Invalid Date') {
         currentTime = tentativeDate
+        midnightOverride = true
       }
     }
     sending.currentTime = currentTime.getTime()/1000
@@ -118,7 +120,7 @@ var station = {
     today.setUTCDate(time.date())
 
     // midnight fix
-    if (time.hour() < 5) {
+    if (time.hour() < 5 && midnightOverride === false) {
       today.setTime(today.getTime() - (1000 * 60 * 60 * 24))
     }
 
