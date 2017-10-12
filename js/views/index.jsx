@@ -21,7 +21,7 @@ import SavedStations from './savedstations.jsx'
 import Pin from './pin.jsx'
 
 // static
-import LogoIcon from '../../dist/icons/icon.svg'
+// import LogoIcon from '../../dist/icons/icon.svg'
 import SettingsIcon from '../../dist/icons/settings.svg'
 import StationIcon from '../../dist/icons/station.svg'
 import LinesIcon from '../../dist/icons/lines.svg'
@@ -343,7 +343,7 @@ class Index extends React.Component {
         <div className={rootClassName} ref="rootcontainer">
           <header className="material-header branding-header">
             <span className="header-left">
-              <LogoIcon />
+              <StationIcon />
             </span>
             <div className="header-expand menu" onTouchTap={this.toggleRegion}>
               <h1 className={firstHeadingClass}><strong>{t('app.name')}</strong></h1>

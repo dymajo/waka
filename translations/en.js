@@ -43,6 +43,7 @@ export default {
     stop: 'Stop %{number}',
     stops: 'Stops %{number}',
     multi: 'Multi Stop',
+    more: 'More',
   },
   serviceAlerts: {
     title: 'Service Alerts',

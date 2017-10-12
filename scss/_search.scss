@@ -6,7 +6,7 @@
   height: 100%;
 }
 .hide-icons {
-  .currentLocationButton, .routeButton {
+  .circle-button {
     opacity: 0;
   }  
 }
@@ -87,7 +87,7 @@
 
 .smallCurrentLocationCircle {
   fill-opacity: 1;
-  fill: $lightblue;
+  fill: $current-location;
   stroke: white;
   stroke-width: 2
 }
