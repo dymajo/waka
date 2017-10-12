@@ -12,7 +12,7 @@ const template = {
 
 const dtitle = 'Waka'
 const ddescription = 'Your way around Auckland. Realtime, beautiful, and runs on all of your devices.'
-const dcanonical = 'https://transit.dymajo.com'
+const dcanonical = 'https://getwaka.com'
 
 const defaults = {
   vendorpath: '/' + manifest['vendor.js'],
