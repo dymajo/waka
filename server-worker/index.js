@@ -1,17 +1,11 @@
 const colors = require('colors')
 const express = require('express')
 const bodyParser = require('body-parser')
-const appInsights = require('applicationinsights')
 
 const connection = require('./db/connection.js')
 const createDb = require('./db/create.js')
 const log = require('../server-common/logger.js')
 const cache = require('./cache')
-
-if (process.env.AZURE_INSIGHTS) {
-  appInsights.setup(process.env.AZURE_INSIGHTS)
-  appInsights.start()
-}
 
 log('Worker Started')
 process.on('message', function(message) {

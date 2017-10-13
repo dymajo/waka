@@ -1,14 +1,8 @@
 const colors = require('colors')
 const express = require('express')
 const router = require('./router.js')
-const appInsights = require('applicationinsights')
 
 const log = require('../server-common/logger.js')
-
-if (process.env.AZURE_INSIGHTS) {
-  appInsights.setup(process.env.AZURE_INSIGHTS)
-  appInsights.start()
-}
 
 log('Static Server Started')
 

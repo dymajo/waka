@@ -73,31 +73,27 @@ const realtime = {
   getVehicleLocationEndpoint: function(req, res) {
     const trip_id = req.body.trips[0]
 
-    const prefix = 'nz-wlg'
     const sqlRequest = connection.get().request()
-    sqlRequest.input('prefix', sql.VarChar(50), prefix)
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion(prefix))
     sqlRequest.input('trip_id', sql.VarChar(50), trip_id)
     sqlRequest.query(`
       SELECT TOP 1
         route_short_name
       FROM trips 
       INNER JOIN routes ON
-        routes.prefix = trips.prefix and
-        routes.version = trips.version and 
         routes.route_id = trips.route_id
       WHERE
-        trips.prefix = @prefix
-        and trips.version = @version
-        and trip_id = @trip_id
+        trip_id = @trip_id
     `).then(result => {
+      if (result.recordset.length < 1) {
+        return res.send({})
+      }
       const route_name = result.recordset[0].route_short_name
       request({url: serviceLocation + route_name}, function(err, response, body) {
         const responseData = {}
         JSON.parse(body).Services.forEach(service => {
           responseData[service.VehicleRef] = {
-            latitude: service.Lat,
-            longitude: service.Long,
+            latitude: parseFloat(service.Lat),
+            longitude: parseFloat(service.Long),
             bearing: service.Bearing
           }
         })

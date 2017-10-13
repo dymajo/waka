@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import local from '../../local'
 
 import { StationStore } from '../stores/stationStore.js'
+import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
 
@@ -168,7 +169,7 @@ class VehicleLocationBootstrap extends React.Component {
 
     if (this.state.showContent === true && (this.state.animation !== 'entering' || this.state.animation !== 'unmounted')) {
       if ('line_id' in this.props.match.params) {
-        let stopInfo = [-36.844229, 174.767823]
+        let stopInfo = SettingsStore.state.lastLocation
         content = (<this.VehicleLocation 
           params={this.props.match.params}
           lineInfo={this.state.lineInfo}
@@ -185,7 +186,7 @@ class VehicleLocationBootstrap extends React.Component {
       } else {
         let stopInfo = [this.state.stopInfo.stop_lat, this.state.stopInfo.stop_lon || this.state.stopInfo.stop_lng]
         if (typeof(stopInfo[0]) === 'undefined') {
-          stopInfo = [-36.844229, 174.767823]
+          stopInfo = SettingsStore.state.lastLocation
         }
         content = (
           <this.VehicleLocation 
