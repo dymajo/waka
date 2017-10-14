@@ -11,7 +11,7 @@ const template = {
 }
 
 const dtitle = 'Waka'
-const ddescription = 'Your way around Auckland. Realtime, beautiful, and runs on all of your devices.'
+const ddescription = 'Your way around Auckland & Wellington. Realtime, beautiful, and runs on all of your devices.'
 const dcanonical = 'https://getwaka.com'
 
 const defaults = {
@@ -24,6 +24,7 @@ const defaults = {
 class Defaults {
   constructor() {
     this.name = ' - Waka'
+    this.canonical = dcanonical
     this.server = 'http://localhost:8000/a'
     this.prefixes = {
       'nz-akl': 'Auckland',
@@ -37,14 +38,22 @@ class Defaults {
     description,
     canonical,
     data = null,
-    region = 'nz-akl'
+    region
   ) {
+    let splash = '/photos/splash.jpg'
+    if (typeof region !== 'undefined') {
+      splash = '/photos/' + region + '.jpg'
+    } else {
+      region = 'nz-akl'
+    }
+
     const content = Object.assign(defaults, {
       title: title || dtitle,
       description: description || ddescription,
       canonical: dcanonical + canonical,
       data: data,
-      region: region
+      region: region,
+      splash: dcanonical + splash
     })
     return template[templateName](content)
   }
