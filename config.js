@@ -1,6 +1,6 @@
 module.exports = {
   // agencies that you want workers to be managed automatically.
-  autoupdate: ['nz-akl'],
+  autoupdate: ['nz-akl', 'nz-wlg'],
 
   // how many minutes till first pull
   firstpull: 5,

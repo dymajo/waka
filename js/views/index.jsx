@@ -117,7 +117,7 @@ class Index extends React.Component {
     })
   }
   toggleLines = () => {
-    this.props.history.push('/l/nz-akl')
+    this.props.history.push('/l/' + this.state.currentCity)
   }
   triggerTouchStart = (e) => {
     // only start the pull down if they're at the top of the card
