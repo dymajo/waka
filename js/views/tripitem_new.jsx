@@ -144,10 +144,11 @@ class TripItem extends React.Component {
           {times.slice(0,3).map((item, key) => {
             const realtime = item.realtime !== false ? 'realtime' : ''
             const className = ''
+            const dd = (item.dd === true) ? (<span><strong>BIG</strong> <span className="opacity">&middot;</span> </span>) : null
             if (item.time === t('tripitem.due')) {
               return (
                 <h4 className={realtime} key={key}>
-                  <strong>{item.time}</strong>
+                  {dd}<strong>{item.time}</strong>
                 </h4>
               )
             } else if (item.realtime === 'delay') {
@@ -162,6 +163,7 @@ class TripItem extends React.Component {
               }
               return (
                 <h4 className={className} key={key}>
+                  {dd}
                   <strong>{stops[0]}</strong>{stops[1]}&nbsp;
                   <span className="opacity">&middot;</span> <strong>{min[0]}</strong> {min[1]}
                 </h4>

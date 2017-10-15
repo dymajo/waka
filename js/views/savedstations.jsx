@@ -146,7 +146,24 @@ class SavedSations extends React.Component {
     }
 
     let stations = this.state.stations
-    const onboarding = <div className="onboard">
+    const secondTwo = [
+      <SidebarItem
+        key="city"
+        type="install"
+        action={this.props.toggleRegion}
+        icon="city.svg"
+        name={'Switch City'}
+        description={'Get directions in another city.'}
+      />,
+      <SidebarItem
+        key="sponsor"
+        url="/sponsor"
+        icon="patron.svg"
+        name={t('onboarding.sponsor.name')}
+        description={t('onboarding.sponsor.description', {appname: t('app.name')})}
+      />
+    ]
+    const onboarding = <div className="onboard blue-fill">
       <ul>
         <SidebarItem
           type="description"
@@ -168,19 +185,7 @@ class SavedSations extends React.Component {
           name={t('onboarding.install.name')}
           description={<div><span>{t('onboarding.install.description', {appname: t('app.name')})}</span><span>{t('onboarding.install.description2', {appname: t('app.name')})}</span></div>}
         />
-        <SidebarItem
-          type="install"
-          action={this.props.toggleRegion}
-          icon="city.svg"
-          name={'Switch City'}
-          description={'Get directions in another city.'}
-        />
-        <SidebarItem
-          url="/sponsor"
-          icon="patron.svg"
-          name={t('onboarding.sponsor.name')}
-          description={t('onboarding.sponsor.description', {appname: t('app.name')})}
-        />
+        {secondTwo}
       </ul>
     </div>
 
@@ -188,6 +193,8 @@ class SavedSations extends React.Component {
     if (StationStore.getOrder().length === 0) {
       message = <p>{t('savedStations.empty')}<br />{t('savedStations.empty2')}</p>
     }
+
+    // positions the onboarding thing dependent on pwa mode.
     return (
       <div className="root-card-content">
         {onboarding}
@@ -216,6 +223,10 @@ class SavedSations extends React.Component {
             description={t('serviceAlerts.twitter', {account: 'DYMAJOLtd'})}
           />
         </ul>
+        <div className="more-section">
+          <h2>{t('savedStations.more')}</h2>
+          <ul className="blue-fill">{secondTwo}</ul>
+        </div>
         <a className="label version" href="https://github.com/consindo/dymajo-transit" target="_blank" rel="noopener" onClick={this.reject}>
           DYMAJO Waka v{localStorage.getItem('AppVersion')}
         </a>

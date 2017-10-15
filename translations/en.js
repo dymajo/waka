@@ -43,6 +43,7 @@ export default {
     stop: 'Stop %{number}',
     stops: 'Stops %{number}',
     multi: 'Multi Stop',
+    more: 'More',
   },
   serviceAlerts: {
     title: 'Service Alerts',
@@ -119,7 +120,7 @@ export default {
     min: '%{smart_count}& min |||| %{smart_count}& mins',
     and: 'and in&%{times}& min',
     last: 'Last',
-    map: 'Map',
+    map: 'Route Map',
     timetable: 'Timetable'
   },
   timetable: {

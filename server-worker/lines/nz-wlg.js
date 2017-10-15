@@ -46,6 +46,16 @@ const lineColorizer = (agency, route_short_name) => {
     '56': 'ff7b27',
     '57': '0e7c8a',
     '58': 'd82574',
+    // Duplicates because bad GTFS.
+    '050': '0b8c5a',
+    '052': '5d9734',
+    '053': 'f76a1f',
+    '054': 'd82574',
+    '055': '80311c',
+    '056': 'ff7b27',
+    '057': '0e7c8a',
+    '058': 'd82574',
+    // End of Duplicates
     '83': 'cf3113',
     '91': 'ff9430',
     '110': '914aa5',
@@ -183,6 +193,7 @@ const getLines = () => {
   `).then(result => {
     result.recordset.forEach((record) => {
       allLines[record.route_short_name] = [[record.route_long_name]]
+
       lineOperators[record.route_short_name] = record.agency_id
       if (record.route_type !== 3) {
         lineGroups[regionEnum.cf].items.push(record.route_short_name)

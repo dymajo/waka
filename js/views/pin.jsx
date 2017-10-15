@@ -87,7 +87,7 @@ class Pin extends React.Component {
           /fbios/.test(userAgent) || /twitter/.test(userAgent)) {
         output = <div className="ios-other">
           <p>You’ll need to open this app in Safari first!</p>
-          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
+          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://getwaka.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
           <br /><br />
         </div>
       } else if (/safari/.test(userAgent)) {
@@ -99,8 +99,8 @@ class Pin extends React.Component {
       } else {
         output = <div className="ios-other">
           <p>You’ll need to open this app in Safari first!</p>
-          <p><a href="https://transit.dymajo.com" onClick={this.doNothing}>transit.dymajo.com</a></p>
-          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
+          <p><a href="https://getwaka.com" onClick={this.doNothing}>getwaka.com</a></p>
+          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://getwaka.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
         </div>
       }
     }
@@ -108,7 +108,7 @@ class Pin extends React.Component {
       if (/firefox/.test(userAgent) || /samsung/.test(userAgent)) {
         output = <div className="android-other">
           <p>You’ll need to open this page in Chrome first!</p>
-          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://transit.dymajo.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
+          <button className="nice-button primary clipboardcopy" data-clipboard-text="https://getwaka.com" onTouchTap={this.triggerClipboard}>{linktext}</button>
         </div>
       } else {
         output = <div className="android-chrome">

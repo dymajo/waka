@@ -43,6 +43,7 @@ export class stationStore extends Events {
   tripData = []
   realtimeData = {}
   lineCache = {}
+  lineCacheRegion = null
 
   getIcon(station) {
     let icon = 'bus'
@@ -185,7 +186,7 @@ export class stationStore extends Events {
   }
   getLines(prefix = 'nz-akl') {
     return new Promise((resolve, reject) => {
-      if (Object.keys(this.lineCache).length === 0) {
+      if (Object.keys(this.lineCache).length === 0 || this.lineCacheRegion !== prefix) {
         if (!navigator.onLine) {
           reject(t('app.nointernet'))
           return
@@ -193,6 +194,7 @@ export class stationStore extends Events {
         fetch(`${local.endpoint}/${prefix}/lines`).then((response)=>{
           response.json().then((data) => {
             this.lineCache = data
+            this.lineCacheRegion = prefix
             resolve(data)
           })
         }).catch(() => {

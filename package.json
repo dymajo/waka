@@ -63,6 +63,7 @@
     "extract-zip": "^1.6.0",
     "http-proxy": "^1.16.2",
     "leaflet": "^1.2.0",
+    "leaflet-rotatedmarker": "^0.2.0",
     "moment": "^2.14.1",
     "moment-timezone": "^0.5.5",
     "mssql": "^4.1.0",

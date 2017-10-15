@@ -17,6 +17,7 @@ const iconMap = {
   bus: <BusIcon />
 }
 
+import RotatedMarker from './rotated-marker.jsx'
 let leaflet = require('react-leaflet')
 let Map = leaflet.Map
 let Marker = leaflet.Marker
@@ -54,6 +55,11 @@ const ferryIcon = Icon({
   iconSize: [24, 24],
   className: 'vehIcon'
 })
+const bearing = Icon({
+  iconUrl: '/icons/bearing.svg',
+  iconSize: [54, 54],
+  className: 'bearingIcon'
+})
 
 class vehicle_location extends React.Component {
   constructor(props) {
@@ -67,6 +73,8 @@ class vehicle_location extends React.Component {
       showIcons: true,
       busPosition: []
     }
+    this.currentLine = null
+    this.requestingRealtime = false
   }
   getShapeData = (newProps = this.props) => {
     let showIcons = true
@@ -102,7 +110,8 @@ class vehicle_location extends React.Component {
 
   getWKB = (newProps = this.props, force = false) => {
     if (typeof(this.state.line) === 'undefined' || force === true) {
-      if (typeof(newProps.tripInfo.shape_id) !== 'undefined') {
+      if (typeof(newProps.tripInfo.shape_id) !== 'undefined' && newProps.tripInfo.shape_id !== this.currentLine) {
+        this.currentLine = newProps.tripInfo.shape_id
         fetch(`${local.endpoint}/${newProps.params.region}/shapejson/${encodeURIComponent(newProps.tripInfo.shape_id)}`).then((response) => {
           response.json().then((geoJson) => {
             let newState = {
@@ -130,6 +139,9 @@ class vehicle_location extends React.Component {
         CurrentLocation.startWatch()
       }
     } else {
+      if (this.requestingRealtime === false) {
+        this.getPositionData(newProps)
+      }
       this.getWKB(newProps)
       CurrentLocation.stopWatch()
     }
@@ -193,10 +205,10 @@ class vehicle_location extends React.Component {
       })
       var requestData
       requestData = JSON.stringify({trips: queryString})
-      //console.log(requestData)
       if (queryString.length === 0) {
         return
       }
+      this.requestingRealtime = true
       let busPositions = {}
       fetch(`${local.endpoint}/${this.props.params.region}/vehicle_location`, {
         method: 'POST',
@@ -205,6 +217,7 @@ class vehicle_location extends React.Component {
         },
         body: requestData
       }).then((response) => {
+        this.requestingRealtime = false
         response.json().then((data) => {
           for (var trip in data) {
             if (typeof(data[trip].latitude) !== 'undefined'){
@@ -275,6 +288,16 @@ class vehicle_location extends React.Component {
       zoom = 12
     }
 
+    const vechMarkers = []
+    Object.keys(this.state.busPosition).forEach((bus) => {
+      const position = [this.state.busPosition[bus].latitude,this.state.busPosition[bus].longitude]
+      if (typeof this.state.busPosition[bus].bearing !== 'undefined') {
+        vechMarkers.push(<RotatedMarker rotationAngle={parseInt(this.state.busPosition[bus].bearing)} rotationOrigin="center center" icon={bearing} key={bus + 'bearing'} position={position}/>)
+      }
+      vechMarkers.push(<Marker icon={leafletIcon} key={bus} position={position}/>)
+      
+    })
+
     return (
       <div>
         <div className='vehicle-location-map'>
@@ -289,12 +312,7 @@ class vehicle_location extends React.Component {
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
-            {Object.keys(this.state.busPosition).map((bus) => {
-              return(
-                <Marker icon={leafletIcon} key={bus} position={[this.state.busPosition[bus].latitude,this.state.busPosition[bus].longitude]}/>
-              )
-              
-            })}
+            {vechMarkers}
             {this.state.stops.map((stop, key) => {
               if (geoJson === null) {
                 return

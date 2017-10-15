@@ -38,6 +38,11 @@ const realtime = {
         goal.setMilliseconds(0)
         goal.setSeconds(trip.departure_time_seconds)
 
+        // 050 bus fix.
+        if (parseInt(trip.route_short_name) >= 50 && parseInt(trip.route_short_name) < 60) {
+          trip.route_short_name = parseInt(trip.route_short_name).toString()
+        }
+
         if (trip.route_short_name in realtimeServices && realtimeServices[trip.route_short_name].length > 0) {
           const closest = realtimeServices[trip.route_short_name].reduce((prev, curr) => {
             return (Math.abs(new Date(curr.AimedDeparture) - goal)) < Math.abs(new Date(prev.AimedDeparture) - goal) ? curr : prev
@@ -73,31 +78,32 @@ const realtime = {
   getVehicleLocationEndpoint: function(req, res) {
     const trip_id = req.body.trips[0]
 
-    const prefix = 'nz-wlg'
     const sqlRequest = connection.get().request()
-    sqlRequest.input('prefix', sql.VarChar(50), prefix)
-    sqlRequest.input('version', sql.VarChar(50), cache.currentVersion(prefix))
     sqlRequest.input('trip_id', sql.VarChar(50), trip_id)
     sqlRequest.query(`
       SELECT TOP 1
         route_short_name
       FROM trips 
       INNER JOIN routes ON
-        routes.prefix = trips.prefix and
-        routes.version = trips.version and 
         routes.route_id = trips.route_id
       WHERE
-        trips.prefix = @prefix
-        and trips.version = @version
-        and trip_id = @trip_id
+        trip_id = @trip_id
     `).then(result => {
-      const route_name = result.recordset[0].route_short_name
+      if (result.recordset.length < 1) {
+        return res.send({})
+      }
+      let route_name = result.recordset[0].route_short_name
+      // 050 bus fix.
+      if (parseInt(route_name) >= 50 && parseInt(route_name) < 60) {
+        route_name = parseInt(route_name).toString()
+      }
+
       request({url: serviceLocation + route_name}, function(err, response, body) {
         const responseData = {}
         JSON.parse(body).Services.forEach(service => {
           responseData[service.VehicleRef] = {
-            latitude: service.Lat,
-            longitude: service.Long,
+            latitude: parseFloat(service.Lat),
+            longitude: parseFloat(service.Long),
             bearing: service.Bearing
           }
         })
