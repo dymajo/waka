@@ -15,7 +15,7 @@ const stations = new Stations()
 
 router.get('/', defaults.index)
 router.get('/sitemap.txt', sitemap.get)
-router.post('/email', email.sendEmail)
+router.post('/a/email', email.sendEmail)
 
 router.get('/s', stations.index)
 router.get('/s/:region', stations.region)
