@@ -286,7 +286,7 @@ class vehicle_location extends React.Component {
             maxZoom={18}
             zoom={zoom}>
             <TileLayer
-              url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}.png'}
+              url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'}
               attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'/>
             {geoJson}
             {Object.keys(this.state.busPosition).map((bus) => {
