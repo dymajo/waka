@@ -244,9 +244,9 @@ class Index extends React.Component {
           this.toggleStations()
         }, animationSpeed)
       }
-    // detects a flicks
+    // detects a flickss
     } else if (this.longtouch === false) {
-      if (Math.abs(this.touchstartpos - this.touchlastpos) > 3) {
+      if (Math.abs(this.touchstartpos - this.touchlastpos) > 15) {
         // hacks to make it not slow on slow devices
         if (this.state.mapView) {
           this.refs.rootcontainer.className = 'root-container'

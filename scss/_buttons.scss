@@ -51,3 +51,18 @@
     font-size: 0.9rem;
   }
 }
+.transparent-button {
+  display: block;
+  padding: 0.25rem 0;
+  background: transparent;
+  margin: 0;
+  border: 0;
+  color: $lightblue;
+  font-size: 15px;
+  outline: 0;
+  cursor: pointer;
+
+  &:active {
+    color: darken($lightblue, 20);
+  }
+}

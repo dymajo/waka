@@ -24,6 +24,7 @@ const apis = [
   ['https://azure.microsoft.com', 'Microsoft Azure', 'Application Server'],
   ['https://github.com', 'GitHub', 'Project Hosting'],
   ['https://www.openstreetmap.org/', 'OpenStreetMap', 'Map Data'],
+  ['https://www.openmaptiles.com/', 'OpenMapTiles', 'Map Data'],
   ['https://material.io/icons/', 'Material Design', 'Icons'],
 ]
 
