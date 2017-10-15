@@ -2,6 +2,7 @@ const request = require('request')
 const connection = require('../db/connection.js')
 const cache = require('../cache')
 const sql = require('mssql')
+const moment = require('moment-timezone')
 
 const tripsUrl = 'https://www.metlink.org.nz/api/v1/StopDepartures/'
 const serviceLocation = 'https://www.metlink.org.nz/api/v1/ServiceLocation/'
@@ -31,12 +32,13 @@ const realtime = {
       const misses = {}
       Object.keys(req.body.trips).forEach((key) => {
         const trip = req.body.trips[key]
-        const goal = new Date()
-        goal.setHours(0)
-        goal.setMinutes(0)
-        goal.setSeconds(0)
-        goal.setMilliseconds(0)
-        goal.setSeconds(trip.departure_time_seconds)
+
+        const goal = moment().tz('Pacific/Auckland')
+        goal.hours(0)
+        goal.minutes(0)
+        goal.seconds(0)
+        goal.milliseconds(0)
+        goal.seconds(trip.departure_time_seconds)
 
         // 050 bus fix.
         if (parseInt(trip.route_short_name) >= 50 && parseInt(trip.route_short_name) < 60) {
