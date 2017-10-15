@@ -369,9 +369,18 @@
 
 
 /* attribution and scale controls */
-
 .leaflet-container .leaflet-control-attribution {
-  display: none;
+  background: rgba(255, 255,255,0.9);
+  margin-bottom: 0;
+
+  @media (max-width: 850px) {
+    display: none;
+  }
+}
+@media (min-width: 851px) {
+  .leaflet-control-zoom.leaflet-bar.leaflet-control {
+    margin-bottom: 25px;
+  }
 }
 .leaflet-control-attribution,
 .leaflet-control-scale-line {
