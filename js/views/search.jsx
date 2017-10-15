@@ -350,7 +350,7 @@ class Search extends React.Component {
           <ZoomControl position="bottomleft" />
           <TileLayer
             url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'}
-            attribution='© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            attribution={'© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}
           />
           {this.state.stops.map((stop) => {
             let icon, markericon

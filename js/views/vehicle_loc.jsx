@@ -310,7 +310,8 @@ class vehicle_location extends React.Component {
             zoom={zoom}>
             <TileLayer
               url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'}
-              attribution='© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              attribution={'© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}
+            />
             {geoJson}
             {vechMarkers}
             {this.state.stops.map((stop, key) => {
