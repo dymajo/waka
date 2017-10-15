@@ -19,7 +19,7 @@ export default {
   },
   onboarding: {
     welcome: {
-      name: 'Welcome to %{appname}',
+      name: 'Kia Ora! Welcome to %{appname}.',
       description: '%{appname} is your realtime guide to public transport in Auckland and Wellington.',
     },
     lines: {

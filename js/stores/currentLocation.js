@@ -8,6 +8,7 @@ export class currentLocation extends Events { // ability to subscribe to locatio
     this.geoID = null  // geoID has a watcg on the watching of position
     this.state = {
       position: [0,0], // user's current position
+      gpsPosition: [0,0], // same same but different?
       accuracy: 0, // accuracy in (km?) of user's current position
       timestamp: 0, // what time location was found
       error: '', // if geolocation returned error
@@ -26,9 +27,8 @@ export class currentLocation extends Events { // ability to subscribe to locatio
     this.geoID = navigator.geolocation.watchPosition((position) => { // make the geoID watch the position
       this.state.hasGranted = true
       if (this.state.position[0] === 0){ // if there's no current location loaded
-        // settings for auckland only
-        // TODO ENSURE WELLINGTON
-        if (this.state.position[0] > -38 && this.state.position[0] < -36 && this.state.position[1] > 173 && this.state.position[1] < 175) {
+        // only set the city if they're in a valid city
+        if (StationStore.getCity(this.state.position[0], this.state.position[1], false) !== 'none') {
           this.resetCurrentPosition()
         } else {
           this.setCurrentPosition(position)
@@ -52,6 +52,7 @@ export class currentLocation extends Events { // ability to subscribe to locatio
   setCurrentPosition(position, updateType = 'pinmove') {
     let coords = [position.coords.latitude, position.coords.longitude]
     this.state.position = coords
+    this.state.gpsPosition = coords
     this.state.accuracy = position.coords.accuracy
     this.state.timestamp = position.timestamp
     this.trigger(updateType)
@@ -62,8 +63,8 @@ export class currentLocation extends Events { // ability to subscribe to locatio
   }
 
   resetCurrentPosition(updateType = 'pinmove') {
-    this.state.position[0] += Math.random()/100000
-    this.state.position[1] += Math.random()/100000
+    this.state.position[0] = this.state.gpsPosition[0] + Math.random()/100000
+    this.state.position[1] = this.state.gpsPosition[1] + Math.random()/100000
     this.trigger(updateType)
   }
 
@@ -86,6 +87,7 @@ export class currentLocation extends Events { // ability to subscribe to locatio
       this.resetCurrentPosition('mapmove') // move position by a very small random amount
     } else {
       if (this.state.error.toLowerCase() === 'timeout expired') {
+        this.resetCurrentPosition('mapmove')
         navigator.geolocation.getCurrentPosition((position) => {
           this.state.hasGranted = true
           this.setCurrentPosition(position, 'mapmove')

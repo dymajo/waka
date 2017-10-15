@@ -133,7 +133,9 @@ config.plugins.push(
     externals: [
       '/',
       '/fonts/OpenSansRegular.woff2',
+      '/fonts/OpenSansRegularExt.woff2',
       '/fonts/OpenSansSemiBold.woff2',
+      '/fonts/OpenSansSemiBoldExt.woff2',
       '/fonts/OpenSansBold.woff2',
     ],
     ServiceWorker: {

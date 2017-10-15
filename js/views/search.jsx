@@ -349,8 +349,8 @@ class Search extends React.Component {
           className="map">
           <ZoomControl position="bottomleft" />
           <TileLayer
-            url={'http://13.70.185.200/osm_tiles/{z}/{x}/{y}@2x.png'}
-            attribution='© <a href="https://www.mapbox.com/about/maps/"">Mapbox</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'}
+            attribution='© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
           {this.state.stops.map((stop) => {
             let icon, markericon

@@ -1,4 +1,4 @@
-const currentDate = new Date().toISOString().split('T')[0]
+var currentDate = new Date().toISOString().split('T')[0]
 
 // doesn't redirect test
 if (window.location.host === 'transit.dymajo.com' &&
