@@ -1,0 +1,17 @@
+const currentDate = new Date().toISOString().split('T')[0]
+
+// doesn't redirect test
+if (window.location.host === 'transit.dymajo.com' &&
+
+  // makes sure they have never used or no saved data
+  (window.localStorage.getItem('StationOrder') === null || (window.localStorage.getItem('StationOrder') &&
+
+  // makes sure they have no saved data
+  JSON.parse(window.localStorage.getItem('StationOrder')).length < 1)) &&
+
+  // doesn't redirect more than once a day
+  window.localStorage.getItem('RedirectDate') !== currentDate
+) {
+  window.localStorage.setItem('RedirectDate', currentDate)
+  window.location.href = window.location.href.replace('transit.dymajo.com', 'getwaka.com')
+}
