@@ -20,8 +20,8 @@ This is a transit app! Check it out.
 
 ### Prereqs
 - Microsoft SQL Server Installed
-- Sign up for an account at <https://dev-portal.at.govt.nz>
-- Set the system environmental variable atApiKey to your API key
+- Sign up for an account at <https://dev-portal.at.govt.nz> & <https://opendata.transport.nsw.gov.au>
+- Set the system environmental variable atApiKey & nswApiKey to your API keys
 - You'll also need Azure Table Storage - install the emulator, or use a testing server. There's instructions in the Azure documentation on how to set credentials.
 - Set the sendgrid API key if you want to send emails.
 

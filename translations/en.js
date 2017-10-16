@@ -6,6 +6,8 @@ export default {
     errorRetry: 'Retry',
   },
   regions: {
+    'au-syd': 'Sydney',
+    'au-syd-long': 'Sydney, NSW',
     'nz-akl': 'Auckland',
     'nz-akl-long': 'Tāmaki Makaurau, Auckland',
     'nz-wlg': 'Wellington',

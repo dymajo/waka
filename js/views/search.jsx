@@ -59,6 +59,30 @@ const getMarker = function(iconType, name) {
   }
 }
 
+const sydBus = Icon({
+  iconUrl: '/icons/syd-bus.png',
+  iconRetinaUrl: '/icons/syd-bus.png',
+  iconSize: [30,30]
+})
+
+const sydFerry = Icon({
+  iconUrl: '/icons/syd-ferry.png',
+  iconRetinaUrl: '/icons/syd-ferry.png',
+  iconSize: [30,30]
+})
+
+const sydLightRail = Icon({
+  iconUrl: '/icons/syd-light-rail.png',
+  iconRetinaUrl: '/icons/syd-light-rail.png',
+  iconSize: [30,30]
+})
+
+const sydTrain = Icon({
+  iconUrl: '/icons/syd-train.png',
+  iconRetinaUrl: '/icons/syd-train.png',
+  iconSize: [40,40]
+})
+
 const busIcon = Icon({
   iconUrl: '/icons/bus-icon.png',
   iconRetinaUrl: '/icons/bus-icon-2x.png',
@@ -301,6 +325,7 @@ class Search extends React.Component {
         icon = 'cablecar'
         markericon = cablecarSelection
       }
+      
       stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
     }
 
@@ -354,28 +379,43 @@ class Search extends React.Component {
           />
           {this.state.stops.map((stop) => {
             let icon, markericon
-            if (stop.route_type === 2) {
-              icon = 'train'
-              markericon = trainIcon
-            } else if (stop.route_type === 4) {
-              icon = 'ferry'
-              markericon = ferryIcon
-            } else if (stop.route_type === 5) {
-              icon = 'cablecar'
-              markericon = cablecarIcon
-            } else {
+            if (StationStore.currentCity === 'au-syd') {
               icon = 'bus'
-              const stopSplit = stop.stop_name.split('Stop')
-              const platformSplit = stop.stop_name.split('Platform')
-              if (stopSplit.length > 1) {
-                markericon = getMarker('bus', stopSplit[1])
-              } else if (platformSplit.length > 1) {
-                markericon = getMarker('bus', platformSplit[1])
+              markericon = sydBus
+              if (stop.route_type === 2){
+                icon = 'train'
+                markericon = sydTrain
+              } else if (stop.route_type === 4) {
+                icon = 'ferry'
+                markericon = sydFerry
+              } else if (stop.route_type === 0) {
+                icon = 'light-rail'
+                markericon = sydLightRail
+            }
+          }
+            else {
+              if (stop.route_type === 2) {
+                icon = 'train'
+                markericon = trainIcon
+              } else if (stop.route_type === 4) {
+                icon = 'ferry'
+                markericon = ferryIcon
+              } else if (stop.route_type === 5) {
+                icon = 'cablecar'
+                markericon = cablecarIcon
               } else {
-                markericon = busIcon
-              }
-            }       
-
+                icon = 'bus'
+                const stopSplit = stop.stop_name.split('Stop')
+                const platformSplit = stop.stop_name.split('Platform')
+                if (stopSplit.length > 1) {
+                  markericon = getMarker('bus', stopSplit[1])
+                } else if (platformSplit.length > 1) {
+                  markericon = getMarker('bus', platformSplit[1])
+                } else {
+                  markericon = busIcon
+                }
+              }       
+          }
             // jono's awesome collison detection
             // basically checks if something is already there
             var lng = stop.stop_lng
