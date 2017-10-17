@@ -89,6 +89,34 @@ const busIcon = Icon({
   iconSize: [25, 41]
 })
 
+const sydBusSelection = Icon({
+  iconUrl: '/icons/syd-bus-click.png',
+  iconRetinaUrl: '/icons/syd-bus-click.png',
+  iconSize: [30,30],
+  // className: 'currentSelectionIcon'
+})
+
+const sydFerrySelection = Icon({
+  iconUrl: '/icons/syd-ferry-click.png',
+  iconRetinaUrl: '/icons/syd-ferry-click.png',
+  iconSize: [30,30],
+  // className: 'currentSelectionIcon larger'
+})
+
+const sydLightRailSelection = Icon({
+  iconUrl: '/icons/syd-light-rail-click.png',
+  iconRetinaUrl: '/icons/syd-light-rail-click.png',
+  iconSize: [30,30],
+  // className: 'currentSelectionIcon larger'
+})
+
+const sydTrainSelection = Icon({
+  iconUrl: '/icons/syd-train-click.png',
+  iconRetinaUrl: '/icons/syd-train-click.png',
+  iconSize: [40,40],
+  // className: 'currentSelectionIcon larger'
+})
+
 const trainIcon = Icon({
   iconUrl: '/icons/train-icon.png',
   iconRetinaUrl: '/icons/train-icon-2x.png',
@@ -315,6 +343,19 @@ class Search extends React.Component {
       const item = StationStore.stationCache[this.state.currentStation]
       let icon = 'bus'
       let markericon = busSelection
+      if (StationStore.currentCity === 'au-syd'){
+        markericon = sydBusSelection
+        if (item.route_type === 2) {
+        icon = 'train'
+        markericon = sydTrainSelection
+      } else if (item.route_type === 4) {
+        icon = 'ferry'
+        markericon = sydFerrySelection
+      } else if (item.route_type === 5) {
+        icon = 'cablecar'
+        markericon = sydCablecarSelection
+      }
+    } else {
       if (item.route_type === 2) {
         icon = 'train'
         markericon = trainSelection
@@ -325,7 +366,7 @@ class Search extends React.Component {
         icon = 'cablecar'
         markericon = cablecarSelection
       }
-      
+    }
       stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
     }
 

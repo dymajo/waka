@@ -137,13 +137,16 @@ $bgheight: 125px;
 			}
 			.mode {
 				&.bus svg {
-					stroke: #56CCF2;
+					stroke: #009ed7;
 				}
 				&.train svg {
-					stroke: #32D074;
+					stroke: #ec6606;
 				}
 				&.ferry svg {
-					stroke: #F2994A;
+					stroke: #009e4d;
+				}
+				&.light-rail svg {
+					stroke: #e4002d;
 				}
 			}
 		}

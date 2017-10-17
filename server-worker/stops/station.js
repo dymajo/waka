@@ -143,11 +143,12 @@ var station = {
             record.departure_time_seconds += 86400    
           }
           record.arrival_time_seconds = record.departure_time_seconds
-          if (global.config.prefix === 'au-syd') 
+          if (global.config.prefix === 'au-syd') {
             record.route_color = '#' + record.route_color // probably want to do this at db level #jonoshitfixbutbymatt
-          else
+          }
+          else {
             record.route_color = line.getColor(record.route_short_name)
-          
+          }
           // 30mins of realtime 
           if (record.departure_time_seconds < (sending.currentTime + 1800) || record.departure_time_24) {
             realtimeTrips.push(record.trip_id)

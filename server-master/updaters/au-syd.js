@@ -33,7 +33,7 @@ class Sydney {
     const version = meta[0]
 
     // import version if it doesn't exist
-    if (WorkerManager.get('au-sud', version) === null) {
+    if (WorkerManager.get('au-syd', version) === null) {
       log('au-syd'.magenta, 'New Version:', version)
       await WorkerManager.add({
         prefix: 'au-syd', 
@@ -48,9 +48,9 @@ class Sydney {
   }
   async adjustMapping() {
     const meta = await this.findMeta()
-    const now = moment().tz('Pacific/Auckland')
-    const start = moment(meta[1]).tz('Pacific/Auckland')
-    const end = moment(meta[2]).tz('Pacific/Auckland')
+    const now = moment().tz('Australia/Sydney')
+    const start = moment(meta[1]).tz('Australia/Sydney')
+    const end = moment(meta[2]).tz('Australia/Sydney')
 
     const currentWorker = WorkerManager.getWorker(WorkerManager.getMapping('au-syd'))
     let versionDiff = false
