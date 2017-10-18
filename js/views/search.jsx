@@ -17,6 +17,8 @@ import { t } from '../stores/translationStore.js'
 import SearchIcon from '../../dist/icons/search.svg'
 import LocateIcon from '../../dist/icons/locate.svg'
 
+import iconhelper from '../helpers/icon.js'
+
 const Icon = leaflet.icon
 const LeafletMap = reactLeaflet.Map
 const Marker = reactLeaflet.Marker
@@ -24,6 +26,9 @@ const TileLayer = reactLeaflet.TileLayer
 const ZoomControl = reactLeaflet.ZoomControl
 const Circle = reactLeaflet.Circle
 const CircleMarker = reactLeaflet.CircleMarker
+
+const IconHelper = new iconhelper()
+ 
 
 const getMarker = function(iconType, name) { 
   if (iconType === 'bus') {
@@ -58,108 +63,6 @@ const getMarker = function(iconType, name) {
     })
   }
 }
-
-const sydBus = Icon({
-  iconUrl: '/icons/syd-bus.png',
-  iconRetinaUrl: '/icons/syd-bus.png',
-  iconSize: [30,30]
-})
-
-const sydFerry = Icon({
-  iconUrl: '/icons/syd-ferry.png',
-  iconRetinaUrl: '/icons/syd-ferry.png',
-  iconSize: [30,30]
-})
-
-const sydLightRail = Icon({
-  iconUrl: '/icons/syd-light-rail.png',
-  iconRetinaUrl: '/icons/syd-light-rail.png',
-  iconSize: [30,30]
-})
-
-const sydTrain = Icon({
-  iconUrl: '/icons/syd-train.png',
-  iconRetinaUrl: '/icons/syd-train.png',
-  iconSize: [40,40]
-})
-
-const busIcon = Icon({
-  iconUrl: '/icons/bus-icon.png',
-  iconRetinaUrl: '/icons/bus-icon-2x.png',
-  iconSize: [25, 41]
-})
-
-const sydBusSelection = Icon({
-  iconUrl: '/icons/syd-bus-click.png',
-  iconRetinaUrl: '/icons/syd-bus-click.png',
-  iconSize: [30,30],
-  // className: 'currentSelectionIcon'
-})
-
-const sydFerrySelection = Icon({
-  iconUrl: '/icons/syd-ferry-click.png',
-  iconRetinaUrl: '/icons/syd-ferry-click.png',
-  iconSize: [30,30],
-  // className: 'currentSelectionIcon larger'
-})
-
-const sydLightRailSelection = Icon({
-  iconUrl: '/icons/syd-light-rail-click.png',
-  iconRetinaUrl: '/icons/syd-light-rail-click.png',
-  iconSize: [30,30],
-  // className: 'currentSelectionIcon larger'
-})
-
-const sydTrainSelection = Icon({
-  iconUrl: '/icons/syd-train-click.png',
-  iconRetinaUrl: '/icons/syd-train-click.png',
-  iconSize: [40,40],
-  // className: 'currentSelectionIcon larger'
-})
-
-const trainIcon = Icon({
-  iconUrl: '/icons/train-icon.png',
-  iconRetinaUrl: '/icons/train-icon-2x.png',
-  iconSize: [30, 49]
-})
-const cablecarIcon = Icon({
-  iconUrl: '/icons/cablecar-icon.png',
-  iconRetinaUrl: '/icons/cablecar-icon-2x.png',
-  iconSize: [30, 49]
-})
-
-const ferryIcon = Icon({
-  iconUrl: '/icons/ferry-icon.png',
-  iconRetinaUrl: '/icons/ferry-icon-2x.png',
-  iconSize: [30, 49]
-})
-
-const busSelection = Icon({
-  iconUrl: '/icons/bus-fill.svg',
-  iconRetinaUrl: '/icons/bus-fill.svg',
-  iconSize: [24, 24],
-  className: 'currentSelectionIcon'
-})
-
-const trainSelection = Icon({
-  iconUrl: '/icons/train-fill.svg',
-  iconRetinaUrl: '/icons/train-fill.svg',
-  iconSize: [28, 28],
-  className: 'currentSelectionIcon larger'
-})
-const cablecarSelection = Icon({
-  iconUrl: '/icons/cablecar-fill.svg',
-  iconRetinaUrl: '/icons/cablecar-fill.svg',
-  iconSize: [28, 28],
-  className: 'currentSelectionIcon larger'
-})
-
-const ferrySelection = Icon({
-  iconUrl: '/icons/ferry-fill.svg',
-  iconRetinaUrl: '/icons/ferry-fill.svg',
-  iconSize: [28, 28],
-  className: 'currentSelectionIcon larger'
-})
 
 class Search extends React.Component {
   static propTypes = {
@@ -341,32 +244,9 @@ class Search extends React.Component {
     let stationMarker = null
     if (this.state.currentStation) {
       const item = StationStore.stationCache[this.state.currentStation]
-      let icon = 'bus'
-      let markericon = busSelection
-      if (StationStore.currentCity === 'au-syd'){
-        markericon = sydBusSelection
-        if (item.route_type === 2) {
-        icon = 'train'
-        markericon = sydTrainSelection
-      } else if (item.route_type === 4) {
-        icon = 'ferry'
-        markericon = sydFerrySelection
-      } else if (item.route_type === 5) {
-        icon = 'cablecar'
-        markericon = sydCablecarSelection
-      }
-    } else {
-      if (item.route_type === 2) {
-        icon = 'train'
-        markericon = trainSelection
-      } else if (item.route_type === 4) {
-        icon = 'ferry'
-        markericon = ferrySelection
-      } else if (item.route_type === 5) {
-        icon = 'cablecar'
-        markericon = cablecarSelection
-      }
-    }
+      let icon = IconHelper.getRouteType(item.route_type)
+      console.log(StationStore.currentCity)
+      let markericon = IconHelper.getIcon(StationStore.currentCity, item.route_type, 'selection')
       stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
     }
 
@@ -403,6 +283,13 @@ class Search extends React.Component {
       )
     }
 
+    const myIcons = {}
+    this.state.stops.forEach((stop) => {
+      if (typeof(myIcons[stop.route_type.toString()]) === 'undefined') {
+        myIcons[stop.route_type.toString()] = IconHelper.getIcon(StationStore.currentCity, stop.route_type)
+      }
+    })
+
     let mapview
     if (this.state.loadmap) {
       mapview = (
@@ -420,43 +307,18 @@ class Search extends React.Component {
           />
           {this.state.stops.map((stop) => {
             let icon, markericon
-            if (StationStore.currentCity === 'au-syd') {
-              icon = 'bus'
-              markericon = sydBus
-              if (stop.route_type === 2){
-                icon = 'train'
-                markericon = sydTrain
-              } else if (stop.route_type === 4) {
-                icon = 'ferry'
-                markericon = sydFerry
-              } else if (stop.route_type === 0) {
-                icon = 'light-rail'
-                markericon = sydLightRail
+            icon = IconHelper.getRouteType(stop.route_type)
+            markericon = myIcons[stop.route_type.toString()]
+            if (icon === 'bus') {
+              const stopSplit = stop.stop_name.split('Stop')
+              const platformSplit = stop.stop_name.split('Platform')
+              if (stopSplit.length > 1) {
+                markericon = getMarker('bus', stopSplit[1])
+              } else if (platformSplit.length > 1) {
+                markericon = getMarker('bus', platformSplit[1])
+              }
             }
-          }
-            else {
-              if (stop.route_type === 2) {
-                icon = 'train'
-                markericon = trainIcon
-              } else if (stop.route_type === 4) {
-                icon = 'ferry'
-                markericon = ferryIcon
-              } else if (stop.route_type === 5) {
-                icon = 'cablecar'
-                markericon = cablecarIcon
-              } else {
-                icon = 'bus'
-                const stopSplit = stop.stop_name.split('Stop')
-                const platformSplit = stop.stop_name.split('Platform')
-                if (stopSplit.length > 1) {
-                  markericon = getMarker('bus', stopSplit[1])
-                } else if (platformSplit.length > 1) {
-                  markericon = getMarker('bus', platformSplit[1])
-                } else {
-                  markericon = busIcon
-                }
-              }       
-          }
+            
             // jono's awesome collison detection
             // basically checks if something is already there
             var lng = stop.stop_lng
