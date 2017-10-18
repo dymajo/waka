@@ -13,9 +13,11 @@ const proxyHandle = function(req, res) {
   if (req.params.prefix === 'auto') {
     if (parseFloat(req.query.lat) < -40.6) {
       prefix = 'nz-wlg'
-    } else {
+    } else if (parseFloat(req.query.lon) < 159 ){
+      prefix = 'au-syd'
+    } else{
       prefix = 'nz-akl'
-    }
+    } 
   }
 
   const port = WorkerManager.getMapping(prefix)

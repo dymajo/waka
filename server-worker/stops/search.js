@@ -111,7 +111,10 @@ var search = {
         res.send(search._stopsFilter(result.recordset.map(item => {
           item.stop_region = global.config.prefix
           item.stop_lng = item.stop_lon // this is fucking dumb
-          item.route_type = search.stopsRouteType[item.stop_id] || 3
+          item.route_type = search.stopsRouteType[item.stop_id]
+          if (typeof item.route_type === 'undefined') {
+            item.route_type = 3
+          }
           return item
         })))
       }).catch((err) => {
