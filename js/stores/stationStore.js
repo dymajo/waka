@@ -53,6 +53,8 @@ export class stationStore extends Events {
       icon = 'ferry'
     } else if (station === 5) {
       icon = 'cablecar'
+    } else if (station === 0) {
+      icon = 'lightrail'
     }
     return icon
   }

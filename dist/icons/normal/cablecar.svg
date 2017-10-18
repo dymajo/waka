@@ -1,0 +1,26 @@
+<svg width="28" height="34" viewBox="0 0 28 34" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<title>cablecar</title>
+<desc>Created using Figma</desc>
+<g id="Canvas" transform="translate(-606 -958)">
+<g id="cablecar">
+<g id="Group">
+<g id="Rectangle 8">
+<use xlink:href="#path0_fill" transform="translate(606 958)" fill="#B60E00"/>
+</g>
+<g id="Polygon">
+<use xlink:href="#path1_fill" transform="matrix(1 0 0 -1 615 992)" fill="#B60E00"/>
+</g>
+</g>
+<g id="cablecar-fill">
+<g id="Vector">
+<use xlink:href="#path2_fill" transform="translate(612 962)" fill="#FFFFFF"/>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<path id="path0_fill" d="M 0 2.24C 0 1.00288 1.00288 0 2.24 0L 25.76 0C 26.9971 0 28 1.00288 28 2.24L 28 25.76C 28 26.9971 26.9971 28 25.76 28L 2.24 28C 1.00288 28 0 26.9971 0 25.76L 0 2.24Z"/>
+<path id="path1_fill" d="M 4.76314 0L 9.52628 6L -3.91703e-09 6L 4.76314 0Z"/>
+<path id="path2_fill" d="M 0 14.5C 0 16.43 1.57 18 3.5 18L 2 19.5L 2 20L 14 20L 14 19.5L 12.5 18C 14.43 18 16 16.43 16 14.5L 16 4C 16 0.5 12.42 0 8 0C 3.58 0 0 0.5 0 4L 0 14.5ZM 8 16C 6.9 16 6 15.1 6 14C 6 12.9 6.9 12 8 12C 9.1 12 10 12.9 10 14C 10 15.1 9.1 16 8 16ZM 14 9L 2 9L 2 4L 14 4L 14 9Z"/>
+</defs>
+</svg>

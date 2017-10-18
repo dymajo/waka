@@ -2,12 +2,12 @@ import leaflet from 'leaflet'
 
 const Icon = leaflet.icon
 const route_type_map = new Map()
-route_type_map.set(0, 'light-rail')
+route_type_map.set(0, 'lightrail')
 route_type_map.set(1, 'subway')
 route_type_map.set(2, 'train')
 route_type_map.set(3, 'bus')
 route_type_map.set(4, 'ferry')
-route_type_map.set(5, 'cable-car')
+route_type_map.set(5, 'cablecar')
 route_type_map.set(6, 'gondola')
 route_type_map.set(7, 'funicular')
 
@@ -72,11 +72,9 @@ class iconhelper {
 
     icon.iconUrl = '/icons/' + prefix + '/' + this.getFileName(route_type, prefix, variant) + variantfile + filetype
     console.log(icon.iconUrl)
-    if (prefix !== 'normal') {
-      icon.iconSize = this.getSize(route_type, prefix, variant)
-    } else {
-      icon.iconSize = this.getSize(route_type.toString(), prefix, variant)
-    }
+
+    icon.iconSize = this.getSize(route_type, prefix, variant)
+
     
     icon.className = this.getClassName(variant, prefix)
     return new Icon(icon)
@@ -84,7 +82,7 @@ class iconhelper {
 
   getSize(route_type, prefix, variant = null) {
     if (variant !== null) {
-      if (route_type !== '2' && route_type !== '4' && route_type !== '0') {
+      if (route_type !== 0 && route_type !== 2 && route_type !== 4) {
         route_type = 'default-selection'
       } else {
         route_type += '-selection'

@@ -7,7 +7,7 @@ export default {
   },
   regions: {
     'au-syd': 'Sydney',
-    'au-syd-long': 'Sydney, NSW',
+    'au-syd-long': 'New South Wales, Sydney',
     'nz-akl': 'Auckland',
     'nz-akl-long': 'Tāmaki Makaurau, Auckland',
     'nz-wlg': 'Wellington',
@@ -97,6 +97,7 @@ export default {
     translateDescription: 'Spot an issue in a translation, or want to translate %{appname} into another language?',
   },
   station: {
+    lightrail: 'Light Rail Stop',
     bus: 'Bus Stop',
     train: 'Train Station',
     ferry: 'Ferry Terminal',

@@ -28,7 +28,8 @@ class Defaults {
     this.server = 'http://localhost:8000/a'
     this.prefixes = {
       'nz-akl': 'Auckland',
-      'nz-wlg': 'Wellington'
+      'nz-wlg': 'Wellington',
+      'au-syd': 'Sydney'
     }
     this.index = this.index.bind(this)
   }

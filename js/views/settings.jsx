@@ -12,7 +12,7 @@ import CreditsIcon from '../../dist/icons/credits.svg'
 
 const authors = [
   ['https://jono.nz', 'Jono Cooper',  'Design, Code'],
-  ['http://mattdavidson.kiwi', 'Matt Davidson',  'Code'],
+  ['http://mattdavidson.kiwi', 'Matt Davidson',  'Code, Photography - Sydney'],
   ['https://twitter.com/itemic', 'Terran Kroft',  'Testing, Feedback'],
   ['https://github.com/blackdragon723', 'Dylan Wragge',  'Testing, Feedback'],
   ['http://www.generationzero.org/', 'Generation Zero',  'Artwork'],
