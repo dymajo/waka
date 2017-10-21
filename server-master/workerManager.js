@@ -128,8 +128,7 @@ const WorkerManager = {
         VALUES (@prefix, @version, @status, @startpolicy, @dbconfig, @dbname)
       `).then(() => {
         log('Added Worker', conf.prefix, conf.version)
-        WorkerManager._workerTable[conf.prefix+'|'+conf.version] = conf
-        resolve()
+        WorkerManager.load().then(resolve).catch(reject)
       }).catch(reject)
     })
   },
