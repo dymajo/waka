@@ -57,6 +57,8 @@ appcache
 *.sublime-project
 *.sublime-workspace
 
+# webpack
+index-generated.html
 *report.html
 *report.json
 assets.json

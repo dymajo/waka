@@ -6,6 +6,9 @@ const OfflinePlugin = require('offline-plugin')
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
+const generate = require('./server-static/generator.js')
+generate()
+
 const extractSass = new ExtractTextPlugin({
   filename: process.env.NODE_ENV === 'production' ? 'generated/[name].[contenthash].css' : 'generated/[name].css'
 })
@@ -76,6 +79,21 @@ let config = {
       }
     ]
   },
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'),
+    historyApiFallback:  {
+      rewrites: [
+        { from: /./, to: '/index-generated.html' }
+      ]
+    },
+    port: 8009,
+    index: 'index-generated.html',
+    proxy: {
+      '/a': {
+        target: 'http://localhost:8000',
+      }
+    }
+  },
   plugins: [
     extractSass,
     new webpack.DefinePlugin({
@@ -94,6 +112,7 @@ let config = {
     new ManifestPlugin({
       fileName: 'assets.json'
     })
+
   ]
 }
 if (process.env.NODE_ENV === 'production') {
@@ -124,23 +143,32 @@ if (process.env.NODE_ENV === 'production') {
     }),
     new webpack.optimize.ModuleConcatenationPlugin(),
   )
+
+  config.plugins.push(
+    new OfflinePlugin({
+      // caches the root url
+      externals: [
+        '/',
+        '/fonts/OpenSansRegular.woff2',
+        '/fonts/OpenSansRegularExt.woff2',
+        '/fonts/OpenSansSemiBold.woff2',
+        '/fonts/OpenSansSemiBoldExt.woff2',
+        '/fonts/OpenSansBold.woff2',
+      ],
+      ServiceWorker: {
+        navigateFallbackURL: '/'
+      }
+    })
+  )
 } else {
   config.plugins.push(new ConsoleNotifierPlugin())
+  console.log('Not building Service Worker')
 }
-config.plugins.push(
-  new OfflinePlugin({
-    // caches the root url
-    externals: [
-      '/',
-      '/fonts/OpenSansRegular.woff2',
-      '/fonts/OpenSansRegularExt.woff2',
-      '/fonts/OpenSansSemiBold.woff2',
-      '/fonts/OpenSansSemiBoldExt.woff2',
-      '/fonts/OpenSansBold.woff2',
-    ],
-    ServiceWorker: {
-      navigateFallbackURL: '/'
-    }
-  })
-)
+
+if (process.env.NODE_ENV === 'devlive') {
+  console.log('Using Live Server for API')
+  config.devServer.proxy['/a'].target = 'https://getwaka.com'
+  config.devServer.proxy['/a'].changeOrigin= true
+}
+
 module.exports = config
