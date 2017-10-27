@@ -40,4 +40,4 @@ let startApp = function() {
   ]
   ReactDOM.render(<App />, document.getElementById('app'))
 }
-document.ontouchmove = iOS.touchMoveFix
+// document.ontouchmove = iOS.touchMoveFix

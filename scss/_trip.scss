@@ -1,0 +1,176 @@
+.trip-content {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.colored-trip {
+  color: #fff;
+  border-bottom: 1px solid rgba(#000, 0.25);
+
+  .main {
+    padding: 7px 0 9px 12px;
+    display: flex;
+
+    &:active {
+      background: rgba(#000, 0.1);
+    }
+  }
+  .bottom {
+    height: 0;
+    overflow: hidden;
+    transition: 250ms ease height;
+    background: rgba(#000, 0.15);
+    display: flex;
+
+    button {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      outline: 0;
+
+      &:active {
+        background: rgba(#000, 0.1);
+      }
+
+      &:first-child svg {
+        margin-right: 2px;
+      }
+
+      svg {
+        fill: #fff;
+        vertical-align: top;
+        margin-right: 7px;
+      }
+    }
+  }
+  &.expanded .bottom {
+    height: 38px;
+  }
+
+  &:first-child {
+    border-top: 1px solid rgba(#000, 0.25);
+  }
+
+  .text {
+    font-size: 30px;
+  }
+
+  .cf {
+    $size: 30px;
+    background: #fff;
+    width: $size;
+    height: $size;
+    line-height: $size;
+    margin: 3px 0;
+    border-radius: 50%;
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .left {
+    flex: 1;
+  }
+  .right {
+    text-align: right;
+      display: flex;
+      flex-direction: column;
+    justify-content: center;
+  }
+
+  h1, h2, h3, h4 {
+    margin: 0;
+  }
+  h1 {
+    font-size: 34px;
+    line-height: 36px;
+  }
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+
+    small {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: -0.25px;
+    }
+
+    .direction {
+      vertical-align: top;
+      margin: 4px 1px 0 -3px;
+
+      &.in {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: bold;
+    padding-right: 12px;
+
+    img {
+      // margin-right: 4px;
+    }
+
+    &.realtime {
+      background: url(/icons/realtime.svg);
+      background-position: calc(100% - 2px) 9px;
+      background-repeat: no-repeat;
+
+      &.due {
+        background-position: calc(100% - 2px) -1px;
+      }
+    }
+
+    .number {
+      font-size: 26px;
+    }
+    .number-small {
+      font-size: 18px;
+      // display: inline-block;
+      // padding-top: 9px; // to keep in line with bigger number
+    }
+    .opacity {
+      color: rgba(#fff, 0.5);
+    }
+  }
+
+  h4 {
+    font-size: 12px;
+    font-weight: 400;
+    margin-right: 12px;
+
+    &.realtime {
+      &::after {
+        content: "";
+        background: url(/icons/realtime.svg);
+        background-position: -2px -2px;
+        background-repeat: no-repeat;
+        width: 8px;
+        height: 13px;
+        display: inline-block;
+      }
+    }
+
+    .last {
+      text-transform: uppercase;
+      padding: 1px 4px;
+      display: inline-block;
+      border: 1px solid rgba(#fff, 0.5);
+      border-radius: 2px;
+      font-size: 10px;
+      margin-top: 1px;
+      margin-right: -1px;
+      letter-spacing: 0.5px;
+    }
+  }
+
+}

@@ -2,31 +2,31 @@
 // i mean, iOS safari doesn't even render the same as macOS safari
 // what's the point of a A10 fusion chip when it can't get the calculations correct?
 
-.ios {
-  .scrollwrap {
-    min-height: 101%;
-  }
-  .enable-scrolling {
-    @media (pointer: coarse) {
-      overflow-y: scroll;
-      -webkit-overflow-scrolling: touch;
-    }
-  }
-  .root-card {
-    overflow-y: scroll;
+// .ios {
+//   .scrollwrap {
+//     min-height: 101%;
+//   }
+//   .enable-scrolling {
+//     @media (pointer: coarse) {
+//       overflow-y: scroll;
+//       -webkit-overflow-scrolling: touch;
+//     }
+//   }
+//   .root-card {
+//     overflow-y: scroll;
 
-  }
-  @media (max-width: 850px) {
-    .map-view .root-card {
-      overflow-y: hidden;
-    }
-  }
-}
-.ios-standalone.hide-ui {
-  background: url(/icons/back.svg) 50% 50% no-repeat;
-  background-size: 64px;
+//   }
+//   @media (max-width: 850px) {
+//     .map-view .root-card {
+//       overflow-y: hidden;
+//     }
+//   }
+// }
+// .ios-standalone.hide-ui {
+//   background: url(/icons/back.svg) 50% 50% no-repeat;
+//   background-size: 64px;
   
-  .root-container {
-    visibility: hidden;
-  }
-}
+//   .root-container {
+//     visibility: hidden;
+//   }
+// }

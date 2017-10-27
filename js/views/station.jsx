@@ -32,6 +32,7 @@ class Station extends React.Component {
   }
   liveRefresh
   realtimeRefresh
+  scroll = {}
   state = {
     name: '',
     description: '',
@@ -322,7 +323,8 @@ class Station extends React.Component {
   triggerTouchEnd = () => {
     this.isBeingTouched = false
     if (this.scroll.scrollTop < 40 && this.state.fancyMode) {
-      UiStore.goBack(this.props.history, '/', true)
+      // UiStore.goBack(this.props.history, '/', true)
+      console.log('prevented go back')
     }
   }
   triggerScroll = (e) => {
@@ -330,7 +332,8 @@ class Station extends React.Component {
     clearTimeout(this.timeout)
     this.timeout = setTimeout(() => {
       if (pos < 40 && !this.isBeingTouched && this.state.fancyMode) {
-        UiStore.goBack(this.props.history, '/', true)
+        // UiStore.goBack(this.props.history, '/', true)
+        console.log('prevented go back')
       }
     }, 50)
   }
@@ -568,6 +571,7 @@ class Station extends React.Component {
 
     return (
       <div className={className} style={styles} ref={e => this.container = e}>
+        <div className="station-spacer" />
         <div className={saveModal}>
           <div className="modal">
             <h2>{modalHeader}</h2>
@@ -582,20 +586,9 @@ class Station extends React.Component {
           </div>
         </div>
         {headerPos[0]}
-        <ul className={scrollable}
-          ref={e => this.scroll = e}
-          onTouchTap={this.triggerScrollTap}
-          onScroll={this.triggerScroll}
-          onTouchStart={this.triggerTouchStart}
-          onTouchEnd={this.triggerTouchEnd}
-          onTouchCancel={this.triggerTouchEnd}
-        >
-          <div className={scrollwrap}>
-            {headerPos[1]}
-            <div className="swipe-content" ref={e => this.swipeContent = e}>
-              {loading}{all}
-            </div>
-          </div>
+        {headerPos[1]}
+        <ul className="trip-content" ref={e => this.swipeContent = e}>
+          {loading}{all}
         </ul>
       </div>
     )

@@ -18,9 +18,9 @@ body {
 }
 
 html, body, #app {
-  height: 100%;
-  width: 100vw;
-  overflow: hidden;
+  // height: 100%;
+  // width: 100vw;
+  // overflow: hidden;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -44,6 +44,7 @@ html, body, input, button {
 @import "_root";
 @import "_search";
 @import "_content";
+@import "_trip";
 @import "_modal";
 @import "_settings";
 @import "_splash";

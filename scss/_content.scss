@@ -94,24 +94,50 @@ $bgheight: 125px;
 	}
 }
 
+.station {
+	.material-header {
+		position: fixed;
+		width: 100%;
+	}
+	// stops the fixed position header from overflowing
+	.trip-content {
+		box-sizing: border-box;
+		padding-top: $mobilenavsize;
+		min-height: 100vh;
+		min-height: var(--real-height);
+		background: $default-back;
+	}
+
+	&.fancy {
+		.station-spacer {
+			height: calc(var(--real-height) - #{$mobilenavsize - 10px});
+		}
+		.material-header {
+			position: -webkit-sticky;
+			position: sticky;
+			top: 0;
+		}
+		.trip-content {
+			padding-top: 0;
+			min-height: 0;
+		}
+	}
+}
+
 .content {
-	overflow: hidden;
+	// overflow: hidden;
 
 	// Safari Fix
-	height: 100%;
-
-	.station {
-		background: $default-back;
-
-		ul {
-			list-style-type: none;
-			padding: 0;
-			margin: 0;
-		}
+	// height: 100%;
+	@media (min-width: 851px) {
+		margin-left: $sidebar-width;
+		position: relative;
 	}
 
 	.station.fancy {
-		background: none;
+		
+		
+
 		.scrollwrap .material-header {
 			position: -webkit-sticky;
 			position: sticky;
@@ -147,42 +173,8 @@ $bgheight: 125px;
 				}
 			}
 		}
-		.scrollable {
-			.scrollwrap {
-				padding-top: calc(var(--real-height) + 5px);
-			}
-		}
 		.swipe-content {
 			background: #eee;
-		}
-	}
-	.scrollable {
-		overflow-y: auto;
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		bottom: 0;
-		overflow-x: hidden;
-		will-change: scroll;
-
-		-ms-overflow-style: -ms-autohiding-scrollbar;
-		-ms-scroll-rails: railed;
-
-		// div > li {
-		// 	position: relative;
-		// }
-		.scrollwrap {
-			padding-top: $navsize;
-			box-sizing: border-box;
-			position: relative;
-		}
-		.material-header {
-			position: fixed;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 1;
 		}
 	}
 
@@ -209,192 +201,23 @@ $bgheight: 125px;
 	}
 }
 
-// DESKTOP STYLEZ
-@media (min-width: 851px) {
-	$cap: 800px;
-	.content .station {
-		background: #eee;
+// // DESKTOP STYLEZ
+// @media (min-width: 851px) {
+// 	$cap: 800px;
+// 	.content .station {
+// 		background: #eee;
 
-		> .material-header {
-			max-width: $cap;
-		}
-	}
-	.swipe-content {
-		max-width: $cap;
-		box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
-		min-height: calc(var(--real-height) - 56px);
-		background: $default-back;
-	}
-}
-
-.colored-trip {
-	color: #fff;
-	border-bottom: 1px solid rgba(#000, 0.25);
-
-	.main {
-		padding: 7px 0 9px 12px;
-		display: flex;
-
-		&:active {
-			background: rgba(#000, 0.1);
-		}
-	}
-	.bottom {
-		height: 0;
-		overflow: hidden;
-		transition: 250ms ease height;
-		background: rgba(#000, 0.15);
-		display: flex;
-
-		button {
-			flex: 1;
-			border: 0;
-			background: transparent;
-			color: #fff;
-			font-weight: 600;
-			font-size: 14px;
-			outline: 0;
-
-			&:active {
-				background: rgba(#000, 0.1);
-			}
-
-			&:first-child svg {
-				margin-right: 2px;
-			}
-
-			svg {
-				fill: #fff;
-				vertical-align: top;
-				margin-right: 7px;
-			}
-		}
-	}
-	&.expanded .bottom {
-		height: 38px;
-	}
-
-	&:first-child {
-		border-top: 1px solid rgba(#000, 0.25);
-	}
-
-	.text {
-		font-size: 30px;
-	}
-
-	.cf {
-		$size: 30px;
-		background: #fff;
-		width: $size;
-		height: $size;
-		line-height: $size;
-		margin: 3px 0;
-		border-radius: 50%;
-		font-size: 18px;
-		text-align: center;
-	}
-
-	.left {
-		flex: 1;
-	}
-	.right {
-		text-align: right;
-			display: flex;
-			flex-direction: column;
-		justify-content: center;
-	}
-
-	h1, h2, h3, h4 {
-		margin: 0;
-	}
-	h1 {
-		font-size: 34px;
-		line-height: 36px;
-	}
-	h2 {
-		font-size: 14px;
-		font-weight: 600;
-		letter-spacing: -0.5px;
-
-		small {
-			font-size: 10px;
-			font-weight: 400;
-			letter-spacing: -0.25px;
-		}
-
-		.direction {
-			vertical-align: top;
-			margin: 4px 1px 0 -3px;
-
-			&.in {
-				transform: rotate(180deg);
-			}
-		}
-	}
-
-	h3 {
-		font-size: 14px;
-		font-weight: bold;
-		padding-right: 12px;
-
-		img {
-			// margin-right: 4px;
-		}
-
-		&.realtime {
-			background: url(/icons/realtime.svg);
-			background-position: calc(100% - 2px) 9px;
-			background-repeat: no-repeat;
-
-			&.due {
-				background-position: calc(100% - 2px) -1px;
-			}
-		}
-
-		.number {
-			font-size: 26px;
-		}
-		.number-small {
-			font-size: 18px;
-			// display: inline-block;
-			// padding-top: 9px; // to keep in line with bigger number
-		}
-		.opacity {
-			color: rgba(#fff, 0.5);
-		}
-	}
-
-	h4 {
-		font-size: 12px;
-		font-weight: 400;
-		margin-right: 12px;
-
-		&.realtime {
-			&::after {
-				content: "";
-				background: url(/icons/realtime.svg);
-				background-position: -2px -2px;
-				background-repeat: no-repeat;
-				width: 8px;
-				height: 13px;
-				display: inline-block;
-			}
-		}
-
-		.last {
-			text-transform: uppercase;
-			padding: 1px 4px;
-			display: inline-block;
-			border: 1px solid rgba(#fff, 0.5);
-			border-radius: 2px;
-			font-size: 10px;
-			margin-top: 1px;
-			margin-right: -1px;
-			letter-spacing: 0.5px;
-		}
-	}
-
-}
+// 		> .material-header {
+// 			max-width: $cap;
+// 		}
+// 	}
+// 	.swipe-content {
+// 		max-width: $cap;
+// 		box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+// 		min-height: calc(var(--real-height) - 56px);
+// 		background: $default-back;
+// 	}
+// }
 
 .spinner {
   width: 40px;
