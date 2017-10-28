@@ -1,13 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
-import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
 import TripItem from './tripitem_new.jsx'
-import zenscroll from 'zenscroll'
 
 import BackIcon from '../../dist/icons/back.svg'
 import SavedIcon from '../../dist/icons/saved.svg'
@@ -20,6 +18,16 @@ const iconMap = {
   train: <TrainIcon />,
   ferry: <FerryIcon />,
   bus: <BusIcon />
+}
+
+const scroll = () => {
+  requestAnimationFrame(() => {
+    window.scrollBy({ 
+      top: 250,
+      left: 0, 
+      behavior: 'smooth' 
+    })
+  })
 }
 
 const normalStyle = UiStore.getAnimation()
@@ -107,22 +115,20 @@ class Station extends React.Component {
       SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon || data.stop_lng]
       SettingsStore.saveState()
     }).catch((err) => {
-      console.log('error!')
+      console.log(err)
     })
 
     if (getTimes) {
       StationStore.getTimes(newProps.match.params.station, newProps.match.params.region)
     }
   }
-  tripsCb = () => {
+  tripsCb = () => {    
     const tripData = StationStore.tripData
     const rtData = StationStore.realtimeData
     if (tripData.length === 0) {
       // scroll when loaded
-      if (this.state.trips.length === 0 && this.state.fancyMode && this.scroll.scrollTop === 71) {
-        requestAnimationFrame(() => {
-          this.scroller.toY(250)
-        })
+      if (this.state.trips.length === 0 && this.state.fancyMode && window.scrollY === 71) {
+        scroll()
       }
 
       return this.setState({
@@ -130,10 +136,8 @@ class Station extends React.Component {
       })
     }
 
-    if (this.state.trips.length === 0 && this.state.fancyMode && this.scroll.scrollTop === 71 && tripData[0].route_type !== 3) {
-      requestAnimationFrame(() => {
-        this.scroller.toY(250)
-      })
+    if (this.state.trips.length === 0 && this.state.fancyMode && window.scrollY === 71 && tripData[0].route_type !== 3) {
+      scroll()
     }
 
     if (Object.keys(rtData).length > 0) {
@@ -159,10 +163,8 @@ class Station extends React.Component {
         }
       }
     } 
-    if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && this.scroll.scrollTop === 71 && tripData[0].route_type === 3) {
-      requestAnimationFrame(() => {
-        this.scroller.toY(250)
-      })
+    if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && window.scrollY === 71 && tripData[0].route_type === 3) {
+      scroll()
     }
     this.setState({
       trips: tripData,
@@ -312,35 +314,26 @@ class Station extends React.Component {
       name: e.currentTarget.value
     })
   }
-  triggerRemove = (e) => {
+  triggerRemove = () => {
     StationStore.removeStop(this.props.match.params.region + '|' + this.props.match.params.station)
     this.setState({ saveModal: false })
   }
-  triggerTouchStart = (e) => {
-    iOS.triggerStart(e)
+  triggerTouchStart = () => {
     this.isBeingTouched = true
   }
   triggerTouchEnd = () => {
     this.isBeingTouched = false
-    if (this.scroll.scrollTop < 40 && this.state.fancyMode) {
-      // UiStore.goBack(this.props.history, '/', true)
-      console.log('prevented go back')
+    if (window.scrollY < 40 && this.state.fancyMode) {
+      UiStore.goBack(this.props.history, '/', true)
     }
   }
-  triggerScroll = (e) => {
-    const pos = e.currentTarget.scrollTop
+  triggerScroll = () => {
     clearTimeout(this.timeout)
     this.timeout = setTimeout(() => {
-      if (pos < 40 && !this.isBeingTouched && this.state.fancyMode) {
-        // UiStore.goBack(this.props.history, '/', true)
-        console.log('prevented go back')
+      if (window.scrollY < 40 && !this.isBeingTouched && this.state.fancyMode) {
+        UiStore.goBack(this.props.history, '/', true)
       }
     }, 50)
-  }
-  triggerScrollTap = (e) => {
-    if (e.target.className.match('scrollwrap') && this.state.fancyMode) {
-      UiStore.goBack(this.props.history, '/')
-    }
   }
   componentWillMount() {
     // doesn't load fancymode on desktop :) 
@@ -356,12 +349,11 @@ class Station extends React.Component {
     UiStore.bind('animation', this.animation)
     UiStore.bind('expandChange', this.expandChange)
     window.addEventListener('online',  this.triggerRetry)
-
-    this.scroller = zenscroll.createScroller(this.scroll)
+    window.addEventListener('scroll', this.triggerScroll)
 
     // scroll top header into view
     if (this.state.fancyMode) {
-      this.scroll.scrollTop = 71
+      window.scrollTo(0, 71)
     }
 
     // uses cached data if it's still fresh
@@ -392,6 +384,7 @@ class Station extends React.Component {
     UiStore.unbind('animation', this.animation)
     UiStore.unbind('expandChange', this.expandChange)
     window.removeEventListener('online',  this.triggerRetry)
+    window.removeEventListener('scroll', this.triggerScroll)
 
     clearInterval(this.liveRefresh)
     clearInterval(this.realtimeRefresh)
@@ -436,9 +429,7 @@ class Station extends React.Component {
       error: error,
       loading: false
     })
-    requestAnimationFrame(() => {
-      this.scroller.toY(250)
-    })
+    scroll()
 
   }
   triggerRetry = () => {
@@ -519,7 +510,6 @@ class Station extends React.Component {
       saveModal += ' show'
     }
 
-    var scrollable = 'scrollable'
     let loading
     if (this.state.loading) {
       loading = (
@@ -529,16 +519,12 @@ class Station extends React.Component {
       loading = <div className="error"><p>{this.state.error}</p><button className="nice-button primary" onTouchTap={this.triggerRetry}>{t('app.errorRetry')}</button></div>
     } else if (this.state.currentTrips.length === 0) {
       loading = <div className="error"><p>{t('station.noservices')}</p></div>
-    } else {
-      scrollable += ' enable-scrolling'
     }
 
     let all = this.state.currentTrips.map((item, key) => {
       return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} index={key} vias={item[2]} />
     })
 
-    // draws the html
-    const scrollwrap = 'scrollwrap offset'
     let styles
     if (this.state.fancyMode) {
       styles = fancyStyle[this.state.animation]
@@ -570,7 +556,7 @@ class Station extends React.Component {
     }
 
     return (
-      <div className={className} style={styles} ref={e => this.container = e}>
+      <div className={className} style={styles} ref={e => this.container = e} onTouchStart={this.triggerTouchStart} onTouchEnd={this.triggerTouchEnd}>
         <div className="station-spacer" />
         <div className={saveModal}>
           <div className="modal">

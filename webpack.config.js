@@ -37,7 +37,7 @@ let config = {
     filename: 'generated/[name].bundle.js',
     chunkFilename: 'generated/[id].chunk.js'
   },
-  devtool: 'eval-source-map',
+  devtool: 'cheap-module-source-map',
   module: {
     rules: [
       {
@@ -53,11 +53,17 @@ let config = {
         test: /\.scss$/,
         use: extractSass.extract({
           use: [{
-            loader: 'css-loader'
+            loader: 'css-loader',
+            options: {
+              sourceMap: true
+            },
           }, {
             loader: 'resolve-url-loader'
           }, {
             loader: 'sass-loader',
+            options: {
+              sourceMap: true
+            },
           }],
           // use style-loader in development
           fallback: 'style-loader'

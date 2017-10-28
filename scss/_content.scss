@@ -110,12 +110,17 @@ $bgheight: 125px;
 
 	&.fancy {
 		.station-spacer {
-			height: calc(var(--real-height) - #{$mobilenavsize - 10px});
+			height: calc(var(--real-height) + 5px);
 		}
 		.material-header {
 			position: -webkit-sticky;
 			position: sticky;
 			top: 0;
+			height: $mobilenavsize + 10px;
+
+			h1 {
+				padding-top: 14px;
+			}
 		}
 		.trip-content {
 			padding-top: 0;
@@ -132,50 +137,6 @@ $bgheight: 125px;
 	@media (min-width: 851px) {
 		margin-left: $sidebar-width;
 		position: relative;
-	}
-
-	.station.fancy {
-		
-		
-
-		.scrollwrap .material-header {
-			position: -webkit-sticky;
-			position: sticky;
-			height: $mobilenavsize + 10px;
-			background-color: $atblue;
-			border-top: 1px solid darken($atblue, 10);
-			border-bottom: 1px solid darken($atblue, 10);
-			
-			h1 {
-				color: #fff;
-				padding-top: 14px;
-			}
-			h2 {
-				color: #ddd;
-			}
-
-			svg {
-				fill: #fff;
-			}
-
-			.mode svg {
-				fill: transparent;
-			}
-			.mode {
-				&.bus svg {
-					stroke: #56CCF2;
-				}
-				&.train svg {
-					stroke: #32D074;
-				}
-				&.ferry svg {
-					stroke: #F2994A;
-				}
-			}
-		}
-		.swipe-content {
-			background: #eee;
-		}
 	}
 
 	.hidden {
@@ -200,24 +161,6 @@ $bgheight: 125px;
 		font-size: 15px;
 	}
 }
-
-// // DESKTOP STYLEZ
-// @media (min-width: 851px) {
-// 	$cap: 800px;
-// 	.content .station {
-// 		background: #eee;
-
-// 		> .material-header {
-// 			max-width: $cap;
-// 		}
-// 	}
-// 	.swipe-content {
-// 		max-width: $cap;
-// 		box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
-// 		min-height: calc(var(--real-height) - 56px);
-// 		background: $default-back;
-// 	}
-// }
 
 .spinner {
   width: 40px;
