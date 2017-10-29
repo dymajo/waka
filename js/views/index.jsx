@@ -7,7 +7,7 @@ import { StationStore } from '../stores/stationStore.js'
 import { t } from '../stores/translationStore.js'
 
 // routes
-import Station from './station.jsx'
+import Station from './station/index.jsx'
 import Lines from './lines.jsx'
 import Settings from './settings.jsx'
 import Sponsor from './sponsor.jsx'

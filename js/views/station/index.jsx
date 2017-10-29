@@ -1,24 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
-import { StationStore } from '../stores/stationStore.js'
-import { SettingsStore } from '../stores/settingsStore.js'
-import { UiStore } from '../stores/uiStore.js'
-import { t } from '../stores/translationStore.js'
+import { StationStore } from '../../stores/stationStore.js'
+import { SettingsStore } from '../../stores/settingsStore.js'
+import { UiStore } from '../../stores/uiStore.js'
+import { t } from '../../stores/translationStore.js'
+
+import Header from './header.jsx'
 import TripItem from './tripitem_new.jsx'
-
-import BackIcon from '../../dist/icons/back.svg'
-import SavedIcon from '../../dist/icons/saved.svg'
-import UnsavedIcon from '../../dist/icons/unsaved.svg'
-import TrainIcon from '../../dist/icons/train.svg'
-import FerryIcon from '../../dist/icons/ferry.svg'
-import BusIcon from '../../dist/icons/bus.svg'
-
-const iconMap = {
-  train: <TrainIcon />,
-  ferry: <FerryIcon />,
-  bus: <BusIcon />
-}
 
 const scroll = () => {
   requestAnimationFrame(() => {
@@ -45,11 +34,9 @@ class Station extends React.Component {
     name: '',
     description: '',
     trips: [],
-    checked: {},
     realtime: {},
     loading: true,
     error: null,
-    saveModal: null,
     route_type: undefined,
     stop_lat: undefined,
     stop_lon: undefined,
@@ -59,29 +46,6 @@ class Station extends React.Component {
     animation: 'unmounted',
   }
 
-  constructor(props) {
-    super(props)
-    this.state.checked = this.props.match.params.station.split('+').reduce((result, item) => {
-      result[this.props.match.params.region + '|' + item] = true
-      return result
-    }, {})
-  }
-  // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
-  getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-    const deg2rad = function(deg) {
-      return deg * (Math.PI/180)
-    }
-    const R = 6371 // Radius of the earth in km
-    const dLat = deg2rad(lat2-lat1)  // deg2rad below
-    const dLon = deg2rad(lon2-lon1) 
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-    const d = R * c // Distance in km
-    return d
-  }
   triggerUpdate = () => {
     this.getData(this.props, false)
   }
@@ -155,14 +119,7 @@ class Station extends React.Component {
   realtimeCb = () => {
     const tripData = StationStore.tripData
     const rtData = StationStore.realtimeData
-    if (tripData[0].route_type === 2) {
-      for (var key in rtData) {
-        rtData[key] = {
-          v_id: rtData[key].v_id,
-          distance: this.getDistanceFromLatLonInKm(rtData[key].latitude, rtData[key].longitude, this.state.stop_lat, this.state.stop_lon)
-        }
-      }
-    } 
+     
     if (Object.keys(this.state.realtime).length === 0 && this.state.fancyMode && window.scrollY === 71 && tripData[0].route_type === 3) {
       scroll()
     }
@@ -279,45 +236,7 @@ class Station extends React.Component {
   triggerBack = () => {
     UiStore.goBack(this.props.history, '/')
   }
-  triggerSave = () => {
-    this.setState({
-      saveModal: true
-    })
-  }
-  triggerSaveAdd = () => {
-    this.setState({
-      saveModal: false
-    })
-
-    const stations = []
-    const otherwise = []
-    Object.entries(this.state.checked).forEach((item) => {
-      if (item[1] === true) stations.push(item[0].split('|').slice(-1)[0])
-      if (item[1] === false) otherwise.push(item[0].split('|').slice(-1)[0])
-    })
-
-    const newId = stations.join('+')
-    StationStore.removeStop(this.props.match.params.region + '|' + this.props.match.params.station)
-    stations.forEach((station) => StationStore.removeStop(this.props.match.params.region + '|' + station))
-    otherwise.forEach((station) => StationStore.addStop(station, null, this.props.match.params.region))
-    StationStore.addStop(newId, this.state.name, this.props.match.params.region)
-
-    if (newId !== this.props.match.params.station && newId !== '') {
-      this.props.history.replace(`/s/${this.props.match.params.region}/${newId}`)
-    }
-  }
-  triggerSaveCancel = () => {
-    this.setState({ saveModal: false })
-  }
-  triggerSaveChange = (e) => {
-    this.setState({
-      name: e.currentTarget.value
-    })
-  }
-  triggerRemove = () => {
-    StationStore.removeStop(this.props.match.params.region + '|' + this.props.match.params.station)
-    this.setState({ saveModal: false })
-  }
+  
   triggerTouchStart = () => {
     this.isBeingTouched = true
   }
@@ -395,7 +314,11 @@ class Station extends React.Component {
       if (itemPos.height > 72 && itemPos.top + itemPos.height > document.documentElement.clientHeight) {
         // calculates how much it overflows and adds it
         const overflowAmount = itemPos.top + itemPos.height - document.documentElement.clientHeight
-        this.scroll.scrollTop = this.scroll.scrollTop + overflowAmount
+        window.scrollBy({ 
+          top: overflowAmount,
+          left: 0, 
+          behavior: 'smooth' 
+        })
       }
     }, 250)
   }
@@ -415,15 +338,6 @@ class Station extends React.Component {
       })
     }
   }
-  triggerCheckbox = (item) => {
-    return (e) => {
-      const checked = JSON.parse(JSON.stringify(this.state.checked))
-      checked[item] = e.currentTarget.checked
-      this.setState({
-        checked: checked
-      })
-    }
-  }
   handleError = (error) => {
     this.setState({
       error: error,
@@ -440,74 +354,11 @@ class Station extends React.Component {
     this.getData(this.props)
   }
   render() {
-    const region = this.props.match.params.region
-    const stop = this.props.match.params.station
-    const regionStop = region + '|' + stop
     const icon = StationStore.getIcon(this.state.route_type)
-    let iconStr = this.state.description
-
-    let topIcon = <span className="header-left" onTouchTap={this.triggerBack}><BackIcon /></span>
+    
     let className = 'station'
     if (this.state.fancyMode) {
       className += ' fancy'
-      if (this.state.name !== '') {
-        topIcon = <span className={'header-left mode ' + icon}>{iconMap[icon]}</span>
-      }
-    }
-    if (this.state.name !== '') {
-      if (icon === 'bus') {
-        iconStr = t('station.bus') + ' ' + stop
-      }
-      if (this.props.match.params.station.split('+').length > 1) {
-        iconStr = t('savedStations.stops', {number: stop.split('+').join(', ')})
-      }
-    }
-
-    let modalHeader, saveButton, combined, removeBtn
-    if (StationStore.getOrder().indexOf(regionStop) === -1) {
-      modalHeader = t('stationedit.title2')
-      saveButton = <span className="header-right save" onTouchTap={this.triggerSave}><UnsavedIcon /></span>  
-    } else {
-      modalHeader = t('stationedit.title')
-      saveButton = <span className="header-right remove" onTouchTap={this.triggerSave}><SavedIcon /></span>
-
-      if (this.props.match.params.station.split('+').length === 1) {
-        removeBtn = <button className="inline" onTouchTap={this.triggerRemove}>Remove Stop</button>
-      }
-    }
-
-    const mergers = Object.keys(this.state.checked)
-    StationStore.getOrder(region).forEach((item) => {
-      if (item !== stop
-        && mergers.indexOf(item) === -1
-        && item.split('+').length === 1
-      ) {
-        mergers.push(item)
-      }
-    })
-    mergers.sort()
-
-    if (mergers.length > 1) {
-      combined = (
-        <div>
-          <h3>{t('stationedit.merge')}</h3>
-          <ul>
-            {mergers.filter(i => i !== regionStop).map((item) => {
-              return (
-                <li key={item}>
-                  <input id={'merge-' + item} onChange={this.triggerCheckbox(item)} type="checkbox" checked={this.state.checked[item] || false} />
-                  <label htmlFor={'merge-' + item}>{item.split('|').slice(-1)[0]} - {(StationStore.StationData[item] || {}).name}</label>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      )
-    }
-
-    let saveModal = 'modal-wrapper'
-    if (this.state.saveModal === true) {
-      saveModal += ' show'
     }
 
     let loading
@@ -525,54 +376,17 @@ class Station extends React.Component {
       return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} index={key} vias={item[2]} />
     })
 
-    let styles
-    if (this.state.fancyMode) {
-      styles = fancyStyle[this.state.animation]
-    } else {
-      styles = normalStyle[this.state.animation]
-    }
-
-    let name = this.state.name
-    name = name.replace(' Interchange', ' -')
-    name = name.replace(' Bus Station', ' -')
-    name = name.replace(' Train Station', '')
-    name = name.replace(' Ferry Terminal', '')
-    name = name.replace('- Cable Car Station', '')
-    name = name.replace(' Station', '')
-    const header = (
-      <header className="material-header">
-        {topIcon}
-        <div className="header-expand">
-          <h1>{name}</h1>
-          <h2>{iconStr}</h2>
-        </div>
-        {saveButton}
-      </header>
-    )
-
-    let headerPos = [header, null]
-    if (this.state.fancyMode) {
-      headerPos = [null, header]
-    }
+    const styles = this.state.fancyMode ? fancyStyle[this.state.animation] : normalStyle[this.state.animation]
 
     return (
       <div className={className} style={styles} ref={e => this.container = e} onTouchStart={this.triggerTouchStart} onTouchEnd={this.triggerTouchEnd}>
         <div className="station-spacer" />
-        <div className={saveModal}>
-          <div className="modal">
-            <h2>{modalHeader}</h2>
-            <div className="inner">
-              <h3>{t('stationedit.name')}</h3>
-              <input type="text" value={this.state.name} onChange={this.triggerSaveChange} ref={e => this.saveInput = e} />
-              {combined}
-              {removeBtn}
-            </div>
-            <button className="cancel" onTouchTap={this.triggerSaveCancel}>{t('stationedit.cancel')}</button>
-            <button className="submit" onTouchTap={this.triggerSaveAdd}>{t('stationedit.confirm')}</button>
-          </div>
-        </div>
-        {headerPos[0]}
-        {headerPos[1]}
+        <Header
+          name={this.state.name}
+          description={this.state.description}
+          fancy={this.state.fancyMode}
+          icon={icon}
+        />
         <ul className="trip-content" ref={e => this.swipeContent = e}>
           {loading}{all}
         </ul>
