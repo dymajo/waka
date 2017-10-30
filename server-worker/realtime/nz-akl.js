@@ -16,6 +16,7 @@ var vehicleLocationsOptions = {
 
 var isDoubleDecker = function(vehicle) {
   // This information collected by watching Symonds Street #dedication
+  // https://fleetlists.busaustralia.com/index-nz.php
   var doubleDeckers = [
     // NZ Bus / Metrolink
     // Alexander Dennis Enviro500
