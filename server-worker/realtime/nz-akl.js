@@ -24,6 +24,10 @@ var isDoubleDecker = function(vehicle) {
     '3AA0', '3AA1', '3AA2', '3AA3', '3AA4', '3AA5', '3AA6', 
     '3AA7', '3AA8', '3AA9', '3AAA', '3AAB', '3AAC', '3AAD', 
     '3AAE', '3AAF', 
+    // BCI CityRider
+    '3BC4', '3BC5', '3BC6', '3BC7', '3BC8', '3BC9', '3BCA',
+    '3BCB', '3BCC', '3BCD', '3BCE', '3BCF', '3BD0', '3BD1',
+    '3BD2',
 
 
     // Howick and Eastern
