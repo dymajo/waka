@@ -24,10 +24,15 @@ var isDoubleDecker = function(vehicle) {
     '3AA0', '3AA1', '3AA2', '3AA3', '3AA4', '3AA5', '3AA6', 
     '3AA7', '3AA8', '3AA9', '3AAA', '3AAB', '3AAC', '3AAD', 
     '3AAE', '3AAF', 
-    // BCI CityRider
+    // BCI CitiRider
     '3BC4', '3BC5', '3BC6', '3BC7', '3BC8', '3BC9', '3BCA',
     '3BCB', '3BCC', '3BCD', '3BCE', '3BCF', '3BD0', '3BD1',
     '3BD2',
+
+    //Birkenhead Transport
+    //Alexander Dennis Enviro500
+    '5258', '5259', '525A', '525B', '525C', '525D',
+
 
 
     // Howick and Eastern
@@ -36,7 +41,7 @@ var isDoubleDecker = function(vehicle) {
     '5FBB', '5FBC', '5FBD', '5FBE', '5FBF', '5FC0', '5FC1',
     '5FC2',
 
-    //NEX BCI CityRider FBC6123BRZ
+    //NEX BCI CitiRider FBC6123BRZ
     '5622', '5623', '5624', '5625', '5626', '5627', '5628',
     '5629', '562A', '562B', '562C', '562D', '562E', '562F',
     '5630'
