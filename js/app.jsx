@@ -4,12 +4,10 @@ import style from '../scss/style.scss'
 // js
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { iOS } from './models/ios.js'
-import { UiStore } from './stores/uiStore.js'
 
 import Index from './views/index.jsx'
-import Timetable from './views/timetable.jsx'
 
 import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
@@ -32,6 +30,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
     console.info('Service Worker is disabled in development.')
   }
   startApp()
+
+  if (iOS.detect()) {
+    document.ontouchmove = iOS.touchMoveFix
+  }
 })
 let startApp = function() {
   window.defaultContent = [
@@ -40,4 +42,3 @@ let startApp = function() {
   ]
   ReactDOM.render(<App />, document.getElementById('app'))
 }
-// document.ontouchmove = iOS.touchMoveFix

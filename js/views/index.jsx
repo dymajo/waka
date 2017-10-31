@@ -1,28 +1,20 @@
 import React from 'react'
-import { withRouter, Switch, Route } from 'react-router-dom'
-import { TransitionGroup, Transition } from 'react-transition-group'
+import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
+
 import { iOS } from '../models/ios.js'
 import { UiStore } from '../stores/uiStore.js'
 import { StationStore } from '../stores/stationStore.js'
 import { t } from '../stores/translationStore.js'
+import { CurrentLocation } from '../stores/currentLocation.js'
 
 // routes
-import Station from './station/index.jsx'
-import Lines from './lines.jsx'
-import Settings from './settings.jsx'
-import Sponsor from './sponsor.jsx'
-import TestLines from './test_lines.jsx'
-import Timetable from './timetable.jsx'
-import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
-import NoMatch from './nomatch.jsx'
-import RegionPopover from './region-popover.jsx'
+import RootHeader from './root/header.jsx'
+import Router from './router.jsx'
 
 import SavedStations from './savedstations.jsx'
 import Pin from './pin.jsx'
 
-// static
-// import LogoIcon from '../../dist/icons/icon.svg'
-import SettingsIcon from '../../dist/icons/settings.svg'
 import StationIcon from '../../dist/icons/station.svg'
 import LinesIcon from '../../dist/icons/lines.svg'
 
@@ -30,19 +22,20 @@ const paddingHeight = 250
 const barHeight = 56
 const animationSpeed = 250
 class Index extends React.Component {
+  static propTypes = {
+    location: PropTypes.object,
+    history: PropTypes.object,
+  }
+  state = {
+    region: false,
+    mapView: false,
+    showMap: false,
+    animate: false,
+    showPin: false,
+    panLock: true,
+  }
   constructor(props) {
     super(props)
-    this.state = {
-      mapView: false,
-      showMap: false,
-      animate: false,
-      showPin: false,
-      hideUi: false,
-      in: false,
-      region: false,
-      panLock: true,
-      currentCity: StationStore.currentCity
-    }
     this.Search = null // Map Component, dynamic load
 
     document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
@@ -60,10 +53,7 @@ class Index extends React.Component {
     if (window.location.pathname === '/') {
       this.loadMapDynamic()
     }
-    // this.refs.touchcard.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
-
     this.props.history.listen(UiStore.handleState)
-    StationStore.bind('newcity', this.newcity)
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {
@@ -79,11 +69,6 @@ class Index extends React.Component {
       }, UiStore.animationTiming + 25)
     }
   }
-  newcity = () => {
-    this.setState({
-      currentCity: StationStore.currentCity
-    })
-  }
   loadMapDynamic = () => {
     // doesn't do anything if already loaded
     if (this.Search !== null) {
@@ -93,11 +78,8 @@ class Index extends React.Component {
     // only loads on main page, i.e if nothing is in front of it
     System.import('./search.jsx').then(module => {
       this.Search = module.default
-
-      requestAnimationFrame(() => {      
-        this.setState({
-          showMap: true 
-        })
+      this.setState({
+        showMap: true 
       })
     })
   }
@@ -105,9 +87,12 @@ class Index extends React.Component {
     if (this.props.location.pathname !== '/') {
       return
     }
+    if (window.innerWidth <= 850 && this.state.mapView === false) {
+      CurrentLocation.startWatch()
+    }
     requestAnimationFrame(() => {
       if (this.state.mapView === false) {
-        this.refs.touchcard.scrollTop = 0
+        this.touchcard.scrollTop = 0
       }
       UiStore.state.mapView = !this.state.mapView
       this.setState({
@@ -124,11 +109,16 @@ class Index extends React.Component {
     if (this.props.location.pathname !== '/') {
       return
     }
-    this.props.history.push('/l/' + this.state.currentCity)
+    this.props.history.push('/l/' + StationStore.currentCity)
+  }
+  toggleRegion = () => {
+    this.setState({
+      region: !this.state.region,
+    })
   }
   triggerTouchStart = (e) => {
     // only start the pull down if they're at the top of the card
-    if (this.refs.touchcard.scrollTop === 0 && window.innerWidth < 851 && this.props.location.pathname === '/') {
+    if (this.touchcard.scrollTop === 0 && window.innerWidth < 851 && this.props.location.pathname === '/') {
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY
@@ -138,8 +128,8 @@ class Index extends React.Component {
       this.cardHeight = e.currentTarget.offsetHeight - paddingHeight - barHeight
 
       // kill transition
-      this.refs.touchcard.style.transition = 'initial'
-      this.refs.touchmap.style.transition = 'initial'
+      this.touchcard.style.transition = 'initial'
+      this.touchmap.style.transition = 'initial'
 
       // hack to detect flicks
       this.longtouch = false
@@ -152,8 +142,8 @@ class Index extends React.Component {
       this.longtouch = null
       this.scrolllock = null
     }
-    if (this.state.mapView && this.refs.touchcard.scrollTop !== 0) {
-      this.refs.touchcard.scrollTop = 0
+    if (this.state.mapView && this.touchcard.scrollTop !== 0) {
+      this.touchcard.scrollTop = 0
     }
   }
   triggerTouchMove = (e) => {
@@ -163,7 +153,7 @@ class Index extends React.Component {
     }
 
     // todo animate between first touchstart & touchmove
-    let scrollLogic = () => {
+    const scrollLogic = () => {
       if (this.scrolllock === true) {
         // fix if starting from bottom
         let offset = e.changedTouches[0].clientY - this.fakestartpos
@@ -189,10 +179,12 @@ class Index extends React.Component {
         let cardtransform = `translate3d(0,${offset}px,0)`
         let maptransform = `translate3d(0,${mapoffset}px,0)`
         requestAnimationFrame(() => {
-          this.refs.touchcard.style.transform = cardtransform
-          this.refs.touchmap.style.transform = maptransform
+          this.touchcard.style.transform = cardtransform
+          this.touchmap.style.transform = maptransform
         })
-        // e.preventDefault()
+        if (iOS.detect()) {
+          e.preventDefault()
+        }
         return true
       } else if (this.scrolllock === false) {
         // scrolling enabled, do nothing
@@ -240,7 +232,7 @@ class Index extends React.Component {
         threshold = e.currentTarget.offsetHeight / 2
       } else {
         // stops from scrolling down if they're halfway down the page
-        if (this.refs.touchcard.scrollTop !== 0) {
+        if (this.touchcard.scrollTop !== 0) {
           return
         }
       }
@@ -248,88 +240,56 @@ class Index extends React.Component {
       if (touchDelta > threshold) {
         // hacks to make it not slow on slow device
         if (this.state.mapView) {
-          this.refs.rootcontainer.className = 'root-container'
+          this.rootcontainer.className = 'root-container'
         } else {
-          this.refs.rootcontainer.className = 'root-container map-view'
+          this.rootcontainer.className = 'root-container map-view'
         }
         setTimeout(() => {
           this.toggleStations()
         }, animationSpeed)
       }
     // detects a flickss
-    } else if (this.longtouch === false) {
-      if (Math.abs(this.touchstartpos - this.touchlastpos) > 15) {
-        // hacks to make it not slow on slow devices
-        if (this.state.mapView) {
-          this.refs.rootcontainer.className = 'root-container'
-        } else {
-          this.refs.rootcontainer.className = 'root-container map-view'
-        }
-        // special easing curve
-        requestAnimationFrame(() => {
-          this.refs.touchcard.style.transition = `${animationSpeed}ms ease-out transform`
-          this.refs.touchcard.style.transform = ''
-          this.refs.touchmap.style.transition = `${animationSpeed}ms ease-out transform`
-          this.refs.touchmap.style.transform = ''
-        })
-        setTimeout(() => {
-          this.toggleStations()
-          requestAnimationFrame(() => {
-            this.refs.touchcard.style.transition = ''
-            this.refs.touchmap.style.transition = ''
-          })
-        }, 275)
-        return
+    } else if (this.longtouch === false && Math.abs(this.touchstartpos - this.touchlastpos) > 15) {
+      // hacks to make it not slow on slow devices
+      if (this.state.mapView) {
+        this.rootcontainer.className = 'root-container'
+      } else {
+        this.rootcontainer.className = 'root-container map-view'
       }
+      // special easing curve
+      requestAnimationFrame(() => {
+        this.touchcard.style.transition = `${animationSpeed}ms ease-out transform`
+        this.touchcard.style.transform = ''
+        this.touchmap.style.transition = `${animationSpeed}ms ease-out transform`
+        this.touchmap.style.transform = ''
+      })
+      setTimeout(() => {
+        this.toggleStations()
+        requestAnimationFrame(() => {
+          this.touchcard.style.transition = ''
+          this.touchmap.style.transition = ''
+        })
+      }, 275)
+      return
     }
     requestAnimationFrame(() => {
-      this.refs.touchcard.style.transition = ''
-      this.refs.touchcard.style.transform = ''
-      this.refs.touchmap.style.transition = ''
-      this.refs.touchmap.style.transform = ''
-    })
-  }
-  triggerSettings = () => {
-    if (window.location.pathname === '/settings') {
-      this.props.history.push('/')
-    } else {
-      this.props.history.push('/settings')
-    }
-  }
-  triggerStateUpdate = (key) => {
-    return (node) => {
-      if (node) {
-        if (key === 'entered') {
-          UiStore.state.exiting = window.location.pathname
-        }
-        UiStore.trigger('animation', [key, node])
-      }
-    }
-  }
-  toggleRegion = () => {
-    this.setState({
-      region: !this.state.region
+      this.touchcard.style.transition = ''
+      this.touchcard.style.transform = ''
+      this.touchmap.style.transition = ''
+      this.touchmap.style.transform = ''
     })
   }
   triggerScroll = (e) => {
-    if (e.currentTarget.scrollTop === 0) {
-      if (this.state.panLock === false) {
-        this.setState({
-          panLock: true
-        })
-      }
-    } else {
-      if (this.state.panLock === true) {
-        this.setState({
-          panLock: false
-        })
-      }
+    if ((e.currentTarget.scrollTop === 0 && this.state.panLock === false) 
+      || (e.currentTarget.scrollTop !== 0 && this.state.panLock === true)) {
+      this.setState({
+        panLock: !this.state.panLock
+      })
     }
   }
   render() {
-
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
-    var className = 'panes'
+    let className = 'panes'
     if (iOS.detect()) {
       className += ' ios'
     }
@@ -337,61 +297,23 @@ class Index extends React.Component {
     if (window.navigator.standalone) {
       className += ' ios-standalone'
     }
-    if (this.state.hideUi) {
-      className += ' hide-ui'
-    }
-    let rootClassName = 'root-container'
-    if (this.state.mapView) {
-      rootClassName += ' map-view'
-      // stationsString = 'Home'
-    }
-    let map
-    if (this.state.showMap) {
-      map = <this.Search />
-    }
 
-    let contentClassname = 'content animate'
-    if (!this.state.animate) {
-      contentClassname += ' no-animate'
-    }
-    let modal = null
-    if (this.state.showPin) {
-      modal = <Pin onHide={this.togglePin} />
-    }
-    let firstHeadingClass = 'full-height'
-    let secondHeading
-    if (this.state.currentCity !== 'none') {
-      firstHeadingClass = ''
-      secondHeading = <h2>{t('regions.'+this.state.currentCity+'-long')} <small>▼</small></h2>
-    }
+    const map = this.state.showMap ? <this.Search /> : null
+    const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
+
+    const rootClassName = 'root-container ' + (this.state.mapView ? 'map-view' : '')
     const rootCardClass = 'root-card enable-scrolling ' + (this.state.panLock ? 'pan-lock' : '')
 
     return (
       <div className={className}>
-        <div className={rootClassName} ref="rootcontainer">
-          <header className="material-header branding-header">
-            <span className="header-left">
-              <StationIcon />
-            </span>
-            <div className="header-expand menu" onTouchTap={this.toggleRegion}>
-              <h1 className={firstHeadingClass}><strong>{t('app.name')}</strong></h1>
-              {secondHeading}
-            </div>
-            <span className="header-right" onTouchTap={this.triggerSettings}>
-              <SettingsIcon />
-            </span>
-          </header>
-          <RegionPopover
-            visible={this.state.region}
-            toggle={this.toggleRegion}
-          />
-          <div className="root-map" ref="touchmap">
+        <div className={rootClassName} ref={e => this.rootcontainer = e}>
+          <RootHeader region={this.state.region} toggleRegion={this.toggleRegion} />
+          <div className="root-map" ref={e => this.touchmap = e}>
             {map}
           </div>
           <div className={rootCardClass}
-            ref="touchcard"
+            ref={e => this.touchcard = e}
             onTouchStart={this.triggerTouchStart}
-            // fuck you chrome for making passive default
             onTouchMove={this.triggerTouchMove}
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
@@ -411,35 +333,8 @@ class Index extends React.Component {
             <SavedStations togglePin={this.togglePin} toggleRegion={this.toggleRegion} />
           </div>
         </div>
-        <div className={contentClassname}>
-          <TransitionGroup>
-            <Transition
-              timeout={300}
-              key={this.props.location.key}
-              onEntering={this.triggerStateUpdate('entering')}
-              onEntered={this.triggerStateUpdate('entered')}
-              onExiting={this.triggerStateUpdate('exiting')}
-              onExited={this.triggerStateUpdate('exited')}
-            >
-              <Switch location={this.props.location} key={this.props.location.key} >
-                <Route path="/" exact />
-
-                <Route path="/s/:region/:station/realtime/:trip_id" component={VehicleLocationBootstrap} />
-                <Route path="/s/:region/:station/timetable/:route_name" component={Timetable} />
-                <Route path="/s/:region/:station" component={Station} />
-
-                <Route path="/l/:region/:line_id" component={VehicleLocationBootstrap} />
-                <Route path="/l/:region" component={Lines} />
-
-                <Route path="/settings" component={Settings}/>
-                <Route path="/sponsor" component={Sponsor}/>
-                <Route path="/testlines" component={TestLines} />
-                <Route component={NoMatch} />
-              </Switch>
-            </Transition>
-          </TransitionGroup>
-        </div>
-        {modal}
+        <Router />
+        {pin}
       </div>
     )
   }

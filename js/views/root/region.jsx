@@ -1,9 +1,14 @@
 import React from 'react'
-import { t } from '../stores/translationStore.js'
-import { CurrentLocation } from '../stores/currentLocation.js'
-import BackIcon from '../../dist/icons/back.svg'
+import { t } from '../../stores/translationStore.js'
+import { CurrentLocation } from '../../stores/currentLocation.js'
+import BackIcon from '../../../dist/icons/back.svg'
+import PropTypes from 'prop-types'
 
 export default class RegionPopover extends React.Component {
+  static propTypes = {
+    toggle: PropTypes.func,
+    visible: PropTypes.bool,
+  }
   changeCity(city) {
     return () => {
       CurrentLocation.setCity(city)
@@ -15,7 +20,9 @@ export default class RegionPopover extends React.Component {
     return (
       <div className={className}>
         <header className="material-header no-shadow">
-          <span className="header-left" onTouchTap={this.props.toggle}><BackIcon /></span>
+          <span className="header-left" onTouchTap={this.props.toggle}>
+            <BackIcon />
+          </span>
           <div className="header-expand">
             <h1 className="full-height">Pick City</h1>
           </div>
@@ -32,8 +39,13 @@ export default class RegionPopover extends React.Component {
             </li>
           </ul>
           <div className="vote">
-            <p>{t('regions.vote', {appname: t('app.name')})}</p>
-            <a className="nice-button primary small" href="https://twitter.com/dymajoltd" rel="noopener noreferrer" target="_blank">
+            <p>{t('regions.vote', { appname: t('app.name') })}</p>
+            <a
+              className="nice-button primary small"
+              href="https://twitter.com/dymajoltd"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
               {t('regions.activator')}
             </a>
           </div>
