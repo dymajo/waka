@@ -10,7 +10,8 @@ const generate = require('./server-static/generator.js')
 generate()
 
 const extractSass = new ExtractTextPlugin({
-  filename: process.env.NODE_ENV === 'production' ? 'generated/[name].[contenthash].css' : 'generated/[name].css'
+  filename: process.env.NODE_ENV === 'production' ? 'generated/[name].[contenthash].css' : 'generated/[name].css',
+  allChunks: true
 })
 const ConsoleNotifierPlugin = function() {}
 
@@ -27,7 +28,8 @@ ConsoleNotifierPlugin.prototype.apply = function(compiler) {
 
 let config = {
   entry: {
-    app: ['whatwg-fetch', './js/app.jsx'],
+    app: ['whatwg-fetch', './js/app.jsx', './scss/style.scss'],
+    maps: ['./scss/maps.scss'],
     vendor: ['react', 'react-dom', 'react-router', 'react-router-dom', 'react-transition-group', 'react-tap-event-plugin'],
     analytics: ['autotrack']
   },

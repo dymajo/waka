@@ -126,6 +126,7 @@ class Search extends React.Component {
     online: window.navigator.onLine
   }
   componentDidMount() {
+    UiStore.downloadCss('maps.css')
     window.addEventListener('online',  this.triggerRetry)
     window.addEventListener('offline',  this.goOffline)
     CurrentLocation.bind('pinmove', this.pinmove)

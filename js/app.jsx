@@ -1,6 +1,3 @@
-// css
-import style from '../scss/style.scss'
-
 // js
 import React from 'react'
 import ReactDOM from 'react-dom'

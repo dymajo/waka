@@ -129,18 +129,13 @@ $bgheight: 125px;
 	}
 }
 
-.content {
-	// overflow: hidden;
-
-	// Safari Fix
-	// height: 100%;
-	@media (min-width: 851px) {
-		margin-left: $sidebar-width;
+@media (min-width: 851px) {
+	.content {
 		position: relative;
-	}
-
-	.hidden {
-		display: none;
+		height: 100%;
+		&:empty {
+			pointer-events: none;
+		}
 	}
 }
 

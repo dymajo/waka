@@ -2,7 +2,7 @@ import React from 'react'
 import local from '../../local'
 import { withRouter } from 'react-router-dom'
 import { StationStore } from '../stores/stationStore.js'
-import { SettingsStore } from '../stores/settingsStore.js'
+import { UiStore } from '../stores/uiStore.js'
 import { CurrentLocation } from '../stores/currentLocation.js'
 import { t } from '../stores/translationStore.js'
 
@@ -148,6 +148,7 @@ class vehicle_location extends React.Component {
   }
   
   componentDidMount() {
+    UiStore.downloadCss('maps.css')
     CurrentLocation.bind('pinmove', this.pinmove)
     CurrentLocation.bind('mapmove', this.mapmove)
     this.getWKB()

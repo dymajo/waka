@@ -1,17 +1,6 @@
 @import "_normalize";
 @import "_fonts";
-
-$atblue: #273D52;
-$lightblue: #FB6754;
-$current-location: #3498db; 
-$green: #27ae60;
-$navsize: 56px;
-$mobilenavsize: 56px;
-$root-card-bar: 56px;
-$default-back: #f8f8f8;
-$big-offset: 32px;
-$sidebar-width: 350px;
-$standard-shadow: 0 0 4px rgba(0,0,0,0.4);
+@import "_vars";
 
 body {
   --real-height: 100vh;
@@ -19,6 +8,7 @@ body {
 
 html, body, #app {
   width: 100vw;
+  height: 100%;
   overflow-x: hidden;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -37,7 +27,6 @@ html, body, input, button {
 
 @import "_mixins";
 @import "_buttons";
-@import "_leaflet";
 @import "_defaults";
 @import "_navigation";
 @import "_root";
@@ -48,7 +37,6 @@ html, body, input, button {
 @import "_settings";
 @import "_splash";
 @import "_ios";
-@import "_production";
 @import "_lines";
 @import "_veh_loc";
 @import "_timetable";
