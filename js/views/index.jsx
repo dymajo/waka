@@ -40,6 +40,7 @@ class Index extends React.Component {
       hideUi: false,
       in: false,
       region: false,
+      panLock: true,
       currentCity: StationStore.currentCity
     }
     this.Search = null // Map Component, dynamic load
@@ -59,7 +60,7 @@ class Index extends React.Component {
     if (window.location.pathname === '/') {
       this.loadMapDynamic()
     }
-    this.refs.touchcard.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
+    // this.refs.touchcard.addEventListener('touchmove', this.triggerTouchMove, {passive: false})
 
     this.props.history.listen(UiStore.handleState)
     StationStore.bind('newcity', this.newcity)
@@ -101,6 +102,9 @@ class Index extends React.Component {
     })
   }
   toggleStations = () => {
+    if (this.props.location.pathname !== '/') {
+      return
+    }
     requestAnimationFrame(() => {
       if (this.state.mapView === false) {
         this.refs.touchcard.scrollTop = 0
@@ -117,11 +121,14 @@ class Index extends React.Component {
     })
   }
   toggleLines = () => {
+    if (this.props.location.pathname !== '/') {
+      return
+    }
     this.props.history.push('/l/' + this.state.currentCity)
   }
   triggerTouchStart = (e) => {
     // only start the pull down if they're at the top of the card
-    if (this.refs.touchcard.scrollTop === 0 && window.innerWidth < 851) {
+    if (this.refs.touchcard.scrollTop === 0 && window.innerWidth < 851 && this.props.location.pathname === '/') {
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY
@@ -185,7 +192,7 @@ class Index extends React.Component {
           this.refs.touchcard.style.transform = cardtransform
           this.refs.touchmap.style.transform = maptransform
         })
-        e.preventDefault()
+        // e.preventDefault()
         return true
       } else if (this.scrolllock === false) {
         // scrolling enabled, do nothing
@@ -222,7 +229,7 @@ class Index extends React.Component {
   }
   triggerTouchEnd = (e) => {
     // cancels if the event never started
-    if (this.touchstartpos === null) {
+    if (this.touchstartpos === null || this.scrolllock === false) {
       return
     }
 
@@ -231,6 +238,11 @@ class Index extends React.Component {
       let threshold = Math.round((e.currentTarget.offsetHeight - paddingHeight - barHeight) / 2)
       if (this.state.mapView === true) {
         threshold = e.currentTarget.offsetHeight / 2
+      } else {
+        // stops from scrolling down if they're halfway down the page
+        if (this.refs.touchcard.scrollTop !== 0) {
+          return
+        }
       }
       let touchDelta = Math.abs(e.changedTouches[0].clientY - this.touchstartpos)
       if (touchDelta > threshold) {
@@ -299,6 +311,21 @@ class Index extends React.Component {
       region: !this.state.region
     })
   }
+  triggerScroll = (e) => {
+    if (e.currentTarget.scrollTop === 0) {
+      if (this.state.panLock === false) {
+        this.setState({
+          panLock: true
+        })
+      }
+    } else {
+      if (this.state.panLock === true) {
+        this.setState({
+          panLock: false
+        })
+      }
+    }
+  }
   render() {
 
     // I hate myself for doing this, but iOS scrolling is a fucking nightmare
@@ -337,6 +364,7 @@ class Index extends React.Component {
       firstHeadingClass = ''
       secondHeading = <h2>{t('regions.'+this.state.currentCity+'-long')} <small>▼</small></h2>
     }
+    const rootCardClass = 'root-card enable-scrolling ' + (this.state.panLock ? 'pan-lock' : '')
 
     return (
       <div className={className}>
@@ -360,13 +388,14 @@ class Index extends React.Component {
           <div className="root-map" ref="touchmap">
             {map}
           </div>
-          <div className="root-card enable-scrolling"
+          <div className={rootCardClass}
             ref="touchcard"
             onTouchStart={this.triggerTouchStart}
             // fuck you chrome for making passive default
-            // onTouchMove={this.triggerTouchMove}
+            onTouchMove={this.triggerTouchMove}
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
+            onScroll={this.triggerScroll}
           >
             <div className="root-card-padding-button" onTouchTap={this.toggleStations}></div>
             <div className="root-card-bar">

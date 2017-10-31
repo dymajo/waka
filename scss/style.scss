@@ -18,9 +18,8 @@ body {
 }
 
 html, body, #app {
-  // height: 100%;
-  // width: 100vw;
-  // overflow: hidden;
+  width: 100vw;
+  overflow-x: hidden;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

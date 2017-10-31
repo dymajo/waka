@@ -53,6 +53,10 @@ $transition: 250ms ease transform;
 @media (max-width: 850px) {
 .root-card {
   z-index: 1;
+
+  &.pan-lock {
+    touch-action: pan-down;
+  }
 }
 .map-view {
   .root-map {
@@ -79,6 +83,7 @@ $transition: 250ms ease transform;
   height: $padding-height;
 }
 .root-card-bar {
+  touch-action: none;
   height: $root-card-bar;
   display: flex;
   background: #eee;
