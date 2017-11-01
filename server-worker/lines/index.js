@@ -22,7 +22,9 @@ blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response)
 
 var line = {
   getColor: function(route_short_name) {
-    return lineData.lineColors[route_short_name] || '#000'
+    if (!global.config.prefix === 'au-syd') {
+      return lineData.lineColors[route_short_name] || '#000'     
+    } 
   },
   getLines: function(req, res) {
     res.send(line._getLines())
