@@ -24,7 +24,8 @@ BEGIN
 		route_short_name nvarchar(50),
 		route_long_name nvarchar(100),
 		route_type int,
-		agency_id nvarchar(50)
+		agency_id nvarchar(50),
+		route_color nvarchar(50)
 	)
 
 	INSERT INTO #results

@@ -143,9 +143,12 @@ var station = {
             record.departure_time_seconds += 86400    
           }
           record.arrival_time_seconds = record.departure_time_seconds
-
-          record.route_color = line.getColor(record.route_short_name)
-
+          if (global.config.prefix === 'au-syd') {
+            record.route_color = '#' + record.route_color // probably want to do this at db level #jonoshitfixbutbymatt
+          }
+          else {
+            record.route_color = line.getColor(record.route_short_name)
+          }
           // 30mins of realtime 
           if (record.departure_time_seconds < (sending.currentTime + 1800) || record.departure_time_24) {
             realtimeTrips.push(record.trip_id)
@@ -162,7 +165,9 @@ var station = {
         res.send(sending)
         
       }).catch(function(err) {
+        console.log(err)
         res.status(500).send(err)
+        
       })
   },
   timetable: function(req, res) {
@@ -198,7 +203,8 @@ var station = {
             record.arrival_time_seconds += 86400
           }
           record.arrival_time_seconds = record.departure_time_seconds
-
+          route.route_color = ''
+          console.log(req.params.route.route_color)
           record.route_color = line.getColor(req.params.route)
           record.currentTime = currentTime.getTime()/1000
 

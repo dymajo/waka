@@ -30,6 +30,10 @@ export default class RegionPopover extends React.Component {
               <h2>{t('regions.nz-wlg-long').split(',')[0]}</h2>
               <h1>{t('regions.nz-wlg-long').split(',')[1]}</h1>
             </li>
+            <li className="au-syd" onTouchTap={this.changeCity('au-syd')}>
+              <h2>{t('regions.au-syd-long').split(',')[0]}</h2>
+              <h1>{t('regions.au-syd-long').split(',')[1]}</h1>
+            </li>
           </ul>
           <div className="vote">
             <p>{t('regions.vote', {appname: t('app.name')})}</p>

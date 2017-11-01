@@ -29,7 +29,8 @@ BEGIN
 		routes.route_short_name,
 		routes.route_long_name,
 		routes.route_type,
-		routes.agency_id
+		routes.agency_id,
+		routes.route_color
 	FROM stop_times
 	LEFT JOIN stops
 		on stop_times.stop_id = stops.stop_id

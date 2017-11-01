@@ -165,6 +165,7 @@ if (process.env.NODE_ENV === 'production') {
   console.log('Not building Service Worker')
 }
 
+
 if (process.env.NODE_ENV === 'devlive') {
   console.log('Using Live Server for API')
   config.devServer.proxy['/a'].target = 'https://getwaka.com'

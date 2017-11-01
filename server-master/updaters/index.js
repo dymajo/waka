@@ -3,12 +3,14 @@ const config = require('../../config.js')
 
 const at = require('./nz-akl.js')
 const metlink = require('./nz-wlg.js')
+const tfnsw = require('./au-syd.js')
 
 class Updaters {
   constructor() {
     this.agencies = {
       'nz-akl': new at(),
       'nz-wlg': new metlink(),
+      'au-syd': new tfnsw()
     }
   }
   start() {
