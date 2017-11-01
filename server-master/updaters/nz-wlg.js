@@ -41,7 +41,7 @@ class Wellington {
       })
       const worker = await WorkerManager.start('nz-wlg', version)
       await worker.importLongPromise('all')
-      await worker.stop()
+      await WorkerManager.stop('nz-wlg', version)
     }
     // adjust the mapping to make sure we're connected to the right version
     await this.adjustMapping()
@@ -64,7 +64,7 @@ class Wellington {
       await WorkerManager.setMapping('nz-wlg', meta[0])
       if (currentWorker !== null) {
         log('nz-wlg'.magenta, 'Stopping old worker.')
-        await currentWorker.stop()
+        await WorkerManager.stop('nz-wlg', currentWorker.config.version)
       }
     } else if (!versionDiff) {
       log('nz-wlg'.magenta, 'Version has not changed.')

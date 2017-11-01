@@ -1,35 +1,22 @@
-# DYMAJO Transit
-This is a transit app! Check it out.
+# Waka
+![Waka Icon](https://raw.githubusercontent.com/consindo/waka/master/dist/branding/launcher-icon-3x.png)
 
-<https://transit.dymajo.com>
+Your guide around public transport in Auckland & Wellington. Help us add more cities!
+
+<https://getwaka.com>
 
 ## Client Development
 - You'll need node.js & npm installed. (at least v8)
 - `npm install` to install deps.
-- `npm run watch` to watch and recompile js & css
-- `node localserver.js` to run just the client!
-- Change the endpoint in local.js to `https://transit.dymajo.com/a` to use the live data. There's an exception for localhost:8009.
+- `npm run watch:live` to watch and recompile js & css
 - Go to `http://localhost:8009`
-- Disable the Service Worker in devtools if you want to see your changes.
 
-## Server Development
+### Code Style
+- Run it through Prettier <https://github.com/prettier/prettier>
 
-### Config
-- Main config in `/config.js`
-- Configure Database connection in `server-master/db/`
 
-### Prereqs
-- Microsoft SQL Server Installed
-- Sign up for an account at <https://dev-portal.at.govt.nz> & <https://opendata.transport.nsw.gov.au>
-- Set the system environmental variable atApiKey & nswApiKey to your API keys
-- You'll also need Azure Table Storage - install the emulator, or use a testing server. There's instructions in the Azure documentation on how to set credentials.
-- Set the sendgrid API key if you want to send emails.
-
-### Database
-- Set the connection details in `config.js`
-- Run `node server/db/create-database.js` to create the database.
-- No migrations yet! 
-
-### Server
-- `node app` to run server.
-- `npm run build` to production build js & css
+### Start (after config has been set)
+- `node app` to run server on :8000.
+- Private API will be running on :8001
+- `npm run build` to production build js & css. Service Worker is enabled.
+- Use `npm run watch` to dev client and server at the same time. Automatically proxies :8009/a to :8000/a. Service Worker is disabled.
