@@ -22,7 +22,7 @@ blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response)
 
 var line = {
   getColor: function(route_short_name) {
-    if (!global.config.prefix === 'au-syd') {
+    if (global.config.prefix !== 'au-syd') {
       return lineData.lineColors[route_short_name] || '#000'     
     } 
   },
