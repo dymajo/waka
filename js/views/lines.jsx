@@ -7,7 +7,7 @@ import { StationStore } from '../stores/stationStore'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
 
-import BackIcon from '../../dist/icons/back.svg'
+import Header from './header.jsx'
 
 const style = UiStore.getAnimation()
 
@@ -26,10 +26,6 @@ class Lines extends React.Component {
     animation: 'unmounted'
   }
   animationOverride = false
-
-  triggerBack = () => {
-    UiStore.goBack(this.props.history, '/')
-  }
 
   triggerGroup = group => {
     return (e) => {
@@ -247,14 +243,7 @@ class Lines extends React.Component {
 
     return(
       <div className={className} ref={e => this.container = e} style={style[this.state.animation]}>
-        <header className="material-header">
-          <span className="header-left" onTouchTap={this.triggerBack}>
-            <BackIcon />
-          </span>
-          <div className="header-expand">
-            <h1>{t('lines.title')}</h1>
-          </div>
-        </header>
+        <Header title={t('lines.title')} />
         {ret}
       </div>
     )
