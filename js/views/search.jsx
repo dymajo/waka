@@ -245,7 +245,6 @@ class Search extends React.Component {
     if (this.state.currentStation) {
       const item = StationStore.stationCache[this.state.currentStation]
       let icon = IconHelper.getRouteType(item.route_type)
-      console.log(StationStore.currentCity)
       let markericon = IconHelper.getIcon(StationStore.currentCity, item.route_type, 'selection')
       stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
     }

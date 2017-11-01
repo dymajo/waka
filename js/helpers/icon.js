@@ -71,7 +71,6 @@ class iconhelper {
 
 
     icon.iconUrl = '/icons/' + prefix + '/' + this.getFileName(route_type, prefix, variant) + variantfile + filetype
-    console.log(icon.iconUrl)
 
     icon.iconSize = this.getSize(route_type, prefix, variant)
 
