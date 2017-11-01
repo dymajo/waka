@@ -50,9 +50,7 @@ class Index extends React.Component {
     }
   }
   componentDidMount() {
-    if (window.location.pathname === '/') {
-      this.loadMapDynamic()
-    }
+    this.loadMapDynamic()
     this.props.history.listen(UiStore.handleState)
   }
   componentWillReceiveProps(nextProps) {

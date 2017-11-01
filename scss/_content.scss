@@ -1,193 +1,168 @@
 $bgheight: 125px;
 
 .material-header {
-	height: $mobilenavsize;
-	position: relative;
-	background: #fff;
-	box-sizing: border-box;
-	display: flex;
-	box-shadow: $standard-shadow;
-	z-index: 2;
+  height: $mobilenavsize;
+  position: relative;
+  background: #fff;
+  box-sizing: border-box;
+  display: flex;
+  box-shadow: $standard-shadow;
+  z-index: 2;
 
-	&.no-shadow {
-		box-shadow: none;
-	}
+  &.no-shadow {
+    box-shadow: none;
+  }
 
-	.header-left, .header-right {
-		display: flex;
-		padding: 0 0.5rem;
+  .header-left, .header-right {
+    display: flex;
+    padding: 0 0.5rem;
 
-		img {
-			width: 100%;
-		}
-		svg {
-			margin: auto 0;
-		}
-	}
-	.header-sm {
-		display: flex;
-		svg {
-			margin: auto 0;
-			fill: $atblue;
-		}
-	}
-	.header-left-sm, .header-right-sm {
-		padding: 0 0.25rem;
-	}
-	.header-left {
-		padding-left: 0.75rem;
-	}
-	.header-right {
-		padding-right: 0.75rem;
-	}
-	.menu {
-		h2 {
-			cursor: pointer;
-		}
-		h2:hover {
-			text-decoration: underline;
-		}
-	}
-	.mode {
-		width: 42px;
-	}
+    img {
+      width: 100%;
+    }
+    svg {
+      margin: auto 0;
+    }
+  }
+  .header-sm {
+    display: flex;
+    svg {
+      margin: auto 0;
+      fill: $atblue;
+    }
+  }
+  .header-left-sm, .header-right-sm {
+    padding: 0 0.25rem;
+  }
+  .header-left {
+    padding-left: 0.75rem;
+  }
+  .header-right {
+    padding-right: 0.75rem;
+  }
+  .menu {
+    h2 {
+      cursor: pointer;
+    }
+    h2:hover {
+      text-decoration: underline;
+    }
+  }
+  .mode {
+    width: 42px;
+  }
 
-	.header-expand {
-		flex: 1;
-		overflow: hidden;
-		cursor: default;
-	}
-	h1 {
-		margin: 0;
-		font-size: 18px;
-		letter-spacing: -0.5px;
-		font-weight: 600;
-		color: $atblue;
-		line-height: 1.2;
-		white-space: nowrap;
-  	text-overflow: ellipsis;
-  	overflow: hidden;
-  	padding-top: 9px;
+  .header-expand {
+    flex: 1;
+    overflow: hidden;
+    cursor: default;
+  }
+  h1 {
+    margin: 0;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    font-weight: 600;
+    color: $atblue;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding-top: 9px;
 
-  	&.full-height {
-  		padding-top: 0;
-  		line-height: $mobilenavsize;
-  	}
+    &.full-height {
+      padding-top: 0;
+      line-height: $mobilenavsize;
+    }
 
-  	strong {
-  		font-weight: 600;
-  	}
-	}
-	h2 {
-		margin: 0;
-		font-size: 13px;
-		color: rgba(#000, 0.7);
-		margin: 0;
-		font-weight: 600;
-		letter-spacing: -0.5px;
-		line-height: 1.1;
+    strong {
+      font-weight: 600;
+    }
+  }
+  h2 {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(#000, 0.7);
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
 
-		small {
-			color: rgba(#000, 0.5);
-			font-size: 80%;
-		}
-	}
+    small {
+      color: rgba(#000, 0.5);
+      font-size: 80%;
+    }
+  }
 }
 
 .station {
-	.material-header {
-		position: fixed;
-		width: 100%;
-	}
-	// stops the fixed position header from overflowing
-	.trip-content {
-		box-sizing: border-box;
-		padding-top: $mobilenavsize;
-		min-height: 100vh;
-		min-height: var(--real-height);
-		background: $default-back;
-	}
+  .material-header {
+    position: fixed;
+    width: 100%;
+  }
+  // stops the fixed position header from overflowing
+  .trip-content {
+    box-sizing: border-box;
+    padding-top: $mobilenavsize;
+    min-height: 100vh;
+    min-height: var(--real-height);
+    background: $default-back;
+  }
 
-	&.fancy {
-		.station-spacer {
-			height: calc(var(--real-height) + 5px);
-		}
-		.material-header {
-			position: -webkit-sticky;
-			position: sticky;
-			top: 0;
-			height: $mobilenavsize + 10px;
+  &.fancy {
+    .station-spacer {
+      height: calc(var(--real-height) + 5px);
+    }
+    .material-header {
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      height: $mobilenavsize + 10px;
 
-			h1 {
-				padding-top: 14px;
-			}
-// <<<<<<< HEAD
-// =======
-// 			h2 {
-// 				color: #ddd;
-// 			}
-
-// 			svg {
-// 				fill: #fff;
-// 			}
-
-// 			.mode svg {
-// 				fill: transparent;
-// 			}
-// 			.mode {
-// 				&.bus svg {
-// 					stroke: #009ed7;
-// 				}
-// 				&.train svg {
-// 					stroke: #ec6606;
-// 				}
-// 				&.ferry svg {
-// 					stroke: #009e4d;
-// 				}
-// 				&.light-rail svg {
-// 					stroke: #e4002d;
-// 				}
-// 			}
-// 		}
-// 		.scrollable {
-// 			.scrollwrap {
-// 				padding-top: calc(var(--real-height) + 5px);
-// 			}
-// >>>>>>> origin/master
-		}
-		.trip-content {
-			padding-top: 0;
-			min-height: 0;
-		}
-	}
+      h1 {
+        padding-top: 14px;
+      }
+    }
+    .trip-content {
+      padding-top: 0;
+      min-height: 0;
+    }
+  }
 }
 
 @media (min-width: 851px) {
-	.content {
-		position: relative;
-		height: 100%;
-		&:empty {
-			pointer-events: none;
-		}
-	}
+  .content {
+    &:empty {
+      pointer-events: none;
+    }
+  }
+  .station {
+    width: $sidebar-width;
+
+    .material-header {
+      position: absolute;
+      max-width: 350px;
+      box-shadow: none;
+      border-bottom: 1px solid #ddd;
+    }
+  }
 }
 
 .error {
-	z-index: 0;
-	text-align: center;
-	width: 100%;
-	letter-spacing: -0.5px;
-	font-weight: 600;
-	padding: 20px 0 30px;
+  z-index: 0;
+  text-align: center;
+  width: 100%;
+  letter-spacing: -0.5px;
+  font-weight: 600;
+  padding: 20px 0 30px;
 
-	p {
-		line-height: 40px;
-		margin: 0;
-	}
+  p {
+    line-height: 40px;
+    margin: 0;
+  }
 
-	@media (max-width: 450px) {
-		font-size: 15px;
-	}
+  @media (max-width: 450px) {
+    font-size: 15px;
+  }
 }
 
 .spinner {
@@ -201,11 +176,11 @@ $bgheight: 125px;
 
 @keyframes sk-scaleout {
   0% { 
-		-webkit-transform: scale(0) translate3d(0, 20px, 0);
-		transform: scale(0) translate3d(0, 20px, 0);
+    -webkit-transform: scale(0) translate3d(0, 20px, 0);
+    transform: scale(0) translate3d(0, 20px, 0);
   } 100% {
-		-webkit-transform: scale(1.0) translate3d(0, 20px, 0);
-		transform: scale(1.0) translate3d(0, 20px, 0);
-		opacity: 0;
+    -webkit-transform: scale(1.0) translate3d(0, 20px, 0);
+    transform: scale(1.0) translate3d(0, 20px, 0);
+    opacity: 0;
   }
 }

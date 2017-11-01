@@ -3,7 +3,7 @@ import { iOS } from '../models/ios.js'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
 
-import BackIcon from '../../dist/icons/back.svg'
+import Header from './header.jsx'
 const style = UiStore.getAnimation()
 
 class Sponsor extends React.Component {
@@ -81,21 +81,10 @@ class Sponsor extends React.Component {
     }
   }
 
-  triggerBack = () => {
-    UiStore.goBack(this.props.history, '/')
-  }
-
   render() {
     return(
-      <div className="settingsContainer" ref={e => this.container = e} style={style[this.state.animation]}>
-        <header className='material-header'>
-          <span className="header-left" onTouchTap={this.triggerBack}>
-            <BackIcon/>
-          </span>
-          <div className="header-content">
-            <h1>{t('sponsor.title')}</h1>
-          </div>
-        </header>
+      <div className="default-container" ref={e => this.container = e} style={style[this.state.animation]}>
+        <Header title={t('sponsor.title')} />
         <div className="settings enable-scrolling" onTouchStart={iOS.triggerStart}>
           <div className="scrollwrap">
             <h2>{t('sponsor.slug', {appname: t('app.name')})}<br />{t('sponsor.slug2')}</h2>

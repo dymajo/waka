@@ -4,7 +4,7 @@ import { UiStore } from '../stores/uiStore.js'
 import Toggle from './toggle.jsx'
 import { t } from '../stores/translationStore.js'
 
-import BackIcon from '../../dist/icons/back.svg'
+import Header from './header.jsx'
 import ClockIcon from '../../dist/icons/clock.svg'
 import LongnamesIcon from '../../dist/icons/longnames.svg'
 import FeedbackIcon from '../../dist/icons/feedback.svg'
@@ -106,10 +106,6 @@ class Settings extends React.Component {
     }
   }
 
-  triggerBack = () => {
-    UiStore.goBack(this.props.history, '/')
-  }
-
   triggerCredits = () => {
     this.setState({
       credits: true
@@ -133,15 +129,8 @@ class Settings extends React.Component {
     }
 
     return(
-      <div className="settingsContainer" ref={e => this.container = e} style={style[this.state.animation]}>
-        <header className='material-header'>
-          <span className="header-left" onTouchTap={this.triggerBack}>
-            <BackIcon/>
-          </span>
-          <div className="header-content">
-            <h1>{t('settings.title')}</h1>
-          </div>
-        </header>
+      <div className="default-container" ref={e => this.container = e} style={style[this.state.animation]}>
+        <Header title={t('settings.title')} />
         <div className="settings enable-scrolling" onTouchStart={iOS.triggerStart}>
           <div className="scrollwrap">
             <div className="logobox">

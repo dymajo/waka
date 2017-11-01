@@ -1,8 +1,9 @@
 import React from 'react'
 import { t } from '../../stores/translationStore.js'
 import { CurrentLocation } from '../../stores/currentLocation.js'
-import BackIcon from '../../../dist/icons/back.svg'
 import PropTypes from 'prop-types'
+
+import Header from '../header.jsx'
 
 export default class RegionPopover extends React.Component {
   static propTypes = {
@@ -19,14 +20,11 @@ export default class RegionPopover extends React.Component {
     const className = 'region-popover ' + (this.props.visible ? 'show' : '')
     return (
       <div className={className}>
-        <header className="material-header no-shadow">
-          <span className="header-left" onTouchTap={this.props.toggle}>
-            <BackIcon />
-          </span>
-          <div className="header-expand">
-            <h1 className="full-height">Pick City</h1>
-          </div>
-        </header>
+        <Header
+          backFn={this.props.toggle}
+          title="Pick City"
+          className="no-shadow"
+        />
         <div className="content">
           <ul>
             <li className="nz-akl" onTouchTap={this.changeCity('nz-akl')}>
