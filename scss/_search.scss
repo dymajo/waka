@@ -98,7 +98,7 @@
 .leaflet-popup-content {
   svg {
     display: block;
-    position: relative;
+    position: relative !important;
     margin: 0 auto;
   }
 }
