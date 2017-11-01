@@ -41,11 +41,13 @@ var isDoubleDecker = function(vehicle) {
     '5FB4', '5FB5', '5FB6', '5FB7', '5FB8', '5FB9', '5FBA',
     '5FBB', '5FBC', '5FBD', '5FBE', '5FBF', '5FC0', '5FC1',
     '5FC2',
-
-    //NEX BCI CitiRider FBC6123BRZ
+    
+    //NEX BCI CitiRider FBC6123BRZ 1050-1074
     '5622', '5623', '5624', '5625', '5626', '5627', '5628',
     '5629', '562A', '562B', '562C', '562D', '562E', '562F',
-    '5630'
+    '5630', '5631', '5632', '5633', '5634', '5635', '5636',
+    '5637', '5638', '5639', '563A', 
+
   ]
   // uncomment this line if you want it to randomly be a double decker
   // if (Math.ceil(Math.random()*2) >1) {
