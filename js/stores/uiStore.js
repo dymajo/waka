@@ -69,7 +69,7 @@ export class uiStore extends Events {
         }
       }
     }
-    if (iOS.detect()) {
+    if (iOS.detect() && window.innerWidth <= 850) {
       return {
         entering: {
           animation: '250ms ss-to-stop-station-ios ease 1',

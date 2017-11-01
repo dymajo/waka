@@ -26,8 +26,12 @@ $transition: 250ms ease transform;
   transform: translate3d(0, calc(56px + 64px - (var(--real-height) / 2)), 0);
   transition: $transition;
   will-change: transform;
-  position: relative;
+  position: absolute;
   z-index: 0;
+  top: $mobilenavsize;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .root-card {
   position: absolute;
@@ -38,7 +42,7 @@ $transition: 250ms ease transform;
   z-index: 6;
   box-sizing: border-box;
   transition: $transition;
-  will-change: transform;
+  will-change: scroll, transform;
   overflow-y: auto;
   overflow-x: hidden;
 

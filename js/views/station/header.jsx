@@ -12,11 +12,13 @@ import BackIcon from '../../../dist/icons/back.svg'
 import TrainIcon from '../../../dist/icons/train.svg'
 import FerryIcon from '../../../dist/icons/ferry.svg'
 import BusIcon from '../../../dist/icons/bus.svg'
+import CableCarIcon from '../../../dist/icons/cablecar.svg'
 
 const iconMap = {
   train: <TrainIcon />,
   ferry: <FerryIcon />,
-  bus: <BusIcon />
+  bus: <BusIcon />,
+  cablecar: <CableCarIcon />,
 }
 
 class Header extends React.Component {
