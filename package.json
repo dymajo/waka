@@ -71,6 +71,7 @@
     "node-polyglot": "^2.2.2",
     "offline-plugin": "^4.8.4",
     "prop-types": "^15.6.0",
+    "protobufjs": "^6.8.0",
     "pug": "^2.0.0-rc.4",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",

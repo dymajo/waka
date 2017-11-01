@@ -1,11 +1,14 @@
 const cache = require('../cache')
+const fs = require('fs')
+const path = require('path')
 
 class Realtime {
   constructor() {
     this.fn = null
     cache.preReady.push(() => {
-      if (global.config.prefix === 'nz-akl' || global.config.prefix === 'nz-wlg') {
+      if (fs.existsSync(path.join(__dirname, './' + global.config.prefix + '.js'))) {
         this.fn = require('./' + global.config.prefix)
+        
       }
     })
     this.stopInfo = this.stopInfo.bind(this)

@@ -53,6 +53,8 @@ export class stationStore extends Events {
       icon = 'ferry'
     } else if (station === 5) {
       icon = 'cablecar'
+    } else if (station === 0) {
+      icon = 'lightrail'
     }
     return icon
   }
@@ -62,6 +64,8 @@ export class stationStore extends Events {
       newCity = 'nz-akl'
     } else if (lat > -41.5 && lat < -40.5 && lng > 174.6 && lng < 175.8) {
       newCity = 'nz-wlg'
+    } else if (lat > -35 && lat < -32.4 && lng > 148 && lng < 154) {
+      newCity = 'au-syd'
     }
     if (map === false) {
       return newCity

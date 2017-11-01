@@ -14,8 +14,6 @@ Your guide around public transport in Auckland & Wellington. Help us add more ci
 ### Code Style
 - Run it through Prettier <https://github.com/prettier/prettier>
 
-## Server Development
-For a in depth tutorial and a run down of how the app works, see <https://www.jono.nz/2017/10/08/transit-part1/>
 
 ### Start (after config has been set)
 - `node app` to run server on :8000.
