@@ -121,6 +121,39 @@ $bgheight: 125px;
 			h1 {
 				padding-top: 14px;
 			}
+// <<<<<<< HEAD
+// =======
+// 			h2 {
+// 				color: #ddd;
+// 			}
+
+// 			svg {
+// 				fill: #fff;
+// 			}
+
+// 			.mode svg {
+// 				fill: transparent;
+// 			}
+// 			.mode {
+// 				&.bus svg {
+// 					stroke: #009ed7;
+// 				}
+// 				&.train svg {
+// 					stroke: #ec6606;
+// 				}
+// 				&.ferry svg {
+// 					stroke: #009e4d;
+// 				}
+// 				&.light-rail svg {
+// 					stroke: #e4002d;
+// 				}
+// 			}
+// 		}
+// 		.scrollable {
+// 			.scrollwrap {
+// 				padding-top: calc(var(--real-height) + 5px);
+// 			}
+// >>>>>>> origin/master
 		}
 		.trip-content {
 			padding-top: 0;
