@@ -6,7 +6,8 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --progress --colors -p --display-optimization-bailout",
     "build-js": "npm run build",
-    "watch": "webpack --progress --colors --watch -d",
+    "watch": "webpack-dev-server",
+    "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
     "build-css": "echo 'build-css is deprecated, use build instead'",
     "anal": "webpack --json > report.json",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -84,6 +85,7 @@
     "sendgrid": "^4.3.0",
     "stream-transform": "^0.1.2",
     "style-loader": "^0.18.2",
+    "webpack-dev-server": "^2.9.3",
     "zenscroll": "^4.0.0"
   }
 }

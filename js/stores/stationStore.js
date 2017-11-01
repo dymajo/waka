@@ -58,7 +58,7 @@ export class stationStore extends Events {
     }
     return icon
   }
-  getCity(lat, lng) {
+  getCity(lat, lng, map = true) {
     let newCity = 'none'
     if (lat > -37.4 && lat < -36 && lng > 174 && lng < 175.2) {
       newCity = 'nz-akl'
@@ -67,7 +67,10 @@ export class stationStore extends Events {
     } else if (lat > -35 && lat < -32.4 && lng > 148 && lng < 154) {
       newCity = 'au-syd'
     }
-    if (this.currentCity !== newCity) {
+    if (map === false) {
+      return newCity
+    }
+    if (this.currentCity !== newCity ) {
       this.currentCity = newCity
       this.trigger('newcity')
       SettingsStore.state.lastLocation = [lat, lng]

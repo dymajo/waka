@@ -23,7 +23,12 @@ class Auckland {
     this.mappingCheck().then(() => {
       this.versionCheck()
     })
-    setInterval(this.mappingCheck, 1800000)
+    // ironic that I forgot to add a version check
+    setInterval(() => {
+      this.mappingCheck().then(() => {
+        this.versionCheck()
+      })
+    }, 1800000)
   }
   versionCheck() {
     // checks the versions api
@@ -61,7 +66,7 @@ class Auckland {
     for (let version of versions) {
       const worker = await WorkerManager.start('nz-akl', version)
       await worker.importLongPromise('all')
-      await worker.stop()
+      await WorkerManager.stop('nz-akl', version)
     }
   }
   mappingCheck() {
@@ -95,12 +100,12 @@ class Auckland {
             WorkerManager.setMapping('nz-akl', realtimeVersion).then(() => {
               if (currentWorker !== null) {
                 log('Stopping old worker.')
-                currentWorker.stop().then(resolve)
+                WorkerManager.stop('nz-akl', currentVersion).then(resolve)
               }
             })
           }).catch(err => {
             console.error('Tests failure. Will not map.', err)
-            worker.stop()
+            WorkerManager.stop('nz-akl', realtimeVersion).then(resolve)
             resolve()
           })
         }).catch(err => {
