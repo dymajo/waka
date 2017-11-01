@@ -32,7 +32,7 @@ const realtime = {
       newOptions.url += mode
       try {
         realtime.currentData[mode] = await realtime.tripUpdate(newOptions, mode)
-        console.log('got', mode)
+        // console.log('got', mode)
       } catch (err) {
         console.log(err)      
       }
@@ -53,12 +53,12 @@ const realtime = {
     Object.keys(trips).forEach(function(trip) {
       const routeType = search.stopsRouteType[stop_id]
       const mode = routeMapper.route(routeType)
-      console.log('mode', mode)
+      // console.log('mode', mode)
       const data = realtime.currentData[mode][trip]
-      console.log(realtime.currentData[mode])
-      console.log(data)
+      // console.log(realtime.currentData[mode])
+      // console.log(data)
       if (typeof(data) !== 'undefined') {
-        console.log('it defined')
+        // console.log('it defined')
         const timeUpdate = data.stopTimeUpdate.departure || data.stopTimeUpdate.arrival || {}
         realtimeInfo[trip] = {
           stop_sequence: data.stopTimeUpdate.stopSequence,
@@ -90,7 +90,7 @@ const realtime = {
           const gtfs = realtime.decoder.lookupType('FeedMessage')
           const message = gtfs.decode(body)
           if (message) {
-            console.log(message.entity.length, mode)
+            // console.log(message.entity.length, mode)
             const newData = {}
             message.entity.forEach(function(trip) {
               
