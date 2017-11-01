@@ -11,6 +11,7 @@ import MultiIcon from '../../dist/icons/multi.svg'
 import TrainIcon from '../../dist/icons/train.svg'
 import FerryIcon from '../../dist/icons/ferry.svg'
 import BusIcon from '../../dist/icons/bus.svg'
+import CablecarIcon from '../../dist/icons/cablecar.svg'
 import ATIcon from '../../dist/icons/at.svg'
 import MetlinkIcon from '../../dist/icons/metlink.svg'
 import DymajoIcon from '../../dist/icons/dymajo.svg'
@@ -23,6 +24,7 @@ const iconMap = {
   'multi.svg': <MultiIcon />,
   'train.svg': <TrainIcon />,
   'ferry.svg': <FerryIcon />,
+  'cablecar.svg': <CablecarIcon />,
   'bus.svg': <BusIcon />,
   'at.svg': <ATIcon />,
   'metlink.svg': <MetlinkIcon />,
