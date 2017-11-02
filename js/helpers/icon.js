@@ -21,7 +21,10 @@ style_map.normal.set('0-selection', [24, 24])
 style_map.normal.set('2-selection', [28, 28])
 style_map.normal.set('4-selection', [28, 28])
 
-style_map.normal.set(3,[25, 41])
+style_map.normal.set(2,[28, 34])
+style_map.normal.set(3,[26, 32])
+style_map.normal.set(4,[28, 34])
+style_map.normal.set(5,[28, 34])
 
 style_map['au-syd'].set('default', [30, 30])
 style_map['au-syd'].set(0, [40, 40])
@@ -57,13 +60,6 @@ class iconhelper {
     
     if (typeof style_map[prefix] === 'undefined') {
       prefix = 'normal'
-    }
-    if (prefix === 'normal') {
-      if (variant === 'selection') {
-        filetype = '.svg'
-      } else {
-        filetype = '.png'
-      }
     }
     if (prefix !== 'normal' && variant === 'selection') {
       variantfile = '-selection'

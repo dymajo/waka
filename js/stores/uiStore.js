@@ -11,7 +11,8 @@ export class uiStore extends Events {
       currentUrl: null,
       mapView: false,
       fancyMode: false,
-      exiting: window.location.pathname
+      exiting: window.location.pathname,
+      downloadedCss: {}
     }
 
     // restores history if it's an iphone web clip :/
@@ -34,7 +35,21 @@ export class uiStore extends Events {
     this.state.lastUrl = this.state.currentUrl
     this.state.currentUrl = window.location.pathname
   }
-
+  downloadCss(file) {
+    if (file in this.state.downloadedCss) {
+      return
+    }
+    fetch('/assets.json').then((response) => {
+      response.json().then((data) => {
+        const link = document.createElement('link')
+        link.setAttribute('rel', 'stylesheet')
+        link.setAttribute('href', '/' + data[file])
+        const ref = document.querySelector('link')
+        ref.parentNode.insertBefore(link, ref)
+        this.state.downloadedCss[file] = link
+      })
+    })
+  }
   setExpandedItem(name) { 
     this.trigger('expandChange', name)
   }
@@ -55,7 +70,7 @@ export class uiStore extends Events {
         }
       }
     }
-    if (iOS.detect()) {
+    if (iOS.detect() && window.innerWidth <= 850) {
       return {
         entering: {
           animation: '250ms ss-to-stop-station-ios ease 1',

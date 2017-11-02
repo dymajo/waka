@@ -1,14 +1,15 @@
 import React from 'react'
-import { StationStore } from '../stores/stationStore.js'
-import { SettingsStore } from '../stores/settingsStore.js'
-import { UiStore } from '../stores/uiStore.js'
 import { withRouter } from 'react-router'
-import { t } from '../stores/translationStore.js'
 
-import DirectionIcon from '../../dist/icons/direction.svg'
-import BigIcon from '../../dist/icons/big.svg'
-import MapIcon from '../../dist/icons/station.svg'
-import TimetableIcon from '../../dist/icons/timetable.svg'
+import { StationStore } from '../../stores/stationStore.js'
+import { SettingsStore } from '../../stores/settingsStore.js'
+import { UiStore } from '../../stores/uiStore.js'
+import { t } from '../../stores/translationStore.js'
+
+import DirectionIcon from '../../../dist/icons/direction.svg'
+import BigIcon from '../../../dist/icons/big.svg'
+import MapIcon from '../../../dist/icons/station.svg'
+import TimetableIcon from '../../../dist/icons/timetable.svg'
 
 // 3 minutes until we'll hide the trip
 const tripDelay = 3 * 6000

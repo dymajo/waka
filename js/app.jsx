@@ -1,18 +1,15 @@
-// css
-import style from '../scss/style.scss'
-
-// js
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter, Route } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import { iOS } from './models/ios.js'
-import { UiStore } from './stores/uiStore.js'
 
 import Index from './views/index.jsx'
-import Timetable from './views/timetable.jsx'
 
 import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
+
+import smoothscroll from 'smoothscroll-polyfill'
+smoothscroll.polyfill()
 
 class App extends React.Component {
   render() {
@@ -40,4 +37,3 @@ let startApp = function() {
   ]
   ReactDOM.render(<App />, document.getElementById('app'))
 }
-document.ontouchmove = iOS.touchMoveFix

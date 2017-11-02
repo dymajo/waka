@@ -8,21 +8,7 @@
   background: $default-back;
 
   @media (min-width: 851px) {
-    left: $sidebar-width;
-    z-index: 0;
-  }
-
-
-  .material-header {
-    height: $navsize;
-    div {
-      z-index: 10;
-    }
-
-    h1 {
-      line-height: $navsize; 
-      padding-top: 0;
-    }
+    max-width: $sidebar-width;
   }
 }
 .default-content {

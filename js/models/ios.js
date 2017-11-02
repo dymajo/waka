@@ -5,38 +5,19 @@ export class ios {
   detect() {
     return iostest
   }
-  triggerStart(event) {
+  triggerStart(event, mode) {
     if (!iostest) {
       return true
     }
-    var e = event.currentTarget
-    var top = e.scrollTop
-    var totalScroll = e.scrollHeight
-    var currentScroll = top + e.offsetHeight
+    const e = event.currentTarget
+    const top = e.scrollTop
+    const totalScroll = e.scrollHeight
+    const currentScroll = top + e.offsetHeight
 
-    if (top === 0) {
-      e.scrollTop = 1
-    } else if (currentScroll === totalScroll) {
-      e.scrollTop = top - 1
-    }
-  }
-  touchMoveFix(event) {
-    if (!iostest) {
-      return true
-    }
-    var isTouchMoveAllowed = false
-    var target = event.target
-
-    while (target !== null) {
-      if (target.classList && target.classList.contains('enable-scrolling')) {
-        isTouchMoveAllowed = true
-        break
-      }
-      target = target.parentNode
-    }
-
-    if (!isTouchMoveAllowed) {
-      event.preventDefault()
+    if (top === 0 && mode !== 'bottom') {
+      e.scrollBy(0, 1)
+    } else if (currentScroll === totalScroll && mode !== 'top') {
+      e.scrollBy(0, -1)
     }
   }
 }

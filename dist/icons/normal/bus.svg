@@ -1,26 +1,36 @@
 <svg width="26" height="32" viewBox="0 0 26 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<title>bus</title>
+<title>bus 2</title>
 <desc>Created using Figma</desc>
-<g id="Canvas" transform="translate(-513 -960)">
+<g id="Canvas" transform="translate(205 763)">
+<g id="bus 2">
+<g id="Canvas">
 <g id="bus">
 <g id="Group">
 <g id="Rectangle 8">
-<use xlink:href="#path0_fill" transform="translate(513 960)" fill="#3498DB"/>
+<g id="Vector">
+<use xlink:href="#path0_fill" transform="translate(-205 -763)" fill="#3498DB"/>
+</g>
 </g>
 <g id="Polygon">
-<use xlink:href="#path1_fill" transform="matrix(1 0 0 -1 521 992)" fill="#3498DB"/>
-</g>
-</g>
-<g id="ic_directions_bus_black_24px">
 <g id="Vector">
-<use xlink:href="#path2_fill" transform="translate(518 963)" fill="#FFFFFF"/>
+<use xlink:href="#path1_fill" transform="matrix(1 0 0 -1 -197 -731)" fill="#3498DB"/>
+</g>
+</g>
+</g>
+<g id="ic directions bus black 24px">
+<g id="Vector">
+<g id="Vector">
+<use xlink:href="#path2_fill" transform="translate(-200 -759)" fill="#FFFFFF"/>
+</g>
+</g>
+</g>
 </g>
 </g>
 </g>
 </g>
 <defs>
-<path id="path0_fill" d="M 0 2.08C 0 0.931248 0.931248 0 2.08 0L 23.92 0C 25.0688 0 26 0.931248 26 2.08L 26 23.92C 26 25.0688 25.0688 26 23.92 26L 2.08 26C 0.931248 26 0 25.0688 0 23.92L 0 2.08Z"/>
-<path id="path1_fill" d="M 4.76314 0L 9.52628 6L -3.91703e-09 6L 4.76314 0Z"/>
+<path id="path0_fill" d="M 0 2.08C 0 0.931248 0.931248 0 2.08 0L 23.92 0C 25.0688 0 26 0.931248 26 2.08L 26 23.92C 26 25.0688 25.0688 26 23.92 26L 8.35714 26L 2.08 26C 0.931248 26 0 25.0688 0 23.92L 0 2.08Z"/>
+<path id="path1_fill" d="M 5 0L 10 6L 0 6L 5 0Z"/>
 <path id="path2_fill" d="M 0 14C 0 14.88 0.39 15.67 1 16.22L 1 18C 1 18.55 1.45 19 2 19L 3 19C 3.55 19 4 18.55 4 18L 4 17L 12 17L 12 18C 12 18.55 12.45 19 13 19L 14 19C 14.55 19 15 18.55 15 18L 15 16.22C 15.61 15.67 16 14.88 16 14L 16 4C 16 0.5 12.42 0 8 0C 3.58 0 0 0.5 0 4L 0 14ZM 3.5 15C 2.67 15 2 14.33 2 13.5C 2 12.67 2.67 12 3.5 12C 4.33 12 5 12.67 5 13.5C 5 14.33 4.33 15 3.5 15ZM 12.5 15C 11.67 15 11 14.33 11 13.5C 11 12.67 11.67 12 12.5 12C 13.33 12 14 12.67 14 13.5C 14 14.33 13.33 15 12.5 15ZM 14 9L 2 9L 2 4L 14 4L 14 9Z"/>
 </defs>
 </svg>
