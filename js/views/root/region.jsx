@@ -17,6 +17,15 @@ export default class RegionPopover extends React.Component {
     }
   }
   render() {
+    let dev = null
+    if (process.env.NODE_ENV !== 'production') {
+      dev = (
+        <li className="au-syd" onTouchTap={this.changeCity('au-syd')}>
+          <h2>{t('regions.au-syd-long').split(',')[0]}</h2>
+          <h1>{t('regions.au-syd-long').split(',')[1]}</h1>
+        </li>
+      )
+    }
     const className = 'region-popover ' + (this.props.visible ? 'show' : '')
     return (
       <div className={className}>
@@ -35,10 +44,7 @@ export default class RegionPopover extends React.Component {
               <h2>{t('regions.nz-wlg-long').split(',')[0]}</h2>
               <h1>{t('regions.nz-wlg-long').split(',')[1]}</h1>
             </li>
-            <li className="au-syd" onTouchTap={this.changeCity('au-syd')}>
-              <h2>{t('regions.au-syd-long').split(',')[0]}</h2>
-              <h1>{t('regions.au-syd-long').split(',')[1]}</h1>
-            </li>
+            {dev}
           </ul>
           <div className="vote">
             <p>{t('regions.vote', { appname: t('app.name') })}</p>

@@ -68,6 +68,7 @@ class Search extends React.Component {
   static propTypes = {
     history: PropTypes.object,
   }
+  myIcons = {}
   state = {
     station: '',
     stops: [],
@@ -95,17 +96,19 @@ class Search extends React.Component {
   }
   // stops requesting location when not in use
   componentWillReceiveProps() {
-    if (window.location.pathname === '/') {
-      this.setState({
-        showIcons: true,
-        currentStation: null
-      })
-    } else {
-      this.setState({
-        showIcons: false
-      })
-      CurrentLocation.stopWatch()
-    }
+    setTimeout(() => {
+      if (window.location.pathname === '/') {
+        this.setState({
+          showIcons: true,
+          currentStation: null
+        })
+      } else {
+        this.setState({
+          showIcons: false
+        })
+        CurrentLocation.stopWatch()
+      }
+    }, 300)
   }
   componentWillUnmount() {
     window.removeEventListener('online',  this.triggerRetry)
@@ -141,8 +144,11 @@ class Search extends React.Component {
   getData(lat, lon, dist) {
     fetch(`${local.endpoint}/auto/station/search?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}&distance=${dist}`).then((response) => {
       response.json().then((data) => {
-        data.forEach(function(item) {
+        data.forEach((item) => {
           StationStore.stationCache[item.stop_id] = item
+          if (typeof(this.myIcons[item.route_type.toString()]) === 'undefined') {
+            this.myIcons[item.route_type.toString()] = IconHelper.getIcon(StationStore.currentCity, item.route_type)
+          }
         })
         this.setState({
           stops: data
@@ -201,19 +207,19 @@ class Search extends React.Component {
     }
   }
   moveEnd = (e) => {
-    var zoom = e.target.getZoom()
+    const zoom = e.target.getZoom()
     // we're basing this off screensize
     var screensize = document.body.offsetWidth
     if (document.body.offsetHeight > screensize) {
       screensize = document.body.offsetHeight
     }
-    var newPos = e.target.getCenter()
+    let newPos = e.target.getCenter()
     StationStore.getCity(newPos.lat, newPos.lng)
-    var dist = Math.ceil(0.2 * screensize)
+    let dist = Math.ceil(0.2 * screensize)
     if (zoom === 17) {
-      dist = Math.ceil(0.35 * screensize)
+      dist = Math.ceil(0.45 * screensize)
     } else if (zoom === 16) {
-      dist = Math.ceil(0.6 * screensize)
+      dist = Math.ceil(0.8 * screensize)
     } else if (zoom < 16) {
       this.setState({
         stops: []
@@ -285,13 +291,6 @@ class Search extends React.Component {
       )
     }
 
-    const myIcons = {}
-    this.state.stops.forEach((stop) => {
-      if (typeof(myIcons[stop.route_type.toString()]) === 'undefined') {
-        myIcons[stop.route_type.toString()] = IconHelper.getIcon(StationStore.currentCity, stop.route_type)
-      }
-    })
-
     let mapview
     if (this.state.loadmap) {
       mapview = (
@@ -310,7 +309,7 @@ class Search extends React.Component {
           {this.state.stops.map((stop) => {
             let icon, markericon
             icon = IconHelper.getRouteType(stop.route_type)
-            markericon = myIcons[stop.route_type.toString()]
+            markericon = this.myIcons[stop.route_type.toString()]
             if (icon === 'bus') {
               const stopSplit = stop.stop_name.split('Stop')
               const platformSplit = stop.stop_name.split('Platform')
