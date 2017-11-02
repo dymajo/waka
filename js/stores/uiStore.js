@@ -44,7 +44,8 @@ export class uiStore extends Events {
         const link = document.createElement('link')
         link.setAttribute('rel', 'stylesheet')
         link.setAttribute('href', '/' + data[file])
-        document.head.append(link)
+        const ref = document.querySelector('link')
+        ref.parentNode.insertBefore(link, ref)
         this.state.downloadedCss[file] = link
       })
     })

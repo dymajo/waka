@@ -1,4 +1,3 @@
-// js
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
@@ -8,6 +7,9 @@ import Index from './views/index.jsx'
 
 import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
+
+import smoothscroll from 'smoothscroll-polyfill'
+smoothscroll.polyfill()
 
 class App extends React.Component {
   render() {

@@ -46,7 +46,9 @@ class Index extends React.Component {
     this.scrolllock = false  // used so you know the difference between scroll & transform
 
     window.onresize = function() {
-      document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
+      requestAnimationFrame(() => {
+        document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
+      })
     }
   }
   componentDidMount() {
