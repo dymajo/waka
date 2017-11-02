@@ -95,6 +95,7 @@ let config = {
       ]
     },
     port: 8009,
+    host: '0.0.0.0',
     index: 'index-generated.html',
     proxy: {
       '/a': {

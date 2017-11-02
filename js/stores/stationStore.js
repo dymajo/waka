@@ -330,7 +330,11 @@ export class stationStore extends Events {
   }
   realtimeModifier(tripData, rtData, stop, region) {
     if (tripData[0].route_type === 2) {
-      const station = this.StationData[region + '|' + stop.split('+')[0]]
+      const stationId = region + '|' + stop.split('+')[0]
+      const station = this.StationData[stationId] || this.stationCache[stationId.split('|')[1]]
+      if (typeof station === 'undefined') {
+        return {}
+      }
       const pos = [station.stop_lat, station.stop_lon]
       for (var key in rtData) {
         rtData[key] = {
