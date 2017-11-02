@@ -26,6 +26,9 @@ export default class BackGesture {
     }
   }
   triggerTouchStart = (event) => {
+    if (window.innerWidth > 850) {
+      return
+    }
     // This is a hack to detect flicks  
     this.longTouch = false
     setTimeout(() => {
@@ -35,6 +38,9 @@ export default class BackGesture {
     this.touchStartPos = event.touches[0].pageX
   }
   triggerTouchMove = (event) => {
+    if (window.innerWidth > 850) {
+      return
+    }
     if (this.touchStartPos <= 7) {
       event.preventDefault()
       this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
@@ -42,6 +48,9 @@ export default class BackGesture {
     }
   }
   triggerTouchEnd = () => {
+    if (window.innerWidth > 850) {
+      return
+    }
     if (this.touchStartPos <= 7) {
       this.touchStartPos = 100
       let swipedAway = false

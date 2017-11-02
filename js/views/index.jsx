@@ -115,7 +115,7 @@ class Index extends React.Component {
     })
   }
   triggerTouchStart = (e) => {
-    iOS.triggerStart(e)
+    iOS.triggerStart(e, 'bottom')
     // only start the pull down if they're at the top of the card
     if (this.touchcard.scrollTop === 0 && window.innerWidth < 851 && this.props.location.pathname === '/') {
       this.touchstartpos = e.touches[0].clientY

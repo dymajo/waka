@@ -27,10 +27,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
     console.info('Service Worker is disabled in development.')
   }
   startApp()
-
-  if (iOS.detect()) {
-    document.ontouchmove = iOS.touchMoveFix
-  }
 })
 let startApp = function() {
   window.defaultContent = [

@@ -218,40 +218,38 @@ class Header extends React.Component {
       )
     }
 
-    return (
-      <div>
-        <div className={saveModal}>
-          <div className="modal">
-            <h2>{modalHeader}</h2>
-            <div className="inner">
-              <h3>{t('stationedit.name')}</h3>
-              <input
-                type="text"
-                value={this.state.name}
-                onChange={this.triggerSaveChange}
-                ref={e => (this.saveInput = e)}
-              />
-              {combined}
-              {removeBtn}
-            </div>
-            <button className="cancel" onTouchTap={this.triggerSaveCancel}>
-              {t('stationedit.cancel')}
-            </button>
-            <button className="submit" onTouchTap={this.triggerSaveAdd}>
-              {t('stationedit.confirm')}
-            </button>
+    return [
+      <div key="modal" className={saveModal}>
+        <div className="modal">
+          <h2>{modalHeader}</h2>
+          <div className="inner">
+            <h3>{t('stationedit.name')}</h3>
+            <input
+              type="text"
+              value={this.state.name}
+              onChange={this.triggerSaveChange}
+              ref={e => (this.saveInput = e)}
+            />
+            {combined}
+            {removeBtn}
           </div>
+          <button className="cancel" onTouchTap={this.triggerSaveCancel}>
+            {t('stationedit.cancel')}
+          </button>
+          <button className="submit" onTouchTap={this.triggerSaveAdd}>
+            {t('stationedit.confirm')}
+          </button>
         </div>
-        <header className="material-header">
-          {topIcon}
-          <div className="header-expand">
-            <h1>{name}</h1>
-            <h2>{iconStr}</h2>
-          </div>
-          {saveButton}
-        </header>
-      </div>
-    )
+      </div>,
+      <header key="header" className="material-header">
+        {topIcon}
+        <div className="header-expand">
+          <h1>{name}</h1>
+          <h2>{iconStr}</h2>
+        </div>
+        {saveButton}
+      </header>
+    ]
   }
 }
 const HeaderWithRouter = withRouter(Header)
