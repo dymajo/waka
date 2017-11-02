@@ -32,7 +32,6 @@ class Index extends React.Component {
     showMap: false,
     animate: false,
     showPin: false,
-    panLock: true,
   }
   constructor(props) {
     super(props)
@@ -40,6 +39,7 @@ class Index extends React.Component {
 
     document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
 
+    this.panLock = true
     this.touchstartpos = null // actual start pos
     this.fakestartpos = null  // used for non janky animations
     this.touchlastpos = null // used to detect flick
@@ -52,6 +52,8 @@ class Index extends React.Component {
   componentDidMount() {
     this.loadMapDynamic()
     this.props.history.listen(UiStore.handleState)
+    this.touchcard.addEventListener('scroll', this.triggerScroll)
+    this.touchcard.addEventListener('touchmove', this.triggerTouchMove)
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname === '/') {
@@ -279,10 +281,16 @@ class Index extends React.Component {
     })
   }
   triggerScroll = (e) => {
-    if ((e.currentTarget.scrollTop === 0 && this.state.panLock === false) 
-      || (e.currentTarget.scrollTop !== 0 && this.state.panLock === true)) {
-      this.setState({
-        panLock: !this.state.panLock
+    if ((e.currentTarget.scrollTop === 0 && this.panLock === false) 
+      || (e.currentTarget.scrollTop !== 0 && this.panLock === true)) {
+      this.panLock = !this.panLock
+
+      requestAnimationFrame(() => {
+        if (this.panLock) {
+          this.touchcard.classList.add('pan-lock')
+        } else {
+          this.touchcard.classList.remove('pan-lock')
+        }
       })
     }
   }
@@ -301,7 +309,6 @@ class Index extends React.Component {
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
 
     const rootClassName = 'root-container ' + (this.state.mapView ? 'map-view' : '')
-    const rootCardClass = 'root-card enable-scrolling ' + (this.state.panLock ? 'pan-lock' : '')
 
     return (
       <div className={className}>
@@ -310,13 +317,11 @@ class Index extends React.Component {
           <div className="root-map" ref={e => this.touchmap = e}>
             {map}
           </div>
-          <div className={rootCardClass}
+          <div className="root-card enable-scrolling pan-lock"
             ref={e => this.touchcard = e}
             onTouchStart={this.triggerTouchStart}
-            onTouchMove={this.triggerTouchMove}
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
-            onScroll={this.triggerScroll}
           >
             <div className="root-card-padding-button" onTouchTap={this.toggleStations}></div>
             <div className="root-card-bar">
