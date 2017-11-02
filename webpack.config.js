@@ -10,7 +10,8 @@ const generate = require('./server-static/generator.js')
 generate()
 
 const extractSass = new ExtractTextPlugin({
-  filename: process.env.NODE_ENV === 'production' ? 'generated/[name].[contenthash].css' : 'generated/[name].css'
+  filename: process.env.NODE_ENV === 'production' ? 'generated/[name].[contenthash].css' : 'generated/[name].css',
+  allChunks: true
 })
 const ConsoleNotifierPlugin = function() {}
 
@@ -27,7 +28,8 @@ ConsoleNotifierPlugin.prototype.apply = function(compiler) {
 
 let config = {
   entry: {
-    app: ['whatwg-fetch', './js/app.jsx'],
+    app: ['whatwg-fetch', './js/app.jsx', './scss/style.scss'],
+    maps: ['./scss/maps.scss'],
     vendor: ['react', 'react-dom', 'react-router', 'react-router-dom', 'react-transition-group', 'react-tap-event-plugin'],
     analytics: ['autotrack']
   },
@@ -37,7 +39,7 @@ let config = {
     filename: 'generated/[name].bundle.js',
     chunkFilename: 'generated/[id].chunk.js'
   },
-  devtool: 'eval-source-map',
+  devtool: 'cheap-module-source-map',
   module: {
     rules: [
       {
@@ -53,11 +55,17 @@ let config = {
         test: /\.scss$/,
         use: extractSass.extract({
           use: [{
-            loader: 'css-loader'
+            loader: 'css-loader',
+            options: {
+              sourceMap: true
+            },
           }, {
             loader: 'resolve-url-loader'
           }, {
             loader: 'sass-loader',
+            options: {
+              sourceMap: true
+            },
           }],
           // use style-loader in development
           fallback: 'style-loader'
@@ -87,6 +95,7 @@ let config = {
       ]
     },
     port: 8009,
+    host: '0.0.0.0',
     index: 'index-generated.html',
     proxy: {
       '/a': {

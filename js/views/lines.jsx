@@ -6,8 +6,9 @@ import { iOS } from '../models/ios.js'
 import { StationStore } from '../stores/stationStore'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
+import BackGesture from './back-gesture.jsx'
 
-import BackIcon from '../../dist/icons/back.svg'
+import Header from './header.jsx'
 
 const style = UiStore.getAnimation()
 
@@ -24,11 +25,6 @@ class Lines extends React.Component {
     groupShow: {},
     friendlyNames: {},
     animation: 'unmounted'
-  }
-  animationOverride = false
-
-  triggerBack = () => {
-    UiStore.goBack(this.props.history, '/')
   }
 
   triggerGroup = group => {
@@ -47,12 +43,12 @@ class Lines extends React.Component {
   }
   componentDidMount() {
     document.title = t('lines.title') + ' - ' + t('regions.' + this.props.match.params.region) + ' - ' + t('app.name')
-    if (iOS.detect() && window.navigator.standalone === true) {
-      this.container.addEventListener('touchstart', this.triggerTouchStart)
-      this.container.addEventListener('touchmove', this.triggerTouchMove)
-      this.container.addEventListener('touchend', this.triggerTouchEnd)
-      this.container.addEventListener('touchcancel', this.triggerTouchEnd)
-    }
+    this.gesture = new BackGesture({
+      container: this.container,
+      history: this.props.history,
+    })
+    this.gesture.bindEvents()
+
     window.addEventListener('online',  this.triggerGetLines)
     UiStore.bind('animation', this.animation)
     StationStore.bind('newcity', this.newcity)
@@ -60,12 +56,7 @@ class Lines extends React.Component {
     this.getLines()
   }
   componentWillUnmount() {
-    if (iOS.detect() && window.navigator.standalone === true) {
-      this.container.removeEventListener('touchstart', this.triggerTouchStart)
-      this.container.removeEventListener('touchmove', this.triggerTouchMove)
-      this.container.removeEventListener('touchend', this.triggerTouchEnd)
-      this.container.removeEventListener('touchcancel', this.triggerTouchEnd)
-    }
+    this.gesture.unbindEvents()
     window.removeEventListener('online',  this.triggerGetLines)
     UiStore.unbind('animation', this.animation)
     StationStore.unbind('newcity', this.newcity)
@@ -103,42 +94,6 @@ class Lines extends React.Component {
     })
   }
  
-  triggerTouchStart = event => {
-    // This is a hack to detect flicks  
-    this.longTouch = false
-    setTimeout(() => {
-      this.longTouch = true
-    }, 250)
-
-    this.touchStartPos = event.touches[0].pageX
-  }
-  triggerTouchMove = event => {
-    if (this.touchStartPos <= 7) {
-      event.preventDefault()
-      this.newPos = Math.max(event.touches[0].pageX - this.touchStartPos, 0)
-      this.container.setAttribute('style', 'transform: translate3d('+this.newPos+'px,0,0);')
-    }
-  }
-  triggerTouchEnd = () => {
-    if (this.touchStartPos <= 7) {
-      this.touchStartPos = 100
-      let swipedAway = false
-      if (this.newPos > window.innerWidth/2 || this.longTouch === false) {
-        // rejects touches that don't really move
-        if (this.newPos > 3) {
-          swipedAway = true
-        }
-      }
-      if (swipedAway) {
-        // navigate backwards with no animate flag
-        this.animationOverride = true
-        UiStore.goBack(this.props.history, '/', true)
-        this.container.setAttribute('style', 'transform: translate3d(100vw,0,0);transition: transform 0.3s ease-out;')
-      } else {
-        this.container.setAttribute('style', 'transform: translate3d(0px,0,0);transition: transform 0.3s ease-out;')
-      }
-    }
-  }
   disable(e) {
     e.preventDefault()
   }
@@ -150,7 +105,7 @@ class Lines extends React.Component {
 
   animation = (data) => {
     // ensures correct element
-    if (data[1] !== this.container || this.animationOverride === true) {
+    if (data[1] !== this.container || this.gesture.animationOverride === true) {
       return
     // doesn't run if we're decending from down the tree up
     } else if (data[0] === 'exiting' && window.location.pathname !== '/') {
@@ -247,14 +202,7 @@ class Lines extends React.Component {
 
     return(
       <div className={className} ref={e => this.container = e} style={style[this.state.animation]}>
-        <header className="material-header">
-          <span className="header-left" onTouchTap={this.triggerBack}>
-            <BackIcon />
-          </span>
-          <div className="header-expand">
-            <h1>{t('lines.title')}</h1>
-          </div>
-        </header>
+        <Header title={t('lines.title')} />
         {ret}
       </div>
     )

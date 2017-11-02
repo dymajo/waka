@@ -1,7 +1,7 @@
 .modal-wrapper {
 	$speed: 100ms;
 	-webkit-tap-highlight-color: transparent;
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -59,6 +59,9 @@
 
 	ul {
 		margin-bottom: 0.5rem;
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
 	}
 
 	li {

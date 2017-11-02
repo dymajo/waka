@@ -21,7 +21,7 @@
 
   &.larger {
     margin-left: -22px !important;
-    margin-top: -30px !important;
+    margin-top: -42px !important;
     padding: 8px;
   }
 }
@@ -98,7 +98,7 @@
 .leaflet-popup-content {
   svg {
     display: block;
-    position: relative;
+    position: relative !important;
     margin: 0 auto;
   }
 }

@@ -240,9 +240,10 @@ export class stationStore extends Events {
       })
       this.timesFor = [stations, new Date()]
       this.tripData = trips
-      this.realtimeData = realtime
+      this.realtimeData = this.realtimeModifier(trips, realtime, stations, region)
       this.trigger('times', stations)
-    }).catch(() => {
+    }).catch((err) => {
+      console.error(err)
       this.trigger('error', t('station.error'))
     })
   }
@@ -307,10 +308,43 @@ export class stationStore extends Events {
       body: JSON.stringify(requestData)
     }).then((response) => {
       response.json().then((data) => {
-        this.realtimeData = data
+        this.realtimeData = this.realtimeModifier(tripData, data, stop_id, region)
         this.trigger('realtime')
       })
     })
+  }
+  // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
+  getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+    const deg2rad = function(deg) {
+      return deg * (Math.PI/180)
+    }
+    const R = 6371 // Radius of the earth in km
+    const dLat = deg2rad(lat2-lat1)  // deg2rad below
+    const dLon = deg2rad(lon2-lon1) 
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    const d = R * c // Distance in km
+    return d
+  }
+  realtimeModifier(tripData, rtData, stop, region) {
+    if (tripData.length > 0 && tripData[0].route_type === 2) {
+      const stationId = region + '|' + stop.split('+')[0]
+      const station = this.StationData[stationId] || this.stationCache[stationId.split('|')[1]]
+      if (typeof station === 'undefined') {
+        return {}
+      }
+      const pos = [station.stop_lat, station.stop_lon]
+      for (var key in rtData) {
+        rtData[key] = {
+          v_id: rtData[key].v_id,
+          distance: this.getDistanceFromLatLonInKm(rtData[key].latitude, rtData[key].longitude, pos[0], pos[1])
+        }
+      }
+    }
+    return rtData
   }
   getTimetable(station, route, direction, region = 'nz-akl') {
     const sortfn = function(a, b) {

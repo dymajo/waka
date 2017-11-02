@@ -257,19 +257,15 @@
   }
 }
 
-.station {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 4;
+// .station {
+//   position: relative;
+//   z-index: 4;
 
-  @media (min-width: 851px) {
-    left: $sidebar-width;
-    z-index: 0;
-  }
-}
+//   @media (min-width: 851px) {
+//     left: $sidebar-width;
+//     z-index: 0;
+//   }
+// }
 
 @keyframes ss-to-stop-station {
   0% {

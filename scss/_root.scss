@@ -2,10 +2,15 @@ $padding-height: 250px;
 $transition: 250ms ease transform;
 
 .root-container {
-  position: relative;
+  position: fixed;
+  width: 100%;
   height: 100vh;
+  top: 0;
+  left: 0;
+  right: 0;
   height: var(--real-height);
   -webkit-tap-highlight-color: transparent;
+  z-index: 0;
 
   @media (min-width: 850px) {
     .material-header {
@@ -21,8 +26,12 @@ $transition: 250ms ease transform;
   transform: translate3d(0, calc(56px + 64px - (var(--real-height) / 2)), 0);
   transition: $transition;
   will-change: transform;
-  position: relative;
+  position: absolute;
   z-index: 0;
+  top: $mobilenavsize;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 .root-card {
   position: absolute;
@@ -33,7 +42,7 @@ $transition: 250ms ease transform;
   z-index: 6;
   box-sizing: border-box;
   transition: $transition;
-  will-change: transform;
+  will-change: scroll, transform;
   overflow-y: auto;
   overflow-x: hidden;
 
@@ -48,6 +57,10 @@ $transition: 250ms ease transform;
 @media (max-width: 850px) {
 .root-card {
   z-index: 1;
+
+  &.pan-lock {
+    touch-action: pan-down;
+  }
 }
 .map-view {
   .root-map {
@@ -62,6 +75,7 @@ $transition: 250ms ease transform;
   }
 
   .root-card-content {
+    box-sizing: border-box;
     width: 100%;
   }
 
@@ -74,6 +88,7 @@ $transition: 250ms ease transform;
   height: $padding-height;
 }
 .root-card-bar {
+  touch-action: none;
   height: $root-card-bar;
   display: flex;
   background: #eee;
