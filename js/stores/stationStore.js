@@ -242,7 +242,8 @@ export class stationStore extends Events {
       this.tripData = trips
       this.realtimeData = this.realtimeModifier(trips, realtime, stations, region)
       this.trigger('times', stations)
-    }).catch(() => {
+    }).catch((err) => {
+      console.error(err)
       this.trigger('error', t('station.error'))
     })
   }
@@ -329,7 +330,7 @@ export class stationStore extends Events {
     return d
   }
   realtimeModifier(tripData, rtData, stop, region) {
-    if (tripData[0].route_type === 2) {
+    if (tripData.length > 0 && tripData[0].route_type === 2) {
       const stationId = region + '|' + stop.split('+')[0]
       const station = this.StationData[stationId] || this.stationCache[stationId.split('|')[1]]
       if (typeof station === 'undefined') {
