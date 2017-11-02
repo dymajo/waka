@@ -75,6 +75,7 @@ $transition: 250ms ease transform;
   }
 
   .root-card-content {
+    box-sizing: border-box;
     width: 100%;
   }
 
