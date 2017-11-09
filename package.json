@@ -1,6 +1,6 @@
 {
   "name": "dymajo-transit",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Auckland Transport Progressive Web App",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/consindo/dymajo-transit.git"
+    "url": "git+https://github.com/consindo/waka.git"
   },
   "keywords": [
     "auckland",
@@ -27,7 +27,7 @@
   "author": "Jono Cooper <jono@jono.nz>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/consindo/dymajo-transit/issues"
+    "url": "https://github.com/consindo/waka/issues"
   },
   "homepage": "https://transit.dymajo.com",
   "devDependencies": {
