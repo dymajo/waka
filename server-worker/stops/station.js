@@ -203,8 +203,6 @@ var station = {
             record.arrival_time_seconds += 86400
           }
           record.arrival_time_seconds = record.departure_time_seconds
-          route.route_color = ''
-          console.log(req.params.route.route_color)
           record.route_color = line.getColor(req.params.route)
           record.currentTime = currentTime.getTime()/1000
 
