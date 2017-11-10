@@ -29,7 +29,7 @@
   "bugs": {
     "url": "https://github.com/consindo/waka/issues"
   },
-  "homepage": "https://transit.dymajo.com",
+  "homepage": "https://getwaka.com",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
