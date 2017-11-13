@@ -21,8 +21,11 @@ const proxyHandle = function(req, res) {
   }
 
   const port = WorkerManager.getMapping(prefix)
-  if (port === 404) {
-    res.status(404).send({message: 'prefix not found'})
+  if (port === 404 || prefix === '') {
+    res.status(404).send({
+      message: 'prefix not found',
+      url: req.originalUrl
+    })
   } else {
     const url = req.originalUrl.split('/a/' + req.params.prefix)[1]
     proxy.web(req, res, { target: 'http://127.0.0.1:' + port + '/a' + url })
@@ -35,6 +38,12 @@ router.all('/', staticServer.route)
 router.all('/a/email', staticServer.route)
 router.all('/a/:prefix', proxyHandle)
 router.all('/a/:prefix/*', proxyHandle)
+router.all('/a/*', proxyHandle)
+router.all('/a', (req, res) => {
+  res.send({
+    message: 'the waka api docs are located at /docs/index.html'
+  })
+})
 router.all('/*', staticServer.route)
 
 module.exports = router

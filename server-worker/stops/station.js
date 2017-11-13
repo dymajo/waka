@@ -15,6 +15,46 @@ cache.preReady.push(() => {
 })
 
 var station = {
+  /**
+   * @api {get} /:region/station/:stop_id Station Info by Id
+   * @apiName GetStation
+   * @apiGroup Station
+   * @apiDescription This returns data on a single station.
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} stop_id Station Stop ID, find using All Stations or Stations by Location routes.
+   *
+   * @apiSuccess {String} stop_id  Unique Stop Id for this station
+   * @apiSuccess {String} stop_name  Station Name
+   * @apiSuccess {String} stop_desc Station Description, if any
+   * @apiSuccess {String} stop_lat Station Latitude
+   * @apiSuccess {String} stop_lon Station Longitude
+   * @apiSuccess {String} zone_id Fare zone - See GTFS.
+   * @apiSuccess {String} location_type If the station is a parent station or not - see GTFS.
+   * @apiSuccess {String} parent_station Parent Station, if any
+   * @apiSuccess {String} stop_timezone Timezone of station, usually null & assumed to be agency timezone.
+   * @apiSuccess {String} wheelchair_boarding Wheelchair Boarding - see GTFS.
+   * @apiSuccess {String} route_type GTFS Route Type from this Station
+   * @apiSuccess {String} prefix Worker Region of station
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "stop_id": "133",
+   *       "stop_name": "Britomart Train Station",
+   *       "stop_desc": null,
+   *       "stop_lat": -36.84429,
+   *       "stop_lon": 174.76848,
+   *       "zone_id": "merged_20",
+   *       "location_type": 0,
+   *       "parent_station": null,
+   *       "stop_timezone": null,
+   *       "wheelchair_boarding": null,
+   *       "route_type": 2,
+   *       "prefix": "nz-akl"
+   *     }
+   *
+   */
   stopInfo: function(req, res) {
     if (req.params.station) {
       station._stopInfo(req.params.station).then(function(data) {

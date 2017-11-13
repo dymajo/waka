@@ -16,7 +16,7 @@ var search = {
   stopsRouteType: {},
 
   /**
-   * @api {get} /:region/stations Get all stations
+   * @api {get} /:region/stations All Stations
    * @apiName GetStations
    * @apiGroup Station
    * @apiDescription This returns all the stations in the region. You generally should not need to use this, use search instead.
@@ -106,7 +106,7 @@ var search = {
     })
   },
   /**
-   * @api {get} /:region/station/search Map search
+   * @api {get} /:region/station/search Stations by Location
    * @apiName GetStationSearch
    * @apiGroup Station
    * @apiDescription Supply a latitude and a longitude, and you'll get all the stops back in that area.
@@ -122,7 +122,7 @@ var search = {
    * @apiSuccess {Number} stop_lat Stop Latitude
    * @apiSuccess {Number} stop_lon Stop Longitude
    * @apiSuccess {String} stop_region Worker Region that a stop is in
-   * @apiSuccess {Number} route_type See GTFS Router Types.
+   * @apiSuccess {Number} route_type See GTFS Route Types.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
