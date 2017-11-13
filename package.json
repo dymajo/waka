@@ -1,7 +1,7 @@
 {
   "name": "dymajo-transit",
   "version": "2.1.0",
-  "description": "A progress web app for Auckland & Wellington Public Transport.",
+  "description": "A progressive web app for Auckland & Wellington Public Transport.",
   "main": "index.js",
   "scripts": {
     "build": "npm run document && cross-env NODE_ENV=production webpack --progress --colors -p --display-optimization-bailout",
@@ -26,9 +26,13 @@
     "dymajo"
   ],
   "apidoc": {
+    "name": "Waka",
     "title": "Waka API",
-    "url" : "https://getwaka.com/a",
-    "sampleUrl": "https://getwaka.com/a"
+    "header": {
+      "filename": "dist/header.md"
+    },
+    "url": "https://getwaka.com/a",
+    "sampleUrl": "/a"
   },
   "author": "Jono Cooper <jono@jono.nz>",
   "license": "MIT",
