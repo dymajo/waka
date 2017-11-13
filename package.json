@@ -1,16 +1,17 @@
 {
   "name": "dymajo-transit",
   "version": "2.1.0",
-  "description": "Auckland Transport Progressive Web App",
+  "description": "A progress web app for Auckland & Wellington Public Transport.",
   "main": "index.js",
   "scripts": {
-    "build": "cross-env NODE_ENV=production webpack --progress --colors -p --display-optimization-bailout",
+    "build": "npm run document && cross-env NODE_ENV=production webpack --progress --colors -p --display-optimization-bailout",
     "build-js": "npm run build",
     "watch": "webpack-dev-server",
     "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
     "build-css": "echo 'build-css is deprecated, use build instead'",
     "anal": "webpack --json > report.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "document": "apidoc -i server-worker/ -o dist/docs"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,11 @@
     "transit",
     "dymajo"
   ],
+  "apidoc": {
+    "title": "Waka API",
+    "url" : "https://getwaka.com/a",
+    "sampleUrl": "https://getwaka.com/a"
+  },
   "author": "Jono Cooper <jono@jono.nz>",
   "license": "MIT",
   "bugs": {
@@ -50,6 +56,7 @@
     "whatwg-fetch": "^2.0.1"
   },
   "dependencies": {
+    "apidoc": "^0.17.6",
     "applicationinsights": "^1.0.0",
     "autotrack": "^2.4.1",
     "azure-storage": "^2.5.0",

@@ -14,6 +14,35 @@ var search = {
 
   // This gets cached on launch
   stopsRouteType: {},
+
+  /**
+   * @api {get} /:region/stations Get all stations
+   * @apiName GetStations
+   * @apiGroup Station
+   * @apiDescription This returns all the stations in the region. You generally should not need to use this, use search instead.
+   *
+   * @apiParam {String} region Region of Worker
+   *
+   * @apiSuccess {Object} route_types Object with all stations that have route types != 3
+   * @apiSuccess {Object[]} items  A list of all the stations
+   * @apiSuccess {String} items.stop_id  Unique Stop Id for this station
+   * @apiSuccess {String} items.stop_name  Station Name
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "route_types": {
+   *         "133": 2
+   *       },
+   *       "items": [
+   *         {
+   *           "stop_id": "133",
+   *           "stop_name": "Britomart Train Station"
+   *         }
+   *       ]
+   *     }
+   *
+   */
   all: function(req, res) {
     search._allStops().then(data => {
       res.send(data)
@@ -76,6 +105,39 @@ var search = {
       console.error(err)
     })
   },
+  /**
+   * @api {get} /:region/station/search Map search
+   * @apiName GetStationSearch
+   * @apiGroup Station
+   * @apiDescription Supply a latitude and a longitude, and you'll get all the stops back in that area.
+   *
+   * @apiParam {String} region="auto" Region of Worker, can be set to "auto" to automatically determine worker.
+   * @apiParam {String} lat Latitude. Example: -41.2790
+   * @apiParam {String} lng Longitude. Example: 174.7806
+   * @apiParam {number{0-1250}} distance Search Distance. Example: 380
+   *
+   * @apiSuccess {Object[]} items A list of all the stations
+   * @apiSuccess {String} items.stop_id  Unique Stop Id for this station
+   * @apiSuccess {String} items.stop_name  Station Name
+   * @apiSuccess {Number} stop_lat Stop Latitude
+   * @apiSuccess {Number} stop_lon Stop Longitude
+   * @apiSuccess {String} stop_region Worker Region that a stop is in
+   * @apiSuccess {Number} route_type See GTFS Router Types.
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     [
+   *       {
+   *         "stop_id": "WELL",
+   *         "stop_name": "Wellington Station",
+   *         "stop_lat": -41.278969,
+   *         "stop_lon": 174.780562,
+   *         "stop_region": "nz-wlg",
+   *         "route_type": 2
+   *       }
+   *     ]
+   *
+   */
   getStopsLatLng(req, res) {
     // no caching here, maybe we need it?
     if (req.query.lat && (req.query.lng || req.query.lon) && req.query.distance) {
