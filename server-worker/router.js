@@ -14,6 +14,24 @@ const signature = function() {
     version: global.config.version,
   }
 }
+/**
+ * @api {get} /:region/info Get worker info
+ * @apiName GetInfo
+ * @apiGroup Info
+ *
+ * @apiParam {String} region Region of Worker
+ *
+ * @apiSuccess {String} prefix Region Code.
+ * @apiSuccess {String} version  Version of GTFS Schedule currently in use.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "prefix": "nz-akl",
+ *       "version": "20171013114012_v59.18"
+ *     }
+ *
+ */
 router.get('/a/info', function(req, res) {
   res.send(signature())
 })

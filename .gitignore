@@ -40,6 +40,7 @@ typings
 dist/*.css
 dist/*.js
 dist/*.map
+dist/docs
 cache/*.json
 cache/*.txt
 cache/*/*.txt
