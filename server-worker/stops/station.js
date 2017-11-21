@@ -16,7 +16,7 @@ cache.preReady.push(() => {
 
 var station = {
   /**
-   * @api {get} /:region/station/:stop_id Station Info by Id
+   * @api {get} /:region/station/:stop_id Info - by stop_id
    * @apiName GetStation
    * @apiGroup Station
    * @apiDescription This returns data on a single station.
@@ -38,21 +38,21 @@ var station = {
    * @apiSuccess {String} prefix Worker Region of station
    *
    * @apiSuccessExample Success-Response:
-   *     HTTP/1.1 200 OK
-   *     {
-   *       "stop_id": "133",
-   *       "stop_name": "Britomart Train Station",
-   *       "stop_desc": null,
-   *       "stop_lat": -36.84429,
-   *       "stop_lon": 174.76848,
-   *       "zone_id": "merged_20",
-   *       "location_type": 0,
-   *       "parent_station": null,
-   *       "stop_timezone": null,
-   *       "wheelchair_boarding": null,
-   *       "route_type": 2,
-   *       "prefix": "nz-akl"
-   *     }
+   *    HTTP/1.1 200 OK
+   *    {
+   *      "stop_id": "133",
+   *      "stop_name": "Britomart Train Station",
+   *      "stop_desc": null,
+   *      "stop_lat": -36.84429,
+   *      "stop_lon": 174.76848,
+   *      "zone_id": "merged_20",
+   *      "location_type": 0,
+   *      "parent_station": null,
+   *      "stop_timezone": null,
+   *      "wheelchair_boarding": null,
+   *      "route_type": 2,
+   *      "prefix": "nz-akl"
+   *    }
    *
    */
   stopInfo: function(req, res) {
@@ -123,6 +123,67 @@ var station = {
       })
     })
   },
+  /**
+   * @api {get} /:region/station/:stop_id/times/:time Stop Times - by stop_id
+   * @apiName GetTimes
+   * @apiGroup Station
+   * @apiDescription Shows services at a particular station.
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} stop_id Station Stop ID, find using All Stations or Stations by Location routes.
+   * @apiParam {String} [time] Find services at a particular time, defaults to current time.
+   *
+   * @apiSuccess {String} provider The data source. Usually "sql-server"
+   * @apiSuccess {Number} current_time  Server time, in seconds.
+   * @apiSuccess {Object[]} trips List of all the trips for the station.
+   * @apiSuccess {String} trips.trip_id GTFS trip_id
+   * @apiSuccess {Number} trips.stop_sequence What stop of the line this station corresponds to.
+   * @apiSuccess {String} trips.trip_headsign General direction of where the service is going - usually displayed on vehicle
+   * @apiSuccess {String} trips.shape_id Shape_id of route
+   * @apiSuccess {Number} trips.direction_id 0 for outbound, 1 for inbound.
+   * @apiSuccess {Date} trips.start_date When this trip is valid from - server filters out invalid ones automatically
+   * @apiSuccess {Date} trips.end_date When this trip is valid unti - server filters out invalid ones automatically
+   * @apiSuccess {String} trips.route_short_name Short service name.
+   * @apiSuccess {String} trips.route_long_name Long service name - usually origin & destination. Sometimes "Eastern Line"
+   * @apiSuccess {Number} trips.route_type GTFS Route Transport Type
+   * @apiSuccess {String} trips.agency_id Agency that operates this service
+   * @apiSuccess {String} trips.route_color Colour for the route
+   * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
+   * @apiSuccess {Object[]} realtime Realtime Info, only provided for some services. If empty, call the realtime API.
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "provider": "sql-server",
+   *       "currentTime": 45960,
+   *       "trips": [
+   *         {
+   *           "trip_id": "50051071268-20171113160906_v60.12",
+   *           "stop_sequence": 11,
+   *           "trip_headsign": "Britomart",
+   *           "shape_id": "1198-20171113160906_v60.12",
+   *           "direction_id": 0,
+   *           "start_date": "2017-11-16T00:00:00.000Z",
+   *           "end_date": "2017-12-09T00:00:00.000Z",
+   *           "route_short_name": "EAST",
+   *           "route_long_name": "Manukau Train Station to Britomart Train Station",
+   *           "route_type": 2,
+   *           "agency_id": "AM",
+   *           "route_color": "#f39c12",
+   *           "departure_time_seconds": 44280
+   *         },
+   *       ],
+   *       "realtime": {
+   *         "50051071268-20171113160906_v60.12": {
+   *           "stop_sequence": 41,
+   *           "delay": -35,
+   *           "timestamp": 1511222480.044,
+   *           "v_id": "2CA9",
+   *           "double_decker": false
+   *         }
+   *       }
+   *     }
+   */
   stopTimes: function(req, res) {
     // option in the future?
     // let fastData = false
@@ -210,6 +271,50 @@ var station = {
         
       })
   },
+  /**
+  * @api {get} /:region/station/:stop_id/timetable/:route/:direction Timetable - by stop_id
+  * @apiName GetTimetable
+  * @apiGroup Station
+  * @apiDescription Shows timetable for a particular service at a particular station.
+  *
+  * @apiParam {String} region Region of Worker
+  * @apiParam {String} stop_id Station Stop ID, find using All Stations or Stations by Location routes.
+  * @apiParam {String} route route_short_name to look up.
+  * @apiParam {Number} direction 0 for inbound, 1 for outbound, 2 for both directions.
+  *
+  * @apiSuccess {Object[]} trips List of all the trips for the station - just in root array, no actual object
+  * @apiSuccess {String} trips.trip_id GTFS trip_id
+  * @apiSuccess {String} trips.service_id GTFS service_id
+  * @apiSuccess {String} trips.shape_id GTFS shape_id
+  * @apiSuccess {String} trips.trip_headsign General direction of where the service is going - usually displayed on vehicle
+  * @apiSuccess {Number} trips.direction_id 0 for outbound, 1 for inbound.
+  * @apiSuccess {Number} trips.stop_sequence What stop of the line this station corresponds to.
+  * @apiSuccess {String} trips.route_id GTFS route_id
+  * @apiSuccess {String} trips.route_long_name Long service name - usually origin & destination. Sometimes "Eastern Line"
+  * @apiSuccess {String} trips.agency_id Agency that operates this service
+  * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
+  * @apiSuccess {String} trips.route_color Colour for the route
+  * @apiSuccess {Number} trips.currentTime Server Time, in Seconds
+  *
+  * @apiSuccessExample Success-Response:
+  *    HTTP/1.1 200 OK
+  *    [
+  *      {
+  *        "trip_id": "50051071494-20171113160906_v60.12",
+  *        "service_id": "50051071494-20171113160906_v60.12",
+  *        "shape_id": "1198-20171113160906_v60.12",
+  *        "trip_headsign": "Britomart",
+  *        "direction_id": 0,
+  *        "stop_sequence": 11,
+  *        "route_id": "50151-20171113160906_v60.12",
+  *        "route_long_name": "Manukau Train Station to Britomart Train Station",
+  *        "agency_id": "AM",
+  *        "departure_time_seconds": 20880,
+  *        "route_color": "#f39c12",
+  *        "currentTime": 47760
+  *      }
+  *    ]
+  */
   timetable: function(req, res) {
     if (parseInt(req.params.direction) > 2 || parseInt(req.params.direction) < 0) {
       return res.status(400).send({error: 'Direction is not valid.'})
