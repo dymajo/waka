@@ -16,7 +16,7 @@ var search = {
   stopsRouteType: {},
 
   /**
-   * @api {get} /:region/stations All Stations
+   * @api {get} /:region/stations List - All
    * @apiName GetStations
    * @apiGroup Station
    * @apiDescription This returns all the stations in the region. You generally should not need to use this, use search instead.
@@ -101,12 +101,12 @@ var search = {
         route_types[stop.stop_id] = stop.route_type
       })
       search.stopsRouteType = route_types
-    }).catch((err) => {
+    }).catch((err) => { 
       console.error(err)
     })
   },
   /**
-   * @api {get} /:region/station/search Stations by Location
+   * @api {get} /:region/station/search List - by Location
    * @apiName GetStationSearch
    * @apiGroup Station
    * @apiDescription Supply a latitude and a longitude, and you'll get all the stops back in that area.
@@ -116,13 +116,13 @@ var search = {
    * @apiParam {String} lng Longitude. Example: 174.7806
    * @apiParam {number{0-1250}} distance Search Distance. Example: 380
    *
-   * @apiSuccess {Object[]} items A list of all the stations
+   * @apiSuccess {Object[]} items A list of all the stations. Not actually called items, the root object is an array.
    * @apiSuccess {String} items.stop_id  Unique Stop Id for this station
    * @apiSuccess {String} items.stop_name  Station Name
-   * @apiSuccess {Number} stop_lat Stop Latitude
-   * @apiSuccess {Number} stop_lon Stop Longitude
-   * @apiSuccess {String} stop_region Worker Region that a stop is in
-   * @apiSuccess {Number} route_type See GTFS Route Types.
+   * @apiSuccess {Number} items.stop_lat Stop Latitude
+   * @apiSuccess {Number} items.stop_lon Stop Longitude
+   * @apiSuccess {String} items.stop_region Worker Region that a stop is in
+   * @apiSuccess {Number} items.route_type See GTFS Route Types.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
