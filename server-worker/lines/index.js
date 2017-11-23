@@ -16,6 +16,7 @@ var blobSvc = azure.createBlobService()
 
 blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response) {
   if (error) {
+    console.log(error)
     throw error
   }
 })
@@ -26,6 +27,56 @@ var line = {
       return lineData.lineColors[route_short_name] || '#000'     
     } 
   },
+  /**
+  * @api {get} /:region/lines List - All
+  * @apiName GetLines
+  * @apiGroup Lines
+  * 
+  * @apiParam {String} region Region of Worker
+  * 
+  * @apiSuccess {Object[]} friendlyNames Key value store of Route Short Names to more official names
+  * @apiSuccess {Object[]} colors Key value store of Route Short Names to corresponding colors
+  * @apiSuccess {Object[]} groups Grouping for all the lines into region.
+  * @apiSuccess {String} groups.name Name of Group
+  * @apiSuccess {String[]} groups.items Route Short Names that belong in the group
+  * @apiSuccess {Object[]} lines List of all lines
+  * @apiSuccess {String[]} lines.line Can have more than one item - depends on how many route variants.
+  * For each variant: 0th Element - Origin (or full name if length 1), 1st Element - Destination. 2nd Element - Via.
+  * 
+  * @apiSuccessExample Success-Response:
+  *     HTTP/1.1 200 OK
+  *     {
+  *       "friendlyNames": {
+  *         "380": "Airporter"
+  *       },
+  *       "colors": {
+  *         "380": "#2196F3"
+  *       },
+  *       "groups": [
+  *         {
+  *           "name": "Congestion Free Network",
+  *           "items": [
+  *             "380"
+  *           ]
+  *         }
+  *       ],
+  *       "lines": {
+  *         "380": [
+  *           [
+  *             "Onehunga",
+  *             "Manukau",
+  *             "Airport"
+  *           ],
+  *           [
+  *             "Howick",
+  *             "Pukekohe",
+  *             "Airport"
+  *           ]
+  *         ]
+  *       }
+  *     }
+  * 
+  */
   getLines: function(req, res) {
     res.send(line._getLines())
   },
@@ -38,6 +89,46 @@ var line = {
       operators: lineData.lineOperators,
     } 
   },
+  /**
+  * @api {get} /:region/line/:line Info - by route_short_name
+  * @apiName GetLine
+  * @apiGroup Lines
+  * 
+  * @apiParam {String} region Region of Worker
+  * @apiParam {String} line route_short_name of particular line
+  *
+  * @apiSuccess {Object[]} line All the variants for a particular line.
+  * @apiSuccess {String} line.route_id GTFS route_id
+  * @apiSuccess {String} line.route_long_name Long name for route variant
+  * @apiSuccess {String} line.route_short_name Short name for route variant
+  * @apiSuccess {String} line.route_color Color for route
+  * @apiSuccess {Number} line.direction_id Direction of route
+  * @apiSuccess {String} line.shape_id GTFS Shape_id
+  * @apiSuccess {Number} line.route_type GTFS route_type - Transport mode
+  *
+  * @apiSuccessExample Success-Response:
+  * HTTP/1.1 200 OK
+  * [
+  *   {
+  *     "route_id": "50140-20171113160906_v60.12",
+  *     "route_long_name": "Britomart Train Station to Manukau Train Station",
+  *     "route_short_name": "EAST",
+  *     "route_color": "#f39c12",
+  *     "direction_id": 1,
+  *     "shape_id": "1199-20171113160906_v60.12",
+  *     "route_type": 2
+  *   },
+  *   {
+  *     "route_id": "50151-20171113160906_v60.12",
+  *     "route_long_name": "Manukau Train Station to Britomart Train Station",
+  *     "route_short_name": "EAST",
+  *     "route_color": "#f39c12",
+  *     "direction_id": 0,
+  *     "shape_id": "1198-20171113160906_v60.12",
+  *     "route_type": 2
+  *   }
+  * ]
+  */
   getLine: function(req, res) {
     let lineId = req.params.line.trim()
     line._getLine(lineId, function(err, data) {
@@ -132,7 +223,6 @@ var line = {
       cb(err, null)
     })
   },
-
   getShape: function(req, res) {
     let shape_id = req.params.shape_id
     tableSvc.retrieveEntity('meta', 'shapewkb', shape_id, function(err, result, response) {
@@ -151,6 +241,33 @@ var line = {
       })
     })
   },
+  /**
+  * @api {get} /:region/shapejson/:shape_id Line Shape - by shape_id
+  * @apiName GetShape
+  * @apiGroup Lines
+  * 
+  * @apiParam {String} region Region of Worker
+  * @apiParam {String} shape_id GTFS Shape_id for particular shape.
+  *
+  * @apiSuccess {String} type GeoJSON Shape Type
+  * @apiSuccess {Object[]} coordinates GeoJSON Coordinates
+  *
+  * @apiSuccessExample Success-Response:
+  * HTTP/1.1 200 OK
+  * {
+  *   "type": "LineString",
+  *   "coordinates": [
+  *     [
+  *         174.76848,
+  *         -36.84429
+  *     ],
+  *     [
+  *         174.76863,
+  *         -36.84438
+  *     ]
+  *   ]
+  * }
+  */
   getShapeJSON: function(req, res) {
     const prefix = global.config.prefix
     const version = global.config.version
@@ -219,6 +336,30 @@ var line = {
 
   },
 
+  /**
+  * @api {get} /:region/stops/trip/:trip_id Line Stops - by trip_id
+  * @apiName GetStopsByTrip
+  * @apiGroup Lines
+  * 
+  * @apiParam {String} region Region of Worker
+  * @apiParam {String} trip_id GTFS trip_id for particular trip
+  *
+  * @apiSuccess {Object[]} stops Array of stops
+  *
+  * @apiSuccessExample Success-Response:
+  * HTTP/1.1 200 OK
+  * [
+  *   {
+  *     "stop_id": "9218",
+  *     "stop_name": "Manukau Train Station",
+  *     "stop_lat": -36.99388,
+  *     "stop_lon": 174.8774,
+  *     "departure_time": "1970-01-01T18:00:00.000Z",
+  *     "departure_time_24": false,
+  *     "stop_sequence": 1
+  *   }
+  * ]
+  */
   getStopsFromTrip: function(req, res){
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
@@ -243,6 +384,30 @@ var line = {
       res.status(500).send(err)
     })
   },
+  /**
+  * @api {get} /:region/stops/shape/:shape_id Line Stops - by shape_id
+  * @apiName GetStopsByShape
+  * @apiGroup Lines
+  * 
+  * @apiParam {String} region Region of Worker
+  * @apiParam {String} shape_id GTFS shape_id for particular trip
+  *
+  * @apiSuccess {Object[]} stops Array of stops
+  *
+  * @apiSuccessExample Success-Response:
+  * HTTP/1.1 200 OK
+  * [
+  *   {
+  *     "stop_id": "9218",
+  *     "stop_name": "Manukau Train Station",
+  *     "stop_lat": -36.99388,
+  *     "stop_lon": 174.8774,
+  *     "departure_time": "1970-01-01T18:00:00.000Z",
+  *     "departure_time_24": false,
+  *     "stop_sequence": 1
+  *   }
+  * ]
+  */
   getStopsFromShape: function(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
