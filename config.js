@@ -9,4 +9,8 @@ module.exports = {
   // uses randomized ports for workers.
   publicport: 8000,
   privateport: 8001,
+
+  // aws or azure
+  storageService: 'azure',
+  emulatedStorage: true,
 }
