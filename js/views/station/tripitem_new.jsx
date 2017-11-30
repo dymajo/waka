@@ -57,7 +57,6 @@ class TripItem extends React.Component {
     const trip = this.props.collection[0]
     let route_code = trip.route_short_name
 
-    const headsign = (trip.trip_headsign || StationStore.getHeadsign(this.props.match.params.region, trip.route_long_name, trip.direction_id)).split('/')[0]
     const dir = trip.direction_id === 1 ? 'in' : ''
     const direction = <DirectionIcon className={'direction ' + dir} />
     const background = trip.route_color
@@ -240,7 +239,7 @@ class TripItem extends React.Component {
         <div className="main" onTouchTap={this.triggerClick}>
           <div className="left">
             <h1 className={route_class} style={route_style}>{route_code}</h1>
-            <h2>{direction}{headsign} {via}
+            <h2>{direction}{trip.trip_headsign} {via}
             </h2>
           </div>
           {inner}
