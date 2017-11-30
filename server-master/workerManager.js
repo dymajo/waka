@@ -1,3 +1,4 @@
+const request = require('request')
 const Worker = require('./worker.js')
 const connection = require('./db/connection.js')
 const sql = require('mssql')
@@ -212,6 +213,22 @@ const WorkerManager = {
         resolve(result)
       }).catch(reject)
     })
+  },
+  startHeart: function() {
+    // runs a heartbeat every minute
+    setInterval(() => {
+      WorkerManager.getAll().forEach((worker) => {
+        if (typeof worker.port !== 'undefined') {
+          const url = WorkerManager.getWorker(worker.port).url()
+          request(url + '/heartbeat', function(err) {
+            if (err) {
+              log('Could not heartbeat.')
+              worker.start()
+            }
+          })
+        }
+      })
+    }, 60 * 1000)
   }
 }
 module.exports = WorkerManager

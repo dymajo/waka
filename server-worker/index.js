@@ -49,4 +49,17 @@ app.use((req, res, next) => {
 const listener = app.listen(0, function() {
   process.send({type: 'portbroadcast', data: listener.address().port})
 })
+let lastbeat = new Date()
+app.get('/heartbeat', (req, res) => {
+  lastbeat = new Date()
+  res.send()
+})
+const duration = 3 * 60 * 1000
+setInterval(() => {
+  if (new Date().getTime() - lastbeat.getTime() > duration) {
+    log('No Heartbeat recieved in last 3 mins, killing process')
+    process.exit()
+  }
+}, 60 * 1000)
+
 app.use(require('./router.js'))
