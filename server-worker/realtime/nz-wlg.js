@@ -84,7 +84,7 @@ const realtime = {
     sqlRequest.input('trip_id', sql.VarChar(50), trip_id)
     sqlRequest.query(`
       SELECT TOP 1
-        route_short_name
+        route_short_name, direction_id
       FROM trips 
       INNER JOIN routes ON
         routes.route_id = trips.route_id
@@ -102,7 +102,11 @@ const realtime = {
 
       request({url: serviceLocation + route_name}, function(err, response, body) {
         const responseData = {}
-        JSON.parse(body).Services.forEach(service => {
+        JSON.parse(body).Services.filter(service => {
+          const dbdir = result.recordset[0].direction_id
+          const rtdir = service.Direction
+          return (dbdir === 0 && rtdir === 'Outbound') || (dbdir === 1 && rtdir === 'Inbound')
+        }).forEach(service => {
           responseData[service.VehicleRef] = {
             latitude: parseFloat(service.Lat),
             longitude: parseFloat(service.Long),
