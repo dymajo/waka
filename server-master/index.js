@@ -28,6 +28,7 @@ async function cb() {
   await WorkerManager.load()
   await WorkerManager.startAll()
   await WorkerManager.loadMappings()
+  WorkerManager.startHeart()
   await updater.start()
 }
 
