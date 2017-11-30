@@ -77,22 +77,6 @@ export class stationStore extends Events {
       SettingsStore.saveState()
     }
   }
-  getHeadsign(prefix, longname, direction) {
-    if (prefix === 'nz-wlg') {
-      let rawname = longname.split('(')
-      if (rawname.length > 1) {
-        rawname = rawname[1].replace(')', '')
-      } else {
-        rawname = longname
-      }
-      rawname = rawname.split(' - ')
-      if (direction === 1) {
-        rawname.reverse()
-      }
-      return rawname[0]
-    }
-    return longname
-  }
   // persists data to localStorage
   saveData() {
     localStorage.setItem('StationData', JSON.stringify(this.StationData))

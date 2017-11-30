@@ -76,7 +76,7 @@
     "http-proxy": "^1.16.2",
     "leaflet": "^1.2.0",
     "leaflet-rotatedmarker": "^0.2.0",
-    "moment": "^2.14.1",
+    "moment": "^2.19.3",
     "moment-timezone": "^0.5.5",
     "mssql": "^4.1.0",
     "node-polyglot": "^2.2.2",
@@ -97,7 +97,7 @@
     "sendgrid": "^4.3.0",
     "smoothscroll-polyfill": "^0.4.0",
     "stream-transform": "^0.1.2",
-    "style-loader": "^0.18.2",
+    "style-loader": "^0.19.0",
     "webpack-dev-server": "^2.9.3",
     "zenscroll": "^4.0.0"
   }

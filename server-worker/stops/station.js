@@ -14,6 +14,24 @@ cache.preReady.push(() => {
   }
 })
 
+const getHeadsign = function(longname, direction) {
+  const prefix = global.config.prefix
+  if (prefix === 'nz-wlg') {
+    let rawname = longname.split('(')
+    if (rawname.length > 1) {
+      rawname = rawname[1].replace(')', '')
+    } else {
+      rawname = longname
+    }
+    rawname = rawname.split(' - ')
+    if (direction === 1) {
+      rawname.reverse()
+    }
+    return rawname[0]
+  }
+  return longname.split('/')[0]
+}
+
 var station = {
   /**
    * @api {get} /:region/station/:stop_id Info - by stop_id
@@ -253,6 +271,10 @@ var station = {
           // 30mins of realtime 
           if (record.departure_time_seconds < (sending.currentTime + 1800) || record.departure_time_24) {
             realtimeTrips.push(record.trip_id)
+          }
+
+          if (record.trip_headsign === null) {
+            record.trip_headsign = getHeadsign(record.route_long_name, record.direction_id)
           }
 
           delete record.arrival_time
