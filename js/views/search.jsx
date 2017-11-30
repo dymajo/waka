@@ -58,7 +58,7 @@ const getMarker = function(iconType, name) {
     </svg>
     `
     return Icon({
-      iconUrl: 'data:image/svg+xml;charset=utf-8,'+dynamic,
+      iconUrl: 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(dynamic),
       iconSize: [25, 41]
     })
   }

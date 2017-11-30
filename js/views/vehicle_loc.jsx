@@ -33,25 +33,22 @@ let geoID = undefined
 let liveRefresh = undefined
 
 const hiddenIcon = Icon({
-  iconUrl: '/icons/bus-fill.svg',
+  iconUrl: '/icons/normal/bus-fill.svg',
   iconSize: [48, 48],
   className: 'hiddenIcon'
 })
 const busIcon = Icon({
-  iconUrl: '/icons/bus-fill.svg',
-  iconRetinaUrl: '/icons/bus-fill.svg',
+  iconUrl: '/icons/normal/bus-fill.svg',
   iconSize: [24, 24],
   className: 'vehIcon'
 })
 const trainIcon = Icon({
-  iconUrl: '/icons/train-fill.svg',
-  iconRetinaUrl: '/icons/train-fill.svg',
+  iconUrl: '/icons/normal/train-fill.svg',
   iconSize: [24, 24],
   className: 'vehIcon'
 })
 const ferryIcon = Icon({
-  iconUrl: '/icons/ferry-fill.svg',
-  iconRetinaUrl: '/icons/ferry-fill.svg',
+  iconUrl: '/icons/normal/ferry-fill.svg',
   iconSize: [24, 24],
   className: 'vehIcon'
 })
