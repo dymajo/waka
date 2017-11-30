@@ -1,24 +1,20 @@
-const azure = require('azure-storage')
 const colors = require('colors')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
+const Storage = require('../db/storage.js')
 
 const search = require('../stops/search.js')
 const cache = require('../cache.js')
+const config = require('../../config.js')
 
 let lineData = {}
 cache.preReady.push(() => {
   lineData = require('./' + global.config.prefix)
 })
 
-var tableSvc = azure.createTableService()
-var blobSvc = azure.createBlobService()
-
-blobSvc.createContainerIfNotExists('shapewkb', function(error, result, response) {
-  if (error) {
-    console.log(error)
-    throw error
-  }
+const storageSvc = new Storage({
+  backing: config.storageService,
+  local: config.emulatedStorage
 })
 
 var line = {
@@ -223,24 +219,6 @@ var line = {
       cb(err, null)
     })
   },
-  getShape: function(req, res) {
-    let shape_id = req.params.shape_id
-    tableSvc.retrieveEntity('meta', 'shapewkb', shape_id, function(err, result, response) {
-      if (err) {
-        res.status(404).send()
-        return
-      }
-     
-      res.set('Content-Type', 'text/plain')
-      blobSvc.getBlobToStream('shapewkb', shape_id, res, function(blobError, blobResult, blobResponse){
-        if (blobError) {
-          console.warn(blobError)
-        }
-        res.end()
-        return
-      })
-    })
-  },
   /**
   * @api {get} /:region/shapejson/:shape_id Line Shape - by shape_id
   * @apiName GetShape
@@ -274,7 +252,7 @@ var line = {
     const containerName = encodeURIComponent((prefix+'-'+version).replace('_','-').replace('.','-'))
     const shape_id = req.params.shape_id
     const fileName = encodeURIComponent(new Buffer(shape_id).toString('base64') + '.json')
-    blobSvc.getBlobToStream(containerName, fileName, res, function(blobError) {
+    storageSvc.downloadStream(containerName, fileName, res, function(blobError) {
       if (blobError) {
         res.status(404)
       }

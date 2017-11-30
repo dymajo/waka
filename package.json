@@ -63,7 +63,7 @@
     "apidoc": "^0.17.6",
     "applicationinsights": "^1.0.0",
     "autotrack": "^2.4.1",
-    "azure-storage": "^2.5.0",
+    "azure-storage": "^2.6.0",
     "body-parser": "^1.18.2",
     "clipboard": "^1.7.1",
     "colors": "^1.1.2",

@@ -5,8 +5,12 @@ const transform = require('stream-transform')
 const colors = require('colors')
 const log = require('../../server-common/logger.js')
 
-const azure = require('azure-storage')
-const blobSvc = azure.createBlobService()
+const config = require('../../config.js')
+const Storage = require('./storage.js')
+const storageSvc = new Storage({
+  backing: config.storageService,
+  local: config.emulatedStorage
+})
 
 class createShapes {
   create(inputFile, outputDirectory, versions) {
@@ -80,7 +84,7 @@ class createShapes {
 
         const fileName = files[index]
         const fileLocation = path.resolve(directory, fileName)
-        blobSvc.createBlockBlobFromLocalFile(container, encodeURIComponent(fileName), fileLocation, function(error) {
+        storageSvc.uploadFile(container, encodeURIComponent(fileName), fileLocation, function(error) {
           if (error) {
             console.error(container.magenta+':', 'Could not upload shape.', error)
           }
@@ -92,10 +96,7 @@ class createShapes {
         })
       }
 
-      blobSvc.createContainerIfNotExists(container, function(error) {
-        if (error) {
-          throw error
-        }
+      storageSvc.createContainer(container, function() {
         log(container.magenta +':', 'Blob Container Created.')
         fs.readdir(directory, function(err, files) {
           if (err) {
