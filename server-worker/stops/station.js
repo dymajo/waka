@@ -373,6 +373,10 @@ var station = {
           record.route_color = line.getColor(req.params.route)
           record.currentTime = currentTime.getTime()/1000
 
+          if (record.trip_headsign === null) {
+            record.trip_headsign = getHeadsign(record.route_long_name, record.direction_id)
+          }
+
           delete record.departure_time
           delete record.departure_time_24
           return record

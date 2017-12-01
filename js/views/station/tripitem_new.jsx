@@ -36,11 +36,14 @@ class TripItem extends React.Component {
     UiStore.setExpandedItem([this.props.collection[0].trip_id, this.props.index])
   }
   triggerMap = () => {
-    this.props.history.push(window.location.pathname + '/realtime/' + this.props.collection[0].trip_id)
+    const i = this.props.collection[0]
+    const url = ['/s', this.props.match.params.region, i.station, 'realtime/'].join('/')
+    this.props.history.push(url + i.trip_id)
   }
   triggerTimetable = () => {
     const i = this.props.collection[0]
-    this.props.history.push(window.location.pathname + '/timetable/' + i.route_short_name + '-' + i.direction_id)
+    const url = ['/s', this.props.match.params.region, i.station, 'timetable/'].join('/')
+    this.props.history.push(url + i.route_short_name + '-' + i.direction_id)
   }
   expandChange(item) {
     if (item[0] === this.props.collection[0].trip_id) { 
