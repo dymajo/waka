@@ -143,9 +143,10 @@ class vehicle_location extends React.Component {
       CurrentLocation.stopWatch()
     }
   }
-  
-  componentDidMount() {
+  componentWillMount() {
     UiStore.downloadCss('maps.css')
+  }
+  componentDidMount() {
     CurrentLocation.bind('pinmove', this.pinmove)
     CurrentLocation.bind('mapmove', this.mapmove)
     this.getWKB()

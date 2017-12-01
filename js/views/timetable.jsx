@@ -206,7 +206,7 @@ export default class Timetable extends React.Component {
                 return (
                   <li key={key} className={className}>
                     <div className="left">
-                      {item.trip_headsign || StationStore.getHeadsign(this.props.match.params.region, item.route_long_name, item.direction_id)}
+                      {item.trip_headsign}
                       {name.length > 1 ? <small> via {name[1]}</small> : ''}
                     </div>
                     <div className="right">

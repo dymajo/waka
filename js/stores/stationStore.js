@@ -204,7 +204,13 @@ export class stationStore extends Events {
     const promises = stations.split('+').map((station) => {
       return new Promise((resolve, reject) => {
         fetch(`${local.endpoint}/${region}/station/${station}/times`).then((response) => {    
-          response.json().then(resolve)
+          response.json().then(data => {
+            data.trips = data.trips.map(trip => {
+              trip.station = station
+              return trip
+            })
+            resolve(data)
+          })
         }).catch((err) => {
           reject(err)
         })
