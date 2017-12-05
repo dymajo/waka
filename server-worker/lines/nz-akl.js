@@ -116,11 +116,11 @@ const lineGroups = [
   },
   {
     name: 'East',
-    items: ['500','501','505','515','525','532','545','550','550X','551','552','565','575','580','589','595']
+    items: ['70','711','712','714','72C','72M','72X','733','734','735','739','505','515','525','532','580','595']
   },
   {
     name: 'South',
-    items: ['31','32','33','313','314','324','325','326','352','353','360X','361','362','363','365','366','368','369','371','372','373','374','376','377','378','380','391','392','393','394','395','396','398','399']
+    items: ['31','32','33','35','313','314','324','325','326','351','352','353','355','360X','361','362','363','365','366','368','369','371','372','373','374','376','377','378','380','391','392','393','394','395','396','398','399']
   },
   {
     name: 'West',
@@ -132,7 +132,7 @@ const lineGroups = [
   },
   {
     name: 'Late Night',
-    items: ['N26','N10','N11','N50','N62','N83','N97']
+    items: ['N26','N10','N11','N62','N83','N97']
   },
   {
     name: 'Waiheke Island',
@@ -240,21 +240,22 @@ const allLines = {
   '771': [['Newmarket', 'St Heliers', 'Mission Bay']],
 
   // EAST
-  '500': [['Britomart', 'Mission Heights', 'Botany Town Centre']],
-  '501': [['Britomart', 'Cockle Bay', 'Botany Town Centre']],
+  '70': [['Britomart', 'Botany', 'Panmure']],
+  '711': [['Panmure', 'Howick', 'Cascades Road']],
+  '712': [['Panmure', 'Bucklands Beach']],
+  '714': [['Half Moon Bay', 'Bucklands Beach']],
+  '72C': [['Pamure To Howick And Botany Via Pakuranga Rd, Cook St, and C'], ['Botany And Howick To Panmure Via Chapel Rd, Cook St, And Pak']],
+  '72M': [['Pamure to Howick and Botany via Pakuranga Rd, Meadowland Dr'], ['Botany and Howick to Panmure via Millhouse Dr, Meadowland Dr']],
+  '72X': [['Britomart To Howick And Botany Express Via Motorway And Panm'], ['Botany And Howick To Britomart Express Via Panmure And Motor']],
+  '733': [['Botany', 'Bucklands Beach', 'Highland Park']],
+  '734': [['Botany', 'Half Moon Bay', 'Highland Park'], ['Botany To Half Moon BayýVia Highland Park']],
+  '735': [['Botany', 'Half Moon Bay', 'Cockle Bay And Howick'], ['Botany', 'Half Moon Bay', 'Howick And Cockle Bay']],
+  '739': [['Botany', 'Beachlands And Maraetai', 'Ormiston And Whitford'], ['Maraetai And Beachlands To BotanyýVia Whitford And Ormiston']],
   '505': [['Britomart', 'Sylvia Park', 'Ruawai Rd and Ellerslie']],
   '515': [['Britomart', 'Otahuhu Station', 'Ruawai Rd and Panama Rd']],
   '525': [['Britomart', 'Mt Wellington', 'Mt Wellington Highway'], ['Britomart', 'Sylvia Park', 'Mt Wellington Highway']],
   '532': [['Britomart', 'Otahuhu', 'Carbine Road'], ['Britomart', 'Otahuhu Station', 'Carbine Road']],
-  '545': [['Botany Town Centre', 'Bucklands Beach', 'Highland Park']],
-  '550': [['Britomart', 'Cockle Bay', 'Newmarket']],
-  '550X': [['Britomart', 'Cockle Bay Express'], ['Britomart Express', 'Cockle Bay']],
-  '551': [['Britomart', 'North Park', 'Newmarket']],
-  '552': [['Britomart', 'Bucklands Beach', 'Newmarket']],
-  '565': [['Botany Town Centre', 'Half Moon Bay', 'Gossamer Dr']],
-  '575': [['Middlemore', 'Half Moon Bay', 'Otara And Highbrook']],
   '580': [['Howick', 'Manukau City Centre', 'Botany Town Centre'], ['Howick', 'Manukau Station', 'Botany Town Centre']],
-  '589': [['Botany Town Centre', 'Maraetai'], ['Botany Town Centre', 'Beachlands And Maraetai', 'Flat Bush']],
   '595': [['Britomart', 'Glen Innes', 'Panmure'], ['Britomart', 'Glen Innes Centre', 'Panmure And Ellerslie']],
 
   // SOUTH
@@ -266,8 +267,11 @@ const allLines = {
   '325': [['Mangere Town Centre', 'Manukau Station', 'Otahuhu And Otara'], ['Mangere Town Centre', 'Manukau Station', 'Otara And Otahuhu']],
   '326': [['Mangere Town Centre', 'Otahuhu Station', 'Tidal Road']],
   '33': [['Otahuhu Station', 'Papakura Interchange', 'Great South Rd']],
+  '35': [['Manukau', 'Botany', 'Chapel Rd And Ormiston']],
+  '351': [['Otahuhu Station', 'Botany', 'Highbrook']],
   '352': [['Manukau Station', 'Panmure', 'East Tamaki']],
   '353': [['Manukau Station', 'Botany Town Centre', 'Preston Rd']],
+  '355': [['Manukau To Botany Via Ormiston And Mission Heights'],['Botany To Manukau Via Mission Heights And Ormiston']],
   '360X': [['City', 'Papakura', 'Manurewa (Express)']],
   '361': [['Manurewa Interchange', 'Otara / Mit', 'Mahia Rd']],
   '362': [['Manukau Station', 'Weymouth', 'Great South Rd']],
@@ -402,7 +406,6 @@ const allLines = {
   'N26': [['City Centre To Lynfield Via Dominion Rd']],
   'N10': [['City To Otara Via Manukau Rd, Onehunga, Mangere, Papatoetoe']],
   'N11': [['City To Papakura Via Great South Rd']],
-  'N50': [['Britomart To Howick Via Pakuranga']],
   'N62': [['City Centre To Orakei V Remuera GlenInnes And StHeliers']],
   'N83': [['City Centre To Takapuna And East Coast Bays']],
   'N97': [['City Centre To Birkenhead Via Beach Haven And Glenfield Rd'], ['Onewa', 'City Centre']],
