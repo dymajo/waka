@@ -294,7 +294,7 @@ var station = {
       })
   },
   /**
-  * @api {get} /:region/station/:stop_id/timetable/:route/:direction Timetable - by stop_id
+  * @api {get} /:region/station/:stop_id/timetable/:route/:direction/:offset Timetable - by stop_id
   * @apiName GetTimetable
   * @apiGroup Station
   * @apiDescription Shows timetable for a particular service at a particular station.
@@ -303,6 +303,7 @@ var station = {
   * @apiParam {String} stop_id Station Stop ID, find using All Stations or Stations by Location routes.
   * @apiParam {String} route route_short_name to look up.
   * @apiParam {Number} direction 0 for inbound, 1 for outbound, 2 for both directions.
+  * @apiParam {Number} [offset] The number of days from today to get the timetable for 
   *
   * @apiSuccess {Object[]} trips List of all the trips for the station - just in root array, no actual object
   * @apiSuccess {String} trips.trip_id GTFS trip_id
@@ -317,6 +318,7 @@ var station = {
   * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
   * @apiSuccess {String} trips.route_color Colour for the route
   * @apiSuccess {Number} trips.currentTime Server Time, in Seconds
+  * @apiSuccess {Number} trips.date Date of Trip
   *
   * @apiSuccessExample Success-Response:
   *    HTTP/1.1 200 OK
@@ -333,7 +335,8 @@ var station = {
   *        "agency_id": "AM",
   *        "departure_time_seconds": 20880,
   *        "route_color": "#f39c12",
-  *        "currentTime": 47760
+  *        "currentTime": 47760,
+  *        "date": "2017-12-08T00:00:00.000Z"
   *      }
   *    ]
   */
@@ -341,15 +344,20 @@ var station = {
     if (parseInt(req.params.direction) > 2 || parseInt(req.params.direction) < 0) {
       return res.status(400).send({error: 'Direction is not valid.'})
     }
+    let offset = 0
+    if (!isNaN(parseInt(req.params.offset))) {
+      offset = parseInt(req.params.offset)
+    }
+
     let sending = {}
 
     const time = moment().tz('Pacific/Auckland')
     const currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute()))
 
-    const today = new Date(0)
+    const today = new Date(Date.UTC(1970,0,1,0,0))
     today.setFullYear(time.year())
     today.setUTCMonth(time.month())
-    today.setUTCDate(time.date())
+    today.setUTCDate(time.date() + offset)
 
     // combines train stations platforms together
     let procedure = 'GetTimetable'
@@ -372,6 +380,7 @@ var station = {
           record.arrival_time_seconds = record.departure_time_seconds
           record.route_color = line.getColor(req.params.route)
           record.currentTime = currentTime.getTime()/1000
+          record.date = today
 
           if (record.trip_headsign === null) {
             record.trip_headsign = getHeadsign(record.route_long_name, record.direction_id)

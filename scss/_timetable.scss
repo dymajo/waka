@@ -55,7 +55,12 @@
   		font-size: 14px;
   		padding: 22px 7px 4px;
   		border-bottom: 2px solid #ddd;
-  		color: #555;
+      color: #555;
+      background: #fff;
+      position: -webkit-sticky;
+      position: sticky;
+      top: -1px;
+      z-index: 1;
   	}
   }
 }

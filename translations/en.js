@@ -129,7 +129,8 @@ export default {
   timetable: {
     title: 'Timetable',
     header: '%{route} Timetable - %{appname}',
-    error: 'We couldn’t get the timetable for this route.'
+    error: 'We couldn’t get the timetable for this route.',
+    empty: 'There were no services found today.'
   },
   vech_loc: {
     header: '%{route} - Live Location - %{appname}',

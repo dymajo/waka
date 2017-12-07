@@ -336,15 +336,17 @@ export class stationStore extends Events {
     }
     return rtData
   }
-  getTimetable(station, route, direction, region = 'nz-akl') {
+  getTimetable(station, route, direction, region = 'nz-akl', offset = 0) {
     const sortfn = function(a, b) {
       return a.departure_time_seconds - b.departure_time_seconds
     }
     return new Promise((resolve, reject) => {
-      fetch(`${local.endpoint}/${region}/station/${station}/timetable/${route}/${direction}`).then((request) => {
+      fetch(`${local.endpoint}/${region}/station/${station}/timetable/${route}/${direction}/${offset}`).then((request) => {
         request.json().then((data) => {
-          this.setOffset(data[0].currentTime)
-          data.sort(sortfn)
+          if (data.length > 0) {
+            this.setOffset(data[0].currentTime)
+            data.sort(sortfn)
+          }
           resolve(data)
         })
       }).catch(reject)

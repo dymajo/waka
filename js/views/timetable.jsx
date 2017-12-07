@@ -10,6 +10,7 @@ import { t } from '../stores/translationStore.js'
 import BackIcon from '../../dist/icons/back.svg'
 
 const style = UiStore.getAnimation()
+const language = navigator.language || 'en'
 
 export default class Timetable extends React.Component {
   static propTypes = {
@@ -21,10 +22,13 @@ export default class Timetable extends React.Component {
     tripInfo: {},
     animation: 'unmounted',
     loading: true,
+    loadingMode: false,
     stopName: '',
-    error: null
+    error: null,
+    offset: 0,
   }
   times = {}
+  failures = 0
 
   componentDidMount() {
     this.getData()
@@ -37,6 +41,11 @@ export default class Timetable extends React.Component {
     UiStore.unbind('animation', this.animation)
     window.removeEventListener('online',  this.triggerRetry)
   }
+  componentDidUpdate() {
+    if (this.scrollContainer.scrollHeight <= this.scrollContainer.clientHeight) {
+      this.getMoreData()
+    }
+  }
   animation = (data) => {
     if (data[1] !== this.container) {
       return
@@ -46,6 +55,30 @@ export default class Timetable extends React.Component {
     this.setState({
       animation: data[0]
     })
+  }
+  _tripsMap(data) {
+    const tripsArr = []
+    let lastTrip = null
+    data.forEach((trip) => {
+      trip.day = new Date(trip.date)
+      trip.date = new Date(trip.departure_time_seconds * 1000)
+      if (lastTrip) {
+        if (lastTrip.getUTCHours() !== trip.date.getUTCHours()) {
+          const day = trip.day.toLocaleDateString(language, {weekday: 'long'})
+          tripsArr.push({
+            seperator: day + ' ' + trip.date.getUTCHours()
+          })
+        }
+      } else {
+        const day = trip.day.toLocaleDateString(language, {weekday: 'long'})
+        tripsArr.push({
+          seperator: day + ' ' + trip.date.getUTCHours()
+        })
+      }
+      lastTrip = trip.date
+      tripsArr.push(trip)
+    })
+    return tripsArr
   }
   getData() {
     if (!navigator.onLine) {
@@ -67,30 +100,18 @@ export default class Timetable extends React.Component {
     })
 
     const r = this.props.match.params.route_name.split('-')
-    StationStore.getTimetable(this.props.match.params.station, r[0], r[1], this.props.match.params.region).then((data) => {
-      const tripsArr = []
-      let lastTrip = null
-      data.forEach((trip) => {
-        trip.date = new Date(trip.departure_time_seconds * 1000)
-        if (lastTrip) {
-          if (lastTrip.getUTCHours() !== trip.date.getUTCHours()) {
-            tripsArr.push({
-              seperator: trip.date.getUTCHours()
-            })
-          }
-        } else {
-          tripsArr.push({
-            seperator: trip.date.getUTCHours()
-          })
-        }
-        lastTrip = trip.date
-        tripsArr.push(trip)
-      })
+    StationStore.getTimetable(this.props.match.params.station, r[0], r[1], this.props.match.params.region, this.state.offset).then((data) => {
+      const tripsArr = this._tripsMap(data)
     
       this.setState({
         trips: tripsArr,
         loading: false
       })
+
+      if (tripsArr.length === 0) {
+        console.log('getting more data')
+        this.getMoreData()
+      }
 
       requestAnimationFrame(() => {
         let time = new Date(new Date().getTime() + StationStore.offsetTime).getHours()
@@ -127,6 +148,39 @@ export default class Timetable extends React.Component {
     })
     this.getData(this.props)
   }
+  getMoreData = () => {
+    if (this.state.loadingMore === true) {
+      return
+    }
+    this.setState({
+      loadingMore: true,
+    })
+    const r = this.props.match.params.route_name.split('-')
+    StationStore.getTimetable(this.props.match.params.station, r[0], r[1], this.props.match.params.region, this.state.offset + 1).then((data) => {
+      this.setState({
+        trips: this.state.trips.concat(this._tripsMap(data)),
+        loadingMore: false,
+        offset: this.state.offset + 1
+      })
+
+      if (data.length === 0 && this.failures < 7) {
+        this.failures++
+        this.getMoreData()
+      }
+    }).catch(() => {
+      this.setState({
+        loadingMore: false
+      })
+    })
+  }
+  triggerScroll = (e) => {
+    // intersection observer would be great, but have to support safari
+    // and can't really be bothered shipping the polyfill yet
+    const offset = e.currentTarget.scrollHeight - e.currentTarget.scrollTop - e.currentTarget.clientHeight
+    if (offset < 800) {
+      this.getMoreData()
+    }
+  }
   render() {
     let roundelStyle = 'line-pill'
     let code = this.props.match.params.route_name.split('-')[0]
@@ -144,6 +198,7 @@ export default class Timetable extends React.Component {
 
     let opacity = false
     let loading
+    let empty = null
     if (this.state.loading) {
       loading = (
         <div className="spinner" />
@@ -155,6 +210,8 @@ export default class Timetable extends React.Component {
           <button className="nice-button primary" onTouchTap={this.triggerRetry}>{t('app.errorRetry')}</button>
         </div>
       )
+    } else if (this.state.trips.length === 0) {
+      empty = <div className="error"><p>{t('timetable.empty')}</p></div>
     }
     const offsetTime = new Date().getTime() + StationStore.offsetTime
     const currentTime = parseInt(new Date(offsetTime).getHours().toString() + ('0' + new Date(offsetTime).getMinutes()).slice(-2))
@@ -170,18 +227,21 @@ export default class Timetable extends React.Component {
             <h2>{this.state.stopName}</h2>
           </div>
         </header>
-        <div className="timetable-content enable-scrolling" ref={e => this.scrollContainer = e} onTouchStart={iOS.triggerStart}>
+        <div className="timetable-content enable-scrolling" ref={e => this.scrollContainer = e} onTouchStart={iOS.triggerStart} onScroll={this.triggerScroll}>
           <div className="scrollwrap">
             {loading}
+            {empty}
             <ul>
               {this.state.trips.map((item, key) => {
                 if ('seperator' in item) {
-                  let timeString
+                  let timeString = item.seperator.split(' ')[0] + ' '
+                  const seperator = parseInt(item.seperator.split(' ')[1])
+
                   if (SettingsStore.state.clock) {
-                    timeString = item.seperator + ':00'
+                    timeString += seperator + ':00'
                   } else {
-                    timeString = (item.seperator % 12 === 0 ? 12 : item.seperator % 12) + ':00'
-                    timeString += item.seperator >= 12 ? ' PM' : ' AM'
+                    timeString += (seperator % 12 === 0 ? 12 : seperator % 12) + ':00'
+                    timeString += seperator >= 12 ? ' PM' : ' AM'
                   }
                   return <li key={key} ref={e => this.times['time'+item.seperator] = e} className="seperator">{timeString}</li>
                 }
