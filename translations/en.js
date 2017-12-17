@@ -6,6 +6,7 @@ export default {
     errorRetry: 'Retry',
   },
   regions: {
+    'pick': 'Pick City',
     'au-syd': 'Sydney',
     'au-syd-long': 'New South Wales, Sydney',
     'nz-akl': 'Auckland',

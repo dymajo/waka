@@ -35,15 +35,9 @@ class RootHeader extends React.Component {
     })
   }
   render() {
-    let firstHeadingClass = 'full-height'
-    let secondHeading
+    let secondHeading = t('regions.pick')
     if (this.state.currentCity !== 'none') {
-      firstHeadingClass = ''
-      secondHeading = (
-        <h2>
-          {t('regions.' + this.state.currentCity + '-long')} <small>▼</small>
-        </h2>
-      )
+      secondHeading = t('regions.' + this.state.currentCity + '-long')
     }
 
     return [
@@ -52,10 +46,10 @@ class RootHeader extends React.Component {
           <StationIcon />
         </span>
         <div className="header-expand menu" onTouchTap={this.props.toggleRegion}>
-          <h1 className={firstHeadingClass}>
+          <h1>
             <strong>{t('app.name')}</strong>
           </h1>
-          {secondHeading}
+          <h2>{secondHeading} <small>▼</small></h2>
         </div>
         <span className="header-right" onTouchTap={this.triggerSettings}>
           <SettingsIcon />
