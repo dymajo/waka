@@ -31,7 +31,7 @@ export default class RegionPopover extends React.Component {
       <div className={className}>
         <Header
           backFn={this.props.toggle}
-          title="Pick City"
+          title={t('regions.pick')}
           className="no-shadow"
         />
         <div className="content">

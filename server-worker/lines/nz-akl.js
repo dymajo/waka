@@ -116,7 +116,7 @@ const lineGroups = [
   },
   {
     name: 'East',
-    items: ['70','711','712','714','72C','72M','72X','733','734','735','739','505','515','525','532','580','595']
+    items: ['70','711','712','714','72C','72M','72X','733','734','735','739','505','515','525','532','595']
   },
   {
     name: 'South',
@@ -132,7 +132,7 @@ const lineGroups = [
   },
   {
     name: 'Late Night',
-    items: ['N26','N10','N11','N62','N83','N97']
+    items: ['70H', 'N26','N10','N11','N62','N83','N97']
   },
   {
     name: 'Waiheke Island',
@@ -255,7 +255,6 @@ const allLines = {
   '515': [['Britomart', 'Otahuhu Station', 'Ruawai Rd and Panama Rd']],
   '525': [['Britomart', 'Mt Wellington', 'Mt Wellington Highway'], ['Britomart', 'Sylvia Park', 'Mt Wellington Highway']],
   '532': [['Britomart', 'Otahuhu', 'Carbine Road'], ['Britomart', 'Otahuhu Station', 'Carbine Road']],
-  '580': [['Howick', 'Manukau City Centre', 'Botany Town Centre'], ['Howick', 'Manukau Station', 'Botany Town Centre']],
   '595': [['Britomart', 'Glen Innes', 'Panmure'], ['Britomart', 'Glen Innes Centre', 'Panmure And Ellerslie']],
 
   // SOUTH
@@ -403,6 +402,7 @@ const allLines = {
   '992X': [['City Centre (Wellesley St)', 'Gulf Harbour', 'HC Station']],
 
   // LATE NIGHT
+  '70H': [['Britomart', 'Howick And Botany', 'Ellerslie And Panmure']],
   'N26': [['City Centre To Lynfield Via Dominion Rd']],
   'N10': [['City To Otara Via Manukau Rd, Onehunga, Mangere, Papatoetoe']],
   'N11': [['City To Papakura Via Great South Rd']],
