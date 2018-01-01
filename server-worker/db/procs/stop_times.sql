@@ -20,3 +20,7 @@ INCLUDE (trip_id, departure_time_24, stop_sequence)
 
 CREATE NONCLUSTERED INDEX id_Stop_Times_Trips
 ON stop_times (trip_id)
+
+CREATE NONCLUSTERED INDEX id_Stop_Times_Times
+ON [dbo].[stop_times] ([departure_time])
+INCLUDE ([trip_id],[departure_time_24],[stop_id],[stop_sequence])
