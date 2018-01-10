@@ -17,6 +17,9 @@ const badStops = [
 
 module.exports = {
   badStops: badStops,
+  extraSources: () => {
+    return Promise.resolve([])
+  },
   filter: function(recordset, mode = 'nothing') {
     return recordset.filter(item => {
       if (badStops.indexOf(item.stop_id.slice(0, -1)) !== -1 && 

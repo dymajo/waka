@@ -98,6 +98,7 @@ export default {
     translateDescription: 'Spot an issue in a translation, or want to translate %{appname} into another language?',
   },
   station: {
+    parkingbuilding: 'Parking Building',
     lightrail: 'Light Rail Stop',
     bus: 'Bus Stop',
     train: 'Train Station',
