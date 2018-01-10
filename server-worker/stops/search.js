@@ -1,9 +1,10 @@
 const cache = require('../cache')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
+const akl = require('./nz-akl.js')
 const wlg = require('./nz-wlg.js')
 
-var search = {
+const search = {
   _stopsFilter(recordset, mode) {
     const prefix = global.config.prefix
     if (prefix === 'nz-wlg') {
@@ -148,10 +149,35 @@ var search = {
         })
       }
 
-      let lat = parseFloat(req.query.lat)
-      let lon = parseFloat(req.query.lng || req.query.lon)
-      let latDist = req.query.distance / 100000
-      let lonDist = req.query.distance / 65000
+      const lat = parseFloat(req.query.lat)
+      const lon = parseFloat(req.query.lng || req.query.lon)
+      const dist = req.query.distance
+
+      // the database is the default source
+      let sources = [search._stopsFromDb(lat, lon, dist)]
+      const prefix = global.config.prefix
+      if (prefix === 'nz-wlg') {
+        sources = sources.concat(wlg.extraSources(lat, lon, dist))
+      } else if (prefix === 'nz-akl') {
+        sources = sources.concat(akl.extraSources(lat, lon, dist))
+      }
+
+      Promise.all(sources).then(data => {
+        // merges all the arays of data together
+        res.send([].concat.apply([], data))
+      }).catch(err => {
+        res.status(500).send(err)
+      })
+    } else {
+      res.status(400).send({
+        'message': 'please send all required params (lat, lng, distance)'
+      })
+    }
+  },
+  _stopsFromDb(lat, lon, distance) {
+    return new Promise((resolve, reject) => {
+      const latDist = distance / 100000
+      const lonDist = distance / 65000
 
       const sqlRequest = connection.get().request()
       sqlRequest.input('stop_lat_gt', sql.Decimal(10,6), lat - latDist)
@@ -170,7 +196,7 @@ var search = {
           and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
           and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
       ).then((result) => {
-        res.send(search._stopsFilter(result.recordset.map(item => {
+        const stops = search._stopsFilter(result.recordset.map(item => {
           item.stop_region = global.config.prefix
           item.stop_lng = item.stop_lon // this is fucking dumb
           item.route_type = search.stopsRouteType[item.stop_id]
@@ -178,15 +204,12 @@ var search = {
             item.route_type = 3
           }
           return item
-        })))
+        }))
+        resolve(stops)
       }).catch((err) => {
-        res.status(500).send(err)
+        reject(err)
       })
-    } else {
-      res.status(400).send({
-        'message': 'please send all required params (lat, lng, distance)'
-      })
-    }
+    })
   }
 }
 cache.ready.push(search.getStopsRouteType)

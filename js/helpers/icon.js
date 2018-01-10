@@ -10,6 +10,7 @@ route_type_map.set(4, 'ferry')
 route_type_map.set(5, 'cablecar')
 route_type_map.set(6, 'gondola')
 route_type_map.set(7, 'funicular')
+route_type_map.set(-1, 'parkingbuilding')
 
 const style_map = {
   'normal': new Map(),
@@ -21,6 +22,7 @@ style_map.normal.set('0-selection', [24, 24])
 style_map.normal.set('2-selection', [28, 28])
 style_map.normal.set('4-selection', [28, 28])
 
+style_map.normal.set(-1, [28,28])
 style_map.normal.set(2,[28, 34])
 style_map.normal.set(3,[26, 32])
 style_map.normal.set(4,[28, 34])
