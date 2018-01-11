@@ -208,6 +208,12 @@ export class stationStore extends Events {
     })
     Promise.all(promises).then((allData) => {
       this.setOffset(allData[0].currentTime)
+      if (allData.length > 0) {
+        if ('html' in allData[0]) {
+          this.trigger('html', allData[0])
+          return
+        }
+      }
 
       let trips = []
       let realtime = {}
@@ -236,6 +242,9 @@ export class stationStore extends Events {
     this.offsetTime = offsetTime.getTime() - new Date().getTime()
   }
   getRealtime(tripData, stop_id = null, region = 'nz-akl') {
+    if (tripData.length === 0) {
+      return
+    }
     // realtime request for buses and trains
     // not ferries though
     let route_type
