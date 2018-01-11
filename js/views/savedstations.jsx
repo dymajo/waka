@@ -49,7 +49,7 @@ class SidebarItemVanilla extends React.Component {
     history: PropTypes.object
   }
   getIcon(icon) {
-    return iconMap[icon] || <img src={`/icons/${icon}`} />
+    return iconMap[icon] || <img src={`/icons/normal/${icon}`} />
   }
   triggerTap = () => {
     if (this.props.type === 'install') {

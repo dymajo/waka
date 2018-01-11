@@ -12,10 +12,10 @@ const IconHelper = new iconhelper()
 import Header from './header.jsx'
 import TripItem from './tripitem_new.jsx'
 
-const scroll = () => {
+const scroll = (by = 250) => {
   requestAnimationFrame(() => {
     window.scrollBy({ 
-      top: 250,
+      top: by,
       left: 0, 
       behavior: 'smooth' 
     })
@@ -40,6 +40,7 @@ class Station extends React.Component {
     realtime: {},
     loading: true,
     error: null,
+    html: null,
     route_type: undefined,
     stop_lat: undefined,
     stop_lon: undefined,
@@ -114,6 +115,7 @@ class Station extends React.Component {
     }
 
     this.setState({
+      html: null,
       trips: tripData,
       loading: false
     })
@@ -129,6 +131,7 @@ class Station extends React.Component {
       scroll()
     }
     this.setState({
+      html: null,
       trips: tripData,
       loading: false,
       realtime: rtData
@@ -270,6 +273,7 @@ class Station extends React.Component {
     StationStore.bind('times', this.tripsCb)
     StationStore.bind('realtime', this.realtimeCb)
     StationStore.bind('error', this.handleError)
+    StationStore.bind('html', this.handleHtml)
     UiStore.bind('animation', this.animation)
     UiStore.bind('expandChange', this.expandChange)
     window.addEventListener('online',  this.triggerRetry)
@@ -305,6 +309,7 @@ class Station extends React.Component {
     StationStore.unbind('times', this.tripsCb)
     StationStore.unbind('realtime', this.realtimeCb)
     StationStore.unbind('error', this.handleError)
+    StationStore.unbind('html', this.handleHtml)
     UiStore.unbind('animation', this.animation)
     UiStore.unbind('expandChange', this.expandChange)
     window.removeEventListener('online',  this.triggerRetry)
@@ -345,14 +350,22 @@ class Station extends React.Component {
   }
   handleError = (error) => {
     this.setState({
+      html: null,
       error: error,
       loading: false
     })
     scroll()
-
+  }
+  handleHtml = (str) => {
+    this.setState({
+      html: str,
+      loading: false,
+    })
+    scroll(350)
   }
   triggerRetry = () => {
     this.setState({
+      html: null,
       error: null,
       loading: true
     })
@@ -367,19 +380,28 @@ class Station extends React.Component {
     }
 
     let loading
+    let content
     if (this.state.loading) {
       loading = (
         <div className="spinner" />
       )
+    } else if (this.state.html !== null) {
+      content = <div>
+        <div dangerouslySetInnerHTML={{__html: this.state.html.html}} />
+        <div className="align-center" style={{paddingBottom: '15px'}}>
+          <a target="_blank" rel="noopener" href={this.state.html.url} className="nice-button primary">More Info</a>
+          <a target="_blank" rel="noopener" href={this.state.html.twitter} className="nice-button secondary">@{this.state.html.twitter.split('/').slice(-1)} on Twitter</a>
+        </div>
+      </div>
     } else if (this.state.error !== null) {
       loading = <div className="error"><p>{this.state.error}</p><button className="nice-button primary" onTouchTap={this.triggerRetry}>{t('app.errorRetry')}</button></div>
     } else if (this.state.currentTrips.length === 0) {
       loading = <div className="error"><p>{t('station.noservices')}</p></div>
+    } else {
+      content = this.state.currentTrips.map((item, key) => {
+        return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} index={key} vias={item[2]} />
+      })
     }
-
-    let all = this.state.currentTrips.map((item, key) => {
-      return <TripItem key={item[0]} collection={item[1]} realtime={this.state.realtime} index={key} vias={item[2]} />
-    })
 
     const styles = this.state.fancyMode ? fancyStyle[this.state.animation] : normalStyle[this.state.animation]
 
@@ -393,7 +415,7 @@ class Station extends React.Component {
           icon={icon}
         />
         <ul className="trip-content" ref={e => this.swipeContent = e}>
-          {loading}{all}
+          {loading}{content}
         </ul>
       </div>
     )

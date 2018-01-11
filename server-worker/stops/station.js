@@ -223,8 +223,16 @@ var station = {
       })
     }
 
+
     req.params.station = req.params.station.trim()
     
+    if (global.config.prefix === 'nz-akl') {
+      const data = akl.getTimes(req.params.station)
+      if (data !== null) {
+        return res.send(data)
+      }
+    }
+
     let sending = {
       provider: 'sql-server'
     }
