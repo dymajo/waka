@@ -1,10 +1,12 @@
 import React from 'react'
 import local from '../../local'
 import { withRouter } from 'react-router-dom'
-import { StationStore } from '../stores/stationStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { CurrentLocation } from '../stores/currentLocation.js'
 import { t } from '../stores/translationStore.js'
+import iconhelper from '../helpers/icon.js'
+
+const IconHelper = new iconhelper()
 
 import LocateIcon from '../../dist/icons/locate.svg'
 import TrainIcon from '../../dist/icons/train.svg'
@@ -175,7 +177,7 @@ class vehicle_location extends React.Component {
         station = 'bus'
       }
     } else {
-      station = StationStore.getIcon(this.props.params.station)
+      station = IconHelper.getRouteType(this.state.route_type)
     }
     if (zoomLevel < 14 && station === 'bus') {
       this.setState({
@@ -275,7 +277,7 @@ class vehicle_location extends React.Component {
       geoJson = <GeoJson className='line' data={this.state.line} style={{color: color}}/>
     }
 
-    let icon = StationStore.getIcon(this.props.tripInfo.route_type)
+    let icon = IconHelper.getRouteType(this.state.route_type)
     let leafletIcon = busIcon
     if (icon === 'train') {
       leafletIcon = trainIcon

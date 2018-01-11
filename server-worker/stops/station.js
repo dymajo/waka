@@ -2,6 +2,7 @@ const moment = require('moment-timezone')
 const line = require('../lines/index')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
+const akl = require('./nz-akl.js')
 const wlg = require('./nz-wlg.js')
 const cache = require('../cache.js')
 
@@ -78,6 +79,14 @@ var station = {
       station._stopInfo(req.params.station).then(function(data) {
         res.send(data)
       }).catch(function(err) {
+        if (global.config.prefix === 'nz-akl') {
+          akl.getSingle(req.params.station).then((data) => {
+            res.send(data)
+          }).catch(() => {
+            res.status(404).send(err)
+          })
+          return
+        }
         res.status(404).send(err)  
       })
     } else {

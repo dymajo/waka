@@ -2,6 +2,9 @@ import Events from './events'
 import local from '../../local'
 import { SettingsStore } from './settingsStore.js'
 import { t } from './translationStore.js'
+import iconhelper from '../helpers/icon.js'
+
+const IconHelper = new iconhelper()
 
 export class stationStore extends Events {
   constructor(props) {
@@ -45,19 +48,6 @@ export class stationStore extends Events {
   lineCache = {}
   lineCacheRegion = null
 
-  getIcon(station) {
-    let icon = 'bus'
-    if (station === 2) {
-      icon = 'train'
-    } else if (station === 4) {
-      icon = 'ferry'
-    } else if (station === 5) {
-      icon = 'cablecar'
-    } else if (station === 0) {
-      icon = 'lightrail'
-    }
-    return icon
-  }
   getCity(lat, lng, map = true) {
     let newCity = 'none'
     if (lat > -37.4 && lat < -36 && lng > 174 && lng < 175.2) {
@@ -131,7 +121,7 @@ export class stationStore extends Events {
       dataCollection.forEach((data, key) => {
         let no = stopNumber.split('+')[key]
         let description = t('savedStations.stop', {number: `${no} / ${data.stop_name}`})
-        let icon = this.getIcon(data.route_type)
+        let icon = IconHelper.getRouteType(data.route_type)
 
         let zName = stopName
         if (stopNumber.split('+').length > 1) {

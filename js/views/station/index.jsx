@@ -5,6 +5,9 @@ import { StationStore } from '../../stores/stationStore.js'
 import { SettingsStore } from '../../stores/settingsStore.js'
 import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
+import iconhelper from '../../helpers/icon.js'
+
+const IconHelper = new iconhelper()
 
 import Header from './header.jsx'
 import TripItem from './tripitem_new.jsx'
@@ -54,7 +57,7 @@ class Station extends React.Component {
       let name = data.stop_name
       let description = data.stop_name
       if (data.description) {
-        name = data.name
+        name = data.name || name
         description = data.description
       }
       document.title = name + ' - ' + t('app.name')
@@ -68,15 +71,17 @@ class Station extends React.Component {
         route_type = 4
       } else if (data.icon === 'cablecar') {
         route_type = 5
+      } else if (data.icon === 'parkingbuilding') {
+        route_type = -1
       }
       this.setState({
         name: name,
         description: description,
         route_type: route_type,
         stop_lat: data.stop_lat, 
-        stop_lon: data.stop_lon || data.stop_lng // horrible api design, probs my fault, idk
+        stop_lon: data.stop_lon
       })
-      SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon || data.stop_lng]
+      SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon]
       SettingsStore.saveState()
     }).catch((err) => {
       console.log(err)
@@ -354,7 +359,7 @@ class Station extends React.Component {
     this.getData(this.props)
   }
   render() {
-    const icon = StationStore.getIcon(this.state.route_type)
+    const icon = IconHelper.getRouteType(this.state.route_type)
     
     let className = 'station'
     if (this.state.fancyMode) {
