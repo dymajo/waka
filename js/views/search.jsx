@@ -324,7 +324,7 @@ class Search extends React.Component {
             
             // jono's awesome collison detection
             // basically checks if something is already there
-            var lng = stop.stop_lng
+            var lng = stop.stop_lon
             if(typeof(positionMap[stop.stop_lat]) === 'undefined') {
               positionMap[stop.stop_lat] = [lng]
             } else {

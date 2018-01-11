@@ -184,7 +184,7 @@ class VehicleLocationBootstrap extends React.Component {
           lineSelect = <select onChange={this.triggerChange}>{lineSelect}</select>
         }
       } else {
-        let stopInfo = [this.state.stopInfo.stop_lat, this.state.stopInfo.stop_lon || this.state.stopInfo.stop_lng]
+        let stopInfo = [this.state.stopInfo.stop_lat, this.state.stopInfo.stop_lon]
         if (typeof(stopInfo[0]) === 'undefined') {
           stopInfo = SettingsStore.state.lastLocation
         }
