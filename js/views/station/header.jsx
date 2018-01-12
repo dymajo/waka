@@ -181,6 +181,9 @@ class Header extends React.Component {
         )
       }
     }
+    if (this.props.icon === 'parkingbuilding') {
+      saveButton = null
+    }
 
     const mergers = Object.keys(this.state.checked)
     StationStore.getOrder(region).forEach(item => {
