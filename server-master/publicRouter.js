@@ -11,7 +11,9 @@ const proxy = httpProxy.createProxyServer({
 const proxyHandle = function(req, res) {
   let prefix = req.params.prefix
   if (req.params.prefix === 'auto') {
-    if (parseFloat(req.query.lat) < -40.6) {
+    if (parseFloat(req.query.lat) < -44.5) {
+      prefix = 'nz-otg'
+    } else if (parseFloat(req.query.lat) < -40.6) {
       prefix = 'nz-wlg'
     } else if (parseFloat(req.query.lon) < 159 ){
       prefix = 'au-syd'
