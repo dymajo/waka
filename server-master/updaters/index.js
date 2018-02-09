@@ -3,6 +3,7 @@ const config = require('../../config.js')
 
 const at = require('./nz-akl.js')
 const metlink = require('./nz-wlg.js')
+const orc = require('./nz-otg.js')
 const tfnsw = require('./au-syd.js')
 
 class Updaters {
@@ -10,6 +11,7 @@ class Updaters {
     this.agencies = {
       'nz-akl': new at(),
       'nz-wlg': new metlink(),
+      'nz-otg': new orc(),
       'au-syd': new tfnsw()
     }
   }
