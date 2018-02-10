@@ -71,6 +71,8 @@ export class currentLocation extends Events { // ability to subscribe to locatio
   setCity(prefix) {
     if (prefix === 'nz-akl') {
       this.state.position = [-36.844229, 174.767823] // britomart
+    } else if (prefix === 'nz-dun') {
+      this.state.position = [-45.873097, 170.505368]
     } else if (prefix === 'nz-wlg') {
       this.state.position = [-41.278366, 174.779359] // wellington station
     } else if (prefix === 'au-syd') {

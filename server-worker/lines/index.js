@@ -79,6 +79,7 @@ var line = {
   _getLines: function() {
     return {
       friendlyNames: lineData.friendlyNames,
+      friendlyNumbers: lineData.friendlyNumbers || {},
       colors: lineData.lineColors,
       groups: lineData.lineGroups,
       lines: lineData.allLines,

@@ -19,5 +19,5 @@ block content
               li
                 a(class="line-item" href=('/l/' + region + '/' + line))
                   span(class="line-pill-wrapper")
-                    span(class="line-pill" style=color)= line
+                    span(class="line-pill" style=color)= data.friendlyNumbers[line] || line
                   span(class="line-label")= data.friendlyNames[line] || data.lines[line][0].slice(0,2).join(' to ')

@@ -64,7 +64,7 @@ class Realtime {
       return
     }
 
-    if (this.fn) {
+    if (this.fn && typeof this.fn.getTripsEndpoint !== 'undefined') {
       this.fn.getTripsEndpoint(req, res)
     } else {
       res.status(400).send({

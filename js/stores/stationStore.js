@@ -54,6 +54,8 @@ export class stationStore extends Events {
       newCity = 'nz-akl'
     } else if (lat > -41.5 && lat < -40.5 && lng > 174.6 && lng < 175.8) {
       newCity = 'nz-wlg'
+    } else if (lat > -46.5 && lat < -44.5 && lng > 168 && lng < 171) {
+      newCity = 'nz-otg'
     } else if (lat > -35 && lat < -32.4 && lng > 148 && lng < 154) {
       newCity = 'au-syd'
     }
