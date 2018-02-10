@@ -19,12 +19,16 @@ export default class RegionPopover extends React.Component {
   render() {
     let dev = null
     if (process.env.NODE_ENV !== 'production') {
-      dev = (
-        <li className="au-syd" onTouchTap={this.changeCity('au-syd')}>
+      dev = [
+        <li key="nz-dun" className="nz-dun" onTouchTap={this.changeCity('nz-dun')}>
+          <h2>{t('regions.nz-dun-long').split(',')[0]}</h2>
+          <h1>{t('regions.nz-dun-long').split(',')[1]}</h1>
+        </li>,
+        <li key="au-syd" className="au-syd" onTouchTap={this.changeCity('au-syd')}>
           <h2>{t('regions.au-syd-long').split(',')[0]}</h2>
           <h1>{t('regions.au-syd-long').split(',')[1]}</h1>
         </li>
-      )
+      ]
     }
     const className = 'region-popover ' + (this.props.visible ? 'show' : '')
     return (

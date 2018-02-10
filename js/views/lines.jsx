@@ -85,6 +85,7 @@ class Lines extends React.Component {
         groups: data.groups,
         operators: data.operators,
         friendlyNames: data.friendlyNames,
+        friendlyNumbers: data.friendlyNumbers,
         groupShow: groupShow
       })  
     }).catch((err) => {
@@ -141,7 +142,7 @@ class Lines extends React.Component {
           name = this.state.friendlyNames[item] || name
 
           let roundelStyle = 'line-pill'
-          let code = item
+          let code = this.state.friendlyNumbers[item] || item
           if (item === 'WEST' || item === 'EAST' || item === 'ONE' || item === 'STH' || item === 'NEX' || item === 'PUK') {
             roundelStyle += ' cf'
             code = item[0]
