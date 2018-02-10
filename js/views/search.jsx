@@ -32,7 +32,15 @@ const IconHelper = new iconhelper()
 
 const getMarker = function(iconType, name) { 
   if (iconType === 'bus') {
-    name = name.trim().substring(0, 3).replace(/ /g, '').toUpperCase()
+    name = name.trim().replace(/\)/g, '').replace(/\(/g, '')
+    if (name.substring(3, 4) === ' ' || name.length === 3) {
+      name = name.substring(0, 3)
+    } else if (name.substring(2, 3) === ' ' || name.length === 2) {
+      name = name.substring(0, 2)
+    } else {
+      name = name.substring(0, 1)
+    }
+    name = name.replace(/ /g, '').toUpperCase()
     const dynamic = `
     <svg width="25" height="31" viewBox="0 0 25 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <g id="Canvas" transform="translate(-634 -926)">

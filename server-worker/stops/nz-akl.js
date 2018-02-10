@@ -41,10 +41,22 @@ const carparks = {
     timestamp: new Date(0),
     availableSpaces: 0,
     maxSpaces: 895,
+  },
+  'ronwood-ave-carpark': {
+    stop_id: 'ronwood-ave-carpark',
+    stop_lat: -36.990860,
+    stop_lon: 174.877677,
+    stop_lng: 174.877677, // lng is deprecated
+    stop_region: 'nz-akl',
+    route_type: -1,
+    stop_name: 'Ronwood Ave Carpark',
+    description: 'Unknown Occupancy',
+    timestamp: new Date(0),
+    availableSpaces: 0,
+    maxSpaces: 678,
   }
 }
 
-const twitteraccount = 'https://twitter.com/downtowncarpark'
 const pricingHtml = `
 <ul class="trip-content" style="padding: 0; min-height: 0;">
   <li class="colored-trip" style="background: #3498db;">
@@ -65,22 +77,47 @@ const pricingHtml = `
   </li>
 </ul>
 `
+const pricingHtmlRonwood = `
+<ul class="trip-content" style="padding: 0; min-height: 0;">
+  <li class="colored-trip" style="background: #3498db;">
+    <div class="main">
+      <div class="left">
+        <h1>$2 <small>per hour</small></h1>
+        <h2>Weekdays (6am - 9pm)</h2>
+      </div>
+    </div>
+  </li>
+  <li class="colored-trip" style="background: #2980b9;">
+    <div class="main">
+      <div class="left">
+        <h1>$1 <small>per hour</small></h1>
+        <h2>Evenings / Weekends</h2>
+      </div>
+    </div>
+  </li>
+</ul>
+`
 
 const additionalData = {
   'downtown-carpark': {
     url: 'https://at.govt.nz/driving-parking/parking-in-auckland/downtown-car-park/',
-    twitter: twitteraccount,
+    twitter: 'https://twitter.com/downtowncarpark',
     html: pricingHtml,
   },
   'civic-carpark': {
     url: 'https://at.govt.nz/driving-parking/parking-in-auckland/civic-car-park/',
-    twitter: twitteraccount,
+    twitter: 'https://twitter.com/civiccarpark',
     html: pricingHtml,
   },
   'victoria-st-carpark': {
     url: 'https://at.govt.nz/driving-parking/parking-in-auckland/victoria-st-car-park/',
-    twitter: twitteraccount,
+    twitter: 'https://twitter.com/vicstcarpark',
     html: pricingHtml,
+  },
+  'ronwood-ave-carpark': {
+    url: 'https://at.govt.nz/driving-parking/find-parking/parking-in-south-auckland/ronwood-ave-car-park/',
+    twitter: 'https://twitter.com/ronwoodcarpark',
+    html: pricingHtmlRonwood,
   },
 }
 
@@ -88,6 +125,7 @@ const agenda21mapper = {
   'Downtown': 'downtown-carpark',
   'Civic': 'civic-carpark',
   'Victoria St': 'victoria-st-carpark',
+  'Ronwood': 'ronwood-ave-carpark',
 }
 
 const pullCarparkData = async function() {
