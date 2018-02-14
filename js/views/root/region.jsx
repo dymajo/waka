@@ -5,6 +5,9 @@ import PropTypes from 'prop-types'
 
 import Header from '../header.jsx'
 
+const devCities = ['nz-dud', 'nz-zqn', 'au-syd']
+const liveCities = ['nz-akl', 'nz-wlg']
+
 export default class RegionPopover extends React.Component {
   static propTypes = {
     toggle: PropTypes.func,
@@ -16,19 +19,18 @@ export default class RegionPopover extends React.Component {
       this.props.toggle()
     }
   }
+  cityIcon = (city) => {
+    return (
+      <li key={city} className={city} onTouchTap={this.changeCity(city)}>
+        <h2>{t('regions.' + city + '-long').split(',')[0]}</h2>
+        <h1>{t('regions.' + city + '-long').split(',')[1]}</h1>
+      </li>
+    )
+  }
   render() {
     let dev = null
     if (process.env.NODE_ENV !== 'production') {
-      dev = [
-        <li key="nz-dun" className="nz-dun" onTouchTap={this.changeCity('nz-dun')}>
-          <h2>{t('regions.nz-dun-long').split(',')[0]}</h2>
-          <h1>{t('regions.nz-dun-long').split(',')[1]}</h1>
-        </li>,
-        <li key="au-syd" className="au-syd" onTouchTap={this.changeCity('au-syd')}>
-          <h2>{t('regions.au-syd-long').split(',')[0]}</h2>
-          <h1>{t('regions.au-syd-long').split(',')[1]}</h1>
-        </li>
-      ]
+      dev = devCities.map(this.cityIcon)
     }
     const className = 'region-popover ' + (this.props.visible ? 'show' : '')
     return (

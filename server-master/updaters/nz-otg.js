@@ -12,7 +12,7 @@ const WorkerManager = require('../workerManager.js')
 const zipLocation = path.join(__dirname, '../../cache/syd-meta.zip')
 const log = require('../../server-common/logger.js')
 
-class Sydney {
+class Otago {
   start() {
   }
   async pull() {
@@ -29,7 +29,7 @@ class Sydney {
         if (err) {
           return reject()
         }
-        log('au-syd'.magenta, 'Unzipped TfNSW Metadata')
+        log('au-syd'.magenta, 'Unzipped Otago Metadata')
         resolve()
       })
     })
@@ -54,4 +54,4 @@ class Sydney {
     })
   }
 }
-module.exports = Sydney
+module.exports = Otago
