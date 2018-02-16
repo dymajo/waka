@@ -1,17 +1,27 @@
 const connection = require('../db/connection.js')
 const cache = require('../cache.js')
 
+const agencyFilter = (line) => {
+  line = line.toLowerCase()
+  if (line.length > 3 && line.substring(0, 3) === 'qtn') {
+    return 'QTN'
+  }
+  return null
+}
+
 const friendlyNumbers = {}
 const allLines = {}
 const lineColors = {}
-const lineGroups = [{
-  name: 'Ōtepoti, Dunedin',
-  items: [],
-},
-{
-  name: 'Tāhuna, Queenstown',
-  items: [],
-}]
+const lineGroups = [
+  {
+    name: 'Tāhuna, Queenstown',
+    items: [],
+  },
+  {
+    name: 'Ōtepoti, Dunedin',
+    items: [],
+  },
+]
 
 const getLines = () => {
   const sqlRequest = connection.get().request()
@@ -32,7 +42,7 @@ const getLines = () => {
           friendlyNumbers[route_code] = record.route_short_name
         }
 
-        if (route_code_prefix !== '') {
+        if (route_code_prefix === '') {
           lineGroups[1].items.push(route_code)
         } else {
           lineGroups[0].items.push(route_code)
@@ -46,6 +56,7 @@ const getLines = () => {
 cache.ready.push(getLines)
 
 module.exports = {
+  agencyFilter: agencyFilter,
   lineColors: lineColors,
   lineGroups: lineGroups,
   friendlyNames: {},
