@@ -126,19 +126,31 @@ var line = {
   *   }
   * ]
   */
-  getLine: function(req, res) {
-    let lineId = req.params.line.trim()
-    line._getLine(lineId, function(err, data) {
-      if (err) {
-        return res.status(500).send(err)
-      }
+  getLine: async function(req, res) {
+    const lineId = req.params.line.trim()
+    try {
+      const data = await line._getLine(lineId)
       res.send(data)
-    })
+    } catch(err) {
+      res.status(500).send(err)
+    }
   },
-  _getLine(lineId, cb) {
+  _getLine: async function(lineId) {
     const sqlRequest = connection.get().request()
+    
+    // filter by agency if a filter exists
+    let agency = ''
+    if (lineData.agencyFilter) {
+      const agencyId = lineData.agencyFilter(lineId)
+      if (agencyId !== null) {
+        lineId = lineId.replace(agencyId, '')
+        agency = 'and routes.agency_id = @agency_id'
+        sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
+      }
+    }
     sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
-    sqlRequest.query(`
+
+    const query = `
       SELECT 
         routes.route_id,
         routes.agency_id,
@@ -154,6 +166,7 @@ var line = {
           trips.route_id = routes.route_id
       WHERE 
           routes.route_short_name = @route_short_name
+          ${agency}
       GROUP BY
         routes.route_id,
         routes.agency_id,
@@ -164,61 +177,59 @@ var line = {
         trips.trip_headsign,
         trips.direction_id
       ORDER BY
-        shape_score desc`).then(result => {
-      const versions = {}
-      const results = []
+        shape_score desc`
 
-      result.recordset.forEach(function(route) {
-        // hacks to be compatabible with table storage
-        Object.keys(route).forEach((item) => {
-          route[item] = {'_': route[item]}
-        })
-
-        // checks to make it's the right route (the whole exception thing)
-        if (line.exceptionCheck(route) === false){
-          return
-        }
-        // make sure it's not already in the response
-        if (typeof(versions[route.route_long_name._ + (route.direction_id._ || '0')]) === 'undefined') {
-          versions[route.route_long_name._ + (route.direction_id._ || '0')] = true
-        } else {
-          return
-        }
-
-        let result = {
-          route_id: route.route_id._,
-          route_long_name: route.route_long_name._,
-          route_short_name: route.route_short_name._,
-          route_color: line.getColor(route.route_short_name._),
-          direction_id: route.direction_id._,
-          shape_id: route.shape_id._,
-          route_type: route.route_type._  
-        }
-        // if it's the best match, inserts at the front
-        if (line.exceptionCheck(route, true) === true) {
-          return results.unshift(result)
-        }
-        results.push(result)
+    const result = await sqlRequest.query(query)
+    const versions = {}
+    const results = []
+    result.recordset.forEach(function(route) {
+      // hacks to be compatabible with table storage
+      Object.keys(route).forEach((item) => {
+        route[item] = {'_': route[item]}
       })
-      if (results.length === 2) {
-        if (results[0].route_long_name === results[1].route_long_name) {
-          let candidate = results[1]
-          if (results[0].direction_id !== 1) {
-            candidate = results[0]
-          }
-          let regexed = candidate.route_long_name.match(/\((.+?)\)/g)
-          if (regexed) {
-            const newName = '('+regexed[0].slice(1, -1).split(' - ').reverse().join(' - ')+')'
-            candidate.route_long_name = candidate.route_long_name.replace(/\((.+?)\)/g, newName)
-          } else {
-            candidate.route_long_name = candidate.route_long_name.split(' - ').reverse().join(' - ')
-          }
+
+      // checks to make it's the right route (the whole exception thing)
+      if (line.exceptionCheck(route) === false){
+        return
+      }
+      // make sure it's not already in the response
+      if (typeof(versions[route.route_long_name._ + (route.direction_id._ || '0')]) === 'undefined') {
+        versions[route.route_long_name._ + (route.direction_id._ || '0')] = true
+      } else {
+        return
+      }
+
+      let result = {
+        route_id: route.route_id._,
+        route_long_name: route.route_long_name._,
+        route_short_name: route.route_short_name._,
+        route_color: line.getColor(route.route_short_name._),
+        direction_id: route.direction_id._,
+        shape_id: route.shape_id._,
+        route_type: route.route_type._  
+      }
+      // if it's the best match, inserts at the front
+      if (line.exceptionCheck(route, true) === true) {
+        return results.unshift(result)
+      }
+      results.push(result)
+    })
+    if (results.length === 2) {
+      if (results[0].route_long_name === results[1].route_long_name) {
+        let candidate = results[1]
+        if (results[0].direction_id !== 1) {
+          candidate = results[0]
+        }
+        let regexed = candidate.route_long_name.match(/\((.+?)\)/g)
+        if (regexed) {
+          const newName = '('+regexed[0].slice(1, -1).split(' - ').reverse().join(' - ')+')'
+          candidate.route_long_name = candidate.route_long_name.replace(/\((.+?)\)/g, newName)
+        } else {
+          candidate.route_long_name = candidate.route_long_name.split(' - ').reverse().join(' - ')
         }
       }
-      cb(null, results)
-    }).catch(err => {
-      cb(err, null)
-    })
+    }
+    return results
   },
   /**
   * @api {get} /:region/shapejson/:shape_id Line Shape - by shape_id

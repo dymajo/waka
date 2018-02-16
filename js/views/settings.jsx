@@ -97,9 +97,9 @@ class Settings extends React.Component {
                 <span className="app">{t('app.name')} </span>
                 <span className="version">v{localStorage.getItem('AppVersion')}</span>
               </div>
-              <div className="copyright"><a className="subtle" rel="noopener noreferrer" href="https://dymajo.com" target="_blank">&copy; 2016 - 2017 DYMAJO LTD</a></div>
+              <div className="copyright"><a className="subtle" rel="noopener noreferrer" href="https://dymajo.com" target="_blank">&copy; 2016 - 2018 DYMAJO LTD</a></div>
               <div className="sourcecode">{t('settings.license')}<br />
-                {t('settings.contributions')}<br /><a href="https://github.com/consindo/dymajo-transit" rel="noopener noreferrer" target="_blank">github.com/consindo/dymajo-transit</a></div>
+                {t('settings.contributions')}<br /><a href="https://github.com/consindo/waka" rel="noopener noreferrer" target="_blank">github.com/consindo/waka</a></div>
             </div>
             <div className="container">
               <h1>{t('settings.preferences.title')}</h1>
