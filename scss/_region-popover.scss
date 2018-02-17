@@ -2,7 +2,7 @@ $borders: 14px;
 
 .region-popover {
   position: absolute;
-  z-index: 50;
+  z-index: 15;
   top: 0;
   left: 0;
   bottom: 0;
@@ -37,7 +37,9 @@ $borders: 14px;
     opacity: 0;
     transform: translate3d(0,25px,0);
     background: #fff;
-    height: 100%;
+    height: calc(100% - #{$navsize});
+    // -webkit-overflow-scrolling: touch; // can't do this for now, because iOS Flickers?
+    overflow-y: scroll;
 
     h1, h2 {
       margin: 0;
