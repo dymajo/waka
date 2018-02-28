@@ -1,4 +1,7 @@
 class DomController {
+  start() {
+    document.getElementById('createWorkerConfirm').addEventListener('click', this.workerCreateButton)
+  }
   writeWorkers(str) {
     document.getElementById('workers').innerHTML = str
     Array.from(document.querySelectorAll('#workers button')).forEach(btn => {
@@ -15,13 +18,36 @@ class DomController {
     e.currentTarget.disabled = true
     controller.runAction(action, worker)
   }
+  workerCreateButton() {
+    const prefix = document.getElementById('workerPrefix')
+    const version = document.getElementById('workerVersion')
+    const dbconfig = document.getElementById('workerDbconfig')
+
+    // none are allowed to be blank
+    if ([prefix.value, version.value, dbconfig.value].filter(v => v.length === 0).length > 0) {
+      return
+    }
+
+    controller.runAction('/worker/add', JSON.stringify({
+      prefix: prefix.value,
+      version: version.value,
+      dbconfig: dbconfig.value
+    }))
+
+    prefix.value = ''
+    version.value = ''
+    dbconfig.value = ''
+
+    $('#createWorkerModal').modal('hide')
+  }
   dropdownButton(e) {
     e.preventDefault()
     const action = e.currentTarget.dataset.action
     const worker = e.currentTarget.parentElement.parentElement.parentElement.dataset
 
-    confirm('are you sure you want to run:\n' + action + '\n\n prefix:' + worker.prefix + '\n version:' + worker.version)
-    controller.runAction(action, JSON.stringify(worker))
+    if (confirm('are you sure you want to run:\n' + action + '\n\n prefix:' + worker.prefix + '\n version:' + worker.version)) {
+      controller.runAction(action, JSON.stringify(worker))
+    }
   }
 }
 
@@ -31,10 +57,11 @@ class WorkerController {
     this.domController = new DomController()
   }
   start() {
+    this.domController.start()
     this.loadWorkers()
   }
   runAction(action, data) {
-    fetch(this.endpoint + action, {
+    return fetch(this.endpoint + action, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
