@@ -18,10 +18,14 @@ const storageSvc = new Storage({
 })
 
 var line = {
-  getColor: function(route_short_name) {
-    if (global.config.prefix !== 'au-syd') {
+  getColor: function(agency_id, route_short_name) {
+    console.log(agency_id, route_short_name)
+    if (lineData.getColor) {
+      return lineData.getColor(agency_id, route_short_name)
+    } else if (lineData.lineColors) {
       return lineData.lineColors[route_short_name] || '#000'     
-    } 
+    }
+    return '#000'
   },
   /**
   * @api {get} /:region/lines List - All
@@ -183,30 +187,25 @@ var line = {
     const versions = {}
     const results = []
     result.recordset.forEach(function(route) {
-      // hacks to be compatabible with table storage
-      Object.keys(route).forEach((item) => {
-        route[item] = {'_': route[item]}
-      })
-
       // checks to make it's the right route (the whole exception thing)
       if (line.exceptionCheck(route) === false){
         return
       }
       // make sure it's not already in the response
-      if (typeof(versions[route.route_long_name._ + (route.direction_id._ || '0')]) === 'undefined') {
-        versions[route.route_long_name._ + (route.direction_id._ || '0')] = true
+      if (typeof(versions[route.route_long_name + (route.direction_id || '0')]) === 'undefined') {
+        versions[route.route_long_name + (route.direction_id || '0')] = true
       } else {
         return
       }
 
       let result = {
-        route_id: route.route_id._,
-        route_long_name: route.route_long_name._,
-        route_short_name: route.route_short_name._,
-        route_color: line.getColor(route.route_short_name._),
-        direction_id: route.direction_id._,
-        shape_id: route.shape_id._,
-        route_type: route.route_type._  
+        route_id: route.route_id,
+        route_long_name: route.route_long_name,
+        route_short_name: route.route_short_name,
+        route_color: line.getColor(route.agency_id, route.route_short_name),
+        direction_id: route.direction_id,
+        shape_id: route.shape_id,
+        route_type: route.route_type  
       }
       // if it's the best match, inserts at the front
       if (line.exceptionCheck(route, true) === true) {
@@ -283,25 +282,25 @@ var line = {
     }
 
     // blanket thing for no schools
-    if (route.trip_headsign._ === 'Schools'){
+    if (route.trip_headsign === 'Schools'){
       return false
     }
-    if (typeof(allLines[route.route_short_name._]) === 'undefined') {
+    if (typeof(allLines[route.route_short_name]) === 'undefined') {
       return true
     }
     let retval = false
-    let routes = allLines[route.route_short_name._].slice()
+    let routes = allLines[route.route_short_name].slice()
 
     // new mode that we only find the best match
     if (bestMatchMode) {
       routes = [routes[0]]
     }
     routes.forEach(function(variant) {
-      if (variant.length === 1 && route.route_long_name._ === variant[0]) {
+      if (variant.length === 1 && route.route_long_name === variant[0]) {
         retval = true
       // normal routes - from x to x
       } else if (variant.length === 2) {
-        let splitName = route.route_long_name._.toLowerCase().split(' to ')
+        let splitName = route.route_long_name.toLowerCase().split(' to ')
         if (variant[0].toLowerCase() == splitName[0] && variant[1].toLowerCase() == splitName[1]) {
           retval = true
         // reverses the order
@@ -310,7 +309,7 @@ var line = {
         }
       // handles via Flyover or whatever
       } else if (variant.length === 3) {
-        let splitName = route.route_long_name._.toLowerCase().split(' to ')
+        let splitName = route.route_long_name.toLowerCase().split(' to ')
         if (splitName.length > 1 && splitName[1].split(' via ')[1] === variant[2].toLowerCase()) {
           splitName[1] = splitName[1].split(' via ')[0]
           if (variant[0].toLowerCase() === splitName[0] && variant[1].toLowerCase() === splitName[1]) {

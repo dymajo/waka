@@ -463,5 +463,5 @@ module.exports = {
   lineOperators: lineOperators,
   friendlyNames: friendlyNames,
   allLines: allLines,
-  colorFn: getColor,
+  getColor: getColor,
 }
