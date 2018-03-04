@@ -171,8 +171,9 @@ class Station extends React.Component {
         arrival.setHours(0)
         arrival.setMinutes(0)
         arrival.setSeconds(parseInt(trip.departure_time_seconds) % 86400)
-        // Let buses be 2 mins late
-        if (Math.round((arrival - new Date(offsetTime)) / 60000) < -2) {
+        // Let buses be 2 mins late, and don't show stuff more than 5 hours away
+        const minsAway = Math.round((arrival - new Date(offsetTime)) / 60000) 
+        if (minsAway < -2 || minsAway > 300) {
           return
         }
       }
