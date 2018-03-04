@@ -45,7 +45,7 @@ const otago = {
   shapeFile: 'shapes.txt',
   download: () => {
     return new Promise((resolve, reject) => {
-      const url = 'http://gisdata.orc.govt.nz/transit/google_transit.zip'
+      const url = 'https://www.orc.govt.nz/media/4405/gtfs_ota_20180129.zip'
       log('Downloading GTFS Data from ORC')
       const gtfsRequest = request({url: url}).pipe(fs.createWriteStream(otago.zipLocation))
       gtfsRequest.on('finish', function() {

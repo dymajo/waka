@@ -9,6 +9,13 @@ const agencyFilter = (line) => {
   return null
 }
 
+const getColor = (agency, line) => {
+  if (agency === 'QTN') {
+    return lineColors['QTN' + line] || '#000'
+  }
+  return lineColors[line] || '#000'
+}
+
 const friendlyNumbers = {}
 const allLines = {}
 const lineColors = {}
@@ -57,6 +64,7 @@ cache.ready.push(getLines)
 
 module.exports = {
   agencyFilter: agencyFilter,
+  getColor: getColor,
   lineColors: lineColors,
   lineGroups: lineGroups,
   friendlyNames: {},
