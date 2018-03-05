@@ -1,5 +1,17 @@
 const pug = require('pug')
-const manifest = require('../dist/assets.json')
+const fs = require('fs')
+const colors = require('colors')
+const path = require('path')
+
+let manifest = null
+if (fs.existsSync(path.join(__dirname, '../dist/assets.json'))) {
+  manifest = require('../dist/assets.json')
+} else {
+  const pid = ('      ' + process.pid.toString(16)).slice(-6).green
+  console.error(pid, 'Static Server Terminating - dist/assets.json not found!'.red)
+  console.error(pid, 'Make sure the client has been built.'.yellow)
+  process.exit(1)
+}
 
 const template = {
   layout: pug.compileFile('server-static/templates/layout.pug'),

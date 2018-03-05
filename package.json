@@ -4,11 +4,10 @@
   "description": "A progressive web app for Auckland & Wellington Public Transport.",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "build": "npm run document && cross-env NODE_ENV=production webpack --progress --colors -p --display-optimization-bailout",
-    "build-js": "npm run build",
     "watch": "webpack-dev-server",
     "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
-    "build-css": "echo 'build-css is deprecated, use build instead'",
     "anal": "webpack --json > report.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "document": "apidoc -i server-worker/ -o dist/docs"

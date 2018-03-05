@@ -19,7 +19,7 @@ if (process.env.AZURE_INSIGHTS) {
   appInsights.start()
   log('Started Azure Insights')
 } else {
-  log('Azure Insights API key is undefined.'.red)
+  log('Azure Insights API key is undefined - will not collect insights.'.yellow)
 }
 
 const updater = new Updaters()
