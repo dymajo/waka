@@ -19,7 +19,6 @@ const storageSvc = new Storage({
 
 var line = {
   getColor: function(agency_id, route_short_name) {
-    console.log(agency_id, route_short_name)
     if (lineData.getColor) {
       return lineData.getColor(agency_id, route_short_name)
     } else if (lineData.lineColors) {
