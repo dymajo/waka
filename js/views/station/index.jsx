@@ -62,6 +62,10 @@ class Station extends React.Component {
         name = data.name || name
         description = data.description
       }
+      if (typeof this.props.instance !== 'undefined') {
+        const targetStation = this.props.match.params.station.split('+')[this.props.instance]
+        name = 'Stop ' + targetStation
+      }
       document.title = name + ' - ' + t('app.name')
 
       let route_type = data.route_type
@@ -227,7 +231,7 @@ class Station extends React.Component {
         }
       })
       this.setState({
-        currentTrips: all,
+        currentTrips: this.signSplit(all),
         definedOrder: newOrder,
       })
     } else {
@@ -240,7 +244,7 @@ class Station extends React.Component {
         }
       })
       this.setState({
-        currentTrips: all,
+        currentTrips: this.signSplit(all),
       })
     }
   }
@@ -264,6 +268,16 @@ class Station extends React.Component {
         UiStore.goBack(this.props.history, '/', true)
       }
     }, 50)
+  }
+  signSplit(items) {
+    if (typeof this.props.instance === 'undefined') {
+      return items
+    }
+    // console.log(this.props.params.match)
+    const targetStation = this.props.match.params.station.split('+')[this.props.instance]
+    return items.filter((item) => {
+      return item[1][0].station === targetStation
+    })
   }
   componentWillMount() {
     // doesn't load fancymode on desktop :) 
