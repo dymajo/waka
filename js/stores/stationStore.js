@@ -142,8 +142,8 @@ export class stationStore extends Events {
       if (stopNumber.split('+').length > 1) {
         this.StationData[region + '|' + stopNumber] = {
           name: stopName || t('savedStations.multi'),
-          stop_lat: 0,
-          stop_lon: 0,
+          stop_lat: dataCollection[0].stop_lat,
+          stop_lon: dataCollection[0].stop_lon,
           description: t('savedStations.stops', {number: stopNumber.split('+').join(', ')}),
           icon: 'multi',
           region: region
@@ -278,6 +278,7 @@ export class stationStore extends Events {
       queryString[trip.trip_id] = {
         departure_time_seconds: trip.departure_time_seconds,
         route_short_name: trip.route_short_name,
+        station: trip.station
       }
     })
 

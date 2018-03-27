@@ -12,69 +12,83 @@ const realtime = {
     if (!req.body.stop_id) {
       return res.status(400).send({message: 'stop_id required'})
     }
-    request({url: tripsUrl + req.body.stop_id}, function(err, response, body) {
-      if (err || response.statusCode === 400) {
-        return res.status(400).send({message: 'stop_id not found'})
-      }
-
-      body = JSON.parse(body)
-      // reduces things into a nice map
-      const realtimeServices = {}
-      body.Services.filter(item => item.IsRealtime).forEach(item => {
-        const serviceId = item.Service.TrimmedCode
-        if (!(serviceId in realtimeServices)) {
-          realtimeServices[serviceId] = []
-        }
-        realtimeServices[serviceId].push(item)
+    Promise.all(req.body.stop_id.split('+').slice(0, 3).map((stop) => {
+      return new Promise((resolve, reject) => {
+        request({url: tripsUrl + stop}, function(err, response, body) {
+          if (err) {
+            return reject(err)
+          }
+          body = JSON.parse(body)
+          body.station = stop
+          resolve(body)
+        })
       })
+    })).then(bodies => {
+      const responseData = {
+        extraServices: {}
+      }
+      bodies.forEach((body) => {
+        const stop = body.station
+        const realtimeServices = {}
+        body.Services.filter(item => item.IsRealtime).forEach(item => {
+          const serviceId = item.Service.TrimmedCode
+          if (!(serviceId in realtimeServices)) {
+            realtimeServices[serviceId] = []
+          }
+          realtimeServices[serviceId].push(item)
+        })
 
-      const responseData = {}
-      const misses = {}
-      Object.keys(req.body.trips).forEach((key) => {
-        const trip = req.body.trips[key]
+        Object.keys(req.body.trips).forEach((key) => {
+          const trip = req.body.trips[key]
+          if (trip.station !== stop) {
+            return
+          }
 
-        const goal = moment().tz('Pacific/Auckland')
-        goal.hours(0)
-        goal.minutes(0)
-        goal.seconds(0)
-        goal.milliseconds(0)
-        goal.seconds(trip.departure_time_seconds)
+          const goal = moment().tz('Pacific/Auckland')
+          goal.hours(0)
+          goal.minutes(0)
+          goal.seconds(0)
+          goal.milliseconds(0)
+          goal.seconds(trip.departure_time_seconds)
 
-        // 050 bus fix.
-        if (parseInt(trip.route_short_name) >= 50 && parseInt(trip.route_short_name) < 60) {
-          trip.route_short_name = parseInt(trip.route_short_name).toString()
-        }
+          // 050 bus fix.
+          if (parseInt(trip.route_short_name) >= 50 && parseInt(trip.route_short_name) < 60) {
+            trip.route_short_name = parseInt(trip.route_short_name).toString()
+          }
 
-        if (trip.route_short_name in realtimeServices && realtimeServices[trip.route_short_name].length > 0) {
-          const closest = realtimeServices[trip.route_short_name].reduce((prev, curr) => {
-            return (Math.abs(new Date(curr.AimedDeparture) - goal)) < Math.abs(new Date(prev.AimedDeparture) - goal) ? curr : prev
-          })
+          if (trip.route_short_name in realtimeServices && realtimeServices[trip.route_short_name].length > 0) {
+            const closest = realtimeServices[trip.route_short_name].reduce((prev, curr) => {
+              return (Math.abs(new Date(curr.AimedDeparture) - goal)) < Math.abs(new Date(prev.AimedDeparture) - goal) ? curr : prev
+            })
 
-          // less than 180 seconds, then it's valid?
-          if (Math.abs(new Date(closest.AimedDeparture) - goal) < 180000) {
-            responseData[key] = {
-              goal: goal,
-              found: new Date(closest.AimedDeparture),
-              delay: (new Date(closest.ExpectedDeparture) - goal) / 1000,
-              v_id: closest.VehicleRef,
-              stop_sequence: -100,
-              time: 0,
-              double_decker: false,
-            }
-            realtimeServices[trip.route_short_name].splice(realtimeServices[trip.route_short_name].indexOf(closest), 1)
-          } else if (goal < new Date()) {
-            responseData[key] = {
-              departed: 'probably'
-            }
-          } else {
-            responseData[key] = {
-              departed: 'unlikely'
+            // less than 180 seconds, then it's valid?
+            if (Math.abs(new Date(closest.AimedDeparture) - goal) < 180000) {
+              responseData[key] = {
+                goal: goal,
+                found: new Date(closest.AimedDeparture),
+                delay: (new Date(closest.ExpectedDeparture) - goal) / 1000,
+                v_id: closest.VehicleRef,
+                stop_sequence: -100,
+                time: 0,
+                double_decker: false,
+              }
+              realtimeServices[trip.route_short_name].splice(realtimeServices[trip.route_short_name].indexOf(closest), 1)
+            } else if (goal < new Date()) {
+              responseData[key] = {
+                departed: 'probably'
+              }
+            } else {
+              responseData[key] = {
+                departed: 'unlikely'
+              }
             }
           }
-        }
+        })
+        responseData.extraServices[stop] = realtimeServices
       })
-      responseData.extraServices = realtimeServices
       res.send(responseData)
+    }).catch((err) => {
+      return res.status(400).send({message: 'stop_id not found'})
     })
   },
   getVehicleLocationEndpoint: function(req, res) {
