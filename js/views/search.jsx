@@ -83,7 +83,6 @@ class Search extends React.Component {
     position: SettingsStore.getState().lastLocation,
     positionMarker: [0,0],
     initialPosition: true,
-    currentStation: null,
     findModal: false,
     showIcons: true,
     loadmap: true,
@@ -109,8 +108,7 @@ class Search extends React.Component {
     setTimeout(() => {
       if (window.location.pathname === '/') {
         this.setState({
-          showIcons: true,
-          currentStation: null
+          showIcons: true
         })
       } else {
         this.setState({
@@ -201,9 +199,6 @@ class Search extends React.Component {
   }
   viewServices = (station, region = 'nz-akl') => {
     return () => {
-      this.setState({
-        currentStation: station
-      })
       UiStore.state.fancyMode = true
       const split = this.props.history.location.pathname.split('/')
       if (split[1] === 's' && split.length === 4) {
@@ -261,11 +256,15 @@ class Search extends React.Component {
   }
   render() {
     let stationMarker = null
-    if (this.state.currentStation) {
-      const item = StationStore.stationCache[this.state.currentStation]
-      let icon = IconHelper.getRouteType(item.route_type)
-      let markericon = IconHelper.getIcon(StationStore.currentCity, item.route_type, 'selection')
-      stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
+    const splitName = window.location.pathname.split('/')
+    if (splitName.length >= 4 && splitName[1] === 's') {
+      const currentStation = splitName[3]
+      const item = StationStore.stationCache[currentStation]
+      if (typeof item !== 'undefined') {
+        let icon = IconHelper.getRouteType(item.route_type)
+        let markericon = IconHelper.getIcon(StationStore.currentCity, item.route_type, 'selection')
+        stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
+      }
     }
 
     let findModal = 'modal-wrapper find-modal'

@@ -63,3 +63,8 @@ index-generated.html
 *report.html
 *report.json
 assets.json
+
+#terraform
+.terraform
+*.tfstate
+*.tfstate.*

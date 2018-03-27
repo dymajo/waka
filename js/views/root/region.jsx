@@ -28,6 +28,7 @@ export default class RegionPopover extends React.Component {
     )
   }
   render() {
+    const live = liveCities.map(this.cityIcon)
     let dev = null
     if (process.env.NODE_ENV !== 'production') {
       dev = devCities.map(this.cityIcon)
@@ -42,14 +43,7 @@ export default class RegionPopover extends React.Component {
         />
         <div className="content">
           <ul>
-            <li className="nz-akl" onTouchTap={this.changeCity('nz-akl')}>
-              <h2>{t('regions.nz-akl-long').split(',')[0]}</h2>
-              <h1>{t('regions.nz-akl-long').split(',')[1]}</h1>
-            </li>
-            <li className="nz-wlg" onTouchTap={this.changeCity('nz-wlg')}>
-              <h2>{t('regions.nz-wlg-long').split(',')[0]}</h2>
-              <h1>{t('regions.nz-wlg-long').split(',')[1]}</h1>
-            </li>
+            {live}
             {dev}
           </ul>
           <div className="vote">
