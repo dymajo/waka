@@ -183,6 +183,9 @@ class TripItem extends React.Component {
         </div>
       )
     } else {
+      if (times.length === 0) {
+        return
+      }
       let latest = times[0]
       let dd = null
       let className = latest.realtime !== false ? 'realtime' : ''

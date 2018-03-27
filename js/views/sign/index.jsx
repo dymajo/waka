@@ -9,7 +9,9 @@ class Sign extends React.Component {
   }
   render() {
     let containers = <Station />
+    let marketingClassName = "marketing offset-left"
     if (this.props.match.params.station.split('+').length > 1) {
+      marketingClassName = "marketing"
       containers = [
         <Station instance={0} key="container-0" />,
         <Station instance={1} key="container-1"/>
@@ -18,6 +20,15 @@ class Sign extends React.Component {
     return (
       <div className="sign-container">
         {containers}
+        <div className={marketingClassName}>
+          <img src="/branding/launcher-icon-4x.png" />
+          <br />
+          <div className="brand">
+            <h1>Waka</h1>
+            <h2>getwaka.com</h2>
+            <h3>github.com/consindo/waka</h3>
+          </div>
+        </div>
       </div>
     )
   }
