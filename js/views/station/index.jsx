@@ -6,6 +6,7 @@ import { SettingsStore } from '../../stores/settingsStore.js'
 import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
 import iconhelper from '../../helpers/icon.js'
+import { CurrentLocation } from '../../stores/currentLocation.js'
 
 const IconHelper = new iconhelper()
 
@@ -82,6 +83,7 @@ class Station extends React.Component {
         stop_lat: data.stop_lat, 
         stop_lon: data.stop_lon
       })
+      CurrentLocation.setInitialPosition(data.stop_lat, data.stop_lon)
       SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon]
       SettingsStore.saveState()
     }).catch((err) => {
