@@ -12,10 +12,12 @@ export class currentLocation extends Events { // ability to subscribe to locatio
       accuracy: 0, // accuracy in (km?) of user's current position
       timestamp: 0, // what time location was found
       error: '', // if geolocation returned error
-      hasGranted: false
+      hasGranted: false,
+      initialSet: (window.location.pathname.split('/')[1] !== 's'),
     }
     // this only works in chrome & firefox not safari whoops.
-    if ('permissions' in navigator) {
+    // also, don't do it on desktop 
+    if ('permissions' in navigator && window.innerWidth < 851) {
       navigator.permissions.query({name:'geolocation'}).then(e => {
         if (e.state === 'granted') {
           this.state.hasGranted = true
@@ -47,6 +49,14 @@ export class currentLocation extends Events { // ability to subscribe to locatio
   stopWatch() { // releases watch on geoID
     navigator.geolocation.clearWatch(this.geoID)
     this.geoID = null
+  }
+
+  setInitialPosition(lat, lng) {
+    if (this.state.initialSet === false) {
+      this.state.position = [lat, lng]
+      this.trigger('mapmove-silent')
+      this.state.initialSet = true
+    }
   }
 
   setCurrentPosition(position, updateType = 'pinmove') {

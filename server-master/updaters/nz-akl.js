@@ -12,13 +12,13 @@ const options = {
 
 class Auckland {
   constructor() {
-    if (!process.env.atApiKey) {
-      log('Auckland Transport API Key not found.')
-    }
     this.mappingCheck = this.mappingCheck.bind(this)
   }
   start() {
-    log('nz-akl'.magenta, 'Updater Started')
+    if (!process.env.atApiKey) {
+      log('nz-akl'.magenta, 'Auckland Transport API Key not found - will not run updater.'.red)
+      return
+    }
 
     this.mappingCheck().then(() => {
       this.versionCheck()
