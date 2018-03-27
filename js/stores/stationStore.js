@@ -278,6 +278,7 @@ export class stationStore extends Events {
       queryString[trip.trip_id] = {
         departure_time_seconds: trip.departure_time_seconds,
         route_short_name: trip.route_short_name,
+        station: trip.station
       }
     })
 

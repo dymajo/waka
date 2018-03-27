@@ -320,6 +320,11 @@ class Station extends React.Component {
       }
       this.getData(this.props)
     }, 180000)
+    if (this.props.instance > 0) {
+      // don't run the realtime refresh if instanced twice.
+      // yes completely aware that it's run on the first run a lot but that's okay
+      return 
+    }
     this.realtimeRefresh = setInterval(() => {
       if (window.innerWidth > 850) {
         this.setState({definedOrder: []})
