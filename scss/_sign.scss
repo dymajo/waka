@@ -1,0 +1,59 @@
+.sign-container {
+  .station {
+    z-index: 1;
+    box-shadow: 0 0 4px rgba(#000,0.4);
+  }
+  .station:nth-child(2) {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .material-header {
+    .header-left, .header-right {
+      display: none;
+    }
+    h1 {
+      padding-left: 0.75rem;
+      font-size: 20px;
+      padding-top: 0;
+      line-height: $mobilenavsize;
+    }
+  }
+
+  .marketing {
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+    background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0.9), rgba(255,255,255,0.9));
+    box-sizing: border-box;
+
+    &.offset-left {
+      padding-left: $sidebar-width;
+    }
+
+    img {
+      width: 96px;
+    }
+
+    h1 {
+      margin: 0;
+      color: $atblue;
+    }
+    h2 {
+      margin: 0;
+      font-weight: 300;
+      color: $lightblue;
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: $atblue;
+    }
+
+    .brand {
+      padding: 1rem;
+    }
+  }
+}

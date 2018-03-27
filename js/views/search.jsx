@@ -28,7 +28,24 @@ const Circle = reactLeaflet.Circle
 const CircleMarker = reactLeaflet.CircleMarker
 
 const IconHelper = new iconhelper()
- 
+
+const getDist = function(zoom) {
+  let screensize = document.body.offsetWidth
+  if (document.body.offsetHeight > screensize) {
+    screensize = document.body.offsetHeight
+  }
+  let dist = Math.ceil(0.2 * screensize)
+  if (zoom === 17) {
+    dist = Math.ceil(0.45 * screensize)
+  } else if (zoom === 16) {
+    dist = Math.ceil(0.8 * screensize)
+  }
+  // max the api will handle is 1250
+  if (dist > 1250) {
+    dist = 1250
+  }
+  return dist
+}
 
 const getMarker = function(iconType, name) { 
   if (iconType === 'bus') {
@@ -97,7 +114,7 @@ class Search extends React.Component {
     CurrentLocation.bind('pinmove', this.pinmove)
     CurrentLocation.bind('mapmove', this.mapmove)
     CurrentLocation.bind('mapmove-silent', this.mapmovesilent)
-    this.getData(this.state.position[0], this.state.position[1], 250)
+    this.getData(this.state.position[0], this.state.position[1], getDist(17))
     
     if (CurrentLocation.state.hasGranted) {
       CurrentLocation.startWatch()
@@ -213,27 +230,17 @@ class Search extends React.Component {
   }
   moveEnd = (e) => {
     const zoom = e.target.getZoom()
-    // we're basing this off screensize
-    var screensize = document.body.offsetWidth
-    if (document.body.offsetHeight > screensize) {
-      screensize = document.body.offsetHeight
-    }
     let newPos = e.target.getCenter()
+
     StationStore.getCity(newPos.lat, newPos.lng)
-    let dist = Math.ceil(0.2 * screensize)
-    if (zoom === 17) {
-      dist = Math.ceil(0.45 * screensize)
-    } else if (zoom === 16) {
-      dist = Math.ceil(0.8 * screensize)
-    } else if (zoom < 16) {
+    let dist = 0
+    if (zoom < 16) {
       this.setState({
         stops: []
       })
       return 
-    }
-    // max the api will handle is 1250
-    if (dist > 1250) {
-      dist = 1250
+    } else {
+      dist = getDist(zoom)
     }
     this.getData(newPos.lat, newPos.lng, dist)
   }
@@ -257,7 +264,7 @@ class Search extends React.Component {
   render() {
     let stationMarker = null
     const splitName = window.location.pathname.split('/')
-    if (splitName.length >= 4 && splitName[1] === 's') {
+    if (splitName.length >= 4 && splitName[1][0] === 's') {
       const currentStation = splitName[3]
       const item = StationStore.stationCache[currentStation]
       if (typeof item !== 'undefined') {

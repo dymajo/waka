@@ -5,6 +5,7 @@ import { TransitionGroup, Transition } from 'react-transition-group'
 
 import { UiStore } from '../stores/uiStore.js'
 
+import Sign from './sign/index.jsx'
 import Station from './station/index.jsx'
 import Lines from './lines.jsx'
 import Settings from './settings.jsx'
@@ -50,6 +51,7 @@ class RouterRender extends React.Component {
               path="/s/:region/:station/timetable/:route_name"
               component={Timetable}
             />
+            <Route path="/sign/:region/:station" component={Sign} />
             <Route path="/s/:region/:station" component={Station} />
 
             <Route
