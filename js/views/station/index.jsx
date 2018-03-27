@@ -301,9 +301,15 @@ class Station extends React.Component {
     // realtime: every 20 seconds
     const timeout = this.props.match.params.region === 'nz-akl' ? 20000 : 30000
     this.liveRefresh = setInterval(() => {
+      if (window.innerWidth > 850) {
+        this.setState({definedOrder: []})
+      }
       this.getData(this.props)
     }, 180000)
     this.realtimeRefresh = setInterval(() => {
+      if (window.innerWidth > 850) {
+        this.setState({definedOrder: []})
+      }
       StationStore.getRealtime(this.state.trips, this.props.match.params.station, this.props.match.params.region)
     }, timeout)
   }
