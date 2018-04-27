@@ -8,7 +8,7 @@ $borders: 14px;
   bottom: 0;
   box-sizing: border-box;
   pointer-events: none;
-  
+
   &.show {
     pointer-events: all;
 
@@ -16,7 +16,7 @@ $borders: 14px;
       opacity: 1;
     }
     .content {
-      transform: translate3d(0,0,0);
+      transform: translate3d(0, 0, 0);
       opacity: 1;
     }
   }
@@ -35,36 +35,17 @@ $borders: 14px;
     padding: $borders / 2 $borders;
     transition: 250ms ease transform, 250ms ease opacity;
     opacity: 0;
-    transform: translate3d(0,25px,0);
+    transform: translate3d(0, 25px, 0);
     background: #fff;
     height: calc(100% - #{$navsize});
     // -webkit-overflow-scrolling: touch; // can't do this for now, because iOS Flickers?
     overflow-y: scroll;
-
-    h1, h2 {
-      margin: 0;
-      color: #fff;
-      line-height: 1;
-      text-shadow: 0 1px 1px rgba(0,0,0,0.5);
-      letter-spacing: 0;
-      font-weight: 600;
-    }
-    h2 {
-      margin-top: auto;
-      padding: 0;
-      font-size: 14px;
-    }
-    h1 {
-      padding: 0.2em 0;
-      font-size: 16px;
-    }
   }
 
   ul {
     margin: 0;
     list-style-type: none;
     padding: 0;
-
   }
   @media (min-width: 500px) and (max-width: 850px) {
     .content {
@@ -77,46 +58,12 @@ $borders: 14px;
 
     li {
       flex: 1;
-      margin: $borders /2;
-    }
-  }
-  li {
-    display: flex;  
-    flex-direction: column;
-    background-color: #333;
-    background-position: 50% 50%;
-    background-size: cover;
-    margin-bottom: $borders;
-    border-radius: 5px;
-    padding: 5px;
-    text-align: center;
-    height: 125px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    transition: 150ms transform ease-out;
-    cursor: default;
-
-    &:hover {
-      transform: scale(0.98);
-    }
-    &:active {
-      transform: scale(0.93);
+      margin: $borders / 2;
     }
   }
 
-  .nz-akl {
-    background-image: url(/photos/nz-akl.jpg);
-  }
-  .nz-wlg {
-    background-image: url(/photos/nz-wlg.jpg);  
-  }
-  .au-syd {
-    background-image: url(/photos/au-syd.jpg)
-  }
   .vote {
     text-align: center;
     font-size: 15px;
-    p { 
-      padding: 1em 0 0.5em;
-    }
   }
 }
