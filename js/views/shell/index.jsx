@@ -2,21 +2,20 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 
-import { iOS } from '../models/ios.js'
-import { UiStore } from '../stores/uiStore.js'
-import { StationStore } from '../stores/stationStore.js'
-import { t } from '../stores/translationStore.js'
-import { CurrentLocation } from '../stores/currentLocation.js'
+import { iOS } from '../../models/ios.js'
+import { UiStore } from '../../stores/uiStore.js'
+import { StationStore } from '../../stores/stationStore.js'
+import { t } from '../../stores/translationStore.js'
+import { CurrentLocation } from '../../stores/currentLocation.js'
+
+import { MapView } from './map.jsx'
 
 // routes
-import RootHeader from './root/header.jsx'
-import Router from './router.jsx'
+import RootHeader from '../root/header.jsx'
+import Router from '../router.jsx'
 
-import SavedStations from './savedstations.jsx'
-import Pin from './pin.jsx'
-
-import StationIcon from '../../dist/icons/station.svg'
-import LinesIcon from '../../dist/icons/lines.svg'
+import { Root } from '../root/index.jsx'
+import { Pin } from '../root/pin.jsx'
 
 const paddingHeight = 250
 const barHeight = 56
@@ -37,17 +36,23 @@ class Index extends React.Component {
     super(props)
     this.Search = null // Map Component, dynamic load
 
-    document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
+    document.body.style.setProperty(
+      '--real-height',
+      document.documentElement.clientHeight + 'px'
+    )
 
     this.panLock = true
     this.touchstartpos = null // actual start pos
-    this.fakestartpos = null  // used for non janky animations
+    this.fakestartpos = null // used for non janky animations
     this.touchlastpos = null // used to detect flick
-    this.scrolllock = false  // used so you know the difference between scroll & transform
+    this.scrolllock = false // used so you know the difference between scroll & transform
 
     window.onresize = function() {
       requestAnimationFrame(() => {
-        document.body.style.setProperty('--real-height', document.documentElement.clientHeight + 'px')
+        document.body.style.setProperty(
+          '--real-height',
+          document.documentElement.clientHeight + 'px'
+        )
       })
     }
   }
@@ -78,11 +83,16 @@ class Index extends React.Component {
     }
     // this ensures the map is the last thing to load
     // only loads on main page, i.e if nothing is in front of it
-    System.import('./search.jsx').then(module => {
+    System.import('../search.jsx').then(module => {
       this.Search = module.default
       this.setState({
-        showMap: true 
+        showMap: true,
       })
+    })
+  }
+  togglePin = () => {
+    this.setState({
+      showPin: !this.state.showPin,
     })
   }
   toggleStations = () => {
@@ -98,30 +108,23 @@ class Index extends React.Component {
       }
       UiStore.state.mapView = !this.state.mapView
       this.setState({
-        mapView: !this.state.mapView
+        mapView: !this.state.mapView,
       })
     })
-  }
-  togglePin = () => {
-    this.setState({
-      showPin: !this.state.showPin
-    })
-  }
-  toggleLines = () => {
-    if (this.props.location.pathname !== '/') {
-      return
-    }
-    this.props.history.push('/l/' + StationStore.currentCity)
   }
   toggleRegion = () => {
     this.setState({
       region: !this.state.region,
     })
   }
-  triggerTouchStart = (e) => {
+  triggerTouchStart = e => {
     iOS.triggerStart(e, 'bottom')
     // only start the pull down if they're at the top of the card
-    if (this.touchcard.scrollTop === 0 && window.innerWidth < 851 && this.props.location.pathname === '/') {
+    if (
+      this.touchcard.scrollTop === 0 &&
+      window.innerWidth < 851 &&
+      this.props.location.pathname === '/'
+    ) {
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY
@@ -149,7 +152,7 @@ class Index extends React.Component {
       this.touchcard.scrollTop = 0
     }
   }
-  triggerTouchMove = (e) => {
+  triggerTouchMove = e => {
     // cancels if they're not at the top of the card
     if (this.touchstartpos === null) {
       return
@@ -163,7 +166,7 @@ class Index extends React.Component {
         let offsetPadding = this.cardHeight
         if (this.state.mapView === true) {
           offsetPadding = this.cardHeight + paddingHeight - 25
-          offset = offset + this.cardHeight + paddingHeight 
+          offset = offset + this.cardHeight + paddingHeight
         }
         // limits from scrolling over start or end
         if (offset < 0) {
@@ -176,7 +179,13 @@ class Index extends React.Component {
         this.touchlastpos = e.changedTouches[0].clientY
 
         // calculates percentage of card height, and applies that to map transform
-        let mapoffset = Math.round(offset / offsetPadding * (this.windowHeight - 56 - 64) * window.devicePixelRatio) / window.devicePixelRatio
+        let mapoffset =
+          Math.round(
+            offset /
+              offsetPadding *
+              (this.windowHeight - 56 - 64) *
+              window.devicePixelRatio
+          ) / window.devicePixelRatio
         mapoffset = mapoffset - (this.windowHeight - 56 - 64)
 
         let cardtransform = `translate3d(0,${offset}px,0)`
@@ -222,7 +231,7 @@ class Index extends React.Component {
       this.scrolllock = false
     }
   }
-  triggerTouchEnd = (e) => {
+  triggerTouchEnd = e => {
     // cancels if the event never started
     if (this.touchstartpos === null || this.scrolllock === false) {
       return
@@ -230,7 +239,9 @@ class Index extends React.Component {
 
     // detects if they've scrolled over halfway
     if (this.longtouch === true) {
-      let threshold = Math.round((e.currentTarget.offsetHeight - paddingHeight - barHeight) / 2)
+      let threshold = Math.round(
+        (e.currentTarget.offsetHeight - paddingHeight - barHeight) / 2
+      )
       if (this.state.mapView === true) {
         threshold = e.currentTarget.offsetHeight / 2
       } else {
@@ -239,7 +250,9 @@ class Index extends React.Component {
           return
         }
       }
-      let touchDelta = Math.abs(e.changedTouches[0].clientY - this.touchstartpos)
+      let touchDelta = Math.abs(
+        e.changedTouches[0].clientY - this.touchstartpos
+      )
       if (touchDelta > threshold) {
         // hacks to make it not slow on slow device
         if (this.state.mapView) {
@@ -251,8 +264,11 @@ class Index extends React.Component {
           this.toggleStations()
         }, animationSpeed)
       }
-    // detects a flickss
-    } else if (this.longtouch === false && Math.abs(this.touchstartpos - this.touchlastpos) > 15) {
+      // detects a flickss
+    } else if (
+      this.longtouch === false &&
+      Math.abs(this.touchstartpos - this.touchlastpos) > 15
+    ) {
       // hacks to make it not slow on slow devices
       if (this.state.mapView) {
         this.rootcontainer.className = 'root-container'
@@ -282,9 +298,11 @@ class Index extends React.Component {
       this.touchmap.style.transform = ''
     })
   }
-  triggerScroll = (e) => {
-    if ((e.currentTarget.scrollTop === 0 && this.panLock === false) 
-      || (e.currentTarget.scrollTop !== 0 && this.panLock === true)) {
+  triggerScroll = e => {
+    if (
+      (e.currentTarget.scrollTop === 0 && this.panLock === false) ||
+      (e.currentTarget.scrollTop !== 0 && this.panLock === true)
+    ) {
       this.panLock = !this.panLock
 
       requestAnimationFrame(() => {
@@ -307,36 +325,37 @@ class Index extends React.Component {
       className += ' ios-standalone'
     }
 
-    const map = this.state.showMap ? <this.Search /> : null
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
 
-    const rootClassName = 'root-container ' + (this.state.mapView ? 'map-view' : '')
+    const rootClassName =
+      'root-container ' + (this.state.mapView ? 'map-view' : '')
 
     return (
       <div className={className}>
-        <div className={rootClassName} ref={e => this.rootcontainer = e}>
-          <RootHeader region={this.state.region} toggleRegion={this.toggleRegion} />
-          <div className="root-map" ref={e => this.touchmap = e}>
-            {map}
+        <div className={rootClassName} ref={e => (this.rootcontainer = e)}>
+          <RootHeader
+            region={this.state.region}
+            toggleRegion={this.toggleRegion}
+          />
+          <div className="root-map" ref={e => (this.touchmap = e)}>
+            <MapView />
           </div>
-          <div className="root-card enable-scrolling pan-lock"
-            ref={e => this.touchcard = e}
+          <div
+            className="root-card enable-scrolling pan-lock"
+            ref={e => (this.touchcard = e)}
             onTouchStart={this.triggerTouchStart}
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
           >
-            <div className="root-card-padding-button" onTouchTap={this.toggleStations}></div>
-            <div className="root-card-bar">
-              <button onTouchTap={this.toggleStations}>
-                <StationIcon />
-                {t('root.stationsLabel')}
-              </button>
-              <button onTouchTap={this.toggleLines}>
-                <LinesIcon />
-                {t('root.linesLabel')}
-              </button>
-            </div>
-            <SavedStations togglePin={this.togglePin} toggleRegion={this.toggleRegion} />
+            <div
+              className="root-card-padding-button"
+              onTouchTap={this.toggleStations}
+            />
+            <Root
+              togglePin={this.togglePin}
+              toggleStations={this.toggleStations}
+              toggleRegion={this.toggleRegion}
+            />
           </div>
         </div>
         <Router />
