@@ -9,12 +9,13 @@ import { t } from '../../stores/translationStore.js'
 import { CurrentLocation } from '../../stores/currentLocation.js'
 
 import { MapView } from './map.jsx'
+import { ContentView } from './content.jsx'
 
 // routes
+import { Root } from '../root/index.jsx'
 import RootHeader from '../root/header.jsx'
 import Router from '../router.jsx'
 
-import { Root } from '../root/index.jsx'
 import { Pin } from '../root/pin.jsx'
 
 const paddingHeight = 250
@@ -96,9 +97,6 @@ class Index extends React.Component {
     })
   }
   toggleStations = () => {
-    if (this.props.location.pathname !== '/') {
-      return
-    }
     if (window.innerWidth <= 850 && this.state.mapView === false) {
       CurrentLocation.startWatch()
     }
@@ -120,11 +118,7 @@ class Index extends React.Component {
   triggerTouchStart = e => {
     iOS.triggerStart(e, 'bottom')
     // only start the pull down if they're at the top of the card
-    if (
-      this.touchcard.scrollTop === 0 &&
-      window.innerWidth < 851 &&
-      this.props.location.pathname === '/'
-    ) {
+    if (this.touchcard.scrollTop === 0 && window.innerWidth < 851) {
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY
@@ -351,10 +345,14 @@ class Index extends React.Component {
               className="root-card-padding-button"
               onTouchTap={this.toggleStations}
             />
-            <Root
-              togglePin={this.togglePin}
-              toggleStations={this.toggleStations}
-              toggleRegion={this.toggleRegion}
+            <ContentView
+              rootComponent={() => (
+                <Root
+                  togglePin={this.togglePin}
+                  toggleStations={this.toggleStations}
+                  toggleRegion={this.toggleRegion}
+                />
+              )}
             />
           </div>
         </div>
