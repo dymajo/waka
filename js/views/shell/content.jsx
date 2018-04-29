@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { withRouter, Switch, Route } from 'react-router-dom'
 import { TransitionGroup, Transition } from 'react-transition-group'
 
-import Lines from '../lines.jsx'
+import { Lines } from '../lines/index.jsx'
 
 class Content extends React.Component {
   static propTypes = {
