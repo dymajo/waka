@@ -3,7 +3,7 @@ import { t } from '../../stores/translationStore.js'
 import { CurrentLocation } from '../../stores/currentLocation.js'
 import PropTypes from 'prop-types'
 
-import Header from '../header.jsx'
+import Header from '../reusable/header.jsx'
 
 import { ImageBackground, View, Text, StyleSheet } from 'react-native-web'
 
@@ -45,13 +45,16 @@ export default class RegionPopover extends React.Component {
       dev = devCities.map(this.cityIcon)
     }
     const className = 'region-popover ' + (this.props.visible ? 'show' : '')
+    const header = this.props.visible ? (
+      <Header
+        backFn={this.props.toggle}
+        title={t('regions.pick')}
+        className="no-shadow"
+      />
+    ) : null
     return (
       <div className={className}>
-        <Header
-          backFn={this.props.toggle}
-          title={t('regions.pick')}
-          className="no-shadow"
-        />
+        {header}
         <div className="content">
           <ul>
             {live}

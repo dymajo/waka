@@ -3,17 +3,17 @@ import { View, StyleSheet } from 'react-native'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
-import { iOS } from '../models/ios.js'
-import { StationStore } from '../stores/stationStore'
-import { UiStore } from '../stores/uiStore.js'
-import { t } from '../stores/translationStore.js'
-import BackGesture from './back-gesture.jsx'
+import { iOS } from '../../models/ios.js'
+import { StationStore } from '../../stores/stationStore'
+import { UiStore } from '../../stores/uiStore.js'
+import { t } from '../../stores/translationStore.js'
+import BackGesture from '../back-gesture.jsx'
 
-import Header from './header.jsx'
+import Header from '../reusable/header.jsx'
 
 const style = UiStore.getAnimation()
 
-class Lines extends React.Component {
+class LinesView extends React.Component {
   static propTypes = {
     history: PropTypes.object,
     match: PropTypes.object,
@@ -258,5 +258,5 @@ class Lines extends React.Component {
 const styles = StyleSheet.create({
   wrapper: {},
 })
-const LinesWithRouter = withRouter(Lines)
-export default LinesWithRouter
+const Lines = withRouter(LinesView)
+export { Lines }
