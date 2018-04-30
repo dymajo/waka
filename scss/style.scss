@@ -1,22 +1,27 @@
-@import "_normalize";
-@import "_fonts";
-@import "_vars";
+@import '_normalize';
+@import '_fonts';
+@import '_vars';
 
 body {
   --real-height: 100vh;
 }
 
-html, body, #app {
+html,
+body,
+#app {
   // width: 100vw;
   // height: 100%;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select:  none;
+  user-select: none;
   background: #eee;
 }
 
-html, body, input, button {
+html,
+body,
+input,
+button {
   font-family: 'Open Sans', sans-serif;
 }
 
@@ -24,20 +29,21 @@ html, body, input, button {
   height: 100%;
 }
 
-@import "_mixins";
-@import "_buttons";
-@import "_defaults";
-@import "_navigation";
-@import "_root";
-@import "_search";
-@import "_content";
-@import "_trip";
-@import "_modal";
-@import "_settings";
-@import "_splash";
-@import "_ios";
-@import "_lines";
-@import "_veh_loc";
-@import "_timetable";
-@import "_region-popover";
-@import "_sign";
+@import '_mixins';
+@import '_buttons';
+@import '_defaults';
+@import '_shell';
+@import '_navigation';
+@import '_root';
+@import '_search';
+@import '_content';
+@import '_trip';
+@import '_modal';
+@import '_settings';
+@import '_splash';
+@import '_ios';
+@import '_lines';
+@import '_veh_loc';
+@import '_timetable';
+@import '_region-popover';
+@import '_sign';
