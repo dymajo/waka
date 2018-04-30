@@ -58,8 +58,10 @@ class RouterRender extends React.Component {
               path="/l/:region/:line_id"
               component={VehicleLocationBootstrap}
             />
-            <Route path="/l/:region" component={Lines} />
 
+            <Route path="/o" />
+
+            <Route path="/l/:region" component={Lines} />
             <Route path="/settings" component={Settings} />
             <Route path="/sponsor" component={Sponsor} />
             <Route path="/testlines" component={TestLines} />

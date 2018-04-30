@@ -11,9 +11,10 @@ route_type_map.set(5, 'cablecar')
 route_type_map.set(6, 'gondola')
 route_type_map.set(7, 'funicular')
 route_type_map.set(-1, 'parkingbuilding')
+route_type_map.set(-2, 'onzo')
 
 const style_map = {
-  'normal': new Map(),
+  normal: new Map(),
   'au-syd': new Map(),
 }
 style_map.normal.set('default', [30, 49])
@@ -22,11 +23,12 @@ style_map.normal.set('0-selection', [24, 24])
 style_map.normal.set('2-selection', [28, 28])
 style_map.normal.set('4-selection', [28, 28])
 
-style_map.normal.set(-1, [28,28])
-style_map.normal.set(2,[28, 34])
-style_map.normal.set(3,[26, 32])
-style_map.normal.set(4,[28, 34])
-style_map.normal.set(5,[28, 34])
+style_map.normal.set(-1, [28, 28])
+style_map.normal.set(-2, [28, 28])
+style_map.normal.set(2, [28, 34])
+style_map.normal.set(3, [26, 32])
+style_map.normal.set(4, [28, 34])
+style_map.normal.set(5, [28, 34])
 
 style_map['au-syd'].set('default', [30, 30])
 style_map['au-syd'].set(0, [40, 40])
@@ -39,7 +41,6 @@ style_map['au-syd'].set('2-selection', [40, 40])
 style_map['au-syd'].set('4-selection', [40, 40])
 
 class iconhelper {
-
   getClassName(variant, prefix) {
     if (variant !== null && prefix === 'normal') {
       return 'currentSelectionIcon larger'
@@ -59,7 +60,7 @@ class iconhelper {
     const icon = {}
     let variantfile = ''
     let filetype = '.svg'
-    
+
     if (typeof style_map[prefix] === 'undefined') {
       prefix = 'normal'
     }
@@ -67,12 +68,16 @@ class iconhelper {
       variantfile = '-selection'
     }
 
-
-    icon.iconUrl = '/icons/' + prefix + '/' + this.getFileName(route_type, prefix, variant) + variantfile + filetype
+    icon.iconUrl =
+      '/icons/' +
+      prefix +
+      '/' +
+      this.getFileName(route_type, prefix, variant) +
+      variantfile +
+      filetype
 
     icon.iconSize = this.getSize(route_type, prefix, variant)
 
-    
     icon.className = this.getClassName(variant, prefix)
     return new Icon(icon)
   }
@@ -93,9 +98,9 @@ class iconhelper {
     }
     return style_map[prefix].get('default')
   }
-  getRouteType(route_type){
+  getRouteType(route_type) {
     return route_type_map.get(route_type)
-  } 
+  }
 }
 
 export default iconhelper
