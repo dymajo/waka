@@ -35,7 +35,7 @@ class Index extends React.Component {
     region: false,
     animate: false,
     showPin: false,
-    cardPosition: 'default'
+    cardPosition: 'default',
   }
   constructor(props) {
     super(props)
@@ -84,13 +84,13 @@ class Index extends React.Component {
       showPin: !this.state.showPin,
     })
   }
-  toggleStations = (newPosition) => {
+  toggleStations = newPosition => {
     requestAnimationFrame(() => {
       // if (this.state.mapView === false) {
       //   this.touchcard.scrollTop = 0
       // }
       this.setState({
-        cardPosition: newPosition
+        cardPosition: newPosition,
       })
     })
   }
@@ -99,13 +99,14 @@ class Index extends React.Component {
       region: !this.state.region,
     })
   }
-  snapToWhat(pos) {
+  getSnapAnchor(pos) {
     // well you could definitely refactor it for less lines
     // but then you would be very confused what would be happening
     if (this.state.cardPosition === 'max') {
       const defaultThreshold = this.clientHeight - defaultPosition
       const defaultUpperThreshold = defaultThreshold / 2
-      const defaultLowerThreshold = defaultThreshold + (defaultPosition / 2) - barHeight
+      const defaultLowerThreshold =
+        defaultThreshold + defaultPosition / 2 - barHeight
       if (pos < defaultUpperThreshold) {
         return 'max'
       } else if (pos > defaultLowerThreshold) {
@@ -114,6 +115,9 @@ class Index extends React.Component {
         return 'default'
       }
     } else if (this.state.cardPosition === 'default') {
+      // there's a negative and positive bit,
+      // because there's a swipe up (negative)
+      // and swipe down from the middle default position
       const defaultUpperThreshold = defaultPosition / 2 * -1
       const defaultLowerThreshold = defaultPosition / 2
       if (pos < defaultUpperThreshold) {
@@ -121,14 +125,16 @@ class Index extends React.Component {
       } else if (pos > defaultLowerThreshold) {
         return 'map'
       } else {
-        return  'default'
+        return 'default'
       }
     } else if (this.state.cardPosition === 'map') {
-      // does my brain in less if we just use positive numbers
-      pos = Math.abs(pos) 
-      const defaultThreshold =  defaultPosition - barHeight
+      // as this is when we start snapped from the bottom,
+      // it does my brain in less if we just use positive numbers
+      pos = Math.abs(pos)
+      const defaultThreshold = defaultPosition - barHeight
       const defaultUpperThreshold = defaultThreshold / 2
-      const defaultLowerThreshold = defaultThreshold + (defaultPosition / 2) - barHeight
+      const defaultLowerThreshold =
+        defaultThreshold + defaultPosition / 2 - barHeight
       if (pos < defaultUpperThreshold) {
         return 'map'
       } else if (pos > defaultLowerThreshold) {
@@ -137,6 +143,25 @@ class Index extends React.Component {
         return 'default'
       }
     }
+  }
+  getFlickAnchor(pos) {
+    if (this.state.cardPosition === 'default') {
+      // need to detect if they flick up or down
+      return pos > 0 ? 'max' : 'map'
+    } else if (
+      this.state.cardPosition === 'map' &&
+      Math.abs(pos) > defaultPosition
+    ) {
+      // if they flick up extra far
+      return 'max'
+    } else if (
+      this.state.cardPosition === 'max' &&
+      Math.abs(pos) > this.clientHeight - defaultPosition
+    ) {
+      // if they flick down extra far
+      return 'map'
+    }
+    return 'default'
   }
   triggerTouchStart = e => {
     iOS.triggerStart(e, 'bottom')
@@ -186,7 +211,7 @@ class Index extends React.Component {
           // TODO: Magic Numbers?!
           upperLimit = this.cardHeight + maxPosition - 25
         } else if (this.state.cardPosition === 'default') {
-          offset = offset + this.cardHeight - defaultPosition + paddingHeight 
+          offset = offset + this.cardHeight - defaultPosition + paddingHeight
         }
 
         // limits from scrolling over start or end
@@ -217,6 +242,7 @@ class Index extends React.Component {
       return
     }
 
+    // TODO: This needs to be fixed cause it's messing up the scrolling.
     // does the equality depending on state of card
     let newPos = e.changedTouches[0].clientY
     let equality = false
@@ -259,35 +285,31 @@ class Index extends React.Component {
           return
         }
       }
-      const touchDelta = e.changedTouches[0].clientY - this.touchstartpos
-      const snapped = this.snapToWhat(touchDelta)
       // hacks to make it not slow on slow device
-      if (snapped !== this.state.cardPosition) {
-        this.rootcontainer.className = `root-container ${snapped}-view`
+      const touchDelta = e.changedTouches[0].clientY - this.touchstartpos
+      const newSnap = this.getSnapAnchor(touchDelta)
+      if (newSnap !== this.state.cardPosition) {
+        this.rootcontainer.className = `root-container ${newSnap}-view`
         setTimeout(() => {
-          this.toggleStations(snapped)
+          this.toggleStations(newSnap)
         }, animationSpeed)
       }
-      // detects a flickss
+      // detects a flick
     } else if (
       this.longtouch === false &&
       Math.abs(this.touchstartpos - this.touchlastpos) > 15
     ) {
       // hacks to make it not slow on slow devices
-      let finalView = ''
-      if (this.state.cardPosition === 'map') {
-        finalView = 'max'
-      } else {
-        finalView = 'map'
-      }
-      this.rootcontainer.className = `root-container ${finalView}-view`
+      const touchDelta = this.touchstartpos - this.touchlastpos
+      const newSnap = this.getFlickAnchor(touchDelta)
+      this.rootcontainer.className = `root-container ${newSnap}-view`
       // special easing curve
       requestAnimationFrame(() => {
         this.touchcard.style.transition = `${animationSpeed}ms ease-out transform`
         this.touchcard.style.transform = ''
       })
       setTimeout(() => {
-        this.toggleStations(finalView)
+        this.toggleStations(newSnap)
         requestAnimationFrame(() => {
           this.touchcard.style.transition = ''
         })
@@ -328,8 +350,7 @@ class Index extends React.Component {
 
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
 
-    const rootClassName =
-      'root-container ' + this.state.cardPosition + '-view'
+    const rootClassName = 'root-container ' + this.state.cardPosition + '-view'
 
     return (
       <div className={className}>
