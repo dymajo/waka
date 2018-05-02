@@ -15,11 +15,9 @@ class Wrapper extends React.Component {
     animationState: 'exited',
   }
   componentDidMount() {
-    console.log('mounting - fix!')
     routingEvents.bind('animation', this.handleEvents)
   }
   componentWillUnmount() {
-    console.log('unmounting - fix!')
     routingEvents.unbind('animation', this.handleEvents)
   }
   handleEvents = (data, state) => {
@@ -66,7 +64,7 @@ class Content extends React.Component {
               <Route path="/" exact render={this.props.rootComponent} />
               <Route
                 path="/l/:region"
-                component={() => (
+                render={() => (
                   <Wrapper>
                     <Lines />
                   </Wrapper>
