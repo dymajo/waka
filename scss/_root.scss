@@ -49,7 +49,7 @@ $transition: 250ms ease transform;
   min-height: 50vh;
 }
 
-$max-position: 75px;
+$max-position: 0;
 $default-position: 300px;
 $min-position: 0;
 
@@ -87,12 +87,12 @@ $min-position: 0;
       overflow-y: hidden;
       transform: translate3d(
         0,
-        calc(100vh - #{$root-card-bar} - #{$max-position}),
+        calc(100vh - #{$root-card-bar - $max-position}),
         0
       );
       transform: translate3d(
         0,
-        calc(var(--real-height) - #{$root-card-bar} - #{$max-position}),
+        calc(var(--real-height) - #{$root-card-bar - $max-position}),
         0
       );
     }
@@ -111,6 +111,8 @@ $min-position: 0;
   height: $max-position;
 }
 .root-card-bar {
+  position: sticky;
+  top: 0;
   touch-action: none;
   height: $root-card-bar;
   display: flex;
