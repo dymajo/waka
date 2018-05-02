@@ -84,11 +84,20 @@ class Index extends React.Component {
       showPin: !this.state.showPin,
     })
   }
-  toggleStations = newPosition => {
+  toggleStations = (newPosition = 'toggle') => {
     requestAnimationFrame(() => {
-      // if (this.state.mapView === false) {
-      //   this.touchcard.scrollTop = 0
-      // }
+      if (this.state.mapView !== 'map') {
+        this.touchcard.scrollTop = 0
+      }
+      if (newPosition === 'toggle') {
+        if (this.state.cardPosition === 'default') {
+          newPosition = 'map'
+        } else if (this.state.cardPosition === 'max') {
+          newPosition = 'default'
+        } else if (this.state.cardPosition === 'map') {
+          newPosition = 'default'
+        }
+      }
       this.setState({
         cardPosition: newPosition,
       })
@@ -252,7 +261,7 @@ class Index extends React.Component {
       if (equality && iOS.detect()) {
         e.preventDefault()
       }
-    } else if (this.state.cardPosition === 'map') {
+    } else if (this.state.cardPosition === 'max') {
       equality = this.touchstartpos > newPos
     }
 

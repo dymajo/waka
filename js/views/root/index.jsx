@@ -27,7 +27,7 @@ class RootView extends React.Component {
     return (
       <React.Fragment>
         <div className="root-card-bar">
-          <button onTouchTap={this.props.toggleStations}>
+          <button onTouchTap={() => this.props.toggleStations('toggle')}>
             <StationIcon />
             {t('root.stationsLabel')}
           </button>
