@@ -47,7 +47,7 @@ class Content extends React.Component {
   }
   render() {
     return (
-      <View style={styles.wrapper}>
+      <View style={styles.wrapper} className="root-card-wrapper">
         <TransitionGroup>
           <Transition
             timeout={300}
@@ -80,7 +80,6 @@ class Content extends React.Component {
 const styles = StyleSheet.create({
   wrapper: {
     height: 1,
-    boxShadow: '0 0 3px rgba(0, 0, 0, 0.4)',
   },
 })
 const ContentView = withRouter(Content)

@@ -22,6 +22,7 @@ const paddingHeight = 0
 const barHeight = 56
 const animationSpeed = 250
 
+const topOffset = 24
 const maxPosition = 0
 const defaultPosition = 300
 const minPosition = 0
@@ -129,7 +130,6 @@ class Index extends React.Component {
       // and swipe down from the middle default position
       const defaultUpperThreshold = defaultPosition / 2 * -1
       const defaultLowerThreshold = defaultPosition / 2
-      console.log(defaultUpperThreshold, defaultLowerThreshold, pos)
       if (pos < defaultUpperThreshold) {
         return 'max'
       } else if (pos > defaultLowerThreshold) {
@@ -221,7 +221,12 @@ class Index extends React.Component {
           offset = offset + this.cardHeight - barHeight / 2
           upperLimit = this.cardHeight + maxPosition - 25
         } else if (this.state.cardPosition === 'default') {
-          offset = offset + this.cardHeight - defaultPosition + paddingHeight
+          offset =
+            offset +
+            this.cardHeight -
+            defaultPosition +
+            paddingHeight +
+            topOffset
         }
 
         // limits from scrolling over start or end
@@ -365,10 +370,6 @@ class Index extends React.Component {
     return (
       <div className={className}>
         <div className={rootClassName} ref={e => (this.rootcontainer = e)}>
-          <RootHeader
-            region={this.state.region}
-            toggleRegion={this.toggleRegion}
-          />
           <div className="root-map">
             <MapView />
           </div>
