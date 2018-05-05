@@ -1,4 +1,5 @@
 $transition: 250ms ease transform;
+$map-transition: 250ms ease opacity;
 
 .root-container {
   position: fixed;
@@ -10,6 +11,7 @@ $transition: 250ms ease transform;
   height: var(--real-height);
   -webkit-tap-highlight-color: transparent;
   z-index: 0;
+  background: #000;
 
   @media (min-width: 850px) {
     .material-header {
@@ -18,19 +20,21 @@ $transition: 250ms ease transform;
   }
 }
 .root-map {
-  height: calc(100vh - #{$mobilenavsize} - #{$root-card-bar});
-  height: calc(var(--real-height) - #{$mobilenavsize} - #{$root-card-bar});
+  height: calc(100vh - #{$root-card-bar});
+  height: calc(var(--real-height) - #{$root-card-bar});
   background-color: #eee;
   position: absolute;
   z-index: 0;
-  top: $mobilenavsize;
+  top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  transition: $map-transition;
 }
+$top-offset: 24px;
 .root-card {
   position: absolute;
-  top: 0;
+  top: $top-offset;
   left: 0;
   right: 0;
   bottom: 0;
@@ -40,6 +44,7 @@ $transition: 250ms ease transform;
   will-change: scroll, transform;
   overflow-y: auto;
   overflow-x: hidden;
+  box-shadow: rgba(#000, 0.4) 0 0 3px;
 
   -ms-scroll-rails: railed;
   -ms-overflow-style: -ms-autohiding-scrollbar;
@@ -47,6 +52,23 @@ $transition: 250ms ease transform;
 .root-card-content {
   background: #eee;
   min-height: 50vh;
+}
+.max-view {
+  .root-map {
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .root-card {
+    background: #eee;
+  }
+}
+.map-view {
+  .root-card {
+    box-shadow: none;
+  }
+  .root-card-wrapper {
+    box-shadow: rgba(#000, 0.4) 0 0 3px;
+  }
 }
 
 $max-position: 0;
@@ -82,17 +104,20 @@ $min-position: 0;
   .map-view {
     $pad: 25px;
     .root-card {
-      top: $max-position - $pad;
+      // top: $max-position - $pad - $top-offset;
       touch-action: none;
       overflow-y: hidden;
       transform: translate3d(
         0,
-        calc(100vh - #{$root-card-bar - $max-position}),
+        calc(100vh - #{$root-card-bar - $max-position - $top-offset - $pad}),
         0
       );
       transform: translate3d(
         0,
-        calc(var(--real-height) - #{$root-card-bar - $max-position}),
+        calc(
+          var(--real-height) - #{$root-card-bar + $max-position + $top-offset +
+            $pad}
+        ),
         0
       );
     }
@@ -111,6 +136,7 @@ $min-position: 0;
   height: $max-position;
 }
 .root-card-bar {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   touch-action: none;
