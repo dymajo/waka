@@ -1,5 +1,5 @@
 CREATE TABLE routes (
-  id int NOT NULL IDENTITY(1,1) PRIMARY KEY,
+  id int NOT NULL IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
   route_id nvarchar(100) NOT NULL,
   agency_id nvarchar(100),
   route_short_name nvarchar(50) NOT NULL,
@@ -10,4 +10,7 @@ CREATE TABLE routes (
   route_color nvarchar(50),
   route_text_color nvarchar(50),
   CONSTRAINT uc_Routes UNIQUE (route_id)
-)
+);
+
+CREATE CLUSTERED INDEX IX_Routes_route_id
+ON routes (route_id);
