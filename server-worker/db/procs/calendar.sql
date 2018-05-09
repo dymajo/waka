@@ -1,5 +1,5 @@
 CREATE TABLE calendar (
-  id int NOT NULL IDENTITY(1,1) PRIMARY KEY,
+  id int NOT NULL IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
   service_id nvarchar(100) NOT NULL,
   monday bit NOT NULL,
   tuesday bit NOT NULL,
@@ -10,7 +10,10 @@ CREATE TABLE calendar (
   sunday bit NOT NULL,
   start_date date NOT NULL,
   end_date date NOT NULL,
-)
+);
 
-CREATE NONCLUSTERED INDEX id_Calendar
-ON calendar (service_id)
+CREATE CLUSTERED INDEX IX_Calendar_service_id
+ON calendar (service_id);
+
+CREATE NONCLUSTERED INDEX IX_Calendar_start_date_end_date
+ON calendar (start_date, end_date);
