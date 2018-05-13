@@ -1,5 +1,5 @@
 CREATE TABLE stops (
-  id int NOT NULL IDENTITY(1,1) PRIMARY KEY,
+  id int NOT NULL IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
   stop_id nvarchar(100) NOT NULL,
   stop_code nvarchar(100),
   stop_name nvarchar(100) NOT NULL,
@@ -13,6 +13,10 @@ CREATE TABLE stops (
   stop_timezone nvarchar(100),
   wheelchair_boarding int,
   CONSTRAINT uc_Stops UNIQUE (stop_id)
-)
-CREATE NONCLUSTERED INDEX id_Stops
-ON stops (stop_code)
+);
+
+CREATE CLUSTERED INDEX IX_Stops_stop_id
+ON stops (stop_id);
+
+CREATE NONCLUSTERED INDEX IX_Stops_stop_code
+ON stops (stop_code);

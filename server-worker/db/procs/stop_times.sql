@@ -1,5 +1,5 @@
 CREATE TABLE stop_times (
-  id int NOT NULL IDENTITY(1,1) PRIMARY KEY,
+  id int NOT NULL IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
   trip_id nvarchar(100) NOT NULL,
   arrival_time time(0) NOT NULL,
   departure_time time(0) NOT NULL,
@@ -12,15 +12,15 @@ CREATE TABLE stop_times (
   drop_off_type int,
   shape_dist_traveled float,
   timepoint int
-)
+);
 
-CREATE NONCLUSTERED INDEX id_Stop_Times
+CREATE CLUSTERED INDEX IX_Stop_Times_trip_id_stop_id
+ON stop_times (trip_id, stop_id);
+
+CREATE NONCLUSTERED INDEX IX_Stop_Times_stop_id_departure_time
 ON stop_times (stop_id, departure_time)
-INCLUDE (trip_id, departure_time_24, stop_sequence)
+INCLUDE (trip_id, departure_time_24, stop_sequence);
 
-CREATE NONCLUSTERED INDEX id_Stop_Times_Trips
-ON stop_times (trip_id)
-
-CREATE NONCLUSTERED INDEX id_Stop_Times_Times
-ON [dbo].[stop_times] ([departure_time])
-INCLUDE ([trip_id],[departure_time_24],[stop_id],[stop_sequence])
+CREATE NONCLUSTERED INDEX IX_Stop_Times_departure_time
+ON stop_times (departure_time)
+INCLUDE (trip_id,departure_time_24,stop_id,stop_sequence);
