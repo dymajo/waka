@@ -1,18 +1,33 @@
 const Request = require('request')
 
+const onzos = []
+
 const onzo = {
-  getBikes: (req, res) => {
-    const { lat, dis, lon } = req.query
+  async getBikes(lat, dis, lon) {
+    // const { lat, dis, lon } = req.query
 
     const options = {}
     options.url = `https://app.onzo.co.nz/nearby/${lat}/${lon}/${dis}`
     options.json = true
     Request(options, (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        res.send(body.data)
-      } else {
-        res.send('error, cannot access onzo')
+      if (error) {
+        return
       }
+
+      await body.data.forEach(onzo => {
+        onzos.append({
+          stop_id: onzo.iccid,
+          stop_lat: onzo.latitude,
+          stop_lon: onzo.longitude,
+          stop_lng: onzo.longitude,
+          stop_region: 'nz-akl',
+          route_type: -2,
+          stop_name: 'Onzo Bike',
+          battery: onzo.battery,
+          updated: onzo.updateTime,
+        })
+      })
+      console.log(onzos)
     })
   },
 }
