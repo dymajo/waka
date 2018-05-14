@@ -11,7 +11,7 @@ route_type_map.set(5, 'cablecar')
 route_type_map.set(6, 'gondola')
 route_type_map.set(7, 'funicular')
 route_type_map.set(-1, 'parkingbuilding')
-route_type_map.set(-2, 'onzo')
+route_type_map.set(-2, 'bikeshare-1')
 
 const style_map = {
   normal: new Map(),
