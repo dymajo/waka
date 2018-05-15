@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#fff',
-    position: 'sticky',
+    // position: 'absolute',
     top: 0,
   },
   textWrapper: {
