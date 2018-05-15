@@ -174,9 +174,8 @@ class Index extends React.Component {
     return 'default'
   }
   triggerTouchStart = e => {
-    iOS.triggerStart(e, 'bottom')
     // only start the pull down if they're at the top of the card
-    if (this.touchcard.scrollTop === 0 && window.innerWidth < 851) {
+    if (UiStore.state.scrollPosition <= 0 && window.innerWidth < 851) {
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY
@@ -353,16 +352,7 @@ class Index extends React.Component {
     }
   }
   render() {
-    // I hate myself for doing this, but iOS scrolling is a fucking nightmare
     let className = 'panes'
-    if (iOS.detect()) {
-      className += ' ios'
-    }
-    // if it's running standalone, add a class because iOS doesn't support media queries
-    if (window.navigator.standalone) {
-      className += ' ios-standalone'
-    }
-
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
 
     const rootClassName = 'root-container ' + this.state.cardPosition + '-view'

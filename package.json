@@ -51,7 +51,7 @@
     "cross-env": "^5.0.5",
     "eslint": "^4.8.0",
     "eslint-plugin-react": "^7.4.0",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.9.0",
     "react-svg-loader": "^1.1.1",
     "sass-loader": "^6.0.6",
     "webpack": "^3.6.0",
