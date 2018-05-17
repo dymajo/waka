@@ -7,6 +7,7 @@ import { TransitionGroup, Transition } from 'react-transition-group'
 import Events from '../../stores/events.js'
 import { Lines } from '../lines/index.jsx'
 import { UiStore } from '../../stores/uiStore.js'
+import { Sponsor } from '../pages/sponsor.jsx'
 
 const routingEvents = new Events()
 
@@ -73,6 +74,14 @@ class Content extends React.Component {
                 render={() => (
                   <Wrapper>
                     <Lines />
+                  </Wrapper>
+                )}
+              />
+              <Route
+                path="/sponsor"
+                render={() => (
+                  <Wrapper>
+                    <Sponsor />
                   </Wrapper>
                 )}
               />
