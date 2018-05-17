@@ -3,15 +3,11 @@ import { View, StyleSheet } from 'react-native'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
-import { iOS } from '../../models/ios.js'
 import { StationStore } from '../../stores/stationStore'
-import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
-import BackGesture from '../back-gesture.jsx'
+import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 
 import Header from '../reusable/header.jsx'
-
-const style = UiStore.getAnimation()
 
 class LinesView extends React.Component {
   static propTypes = {
@@ -25,7 +21,6 @@ class LinesView extends React.Component {
     colors: {},
     groupShow: {},
     friendlyNames: {},
-    animation: 'unmounted',
   }
 
   triggerGroup = group => {
@@ -49,22 +44,14 @@ class LinesView extends React.Component {
       t('regions.' + this.props.match.params.region) +
       ' - ' +
       t('app.name')
-    this.gesture = new BackGesture({
-      container: this.container,
-      history: this.props.history,
-    })
-    this.gesture.bindEvents()
 
     window.addEventListener('online', this.triggerGetLines)
-    UiStore.bind('animation', this.animation)
     StationStore.bind('newcity', this.newcity)
 
     this.getLines()
   }
   componentWillUnmount() {
-    this.gesture.unbindEvents()
     window.removeEventListener('online', this.triggerGetLines)
-    UiStore.unbind('animation', this.animation)
     StationStore.unbind('newcity', this.newcity)
   }
   newcity = () => {
@@ -109,28 +96,6 @@ class LinesView extends React.Component {
   hijack = link => {
     return () => {
       this.props.history.push(link)
-    }
-  }
-
-  animation = data => {
-    // ensures correct element
-    if (data[1] !== this.container || this.gesture.animationOverride === true) {
-      return
-      // doesn't run if we're decending from down the tree up
-    } else if (data[0] === 'exiting' && window.location.pathname !== '/') {
-      return
-      // doesn't run if we're decending further down the tree
-    } else if (
-      data[0] === 'entering' &&
-      (UiStore.state.exiting.substring(0, window.location.pathname.length) ===
-        window.location.pathname &&
-        window.location.pathname !== UiStore.state.exiting)
-    ) {
-      return
-    } else {
-      this.setState({
-        animation: data[0],
-      })
     }
   }
 
@@ -244,19 +209,19 @@ class LinesView extends React.Component {
     }
 
     return (
-      <div
-        className={className}
-        ref={e => (this.container = e)}
-        style={style[this.state.animation]}
-      >
+      <View style={styles.wrapper}>
         <Header title={t('lines.title')} />
-        {ret}
-      </div>
+        <LinkedScroll>
+          <div className="list-lines">{ret}</div>
+        </LinkedScroll>
+      </View>
     )
   }
 }
 const styles = StyleSheet.create({
-  wrapper: {},
+  wrapper: {
+    flex: 1,
+  },
 })
 const Lines = withRouter(LinesView)
 export { Lines }

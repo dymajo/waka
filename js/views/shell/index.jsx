@@ -99,6 +99,7 @@ class Index extends React.Component {
           newPosition = 'default'
         }
       }
+      UiStore.state.cardPosition = newPosition
       this.setState({
         cardPosition: newPosition,
       })

@@ -1,18 +1,22 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, findNodeHandle } from 'react-native'
 import { withRouter, Switch, Route } from 'react-router-dom'
 import { TransitionGroup, Transition } from 'react-transition-group'
 
 import Events from '../../stores/events.js'
 import { Lines } from '../lines/index.jsx'
+import { UiStore } from '../../stores/uiStore.js'
 
 const routingEvents = new Events()
 
 class Wrapper extends React.Component {
+  static propTypes = {
+    children: PropTypes.node,
+  }
   container = React.createRef()
   state = {
-    animationState: 'exited',
+    animationState: 'entered',
   }
   componentDidMount() {
     routingEvents.bind('animation', this.handleEvents)
@@ -21,17 +25,19 @@ class Wrapper extends React.Component {
     routingEvents.unbind('animation', this.handleEvents)
   }
   handleEvents = (data, state) => {
-    if (data === this.container.current) {
+    if (data === findNodeHandle(this.container.current)) {
       this.setState({ animationState: state })
     }
   }
   render() {
     // have to use a div for now
-    const className = 'shell-content ' + this.state.animationState
+    const className = `shell-content ${this.state.animationState} position-${
+      UiStore.state.cardPosition
+    }`
     return (
-      <div className={className} ref={this.container}>
+      <View className={className} ref={this.container} style={styles.wrapper}>
         {this.props.children}
-      </div>
+      </View>
     )
   }
 }
@@ -47,7 +53,7 @@ class Content extends React.Component {
   }
   render() {
     return (
-      <View style={styles.wrapper} className="root-card-wrapper">
+      <View style={styles.rootWrapper} className="root-card-wrapper">
         <TransitionGroup className="root-transition-group">
           <Transition
             timeout={300}
@@ -78,8 +84,11 @@ class Content extends React.Component {
   }
 }
 const styles = StyleSheet.create({
-  wrapper: {
+  rootWrapper: {
     height: '100%',
+  },
+  wrapper: {
+    flex: 1,
   },
 })
 const ContentView = withRouter(Content)

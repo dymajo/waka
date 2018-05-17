@@ -14,6 +14,7 @@ export class uiStore extends Events {
       exiting: window.location.pathname,
       downloadedCss: {},
       scrollPosition: 0,
+      cardPosition: 'default',
     }
 
     // restores history if it's an iphone web clip :/

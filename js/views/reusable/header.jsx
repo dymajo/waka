@@ -41,11 +41,9 @@ class Header extends React.Component {
 const styles = StyleSheet.create({
   wrapper: {
     height: vars.headerHeight,
-    flex: 1,
+    display: 'flex',
     flexDirection: 'row',
     backgroundColor: '#fff',
-    // position: 'absolute',
-    top: 0,
   },
   textWrapper: {
     flex: 1,
