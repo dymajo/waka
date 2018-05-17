@@ -1,35 +1,51 @@
+// NEED TO SORT THE DEFINITION OF THIS.
+$initial-transform: translate3d(0, 0, 0);
+$default-position: 300px + 32px;
+$default-position-transform: translate3d(0, $default-position, 0);
+
 @keyframes shell-enter-default {
   0% {
-    transform: translate3d(0, 70vh, 0);
+    transform: $default-position-transform;
   }
   100% {
-    transform: translate3d(0, 0, 0);
+    transform: $initial-transform;
   }
 }
 @keyframes shell-exit-default {
   0% {
-    transform: translate3d(0, 0, 0);
+    transform: $initial-transform;
   }
   100% {
-    transform: translate3d(0, 70vh, 0);
+    transform: $default-position-transform;
   }
 }
 
 .shell-content {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  min-height: 70vh;
   background: $default-back;
-
-  &.entering {
-    animation: 250ms ease shell-enter-default 1;
-  }
+  &.entering,
   &.exiting,
   &.exited {
-    transform: translate3d(0, 70vh, 0);
+    position: absolute;
+    top: 0;
+    width: 100%;
+    min-height: 70vh;
   }
-  &.exiting {
-    animation: 250ms ease shell-exit-default 1;
+
+  &.entering,
+  &.entered {
+    z-index: 1;
+  }
+
+  &.position-default {
+    &.entering {
+      animation: 250ms ease shell-enter-default 1;
+    }
+    &.exiting,
+    &.exited {
+      transform: $default-position-transform;
+    }
+    &.exiting {
+      animation: 250ms ease shell-exit-default 1;
+    }
   }
 }
