@@ -6,8 +6,8 @@ import { withRouter } from 'react-router-dom'
 import { t } from '../../stores/translationStore.js'
 import { StationStore } from '../../stores/stationStore.js'
 import { LinkedScroll } from '../reusable/linkedScroll.jsx'
+import { RootContent } from './content.jsx'
 
-import SavedStations from '../savedstations.jsx'
 import StationIcon from '../../../dist/icons/station.svg'
 import LinesIcon from '../../../dist/icons/lines.svg'
 
@@ -39,7 +39,7 @@ class RootView extends React.Component {
           </button>
         </div>
         <LinkedScroll>
-          <SavedStations
+          <RootContent
             togglePin={this.props.togglePin}
             toggleRegion={this.props.toggleRegion}
           />
