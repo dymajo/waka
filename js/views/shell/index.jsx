@@ -176,7 +176,12 @@ class Index extends React.Component {
   }
   triggerTouchStart = e => {
     // only start the pull down if they're at the top of the card
-    if (UiStore.state.scrollPosition <= 0 && window.innerWidth < 851) {
+    if (
+      (UiStore.state.scrollPosition <= 0 ||
+        e.target === UiStore.state.headerEvent ||
+        this.state.cardPosition === 'default') &&
+      window.innerWidth < 851
+    ) {
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY

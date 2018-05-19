@@ -5,7 +5,6 @@ import { withRouter } from 'react-router'
 
 import { vars } from '../../styles.js'
 import { UiStore } from '../../stores/uiStore.js'
-import BackIcon from '../../../dist/icons/back.svg'
 import CloseIcon from '../../../dist/icons/close.svg'
 
 // not used for all headers yet...
@@ -18,9 +17,12 @@ class Header extends React.Component {
   triggerBack = () => {
     UiStore.goBack(this.props.history, '/')
   }
+  triggerTouchStart = e => {
+    UiStore.state.headerEvent = e.target
+  }
   render() {
     return (
-      <View style={styles.wrapper}>
+      <View style={styles.wrapper} onTouchStart={this.triggerTouchStart}>
         <View style={styles.pillWrapper}>
           <View style={styles.pill} />
         </View>
