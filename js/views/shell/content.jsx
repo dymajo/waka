@@ -18,6 +18,7 @@ class Wrapper extends React.Component {
   container = React.createRef()
   state = {
     animationState: 'entered',
+    animationAction: 'forward',
   }
   componentDidMount() {
     routingEvents.bind('animation', this.handleEvents)
@@ -25,16 +26,21 @@ class Wrapper extends React.Component {
   componentWillUnmount() {
     routingEvents.unbind('animation', this.handleEvents)
   }
-  handleEvents = (data, state) => {
+  handleEvents = (data, state, action) => {
     if (data === findNodeHandle(this.container.current)) {
-      this.setState({ animationState: state })
+      if (action === 'PUSH') {
+        action = 'forward'
+      } else if (action === 'POP') {
+        action = 'backward'
+      }
+      this.setState({ animationState: state, animationAction: action })
     }
   }
   render() {
     // have to use a div for now
-    const className = `shell-content ${this.state.animationState} position-${
-      UiStore.state.cardPosition
-    }`
+    const className = `shell-content ${this.state.animationState} direction-${
+      this.state.animationAction
+    } position-${UiStore.state.cardPosition}`
     return (
       <View className={className} ref={this.container} style={styles.wrapper}>
         {this.props.children}
@@ -46,10 +52,13 @@ class Wrapper extends React.Component {
 class Content extends React.Component {
   static propTypes = {
     rootComponent: PropTypes.func,
+    history: PropTypes.object,
+    location: PropTypes.object,
   }
-  triggerStateUpdate(state) {
+  triggerStateUpdate = state => {
     return data => {
-      routingEvents.trigger('animation', data, state)
+      const action = this.props.history.action
+      routingEvents.trigger('animation', data, state, action)
     }
   }
   render() {
@@ -71,6 +80,7 @@ class Content extends React.Component {
               <Route path="/" exact render={this.props.rootComponent} />
               <Route
                 path="/l/:region"
+                exact
                 render={() => (
                   <Wrapper>
                     <Lines />
@@ -79,6 +89,7 @@ class Content extends React.Component {
               />
               <Route
                 path="/sponsor"
+                exact
                 render={() => (
                   <Wrapper>
                     <Sponsor />

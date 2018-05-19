@@ -2,6 +2,8 @@
 $initial-transform: translate3d(0, 0, 0);
 $default-position: 300px + 32px;
 $default-position-transform: translate3d(0, $default-position, 0);
+$map-position: 56px;
+$map-position-transform: translate3d(0, $map-position, 0);
 
 @keyframes shell-enter-default {
   0% {
@@ -19,6 +21,14 @@ $default-position-transform: translate3d(0, $default-position, 0);
     transform: $default-position-transform;
   }
 }
+@keyframes shell-exit-map {
+  0% {
+    transform: $initial-transform;
+  }
+  100% {
+    transform: $map-position-transform;
+  }
+}
 
 .shell-content {
   background: $default-back;
@@ -31,21 +41,36 @@ $default-position-transform: translate3d(0, $default-position, 0);
     min-height: 70vh;
   }
 
-  &.entering,
-  &.entered {
-    z-index: 1;
+  &.direction-forward {
+    &.entering,
+    &.entered {
+      z-index: 1;
+    }
   }
 
   &.position-default {
-    &.entering {
+    &.direction-forward.entering {
       animation: 250ms ease shell-enter-default 1;
     }
-    &.exiting,
-    &.exited {
-      transform: $default-position-transform;
+    &.direction-backward {
+      &.exiting,
+      &.exited {
+        transform: $default-position-transform;
+      }
+      &.exiting {
+        animation: 250ms ease shell-exit-default 1;
+      }
     }
-    &.exiting {
-      animation: 250ms ease shell-exit-default 1;
+  }
+  &.position-map {
+    &.direction-backward {
+      &.exiting,
+      &.exited {
+        transform: $map-position-transform;
+      }
+      &.exiting {
+        animation: 250ms ease shell-exit-map 1;
+      }
     }
   }
 }
