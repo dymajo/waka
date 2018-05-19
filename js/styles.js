@@ -5,6 +5,7 @@ export const vars = {
   accentColor: '#fb6754',
   padding: 16,
 
+  smallFontSize: 13,
   defaultFontSize: 16,
   fontFamily:
     '"Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif',

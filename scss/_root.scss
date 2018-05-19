@@ -92,7 +92,6 @@ $min-position: 0;
   .default-view {
     $pad: 25px;
     .root-card {
-      touch-action: none;
       overflow-y: hidden;
       transform: translate3d(
         0,
@@ -109,8 +108,6 @@ $min-position: 0;
   .map-view {
     $pad: 25px;
     .root-card {
-      // top: $max-position - $pad - $top-offset;
-      touch-action: none;
       overflow-y: hidden;
       transform: translate3d(
         0,
@@ -140,76 +137,10 @@ $min-position: 0;
 .root-card-padding-button {
   height: $max-position;
 }
-.root-card-bar {
-  touch-action: none;
-  height: $root-card-bar;
-  width: 100%;
-  display: flex;
-  background: #eee;
-  // border-bottom: 1px solid #e4e4e4;
-  max-width: 480px;
-  margin: 0 auto;
-
-  button,
-  a {
-    display: block;
-    flex: 1;
-    background: #fff;
-    border: 0;
-    border-left: 1px solid #e4e4e4;
-    margin: 0;
-    outline: 0;
-    text-transform: uppercase;
-    font-weight: bold;
-    color: $atblue;
-    font-size: 12px;
-    padding-top: 3px;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 1px 0 #ddd;
-    text-align: center;
-    text-decoration: none;
-
-    @media (pointer: fine) {
-      &:hover {
-        background: #f7f7f7;
-      }
-    }
-
-    &:active {
-      background: #f5fafe;
-    }
-
-    svg {
-      display: block;
-      margin: -2px auto 2px;
-      fill: $atblue;
-    }
-    img {
-      display: block;
-      margin: 4px auto 2px;
-    }
-
-    &:first-child {
-      border-left: 0;
-    }
-  }
-}
 @media (min-width: 481px) {
   .root-card-content {
     position: relative;
     padding: 0 10vw;
-  }
-  .root-card-bar {
-    position: relative;
-    z-index: 1;
-    border-bottom: 0;
-    box-shadow: 0 1px 3px rgba(#000, 0.3);
-    transform: translate3d(0, -8px, 0);
-
-    button,
-    a {
-      box-shadow: none;
-    }
   }
   .root-card-content::before {
     content: '';
@@ -238,8 +169,7 @@ $min-position: 0;
   .root-card-content {
     padding: 0;
   }
-  .root-card-padding-button,
-  .root-card-bar {
+  .root-card-padding-button {
     display: none;
   }
   .root-map {

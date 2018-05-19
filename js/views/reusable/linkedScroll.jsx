@@ -31,9 +31,15 @@ export class LinkedScroll extends React.Component {
     UiStore.state.scrollPosition = e.nativeEvent.contentOffset.y
   }
   render() {
+    const touchStyles = [
+      styles.scroll,
+      {
+        touchAction: UiStore.state.cardPosition === 'max' ? 'auto' : 'none',
+      },
+    ]
     return (
       <ScrollView
-        style={styles.scroll}
+        style={touchStyles}
         onScroll={this.setScroll}
         scrollEventThrottle={50}
         ref={this.scrollView}
