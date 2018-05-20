@@ -47,9 +47,12 @@ const getDist = function(zoom) {
   return dist
 }
 
-const getMarker = function(iconType, name) { 
+const getMarker = function(iconType, name) {
   if (iconType === 'bus') {
-    name = name.trim().replace(/\)/g, '').replace(/\(/g, '')
+    name = name
+      .trim()
+      .replace(/\)/g, '')
+      .replace(/\(/g, '')
     if (name.substring(3, 4) === ' ' || name.length === 3) {
       name = name.substring(0, 3)
     } else if (name.substring(2, 3) === ' ' || name.length === 2) {
@@ -83,8 +86,9 @@ const getMarker = function(iconType, name) {
     </svg>
     `
     return Icon({
-      iconUrl: 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(dynamic),
-      iconSize: [25, 41]
+      iconUrl:
+        'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(dynamic),
+      iconSize: [25, 41],
     })
   }
 }
@@ -98,24 +102,24 @@ class Search extends React.Component {
     station: '',
     stops: [],
     position: SettingsStore.getState().lastLocation,
-    positionMarker: [0,0],
+    positionMarker: [0, 0],
     initialPosition: true,
     findModal: false,
     showIcons: true,
     loadmap: true,
-    online: window.navigator.onLine
+    online: window.navigator.onLine,
   }
   componentWillMount() {
     UiStore.downloadCss('maps.css')
   }
   componentDidMount() {
-    window.addEventListener('online',  this.triggerRetry)
-    window.addEventListener('offline',  this.goOffline)
+    window.addEventListener('online', this.triggerRetry)
+    window.addEventListener('offline', this.goOffline)
     CurrentLocation.bind('pinmove', this.pinmove)
     CurrentLocation.bind('mapmove', this.mapmove)
     CurrentLocation.bind('mapmove-silent', this.mapmovesilent)
     this.getData(this.state.position[0], this.state.position[1], getDist(17))
-    
+
     if (CurrentLocation.state.hasGranted) {
       CurrentLocation.startWatch()
     }
@@ -125,19 +129,19 @@ class Search extends React.Component {
     setTimeout(() => {
       if (window.location.pathname === '/') {
         this.setState({
-          showIcons: true
+          showIcons: true,
         })
       } else {
         this.setState({
-          showIcons: false
+          showIcons: false,
         })
         CurrentLocation.stopWatch()
       }
     }, 300)
   }
   componentWillUnmount() {
-    window.removeEventListener('online',  this.triggerRetry)
-    window.removeEventListener('offline',  this.goOffline)
+    window.removeEventListener('online', this.triggerRetry)
+    window.removeEventListener('offline', this.goOffline)
     CurrentLocation.unbind('pinmove', this.pinmove)
     CurrentLocation.unbind('mapmove', this.mapmove)
     CurrentLocation.unbind('mapmove-silent', this.mapmovesilent)
@@ -148,42 +152,49 @@ class Search extends React.Component {
       this.mapmove()
     } else {
       this.setState({
-        positionMarker: CurrentLocation.state.position.slice()
+        positionMarker: CurrentLocation.state.position.slice(),
       })
     }
-
   }
   mapmove = () => {
     this.setState({
       position: CurrentLocation.state.position.slice(),
       positionMarker: CurrentLocation.state.position.slice(),
-      initialPosition: false
+      initialPosition: false,
     })
   }
   mapmovesilent = () => {
     this.setState({
       position: CurrentLocation.state.position.slice(),
-      initialPosition: false
+      initialPosition: false,
     })
   }
   getData(lat, lon, dist) {
-    fetch(`${local.endpoint}/auto/station/search?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}&distance=${dist}`).then((response) => {
-      response.json().then((data) => {
-        data.forEach((item) => {
+    const { bikeShare } = SettingsStore.state
+    fetch(
+      `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
+        4
+      )}&lon=${lon.toFixed(4)}&distance=${dist}&bikes=${bikeShare}`
+    ).then(response => {
+      response.json().then(data => {
+        data.forEach(item => {
           StationStore.stationCache[item.stop_id] = item
-          if (typeof(this.myIcons[item.route_type.toString()]) === 'undefined') {
-            this.myIcons[item.route_type.toString()] = IconHelper.getIcon(StationStore.currentCity, item.route_type)
+          if (typeof this.myIcons[item.route_type.toString()] === 'undefined') {
+            this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
+              StationStore.currentCity,
+              item.route_type
+            )
           }
         })
         this.setState({
-          stops: data
+          stops: data,
         })
       })
     })
   }
   toggleFind = () => {
     this.setState({
-      findModal: !this.state.findModal
+      findModal: !this.state.findModal,
     })
     setTimeout(() => {
       if (this.state.findModal === true) {
@@ -193,22 +204,23 @@ class Search extends React.Component {
       }
     }, 200)
   }
-  triggerChange = (e) => {
+  triggerChange = e => {
     this.setState({
-      station: e.currentTarget.value
+      station: e.currentTarget.value,
     })
   }
-  triggerKeyUp = (e) => {
+  triggerKeyUp = e => {
     if (e.keyCode === 13) {
       this.triggerSearch(undefined)
     }
   }
-  triggerSearch = (e) => {
+  triggerSearch = e => {
     if (e) {
       e.preventDefault()
     }
     this.searchInput.blur()
-    const prefix = StationStore.currentCity === 'none' ? 'nz-akl' : StationStore.currentCity
+    const prefix =
+      StationStore.currentCity === 'none' ? 'nz-akl' : StationStore.currentCity
     this.props.history.push(`/s/${prefix}/${this.state.station}`)
   }
   triggerCurrentLocation = () => {
@@ -222,13 +234,13 @@ class Search extends React.Component {
         this.props.history.replace(`/s/${region}/${station}`)
       } else {
         this.props.history.push(`/s/${region}/${station}`)
-      } 
+      }
       setTimeout(() => {
         UiStore.state.fancyMode = false
       }, 500) // extra delay to help events to bubble
     }
   }
-  moveEnd = (e) => {
+  moveEnd = e => {
     const zoom = e.target.getZoom()
     let newPos = e.target.getCenter()
 
@@ -236,9 +248,9 @@ class Search extends React.Component {
     let dist = 0
     if (zoom < 16) {
       this.setState({
-        stops: []
+        stops: [],
       })
-      return 
+      return
     } else {
       dist = getDist(zoom)
     }
@@ -247,18 +259,18 @@ class Search extends React.Component {
   triggerRetry = () => {
     this.setState({
       loadmap: false,
-      online: window.navigator.onLine
+      online: window.navigator.onLine,
     })
     setTimeout(() => {
       this.setState({
-        loadmap: true
+        loadmap: true,
       })
       this.getData(this.state.position[0], this.state.position[1], 250)
     }, 50)
   }
   goOffline = () => {
     this.setState({
-      online: false
+      online: false,
     })
   }
   render() {
@@ -269,8 +281,18 @@ class Search extends React.Component {
       const item = StationStore.stationCache[currentStation]
       if (typeof item !== 'undefined') {
         let icon = IconHelper.getRouteType(item.route_type)
-        let markericon = IconHelper.getIcon(StationStore.currentCity, item.route_type, 'selection')
-        stationMarker = <Marker alt={t('station.' + icon)} icon={markericon} position={[item.stop_lat, item.stop_lon]} /> 
+        let markericon = IconHelper.getIcon(
+          StationStore.currentCity,
+          item.route_type,
+          'selection'
+        )
+        stationMarker = (
+          <Marker
+            alt={t('station.' + icon)}
+            icon={markericon}
+            position={[item.stop_lat, item.stop_lon]}
+          />
+        )
       }
     }
 
@@ -283,25 +305,44 @@ class Search extends React.Component {
 
     let bigCircle
     if (this.state.accuracy < 500) {
-      bigCircle = <Circle className="bigCurrentLocationCircle" center={CurrentLocation.state.position} radius={(CurrentLocation.state.accuracy)}/> 
+      bigCircle = (
+        <Circle
+          className="bigCurrentLocationCircle"
+          center={CurrentLocation.state.position}
+          radius={CurrentLocation.state.accuracy}
+        />
+      )
     }
 
-    let offline = null, button1 = null, button2 = null
+    let offline = null,
+      button1 = null,
+      button2 = null
     if (!this.state.online) {
       offline = (
         <div className="offline-container">
           <p>You are not connected to the internet.</p>
-          <button className="nice-button primary" onClick={this.triggerRetry}>Retry</button>
+          <button className="nice-button primary" onClick={this.triggerRetry}>
+            Retry
+          </button>
         </div>
       )
     } else {
       button1 = (
-        <button className="circle-button blue-button bottom-button" onTouchTap={this.toggleFind} aria-label="Find Stop" title="Find Stop">
-          <SearchIcon />  
+        <button
+          className="circle-button blue-button bottom-button"
+          onTouchTap={this.toggleFind}
+          aria-label="Find Stop"
+          title="Find Stop"
+        >
+          <SearchIcon />
         </button>
       )
       button2 = (
-        <button className="circle-button top-button" onTouchTap={this.triggerCurrentLocation} aria-label="Locate Me">
+        <button
+          className="circle-button top-button"
+          onTouchTap={this.triggerCurrentLocation}
+          aria-label="Locate Me"
+        >
           <LocateIcon />
         </button>
       )
@@ -312,17 +353,20 @@ class Search extends React.Component {
       mapview = (
         <LeafletMap
           onMoveend={this.moveEnd}
-          center={this.state.position} 
+          center={this.state.position}
           maxZoom={18}
           zoom={17}
           zoomControl={false}
-          className="map">
+          className="map"
+        >
           <ZoomControl position="bottomleft" />
           <TileLayer
             url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'}
-            attribution={'© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}
+            attribution={
+              '© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }
           />
-          {this.state.stops.map((stop) => {
+          {this.state.stops.map(stop => {
             let icon, markericon
             icon = IconHelper.getRouteType(stop.route_type)
             markericon = this.myIcons[stop.route_type.toString()]
@@ -335,11 +379,11 @@ class Search extends React.Component {
                 markericon = getMarker('bus', platformSplit[1])
               }
             }
-            
+
             // jono's awesome collison detection
             // basically checks if something is already there
             var lng = stop.stop_lon
-            if(typeof(positionMap[stop.stop_lat]) === 'undefined') {
+            if (typeof positionMap[stop.stop_lat] === 'undefined') {
               positionMap[stop.stop_lat] = [lng]
             } else {
               if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
@@ -350,11 +394,21 @@ class Search extends React.Component {
             }
 
             return (
-              <Marker alt={t('station.' + icon)} icon={markericon} key={stop.stop_id} position={[stop.stop_lat, lng]} onClick={this.viewServices(stop.stop_id, stop.stop_region)} />
+              <Marker
+                alt={t('station.' + icon)}
+                icon={markericon}
+                key={stop.stop_id}
+                position={[stop.stop_lat, lng]}
+                onClick={this.viewServices(stop.stop_id, stop.stop_region)}
+              />
             )
           })}
           {bigCircle}
-          <CircleMarker className="smallCurrentLocationCircle" center={this.state.positionMarker} radius={7} /> 
+          <CircleMarker
+            className="smallCurrentLocationCircle"
+            center={this.state.positionMarker}
+            radius={7}
+          />
           {stationMarker}
         </LeafletMap>
       )
@@ -367,18 +421,23 @@ class Search extends React.Component {
           <div className="modal">
             <h2>{t('search.find.title')}</h2>
             <div className="inner">
-              <input type="tel"
+              <input
+                type="tel"
                 placeholder={t('search.find.description')}
                 aria-label={t('search.find.description')}
                 maxLength="4"
                 value={this.state.station}
                 onKeyUp={this.triggerKeyUp}
-                onChange={this.triggerChange} 
-                ref={e => this.searchInput = e}
+                onChange={this.triggerChange}
+                ref={e => (this.searchInput = e)}
               />
             </div>
-            <button className="cancel" onTouchTap={this.toggleFind}>{t('search.find.cancel')}</button>
-            <button className="submit" onTouchTap={this.triggerSearch}>{t('search.find.confirm')}</button>
+            <button className="cancel" onTouchTap={this.toggleFind}>
+              {t('search.find.cancel')}
+            </button>
+            <button className="submit" onTouchTap={this.triggerSearch}>
+              {t('search.find.confirm')}
+            </button>
           </div>
         </div>
         {button1}
