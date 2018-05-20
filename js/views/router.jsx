@@ -58,7 +58,6 @@ class RouterRender extends React.Component {
             />
 
             <Route path="/settings" component={Settings} />
-            {/*<Route path="/sponsor" component={Sponsor} />*/}
             <Route path="/testlines" component={TestLines} />
             {/*<Route component={NoMatch} />*/}
           </Switch>
