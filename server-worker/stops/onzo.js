@@ -1,11 +1,9 @@
 const Request = require('request')
 
-const onzos = []
+const onzos = [{ onzo: { bike: 1 } }]
 
 const onzo = {
-  async getBikes(lat, dis, lon) {
-    // const { lat, dis, lon } = req.query
-
+  getBikes(lat, lon, dis) {
     const options = {}
     options.url = `https://app.onzo.co.nz/nearby/${lat}/${lon}/${dis}`
     options.json = true
@@ -13,9 +11,8 @@ const onzo = {
       if (error) {
         return
       }
-
-      await body.data.forEach(onzo => {
-        onzos.append({
+      body.data.map(onzo => {
+        onzos.push({
           stop_id: onzo.iccid,
           stop_lat: onzo.latitude,
           stop_lon: onzo.longitude,
@@ -27,7 +24,7 @@ const onzo = {
           updated: onzo.updateTime,
         })
       })
-      console.log(onzos)
+      return Promise.resolve(onzos)
     })
   },
 }
