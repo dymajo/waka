@@ -3,7 +3,8 @@ export class settingsStore {
     this.state = {
       clock: true,
       longName: false,
-      lastLocation: [-36.844229, 174.767823] // britomart
+      lastLocation: [-36.844229, 174.767823], // britomart
+      bikeShare: true,
     }
     if (localStorage.getItem('SettingsData')) {
       var preState = JSON.parse(localStorage.getItem('SettingsData'))
