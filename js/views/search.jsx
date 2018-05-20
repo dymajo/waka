@@ -170,40 +170,27 @@ class Search extends React.Component {
     })
   }
   getData(lat, lon, dist) {
-    if (window.location.pathname === '/o') {
-      fetch(
-        `${local.endpoint}/auto/onzo?lat=${lat.toFixed(4)}&lon=${lon.toFixed(
-          4
-        )}&dis=${dist}`
-      ).then(response =>
-        response.json().then(data => {
-          console.log(data[0])
+    const { bikeShare } = SettingsStore.state
+    fetch(
+      `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
+        4
+      )}&lon=${lon.toFixed(4)}&distance=${dist}&bikes=${bikeShare}`
+    ).then(response => {
+      response.json().then(data => {
+        data.forEach(item => {
+          StationStore.stationCache[item.stop_id] = item
+          if (typeof this.myIcons[item.route_type.toString()] === 'undefined') {
+            this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
+              StationStore.currentCity,
+              item.route_type
+            )
+          }
         })
-      )
-    } else {
-      fetch(
-        `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
-          4
-        )}&lon=${lon.toFixed(4)}&distance=${dist}`
-      ).then(response => {
-        response.json().then(data => {
-          data.forEach(item => {
-            StationStore.stationCache[item.stop_id] = item
-            if (
-              typeof this.myIcons[item.route_type.toString()] === 'undefined'
-            ) {
-              this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
-                StationStore.currentCity,
-                item.route_type
-              )
-            }
-          })
-          this.setState({
-            stops: data,
-          })
+        this.setState({
+          stops: data,
         })
       })
-    }
+    })
   }
   toggleFind = () => {
     this.setState({
