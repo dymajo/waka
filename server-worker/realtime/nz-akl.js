@@ -60,7 +60,7 @@ var isDoubleDecker = function(vehicle) {
 const isEV = vehicle => {
   const EVs = ['2840', '2841']
 
-  if (EVs.includes(vehicle) !== -1) {
+  if (EVs.indexOf(vehicle) !== -1) {
     return true
   }
   return false
