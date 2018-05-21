@@ -64,6 +64,7 @@ class Index extends React.Component {
   }
   componentDidMount() {
     this.props.history.listen(UiStore.handleState)
+    UiStore.bind('card-position', this.handleNewCardPosition)
     this.touchcard.addEventListener('scroll', this.triggerScroll)
     this.touchcard.addEventListener('touchmove', this.triggerTouchMove)
   }
@@ -79,6 +80,11 @@ class Index extends React.Component {
         UiStore.state.canAnimate = true
       }, UiStore.animationTiming + 25)
     }
+  }
+  handleNewCardPosition = (position) => {
+    this.setState({
+      cardPosition: position,
+    })
   }
   togglePin = () => {
     this.setState({
@@ -99,6 +105,7 @@ class Index extends React.Component {
           newPosition = 'default'
         }
       }
+      UiStore.state.oldCardPosition = newPosition
       UiStore.state.cardPosition = newPosition
       this.setState({
         cardPosition: newPosition,

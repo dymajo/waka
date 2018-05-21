@@ -64,7 +64,10 @@ export { Root }
 
 const styles = StyleSheet.create({
   wrapper: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: '100%',
   },
   headerWrapper: {
     height: vars.headerHeight,

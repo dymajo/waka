@@ -14,6 +14,7 @@ export class uiStore extends Events {
       exiting: window.location.pathname,
       downloadedCss: {},
       scrollPosition: 0,
+      oldCardPosition: 'default',
       cardPosition: 'default',
       headerEvent: null,
     }
@@ -32,7 +33,13 @@ export class uiStore extends Events {
     //   }
     // }
   }
-
+  setCardPosition(position, animate = true) {
+    this.state.cardPosition = position
+    this.trigger('card-position', position, animate)
+    setTimeout(() => {
+      this.state.oldCardPosition = position
+    }, 200)
+  }
   handleState = () => {
     this.state.totalNavigations++
     this.state.lastUrl = this.state.currentUrl
