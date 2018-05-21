@@ -14,10 +14,10 @@ var vehicleLocationsOptions = {
   }
 }
 
-var isDoubleDecker = function(vehicle) {
+const isDoubleDecker = (vehicle) => {
   // This information collected by watching Symonds Street #dedication
   // https://fleetlists.busaustralia.com/index-nz.php
-  var doubleDeckers = [
+  const doubleDeckers = [
     // NZ Bus / Metrolink
     // Alexander Dennis Enviro500
 
@@ -51,10 +51,13 @@ var isDoubleDecker = function(vehicle) {
   ]
   // uncomment this line if you want it to randomly be a double decker
   // if (Math.ceil(Math.random()*2) >1) {
-  if (doubleDeckers.indexOf(vehicle) !== -1) {
-    return true
-  }
-  return false
+  return doubleDeckers.includes(vehicle)
+}
+
+const isEV = vehicle => {
+  const EVs = ['2840', '2841']
+
+  return EVs.includes(vehicle)
 }
 
 
@@ -156,7 +159,8 @@ var realtime = {
                 delay: timeUpdate.delay,
                 timestamp: timeUpdate.time,
                 v_id: trip.trip_update.vehicle.id,
-                double_decker: isDoubleDecker(trip.trip_update.vehicle.id)
+                double_decker: isDoubleDecker(trip.trip_update.vehicle.id),
+                ev: isEV(trip.trip_update.vehicle.id),
               }
             })
           }
@@ -177,7 +181,8 @@ var realtime = {
           delay: timeUpdate.delay,
           timestamp: timeUpdate.time,
           v_id: data.vehicle.id,
-          double_decker: isDoubleDecker(data.vehicle.id)
+          double_decker: isDoubleDecker(data.vehicle.id),
+          ev: isEV(data.vehicle.id),
         }
       }
     })
