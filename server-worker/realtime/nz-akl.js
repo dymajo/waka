@@ -57,6 +57,15 @@ var isDoubleDecker = function(vehicle) {
   return false
 }
 
+const isEV = vehicle => {
+  const EVs = ['2840', '2841']
+
+  if (EVs.includes(vehicle) !== -1) {
+    return true
+  }
+  return false
+}
+
 
 var realtime = {
   currentData: {},
@@ -156,7 +165,8 @@ var realtime = {
                 delay: timeUpdate.delay,
                 timestamp: timeUpdate.time,
                 v_id: trip.trip_update.vehicle.id,
-                double_decker: isDoubleDecker(trip.trip_update.vehicle.id)
+                double_decker: isDoubleDecker(trip.trip_update.vehicle.id),
+                ev: isEV(trip.trip_update.vehicle.id),
               }
             })
           }
@@ -177,7 +187,8 @@ var realtime = {
           delay: timeUpdate.delay,
           timestamp: timeUpdate.time,
           v_id: data.vehicle.id,
-          double_decker: isDoubleDecker(data.vehicle.id)
+          double_decker: isDoubleDecker(data.vehicle.id),
+          ev: isEV(data.vehicle.id),
         }
       }
     })
