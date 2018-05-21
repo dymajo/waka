@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 import { StationStore } from '../../stores/stationStore'
+import { UiStore } from '../../stores/uiStore'
 import { t } from '../../stores/translationStore.js'
 import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 
@@ -36,6 +37,9 @@ class LinesView extends React.Component {
         groupShow: groupShow,
       })
     }
+  }
+  componentWillMount() {
+    UiStore.setCardPosition('default')
   }
   componentDidMount() {
     document.title =

@@ -37,10 +37,9 @@ class Wrapper extends React.Component {
     }
   }
   render() {
-    // have to use a div for now
     const className = `shell-content ${this.state.animationState} direction-${
       this.state.animationAction
-    } position-${UiStore.state.cardPosition}`
+    } ${UiStore.state.oldCardPosition}-position-${UiStore.state.cardPosition}`
     return (
       <View className={className} ref={this.container} style={styles.wrapper}>
         {this.props.children}
@@ -66,7 +65,7 @@ class Content extends React.Component {
       <View style={styles.rootWrapper} className="root-card-wrapper">
         <TransitionGroup className="root-transition-group">
           <Transition
-            timeout={300}
+            timeout={400}
             key={this.props.location.key}
             onEntering={this.triggerStateUpdate('entering')}
             onEntered={this.triggerStateUpdate('entered')}
@@ -108,7 +107,10 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   wrapper: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: '100%',
   },
 })
 const ContentView = withRouter(Content)

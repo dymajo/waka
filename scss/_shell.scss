@@ -5,7 +5,7 @@ $default-position-transform: translate3d(0, $default-position, 0);
 $map-position: 56px;
 $map-position-transform: translate3d(0, $map-position, 0);
 
-@keyframes shell-enter-default {
+@keyframes shell-max-enter-default {
   0% {
     transform: $default-position-transform;
   }
@@ -13,7 +13,23 @@ $map-position-transform: translate3d(0, $map-position, 0);
     transform: $initial-transform;
   }
 }
-@keyframes shell-exit-default {
+@keyframes shell-default-enter-default {
+  0% {
+    transform: $default-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-map-enter-default {
+  0% {
+    transform: $map-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-default-exit-default {
   0% {
     transform: $initial-transform;
   }
@@ -21,7 +37,7 @@ $map-position-transform: translate3d(0, $map-position, 0);
     transform: $default-position-transform;
   }
 }
-@keyframes shell-exit-map {
+@keyframes shell-map-exit-map {
   0% {
     transform: $initial-transform;
   }
@@ -47,10 +63,15 @@ $map-position-transform: translate3d(0, $map-position, 0);
       z-index: 1;
     }
   }
-
-  &.position-default {
+  &.max-position-default {
     &.direction-forward.entering {
-      animation: 250ms ease shell-enter-default 1;
+      animation: 250ms ease shell-max-enter-default 1;
+      animation-delay: 100ms;
+    }
+  }
+  &.default-position-default {
+    &.direction-forward.entering {
+      animation: 250ms ease shell-default-enter-default 1;
     }
     &.direction-backward {
       &.exiting,
@@ -58,18 +79,24 @@ $map-position-transform: translate3d(0, $map-position, 0);
         transform: $default-position-transform;
       }
       &.exiting {
-        animation: 250ms ease shell-exit-default 1;
+        animation: 250ms ease shell-default-exit-default 1;
       }
     }
   }
-  &.position-map {
+  &.map-position-default {
+    &.direction-forward.entering {
+      animation: 50ms ease shell-map-enter-default 1;
+    }
+  }
+
+  &.map-position-map {
     &.direction-backward {
       &.exiting,
       &.exited {
         transform: $map-position-transform;
       }
       &.exiting {
-        animation: 250ms ease shell-exit-map 1;
+        animation: 250ms ease shell-map-exit-map 1;
       }
     }
   }
