@@ -4,7 +4,18 @@ $default-position: 300px + 32px;
 $default-position-transform: translate3d(0, $default-position, 0);
 $map-position: 56px;
 $map-position-transform: translate3d(0, $map-position, 0);
+$max-position: 100vh;
+$max-position-transform: translate3d(0, $max-position, 0);
 
+// ENTER
+@keyframes shell-max-enter-max {
+  0% {
+    transform: $max-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
 @keyframes shell-max-enter-default {
   0% {
     transform: $default-position-transform;
@@ -27,6 +38,15 @@ $map-position-transform: translate3d(0, $map-position, 0);
   }
   100% {
     transform: $initial-transform;
+  }
+}
+// EXIT
+@keyframes shell-max-exit-max {
+  0% {
+    transform: $initial-transform;
+  }
+  100% {
+    transform: $max-position-transform;
   }
 }
 @keyframes shell-default-exit-default {
@@ -61,6 +81,20 @@ $map-position-transform: translate3d(0, $map-position, 0);
     &.entering,
     &.entered {
       z-index: 1;
+    }
+  }
+  &.max-position-max {
+    &.direction-forward.entering {
+      animation: 250ms ease shell-max-enter-max 1;
+    }
+    &.direction-backward {
+      &.exiting,
+      &.exited {
+        transform: $max-position-transform;
+      }
+      &.exiting {
+        animation: 250ms ease shell-max-exit-max 1;
+      }
     }
   }
   &.max-position-default {
