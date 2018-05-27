@@ -7,9 +7,7 @@ import { UiStore } from '../stores/uiStore.js'
 
 import Sign from './sign/index.jsx'
 import Station from './station/index.jsx'
-import Lines from './lines.jsx'
 import Settings from './settings.jsx'
-import Sponsor from './sponsor.jsx'
 import TestLines from './test_lines.jsx'
 import Timetable from './timetable.jsx'
 import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
@@ -59,11 +57,9 @@ class RouterRender extends React.Component {
               component={VehicleLocationBootstrap}
             />
 
-            <Route path="/l/:region" component={Lines} />
             <Route path="/settings" component={Settings} />
-            <Route path="/sponsor" component={Sponsor} />
             <Route path="/testlines" component={TestLines} />
-            <Route component={NoMatch} />
+            {/*<Route component={NoMatch} />*/}
           </Switch>
         </Transition>
       </TransitionGroup>

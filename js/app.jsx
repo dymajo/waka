@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
 import { iOS } from './models/ios.js'
 
-import Index from './views/index.jsx'
+import Index from './views/shell/index.jsx'
 
 import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
