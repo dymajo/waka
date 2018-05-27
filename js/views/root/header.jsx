@@ -7,8 +7,6 @@ import { t } from '../../stores/translationStore.js'
 import StationIcon from '../../../dist/icons/station.svg'
 import SettingsIcon from '../../../dist/icons/settings.svg'
 
-import RegionPopover from './region.jsx'
-
 class RootHeader extends React.Component {
   static propTypes = {
     history: PropTypes.object,
@@ -21,6 +19,9 @@ class RootHeader extends React.Component {
   }
   componentWillUnmount() {
     StationStore.unbind('newcity', this.newcity)
+  }
+  toggleRegion = () => {
+    this.props.history.push('/region')
   }
   triggerSettings = () => {
     if (window.location.pathname === '/settings') {
@@ -40,27 +41,24 @@ class RootHeader extends React.Component {
       secondHeading = t('regions.' + this.state.currentCity + '-long')
     }
 
-    return [
+    return (
       <header key="header" className="material-header branding-header">
         <span className="header-left">
           <StationIcon />
         </span>
-        <div className="header-expand menu" onTouchTap={this.props.toggleRegion}>
+        <div className="header-expand menu" onTouchTap={this.toggleRegion}>
           <h1>
             <strong>{t('app.name')}</strong>
           </h1>
-          <h2>{secondHeading} <small>▼</small></h2>
+          <h2>
+            {secondHeading} <small>▼</small>
+          </h2>
         </div>
         <span className="header-right" onTouchTap={this.triggerSettings}>
           <SettingsIcon />
         </span>
-      </header>,
-      <RegionPopover
-        key="popover"
-        visible={this.props.region}
-        toggle={this.props.toggleRegion}
-      />,
-    ]
+      </header>
+    )
   }
 }
 const RootHeaderWithRouter = withRouter(RootHeader)

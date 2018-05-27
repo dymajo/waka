@@ -8,6 +8,7 @@ import Events from '../../stores/events.js'
 import { Lines } from '../lines/index.jsx'
 import { UiStore } from '../../stores/uiStore.js'
 import { Sponsor } from '../pages/sponsor.jsx'
+import { Region } from '../pages/region.jsx'
 
 const routingEvents = new Events()
 
@@ -92,6 +93,15 @@ class Content extends React.Component {
                 render={() => (
                   <Wrapper>
                     <Sponsor />
+                  </Wrapper>
+                )}
+              />
+              <Route
+                path="/region"
+                exact
+                render={() => (
+                  <Wrapper>
+                    <Region />
                   </Wrapper>
                 )}
               />

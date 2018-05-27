@@ -33,11 +33,10 @@ class Index extends React.Component {
     history: PropTypes.object,
   }
   state = {
-    region: false,
     animate: false,
     showPin: false,
     cardPosition: 'default',
-    delayCard: false
+    delayCard: false,
   }
   constructor(props) {
     super(props)
@@ -82,9 +81,9 @@ class Index extends React.Component {
       }, UiStore.animationTiming + 25)
     }
   }
-  handleNewCardPosition = (position) => {
+  handleNewCardPosition = position => {
     const newState = {
-      cardPosition: position
+      cardPosition: position,
     }
     if (UiStore.state.oldCardPosition === 'default' && position === 'max') {
       newState.delayCard = true
@@ -116,13 +115,8 @@ class Index extends React.Component {
       UiStore.state.cardPosition = newPosition
       this.setState({
         cardPosition: newPosition,
-        delayCard: false
+        delayCard: false,
       })
-    })
-  }
-  toggleRegion = () => {
-    this.setState({
-      region: !this.state.region,
     })
   }
   getSnapAnchor(pos) {
@@ -376,7 +370,11 @@ class Index extends React.Component {
     let className = 'panes'
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
 
-    const rootClassName = 'root-container ' + this.state.cardPosition + '-view' + (this.state.delayCard ? ' delay-transition' : '')
+    const rootClassName =
+      'root-container ' +
+      this.state.cardPosition +
+      '-view' +
+      (this.state.delayCard ? ' delay-transition' : '')
 
     return (
       <div className={className}>
@@ -400,7 +398,6 @@ class Index extends React.Component {
                 <Root
                   togglePin={this.togglePin}
                   toggleStations={this.toggleStations}
-                  toggleRegion={this.toggleRegion}
                 />
               )}
             />
