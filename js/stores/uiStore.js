@@ -12,7 +12,11 @@ export class uiStore extends Events {
       mapView: false,
       fancyMode: false,
       exiting: window.location.pathname,
-      downloadedCss: {}
+      downloadedCss: {},
+      scrollPosition: 0,
+      oldCardPosition: 'default',
+      cardPosition: 'default',
+      headerEvent: null,
     }
 
     // restores history if it's an iphone web clip :/
@@ -29,7 +33,13 @@ export class uiStore extends Events {
     //   }
     // }
   }
-
+  setCardPosition(position, animate = true) {
+    this.state.cardPosition = position
+    this.trigger('card-position', position, animate)
+    setTimeout(() => {
+      this.state.oldCardPosition = position
+    }, 200)
+  }
   handleState = () => {
     this.state.totalNavigations++
     this.state.lastUrl = this.state.currentUrl
@@ -39,8 +49,8 @@ export class uiStore extends Events {
     if (file in this.state.downloadedCss) {
       return
     }
-    fetch('/assets.json').then((response) => {
-      response.json().then((data) => {
+    fetch('/assets.json').then(response => {
+      response.json().then(data => {
         const link = document.createElement('link')
         link.setAttribute('rel', 'stylesheet')
         link.setAttribute('href', '/' + data[file])
@@ -50,7 +60,7 @@ export class uiStore extends Events {
       })
     })
   }
-  setExpandedItem(name) { 
+  setExpandedItem(name) {
     this.trigger('expandChange', name)
   }
   getState() {
@@ -60,14 +70,14 @@ export class uiStore extends Events {
     if (styleType === 'fancy') {
       return {
         entering: {
-          animation: '250ms ss-to-stop-station ease 1'
+          animation: '250ms ss-to-stop-station ease 1',
         },
         exiting: {
           animation: '250ms stop-to-ss-station ease 1',
           transform: 'translate3d(0,15px,0)',
           opacity: '0',
           pointerEvents: 'none',
-        }
+        },
       }
     }
     if (iOS.detect() && window.innerWidth <= 850) {
@@ -80,7 +90,7 @@ export class uiStore extends Events {
           animation: '250ms stop-to-ss-station-ios ease 1',
           transform: 'translate3d(100vw,0,0)',
           pointerEvents: 'none',
-        }
+        },
       }
     }
     return {
@@ -93,7 +103,7 @@ export class uiStore extends Events {
         transform: 'translate3d(0,15px,0)',
         opacity: '0',
         pointerEvents: 'none',
-      }
+      },
     }
   }
   goBack = (history, path, noAnimate = false) => {

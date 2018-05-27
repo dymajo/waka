@@ -1,15 +1,6 @@
 .list-lines {
-  position: absolute;
-  top: $navsize;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: scroll;
-  -ms-overflow-style: -ms-autohiding-scrollbar;
-  -ms-scroll-rails: railed;
-
   h2 {
-    color: #273D52;
+    color: #273d52;
     text-transform: uppercase;
     font-size: 14px;
     margin: 0;
@@ -24,12 +15,13 @@
   }
 
   li {
-
     &:first-child {
       border-top: 1px solid #e4e4e4;
     }
 
-    &:nth-child(1), &:nth-child(2), &:nth-child(3) {
+    &:nth-child(1),
+    &:nth-child(2),
+    &:nth-child(3) {
       .line-item {
         display: flex;
       }
@@ -84,7 +76,7 @@ $left-pad: 80px;
 .line-label {
   display: block;
   flex: 1;
-  color: $atblue;  
+  color: $atblue;
   font-size: 16px;
   letter-spacing: -0.5px;
   overflow: hidden;

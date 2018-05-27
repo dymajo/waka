@@ -105,7 +105,6 @@ class Search extends React.Component {
     positionMarker: [0, 0],
     initialPosition: true,
     findModal: false,
-    showIcons: true,
     loadmap: true,
     online: window.navigator.onLine,
   }
@@ -127,14 +126,7 @@ class Search extends React.Component {
   // stops requesting location when not in use
   componentWillReceiveProps() {
     setTimeout(() => {
-      if (window.location.pathname === '/') {
-        this.setState({
-          showIcons: true,
-        })
-      } else {
-        this.setState({
-          showIcons: false,
-        })
+      if (window.location.pathname !== '/') {
         CurrentLocation.stopWatch()
       }
     }, 300)
@@ -414,9 +406,8 @@ class Search extends React.Component {
       )
     }
 
-    const searchClass = 'search' + (this.state.showIcons ? '' : ' hide-icons')
     return (
-      <div className={searchClass}>
+      <div className="search">
         <div className={findModal}>
           <div className="modal">
             <h2>{t('search.find.title')}</h2>

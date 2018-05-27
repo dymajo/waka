@@ -1,16 +1,18 @@
-$padding-height: 250px;
 $transition: 250ms ease transform;
+$map-transition: 250ms ease opacity;
 
 .root-container {
-  position: fixed;
+  position: absolute;
   width: 100%;
   height: 100vh;
   top: 0;
   left: 0;
   right: 0;
   height: var(--real-height);
+  overflow-y: hidden;
   -webkit-tap-highlight-color: transparent;
   z-index: 0;
+  background: #000;
 
   @media (min-width: 850px) {
     .material-header {
@@ -18,24 +20,26 @@ $transition: 250ms ease transform;
     }
   }
 }
+.root-transition-group {
+  height: 100%;
+  display: flex;
+}
 .root-map {
-  height: calc(100vh - #{$mobilenavsize} - #{$root-card-bar});
-  height: calc(var(--real-height) - #{$mobilenavsize} - #{$root-card-bar});
+  height: calc(100vh - #{$root-card-bar});
+  height: calc(var(--real-height) - #{$root-card-bar});
   background-color: #eee;
-  transform: translate3d(0,calc(56px + 64px - 50vh),0);
-  transform: translate3d(0, calc(56px + 64px - (var(--real-height) / 2)), 0);
-  transition: $transition;
-  will-change: transform;
   position: absolute;
   z-index: 0;
-  top: $mobilenavsize;
+  top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  transition: $map-transition;
 }
+$top-offset: 24px;
 .root-card {
   position: absolute;
-  top: 0;
+  top: $top-offset;
   left: 0;
   right: 0;
   bottom: 0;
@@ -43,121 +47,107 @@ $transition: 250ms ease transform;
   box-sizing: border-box;
   transition: $transition;
   will-change: scroll, transform;
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
+  box-shadow: rgba(#000, 0.4) 0 0 3px;
 
   -ms-scroll-rails: railed;
   -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+.delay-transition .root-card {
+  transition: 150ms ease-out transform;
+  transition-delay: 150ms;
 }
 .root-card-content {
   background: #eee;
   min-height: 50vh;
 }
-// only applies to mobile touch devices
-@media (max-width: 850px) {
-.root-card {
-  z-index: 1;
-
-  &.pan-lock {
-    touch-action: pan-down;
+.max-view {
+  .root-map {
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .root-card {
+    background: #eee;
   }
 }
 .map-view {
-  .root-map {
-    transform: translate3d(0,0,0);
-  }
-  $pad: 25px;
   .root-card {
-    top: $padding-height - $pad;
-    overflow-y: hidden;
-    transform: translate3d(0,calc(100vh - #{$root-card-bar} - #{$padding-height}),0);
-    transform: translate3d(0,calc(var(--real-height) - #{$root-card-bar} - #{$padding-height}),0);
+    box-shadow: none;
   }
-
-  .root-card-content {
-    box-sizing: border-box;
-    width: 100%;
-  }
-
-  .root-card-padding-button {
-    height: $pad;
+  .root-card-wrapper {
+    box-shadow: rgba(#000, 0.4) 0 0 3px;
   }
 }
+
+$max-position: 0;
+$default-position: 300px;
+$min-position: 0;
+
+// only applies to mobile touch devices
+@media (max-width: 850px) {
+  .root-card {
+    z-index: 1;
+
+    &.pan-lock {
+      touch-action: pan-down;
+    }
+  }
+  .default-view {
+    $pad: 25px;
+    .root-card {
+      overflow-y: hidden;
+      transform: translate3d(
+        0,
+        calc(100vh - #{$root-card-bar} - #{$default-position}),
+        0
+      );
+      transform: translate3d(
+        0,
+        calc(var(--real-height) - #{$root-card-bar} - #{$default-position}),
+        0
+      );
+    }
+  }
+  .map-view {
+    $pad: 25px;
+    .root-card {
+      overflow-y: hidden;
+      transform: translate3d(
+        0,
+        calc(100vh - #{$root-card-bar - $max-position - $top-offset - $pad}),
+        0
+      );
+      transform: translate3d(
+        0,
+        calc(
+          var(--real-height) - #{$root-card-bar + $max-position + $top-offset +
+            $pad}
+        ),
+        0
+      );
+    }
+
+    .root-card-content {
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .root-card-padding-button {
+      height: $pad;
+    }
+  }
 }
 .root-card-padding-button {
-  height: $padding-height;
-}
-.root-card-bar {
-  touch-action: none;
-  height: $root-card-bar;
-  display: flex;
-  background: #eee;
-  box-shadow:  0 0 3px rgba(#000,0.4);
-  // border-bottom: 1px solid #e4e4e4;
-  max-width: 480px;
-  margin: 0 auto;
-
-  button, a {
-    display: block;
-    flex: 1;
-    background: #fff;
-    border: 0;
-    border-left: 1px solid #e4e4e4;
-    margin: 0;
-    outline: 0;
-    text-transform: uppercase;
-    font-weight: bold;
-    color: $atblue;
-    font-size: 12px;
-    padding-top: 3px;
-    -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 1px 0 #ddd;
-    text-align: center;
-    text-decoration: none;
-
-    @media (pointer: fine) {
-      &:hover {
-        background: #f7f7f7;
-      }
-    }
-
-    &:active {
-      background: #f5fafe;
-    }
-
-    svg {
-      display: block;
-      margin: -2px auto 2px;
-      fill: $atblue;
-    }
-    img {
-      display: block;
-      margin: 4px auto 2px;
-    }
-
-    &:first-child {
-      border-left: 0;
-    }
-  }
+  height: $max-position;
 }
 @media (min-width: 481px) {
   .root-card-content {
     position: relative;
     padding: 0 10vw;
   }
-  .root-card-bar {
-    position: relative;
-    z-index: 1;
-    border-bottom: 0;
-    box-shadow:  0 1px 3px rgba(#000,0.3);
-    transform: translate3d(0, -8px, 0);
-
-    button, a {
-      box-shadow: none;
-    }
-  }
   .root-card-content::before {
-    content: "";
+    content: '';
     top: $root-card-bar * -1;
     left: 0;
     background: #eee;
@@ -178,12 +168,12 @@ $transition: 250ms ease transform;
   .root-card {
     width: $sidebar-width;
     top: $mobilenavsize;
-    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
   }
   .root-card-content {
     padding: 0;
   }
-  .root-card-padding-button, .root-card-bar {
+  .root-card-padding-button {
     display: none;
   }
   .root-map {
