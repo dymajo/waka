@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
+import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
 import { vars, paragraphStyles } from '../../styles.js'
 
@@ -9,6 +10,9 @@ import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 import { LinkButton } from '../reusable/linkButton.jsx'
 
 export class Sponsor extends React.Component {
+  componentWillMount() {
+    UiStore.setCardPosition('max')
+  }
   componentDidMount() {
     document.title = t('sponsor.title') + ' - ' + t('app.name')
   }

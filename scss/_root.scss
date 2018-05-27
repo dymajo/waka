@@ -54,6 +54,10 @@ $top-offset: 24px;
   -ms-scroll-rails: railed;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
+.delay-transition .root-card {
+  transition: 150ms ease-out transform;
+  transition-delay: 150ms;
+}
 .root-card-content {
   background: #eee;
   min-height: 50vh;
