@@ -7,6 +7,7 @@ $map-position-transform: translate3d(0, $map-position, 0);
 $max-position: 100vh;
 $max-position-transform: translate3d(0, $max-position, 0);
 
+// TODO: Lots of these are the same maybe we should optimize a little.
 // ENTER
 @keyframes shell-max-enter-max {
   0% {
@@ -17,6 +18,14 @@ $max-position-transform: translate3d(0, $max-position, 0);
   }
 }
 @keyframes shell-max-enter-default {
+  0% {
+    transform: $default-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-default-enter-max {
   0% {
     transform: $default-position-transform;
   }
@@ -85,7 +94,7 @@ $max-position-transform: translate3d(0, $max-position, 0);
   }
   &.max-position-max {
     &.direction-forward.entering {
-      animation: 250ms ease shell-max-enter-max 1;
+      animation: 300ms ease shell-max-enter-max 1;
     }
     &.direction-backward {
       &.exiting,
@@ -93,7 +102,7 @@ $max-position-transform: translate3d(0, $max-position, 0);
         transform: $max-position-transform;
       }
       &.exiting {
-        animation: 250ms ease shell-max-exit-max 1;
+        animation: 300ms ease shell-max-exit-max 1;
       }
     }
   }
@@ -101,6 +110,11 @@ $max-position-transform: translate3d(0, $max-position, 0);
     &.direction-forward.entering {
       animation: 250ms ease shell-max-enter-default 1;
       animation-delay: 100ms;
+    }
+  }
+  &.default-position-max {
+    &.direction-forward.entering {
+      animation: 150ms ease-in shell-default-enter-max 1;
     }
   }
   &.default-position-default {

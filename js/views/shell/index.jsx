@@ -37,6 +37,7 @@ class Index extends React.Component {
     animate: false,
     showPin: false,
     cardPosition: 'default',
+    delayCard: false
   }
   constructor(props) {
     super(props)
@@ -82,9 +83,15 @@ class Index extends React.Component {
     }
   }
   handleNewCardPosition = (position) => {
-    this.setState({
-      cardPosition: position,
-    })
+    const newState = {
+      cardPosition: position
+    }
+    if (UiStore.state.oldCardPosition === 'default' && position === 'max') {
+      newState.delayCard = true
+    } else {
+      newState.delayCard = false
+    }
+    this.setState(newState)
   }
   togglePin = () => {
     this.setState({
@@ -109,6 +116,7 @@ class Index extends React.Component {
       UiStore.state.cardPosition = newPosition
       this.setState({
         cardPosition: newPosition,
+        delayCard: false
       })
     })
   }
@@ -368,7 +376,7 @@ class Index extends React.Component {
     let className = 'panes'
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
 
-    const rootClassName = 'root-container ' + this.state.cardPosition + '-view'
+    const rootClassName = 'root-container ' + this.state.cardPosition + '-view' + (this.state.delayCard ? ' delay-transition' : '')
 
     return (
       <div className={className}>
