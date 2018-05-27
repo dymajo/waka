@@ -25,8 +25,8 @@ $map-transition: 250ms ease opacity;
   display: flex;
 }
 .root-map {
-  height: calc(100vh - #{$root-card-bar});
-  height: calc(var(--real-height) - #{$root-card-bar});
+  height: 100vh;
+  height: var(--real-height);
   background-color: #eee;
   position: absolute;
   z-index: 0;
@@ -180,6 +180,5 @@ $min-position: 0;
     transform: none;
     padding-left: $sidebar-width;
     height: 100vh;
-    margin-top: -$mobilenavsize;
   }
 }

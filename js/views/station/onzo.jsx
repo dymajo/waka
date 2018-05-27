@@ -36,9 +36,11 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     padding: '10px',
     marginBottom: '20px',
-    borderTop: '1px solid rgba(0,0,0,0.25)',
+    borderTopWidth: '1px',
+    borderTopStyle: 'solid',
+    borderTopColor: 'rgba(0,0,0,0.25)',
   },
-  onzoHeader: { color: 'black', fontSize: '36px', fontWeight: 600 },
+  onzoHeader: { color: 'black', fontSize: '36px', fontWeight: '600' },
   onzoUpdated: {},
 })
 

@@ -27,6 +27,9 @@ class RootView extends React.Component {
     }
     this.props.history.push('/l/' + StationStore.currentCity)
   }
+  toggleRegion = () => {
+    this.props.history.push('/region')
+  }
   triggerTouchStart = e => {
     UiStore.state.headerEvent = e.target
   }
@@ -52,7 +55,7 @@ class RootView extends React.Component {
         <LinkedScroll>
           <RootContent
             togglePin={this.props.togglePin}
-            toggleRegion={this.props.toggleRegion}
+            toggleRegion={this.toggleRegion}
           />
         </LinkedScroll>
       </View>
