@@ -11,7 +11,6 @@ import Settings from './settings.jsx'
 import TestLines from './test_lines.jsx'
 import Timetable from './timetable.jsx'
 import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
-import NoMatch from './nomatch.jsx'
 
 class RouterRender extends React.Component {
   static propTypes = {
@@ -59,7 +58,6 @@ class RouterRender extends React.Component {
 
             <Route path="/settings" component={Settings} />
             <Route path="/testlines" component={TestLines} />
-            {/*<Route component={NoMatch} />*/}
           </Switch>
         </Transition>
       </TransitionGroup>

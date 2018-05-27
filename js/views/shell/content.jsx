@@ -9,6 +9,7 @@ import { Lines } from '../lines/index.jsx'
 import { UiStore } from '../../stores/uiStore.js'
 import { Sponsor } from '../pages/sponsor.jsx'
 import { Region } from '../pages/region.jsx'
+import { NoMatch } from '../pages/nomatch.jsx'
 
 const routingEvents = new Events()
 
@@ -49,6 +50,13 @@ class Wrapper extends React.Component {
   }
 }
 
+// this is just a nice alias to use in the render in the switch
+const wrapFn = Child => () => (
+  <Wrapper>
+    <Child />
+  </Wrapper>
+)
+
 class Content extends React.Component {
   static propTypes = {
     rootComponent: PropTypes.func,
@@ -78,33 +86,10 @@ class Content extends React.Component {
               key={this.props.location.key}
             >
               <Route path="/" exact render={this.props.rootComponent} />
-              <Route
-                path="/l/:region"
-                exact
-                render={() => (
-                  <Wrapper>
-                    <Lines />
-                  </Wrapper>
-                )}
-              />
-              <Route
-                path="/sponsor"
-                exact
-                render={() => (
-                  <Wrapper>
-                    <Sponsor />
-                  </Wrapper>
-                )}
-              />
-              <Route
-                path="/region"
-                exact
-                render={() => (
-                  <Wrapper>
-                    <Region />
-                  </Wrapper>
-                )}
-              />
+              <Route path="/l/:region" exact render={wrapFn(Lines)} />
+              <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
+              <Route path="/region" exact render={wrapFn(Region)} />
+              <Route render={wrapFn(NoMatch)} />
             </Switch>
           </Transition>
         </TransitionGroup>
