@@ -96,55 +96,10 @@ $bgheight: 125px;
   }
 }
 
-.station {
-  .material-header {
-    position: fixed;
-    width: 100%;
-  }
-  // stops the fixed position header from overflowing
-  .trip-content {
-    box-sizing: border-box;
-    padding-top: $mobilenavsize;
-    min-height: 100vh;
-    min-height: var(--real-height);
-    background: $default-back;
-  }
-
-  &.fancy {
-    .station-spacer {
-      height: calc(var(--real-height) + 5px);
-    }
-    .material-header {
-      position: -webkit-sticky;
-      position: sticky;
-      top: 0;
-      height: $mobilenavsize + 10px;
-
-      h1 {
-        padding-top: 14px;
-      }
-    }
-    .trip-content {
-      padding-top: 0;
-      min-height: 0;
-    }
-  }
-}
-
 @media (min-width: 851px) {
   .content {
     &:empty {
       pointer-events: none;
-    }
-  }
-  .station {
-    width: $sidebar-width;
-
-    .material-header {
-      position: absolute;
-      max-width: 350px;
-      box-shadow: none;
-      border-bottom: 1px solid #ddd;
     }
   }
 }

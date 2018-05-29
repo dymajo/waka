@@ -5,6 +5,7 @@ import { withRouter, Switch, Route } from 'react-router-dom'
 import { TransitionGroup, Transition } from 'react-transition-group'
 
 import Events from '../../stores/events.js'
+import { Station } from '../station/index.jsx'
 import { Lines } from '../lines/index.jsx'
 import { UiStore } from '../../stores/uiStore.js'
 import { Sponsor } from '../pages/sponsor.jsx'
@@ -86,6 +87,11 @@ class Content extends React.Component {
               key={this.props.location.key}
             >
               <Route path="/" exact render={this.props.rootComponent} />
+              <Route
+                path="/s/:region/:station"
+                exact
+                render={wrapFn(Station)}
+              />
               <Route path="/l/:region" exact render={wrapFn(Lines)} />
               <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
               <Route path="/region" exact render={wrapFn(Region)} />

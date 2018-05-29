@@ -67,19 +67,6 @@ export class uiStore extends Events {
     return this.state
   }
   getAnimation(styleType) {
-    if (styleType === 'fancy') {
-      return {
-        entering: {
-          animation: '250ms ss-to-stop-station ease 1',
-        },
-        exiting: {
-          animation: '250ms stop-to-ss-station ease 1',
-          transform: 'translate3d(0,15px,0)',
-          opacity: '0',
-          pointerEvents: 'none',
-        },
-      }
-    }
     if (iOS.detect() && window.innerWidth <= 850) {
       return {
         entering: {
