@@ -17,22 +17,16 @@ const tripDelay = 3 * 6000
 class TripItem extends React.Component {
   constructor(props) {
     super(props)
-    this.triggerClick = this.triggerClick.bind(this)
-    this.triggerMap = this.triggerMap.bind(this)
-    this.triggerTimetable = this.triggerTimetable.bind(this)
-    this.expandChange = this.expandChange.bind(this)
+    UiStore.bind('expandChange', this.expandChange)
 
     this.state = {
       expanded: false,
     }
   }
-  componentWillMount() {
-    UiStore.bind('expandChange', this.expandChange)
-  }
   componentWillUnmount() {
     UiStore.unbind('expandChange', this.expandChange)
   }
-  triggerClick() {
+  triggerClick = () => {
     UiStore.setExpandedItem([
       this.props.collection[0].trip_id,
       this.props.index,
@@ -58,7 +52,7 @@ class TripItem extends React.Component {
     ].join('/')
     this.props.history.push(url + i.route_short_name + '-' + i.direction_id)
   }
-  expandChange(item) {
+  expandChange = item => {
     if (item[0] === this.props.collection[0].trip_id) {
       this.setState({
         expanded: !this.state.expanded,

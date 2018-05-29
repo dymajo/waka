@@ -36,7 +36,6 @@ class RegionWithoutRouter extends React.Component {
       <TouchableOpacity
         key={city}
         onClick={this.changeCity(city)}
-        onPress={this.changeCity(city)}
         activeOpacity={0.8}
       >
         <ImageBackground

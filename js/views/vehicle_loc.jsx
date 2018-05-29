@@ -74,6 +74,7 @@ class vehicle_location extends React.Component {
     }
     this.currentLine = null
     this.requestingRealtime = false
+    UiStore.downloadCss('maps.css')
   }
   getShapeData = (newProps = this.props) => {
     let showIcons = true
@@ -167,9 +168,6 @@ class vehicle_location extends React.Component {
       this.getWKB(newProps)
       CurrentLocation.stopWatch()
     }
-  }
-  componentWillMount() {
-    UiStore.downloadCss('maps.css')
   }
   componentDidMount() {
     CurrentLocation.bind('pinmove', this.pinmove)

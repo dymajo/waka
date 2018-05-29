@@ -35,7 +35,6 @@ class Header extends React.Component {
           <TouchableOpacity
             style={styles.close}
             onClick={this.props.backFn || this.triggerBack}
-            onPress={this.props.backFn || this.triggerBack}
           >
             <View style={styles.closeIcon}>
               <CloseIcon style={{ fill: vars.headerColor }} />
