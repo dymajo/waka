@@ -390,10 +390,7 @@ class StationView extends React.Component {
       loading = (
         <div className="error">
           <p>{this.state.error}</p>
-          <button
-            className="nice-button primary"
-            onTouchTap={this.triggerRetry}
-          >
+          <button className="nice-button primary" onClick={this.triggerRetry}>
             {t('app.errorRetry')}
           </button>
         </div>

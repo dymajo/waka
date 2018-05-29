@@ -5,9 +5,6 @@ import { iOS } from './models/ios.js'
 
 import Index from './views/shell/index.jsx'
 
-import injectTapEventPlugin from 'react-tap-event-plugin'
-injectTapEventPlugin()
-
 import smoothscroll from 'smoothscroll-polyfill'
 smoothscroll.polyfill()
 
@@ -33,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
 let startApp = function() {
   window.defaultContent = [
     window.location.pathname,
-    (document.querySelector('.default-container') || {}).innerHTML || null
+    (document.querySelector('.default-container') || {}).innerHTML || null,
   ]
   ReactDOM.render(<App />, document.getElementById('app'))
 }

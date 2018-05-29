@@ -72,7 +72,7 @@ export class Pin extends React.Component {
     var output = (
       <div className="other">
         <p>We don't know what browser you're using. 😕😕😕</p>
-        <button className="nice-button primary" onTouchTap={this.triggerClose}>
+        <button className="nice-button primary" onClick={this.triggerClose}>
           Maybe next time.
         </button>
       </div>
@@ -95,7 +95,7 @@ export class Pin extends React.Component {
             <button
               className="nice-button primary clipboardcopy"
               data-clipboard-text="https://getwaka.com"
-              onTouchTap={this.triggerClipboard}
+              onClick={this.triggerClipboard}
             >
               {linktext}
             </button>
@@ -110,10 +110,7 @@ export class Pin extends React.Component {
               Tap the <img src="/icons/ios-share.png" alt="share" /> button,
               then tap <strong>add to home screen</strong>.
             </p>
-            <button
-              className="nice-button primary"
-              onTouchTap={this.triggerClose}
-            >
+            <button className="nice-button primary" onClick={this.triggerClose}>
               Thanks!
             </button>
           </div>
@@ -131,7 +128,7 @@ export class Pin extends React.Component {
             <button
               className="nice-button primary clipboardcopy"
               data-clipboard-text="https://getwaka.com"
-              onTouchTap={this.triggerClipboard}
+              onClick={this.triggerClipboard}
             >
               {linktext}
             </button>
@@ -147,7 +144,7 @@ export class Pin extends React.Component {
             <button
               className="nice-button primary clipboardcopy"
               data-clipboard-text="https://getwaka.com"
-              onTouchTap={this.triggerClipboard}
+              onClick={this.triggerClipboard}
             >
               {linktext}
             </button>
@@ -160,10 +157,7 @@ export class Pin extends React.Component {
               Tap the <img src="/icons/android-menu.png" alt="share" /> button,
               then tap <strong>add to home screen</strong>.
             </p>
-            <button
-              className="nice-button primary"
-              onTouchTap={this.triggerClose}
-            >
+            <button className="nice-button primary" onClick={this.triggerClose}>
               Thanks!
             </button>
           </div>
@@ -176,10 +170,7 @@ export class Pin extends React.Component {
           <p>
             Tap the dots button, then tap <strong>pin to start</strong>.
           </p>
-          <button
-            className="nice-button primary"
-            onTouchTap={this.triggerClose}
-          >
+          <button className="nice-button primary" onClick={this.triggerClose}>
             Thanks!
           </button>
         </div>
@@ -216,7 +207,7 @@ export class Pin extends React.Component {
       desktopOut = (
         <div>
           <h3>Thanks! You should receive an email shortly.</h3>
-          <button onTouchTap={this.triggerClose}>Close</button>
+          <button onClick={this.triggerClose}>Close</button>
         </div>
       )
     }

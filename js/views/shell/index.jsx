@@ -391,7 +391,7 @@ class Index extends React.Component {
           >
             <div
               className="root-card-padding-button"
-              onTouchTap={this.toggleStations}
+              onClick={this.toggleStations}
             />
             <ContentView
               rootComponent={() => (

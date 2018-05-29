@@ -26,10 +26,12 @@ const iconMap = {
 class Header extends React.Component {
   constructor(props) {
     super(props)
-    this.state.checked = this.props.match.params.station.split('+').reduce((result, item) => {
-      result[this.props.match.params.region + '|' + item] = true
-      return result
-    }, {})
+    this.state.checked = this.props.match.params.station
+      .split('+')
+      .reduce((result, item) => {
+        result[this.props.match.params.region + '|' + item] = true
+        return result
+      }, {})
   }
   static propTypes = {
     name: PropTypes.string,
@@ -37,16 +39,16 @@ class Header extends React.Component {
     fancy: PropTypes.bool,
     icon: PropTypes.string,
     history: PropTypes.object,
-    match: PropTypes.object
+    match: PropTypes.object,
   }
   state = {
     saveModal: null,
     name: '',
-    checked: {}
+    checked: {},
   }
   componentWillReceiveProps(newProps) {
     this.setState({
-      name: newProps.name
+      name: newProps.name,
     })
   }
   getName(name) {
@@ -66,18 +68,18 @@ class Header extends React.Component {
       const checked = JSON.parse(JSON.stringify(this.state.checked))
       checked[item] = e.currentTarget.checked
       this.setState({
-        checked: checked
+        checked: checked,
       })
     }
   }
   triggerSave = () => {
     this.setState({
-      saveModal: true
+      saveModal: true,
     })
   }
   triggerSaveAdd = () => {
     this.setState({
-      saveModal: false
+      saveModal: false,
     })
 
     const stations = []
@@ -110,7 +112,7 @@ class Header extends React.Component {
   }
   triggerSaveChange = e => {
     this.setState({
-      name: e.currentTarget.value
+      name: e.currentTarget.value,
     })
   }
   triggerRemove = () => {
@@ -125,7 +127,7 @@ class Header extends React.Component {
     const regionStop = region + '|' + stop
 
     let topIcon = (
-      <span className="header-left" onTouchTap={this.triggerBack}>
+      <span className="header-left" onClick={this.triggerBack}>
         <BackIcon />
       </span>
     )
@@ -147,7 +149,7 @@ class Header extends React.Component {
       if (this.props.match.params.station.split('+').length > 1) {
         name = this.state.name
         iconStr = t('savedStations.stops', {
-          number: stop.split('+').join(', ')
+          number: stop.split('+').join(', '),
         })
       }
     }
@@ -161,21 +163,21 @@ class Header extends React.Component {
     if (StationStore.getOrder().indexOf(regionStop) === -1) {
       modalHeader = t('stationedit.title2')
       saveButton = (
-        <span className="header-right save" onTouchTap={this.triggerSave}>
+        <span className="header-right save" onClick={this.triggerSave}>
           <UnsavedIcon />
         </span>
       )
     } else {
       modalHeader = t('stationedit.title')
       saveButton = (
-        <span className="header-right remove" onTouchTap={this.triggerSave}>
+        <span className="header-right remove" onClick={this.triggerSave}>
           <SavedIcon />
         </span>
       )
 
       if (this.props.match.params.station.split('+').length === 1) {
         removeBtn = (
-          <button className="inline" onTouchTap={this.triggerRemove}>
+          <button className="inline" onClick={this.triggerRemove}>
             Remove Stop
           </button>
         )
@@ -238,10 +240,10 @@ class Header extends React.Component {
             {combined}
             {removeBtn}
           </div>
-          <button className="cancel" onTouchTap={this.triggerSaveCancel}>
+          <button className="cancel" onClick={this.triggerSaveCancel}>
             {t('stationedit.cancel')}
           </button>
-          <button className="submit" onTouchTap={this.triggerSaveAdd}>
+          <button className="submit" onClick={this.triggerSaveAdd}>
             {t('stationedit.confirm')}
           </button>
         </div>
@@ -253,7 +255,7 @@ class Header extends React.Component {
           <h2>{iconStr}</h2>
         </div>
         {saveButton}
-      </header>
+      </header>,
     ]
   }
 }

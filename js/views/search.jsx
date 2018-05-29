@@ -322,7 +322,7 @@ class Search extends React.Component {
       button1 = (
         <button
           className="circle-button blue-button bottom-button"
-          onTouchTap={this.toggleFind}
+          onClick={this.toggleFind}
           aria-label="Find Stop"
           title="Find Stop"
         >
@@ -332,7 +332,7 @@ class Search extends React.Component {
       button2 = (
         <button
           className="circle-button top-button"
-          onTouchTap={this.triggerCurrentLocation}
+          onClick={this.triggerCurrentLocation}
           aria-label="Locate Me"
         >
           <LocateIcon />
@@ -423,10 +423,10 @@ class Search extends React.Component {
                 ref={e => (this.searchInput = e)}
               />
             </div>
-            <button className="cancel" onTouchTap={this.toggleFind}>
+            <button className="cancel" onClick={this.toggleFind}>
               {t('search.find.cancel')}
             </button>
-            <button className="submit" onTouchTap={this.triggerSearch}>
+            <button className="submit" onClick={this.triggerSearch}>
               {t('search.find.confirm')}
             </button>
           </div>

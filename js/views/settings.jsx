@@ -98,7 +98,7 @@ class Settings extends React.Component {
       className += ' visible'
     } else {
       button = (
-        <button onTouchTap={this.triggerCredits}>
+        <button onClick={this.triggerCredits}>
           <CreditsIcon />
           {t('settings.more.credits')}
         </button>

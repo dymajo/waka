@@ -46,7 +46,7 @@ class RootHeader extends React.Component {
         <span className="header-left">
           <StationIcon />
         </span>
-        <div className="header-expand menu" onTouchTap={this.toggleRegion}>
+        <div className="header-expand menu" onClick={this.toggleRegion}>
           <h1>
             <strong>{t('app.name')}</strong>
           </h1>
@@ -54,7 +54,7 @@ class RootHeader extends React.Component {
             {secondHeading} <small>▼</small>
           </h2>
         </div>
-        <span className="header-right" onTouchTap={this.triggerSettings}>
+        <span className="header-right" onClick={this.triggerSettings}>
           <SettingsIcon />
         </span>
       </header>
