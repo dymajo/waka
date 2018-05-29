@@ -10,7 +10,8 @@ import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 import { LinkButton } from '../reusable/linkButton.jsx'
 
 export class Sponsor extends React.Component {
-  componentWillMount() {
+  constructor(props) {
+    super(props)
     UiStore.setCardPosition('max')
   }
   componentDidMount() {

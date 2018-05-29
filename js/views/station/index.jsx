@@ -44,6 +44,10 @@ class StationView extends React.Component {
     definedOrder: [],
     updated: undefined,
   }
+  constructor(props) {
+    super(props)
+    UiStore.setCardPosition('default')
+  }
 
   triggerUpdate = () => {
     this.getData(this.props, false)
@@ -250,9 +254,6 @@ class StationView extends React.Component {
   }
   triggerBack = () => {
     UiStore.goBack(this.props.history, '/')
-  }
-  componentWillMount() {
-    UiStore.setCardPosition('default')
   }
   componentDidMount() {
     StationStore.bind('change', this.triggerUpdate)

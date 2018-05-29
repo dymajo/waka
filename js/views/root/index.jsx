@@ -21,6 +21,10 @@ class RootView extends React.Component {
     location: PropTypes.object,
     history: PropTypes.object,
   }
+  constructor(props) {
+    super(props)
+    document.title = t('app.name')
+  }
   toggleLines = () => {
     if (this.props.location.pathname !== '/') {
       return
@@ -42,12 +46,12 @@ class RootView extends React.Component {
         >
           <TouchableOpacity
             style={[styles.button, styles.rightBorder]}
-            onPress={() => this.props.toggleStations('toggle')}
+            onClick={() => this.props.toggleStations('toggle')}
           >
             <StationIcon style={{ margin: 'auto' }} />
             <Text style={styles.text}>{t('root.stationsLabel')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={this.toggleLines}>
+          <TouchableOpacity style={styles.button} onClick={this.toggleLines}>
             <LinesIcon style={{ margin: 'auto' }} />
             <Text style={styles.text}>{t('root.linesLabel')}</Text>
           </TouchableOpacity>

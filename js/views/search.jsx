@@ -108,7 +108,8 @@ class Search extends React.Component {
     loadmap: true,
     online: window.navigator.onLine,
   }
-  componentWillMount() {
+  constructor(props) {
+    super(props)
     UiStore.downloadCss('maps.css')
   }
   componentDidMount() {

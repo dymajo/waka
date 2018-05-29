@@ -68,19 +68,6 @@ class Index extends React.Component {
     this.touchcard.addEventListener('scroll', this.triggerScroll)
     this.touchcard.addEventListener('touchmove', this.triggerTouchMove)
   }
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.location.pathname === '/') {
-      document.title = t('app.name')
-    }
-    const n = nextProps.location.pathname
-    const p = this.props.location.pathname
-    if (n.split('/')[1] !== p.split('/')[1] && n.length > 2 && p.length > 2) {
-      UiStore.state.canAnimate = false
-      setTimeout(() => {
-        UiStore.state.canAnimate = true
-      }, UiStore.animationTiming + 25)
-    }
-  }
   handleNewCardPosition = position => {
     const newState = {
       cardPosition: position,

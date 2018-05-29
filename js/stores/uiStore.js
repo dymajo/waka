@@ -5,7 +5,6 @@ export class uiStore extends Events {
   constructor(props) {
     super(props)
     this.state = {
-      canAnimate: false,
       totalNavigations: 0,
       lastUrl: null,
       currentUrl: null,
