@@ -77,7 +77,7 @@ class SidebarItemVanilla extends React.Component {
       classname += ' selected'
     }
     let item = (
-      <li className={classname} onTouchTap={this.triggerTap}>
+      <li className={classname} onClick={this.triggerTap}>
         <div className="icon">{this.getIcon(this.props.icon)}</div>
         <div className="text-wrapper">
           <h3 className="name">{this.props.name}</h3>

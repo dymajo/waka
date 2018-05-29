@@ -24,6 +24,11 @@ class LinesView extends React.Component {
     friendlyNames: {},
   }
 
+  constructor(props) {
+    super(props)
+    UiStore.setCardPosition('default')
+  }
+
   triggerGroup = group => {
     return e => {
       e.preventDefault()
@@ -37,9 +42,6 @@ class LinesView extends React.Component {
         groupShow: groupShow,
       })
     }
-  }
-  componentWillMount() {
-    UiStore.setCardPosition('default')
   }
   componentDidMount() {
     document.title =
@@ -98,14 +100,14 @@ class LinesView extends React.Component {
     e.preventDefault()
   }
   hijack = link => {
-    return () => {
+    return e => {
+      e.preventDefault()
       this.props.history.push(link)
     }
   }
 
   render() {
     let ret
-    let className = 'list-lines'
     // there needs to be a sorting function in here probably
     if (this.state.groups !== null && this.state.error === null) {
       ret = []
@@ -145,8 +147,7 @@ class LinesView extends React.Component {
               <a
                 className="line-item"
                 href={`/l/${this.props.match.params.region}/${item}`}
-                onClick={this.disable}
-                onTouchTap={this.hijack(
+                onClick={this.hijack(
                   `/l/${this.props.match.params.region}/${item}`
                 )}
               >
@@ -175,7 +176,7 @@ class LinesView extends React.Component {
           <li
             className="line-item expand"
             key={group.name + 'expand'}
-            onTouchTap={this.triggerGroup(group.name)}
+            onClick={this.triggerGroup(group.name)}
           >
             {label}
           </li>

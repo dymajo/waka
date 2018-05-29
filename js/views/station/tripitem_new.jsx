@@ -23,7 +23,7 @@ class TripItem extends React.Component {
     this.expandChange = this.expandChange.bind(this)
 
     this.state = {
-      expanded: false
+      expanded: false,
     }
   }
   componentWillMount() {
@@ -33,26 +33,39 @@ class TripItem extends React.Component {
     UiStore.unbind('expandChange', this.expandChange)
   }
   triggerClick() {
-    UiStore.setExpandedItem([this.props.collection[0].trip_id, this.props.index])
+    UiStore.setExpandedItem([
+      this.props.collection[0].trip_id,
+      this.props.index,
+    ])
   }
   triggerMap = () => {
     const i = this.props.collection[0]
-    const url = ['/s', this.props.match.params.region, i.station, 'realtime/'].join('/')
+    const url = [
+      '/s',
+      this.props.match.params.region,
+      i.station,
+      'realtime/',
+    ].join('/')
     this.props.history.push(url + i.trip_id)
   }
   triggerTimetable = () => {
     const i = this.props.collection[0]
-    const url = ['/s', this.props.match.params.region, i.station, 'timetable/'].join('/')
+    const url = [
+      '/s',
+      this.props.match.params.region,
+      i.station,
+      'timetable/',
+    ].join('/')
     this.props.history.push(url + i.route_short_name + '-' + i.direction_id)
   }
   expandChange(item) {
-    if (item[0] === this.props.collection[0].trip_id) { 
+    if (item[0] === this.props.collection[0].trip_id) {
       this.setState({
-        expanded: !this.state.expanded
+        expanded: !this.state.expanded,
       })
     } else if (this.state.expanded === true) {
       this.setState({
-        expanded: false
+        expanded: false,
       })
     }
   }
@@ -64,32 +77,52 @@ class TripItem extends React.Component {
     const direction = <DirectionIcon className={'direction ' + dir} />
     const background = trip.route_color
     let via = trip.route_long_name.split('Via')
-    if (via.length > 1 && (SettingsStore.getState().longName === true || this.props.vias)) {
-      via = <small>{t('tripitem.via', {location: via[1].split(' And')[0]})}</small>
+    if (
+      via.length > 1 &&
+      (SettingsStore.getState().longName === true || this.props.vias)
+    ) {
+      via = (
+        <small>
+          {t('tripitem.via', { location: via[1].split(' And')[0] })}
+        </small>
+      )
     } else {
       via = null
     }
 
     let route_class = ''
     let route_style = {}
-    if (route_code === 'EAST' || route_code === 'WEST' || route_code === 'ONE' || route_code === 'STH' || route_code === 'PUK' || route_code === 'NEX') {
-      route_code = route_code.slice(0,1)
+    if (
+      route_code === 'EAST' ||
+      route_code === 'WEST' ||
+      route_code === 'ONE' ||
+      route_code === 'STH' ||
+      route_code === 'PUK' ||
+      route_code === 'NEX'
+    ) {
+      route_code = route_code.slice(0, 1)
       if (route_code === 'P') {
         route_code = 'S'
       }
       route_class = 'cf'
-      route_style = {color: background}
-    } else if (isNaN(parseInt(route_code.slice(0,1)))) {
+      route_style = { color: background }
+    } else if (isNaN(parseInt(route_code.slice(0, 1)))) {
       route_class = 'text'
     }
 
     this.props.collection.sort((a, b) => {
       let aTime = a.departure_time_seconds
       let bTime = b.departure_time_seconds
-      if (this.props.realtime[a.trip_id] && this.props.realtime[a.trip_id].delay) {
+      if (
+        this.props.realtime[a.trip_id] &&
+        this.props.realtime[a.trip_id].delay
+      ) {
         aTime = aTime + this.props.realtime[a.trip_id].delay
       }
-      if (this.props.realtime[b.trip_id] && this.props.realtime[b.trip_id].delay) {
+      if (
+        this.props.realtime[b.trip_id] &&
+        this.props.realtime[b.trip_id].delay
+      ) {
         bTime = bTime + this.props.realtime[b.trip_id].delay
       }
       return aTime - bTime
@@ -97,7 +130,7 @@ class TripItem extends React.Component {
 
     const times = []
     const offsetTime = new Date().getTime() + StationStore.offsetTime
-    this.props.collection.forEach((trip) => {
+    this.props.collection.forEach(trip => {
       const arrival = new Date(offsetTime)
       arrival.setHours(0)
       arrival.setMinutes(0)
@@ -107,32 +140,61 @@ class TripItem extends React.Component {
       let date = Math.round((arrival - new Date(offsetTime)) / 60000)
 
       // calculates the realtime component
-      if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].delay) {
-        arrival.setSeconds(arrival.getSeconds() + (this.props.realtime[trip.trip_id].delay))
-        let time = Math.abs(Math.round((arrival.getTime()-new Date(offsetTime).getTime())/60000))
+      if (
+        this.props.realtime[trip.trip_id] &&
+        this.props.realtime[trip.trip_id].delay
+      ) {
+        arrival.setSeconds(
+          arrival.getSeconds() + this.props.realtime[trip.trip_id].delay
+        )
+        let time = Math.abs(
+          Math.round(
+            (arrival.getTime() - new Date(offsetTime).getTime()) / 60000
+          )
+        )
 
-        let stops_away_no = trip.stop_sequence - this.props.realtime[trip.trip_id].stop_sequence
+        let stops_away_no =
+          trip.stop_sequence - this.props.realtime[trip.trip_id].stop_sequence
         if (this.props.realtime[trip.trip_id].stop_sequence === -100) {
           stops_away_no = -100
         }
 
         if ((time === 0 || stops_away_no === 0) && times.length === 0) {
-          times.push({realtime: 'delay', time: t('tripitem.due'), dd: this.props.realtime[trip.trip_id].double_decker})
+          times.push({
+            realtime: 'delay',
+            time: t('tripitem.due'),
+            dd: this.props.realtime[trip.trip_id].double_decker,
+          })
         } else {
-          times.push({realtime: 'delay', time: time.toString(), stops: stops_away_no, dd: this.props.realtime[trip.trip_id].double_decker})
+          times.push({
+            realtime: 'delay',
+            time: time.toString(),
+            stops: stops_away_no,
+            dd: this.props.realtime[trip.trip_id].double_decker,
+          })
         }
-      } else if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].distance) {
+      } else if (
+        this.props.realtime[trip.trip_id] &&
+        this.props.realtime[trip.trip_id].distance
+      ) {
         let time = date
         if (time <= 0 && times.length === 0) {
           time = t('tripitem.due')
         }
-        times.push({realtime: 'distance', time: time, distance: Math.round(this.props.realtime[trip.trip_id].distance)})
+        times.push({
+          realtime: 'distance',
+          time: time,
+          distance: Math.round(this.props.realtime[trip.trip_id].distance),
+        })
       } else if (date > 0) {
-        times.push({realtime: false, time: date.toString()})
-      } else if (this.props.realtime[trip.trip_id] && this.props.realtime[trip.trip_id].departed) {
+        times.push({ realtime: false, time: date.toString() })
+      } else if (
+        this.props.realtime[trip.trip_id] &&
+        this.props.realtime[trip.trip_id].departed
+      ) {
         // do nothing?
       } else {
-        times.push({realtime: false, time: t('tripitem.due')})
+        times.push({ realtime: false, time: t('tripitem.due') })
       }
     })
 
@@ -144,19 +206,29 @@ class TripItem extends React.Component {
     if (this.state.expanded && times.length > 1) {
       inner = (
         <div className="right">
-          {times.slice(0,3).map((item, key) => {
+          {times.slice(0, 3).map((item, key) => {
             const realtime = item.realtime !== false ? 'realtime' : ''
             const className = ''
-            const dd = (item.dd === true) ? (<span><strong>BIG</strong> <span className="opacity">&middot;</span> </span>) : null
+            const dd =
+              item.dd === true ? (
+                <span>
+                  <strong>BIG</strong> <span className="opacity">&middot;</span>{' '}
+                </span>
+              ) : null
             if (item.time === t('tripitem.due')) {
               return (
                 <h4 className={realtime} key={key}>
-                  {dd}<strong>{item.time}</strong>
+                  {dd}
+                  <strong>{item.time}</strong>
                 </h4>
               )
             } else if (item.realtime === 'delay') {
-              const stops = t('tripitem.stops', {smart_count: item.stops}).split('&')
-              const min = t('tripitem.min', {smart_count: parseInt(item.time)}).split('&')
+              const stops = t('tripitem.stops', {
+                smart_count: item.stops,
+              }).split('&')
+              const min = t('tripitem.min', {
+                smart_count: parseInt(item.time),
+              }).split('&')
               if (item.stops === -100) {
                 return (
                   <h4 className={className} key={key}>
@@ -167,12 +239,16 @@ class TripItem extends React.Component {
               return (
                 <h4 className={className} key={key}>
                   {dd}
-                  <strong>{stops[0]}</strong>{stops[1]}&nbsp;
-                  <span className="opacity">&middot;</span> <strong>{min[0]}</strong> {min[1]}
+                  <strong>{stops[0]}</strong>
+                  {stops[1]}&nbsp;
+                  <span className="opacity">&middot;</span>{' '}
+                  <strong>{min[0]}</strong> {min[1]}
                 </h4>
               )
             } else {
-              const min = t('tripitem.min', {smart_count: item.time}).split('&')
+              const min = t('tripitem.min', { smart_count: item.time }).split(
+                '&'
+              )
               return (
                 <h4 className={className} key={key}>
                   <strong>{min[0]}</strong> {min[1]}
@@ -196,31 +272,62 @@ class TripItem extends React.Component {
         if (latest.realtime !== false) {
           className += ' due'
         }
-        latest = <h3 className={className}>{dd} <span className="number-small">{latest.time}</span></h3>
+        latest = (
+          <h3 className={className}>
+            {dd} <span className="number-small">{latest.time}</span>
+          </h3>
+        )
       } else if (latest.realtime === 'delay') {
-        const stops = t('tripitem.stops', {smart_count: latest.stops}).split('&')
-        const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
+        const stops = t('tripitem.stops', { smart_count: latest.stops }).split(
+          '&'
+        )
+        const minsaway = t('tripitem.minsaway', { time: latest.time }).split(
+          '&'
+        )
         if (latest.stops === -100) {
           latest = (
-            <h3 className={className}>{dd} 
-              <span className="number">{minsaway[0]}</span>{minsaway[1]}
+            <h3 className={className}>
+              {dd}
+              <span className="number">{minsaway[0]}</span>
+              {minsaway[1]}
             </h3>
           )
         } else {
           latest = (
-            <h3 className={className}>{dd} <span className="number-small">{stops[0]}</span>
+            <h3 className={className}>
+              {dd} <span className="number-small">{stops[0]}</span>
               {stops[1]}&nbsp;
-              <span className="opacity">&middot;</span> <span className="number">{minsaway[0]}</span>{minsaway[1]}
+              <span className="opacity">&middot;</span>{' '}
+              <span className="number">{minsaway[0]}</span>
+              {minsaway[1]}
             </h3>
           )
         }
       } else if (latest.realtime === 'distance' && latest.distance > 0) {
-        const kmaway = t('tripitem.kmaway', {distance: latest.distance}).split('&')
-        const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
-        latest = <h3 className={className}><span className="number-small">{kmaway[0]}</span>{kmaway[1]} <span className="opacity">&middot;</span> <span className="number">{minsaway[0]}</span>{minsaway[1]}</h3>
+        const kmaway = t('tripitem.kmaway', {
+          distance: latest.distance,
+        }).split('&')
+        const minsaway = t('tripitem.minsaway', { time: latest.time }).split(
+          '&'
+        )
+        latest = (
+          <h3 className={className}>
+            <span className="number-small">{kmaway[0]}</span>
+            {kmaway[1]} <span className="opacity">&middot;</span>{' '}
+            <span className="number">{minsaway[0]}</span>
+            {minsaway[1]}
+          </h3>
+        )
       } else {
-        const minsaway = t('tripitem.minsaway', {time: latest.time}).split('&')
-        latest = <h3 className={className}><span className="number">{minsaway[0]}</span>{minsaway[1]}</h3>
+        const minsaway = t('tripitem.minsaway', { time: latest.time }).split(
+          '&'
+        )
+        latest = (
+          <h3 className={className}>
+            <span className="number">{minsaway[0]}</span>
+            {minsaway[1]}
+          </h3>
+        )
       }
       let andIn = null
       if (times.length > 1) {
@@ -228,10 +335,19 @@ class TripItem extends React.Component {
         if (times.length > 2) {
           timesarr.push(times[2].time)
         }
-        const and = t('tripitem.and', {times: timesarr.join(', ')}).split('&')
-        andIn = <h4>{and[0]} <strong>{and[1]}</strong>{and[2]}</h4>
+        const and = t('tripitem.and', { times: timesarr.join(', ') }).split('&')
+        andIn = (
+          <h4>
+            {and[0]} <strong>{and[1]}</strong>
+            {and[2]}
+          </h4>
+        )
       } else if (parseInt(times[0].time) < 60) {
-        andIn = <h4><span className="last">{t('tripitem.last')}</span></h4>
+        andIn = (
+          <h4>
+            <span className="last">{t('tripitem.last')}</span>
+          </h4>
+        )
       }
       inner = (
         <div className="right">
@@ -241,27 +357,32 @@ class TripItem extends React.Component {
       )
     }
     return (
-      <li className={className} style={{background: background}}>
-        <div className="main" onTouchTap={this.triggerClick}>
+      <li className={className} style={{ background: background }}>
+        <div className="main" onClick={this.triggerClick}>
           <div className="left">
-            <h1 className={route_class} style={route_style}>{route_code}</h1>
-            <h2>{direction}{trip.trip_headsign} {via}
+            <h1 className={route_class} style={route_style}>
+              {route_code}
+            </h1>
+            <h2>
+              {direction}
+              {trip.trip_headsign} {via}
             </h2>
           </div>
           {inner}
         </div>
         <div className="bottom">
-          <button onTouchTap={this.triggerMap}>
-            <MapIcon/>{t('tripitem.map')}
+          <button onClick={this.triggerMap}>
+            <MapIcon />
+            {t('tripitem.map')}
           </button>
-          <button onTouchTap={this.triggerTimetable}>
-            <TimetableIcon/>{t('tripitem.timetable')}
+          <button onClick={this.triggerTimetable}>
+            <TimetableIcon />
+            {t('tripitem.timetable')}
           </button>
         </div>
       </li>
     )
   }
-  
 }
 const TripItemWithHistory = withRouter(TripItem)
 export default TripItemWithHistory
