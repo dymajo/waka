@@ -1,6 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
+import { View, StyleSheet } from 'react-native'
+
+import Header from '../reusable/header.jsx'
+import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 import { StationStore } from '../../stores/stationStore.js'
 import { SettingsStore } from '../../stores/settingsStore.js'
 import { UiStore } from '../../stores/uiStore.js'
@@ -10,31 +14,21 @@ import { CurrentLocation } from '../../stores/currentLocation.js'
 
 const IconHelper = new iconhelper()
 
-import Header from './header.jsx'
 import TripItem from './tripitem_new.jsx'
 import Onzo from './onzo.jsx'
 
-const scroll = (by = 250) => {
-  requestAnimationFrame(() => {
-    window.scrollBy({
-      top: by,
-      left: 0,
-      behavior: 'smooth',
-    })
-  })
-}
+// TODO:
+// That little modal for saving a station
+// Station Description & Icon
+// Scrolling down a tad when it's needed
 
-const normalStyle = UiStore.getAnimation()
-const fancyStyle = UiStore.getAnimation('fancy')
-
-class Station extends React.Component {
+class StationView extends React.Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
   }
   liveRefresh
   realtimeRefresh
-  scroll = {}
   state = {
     name: '',
     description: '',
@@ -46,10 +40,8 @@ class Station extends React.Component {
     route_type: undefined,
     stop_lat: undefined,
     stop_lon: undefined,
-    fancyMode: false,
     currentTrips: [],
     definedOrder: [],
-    animation: 'unmounted',
     updated: undefined,
   }
 
@@ -68,12 +60,6 @@ class Station extends React.Component {
           name = data.name || name
           description = data.description
         }
-        if (typeof this.props.instance !== 'undefined') {
-          const targetStation = this.props.match.params.station.split('+')[
-            this.props.instance
-          ]
-          name = 'Stop ' + targetStation
-        }
         document.title = name + ' - ' + t('app.name')
 
         let route_type = data.route_type
@@ -88,7 +74,6 @@ class Station extends React.Component {
         } else if (data.icon === 'parkingbuilding') {
           route_type = -1
         }
-        console.log(data)
         this.setState({
           name: name,
           description: description,
@@ -116,27 +101,9 @@ class Station extends React.Component {
     const tripData = StationStore.tripData
     const rtData = StationStore.realtimeData
     if (tripData.length === 0) {
-      // scroll when loaded
-      if (
-        this.state.trips.length === 0 &&
-        this.state.fancyMode &&
-        window.scrollY === 71
-      ) {
-        scroll()
-      }
-
       return this.setState({
         loading: false,
       })
-    }
-
-    if (
-      this.state.trips.length === 0 &&
-      this.state.fancyMode &&
-      window.scrollY === 71 &&
-      tripData[0].route_type !== 3
-    ) {
-      scroll()
     }
 
     if (Object.keys(rtData).length > 0) {
@@ -160,14 +127,6 @@ class Station extends React.Component {
     const tripData = StationStore.tripData
     const rtData = StationStore.realtimeData
 
-    if (
-      Object.keys(this.state.realtime).length === 0 &&
-      this.state.fancyMode &&
-      window.scrollY === 71 &&
-      tripData[0].route_type === 3
-    ) {
-      scroll()
-    }
     this.setState({
       html: null,
       trips: tripData,
@@ -272,7 +231,7 @@ class Station extends React.Component {
         }
       })
       this.setState({
-        currentTrips: this.signSplit(all),
+        currentTrips: all,
         definedOrder: newOrder,
       })
     } else {
@@ -285,48 +244,15 @@ class Station extends React.Component {
         }
       })
       this.setState({
-        currentTrips: this.signSplit(all),
+        currentTrips: all,
       })
     }
   }
   triggerBack = () => {
     UiStore.goBack(this.props.history, '/')
   }
-
-  triggerTouchStart = () => {
-    this.isBeingTouched = true
-  }
-  triggerTouchEnd = () => {
-    this.isBeingTouched = false
-    if (window.scrollY < 40 && this.state.fancyMode) {
-      UiStore.goBack(this.props.history, '/', true)
-    }
-  }
-  triggerScroll = () => {
-    clearTimeout(this.timeout)
-    this.timeout = setTimeout(() => {
-      if (window.scrollY < 40 && !this.isBeingTouched && this.state.fancyMode) {
-        UiStore.goBack(this.props.history, '/', true)
-      }
-    }, 50)
-  }
-  signSplit(items) {
-    if (typeof this.props.instance === 'undefined') {
-      return items
-    }
-    // console.log(this.props.params.match)
-    const targetStation = this.props.match.params.station.split('+')[
-      this.props.instance
-    ]
-    return items.filter(item => {
-      return item[1][0].station === targetStation
-    })
-  }
   componentWillMount() {
-    // doesn't load fancymode on desktop :)
-    this.setState({
-      fancyMode: UiStore.state.fancyMode && window.innerWidth <= 850,
-    })
+    UiStore.setCardPosition('default')
   }
   componentDidMount() {
     StationStore.bind('change', this.triggerUpdate)
@@ -334,15 +260,8 @@ class Station extends React.Component {
     StationStore.bind('realtime', this.realtimeCb)
     StationStore.bind('error', this.handleError)
     StationStore.bind('html', this.handleHtml)
-    UiStore.bind('animation', this.animation)
     UiStore.bind('expandChange', this.expandChange)
     window.addEventListener('online', this.triggerRetry)
-    window.addEventListener('scroll', this.triggerScroll)
-
-    // scroll top header into view
-    if (this.state.fancyMode) {
-      window.scrollTo(0, 71)
-    }
 
     // uses cached data if it's still fresh
     if (
@@ -369,11 +288,6 @@ class Station extends React.Component {
       }
       this.getData(this.props)
     }, 180000)
-    if (this.props.instance > 0) {
-      // don't run the realtime refresh if instanced twice.
-      // yes completely aware that it's run on the first run a lot but that's okay
-      return
-    }
     this.realtimeRefresh = setInterval(() => {
       if (window.innerWidth > 850) {
         this.setState({ definedOrder: [] })
@@ -391,10 +305,8 @@ class Station extends React.Component {
     StationStore.unbind('realtime', this.realtimeCb)
     StationStore.unbind('error', this.handleError)
     StationStore.unbind('html', this.handleHtml)
-    UiStore.unbind('animation', this.animation)
     UiStore.unbind('expandChange', this.expandChange)
     window.removeEventListener('online', this.triggerRetry)
-    window.removeEventListener('scroll', this.triggerScroll)
 
     clearInterval(this.liveRefresh)
     clearInterval(this.realtimeRefresh)
@@ -409,6 +321,7 @@ class Station extends React.Component {
         itemPos.top + itemPos.height > document.documentElement.clientHeight
       ) {
         // calculates how much it overflows and adds it
+        // TODO!!!
         const overflowAmount =
           itemPos.top + itemPos.height - document.documentElement.clientHeight
         window.scrollBy({
@@ -419,39 +332,18 @@ class Station extends React.Component {
       }
     }, 250)
   }
-  animation = data => {
-    // ensures correct element
-    if (data[1] !== this.container) {
-      return
-      // doesn't run if we're descending from down the tree up
-    } else if (data[0] === 'exiting' && window.location.pathname !== '/') {
-      return
-      // doesn't run if we're descending further down the tree
-    } else if (
-      data[0] === 'entering' &&
-      UiStore.state.exiting.split('/').length > 4
-    ) {
-      return
-    } else {
-      this.setState({
-        animation: data[0],
-      })
-    }
-  }
   handleError = error => {
     this.setState({
       html: null,
       error: error,
       loading: false,
     })
-    scroll()
   }
   handleHtml = str => {
     this.setState({
       html: str,
       loading: false,
     })
-    scroll(350)
   }
   triggerRetry = () => {
     this.setState({
@@ -463,10 +355,6 @@ class Station extends React.Component {
   }
   render() {
     const icon = IconHelper.getRouteType(this.state.route_type)
-    let className = 'station'
-    if (this.state.fancyMode) {
-      className += ' fancy'
-    }
 
     let loading
     let content
@@ -530,32 +418,29 @@ class Station extends React.Component {
       })
     }
 
-    const styles = this.state.fancyMode
-      ? fancyStyle[this.state.animation]
-      : normalStyle[this.state.animation]
-
     return (
-      <div
-        className={className}
-        style={styles}
-        ref={e => (this.container = e)}
-        onTouchStart={this.triggerTouchStart}
-        onTouchEnd={this.triggerTouchEnd}
-      >
-        <div className="station-spacer" />
+      <View style={styles.wrapper}>
         <Header
-          name={this.state.name}
-          description={this.state.description}
-          fancy={this.state.fancyMode}
-          icon={icon}
+          title={this.state.name}
+          // TODO!
+          // description={this.state.description}
+          // icon={icon}
         />
-        <ul className="trip-content" ref={e => (this.swipeContent = e)}>
-          {loading}
-          {content}
-        </ul>
-      </div>
+        <LinkedScroll>
+          <ul className="trip-content" ref={e => (this.swipeContent = e)}>
+            {loading}
+            {content}
+          </ul>
+        </LinkedScroll>
+      </View>
     )
   }
 }
-const StationWithRouter = withRouter(Station)
-export default StationWithRouter
+const Station = withRouter(StationView)
+export { Station }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+})
