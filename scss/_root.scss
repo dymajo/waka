@@ -36,7 +36,7 @@ $map-transition: 250ms ease opacity;
   right: 0;
   transition: $map-transition;
 }
-$top-offset: 24px;
+$top-offset: 0;
 .root-card {
   position: absolute;
   top: $top-offset;
@@ -49,7 +49,6 @@ $top-offset: 24px;
   will-change: scroll, transform;
   overflow-y: hidden;
   overflow-x: hidden;
-  box-shadow: rgba(#000, 0.4) 0 0 3px;
 
   -ms-scroll-rails: railed;
   -ms-overflow-style: -ms-autohiding-scrollbar;
@@ -67,22 +66,16 @@ $top-offset: 24px;
     opacity: 0.9;
     pointer-events: none;
   }
-  .root-card {
-    background: #eee;
-  }
 }
-.map-view {
-  .root-card {
-    box-shadow: none;
-  }
-  .root-card-wrapper {
-    box-shadow: rgba(#000, 0.4) 0 0 3px;
-  }
+.root-card-wrapper {
+  box-shadow: rgba(#000, 0.4) 0 0 3px;
+  background: #eee;
 }
 
 $max-position: 0;
 $default-position: 300px;
 $min-position: 0;
+$pad: 25px;
 
 // only applies to mobile touch devices
 @media (max-width: 850px) {
@@ -110,7 +103,6 @@ $min-position: 0;
     }
   }
   .map-view {
-    $pad: 25px;
     .root-card {
       overflow-y: hidden;
       transform: translate3d(
@@ -132,14 +124,10 @@ $min-position: 0;
       box-sizing: border-box;
       width: 100%;
     }
-
-    .root-card-padding-button {
-      height: $pad;
-    }
   }
 }
 .root-card-padding-button {
-  height: $max-position;
+  height: $pad;
 }
 @media (min-width: 481px) {
   .root-card-content {
