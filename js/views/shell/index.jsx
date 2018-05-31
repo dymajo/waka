@@ -18,11 +18,11 @@ import Router from '../router.jsx'
 
 import { Pin } from '../root/pin.jsx'
 
-const paddingHeight = 0
+const paddingHeight = 25
 const barHeight = 56
 const animationSpeed = 250
 
-const topOffset = 24
+const topOffset = 0
 const maxPosition = 0
 const defaultPosition = 300
 const minPosition = 0
@@ -47,7 +47,6 @@ class Index extends React.Component {
       document.documentElement.clientHeight + 'px'
     )
 
-    this.panLock = true
     this.touchstartpos = null // actual start pos
     this.fakestartpos = null // used for non janky animations
     this.touchlastpos = null // used to detect flick
@@ -65,7 +64,6 @@ class Index extends React.Component {
   componentDidMount() {
     this.props.history.listen(UiStore.handleState)
     UiStore.bind('card-position', this.handleNewCardPosition)
-    this.touchcard.addEventListener('scroll', this.triggerScroll)
     this.touchcard.addEventListener('touchmove', this.triggerTouchMove)
   }
   handleNewCardPosition = position => {
@@ -173,7 +171,7 @@ class Index extends React.Component {
   triggerTouchStart = e => {
     // only start the pull down if they're at the top of the card
     if (
-      (UiStore.state.scrollPosition <= 0 ||
+      (UiStore.state.scrollPosition === 0 ||
         e.target === UiStore.state.headerEvent ||
         this.state.cardPosition === 'default') &&
       window.innerWidth < 851
@@ -185,7 +183,9 @@ class Index extends React.Component {
       this.scrolllock = null
       this.clientHeight = document.documentElement.clientHeight
       this.windowHeight = this.clientHeight / 2
-      this.cardHeight = e.currentTarget.offsetHeight - maxPosition - barHeight
+      this.cardHeight = e.currentTarget.offsetHeight - maxPosition - barHeight - paddingHeight
+
+      this.scrollingOnBar = iOS.detect() && e.target === UiStore.state.headerEvent
 
       // kill transition
       this.touchcard.style.transition = 'initial'
@@ -210,6 +210,9 @@ class Index extends React.Component {
     if (this.touchstartpos === null) {
       return
     }
+    if (this.scrollingOnBar) {
+      e.preventDefault()
+    }
 
     // todo animate between first touchstart & touchmove
     const scrollLogic = () => {
@@ -218,9 +221,8 @@ class Index extends React.Component {
         let lowerLimit = 0
         let upperLimit = this.cardHeight
         if (this.state.cardPosition === 'map') {
-          // TODO: Magic Numbers?!
-          offset = offset + this.cardHeight - barHeight / 2
-          upperLimit = this.cardHeight + maxPosition - 25
+          offset = offset + this.cardHeight - barHeight / 2 + paddingHeight
+          upperLimit = this.cardHeight + maxPosition
         } else if (this.state.cardPosition === 'default') {
           offset =
             offset +
@@ -290,12 +292,7 @@ class Index extends React.Component {
 
     // detects if they've scrolled over halfway
     if (this.longtouch === true) {
-      let threshold = Math.round(
-        (e.currentTarget.offsetHeight - maxPosition - barHeight) / 2
-      )
-      if (this.state.cardPosition === 'map') {
-        threshold = e.currentTarget.offsetHeight / 2
-      } else {
+      if (this.state.cardPosition !== 'map') {
         // stops from scrolling down if they're halfway down the page
         if (this.touchcard.scrollTop !== 0) {
           return
@@ -337,22 +334,6 @@ class Index extends React.Component {
       this.touchcard.style.transform = ''
     })
   }
-  triggerScroll = e => {
-    if (
-      (e.currentTarget.scrollTop === 0 && this.panLock === false) ||
-      (e.currentTarget.scrollTop !== 0 && this.panLock === true)
-    ) {
-      this.panLock = !this.panLock
-
-      requestAnimationFrame(() => {
-        if (this.panLock) {
-          this.touchcard.classList.add('pan-lock')
-        } else {
-          this.touchcard.classList.remove('pan-lock')
-        }
-      })
-    }
-  }
   render() {
     let className = 'panes'
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
@@ -370,16 +351,13 @@ class Index extends React.Component {
             <MapView />
           </div>
           <div
-            className="root-card enable-scrolling pan-lock"
+            className="root-card enable-scrolling"
             ref={e => (this.touchcard = e)}
             onTouchStart={this.triggerTouchStart}
             onTouchEnd={this.triggerTouchEnd}
             onTouchCancel={this.triggerTouchEnd}
           >
-            <div
-              className="root-card-padding-button"
-              onClick={this.toggleStations}
-            />
+            <div className="root-card-padding-button" />
             <ContentView
               rootComponent={() => (
                 <Root
