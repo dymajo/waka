@@ -177,7 +177,7 @@ const search = {
         sources = sources.concat(wlg.extraSources(lat, lon, dist))
       } else if (prefix === 'nz-akl') {
         sources = sources.concat(akl.extraSources(lat, lon, dist))
-        if (bikes) {
+        if (bikes === true) {
           sources = sources.concat(onzo.getBikes(lat, lon, dist))
         }
       }
