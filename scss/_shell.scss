@@ -74,6 +74,14 @@ $max-position-transform: translate3d(0, $max-position, 0);
     transform: $map-position-transform;
   }
 }
+@keyframes shell-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
 .shell-content {
   background: $default-back;
@@ -86,10 +94,16 @@ $max-position-transform: translate3d(0, $max-position, 0);
     min-height: 70vh;
   }
 
-  &.direction-forward {
+  &.direction-forward,
+  &.direction-fade-forward {
     &.entering,
     &.entered {
       z-index: 1;
+    }
+  }
+  &.direction-fade-forward {
+    &.entering {
+      animation: 200ms ease shell-fade 1;
     }
   }
   &.max-position-max {
@@ -134,6 +148,9 @@ $max-position-transform: translate3d(0, $max-position, 0);
   &.map-position-default {
     &.direction-forward.entering {
       animation: 50ms ease shell-map-enter-default 1;
+    }
+    &.direction-fade-forward.entering {
+      animation: 50ms ease shell-fade 1;
     }
   }
 
