@@ -26,7 +26,9 @@ class LinesView extends React.Component {
 
   constructor(props) {
     super(props)
-    UiStore.setCardPosition('default')
+    if (UiStore.state.lastTransition !== 'backward') {
+      UiStore.setCardPosition('default')
+    }
   }
 
   triggerGroup = group => {

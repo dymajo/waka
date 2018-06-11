@@ -35,6 +35,8 @@ class Wrapper extends React.Component {
         action = UiStore.state.suggestedPushTransition
       } else if (action === 'POP') {
         action = UiStore.state.suggestedPopTransition
+      } else if (action === 'REPLACE') {
+        action = 'fade-forward'
       }
       this.setState({ animationState: state, animationAction: action })
     }

@@ -27,6 +27,8 @@ class uiStore extends Events {
 
       suggestedPushTransition: 'forward',
       forcedPushTransition: null,
+
+      lastTransition: 'forward',
     }
 
     // restores history if it's an iphone web clip :/
@@ -59,6 +61,7 @@ class uiStore extends Events {
           state.suggestedPushTransition = state.forcedPushTransition
           state.forcedPushTransition = null
         }
+        state.lastTransition = state.suggestedPushTransition
       } else if (action === 'POP') {
         // array indexing - 1
         let suggestedPopTransition = 'backward'
@@ -75,8 +78,10 @@ class uiStore extends Events {
           state.suggestedPopTransition = state.forcedPopTransition
           state.forcedPopTransition = null
         }
+        state.lastTransition = state.suggestedPopTransition
       } else if (action === 'REPLACE') {
         historyTracker[historyTracker.length - 1] = event.key
+        state.lastTransition = 'fade-forward'
       }
     })
   }
