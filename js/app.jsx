@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter } from 'react-router-dom'
+import { Router } from 'react-router-dom'
+
+import { UiStore } from './stores/uiStore.js'
 import { iOS } from './models/ios.js'
 
 import Index from './views/shell/index.jsx'
@@ -11,9 +13,9 @@ smoothscroll.polyfill()
 class App extends React.Component {
   render() {
     return (
-      <BrowserRouter>
+      <Router history={UiStore.customHistory}>
         <Index />
-      </BrowserRouter>
+      </Router>
     )
   }
 }

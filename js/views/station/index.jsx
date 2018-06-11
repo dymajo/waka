@@ -252,9 +252,6 @@ class StationView extends React.Component {
       })
     }
   }
-  triggerBack = () => {
-    UiStore.goBack(this.props.history, '/')
-  }
   componentDidMount() {
     StationStore.bind('change', this.triggerUpdate)
     StationStore.bind('times', this.tripsCb)
