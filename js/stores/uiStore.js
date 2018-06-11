@@ -1,36 +1,84 @@
+import createHistory from 'history/createBrowserHistory'
+
 import Events from './events'
 import { iOS } from '../models/ios.js'
 
-export class uiStore extends Events {
+class uiStore extends Events {
   constructor(props) {
     super(props)
     this.state = {
       totalNavigations: 0,
-      lastUrl: null,
       currentUrl: null,
-      mapView: false,
-      fancyMode: false,
-      exiting: window.location.pathname,
-      downloadedCss: {},
+      mapView: false, // deprecated
+      exiting: window.location.pathname, // deprecated
+      downloadedCss: {}, // deprecated
       scrollPosition: 0,
+
+      // root card positions
       oldCardPosition: 'default',
       cardPosition: 'default',
+
+      // used for proper touch rejection
       headerEvent: null,
+
+      // animation directions
+      suggestedPopTransition: 'backward',
+      forcedPopTransition: null,
+
+      suggestedPushTransition: 'forward',
+      forcedPushTransition: null,
     }
 
     // restores history if it's an iphone web clip :/
-    if (window.navigator.standalone) {
-      if (localStorage.getItem('CurrentUrl')) {
-        this.state.currentUrl = localStorage.getItem('CurrentUrl')
-      }
-    }
-    // if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-    //   if (this.state.currentUrl === null) {
-    //     this.browserHistory.push('/')
-    //   } else if (this.state.currentUrl !== window.location.pathname) {
-    //     this.browserHistory.push(this.state.currentUrl)
+    // if (window.navigator.standalone) {
+    //   if (localStorage.getItem('CurrentUrl')) {
+    //     this.state.currentUrl = localStorage.getItem('CurrentUrl')
     //   }
     // }
+
+    // allows stuff in the class to use the history - push and pop
+    const customHistory = createHistory()
+    const historyTracker = [customHistory.location.key]
+
+    // just in case we need access to these objects later
+    this.customHistory = customHistory
+    this.historyTracker = historyTracker
+
+    // this ensures we always have the right animations
+    const state = this.state
+    customHistory.listen((event, action) => {
+      state.currentUrl = event.pathname
+      this.state.totalNavigations++
+
+      if (action === 'PUSH') {
+        historyTracker.push(event.key)
+
+        // usually always forward
+        state.suggestedPushTransition = 'forward'
+        if (state.forcedPushTransition) {
+          state.suggestedPushTransition = state.forcedPushTransition
+          state.forcedPushTransition = null
+        }
+      } else if (action === 'POP') {
+        // array indexing - 1
+        let suggestedPopTransition = 'backward'
+        const previousLocationKey = historyTracker[historyTracker.length - 2]
+        if (previousLocationKey === event.key) {
+          historyTracker.pop()
+        } else {
+          suggestedPopTransition = 'forward'
+          historyTracker.push(event.key)
+        }
+        // if there's an animation wanted, it ensures that the correct one is used
+        state.suggestedPopTransition = suggestedPopTransition
+        if (state.forcedPopTransition) {
+          state.suggestedPopTransition = state.forcedPopTransition
+          state.forcedPopTransition = null
+        }
+      } else if (action === 'REPLACE') {
+        historyTracker[historyTracker.length - 1] = event.key
+      }
+    })
   }
   setCardPosition(position, animate = true) {
     this.state.cardPosition = position
@@ -38,11 +86,6 @@ export class uiStore extends Events {
     setTimeout(() => {
       this.state.oldCardPosition = position
     }, 200)
-  }
-  handleState = () => {
-    this.state.totalNavigations++
-    this.state.lastUrl = this.state.currentUrl
-    this.state.currentUrl = window.location.pathname
   }
   downloadCss(file) {
     if (file in this.state.downloadedCss) {
@@ -92,13 +135,15 @@ export class uiStore extends Events {
       },
     }
   }
-  goBack = (history, path, noAnimate = false) => {
+  goBack = (path, noAnimate = false) => {
     if (window.location.pathname === path) {
       return
     } else if (this.state.totalNavigations > 0) {
-      history.goBack()
+      this.state.forcedPopTransition = 'backward'
+      this.customHistory.goBack()
     } else {
-      history.push(path)
+      this.state.forcedPushTransition = 'backward'
+      this.customHistory.push(path)
     }
   }
 }

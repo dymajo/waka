@@ -32,9 +32,9 @@ class Wrapper extends React.Component {
   handleEvents = (data, state, action) => {
     if (data === findNodeHandle(this.container.current)) {
       if (action === 'PUSH') {
-        action = 'forward'
+        action = UiStore.state.suggestedPushTransition
       } else if (action === 'POP') {
-        action = 'backward'
+        action = UiStore.state.suggestedPopTransition
       }
       this.setState({ animationState: state, animationAction: action })
     }

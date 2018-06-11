@@ -62,7 +62,6 @@ class Index extends React.Component {
     }
   }
   componentDidMount() {
-    this.props.history.listen(UiStore.handleState)
     UiStore.bind('card-position', this.handleNewCardPosition)
     this.touchcard.addEventListener('touchmove', this.triggerTouchMove)
   }
@@ -183,9 +182,11 @@ class Index extends React.Component {
       this.scrolllock = null
       this.clientHeight = document.documentElement.clientHeight
       this.windowHeight = this.clientHeight / 2
-      this.cardHeight = e.currentTarget.offsetHeight - maxPosition - barHeight - paddingHeight
+      this.cardHeight =
+        e.currentTarget.offsetHeight - maxPosition - barHeight - paddingHeight
 
-      this.scrollingOnBar = iOS.detect() && e.target === UiStore.state.headerEvent
+      this.scrollingOnBar =
+        iOS.detect() && e.target === UiStore.state.headerEvent
 
       // kill transition
       this.touchcard.style.transition = 'initial'

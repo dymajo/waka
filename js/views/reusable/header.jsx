@@ -15,7 +15,7 @@ class Header extends React.Component {
     backFn: PropTypes.func,
   }
   triggerBack = () => {
-    UiStore.goBack(this.props.history, '/')
+    UiStore.goBack('/')
   }
   triggerTouchStart = e => {
     UiStore.state.headerEvent = e.target
@@ -90,5 +90,4 @@ const styles = StyleSheet.create({
     marginBottom: 'auto',
   },
 })
-const HeaderWithRouter = withRouter(Header)
-export default HeaderWithRouter
+export default Header

@@ -221,16 +221,12 @@ class Search extends React.Component {
   }
   viewServices = (station, region = 'nz-akl') => {
     return () => {
-      UiStore.state.fancyMode = true
       const split = this.props.history.location.pathname.split('/')
       if (split[1] === 's' && split.length === 4) {
         this.props.history.replace(`/s/${region}/${station}`)
       } else {
         this.props.history.push(`/s/${region}/${station}`)
       }
-      setTimeout(() => {
-        UiStore.state.fancyMode = false
-      }, 500) // extra delay to help events to bubble
     }
   }
   moveEnd = e => {
