@@ -9,13 +9,15 @@ body {
 html,
 body,
 #app {
-  // width: 100vw;
-  // height: 100%;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
   background: #eee;
+}
+html,
+body {
+  overscroll-behavior: none;
 }
 
 html,
