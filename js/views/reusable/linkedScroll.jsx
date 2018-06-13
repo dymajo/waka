@@ -13,6 +13,9 @@ export class LinkedScroll extends React.Component {
   constructor(props) {
     super(props)
     this.scrollView = React.createRef()
+    this.state = {
+      cancelScroll: true,
+    }
   }
   componentDidMount() {
     this.scrollView.current
@@ -27,21 +30,36 @@ export class LinkedScroll extends React.Component {
   scrollViewTouchStart = e => {
     iOS.triggerStart(e, 'bottom')
   }
+  // TODO: Perhaps port this to intersection observer
   setScroll = e => {
-    UiStore.state.scrollPosition = e.nativeEvent.contentOffset.y
+    const pos = e.nativeEvent.contentOffset.y
+
+    if (pos === 0 && this.state.cancelScroll === false) {
+      this.setState({ cancelScroll: true })
+    } else if (pos > 0 && this.state.cancelScroll === true) {
+      this.setState({ cancelScroll: false })
+    }
+    UiStore.state.scrollPosition = pos
   }
   render() {
     const touchStyles = [
       styles.scroll,
       {
-        touchAction: UiStore.state.cardPosition === 'max' ? 'auto' : 'none',
+        touchAction:
+          UiStore.state.cardPosition === 'max'
+            ? this.state.cancelScroll
+              ? iOS.detect()
+                ? 'auto' // one day iOS will get support
+                : 'pan-down'
+              : 'auto'
+            : 'none',
       },
     ]
     return (
       <ScrollView
         style={touchStyles}
         onScroll={this.setScroll}
-        scrollEventThrottle={50}
+        scrollEventThrottle={16}
         ref={this.scrollView}
       >
         {this.props.children}
@@ -52,5 +70,7 @@ export class LinkedScroll extends React.Component {
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
+    // this property doesn't quiite work? maybe it's a bug in android chrome
+    overscrollBehavior: 'contain',
   },
 })

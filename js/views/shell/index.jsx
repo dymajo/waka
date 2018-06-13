@@ -52,6 +52,8 @@ class Index extends React.Component {
     this.touchlastpos = null // used to detect flick
     this.scrolllock = false // used so you know the difference between scroll & transform
 
+    this.touchLock = false
+
     window.onresize = function() {
       requestAnimationFrame(() => {
         document.body.style.setProperty(
@@ -63,7 +65,19 @@ class Index extends React.Component {
   }
   componentDidMount() {
     UiStore.bind('card-position', this.handleNewCardPosition)
-    this.touchcard.addEventListener('touchmove', this.triggerTouchMove)
+    this.touchcard.addEventListener('touchstart', this.triggerTouchStart)
+    this.touchcard.addEventListener('touchend', this.triggerTouchEnd)
+    this.touchcard.addEventListener('touchcancel', this.triggerTouchEnd)
+
+    if (iOS.detect()) {
+      this.touchcard.addEventListener('touchmove', this.triggerTouchMove, {
+        passive: false,
+      })
+    } else {
+      this.touchcard.addEventListener('touchmove', this.triggerTouchMove, {
+        passive: true,
+      })
+    }
   }
   handleNewCardPosition = position => {
     const newState = {
@@ -169,6 +183,9 @@ class Index extends React.Component {
   }
   triggerTouchStart = e => {
     // only start the pull down if they're at the top of the card
+    if (this.touchLock === true) {
+      return
+    }
     if (
       (UiStore.state.scrollPosition === 0 ||
         e.target === UiStore.state.headerEvent ||
@@ -208,12 +225,13 @@ class Index extends React.Component {
   }
   triggerTouchMove = e => {
     // cancels if they're not at the top of the card
-    if (this.touchstartpos === null) {
+    if (this.touchstartpos === null || this.touchLock === true) {
       return
     }
     if (this.scrollingOnBar) {
       e.preventDefault()
     }
+    e.stopPropagation()
 
     // todo animate between first touchstart & touchmove
     const scrollLogic = () => {
@@ -287,7 +305,11 @@ class Index extends React.Component {
   }
   triggerTouchEnd = e => {
     // cancels if the event never started
-    if (this.touchstartpos === null || this.scrolllock === false) {
+    if (
+      this.touchstartpos === null ||
+      this.scrolllock === false ||
+      this.touchLock === true
+    ) {
       return
     }
 
@@ -316,9 +338,10 @@ class Index extends React.Component {
       // hacks to make it not slow on slow devices
       const touchDelta = this.touchstartpos - this.touchlastpos
       const newSnap = this.getFlickAnchor(touchDelta)
-      this.rootcontainer.className = `root-container ${newSnap}-view`
       // special easing curve
       requestAnimationFrame(() => {
+        this.rootcontainer.className = `root-container ${newSnap}-view`
+        this.touchLock = true
         this.touchcard.style.transition = `${animationSpeed}ms ease-out transform`
         this.touchcard.style.transform = ''
       })
@@ -327,13 +350,17 @@ class Index extends React.Component {
         requestAnimationFrame(() => {
           this.touchcard.style.transition = ''
         })
-      }, 275)
+        this.touchLock = false
+      }, animationSpeed + 25)
       return
     }
     requestAnimationFrame(() => {
       this.touchcard.style.transition = ''
       this.touchcard.style.transform = ''
     })
+  }
+  triggerPaddingButton(e) {
+    UiStore.state.headerEvent = e.target
   }
   render() {
     let className = 'panes'
@@ -354,11 +381,11 @@ class Index extends React.Component {
           <div
             className="root-card enable-scrolling"
             ref={e => (this.touchcard = e)}
-            onTouchStart={this.triggerTouchStart}
-            onTouchEnd={this.triggerTouchEnd}
-            onTouchCancel={this.triggerTouchEnd}
           >
-            <div className="root-card-padding-button" />
+            <div
+              className="root-card-padding-button"
+              onTouchStart={this.triggerPaddingButton}
+            />
             <ContentView
               rootComponent={() => (
                 <Root

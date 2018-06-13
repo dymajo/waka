@@ -12,7 +12,9 @@ import { LinkButton } from '../reusable/linkButton.jsx'
 export class Sponsor extends React.Component {
   constructor(props) {
     super(props)
-    UiStore.setCardPosition('max')
+    if (UiStore.state.lastTransition === 'forward') {
+      UiStore.setCardPosition('max')
+    }
   }
   componentDidMount() {
     document.title = t('sponsor.title') + ' - ' + t('app.name')

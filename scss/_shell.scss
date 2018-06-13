@@ -133,7 +133,7 @@ $max-position-transform: translate3d(0, $max-position, 0);
   }
   &.default-position-default {
     &.direction-forward.entering {
-      animation: 250ms ease shell-default-enter-default 1;
+      animation: 300ms ease shell-default-enter-default 1;
     }
     &.direction-backward {
       &.exiting,
@@ -141,7 +141,7 @@ $max-position-transform: translate3d(0, $max-position, 0);
         transform: $default-position-transform;
       }
       &.exiting {
-        animation: 250ms ease shell-default-exit-default 1;
+        animation: 300ms ease shell-default-exit-default 1;
       }
     }
   }
