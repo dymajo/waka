@@ -6,7 +6,8 @@
         "modules": false
       }
     ],
+    "stage-2",
     "react"
   ],
-  "plugins": ["transform-class-properties", "react-native-web"]
+  "plugins": ["react-native-web"]
 }

@@ -32,14 +32,14 @@ class Header extends React.Component {
               {this.props.title}
             </Text>
           </View>
-          <TouchableOpacity
+          <View
             style={styles.close}
             onClick={this.props.backFn || this.triggerBack}
           >
             <View style={styles.closeIcon}>
               <CloseIcon style={{ fill: vars.headerColor }} />
             </View>
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
     )

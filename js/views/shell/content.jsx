@@ -4,12 +4,16 @@ import { View, StyleSheet, findNodeHandle } from 'react-native'
 import { withRouter, Switch, Route } from 'react-router-dom'
 import { TransitionGroup, Transition } from 'react-transition-group'
 
+// This is a forked version of the transition component that is faster
+// import { Transition } from './transitionFast.jsx'
+
 import Events from '../../stores/events.js'
 import { Station } from '../station/index.jsx'
 import { Lines } from '../lines/index.jsx'
 import { UiStore } from '../../stores/uiStore.js'
 import { Sponsor } from '../pages/sponsor.jsx'
 import { Region } from '../pages/region.jsx'
+import { Blank } from '../pages/blank.jsx'
 import { NoMatch } from '../pages/nomatch.jsx'
 
 const routingEvents = new Events()
@@ -79,9 +83,9 @@ class Content extends React.Component {
           <Transition
             timeout={400}
             key={this.props.location.key}
-            onEntering={this.triggerStateUpdate('entering')}
+            onEnter={this.triggerStateUpdate('entering')}
             onEntered={this.triggerStateUpdate('entered')}
-            onExiting={this.triggerStateUpdate('exiting')}
+            onExit={this.triggerStateUpdate('exiting')}
             onExited={this.triggerStateUpdate('exited')}
           >
             <Switch
@@ -97,6 +101,7 @@ class Content extends React.Component {
               <Route path="/l/:region" exact render={wrapFn(Lines)} />
               <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
               <Route path="/region" exact render={wrapFn(Region)} />
+              <Route path="/blank" exact render={wrapFn(Blank)} />
               <Route render={wrapFn(NoMatch)} />
             </Switch>
           </Transition>

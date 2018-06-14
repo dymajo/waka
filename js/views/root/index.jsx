@@ -26,10 +26,8 @@ class RootView extends React.Component {
     document.title = t('app.name')
   }
   toggleLines = () => {
-    if (this.props.location.pathname !== '/') {
-      return
-    }
     this.props.history.push('/l/' + StationStore.currentCity)
+    // this.props.history.push('/blank')
   }
   toggleRegion = () => {
     this.props.history.push('/region')
@@ -44,17 +42,17 @@ class RootView extends React.Component {
           style={styles.headerWrapper}
           onTouchStart={this.triggerTouchStart}
         >
-          <TouchableOpacity
+          <View
             style={[styles.button, styles.rightBorder]}
             onClick={() => this.props.toggleStations('toggle')}
           >
             <StationIcon style={{ margin: 'auto' }} />
             <Text style={styles.text}>{t('root.stationsLabel')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onClick={this.toggleLines}>
+          </View>
+          <View style={styles.button} onClick={this.toggleLines}>
             <LinesIcon style={{ margin: 'auto' }} />
             <Text style={styles.text}>{t('root.linesLabel')}</Text>
-          </TouchableOpacity>
+          </View>
         </View>
         <LinkedScroll>
           <RootContent
