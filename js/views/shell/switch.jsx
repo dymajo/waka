@@ -40,7 +40,14 @@ export class Switch extends React.Component {
     const newLocation = this.props.location.key || 'home'
     const timeout = this.props.timeout
     if (timeout > 0 && this.state.lastComponentLocation !== newLocation) {
+      if (lastRoute !== null) {
+        lastRoute.props.location.animationState = 'exiting'
+      }
       this.lastRoute = lastRoute
+
+      if (currentRoute !== null) {
+        currentRoute.props.location.animationState = 'entering'
+      }
       this.currentRoute = currentRoute
       setTimeout(() => {
         this.setState({
@@ -49,6 +56,7 @@ export class Switch extends React.Component {
       }, timeout)
       return false
     } else {
+      this.currentRoute = currentRoute
       return true
     }
   }
@@ -73,26 +81,22 @@ export class Switch extends React.Component {
       }
     })
 
+    // i don't like this, but it seems the only way to get props into the component
+    // is to pass them into the location object
+    location.animationState = 'entered'
+    const key = location.key || 'key'
     const currentRoute = match
-      ? React.cloneElement(child, { location, computedMatch: match })
+      ? React.cloneElement(child, { location, computedMatch: match, key: key })
       : null
     const ret = this.timeout(this.currentRoute, currentRoute)
-    if (ret) {
+    if (ret || this.currentRoute.key === this.lastRoute.key) {
       return currentRoute
     }
 
-    // console.log(this.lastRoute, this.currentRoute)
-
-    // this.lastRoute =
-    // this.currentRoute = currentRoute
-    // this.currentRoute = React.cloneElement(currentRoute)
-
-    // console.log(this.lastRoute, this.currentRoute)
-
     return (
       <React.Fragment>
+        {this.currentRoute}
         {this.lastRoute}
-        {currentRoute}
       </React.Fragment>
     )
   }

@@ -134,6 +134,9 @@ export class RootContent extends React.Component {
       stations: StationStore.getData(),
     })
   }
+  toggleRegion() {
+    UiStore.safePush('/region')
+  }
   componentDidMount() {
     StationStore.bind('change', this.triggerUpdate)
     StationStore.bind('newcity', this.newcity)
@@ -181,7 +184,7 @@ export class RootContent extends React.Component {
       <SidebarItem
         key="city"
         type="install"
-        action={this.props.toggleRegion}
+        action={this.toggleRegion}
         icon="city.svg"
         name={'Switch City'}
         description={'Get directions in another city.'}
@@ -244,7 +247,7 @@ export class RootContent extends React.Component {
               (this.state.currentCity === 'none' ? '' : this.state.currentCity)
             }
             icon="lines.svg"
-            action={this.props.toggleRegion}
+            action={this.toggleRegion}
             className="lines-btn"
             name={t('onboarding.lines.name')}
             description={t('onboarding.lines.description')}

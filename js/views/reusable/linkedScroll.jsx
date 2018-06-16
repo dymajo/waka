@@ -14,18 +14,30 @@ export class LinkedScroll extends React.Component {
     super(props)
     this.scrollView = React.createRef()
     this.state = {
+      cardPosition: UiStore.state.cardPosition,
       cancelScroll: true,
     }
   }
   componentDidMount() {
-    this.scrollView.current
-      .getScrollableNode()
-      .addEventListener('touchstart', this.scrollViewTouchStart)
+    UiStore.bind('card-position', this.cardPositionCallback)
+    if (iOS.detect()) {
+      this.scrollView.current
+        .getScrollableNode()
+        .addEventListener('touchstart', this.scrollViewTouchStart)
+    }
   }
   componentWillUnmount() {
-    this.scrollView.current
-      .getScrollableNode()
-      .removeEventListener('touchstart', this.scrollViewTouchStart)
+    UiStore.unbind('card-position', this.cardPositionCallback)
+    if (iOS.detect()) {
+      this.scrollView.current
+        .getScrollableNode()
+        .removeEventListener('touchstart', this.scrollViewTouchStart)
+    }
+  }
+  cardPositionCallback = position => {
+    if (this.state.cardPosition !== position) {
+      this.setState({ cardPosition: position })
+    }
   }
   scrollViewTouchStart = e => {
     iOS.triggerStart(e, 'bottom')

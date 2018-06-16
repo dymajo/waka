@@ -10,12 +10,6 @@ import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 import { LinkButton } from '../reusable/linkButton.jsx'
 
 export class Sponsor extends React.Component {
-  constructor(props) {
-    super(props)
-    if (UiStore.state.lastTransition === 'forward') {
-      UiStore.setCardPosition('max')
-    }
-  }
   componentDidMount() {
     document.title = t('sponsor.title') + ' - ' + t('app.name')
   }
