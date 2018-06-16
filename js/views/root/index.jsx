@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, findNodeHandle } from 'react-native'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 
@@ -25,6 +25,15 @@ class RootView extends React.Component {
     super(props)
     document.title = t('app.name')
   }
+  wrapper = React.createRef()
+
+  componentDidMount() {
+    this.wrapperNode = findNodeHandle(this.wrapper.current)
+    this.wrapperNode.addEventListener('touchstart', this.triggerTouchStart)
+  }
+  componentWillUnmount() {
+    this.wrapperNode.removeEventListener('touchstart', this.triggerTouchStart)
+  }
   toggleLines = () => {
     UiStore.safePush('/l/' + StationStore.currentCity)
   }
@@ -34,10 +43,7 @@ class RootView extends React.Component {
   render() {
     return (
       <View style={styles.wrapper}>
-        <View
-          style={styles.headerWrapper}
-          onTouchStart={this.triggerTouchStart}
-        >
+        <View style={styles.headerWrapper} ref={this.wrapper}>
           <View
             style={[styles.button, styles.rightBorder]}
             onClick={() => this.props.toggleStations('toggle')}

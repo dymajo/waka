@@ -1,5 +1,12 @@
 import React from 'react'
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  findNodeHandle,
+} from 'react-native'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
 
@@ -14,6 +21,15 @@ class Header extends React.Component {
     title: PropTypes.string,
     backFn: PropTypes.func,
   }
+  wrapper = React.createRef()
+
+  componentDidMount() {
+    this.wrapperNode = findNodeHandle(this.wrapper.current)
+    this.wrapperNode.addEventListener('touchstart', this.triggerTouchStart)
+  }
+  componentWillUnmount() {
+    this.wrapperNode.removeEventListener('touchstart', this.triggerTouchStart)
+  }
   triggerBack = () => {
     UiStore.goBack('/')
   }
@@ -22,7 +38,7 @@ class Header extends React.Component {
   }
   render() {
     return (
-      <View style={styles.wrapper} onTouchStart={this.triggerTouchStart}>
+      <View style={styles.wrapper} ref={this.wrapper}>
         <View style={styles.pillWrapper}>
           <View style={styles.pill} />
         </View>

@@ -1,7 +1,6 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
-import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
 import { vars, paragraphStyles } from '../../styles.js'
 

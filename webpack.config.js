@@ -4,6 +4,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
   .BundleAnalyzerPlugin
 const ManifestPlugin = require('webpack-manifest-plugin')
 const OfflinePlugin = require('offline-plugin')
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
@@ -33,13 +34,13 @@ ConsoleNotifierPlugin.prototype.apply = function(compiler) {
 let config = {
   entry: {
     app: ['whatwg-fetch', './js/app.jsx', './scss/style.scss'],
-    maps: ['./scss/maps.scss'],
     vendor: [
       'react',
       'react-dom',
       'react-router',
       'react-router-dom',
-      'react-transition-group',
+      'react-leaflet',
+      'leaflet',
     ],
     analytics: ['autotrack'],
   },
@@ -121,6 +122,7 @@ let config = {
   },
   plugins: [
     extractSass,
+    new LodashModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
