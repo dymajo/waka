@@ -85,7 +85,16 @@ class uiStore extends Events {
       }
     })
   }
+  safePush = url => {
+    if (url !== this.customHistory.location.pathname) {
+      this.customHistory.push(url)
+    }
+  }
   setCardPosition(position, animate = true) {
+    // don't need to do anything if it's already in the right position
+    if (this.state.cardPosition === position) {
+      return
+    }
     this.state.cardPosition = position
     this.trigger('card-position', position, animate)
     setTimeout(() => {

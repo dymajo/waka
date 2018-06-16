@@ -222,11 +222,15 @@ class Search extends React.PureComponent {
   viewServices = (station, region = 'nz-akl') => {
     return () => {
       const split = this.props.history.location.pathname.split('/')
+      const currentStation = `/s/${region}/${station}`
       if (split[1] === 's' && split.length === 4) {
-        this.props.history.replace(`/s/${region}/${station}`)
+        this.props.history.replace(currentStation)
       } else {
-        this.props.history.push(`/s/${region}/${station}`)
+        this.props.history.push(currentStation)
       }
+      this.setState({
+        currentStation: currentStation,
+      })
     }
   }
   moveEnd = e => {

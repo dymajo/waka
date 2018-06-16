@@ -79,11 +79,15 @@ class Index extends React.Component {
       })
     }
   }
-  handleNewCardPosition = position => {
+  handleNewCardPosition = (position, animate) => {
     const newState = {
       cardPosition: position,
     }
-    if (UiStore.state.oldCardPosition === 'default' && position === 'max') {
+    if (
+      UiStore.state.oldCardPosition === 'default' &&
+      position === 'max' &&
+      animate === true
+    ) {
       newState.delayCard = true
     } else {
       newState.delayCard = false
@@ -109,12 +113,7 @@ class Index extends React.Component {
           newPosition = 'default'
         }
       }
-      UiStore.state.oldCardPosition = newPosition
-      UiStore.state.cardPosition = newPosition
-      this.setState({
-        cardPosition: newPosition,
-        delayCard: false,
-      })
+      UiStore.setCardPosition(newPosition, false)
     })
   }
   getSnapAnchor(pos) {
