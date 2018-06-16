@@ -1,9 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { withRouter, Switch, Route } from 'react-router-dom'
-import { TransitionGroup, Transition } from 'react-transition-group'
-
-import { UiStore } from '../stores/uiStore.js'
+import { withRouter, Route } from 'react-router-dom'
+import { Switch } from './shell/switch.jsx'
 
 import Settings from './settings.jsx'
 import TestLines from './test_lines.jsx'
@@ -16,7 +14,11 @@ class RouterRender extends React.Component {
   }
   render() {
     return (
-      <Switch location={this.props.location} key={this.props.location.key}>
+      <Switch
+        location={this.props.location}
+        key={this.props.location.key}
+        timeout={0}
+      >
         <Route path="/" exact />
 
         <Route

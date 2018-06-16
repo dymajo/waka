@@ -1,7 +1,8 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native-web'
 
-import moment from 'moment-timezone'
+// import moment from 'moment-timezone'
+// moment is cancelled. it's only good for the serverside - brings in 1mb of JS
 
 class Onzo extends React.Component {
   constructor(props) {
