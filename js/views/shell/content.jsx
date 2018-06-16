@@ -1,7 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { View, StyleSheet, findNodeHandle } from 'react-native'
-import { withRouter, Switch, Route } from 'react-router-dom'
+import { withRouter, Route } from 'react-router-dom'
+import { Switch } from './switch.jsx'
 import { TransitionGroup, Transition } from 'react-transition-group'
 
 // This is a forked version of the transition component that is faster
@@ -77,35 +78,18 @@ class Content extends React.Component {
     }
   }
   render() {
+    // keys on the routes save around 10ish ms
     return (
       <View style={styles.rootWrapper} className="root-card-wrapper">
-        <TransitionGroup className="root-transition-group">
-          <Transition
-            timeout={400}
-            key={this.props.location.key}
-            onEnter={this.triggerStateUpdate('entering')}
-            onEntered={this.triggerStateUpdate('entered')}
-            onExit={this.triggerStateUpdate('exiting')}
-            onExited={this.triggerStateUpdate('exited')}
-          >
-            <Switch
-              location={this.props.location}
-              key={this.props.location.key}
-            >
-              <Route path="/" exact render={this.props.rootComponent} />
-              <Route
-                path="/s/:region/:station"
-                exact
-                render={wrapFn(Station)}
-              />
-              <Route path="/l/:region" exact render={wrapFn(Lines)} />
-              <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
-              <Route path="/region" exact render={wrapFn(Region)} />
-              <Route path="/blank" exact render={wrapFn(Blank)} />
-              <Route render={wrapFn(NoMatch)} />
-            </Switch>
-          </Transition>
-        </TransitionGroup>
+        <Switch location={this.props.location} key="switch" timeout={400}>
+          <Route key="root" path="/" exact render={this.props.rootComponent} />
+          <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
+          <Route key="lines" path="/l/:region" exact render={wrapFn(Lines)} />
+          <Route key="sponsor" path="/sponsor" exact render={wrapFn(Sponsor)} />
+          <Route key="region" path="/region" exact render={wrapFn(Region)} />
+          <Route key="blank" path="/blank" exact render={wrapFn(Blank)} />
+          <Route key="notfound" render={wrapFn(NoMatch)} />
+        </Switch>
       </View>
     )
   }

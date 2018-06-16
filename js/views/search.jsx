@@ -93,7 +93,7 @@ const getMarker = function(iconType, name) {
   }
 }
 
-class Search extends React.Component {
+class Search extends React.PureComponent {
   static propTypes = {
     history: PropTypes.object,
   }
