@@ -1,14 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {
-  ImageBackground,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native-web'
+import { ImageBackground, View, Text, StyleSheet } from 'react-native-web'
 import { withRouter } from 'react-router'
 
+import { TouchableOpacity } from '../reusable/touchableOpacity.jsx'
 import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
 import { CurrentLocation } from '../../stores/currentLocation.js'
@@ -36,20 +31,16 @@ class RegionWithoutRouter extends React.Component {
       <TouchableOpacity
         key={city}
         onClick={this.changeCity(city)}
-        activeOpacity={0.8}
+        // activeOpacity={0.8}
       >
-        <ImageBackground
-          style={styles.region}
-          resizeMode="cover"
-          source={{ uri: `/photos/${city}.jpg` }}
-        >
+        <View style={styles.region}>
           <Text style={[styles.regionText, styles.regionTextHeader]}>
             {t('regions.' + city + '-long').split(',')[0]}
           </Text>
           <Text style={[styles.regionText, styles.regionTextSubHeader]}>
             {t('regions.' + city + '-long').split(',')[1]}
           </Text>
-        </ImageBackground>
+        </View>
       </TouchableOpacity>
     )
   }
@@ -70,10 +61,6 @@ class RegionWithoutRouter extends React.Component {
               <Text style={styles.vote}>
                 {t('regions.vote', { appname: t('app.name') })}
               </Text>
-              <LinkButton
-                href="https://twitter.com/dymajoltd"
-                label={t('regions.activator')}
-              />
             </View>
           </View>
         </LinkedScroll>

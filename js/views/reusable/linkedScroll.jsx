@@ -27,6 +27,7 @@ export class LinkedScroll extends React.Component {
     }
   }
   componentWillUnmount() {
+    UiStore.state.scrollPosition = 0
     UiStore.unbind('card-position', this.cardPositionCallback)
     if (iOS.detect()) {
       this.scrollView.current
@@ -84,5 +85,6 @@ const styles = StyleSheet.create({
     flex: 1,
     // this property doesn't quiite work? maybe it's a bug in android chrome
     overscrollBehavior: 'contain',
+    willChange: 'scroll',
   },
 })

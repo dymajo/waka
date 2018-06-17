@@ -122,7 +122,8 @@ let config = {
   },
   plugins: [
     extractSass,
-    new LodashModuleReplacementPlugin(),
+    // not compatible with leaflet
+    // new LodashModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
