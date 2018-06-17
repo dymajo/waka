@@ -11,15 +11,11 @@ export class LinkButton extends React.Component {
   }
   render() {
     return (
-      <TouchableOpacity
-        target="_blank"
-        accessibilityRole="link"
-        href={this.props.href}
-      >
+      <View target="_blank" accessibilityRole="link" href={this.props.href}>
         <View style={styles.wrapper}>
           <Text style={styles.text}>{this.props.label}</Text>
         </View>
-      </TouchableOpacity>
+      </View>
     )
   }
 }

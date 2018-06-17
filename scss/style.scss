@@ -19,6 +19,8 @@ body,
 html,
 body {
   overscroll-behavior: none;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 html,
@@ -48,3 +50,4 @@ button {
 @import '_lines';
 @import '_veh_loc';
 @import '_timetable';
+@import '_react_native';

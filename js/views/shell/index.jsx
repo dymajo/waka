@@ -25,7 +25,7 @@ const animationSpeed = 250
 const topOffset = 0
 const maxPosition = 0
 const defaultPosition = 300
-const minPosition = 0
+// const minPosition = 0 // not used
 
 class Index extends React.Component {
   static propTypes = {
@@ -191,6 +191,7 @@ class Index extends React.Component {
         this.state.cardPosition === 'default') &&
       window.innerWidth < 851
     ) {
+      this.ioskillscroll = false
       this.touchstartpos = e.touches[0].clientY
       this.fakestartpos = e.touches[0].clientY
       this.touchlastpos = e.touches[0].clientY
@@ -212,7 +213,10 @@ class Index extends React.Component {
       setTimeout(() => {
         this.longtouch = true
       }, animationSpeed)
+    } else if (iOS.detect() && UiStore.state.scrollPosition < 0) {
+      this.ioskillscroll = true
     } else {
+      this.ioskillscroll = false
       this.touchstartpos = null
       this.fakestartpos = null
       this.longtouch = null
@@ -229,6 +233,10 @@ class Index extends React.Component {
     }
     if (this.scrollingOnBar) {
       e.preventDefault()
+    }
+    if (this.ioskillscroll === true) {
+      e.preventDefault()
+      return
     }
     e.stopPropagation()
 
@@ -362,7 +370,6 @@ class Index extends React.Component {
     UiStore.state.headerEvent = e.target
   }
   render() {
-    let className = 'panes'
     const pin = this.state.showPin ? <Pin onHide={this.togglePin} /> : null
 
     const rootClassName =
@@ -372,7 +379,7 @@ class Index extends React.Component {
       (this.state.delayCard ? ' delay-transition' : '')
 
     return (
-      <div className={className}>
+      <React.Fragment>
         <div className={rootClassName} ref={e => (this.rootcontainer = e)}>
           <div className="root-map">
             <MapView />
@@ -394,10 +401,10 @@ class Index extends React.Component {
               )}
             />
           </div>
+          {pin}
         </div>
         <Router />
-        {pin}
-      </div>
+      </React.Fragment>
     )
   }
 }
