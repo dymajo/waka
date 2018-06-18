@@ -8,6 +8,7 @@ import { t } from '../../stores/translationStore.js'
 import { StationStore } from '../../stores/stationStore.js'
 import { UiStore } from '../../stores/uiStore.js'
 import { LinkedScroll } from '../reusable/linkedScroll.jsx'
+import { TouchableOpacity } from '../reusable/touchableOpacity.jsx'
 import { RootContent } from './content.jsx'
 
 import StationIcon from '../../../dist/icons/station.svg'
@@ -44,17 +45,17 @@ class RootView extends React.Component {
     return (
       <View style={styles.wrapper}>
         <View style={styles.headerWrapper} ref={this.wrapper}>
-          <View
+          <TouchableOpacity
             style={[styles.button, styles.rightBorder]}
             onClick={() => this.props.toggleStations('toggle')}
           >
             <StationIcon style={{ margin: 'auto' }} />
             <Text style={styles.text}>{t('root.stationsLabel')}</Text>
-          </View>
-          <View style={styles.button} onClick={this.toggleLines}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onClick={this.toggleLines}>
             <LinesIcon style={{ margin: 'auto' }} />
             <Text style={styles.text}>{t('root.linesLabel')}</Text>
-          </View>
+          </TouchableOpacity>
         </View>
         <LinkedScroll>
           <RootContent togglePin={this.props.togglePin} />

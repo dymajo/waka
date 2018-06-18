@@ -1,18 +1,11 @@
 import React from 'react'
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  findNodeHandle,
-} from 'react-native'
+import { View, Text, StyleSheet, findNodeHandle } from 'react-native'
 import PropTypes from 'prop-types'
-import { withRouter } from 'react-router'
 
 import { vars } from '../../styles.js'
 import { UiStore } from '../../stores/uiStore.js'
 import CloseIcon from '../../../dist/icons/close.svg'
+import { TouchableOpacity } from './touchableOpacity.jsx'
 
 // not used for all headers yet...
 class Header extends React.Component {
@@ -48,14 +41,14 @@ class Header extends React.Component {
               {this.props.title}
             </Text>
           </View>
-          <View
+          <TouchableOpacity
             style={styles.close}
             onClick={this.props.backFn || this.triggerBack}
           >
             <View style={styles.closeIcon}>
               <CloseIcon style={{ fill: vars.headerColor }} />
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     )
