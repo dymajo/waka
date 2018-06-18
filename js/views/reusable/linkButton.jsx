@@ -1,8 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 
 import { vars } from '../../styles.js'
+import { TouchableOpacity } from './touchableOpacity.jsx'
 
 export class LinkButton extends React.Component {
   static propTypes = {
@@ -10,12 +11,19 @@ export class LinkButton extends React.Component {
     label: PropTypes.string,
   }
   render() {
+    // TODO: This still flickers on iOS.
+    // I think there's something dodgy on the user agent stylesheet.
     return (
-      <View target="_blank" accessibilityRole="link" href={this.props.href}>
+      <TouchableOpacity
+        iOSHacks={true}
+        target="_blank"
+        accessibilityRole="link"
+        href={this.props.href}
+      >
         <View style={styles.wrapper}>
           <Text style={styles.text}>{this.props.label}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   }
 }
