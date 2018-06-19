@@ -1,5 +1,5 @@
-import React from 'react'
-import local from '../../local'
+const fetch = require('node-fetch')
+const local = require('../local')
 
 const variants = [
   // TRAINS
@@ -83,23 +83,21 @@ const variants = [
   ['770', 2],
   ['771', 2],
 
-  ['500', 2],
-  ['501', 2],
-  ['500', 2],
-  ['501', 2],
+  ['70', 2],
+  ['711', 2],
+  ['712', 2],
+  ['714', 2],
+  ['72C', 2],
+  ['72M', 2],
+  ['72X', 2],
+  ['733', 2],
+  ['734', 2],
+  ['735', 2],
+  ['739', 2],
   ['505', 2],
   ['515', 2],
   ['525', 2],
   ['532', 2],
-  ['545', 2],
-  ['550', 2],
-  ['550X', 2],
-  ['551', 2],
-  ['552', 2],
-  ['565', 2],
-  ['575', 2],
-  ['580', 2],
-  ['589', 2],
   ['595', 2],
 
   ['31', 2],
@@ -219,7 +217,6 @@ const variants = [
   ['952', 2],
   ['953', 2],
   ['955', 2],
-  ['956', 2],
   ['957', 2],
   ['958', 2],
   ['960', 2],
@@ -242,10 +239,10 @@ const variants = [
   ['991X', 2],
   ['992X', 2],
 
+  ['70H', 1],
   ['N26', 1],
   ['N10', 1],
   ['N11', 1],
-  ['N50', 1],
   ['N62', 1],
   ['N83', 1],
   ['N97', 2],
@@ -257,58 +254,33 @@ const variants = [
   ['4', 2],
 ]
 
-class TestLines extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      results: []
+async function testLines() {
+  console.log('Have a testing framework.')
+  console.log('Running Line Tests for NZ-AKL')
+
+  let total = 0
+  let passed = 0
+  let failed = 0
+
+  for (const route of variants) {
+    const res = await fetch(`${local.endpoint}/nz-akl/line/` + route[0])
+    const data = await res.json()
+
+    if (route[1] === data.length) {
+      console.log('pass', route[0])
+      passed++
+    } else {
+      console.log(
+        'fail',
+        route[0],
+        `expected ${route[1]}, got ${data.length} variants`
+      )
+      failed++
     }
-    this.test = this.test.bind(this)
+    total++
   }
-  componentDidMount() {
-    this.test()
-  }
-  test() {
-    let test = (index) => {
-      let route = variants[index]
-      fetch(`${local.endpoint}/nz-akl/line/`+route[0]).then((res) => {
-        res.json().then((data) => {
-          // return at the end
-          let results = this.state.results.slice()
-          route[2] = data.length
-          results.push(route)
-          this.setState({
-            results: results
-          })
-          
-          if (index+1 === variants.length) {
-            return
-          }
-          test(index+1)
-        })
-      })
-    }
-    test(0)
-  }
-  render() {
-    return (
-      <div className="settingsContainer http-not-found">
-        <div className="settings">
-          <div>This tests to ensure all the lines have the proper number of variants.</div>
-          <div>
-            {this.state.results.map((item, key) => {
-              let testString = 'success! ' + item[2] + ' lines'
-              if (item[1] !== item[2]) {
-                testString = `fail! ${item[2]}/${item[1]} lines`
-              }
-              return (
-                <div key={key}><strong>{item[0]}</strong> {testString}</div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-    )
-  }
+
+  console.log(`passed ${passed}/${total} tests`)
+  console.log(`failed ${failed}/${total} tests`)
 }
-export default TestLines
+testLines()

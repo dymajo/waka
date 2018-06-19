@@ -4,7 +4,6 @@ import { withRouter, Route } from 'react-router-dom'
 import { Switch } from './shell/switch.jsx'
 
 import Settings from './settings.jsx'
-import TestLines from './test_lines.jsx'
 import Timetable from './timetable.jsx'
 import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
 
@@ -36,7 +35,6 @@ class RouterRender extends React.Component {
         />
 
         <Route path="/settings" component={Settings} />
-        <Route path="/testlines" component={TestLines} />
       </Switch>
     )
   }
