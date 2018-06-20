@@ -27,7 +27,7 @@ $map-transition: 300ms ease opacity;
 .root-map {
   height: 100vh;
   height: var(--real-height);
-  background-color: #eee;
+  background: $default-back;
   position: absolute;
   z-index: 0;
   top: 0;
@@ -57,7 +57,7 @@ $top-offset: 0;
   transition-delay: 150ms;
 }
 .root-card-content {
-  background: #eee;
+  background: $default-back;
   min-height: 50vh;
 }
 .max-view {
@@ -67,8 +67,9 @@ $top-offset: 0;
   }
 }
 .root-card-wrapper {
-  box-shadow: rgba(#000, 0.4) 0 0 3px;
-  background: #eee;
+  box-shadow: rgba(#000, 0.3) 0 0 3px;
+  background: $default-back;
+  border-radius: 10px 10px 0 0;
 }
 
 $max-position: 0;

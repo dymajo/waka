@@ -57,8 +57,9 @@ class Header extends React.Component {
 const paddingVertical = 12
 const styles = StyleSheet.create({
   wrapper: {
-    height: vars.headerHeight,
     backgroundColor: '#fff',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
     paddingBottom: paddingVertical,
     touchAction: 'none',
     boxShadow: '0 -1px 0 rgba(0,0,0,0.1) inset',
@@ -91,8 +92,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   close: {
-    paddingLeft: vars.padding,
-    paddingRight: vars.padding,
+    paddingLeft: vars.padding * 0.75,
+    paddingRight: vars.padding * 0.75,
   },
   closeIcon: {
     marginTop: 'auto',
