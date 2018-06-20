@@ -76,18 +76,21 @@ const styles = StyleSheet.create({
   },
   headerWrapper: {
     height: vars.headerHeight,
-    backgroundColor: '#fff',
     touchAction: 'none',
-    boxShadow: '0 -1px 0 rgba(0,0,0,0.1) inset',
     display: 'flex',
     flexDirection: 'row',
   },
   button: {
+    boxShadow: '0 -1px 0 rgba(0,0,0,0.1) inset',
     flex: 1,
+    backgroundColor: '#fff',
     paddingTop: vars.padding / 2,
     paddingBottom: vars.padding / 2,
+    borderTopRightRadius: 10,
   },
   rightBorder: {
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 10,
     borderRightWidth: 1,
     borderRightStyle: 'solid',
     borderRightColor: '#eee',

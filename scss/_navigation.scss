@@ -82,10 +82,10 @@
       }
     }
 
-    &.selected, &:active {
+    &.selected,
+    &:active {
       background: #f5fafe;
     }
-
   }
 
   @media (min-width: 481px) {
@@ -108,13 +108,15 @@
     width: 36px;
     text-align: center;
 
-    img, svg {
+    img,
+    svg {
       height: auto;
       width: 36px;
     }
   }
   ul:first-child li:not(:nth-child(2)) .icon {
-    img, svg {
+    img,
+    svg {
       width: 34px;
     }
   }
@@ -149,7 +151,8 @@
     background: #fff;
     border-bottom: 1px dotted #ddd;
 
-    &:hover, &:active {
+    &:hover,
+    &:active {
       background: #fff;
     }
 
@@ -168,7 +171,7 @@
   }
   @media (min-width: 601px) {
     nav {
-      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
       z-index: 3;
     }
   }
@@ -189,7 +192,7 @@
       display: flex;
     }
     .ss:after {
-      content: "›";
+      content: '›';
       font-size: 42px;
       line-height: 34px;
       padding-right: 5px;
@@ -216,7 +219,7 @@
 @media (display-mode: standalone) and (max-width: 850px) {
   .onboard {
     display: none;
-  } 
+  }
 }
 .more-section {
   display: none;
@@ -269,37 +272,37 @@
 
 @keyframes ss-to-stop-station {
   0% {
-    transform: translate3d(0,15px,0);
+    transform: translate3d(0, 15px, 0);
     opacity: 0;
   }
   100% {
-    transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
 }
 @keyframes stop-to-ss-station {
   0% {
-    transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
   100% {
-    transform: translate3d(0,15px,0);
+    transform: translate3d(0, 15px, 0);
     opacity: 0;
   }
 }
 @keyframes ss-to-stop-station-ios {
   0% {
-    transform: translate3d(100vw,0,0);
+    transform: translate3d(100vw, 0, 0);
   }
   100% {
-    transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
   }
 }
 @keyframes stop-to-ss-station-ios {
   0% {
-    transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(100vw,0,0);
+    transform: translate3d(100vw, 0, 0);
   }
 }

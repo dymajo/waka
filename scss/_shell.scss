@@ -85,6 +85,8 @@ $max-position-transform: translate3d(0, $max-position, 0);
 
 .shell-content {
   background: $default-back;
+  border-radius: 10px 10px 0 0;
+
   &.entering,
   &.exiting,
   &.exited {
