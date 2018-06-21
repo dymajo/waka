@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: vars.padding / 2,
-    paddingBottom: vars.padding / 2,
+    paddingBottom: vars.padding * 0.625,
     borderTopRightRadius: 10,
   },
   rightBorder: {

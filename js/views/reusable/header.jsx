@@ -12,6 +12,7 @@ class Header extends React.Component {
   static propTypes = {
     history: PropTypes.object,
     title: PropTypes.string,
+    subtitle: PropTypes.string,
     backFn: PropTypes.func,
   }
   wrapper = React.createRef()
@@ -30,6 +31,15 @@ class Header extends React.Component {
     UiStore.state.headerEvent = e.target
   }
   render() {
+    let subtitleStyle, subtitleElement
+    if (typeof this.props.subtitle !== 'undefined') {
+      subtitleStyle = {
+        lineHeight: vars.headerHeight - paddingVertical * 2 - 18,
+      }
+      subtitleElement = (
+        <Text style={styles.subtitle}>{this.props.subtitle}&nbsp;</Text>
+      )
+    }
     return (
       <View style={styles.wrapper} ref={this.wrapper}>
         <View style={styles.pillWrapper}>
@@ -37,9 +47,10 @@ class Header extends React.Component {
         </View>
         <View style={styles.bottomWrapper}>
           <View style={styles.textWrapper}>
-            <Text style={styles.text} numberOfLines={1}>
-              {this.props.title}
+            <Text style={[styles.text, subtitleStyle]} numberOfLines={1}>
+              {this.props.title}&nbsp;
             </Text>
+            {subtitleElement}
           </View>
           <TouchableOpacity
             style={styles.close}
@@ -90,6 +101,11 @@ const styles = StyleSheet.create({
     color: vars.headerColor,
     fontSize: 18,
     fontWeight: '600',
+  },
+  subtitle: {
+    fontFamily: vars.fontFamily,
+    lineHeight: 18,
+    fontSize: 14,
   },
   close: {
     paddingLeft: vars.padding * 0.75,
