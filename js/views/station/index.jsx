@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
 import { View, StyleSheet } from 'react-native'
 
+import { vars } from '../../styles.js'
 import Header from '../reusable/header.jsx'
 import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 import { StationStore } from '../../stores/stationStore.js'
@@ -13,6 +14,8 @@ import iconhelper from '../../helpers/icon.js'
 import { CurrentLocation } from '../../stores/currentLocation.js'
 
 const IconHelper = new iconhelper()
+
+import UnsavedIcon from '../../../dist/icons/unsaved.svg'
 
 import TripItem from './tripitem_new.jsx'
 import Onzo from './onzo.jsx'
@@ -434,13 +437,16 @@ class StationView extends React.Component {
       })
     }
 
+    const actionIcon = <UnsavedIcon style={{ fill: vars.headerIconColor }} />
+
     return (
       <View style={styles.wrapper}>
         <Header
           title={this.state.name}
           subtitle={this.state.description}
+          actionIcon={actionIcon}
           // TODO!
-          // icon={icon}
+          // actionFn={SHOW THE PIN}
         />
         <LinkedScroll>
           <ul className="trip-content" ref={e => (this.swipeContent = e)}>
