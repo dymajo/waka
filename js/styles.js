@@ -7,6 +7,7 @@ export const vars = {
 
   smallFontSize: 13,
   defaultFontSize: 16,
+  headerIconColor: '#666',
   fontFamily:
     '"Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif',
 }

@@ -14,6 +14,8 @@ class Header extends React.Component {
     title: PropTypes.string,
     subtitle: PropTypes.string,
     backFn: PropTypes.func,
+    actionIcon: PropTypes.node,
+    actionFn: PropTypes.func,
   }
   wrapper = React.createRef()
 
@@ -31,13 +33,20 @@ class Header extends React.Component {
     UiStore.state.headerEvent = e.target
   }
   render() {
-    let subtitleStyle, subtitleElement
+    let subtitleStyle, subtitleElement, actionIcon
     if (typeof this.props.subtitle !== 'undefined') {
       subtitleStyle = {
         lineHeight: vars.headerHeight - paddingVertical * 2 - 18,
       }
       subtitleElement = (
         <Text style={styles.subtitle}>{this.props.subtitle}&nbsp;</Text>
+      )
+    }
+    if (typeof this.props.actionIcon !== 'undefined') {
+      actionIcon = (
+        <TouchableOpacity style={styles.save} onClick={this.props.actionFn}>
+          <View style={styles.iconInner}>{this.props.actionIcon}</View>
+        </TouchableOpacity>
       )
     }
     return (
@@ -52,12 +61,13 @@ class Header extends React.Component {
             </Text>
             {subtitleElement}
           </View>
+          {actionIcon}
           <TouchableOpacity
             style={styles.close}
             onClick={this.props.backFn || this.triggerBack}
           >
-            <View style={styles.closeIcon}>
-              <CloseIcon style={{ fill: vars.headerColor }} />
+            <View style={styles.iconInner}>
+              <CloseIcon style={{ fill: vars.headerIconColor }} />
             </View>
           </TouchableOpacity>
         </View>
@@ -107,11 +117,15 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontSize: 14,
   },
-  close: {
-    paddingLeft: vars.padding * 0.75,
-    paddingRight: vars.padding * 0.75,
+  save: {
+    paddingLeft: vars.padding * 0.875,
+    paddingRight: vars.padding * 0.375,
   },
-  closeIcon: {
+  close: {
+    paddingLeft: vars.padding * 0.375,
+    paddingRight: vars.padding * 0.875,
+  },
+  iconInner: {
     marginTop: 'auto',
     marginBottom: 'auto',
   },
