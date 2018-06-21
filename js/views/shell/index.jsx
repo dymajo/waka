@@ -19,7 +19,7 @@ import Router from '../router.jsx'
 import { Pin } from '../root/pin.jsx'
 
 const paddingHeight = 25
-const barHeight = 56
+const barHeight = 66
 const animationSpeed = 250
 
 const topOffset = 0

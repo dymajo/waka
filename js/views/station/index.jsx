@@ -55,10 +55,9 @@ class StationView extends React.Component {
     this.getData(this.props, false)
   }
   getData(newProps, getTimes = true) {
-    StationStore.getData(
-      newProps.match.params.station,
-      newProps.match.params.region
-    )
+    const stop = newProps.match.params.station
+    const region = newProps.match.params.region
+    StationStore.getData(stop, region)
       .then(data => {
         let name = data.stop_name
         let description = data.stop_name
@@ -66,7 +65,6 @@ class StationView extends React.Component {
           name = data.name || name
           description = data.description
         }
-        document.title = name + ' - ' + t('app.name')
 
         let route_type = data.route_type
         if (data.icon === 'train') {
@@ -80,8 +78,20 @@ class StationView extends React.Component {
         } else if (data.icon === 'parkingbuilding') {
           route_type = -1
         }
+
+        if (route_type === 3) {
+          description = t('station.bus') + ' ' + stop
+        }
+        if (stop.split('+').length > 1) {
+          name = this.state.name
+          description = t('savedStations.stops', {
+            number: stop.split('+').join(', '),
+          })
+        }
+
+        document.title = name + ' - ' + t('app.name')
         this.setState({
-          name: name,
+          name: this.getName(name),
           description: description,
           route_type: route_type,
           stop_lat: data.stop_lat,
@@ -353,6 +363,15 @@ class StationView extends React.Component {
     })
     this.getData(this.props)
   }
+  getName(name) {
+    name = name.replace(' Interchange', ' -')
+    name = name.replace(' Bus Station', ' -')
+    name = name.replace(' Train Station', '')
+    name = name.replace(' Ferry Terminal', '')
+    name = name.replace('- Cable Car Station', '')
+    name = name.replace(' Station', '')
+    return name
+  }
   render() {
     const icon = IconHelper.getRouteType(this.state.route_type)
 
@@ -419,8 +438,8 @@ class StationView extends React.Component {
       <View style={styles.wrapper}>
         <Header
           title={this.state.name}
+          subtitle={this.state.description}
           // TODO!
-          // description={this.state.description}
           // icon={icon}
         />
         <LinkedScroll>
