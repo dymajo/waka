@@ -1,18 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
+import { View, StyleSheet } from 'react-native'
 
-import { iOS } from '../models/ios.js'
-import { StationStore } from '../stores/stationStore.js'
-import { SettingsStore } from '../stores/settingsStore.js'
-import { UiStore } from '../stores/uiStore.js'
-import { t } from '../stores/translationStore.js'
+import { StationStore } from '../../stores/stationStore.js'
+import { SettingsStore } from '../../stores/settingsStore.js'
+import { t } from '../../stores/translationStore.js'
+import Header from '../reusable/header.jsx'
+import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 
-import BackIcon from '../../dist/icons/back.svg'
-
-const style = UiStore.getAnimation()
 const language = navigator.language || 'en'
 
-export default class Timetable extends React.Component {
+class TimetableRender extends React.Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
@@ -20,7 +19,6 @@ export default class Timetable extends React.Component {
   state = {
     trips: [],
     tripInfo: {},
-    animation: 'unmounted',
     loading: true,
     loadingMode: false,
     stopName: '',
@@ -29,6 +27,7 @@ export default class Timetable extends React.Component {
   }
   times = {}
   failures = 0
+  linkedScroll = React.createRef()
 
   componentDidMount() {
     this.getData()
@@ -37,33 +36,10 @@ export default class Timetable extends React.Component {
       route: routeName,
       appname: t('app.name'),
     })
-    UiStore.bind('animation', this.animation)
     window.addEventListener('online', this.triggerRetry)
   }
   componentWillUnmount() {
-    UiStore.unbind('animation', this.animation)
     window.removeEventListener('online', this.triggerRetry)
-  }
-  componentDidUpdate() {
-    if (
-      this.scrollContainer.scrollHeight <= this.scrollContainer.clientHeight
-    ) {
-      this.getMoreData()
-    }
-  }
-  animation = data => {
-    if (data[1] !== this.container) {
-      return
-    } else if (
-      data[0] === 'exiting' &&
-      UiStore.state.exiting.substring(0, window.location.pathname.length) !==
-        window.location.pathname
-    ) {
-      return
-    }
-    this.setState({
-      animation: data[0],
-    })
   }
   _tripsMap(data) {
     const tripsArr = []
@@ -112,27 +88,8 @@ export default class Timetable extends React.Component {
       })
     })
 
-    const r = this.props.match.params.route_name.split('-')
-    StationStore.getTimetable(
-      this.props.match.params.station,
-      r[0],
-      r[1],
-      this.props.match.params.region,
-      this.state.offset
-    )
-      .then(data => {
-        const tripsArr = this._tripsMap(data)
-
-        this.setState({
-          trips: tripsArr,
-          loading: false,
-        })
-
-        if (tripsArr.length === 0) {
-          console.log('getting more data')
-          this.getMoreData()
-        }
-
+    this.getTimetable()
+      .then(() => {
         requestAnimationFrame(() => {
           let time = new Date(
             new Date().getTime() + StationStore.offsetTime
@@ -148,22 +105,17 @@ export default class Timetable extends React.Component {
           // sets scroll height
           if (found) {
             // adds height of header to it
-            this.scrollContainer.scrollTop =
-              this.times['time' + time].getBoundingClientRect().top - 56
+            const scrollView = this.linkedScroll.current.scrollView.current
+            const pos =
+              this.times['time' + time].getBoundingClientRect().top -
+              scrollView.getInnerViewNode().getBoundingClientRect().top
+            scrollView.scrollTo({ y: pos, animated: false })
           }
         })
       })
       .catch(() => {
-        this.setState({
-          error: t('timetable.error'),
-          loading: false,
-        })
+        this.setState({ error: t('timetable.error') })
       })
-  }
-  triggerBack = () => {
-    let newUrl = window.location.pathname.split('/')
-    newUrl.splice(-2)
-    UiStore.goBack(this.props.history, newUrl.join('/'))
   }
   triggerRetry = () => {
     this.setState({
@@ -172,35 +124,38 @@ export default class Timetable extends React.Component {
     })
     this.getData(this.props)
   }
-  getMoreData = () => {
+  getTimetable = () => {
     if (this.state.loadingMore === true) {
       return
     }
     this.setState({
       loadingMore: true,
     })
-    const r = this.props.match.params.route_name.split('-')
-    StationStore.getTimetable(
-      this.props.match.params.station,
-      r[0],
-      r[1],
-      this.props.match.params.region,
-      this.state.offset + 1
+    const params = this.props.match.params
+    const route_name = params.route_name.split('-')
+    return StationStore.getTimetable(
+      params.station,
+      route_name[0],
+      route_name[1],
+      params.region,
+      this.state.offset
     )
       .then(data => {
         this.setState({
           trips: this.state.trips.concat(this._tripsMap(data)),
+          loading: false,
           loadingMore: false,
           offset: this.state.offset + 1,
         })
 
         if (data.length === 0 && this.failures < 7) {
           this.failures++
-          this.getMoreData()
+          this.getTimetable() // recursive woo
         }
       })
       .catch(() => {
         this.setState({
+          loading: false,
           loadingMore: false,
         })
       })
@@ -209,35 +164,14 @@ export default class Timetable extends React.Component {
     // intersection observer would be great, but have to support safari
     // and can't really be bothered shipping the polyfill yet
     const offset =
-      e.currentTarget.scrollHeight -
-      e.currentTarget.scrollTop -
-      e.currentTarget.clientHeight
+      e.nativeEvent.contentSize.height -
+      e.nativeEvent.contentOffset.y -
+      e.nativeEvent.layoutMeasurement.height
     if (offset < 800) {
-      this.getMoreData()
+      this.getTimetable()
     }
   }
   render() {
-    let roundelStyle = 'line-pill'
-    let code = this.props.match.params.route_name.split('-')[0]
-    if (
-      code === 'WEST' ||
-      code === 'EAST' ||
-      code === 'ONE' ||
-      code === 'STH' ||
-      code === 'NEX' ||
-      code === 'PUK'
-    ) {
-      roundelStyle += ' cf'
-      if (code === 'PUK') {
-        code = 'S'
-      } else {
-        code = code[0]
-      }
-      if (typeof this.state.tripInfo.agency_id === 'undefined') {
-        code = ''
-      }
-    }
-
     let opacity = false
     let loading
     let empty = null
@@ -265,35 +199,10 @@ export default class Timetable extends React.Component {
         ('0' + new Date(offsetTime).getMinutes()).slice(-2)
     )
     return (
-      <div
-        className="timetable-container"
-        ref={e => (this.container = e)}
-        style={style[this.state.animation]}
-      >
-        <header className="material-header">
-          <span className="header-left" onClick={this.triggerBack}>
-            <BackIcon />
-          </span>
-          <div className="header-expand">
-            <span
-              className={roundelStyle}
-              style={{
-                backgroundColor: (this.state.trips[1] || {}).route_color,
-              }}
-            >
-              {code}
-            </span>
-            <h1 className="line-name">{t('timetable.title')}</h1>
-            <h2>{this.state.stopName}</h2>
-          </div>
-        </header>
-        <div
-          className="timetable-content enable-scrolling"
-          ref={e => (this.scrollContainer = e)}
-          onTouchStart={iOS.triggerStart}
-          onScroll={this.triggerScroll}
-        >
-          <div className="scrollwrap">
+      <View style={styles.wrapper}>
+        <Header title={t('timetable.title')} subtitle={this.state.stopName} />
+        <LinkedScroll onScroll={this.triggerScroll} ref={this.linkedScroll}>
+          <View className="timetable-content">
             {loading}
             {empty}
             <ul>
@@ -312,7 +221,7 @@ export default class Timetable extends React.Component {
                   return (
                     <li
                       key={key}
-                      ref={e => (this.times['time' + item.seperator] = e)}
+                      ref={e => (this.times['time' + seperator] = e)}
                       className="seperator"
                     >
                       {timeString}
@@ -359,9 +268,16 @@ export default class Timetable extends React.Component {
                 )
               })}
             </ul>
-          </div>
-        </div>
-      </div>
+          </View>
+        </LinkedScroll>
+      </View>
     )
   }
 }
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+})
+const Timetable = withRouter(TimetableRender)
+export { Timetable }
