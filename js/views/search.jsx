@@ -14,7 +14,6 @@ import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
 
-import SearchIcon from '../../dist/icons/search.svg'
 import LocateIcon from '../../dist/icons/locate.svg'
 
 import iconhelper from '../helpers/icon.js'
@@ -104,7 +103,6 @@ class Search extends React.PureComponent {
     position: SettingsStore.getState().lastLocation,
     positionMarker: [0, 0],
     initialPosition: true,
-    findModal: false,
     loadmap: true,
     online: window.navigator.onLine,
   }
@@ -185,37 +183,6 @@ class Search extends React.PureComponent {
       })
     })
   }
-  toggleFind = () => {
-    this.setState({
-      findModal: !this.state.findModal,
-    })
-    setTimeout(() => {
-      if (this.state.findModal === true) {
-        this.searchInput.focus()
-      } else {
-        this.searchInput.blur()
-      }
-    }, 200)
-  }
-  triggerChange = e => {
-    this.setState({
-      station: e.currentTarget.value,
-    })
-  }
-  triggerKeyUp = e => {
-    if (e.keyCode === 13) {
-      this.triggerSearch(undefined)
-    }
-  }
-  triggerSearch = e => {
-    if (e) {
-      e.preventDefault()
-    }
-    this.searchInput.blur()
-    const prefix =
-      StationStore.currentCity === 'none' ? 'nz-akl' : StationStore.currentCity
-    this.props.history.push(`/s/${prefix}/${this.state.station}`)
-  }
   triggerCurrentLocation = () => {
     CurrentLocation.currentLocationButton()
   }
@@ -289,11 +256,6 @@ class Search extends React.PureComponent {
       }
     }
 
-    let findModal = 'modal-wrapper find-modal'
-    if (this.state.findModal === true) {
-      findModal += ' show'
-    }
-
     var positionMap = {}
 
     let bigCircle
@@ -308,7 +270,6 @@ class Search extends React.PureComponent {
     }
 
     let offline = null,
-      button1 = null,
       button2 = null
     if (!this.state.online) {
       offline = (
@@ -320,16 +281,6 @@ class Search extends React.PureComponent {
         </div>
       )
     } else {
-      button1 = (
-        <button
-          className="circle-button blue-button bottom-button"
-          onClick={this.toggleFind}
-          aria-label="Find Stop"
-          title="Find Stop"
-        >
-          <SearchIcon />
-        </button>
-      )
       button2 = (
         <button
           className="circle-button top-button"
@@ -409,30 +360,6 @@ class Search extends React.PureComponent {
 
     return (
       <div className="search">
-        <div className={findModal}>
-          <div className="modal">
-            <h2>{t('search.find.title')}</h2>
-            <div className="inner">
-              <input
-                type="tel"
-                placeholder={t('search.find.description')}
-                aria-label={t('search.find.description')}
-                maxLength="4"
-                value={this.state.station}
-                onKeyUp={this.triggerKeyUp}
-                onChange={this.triggerChange}
-                ref={e => (this.searchInput = e)}
-              />
-            </div>
-            <button className="cancel" onClick={this.toggleFind}>
-              {t('search.find.cancel')}
-            </button>
-            <button className="submit" onClick={this.triggerSearch}>
-              {t('search.find.confirm')}
-            </button>
-          </div>
-        </div>
-        {button1}
         {button2}
         {mapview}
         {offline}
