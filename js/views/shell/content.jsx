@@ -5,9 +5,10 @@ import { withRouter, Route } from 'react-router-dom'
 import { Switch } from './switch.jsx'
 
 import Events from '../../stores/events.js'
-import { Station } from '../station/index.jsx'
-import { Lines } from '../lines/index.jsx'
 import { UiStore } from '../../stores/uiStore.js'
+import { Station } from '../station/index.jsx'
+import { Timetable } from '../pages/timetable.jsx'
+import { Lines } from '../lines/index.jsx'
 import { Sponsor } from '../pages/sponsor.jsx'
 import { Region } from '../pages/region.jsx'
 import { Blank } from '../pages/blank.jsx'
@@ -77,6 +78,7 @@ class Content extends React.Component {
         <Switch location={this.props.location} key="switch" timeout={400}>
           <Route path="/" exact render={this.props.rootComponent} />
           <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
+          <Route path="/s/:region/:station/timetable/:route_name" exact render={wrapFn(Timetable)} />
           <Route path="/l/:region" exact render={wrapFn(Lines)} />
           <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
           <Route path="/region" exact render={wrapFn(Region)} />

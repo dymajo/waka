@@ -9,6 +9,7 @@ import { iOS } from '../../models/ios.js'
 export class LinkedScroll extends React.Component {
   static propTypes = {
     children: PropTypes.node,
+    onScroll: PropTypes.func
   }
   constructor(props) {
     super(props)
@@ -45,6 +46,7 @@ export class LinkedScroll extends React.Component {
   }
   // TODO: Perhaps port this to intersection observer
   setScroll = e => {
+    this.props.onScroll ? this.props.onScroll(e) : false
     const pos = e.nativeEvent.contentOffset.y
 
     if (pos === 0 && this.state.cancelScroll === false) {
