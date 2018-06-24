@@ -17,9 +17,24 @@ import { iOS } from '../../models/ios.js'
 export class TouchableOpacity extends React.Component {
   constructor(props) {
     super(props)
-    if (iOS.detect() && props.iOSHacks === true) {
+    if (
+      iOS.detect() &&
+      (props.iOSHacks === true || this.props.touchAction === 'none')
+    ) {
       this.viewRef = React.createRef()
       this.classList = null
+    }
+  }
+  componentDidMount() {
+    if (iOS.detect() && this.props.touchAction === 'none') {
+      const node = findNodeHandle(this.viewRef.current)
+      node.addEventListener('touchmove', this.touchNone, { passive: false })
+    }
+  }
+  componentWillUnmount() {
+    if (iOS.detect() && this.props.touchAction === 'none') {
+      const node = findNodeHandle(this.viewRef.current)
+      node.removeEventListener('touchmove', this.touchNone, { passive: false })
     }
   }
   touchStart = () => {
@@ -33,14 +48,24 @@ export class TouchableOpacity extends React.Component {
       this.classList.remove('touchable-opacity-active')
     }
   }
+  touchNone = e => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
   render() {
     const {
       children,
       className,
       iOSHacks,
+      touchAction,
       activeOpacity,
       ...other
     } = this.props
+
+    if (iOS.detect()) {
+      other.ref = this.viewRef
+    }
+
     const newClassName =
       (className || '') +
       (activeOpacity === 75 ? ' opacity-75' : '') +
@@ -53,7 +78,6 @@ export class TouchableOpacity extends React.Component {
           onTouchStart={this.touchStart}
           onTouchCancel={this.touchEnd}
           onTouchEnd={this.touchEnd}
-          ref={this.viewRef}
         >
           {children}
         </View>

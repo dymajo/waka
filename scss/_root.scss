@@ -27,14 +27,13 @@ $map-transition: 300ms ease opacity;
 .root-map {
   height: 100vh;
   height: var(--real-height);
-  background: $default-back;
+  background: #000;
   position: absolute;
   z-index: 0;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  transition: $map-transition;
 }
 $top-offset: 0;
 .root-card {
@@ -60,10 +59,20 @@ $top-offset: 0;
   background: $default-back;
   min-height: 50vh;
 }
+.hide-maximized {
+  opacity: 0.99;
+  transition: 200ms ease opacity;
+}
+.search {
+  transition: $map-transition;
+}
 .max-view {
-  .root-map {
+  .search {
     opacity: 0.9;
     pointer-events: none;
+  }
+  .hide-maximized {
+    opacity: 0;
   }
 }
 .root-card-wrapper {
@@ -148,15 +157,8 @@ $pad: 25px;
 }
 
 @media (min-width: 851px) {
-  .root-container {
-    .material-header {
-      width: $sidebar-width;
-    }
-  }
   .root-card {
     width: $sidebar-width;
-    top: $mobilenavsize;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
   }
   .root-card-content {
     padding: 0;
@@ -166,7 +168,6 @@ $pad: 25px;
   }
   .root-map {
     transform: none;
-    padding-left: $sidebar-width;
-    height: 100vh;
+    margin-left: $sidebar-width;
   }
 }
