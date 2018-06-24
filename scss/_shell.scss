@@ -41,6 +41,14 @@ $max-position-transform: translate3d(0, $max-position, 0);
     transform: $initial-transform;
   }
 }
+@keyframes shell-map-enter-map {
+  0% {
+    transform: $map-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
 @keyframes shell-map-enter-default {
   0% {
     transform: $map-position-transform;
@@ -157,6 +165,9 @@ $max-position-transform: translate3d(0, $max-position, 0);
   }
 
   &.map-position-map {
+    &.direction-forward.entering {
+      animation: 50ms ease shell-fade 1;
+    }
     &.direction-backward {
       &.exiting,
       &.exited {

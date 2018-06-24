@@ -30,20 +30,28 @@ export default {
     welcome: {
       name: 'Kia Ora! Welcome to %{appname}.',
       description:
-        '%{appname} is your realtime guide to public transport in Auckland and Wellington.',
+        '%{appname} is your realtime guide to public transport in Auckland and Wellington',
     },
     lines: {
       name: 'Lines',
-      description: 'View all Bus, Train, and Ferry services.',
+      description: 'View all Bus, Train, and Ferry services',
     },
     install: {
       name: 'Install App',
-      description: 'Add %{appname} to your home screen.',
-      description2: 'Send %{appname} to your phone.',
+      description: 'Add %{appname} to your home screen',
+      description2: 'Send %{appname} to your phone',
+    },
+    city: {
+      name: 'Switch City',
+      description: 'Get directions in another city',
     },
     sponsor: {
       name: 'Become a Sponsor',
       description: 'Contribute to help support development!',
+    },
+    settings: {
+      name: 'Settings',
+      description: 'Preferences & Credits',
     },
   },
   savedStations: {

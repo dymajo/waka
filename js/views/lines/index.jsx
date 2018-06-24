@@ -24,16 +24,6 @@ class LinesView extends React.Component {
     friendlyNames: {},
   }
 
-  constructor(props) {
-    super(props)
-    if (
-      UiStore.state.lastTransition !== 'backward' &&
-      UiStore.state.cardPosition === 'map'
-    ) {
-      UiStore.setCardPosition('default')
-    }
-  }
-
   triggerGroup = group => {
     return e => {
       e.preventDefault()
@@ -218,9 +208,14 @@ class LinesView extends React.Component {
       ret = <div className="spinner" />
     }
 
+    const subtitle =
+      StationStore.currentCity === 'none'
+        ? ''
+        : t('regions.' + StationStore.currentCity + '-long')
+
     return (
       <View style={styles.wrapper}>
-        <Header title={t('lines.title')} />
+        <Header title={t('lines.title')} subtitle={subtitle} />
         <LinkedScroll>
           <div className="list-lines">{ret}</div>
         </LinkedScroll>

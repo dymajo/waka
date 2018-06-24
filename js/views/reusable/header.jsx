@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     fontFamily: vars.fontFamily,
     lineHeight: 18,
     fontSize: 14,
+    color: '#444',
   },
   save: {
     paddingLeft: vars.padding * 0.875,

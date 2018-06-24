@@ -37,6 +37,11 @@ class RootView extends React.Component {
   }
   toggleLines = () => {
     UiStore.safePush('/l/' + StationStore.currentCity)
+    if (UiStore.state.cardPosition === 'map') {
+      setTimeout(() => {
+        this.props.toggleStations('default')
+      }, 50)
+    }
   }
   triggerTouchStart = e => {
     UiStore.state.headerEvent = e.target

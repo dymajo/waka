@@ -1,195 +1,199 @@
 .settingwrap {
-    padding: 9px 14px;
-    max-width: 480px - 28px;
-    text-align: right;
+  padding: 9px 14px;
+  max-width: 480px - 28px;
+  text-align: right;
 
-    h3 {
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        margin: 0;
-        float: left;
-        display: inline-block;
-    }
+  h3 {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    margin: 0;
+    float: left;
+    display: inline-block;
+  }
 }
 
 .settings {
-    height: calc(100vh - #{$mobilenavsize});
-    height: calc(var(--real-height) - #{$mobilenavsize});
-    background: $default-back;
-    overflow-y: auto;
-    box-sizing: border-box;
-    padding-bottom: 2rem;
+  h1 {
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    padding: 1rem 1rem 0.25rem;
+    border-bottom: 1px solid #ddd;
+    color: #222;
+    letter-spacing: -0.5px;
+  }
 
-    h1 {
-        font-weight: 600;
-        margin: 0 0 0.5rem;
-        font-size: 1rem;
-        padding: 1rem 1rem 0.25rem;
-        border-bottom: 1px solid #ddd;
-        color: #222;
-        letter-spacing: -0.5px;
+  h2 {
+    font-weight: 600;
+    margin: 1.5rem 1rem 1rem;
+    font-size: 1.125rem;
+    letter-spacing: -0.5px;
+    white-space: pre-wrap;
+
+    @media (max-width: 450px) {
+      font-size: 1rem;
+    }
+  }
+
+  p {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .container {
+    svg,
+    img {
+      vertical-align: top;
+      margin-right: 9px;
+      fill: #222;
+      width: 24px;
+    }
+  }
+
+  a {
+    color: $lightblue;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
     }
 
-    h2 {
-      font-weight: 600;
-      margin: 1.5rem 1rem 1rem;
-      font-size: 1.125rem;
-      letter-spacing: -0.5px;
-      white-space: pre-wrap;
+    &.subtle {
+      color: #222;
+      font-weight: normal;
+    }
+  }
 
-      @media (max-width: 450px) {
-        font-size: 1rem;
+  .logobox {
+    padding: 21px 14px;
+    @media (max-width: 480px) {
+      text-align: center;
+    }
+
+    .sourcecode {
+      font-size: 14px;
+      padding-top: 7px;
+    }
+  }
+
+  .logo {
+    font-size: 24px;
+    .company {
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+    .app {
+      letter-spacing: -0.5px;
+    }
+    .version {
+      font-size: 16px;
+      color: $lightblue;
+      font-weight: bold;
+    }
+  }
+  .copyright a {
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  .container {
+    color: #222;
+  }
+
+  ul {
+    padding-left: 1.25em;
+  }
+
+  .credits {
+    color: #222;
+    font-size: 15px;
+
+    h3 {
+      margin-bottom: 5px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    button,
+    .button {
+      display: block;
+      text-align: left;
+      width: 100%;
+      box-sizing: border-box;
+      border: 0;
+      padding: 9px 14px;
+      color: #222;
+      font-weight: normal;
+      cursor: default;
+      background: transparent;
+      outline: 0;
+      -webkit-tap-highlight-color: transparent;
+      line-height: 24px;
+      font-size: 16px;
+
+      @media (pointer: fine) {
+        &:hover {
+          background: #f2f2f2;
+        }
+      }
+      &:hover {
+        text-decoration: none;
+      }
+      &:active {
+        background: #eee;
       }
     }
+    .love {
+      padding-top: 13px;
+      font-size: 12px;
+      font-weight: 600;
+    }
 
-    p {
+    .creditscontainer {
+      display: none;
+      text-align: left;
+      border-top: 1px solid #ddd;
       padding: 0 1rem;
-      max-width: 500px;
-      font-size: 15px;
-      line-height: 1.4;
+
+      &.visible {
+        display: block;
+      }
     }
-
-    .nice-button {
-      margin: 0.75rem 1rem;
-      padding: 0.5rem 1.25rem;
-      font-size: 15px;
-      display: inline-block;
-    }
-
-    svg, img {
-        vertical-align: top;
-        margin-right: 9px;
-        fill: #222;
-        width: 24px;
-    }
-
-    a {
-        color: $lightblue;
-        text-decoration: none;
-        font-weight: 600;
-
-        &:hover {
-            text-decoration: underline;
-        }
-
-        &.subtle {
-            color: #222;
-            font-weight: normal;
-        }
-    }
-
-    .logobox {
-        padding: 21px 14px;
-        @media (max-width: 480px) {
-            text-align: center;
-        }
-
-        .sourcecode {
-            font-size: 14px;
-            padding-top: 7px;
-        }
-    }
-
-    .logo {
-        font-size: 24px;
-        .company {
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-        }
-        .app {
-            letter-spacing: -0.5px;
-        }
-        .version {
-            font-size: 16px;
-            color: $lightblue;
-            font-weight: bold;
-        }
-    }
-    .copyright a {
-        font-weight: bold;
-        font-size: 12px;
-    }
-
-    .container {
-        color: #222;
-    }
-
-    p {
-        margin: 7px 0;
-    }
-
-    .credits {
-        color: #222;
-        font-size: 15px;
-        
-        h3 {
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 18px;
-            letter-spacing: -0.5px;
-        }
-
-        button, .button {
-            display: block;
-            text-align: left;
-            width: 100%;
-            box-sizing: border-box;
-            border: 0;
-            padding: 9px 14px;
-            color: #222;
-            font-weight: normal;
-            cursor: default;
-            background: transparent; 
-            outline: 0;
-            -webkit-tap-highlight-color: transparent;
-            line-height: 24px;
-            font-size: 16px;
-
-            @media (pointer: fine) {
-                &:hover {
-                    background: #f2f2f2;
-                }
-            }
-            &:hover {
-                text-decoration: none;
-            }
-            &:active {
-                background: #eee;
-            }
-        }
-        .love {
-            padding-top: 13px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .creditscontainer {
-            display: none;
-            text-align: left;
-            padding: 0 14px 14px;
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
-
-            &.visible {
-                display: block;
-            }
-        }
-    }
+  }
 }
 
 // TOGGLE
 .tgl {
   display: none;
 }
-.tgl, .tgl:after, .tgl:before, .tgl *, .tgl *:after, .tgl *:before, .tgl + .tgl-btn {
+.tgl,
+.tgl:after,
+.tgl:before,
+.tgl *,
+.tgl *:after,
+.tgl *:before,
+.tgl + .tgl-btn {
   box-sizing: border-box;
 }
-.tgl::-moz-selection, .tgl:after::-moz-selection, .tgl:before::-moz-selection, .tgl *::-moz-selection, .tgl *:after::-moz-selection, .tgl *:before::-moz-selection, .tgl + .tgl-btn::-moz-selection {
+.tgl::-moz-selection,
+.tgl:after::-moz-selection,
+.tgl:before::-moz-selection,
+.tgl *::-moz-selection,
+.tgl *:after::-moz-selection,
+.tgl *:before::-moz-selection,
+.tgl + .tgl-btn::-moz-selection {
   background: none;
 }
-.tgl::selection, .tgl:after::selection, .tgl:before::selection, .tgl *::selection, .tgl *:after::selection, .tgl *:before::selection, .tgl + .tgl-btn::selection {
+.tgl::selection,
+.tgl:after::selection,
+.tgl:before::selection,
+.tgl *::selection,
+.tgl *:after::selection,
+.tgl *:before::selection,
+.tgl + .tgl-btn::selection {
   background: none;
 }
 .tgl + .tgl-btn {
@@ -204,11 +208,12 @@
   user-select: none;
   float: right;
 }
-.tgl + .tgl-btn:after, .tgl + .tgl-btn:before {
+.tgl + .tgl-btn:after,
+.tgl + .tgl-btn:before {
   position: relative;
   display: block;
   //vertical-align: top;
-  content: "";
+  content: '';
   width: 10px;
   height: 10px;
   margin: 1px;
@@ -218,14 +223,14 @@
 }
 .tgl-flat + .tgl-btn {
   padding: 2px;
-  transition: background .2s ease, border .2s ease;
+  transition: background 0.2s ease, border 0.2s ease;
   border: 2px solid #000;
   border-radius: 2em;
 }
 .tgl-flat + .tgl-btn:after {
-  transition: transform .2s ease, background .2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
   background: #000;
-  content: "";
+  content: '';
   border-radius: 1em;
 }
 .tgl-flat:checked + .tgl-btn {
