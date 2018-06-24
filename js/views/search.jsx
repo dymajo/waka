@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { StyleSheet } from 'react-native'
 import leaflet from 'leaflet'
 import * as reactLeaflet from 'react-leaflet'
 
@@ -7,14 +8,15 @@ import { withRouter } from 'react-router'
 
 import local from '../../local'
 
+import { vars } from '../styles.js'
 import { CurrentLocation } from '../stores/currentLocation.js'
-
 import { StationStore } from '../stores/stationStore.js'
 import { SettingsStore } from '../stores/settingsStore.js'
 import { UiStore } from '../stores/uiStore.js'
 import { t } from '../stores/translationStore.js'
+import { TouchableOpacity } from './reusable/touchableOpacity.jsx'
 
-import LocateIcon from '../../dist/icons/locate.svg'
+import LocateIcon from '../../dist/icons/locate-2.svg'
 
 import iconhelper from '../helpers/icon.js'
 
@@ -269,8 +271,7 @@ class Search extends React.PureComponent {
       )
     }
 
-    let offline = null,
-      button2 = null
+    let offline = null
     if (!this.state.online) {
       offline = (
         <div className="offline-container">
@@ -279,16 +280,6 @@ class Search extends React.PureComponent {
             Retry
           </button>
         </div>
-      )
-    } else {
-      button2 = (
-        <button
-          className="circle-button top-button"
-          onClick={this.triggerCurrentLocation}
-          aria-label="Locate Me"
-        >
-          <LocateIcon />
-        </button>
       )
     }
 
@@ -360,12 +351,35 @@ class Search extends React.PureComponent {
 
     return (
       <div className="search">
-        {button2}
+        <TouchableOpacity
+          className="hide-maximized"
+          activeOpacity={75}
+          touchAction="none"
+          onClick={this.triggerCurrentLocation}
+          style={styles.locate}
+        >
+          <LocateIcon />
+        </TouchableOpacity>
         {mapview}
         {offline}
       </div>
     )
   }
 }
+const styles = StyleSheet.create({
+  locate: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    position: 'absolute',
+    zIndex: 10,
+    paddingTop: vars.padding * 0.875,
+    paddingBottom: vars.padding * 0.875,
+    paddingLeft: vars.padding * 0.375,
+    paddingRight: vars.padding * 0.375,
+    top: vars.padding * 0.75,
+    right: vars.padding * 0.75,
+    borderRadius: 5,
+    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+  },
+})
 const SearchWithRouter = withRouter(Search)
 export default SearchWithRouter
