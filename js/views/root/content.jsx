@@ -17,6 +17,7 @@ import MetlinkIcon from '../../../dist/icons/metlink.svg'
 import DymajoIcon from '../../../dist/icons/dymajo.svg'
 import PatronIcon from '../../../dist/icons/patron.svg'
 import CityIcon from '../../../dist/icons/city.svg'
+import SettingsIcon from '../../../dist/icons/settings.svg'
 
 const iconMap = {
   'lines.svg': <LinesIcon />,
@@ -31,6 +32,7 @@ const iconMap = {
   'dymajo.svg': <DymajoIcon />,
   'patron.svg': <PatronIcon />,
   'city.svg': <CityIcon />,
+  'settings.svg': <SettingsIcon />,
 }
 
 class SidebarItemVanilla extends React.Component {
@@ -186,17 +188,22 @@ export class RootContent extends React.Component {
         type="install"
         action={this.toggleRegion}
         icon="city.svg"
-        name={'Switch City'}
-        description={'Get directions in another city.'}
+        name={t('onboarding.city.name')}
+        description={t('onboarding.city.description')}
       />,
       <SidebarItem
         key="sponsor"
         url="/sponsor"
         icon="patron.svg"
         name={t('onboarding.sponsor.name')}
-        description={t('onboarding.sponsor.description', {
-          appname: t('app.name'),
-        })}
+        description={t('onboarding.sponsor.description')}
+      />,
+      <SidebarItem
+        key="settings"
+        url="/settings"
+        icon="settings.svg"
+        name={t('onboarding.settings.name')}
+        description={t('onboarding.settings.description')}
       />,
     ]
     const description2 = (

@@ -2,8 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter, Route } from 'react-router-dom'
 import { Switch } from './shell/switch.jsx'
-
-import Settings from './settings.jsx'
 import VehicleLocationBootstrap from './vehicle_loc_bootstrap.jsx'
 
 class RouterRender extends React.Component {
@@ -27,8 +25,6 @@ class RouterRender extends React.Component {
           path="/l/:region/:line_id"
           component={VehicleLocationBootstrap}
         />
-
-        <Route path="/settings" component={Settings} />
       </Switch>
     )
   }

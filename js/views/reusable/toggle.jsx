@@ -1,15 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { SettingsStore } from '../stores/settingsStore.js'
-import { t } from '../stores/translationStore.js'
+import { SettingsStore } from '../../stores/settingsStore.js'
+import { t } from '../../stores/translationStore.js'
 
-class Toggle extends React.Component {
+export class Toggle extends React.Component {
   static propTypes = {
     children: PropTypes.node,
     id: PropTypes.string,
   }
   state = {
-    checked: SettingsStore.getState()[this.props.id]
+    checked: SettingsStore.getState()[this.props.id],
   }
   triggerChange = () => {
     SettingsStore.toggle(this.props.id)
@@ -23,9 +23,9 @@ class Toggle extends React.Component {
           defaultChecked={this.state.checked}
           id={this.props.id}
           type="checkbox"
-          className="tgl tgl-flat" 
+          className="tgl tgl-flat"
         />
-        <label htmlFor={this.props.id} className="tgl-btn"></label>
+        <label htmlFor={this.props.id} className="tgl-btn" />
         <span className="tgl-lbl">
           <span>{t('settings.preferences.disabled')}</span>
           <span>{t('settings.preferences.enabled')}</span>
@@ -34,5 +34,3 @@ class Toggle extends React.Component {
     )
   }
 }
-
-export default Toggle
