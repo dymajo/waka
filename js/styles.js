@@ -10,6 +10,8 @@ export const vars = {
   headerIconColor: '#666',
   fontFamily:
     '"Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif',
+
+  desktopThreshold: 850
 }
 export const paragraphStyles = StyleSheet.create({
   h1: {

@@ -1,25 +1,6 @@
 $transition: 300ms ease transform;
 $map-transition: 300ms ease opacity;
 
-.root-container {
-  // position: absolute;
-  // width: 100%;
-  // height: 100vh;
-  // top: 0;
-  // left: 0;
-  // right: 0;
-  // height: var(--real-height);
-  // overflow-y: hidden;
-  // -webkit-tap-highlight-color: transparent;
-  // z-index: 0;
-  // background: #000;
-
-  // @media (min-width: 850px) {
-  //   .material-header {
-  //     z-index: 7;
-  //   }
-  // }
-}
 .root-transition-group {
   height: 100%;
   display: flex;
@@ -39,17 +20,8 @@ $top-offset: 0;
 .root-card {
   height: 100vh;
   height: var(--real-height);
-  // position: absolute;
-  // top: $top-offset;
-  // left: 0;
-  // right: 0;
-  // bottom: 0;
-  // z-index: 6;
-  // box-sizing: border-box;
   transition: $transition;
   will-change: transform;
-  // overflow-y: hidden;
-  // overflow-x: hidden;
 }
 .delay-transition .root-card {
   transition: 150ms ease-out transform;
@@ -66,15 +38,6 @@ $top-offset: 0;
 .search {
   transition: $map-transition;
 }
-.max-view {
-  .search {
-    opacity: 0.9;
-    pointer-events: none;
-  }
-  .hide-maximized {
-    opacity: 0;
-  }
-}
 .root-card-wrapper {
   box-shadow: rgba(#000, 0.3) 0 0 3px;
   background: $default-back;
@@ -88,6 +51,15 @@ $pad: 25px;
 
 // only applies to mobile touch devices
 @media (max-width: 850px) {
+  .max-view {
+    .search {
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    .hide-maximized {
+      opacity: 0;
+    }
+  }
   .root-card {
     // z-index: 1;
 
@@ -167,7 +139,6 @@ $pad: 25px;
     display: none;
   }
   .root-map {
-    transform: none;
     margin-left: $sidebar-width;
   }
 }

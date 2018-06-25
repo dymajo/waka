@@ -8,7 +8,7 @@ import CloseIcon from '../../../dist/icons/close.svg'
 import { TouchableOpacity } from './touchableOpacity.jsx'
 
 // not used for all headers yet...
-class Header extends React.Component {
+export class Header extends React.Component {
   static propTypes = {
     history: PropTypes.object,
     title: PropTypes.string,
@@ -16,6 +16,7 @@ class Header extends React.Component {
     backFn: PropTypes.func,
     actionIcon: PropTypes.node,
     actionFn: PropTypes.func,
+    hideClose: PropTypes.bool
   }
   wrapper = React.createRef()
 
@@ -43,12 +44,23 @@ class Header extends React.Component {
       )
     }
     if (typeof this.props.actionIcon !== 'undefined') {
+      const style = this.props.hideClose === true ? styles.close : styles.secondary
       actionIcon = (
-        <TouchableOpacity style={styles.save} onClick={this.props.actionFn}>
+        <TouchableOpacity style={style} onClick={this.props.actionFn}>
           <View style={styles.iconInner}>{this.props.actionIcon}</View>
         </TouchableOpacity>
       )
     }
+    const closeIcon = this.props.hideClose === true ? null : (
+      <TouchableOpacity
+        style={styles.close}
+        onClick={this.props.backFn || this.triggerBack}
+      >
+        <View style={styles.iconInner}>
+          <CloseIcon style={{ fill: vars.headerIconColor }} />
+        </View>
+      </TouchableOpacity> 
+    )
     return (
       <View style={styles.wrapper} ref={this.wrapper}>
         <View style={styles.pillWrapper}>
@@ -62,14 +74,7 @@ class Header extends React.Component {
             {subtitleElement}
           </View>
           {actionIcon}
-          <TouchableOpacity
-            style={styles.close}
-            onClick={this.props.backFn || this.triggerBack}
-          >
-            <View style={styles.iconInner}>
-              <CloseIcon style={{ fill: vars.headerIconColor }} />
-            </View>
-          </TouchableOpacity>
+          {closeIcon}
         </View>
       </View>
     )
@@ -118,7 +123,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#444',
   },
-  save: {
+  secondary: {
     paddingLeft: vars.padding * 0.875,
     paddingRight: vars.padding * 0.375,
   },
