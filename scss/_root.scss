@@ -42,6 +42,7 @@ $top-offset: 0;
   box-shadow: rgba(#000, 0.3) 0 0 3px;
   background: $default-back;
   border-radius: 10px 10px 0 0;
+  height: calc(100% - 25px);
 }
 
 $max-position: 0;
@@ -137,6 +138,9 @@ $pad: 25px;
   }
   .root-card-padding-button {
     display: none;
+  }
+  .root-card-wrapper {
+    height: 100%;
   }
   .root-map {
     margin-left: $sidebar-width;

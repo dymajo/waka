@@ -51,7 +51,7 @@ class StationView extends React.Component {
   }
   constructor(props) {
     super(props)
-    if (UiStore.state.lastTransition !== 'backward') {
+    if (UiStore.state.lastTransition !== 'backward' && UiStore.state.layout === 'desktop') {
       UiStore.setCardPosition('default')
     }
   }
