@@ -101,18 +101,6 @@ class Index extends React.Component {
   }
   toggleStations = (newPosition = 'toggle') => {
     requestAnimationFrame(() => {
-      if (this.state.mapView !== 'map') {
-        this.touchcard.scrollTop = 0
-      }
-      if (newPosition === 'toggle') {
-        if (this.state.cardPosition === 'default') {
-          newPosition = 'map'
-        } else if (this.state.cardPosition === 'max') {
-          newPosition = 'default'
-        } else if (this.state.cardPosition === 'map') {
-          newPosition = 'default'
-        }
-      }
       UiStore.setCardPosition(newPosition, false)
     })
   }
@@ -222,9 +210,6 @@ class Index extends React.Component {
       this.longtouch = null
       this.scrolllock = null
     }
-    if (this.state.cardPosition === 'map' && this.touchcard.scrollTop !== 0) {
-      this.touchcard.scrollTop = 0
-    }
   }
   triggerTouchMove = e => {
     // cancels if they're not at the top of the card
@@ -322,12 +307,6 @@ class Index extends React.Component {
 
     // detects if they've scrolled over halfway
     if (this.longtouch === true) {
-      if (this.state.cardPosition !== 'map') {
-        // stops from scrolling down if they're halfway down the page
-        if (this.touchcard.scrollTop !== 0) {
-          return
-        }
-      }
       // hacks to make it not slow on slow device
       const touchDelta = e.changedTouches[0].clientY - this.touchstartpos
       const newSnap = this.getSnapAnchor(touchDelta)
@@ -393,12 +372,7 @@ class Index extends React.Component {
               onTouchStart={this.triggerPaddingButton}
             />
             <ContentView
-              rootComponent={() => (
-                <Root
-                  togglePin={this.togglePin}
-                  toggleStations={this.toggleStations}
-                />
-              )}
+              rootComponent={() => <Root togglePin={this.togglePin} />}
             />
           </div>
           {pin}

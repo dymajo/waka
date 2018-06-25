@@ -16,9 +16,12 @@ export class Header extends React.Component {
     backFn: PropTypes.func,
     actionIcon: PropTypes.node,
     actionFn: PropTypes.func,
-    hideClose: PropTypes.bool
+    hideClose: PropTypes.bool,
   }
   wrapper = React.createRef()
+  state = {
+    layout: 'mobile',
+  }
 
   componentDidMount() {
     this.wrapperNode = findNodeHandle(this.wrapper.current)
@@ -33,6 +36,19 @@ export class Header extends React.Component {
   triggerTouchStart = e => {
     UiStore.state.headerEvent = e.target
   }
+  triggerLayout = () => {
+    const layout = this.state.layout
+    if (document.documentElement.clientWidth > vars.desktopThreshold) {
+      if (layout !== 'desktop') {
+        this.setState({ layout: 'desktop' })
+        UiStore.state.layout = 'desktop'
+        UiStore.setCardPosition('max')
+      }
+    } else if (layout !== 'mobile') {
+      this.setState({ layout: 'mobile' })
+      UiStore.state.layout = 'mobile'
+    }
+  }
   render() {
     let subtitleStyle, subtitleElement, actionIcon
     if (typeof this.props.subtitle !== 'undefined') {
@@ -43,29 +59,40 @@ export class Header extends React.Component {
         <Text style={styles.subtitle}>{this.props.subtitle}&nbsp;</Text>
       )
     }
+    const pillElement =
+      this.state.layout === 'desktop' ? null : <View style={styles.pill} />
+    const wrapperStyle =
+      this.state.layout === 'desktop'
+        ? [styles.wrapper, styles.wrapperDesktop]
+        : styles.wrapper
+
     if (typeof this.props.actionIcon !== 'undefined') {
-      const style = this.props.hideClose === true ? styles.close : styles.secondary
+      const style =
+        this.props.hideClose === true ? styles.close : styles.secondary
       actionIcon = (
         <TouchableOpacity style={style} onClick={this.props.actionFn}>
           <View style={styles.iconInner}>{this.props.actionIcon}</View>
         </TouchableOpacity>
       )
     }
-    const closeIcon = this.props.hideClose === true ? null : (
-      <TouchableOpacity
-        style={styles.close}
-        onClick={this.props.backFn || this.triggerBack}
-      >
-        <View style={styles.iconInner}>
-          <CloseIcon style={{ fill: vars.headerIconColor }} />
-        </View>
-      </TouchableOpacity> 
-    )
+    const closeIcon =
+      this.props.hideClose === true ? null : (
+        <TouchableOpacity
+          style={styles.close}
+          onClick={this.props.backFn || this.triggerBack}
+        >
+          <View style={styles.iconInner}>
+            <CloseIcon style={{ fill: vars.headerIconColor }} />
+          </View>
+        </TouchableOpacity>
+      )
     return (
-      <View style={styles.wrapper} ref={this.wrapper}>
-        <View style={styles.pillWrapper}>
-          <View style={styles.pill} />
-        </View>
+      <View
+        style={wrapperStyle}
+        ref={this.wrapper}
+        onLayout={this.triggerLayout}
+      >
+        <View style={styles.pillWrapper}>{pillElement}</View>
         <View style={styles.bottomWrapper}>
           <View style={styles.textWrapper}>
             <Text style={[styles.text, subtitleStyle]} numberOfLines={1}>
@@ -89,6 +116,10 @@ const styles = StyleSheet.create({
     paddingBottom: paddingVertical,
     touchAction: 'none',
     boxShadow: '0 -1px 0 rgba(0,0,0,0.1) inset',
+  },
+  wrapperDesktop: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
   },
   pillWrapper: {
     height: paddingVertical,

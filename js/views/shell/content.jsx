@@ -96,9 +96,7 @@ class Content extends React.Component {
   }
 }
 const styles = StyleSheet.create({
-  rootWrapper: {
-    height: 'calc(100% - 25px)',
-  },
+  rootWrapper: {},
   wrapper: {
     position: 'absolute',
     top: 0,

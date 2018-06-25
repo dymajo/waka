@@ -95,6 +95,15 @@ class uiStore extends Events {
     if (this.state.cardPosition === position) {
       return
     }
+    if (position === 'toggle') {
+      if (this.state.cardPosition === 'default') {
+        position = 'map'
+      } else if (this.state.cardPosition === 'max') {
+        position = 'default'
+      } else if (this.state.cardPosition === 'map') {
+        position = 'default'
+      }
+    }
     this.state.cardPosition = position
     this.trigger('card-position', position, animate)
     if (animate === true) {
