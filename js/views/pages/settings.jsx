@@ -145,6 +145,7 @@ export class Settings extends React.Component {
               </div>
             </div>
           </div>
+          <br /><br />
         </LinkedScroll>
       </View>
     )
@@ -153,6 +154,5 @@ export class Settings extends React.Component {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    paddingBottom: vars.padding * 2,
   },
 })

@@ -22,9 +22,9 @@ export class LinkedScroll extends React.Component {
   componentDidMount() {
     UiStore.bind('card-position', this.cardPositionCallback)
     if (iOS.detect()) {
-      this.scrollView.current
-        .getScrollableNode()
-        .addEventListener('touchstart', this.scrollViewTouchStart)
+      const node = this.scrollView.current.getScrollableNode()
+      node.addEventListener('touchstart', this.scrollViewTouchStart)
+      node.children[0].style.minHeight = '101%'
     }
   }
   componentWillUnmount() {

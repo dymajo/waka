@@ -30,6 +30,8 @@ class StationView extends React.Component {
     match: PropTypes.object,
     history: PropTypes.object,
   }
+  scrollContent = React.createRef()
+  swipeContent = React.createRef()
   liveRefresh
   realtimeRefresh
   state = {
@@ -326,7 +328,7 @@ class StationView extends React.Component {
   }
   expandChange = item => {
     setTimeout(() => {
-      const itemPos = this.swipeContent.children[
+      const itemPos = this.swipeContent.current.children[
         item[1]
       ].getBoundingClientRect()
       if (
@@ -334,14 +336,10 @@ class StationView extends React.Component {
         itemPos.top + itemPos.height > document.documentElement.clientHeight
       ) {
         // calculates how much it overflows and adds it
-        // TODO!!!
+        const scrollView = this.scrollContent.current.scrollView.current
         const overflowAmount =
-          itemPos.top + itemPos.height - document.documentElement.clientHeight
-        window.scrollBy({
-          top: overflowAmount,
-          left: 0,
-          behavior: 'smooth',
-        })
+          itemPos.top + itemPos.height - document.documentElement.clientHeight + scrollView.getScrollableNode().scrollTop
+        scrollView.scrollTo({y: overflowAmount, behavior: 'smooth'})
       }
     }, 250)
   }
@@ -376,8 +374,6 @@ class StationView extends React.Component {
     return name
   }
   render() {
-    const icon = IconHelper.getRouteType(this.state.route_type)
-
     let loading
     let content
     if (this.state.loading) {
@@ -448,8 +444,8 @@ class StationView extends React.Component {
           // TODO!
           // actionFn={SHOW THE PIN}
         />
-        <LinkedScroll>
-          <ul className="trip-content" ref={e => (this.swipeContent = e)}>
+        <LinkedScroll ref={this.scrollContent}>
+          <ul className="trip-content" ref={this.swipeContent}>
             {loading}
             {content}
           </ul>
