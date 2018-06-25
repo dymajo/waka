@@ -97,9 +97,13 @@ class uiStore extends Events {
     }
     this.state.cardPosition = position
     this.trigger('card-position', position, animate)
-    setTimeout(() => {
+    if (animate === true) {
+      setTimeout(() => {
+        this.state.oldCardPosition = position
+      }, 200)
+    } else {
       this.state.oldCardPosition = position
-    }, 200)
+    }
   }
   downloadCss(file) {
     if (file in this.state.downloadedCss) {
