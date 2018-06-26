@@ -74,7 +74,7 @@ class SidebarItemVanilla extends React.Component {
     })
   }
   render() {
-    var classname = (this.props.className || '') + ' ss'
+    let classname = (this.props.className || '') + ' ss'
     if (window.location.pathname == this.props.url) {
       classname += ' selected'
     }
@@ -199,6 +199,7 @@ export class RootContent extends React.Component {
         description={t('onboarding.sponsor.description')}
       />,
       <SidebarItem
+        className="desktop-hide"
         key="settings"
         url="/settings"
         icon="settings.svg"
@@ -255,7 +256,7 @@ export class RootContent extends React.Component {
             }
             icon="lines.svg"
             action={this.toggleRegion}
-            className="lines-btn"
+            className="mobile-hide"
             name={t('onboarding.lines.name')}
             description={t('onboarding.lines.description')}
           />

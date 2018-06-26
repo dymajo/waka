@@ -1,0 +1,22 @@
+// honestly, media queries are the best.
+@media (max-width: 850px) {
+  .mobile-hide,
+  li.mobile-hide {
+    display: none;
+  }
+}
+@media (min-width: 851px) {
+  .desktop-invisible {
+    visibility: hidden;
+  }
+  .desktop-hide,
+  li.desktop-hide {
+    display: none;
+  }
+  .desktop-square {
+    border-radius: 0;
+  }
+  .desktop-allow-touch {
+    touch-action: manipulation;
+  }
+}
