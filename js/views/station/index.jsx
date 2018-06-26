@@ -10,10 +10,7 @@ import { StationStore } from '../../stores/stationStore.js'
 import { SettingsStore } from '../../stores/settingsStore.js'
 import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
-import iconhelper from '../../helpers/icon.js'
 import { CurrentLocation } from '../../stores/currentLocation.js'
-
-const IconHelper = new iconhelper()
 
 import UnsavedIcon from '../../../dist/icons/unsaved.svg'
 
@@ -22,9 +19,6 @@ import Onzo from './onzo.jsx'
 
 // TODO:
 // That little modal for saving a station
-// Station Description & Icon
-// Scrolling down a tad when it's needed
-
 class StationView extends React.Component {
   static propTypes = {
     match: PropTypes.object,
@@ -51,7 +45,10 @@ class StationView extends React.Component {
   }
   constructor(props) {
     super(props)
-    if (UiStore.state.lastTransition !== 'backward' && UiStore.state.layout === 'desktop') {
+    if (
+      UiStore.state.lastTransition !== 'backward'
+      // document.documentElement.clientWidth <= vars.desktopThreshold
+    ) {
       UiStore.setCardPosition('default')
     }
   }
@@ -338,8 +335,11 @@ class StationView extends React.Component {
         // calculates how much it overflows and adds it
         const scrollView = this.scrollContent.current.scrollView.current
         const overflowAmount =
-          itemPos.top + itemPos.height - document.documentElement.clientHeight + scrollView.getScrollableNode().scrollTop
-        scrollView.scrollTo({y: overflowAmount, behavior: 'smooth'})
+          itemPos.top +
+          itemPos.height -
+          document.documentElement.clientHeight +
+          scrollView.getScrollableNode().scrollTop
+        scrollView.scrollTo({ y: overflowAmount, behavior: 'smooth' })
       }
     }, 250)
   }

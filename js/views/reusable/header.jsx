@@ -10,7 +10,7 @@ import { TouchableOpacity } from './touchableOpacity.jsx'
 // not used for all headers yet...
 export class Header extends React.Component {
   static propTypes = {
-    history: PropTypes.object,
+    className: PropTypes.string,
     title: PropTypes.string,
     subtitle: PropTypes.string,
     backFn: PropTypes.func,
@@ -19,9 +19,6 @@ export class Header extends React.Component {
     hideClose: PropTypes.bool,
   }
   wrapper = React.createRef()
-  state = {
-    layout: 'mobile',
-  }
 
   componentDidMount() {
     this.wrapperNode = findNodeHandle(this.wrapper.current)
@@ -36,19 +33,6 @@ export class Header extends React.Component {
   triggerTouchStart = e => {
     UiStore.state.headerEvent = e.target
   }
-  triggerLayout = () => {
-    const layout = this.state.layout
-    if (document.documentElement.clientWidth > vars.desktopThreshold) {
-      if (layout !== 'desktop') {
-        this.setState({ layout: 'desktop' })
-        UiStore.state.layout = 'desktop'
-        UiStore.setCardPosition('max')
-      }
-    } else if (layout !== 'mobile') {
-      this.setState({ layout: 'mobile' })
-      UiStore.state.layout = 'mobile'
-    }
-  }
   render() {
     let subtitleStyle, subtitleElement, actionIcon
     if (typeof this.props.subtitle !== 'undefined') {
@@ -59,12 +43,6 @@ export class Header extends React.Component {
         <Text style={styles.subtitle}>{this.props.subtitle}&nbsp;</Text>
       )
     }
-    const pillElement =
-      this.state.layout === 'desktop' ? null : <View style={styles.pill} />
-    const wrapperStyle =
-      this.state.layout === 'desktop'
-        ? [styles.wrapper, styles.wrapperDesktop]
-        : styles.wrapper
 
     if (typeof this.props.actionIcon !== 'undefined') {
       const style =
@@ -88,11 +66,13 @@ export class Header extends React.Component {
       )
     return (
       <View
-        style={wrapperStyle}
+        style={styles.wrapper}
         ref={this.wrapper}
-        onLayout={this.triggerLayout}
+        className={(this.props.className || '') + ' desktop-square'}
       >
-        <View style={styles.pillWrapper}>{pillElement}</View>
+        <View style={styles.pillWrapper} className="desktop-invisible">
+          <View style={styles.pill} />
+        </View>
         <View style={styles.bottomWrapper}>
           <View style={styles.textWrapper}>
             <Text style={[styles.text, subtitleStyle]} numberOfLines={1}>

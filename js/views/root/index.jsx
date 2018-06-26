@@ -19,9 +19,6 @@ export class Root extends React.Component {
   static propTypes = {
     togglePin: PropTypes.func,
   }
-  state = {
-    layout: 'mobile',
-  }
   wrapper = React.createRef()
 
   componentDidMount() {
@@ -46,21 +43,14 @@ export class Root extends React.Component {
   triggerSettings = () => {
     UiStore.safePush('/settings')
   }
-  triggerLayout = () => {
-    const layout = this.state.layout
-    if (document.documentElement.clientWidth > vars.desktopThreshold) {
-      if (layout !== 'desktop') {
-        this.setState({ layout: 'desktop' })
-        UiStore.setCardPosition('max')
-      }
-    } else if (layout !== 'mobile') {
-      this.setState({ layout: 'mobile' })
-    }
-  }
   render() {
-    const header =
-      this.state.layout === 'mobile' ? (
-        <View style={styles.headerWrapper} ref={this.wrapper}>
+    return (
+      <View style={styles.wrapper}>
+        <View
+          className="desktop-hide"
+          style={styles.headerWrapper}
+          ref={this.wrapper}
+        >
           <TouchableOpacity
             style={[styles.button, styles.rightBorder]}
             onClick={() => UiStore.setCardPosition('toggle')}
@@ -73,9 +63,9 @@ export class Root extends React.Component {
             <Text style={styles.text}>{t('root.linesLabel')}</Text>
           </TouchableOpacity>
         </View>
-      ) : (
         <Header
           title={t('app.name')}
+          className="mobile-hide"
           subtitle={
             StationStore.currentCity === 'none'
               ? ''
@@ -85,10 +75,6 @@ export class Root extends React.Component {
           actionIcon={<SettingsIcon style={{ fill: vars.headerIconColor }} />}
           actionFn={this.triggerSettings}
         />
-      )
-    return (
-      <View style={styles.wrapper} onLayout={this.triggerLayout}>
-        {header}
         <LinkedScroll>
           <RootContent togglePin={this.props.togglePin} />
         </LinkedScroll>

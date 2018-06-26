@@ -9,7 +9,7 @@ import { iOS } from '../../models/ios.js'
 export class LinkedScroll extends React.Component {
   static propTypes = {
     children: PropTypes.node,
-    onScroll: PropTypes.func
+    onScroll: PropTypes.func,
   }
   constructor(props) {
     super(props)
@@ -72,6 +72,7 @@ export class LinkedScroll extends React.Component {
     ]
     return (
       <ScrollView
+        className="desktop-allow-touch"
         style={touchStyles}
         onScroll={this.setScroll}
         scrollEventThrottle={16}
