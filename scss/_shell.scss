@@ -6,6 +6,8 @@ $map-position: 66px;
 $map-position-transform: translate3d(0, $map-position, 0);
 $max-position: 100vh;
 $max-position-transform: translate3d(0, $max-position, 0);
+$desktop-position: 32px;
+$desktop-position-transform: translate3d(0, $desktop-position, 0);
 
 // TODO: Lots of these are the same maybe we should optimize a little.
 // ENTER
@@ -90,6 +92,31 @@ $max-position-transform: translate3d(0, $max-position, 0);
     opacity: 1;
   }
 }
+@keyframes shell-desktop-in {
+  0% {
+    opacity: 0;
+    transform: $desktop-position-transform;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-desktop-out {
+  0% {
+    opacity: 1;
+    transform: $initial-transform;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: $desktop-position-transform;
+  }
+}
 
 .shell-content {
   background: $default-back;
@@ -116,9 +143,76 @@ $max-position-transform: translate3d(0, $max-position, 0);
       animation: 200ms ease shell-fade 1;
     }
   }
-  &.max-position-max {
+
+  // Mobile UI
+  @media (max-width: 850px) {
+    &.max-position-max {
+      &.direction-forward.entering {
+        animation: 300ms ease shell-max-enter-max 1;
+      }
+      &.direction-backward {
+        &.exiting,
+        &.exited {
+          transform: $max-position-transform;
+        }
+        &.exiting {
+          animation: 300ms ease shell-max-exit-max 1;
+        }
+      }
+    }
+    &.max-position-default {
+      &.direction-forward.entering {
+        animation: 250ms ease shell-max-enter-default 1;
+        animation-delay: 100ms;
+      }
+    }
+    &.default-position-max {
+      &.direction-forward.entering {
+        animation: 150ms ease-in shell-default-enter-max 1;
+      }
+    }
+    &.default-position-default {
+      &.direction-forward.entering {
+        animation: 300ms ease shell-default-enter-default 1;
+      }
+      &.direction-backward {
+        &.exiting,
+        &.exited {
+          transform: $default-position-transform;
+        }
+        &.exiting {
+          animation: 300ms ease shell-default-exit-default 1;
+        }
+      }
+    }
+    &.map-position-default {
+      &.direction-forward.entering {
+        animation: 50ms ease shell-map-enter-default 1;
+      }
+      &.direction-fade-forward.entering {
+        animation: 50ms ease shell-fade 1;
+      }
+    }
+
+    &.map-position-map {
+      &.direction-forward.entering {
+        animation: 50ms ease shell-fade 1;
+      }
+      &.direction-backward {
+        &.exiting,
+        &.exited {
+          transform: $map-position-transform;
+        }
+        &.exiting {
+          animation: 250ms ease shell-map-exit-map 1;
+        }
+      }
+    }
+  }
+
+  @media (min-width: 851px) {
     &.direction-forward.entering {
-      animation: 300ms ease shell-max-enter-max 1;
+      animation: 300ms ease shell-desktop-in 1;
     }
     &.direction-backward {
       &.exiting,
@@ -126,55 +220,7 @@ $max-position-transform: translate3d(0, $max-position, 0);
         transform: $max-position-transform;
       }
       &.exiting {
-        animation: 300ms ease shell-max-exit-max 1;
-      }
-    }
-  }
-  &.max-position-default {
-    &.direction-forward.entering {
-      animation: 250ms ease shell-max-enter-default 1;
-      animation-delay: 100ms;
-    }
-  }
-  &.default-position-max {
-    &.direction-forward.entering {
-      animation: 150ms ease-in shell-default-enter-max 1;
-    }
-  }
-  &.default-position-default {
-    &.direction-forward.entering {
-      animation: 300ms ease shell-default-enter-default 1;
-    }
-    &.direction-backward {
-      &.exiting,
-      &.exited {
-        transform: $default-position-transform;
-      }
-      &.exiting {
-        animation: 300ms ease shell-default-exit-default 1;
-      }
-    }
-  }
-  &.map-position-default {
-    &.direction-forward.entering {
-      animation: 50ms ease shell-map-enter-default 1;
-    }
-    &.direction-fade-forward.entering {
-      animation: 50ms ease shell-fade 1;
-    }
-  }
-
-  &.map-position-map {
-    &.direction-forward.entering {
-      animation: 50ms ease shell-fade 1;
-    }
-    &.direction-backward {
-      &.exiting,
-      &.exited {
-        transform: $map-position-transform;
-      }
-      &.exiting {
-        animation: 250ms ease shell-map-exit-map 1;
+        animation: 300ms ease shell-desktop-out 1;
       }
     }
   }
