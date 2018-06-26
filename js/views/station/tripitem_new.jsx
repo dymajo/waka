@@ -254,7 +254,7 @@ class TripItem extends React.Component {
       )
     } else {
       if (times.length === 0) {
-        return
+        return null
       }
       let latest = times[0]
       let dd = null

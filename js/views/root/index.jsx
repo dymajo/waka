@@ -29,6 +29,12 @@ export class Root extends React.Component {
   componentWillUnmount() {
     this.wrapperNode.removeEventListener('touchstart', this.triggerTouchStart)
   }
+  toggleStations = () => {
+    // the request animation frame fixes a jump on iOS
+    requestAnimationFrame(() => {
+      UiStore.setCardPosition('toggle')
+    })
+  }
   toggleLines = () => {
     UiStore.safePush('/l/' + StationStore.currentCity)
     if (UiStore.state.cardPosition === 'map') {
@@ -53,7 +59,7 @@ export class Root extends React.Component {
         >
           <TouchableOpacity
             style={[styles.button, styles.rightBorder]}
-            onClick={() => UiStore.setCardPosition('toggle')}
+            onClick={this.toggleStations}
           >
             <StationIcon style={{ margin: 'auto' }} />
             <Text style={styles.text}>{t('root.stationsLabel')}</Text>

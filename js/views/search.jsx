@@ -94,7 +94,8 @@ const getMarker = function(iconType, name) {
   }
 }
 
-class Search extends React.PureComponent {
+// If we stop binding this to the history, we can make this pure
+class Search extends React.Component {
   static propTypes = {
     history: PropTypes.object,
   }

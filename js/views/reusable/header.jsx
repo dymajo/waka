@@ -34,7 +34,9 @@ export class Header extends React.Component {
     UiStore.state.headerEvent = e.target
   }
   render() {
-    let subtitleStyle, subtitleElement, actionIcon
+    let subtitleStyle,
+      subtitleElement,
+      actionIcon = null
     if (typeof this.props.subtitle !== 'undefined') {
       subtitleStyle = {
         lineHeight: vars.headerHeight - paddingVertical * 2 - 18,
@@ -64,25 +66,31 @@ export class Header extends React.Component {
           </View>
         </TouchableOpacity>
       )
+    const pillWrapperStyles =
+      actionIcon && closeIcon
+        ? [styles.pillWrapper, styles.pillWrapperExtra]
+        : styles.pillWrapper
     return (
       <View
         style={styles.wrapper}
         ref={this.wrapper}
         className={(this.props.className || '') + ' desktop-square'}
       >
-        <View style={styles.pillWrapper} className="desktop-invisible">
-          <View style={styles.pill} />
-        </View>
-        <View style={styles.bottomWrapper}>
-          <View style={styles.textWrapper}>
-            <Text style={[styles.text, subtitleStyle]} numberOfLines={1}>
-              {this.props.title}&nbsp;
-            </Text>
-            {subtitleElement}
+        <View style={styles.flexWrapper}>
+          <View style={pillWrapperStyles} className="desktop-invisible">
+            <View style={styles.pill} />
           </View>
-          {actionIcon}
-          {closeIcon}
+          <View style={styles.bottomWrapper}>
+            <View style={styles.textWrapper}>
+              <Text style={[styles.text, subtitleStyle]} numberOfLines={1}>
+                {this.props.title}&nbsp;
+              </Text>
+              {subtitleElement}
+            </View>
+          </View>
         </View>
+        {actionIcon}
+        {closeIcon}
       </View>
     )
   }
@@ -93,17 +101,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-    paddingBottom: paddingVertical,
     touchAction: 'none',
     boxShadow: '0 -1px 0 rgba(0,0,0,0.1) inset',
+    flexDirection: 'row',
   },
-  wrapperDesktop: {
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
+  flexWrapper: {
+    flex: 1,
+    paddingBottom: paddingVertical,
   },
   pillWrapper: {
     height: paddingVertical,
     paddingTop: paddingVertical / 2,
+    paddingLeft: 44,
+  },
+  pillWrapperExtra: {
+    paddingLeft: 88,
   },
   pill: {
     backgroundColor: '#d8d8d8',

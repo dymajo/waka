@@ -45,11 +45,10 @@ class StationView extends React.Component {
   }
   constructor(props) {
     super(props)
-    if (
-      UiStore.state.lastTransition !== 'backward'
-      // document.documentElement.clientWidth <= vars.desktopThreshold
-    ) {
-      UiStore.setCardPosition('default')
+    if (UiStore.state.lastTransition !== 'backward') {
+      requestAnimationFrame(() => {
+        UiStore.setCardPosition('default')
+      })
     }
   }
 
