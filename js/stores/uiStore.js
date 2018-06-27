@@ -85,7 +85,14 @@ class uiStore extends Events {
       }
     })
   }
-  safePush = url => {
+  // at the moment you can't go up a level
+  safePush = relativeUrl => {
+    const url =
+      relativeUrl[0] === '.'
+        ? this.customHistory.location.pathname.replace(/\/$/, '') +
+          relativeUrl.slice(1)
+        : relativeUrl
+
     if (url !== this.customHistory.location.pathname) {
       this.customHistory.push(url)
     }
@@ -114,26 +121,8 @@ class uiStore extends Events {
       this.state.oldCardPosition = position
     }
   }
-  downloadCss(file) {
-    if (file in this.state.downloadedCss) {
-      return
-    }
-    fetch('/assets.json').then(response => {
-      response.json().then(data => {
-        const link = document.createElement('link')
-        link.setAttribute('rel', 'stylesheet')
-        link.setAttribute('href', '/' + data[file])
-        const ref = document.querySelector('link')
-        ref.parentNode.insertBefore(link, ref)
-        this.state.downloadedCss[file] = link
-      })
-    })
-  }
   setExpandedItem(name) {
     this.trigger('expandChange', name)
-  }
-  getState() {
-    return this.state
   }
   getAnimation(styleType) {
     if (iOS.detect() && window.innerWidth <= 850) {

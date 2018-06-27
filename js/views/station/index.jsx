@@ -17,8 +17,6 @@ import UnsavedIcon from '../../../dist/icons/unsaved.svg'
 import TripItem from './tripitem_new.jsx'
 import Onzo from './onzo.jsx'
 
-// TODO:
-// That little modal for saving a station
 class StationView extends React.Component {
   static propTypes = {
     match: PropTypes.object,
@@ -45,7 +43,10 @@ class StationView extends React.Component {
   }
   constructor(props) {
     super(props)
-    if (UiStore.state.lastTransition !== 'backward') {
+    if (
+      UiStore.state.lastTransition !== 'backward' &&
+      UiStore.state.cardPosition === 'map'
+    ) {
       requestAnimationFrame(() => {
         UiStore.setCardPosition('default')
       })
@@ -84,7 +85,6 @@ class StationView extends React.Component {
           description = t('station.bus') + ' ' + stop
         }
         if (stop.split('+').length > 1) {
-          name = this.state.name
           description = t('savedStations.stops', {
             number: stop.split('+').join(', '),
           })
@@ -363,6 +363,9 @@ class StationView extends React.Component {
     })
     this.getData(this.props)
   }
+  triggerSave = () => {
+    UiStore.safePush('./save')
+  }
   getName(name) {
     name = name.replace(' Interchange', ' -')
     name = name.replace(' Bus Station', ' -')
@@ -440,8 +443,7 @@ class StationView extends React.Component {
           title={this.state.name}
           subtitle={this.state.description}
           actionIcon={actionIcon}
-          // TODO!
-          // actionFn={SHOW THE PIN}
+          actionFn={this.triggerSave}
         />
         <LinkedScroll ref={this.scrollContent}>
           <ul className="trip-content" ref={this.swipeContent}>
