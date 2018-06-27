@@ -30,10 +30,6 @@ button {
   font-family: 'Open Sans', sans-serif;
 }
 
-.panes {
-  height: 100%;
-}
-
 @import '_mixins';
 @import '_buttons';
 @import '_defaults';
@@ -43,7 +39,6 @@ button {
 @import '_search';
 @import '_content';
 @import '_trip';
-@import '_modal';
 @import '_settings';
 @import '_splash';
 @import '_lines';

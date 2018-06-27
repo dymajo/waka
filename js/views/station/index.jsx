@@ -12,6 +12,7 @@ import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
 import { CurrentLocation } from '../../stores/currentLocation.js'
 
+import SavedIcon from '../../../dist/icons/saved.svg'
 import UnsavedIcon from '../../../dist/icons/unsaved.svg'
 
 import TripItem from './tripitem_new.jsx'
@@ -435,7 +436,16 @@ class StationView extends React.Component {
       })
     }
 
-    const actionIcon = <UnsavedIcon style={{ fill: vars.headerIconColor }} />
+    const region = this.props.match.params.region
+    const stop = this.props.match.params.station
+    const regionStop = region + '|' + stop
+
+    const actionIcon =
+      StationStore.getOrder().indexOf(regionStop) === -1 ? (
+        <UnsavedIcon style={saveStyle} />
+      ) : (
+        <SavedIcon style={saveStyle} />
+      )
 
     return (
       <View style={styles.wrapper}>
@@ -463,3 +473,4 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 })
+const saveStyle = { fill: vars.headerIconColor }

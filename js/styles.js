@@ -3,6 +3,7 @@ export const vars = {
   headerHeight: 66,
   headerColor: '#273d52',
   accentColor: '#fb6754',
+  borderColor: '#ddd',
   padding: 16,
 
   smallFontSize: 13,
@@ -11,7 +12,7 @@ export const vars = {
   fontFamily:
     '"Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif',
 
-  desktopThreshold: 850
+  desktopThreshold: 850,
 }
 export const paragraphStyles = StyleSheet.create({
   h1: {

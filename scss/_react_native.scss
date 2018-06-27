@@ -29,3 +29,38 @@
     opacity: 0.75;
   }
 }
+.checkbox {
+  input[type='checkbox'] {
+    display: none;
+
+    + label {
+      display: inline-block;
+      vertical-align: top;
+      font-size: 15px;
+      line-height: 22px;
+
+      &::before {
+        content: '✔';
+        text-align: center;
+        vertical-align: top;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        display: inline-block;
+        margin-right: 0.5rem;
+        border: 2px solid $atblue;
+        border-radius: 2px;
+        color: transparent;
+        font-size: 14px;
+        transition: 75ms ease-in background;
+      }
+    }
+
+    &:checked + label {
+      &::before {
+        background: $atblue;
+        color: #fff;
+      }
+    }
+  }
+}
