@@ -109,10 +109,6 @@ class Search extends React.Component {
     loadmap: true,
     online: window.navigator.onLine,
   }
-  constructor(props) {
-    super(props)
-    UiStore.downloadCss('maps.css')
-  }
   componentDidMount() {
     window.addEventListener('online', this.triggerRetry)
     window.addEventListener('offline', this.goOffline)

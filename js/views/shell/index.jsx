@@ -13,7 +13,6 @@ import { ContentView } from './content.jsx'
 
 // routes
 import { Root } from '../root/index.jsx'
-import RootHeader from '../root/header.jsx'
 import Router from '../router.jsx'
 
 import { Pin } from '../root/pin.jsx'

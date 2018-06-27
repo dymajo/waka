@@ -74,7 +74,6 @@ class vehicle_location extends React.Component {
     }
     this.currentLine = null
     this.requestingRealtime = false
-    UiStore.downloadCss('maps.css')
   }
   getShapeData = (newProps = this.props) => {
     let showIcons = true
