@@ -1,14 +1,16 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { View, StyleSheet } from 'react-native'
+import { View, Text, TextInput, StyleSheet } from 'react-native'
 import { withRouter } from 'react-router'
 
+import { vars } from '../../styles.js'
 import { t } from '../../stores/translationStore.js'
 import { StationStore } from '../../stores/stationStore.js'
 import { UiStore } from '../../stores/uiStore.js'
 
 import { Header } from '../reusable/header.jsx'
 import { LinkedScroll } from '../reusable/linkedScroll.jsx'
+import { LinkButton } from '../reusable/linkButton.jsx'
 
 class SaveWithoutRouter extends React.Component {
   constructor(props) {
@@ -80,7 +82,7 @@ class SaveWithoutRouter extends React.Component {
       const history = this.props.history
       setTimeout(() => {
         history.replace(url)
-      })
+      }, 50)
     }
   }
   triggerSaveChange = e => {
@@ -104,7 +106,8 @@ class SaveWithoutRouter extends React.Component {
       if (
         item !== stop &&
         mergers.indexOf(item) === -1 &&
-        item.split('+').length === 1
+        item.split('+').length === 1 &&
+        !item.match('carpark') // this is a shit hack
       ) {
         mergers.push(item)
       }
@@ -118,21 +121,29 @@ class SaveWithoutRouter extends React.Component {
       header = t('stationedit.title')
       if (this.props.match.params.station.split('+').length === 1) {
         removeBtn = (
-          <button className="inline" onClick={this.triggerRemove}>
-            Remove Stop
-          </button>
+          <LinkButton
+            color="secondary"
+            onClick={this.triggerRemove}
+            label={t('stationedit.remove')}
+          />
         )
       }
     }
 
     if (mergers.length > 1) {
       combined = (
-        <div>
-          <h3>{t('stationedit.merge')}</h3>
-          <ul>
+        <React.Fragment>
+          <Text style={styles.label}>
+            {t('stationedit.merge').toUpperCase()}
+          </Text>
+          <View style={styles.checkboxContainer}>
             {mergers.filter(i => i !== regionStop).map(item => {
               return (
-                <li key={item}>
+                <View
+                  key={item}
+                  style={styles.checkboxRow}
+                  className="checkbox"
+                >
                   <input
                     id={'merge-' + item}
                     onChange={this.triggerCheckbox(item)}
@@ -143,11 +154,11 @@ class SaveWithoutRouter extends React.Component {
                     {item.split('|').slice(-1)[0]} -{' '}
                     {(StationStore.StationData[item] || {}).name}
                   </label>
-                </li>
+                </View>
               )
             })}
-          </ul>
-        </div>
+          </View>
+        </React.Fragment>
       )
     }
 
@@ -155,19 +166,21 @@ class SaveWithoutRouter extends React.Component {
       <View style={styles.wrapper}>
         <Header title={header} />
         <LinkedScroll>
-          <View>
-            <h3>{t('stationedit.name')}</h3>
-            <input
-              type="text"
+          <View style={styles.innerWrapper}>
+            <Text style={styles.label}>
+              {t('stationedit.name').toUpperCase()}
+            </Text>
+            <TextInput
+              style={styles.input}
               value={this.state.name}
               onChange={this.triggerSaveChange}
-              ref={e => (this.saveInput = e)}
             />
             {combined}
             {removeBtn}
-            <button className="submit" onClick={this.triggerSaveAdd}>
-              {t('stationedit.confirm')}
-            </button>
+            <LinkButton
+              onClick={this.triggerSaveAdd}
+              label={t('stationedit.confirm')}
+            />
           </View>
         </LinkedScroll>
       </View>
@@ -180,5 +193,36 @@ export { Save }
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+  },
+  innerWrapper: {
+    padding: vars.padding,
+  },
+  label: {
+    color: vars.headerColor,
+    fontFamily: vars.fontFamily,
+    fontWeight: 'bold',
+    fontSize: vars.defaultFontSize - 2,
+    paddingBottom: vars.padding * 0.25,
+  },
+  input: {
+    fontFamily: vars.fontFamily,
+    fontSize: vars.defaultFontSize,
+    backgroundColor: '#fff',
+    paddingTop: vars.padding * 0.5,
+    paddingBottom: vars.padding * 0.5,
+    paddingLeft: vars.padding * 0.75,
+    paddingRight: vars.padding * 0.75,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: vars.borderColor,
+    borderRadius: 3,
+    marginBottom: vars.padding,
+  },
+  checkboxContainer: {
+    paddingTop: vars.padding / 2,
+    paddingBottom: vars.padding / 2,
+  },
+  checkboxRow: {
+    paddingBottom: vars.padding / 2,
   },
 })
