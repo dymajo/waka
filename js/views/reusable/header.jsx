@@ -33,6 +33,16 @@ export class Header extends React.Component {
   triggerTouchStart = e => {
     UiStore.state.headerEvent = e.target
   }
+  triggerMax() {
+    requestAnimationFrame(() => {
+      const pos =
+        UiStore.state.cardPosition === 'map' ||
+        UiStore.state.cardPosition === 'max'
+          ? 'default'
+          : 'max'
+      UiStore.setCardPosition(pos, true, true)
+    })
+  }
   render() {
     let subtitleStyle,
       subtitleElement,
@@ -76,7 +86,7 @@ export class Header extends React.Component {
         ref={this.wrapper}
         className={(this.props.className || '') + ' desktop-square'}
       >
-        <View style={styles.flexWrapper}>
+        <View style={styles.flexWrapper} onClick={this.triggerMax}>
           <View style={pillWrapperStyles} className="desktop-invisible">
             <View style={styles.pill} />
           </View>

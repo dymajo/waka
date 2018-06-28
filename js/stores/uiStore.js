@@ -97,7 +97,7 @@ class uiStore extends Events {
       this.customHistory.push(url)
     }
   }
-  setCardPosition(position, animate = true) {
+  setCardPosition(position, animate = true, manual = false) {
     // don't need to do anything if it's already in the right position
     if (this.state.cardPosition === position) {
       return
@@ -112,7 +112,7 @@ class uiStore extends Events {
       }
     }
     this.state.cardPosition = position
-    this.trigger('card-position', position, animate)
+    this.trigger('card-position', position, animate, manual)
     if (animate === true) {
       setTimeout(() => {
         this.state.oldCardPosition = position
