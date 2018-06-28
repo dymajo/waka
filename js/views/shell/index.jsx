@@ -78,14 +78,15 @@ class Index extends React.Component {
       })
     }
   }
-  handleNewCardPosition = (position, animate) => {
+  handleNewCardPosition = (position, animate, manual) => {
     const newState = {
       cardPosition: position,
     }
     if (
       UiStore.state.oldCardPosition === 'default' &&
       position === 'max' &&
-      animate === true
+      animate === true &&
+      manual === false
     ) {
       newState.delayCard = true
     } else {
