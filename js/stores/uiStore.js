@@ -14,6 +14,10 @@ class uiStore extends Events {
       downloadedCss: {}, // deprecated
       scrollPosition: 0,
 
+      // base map stuff
+      basemap: null,
+      basemapType: 'leaflet',
+
       // root card positions
       oldCardPosition: 'default',
       cardPosition: 'default',

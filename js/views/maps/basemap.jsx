@@ -99,6 +99,7 @@ class BasemapWithoutRouter extends React.Component {
   static propTypes = {
     history: PropTypes.object,
   }
+  map = React.createRef()
   myIcons = {}
   state = {
     station: '',
@@ -117,18 +118,20 @@ class BasemapWithoutRouter extends React.Component {
     CurrentLocation.bind('mapmove-silent', this.mapmovesilent)
     this.getData(this.state.position[0], this.state.position[1], getDist(17))
 
+    UiStore.basemap = this.map.current.leafletElement
+
     if (CurrentLocation.state.hasGranted) {
       CurrentLocation.startWatch()
     }
   }
   // stops requesting location when not in use
-  componentWillReceiveProps() {
-    setTimeout(() => {
-      if (window.location.pathname !== '/') {
-        CurrentLocation.stopWatch()
-      }
-    }, 300)
-  }
+  // componentWillReceiveProps() {
+  //   setTimeout(() => {
+  //     if (window.location.pathname !== '/') {
+  //       CurrentLocation.stopWatch()
+  //     }
+  //   }, 300)
+  // }
   componentWillUnmount() {
     window.removeEventListener('online', this.triggerRetry)
     window.removeEventListener('offline', this.goOffline)
@@ -290,6 +293,7 @@ class BasemapWithoutRouter extends React.Component {
           zoom={17}
           zoomControl={false}
           className="map"
+          ref={this.map}
         >
           <ZoomControl position="bottomleft" />
           <TileLayer

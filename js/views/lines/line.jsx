@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { View, Text, StyleSheet } from 'react-native'
 import { withRouter } from 'react-router'
 
+import { UiStore } from '../../stores/uiStore.js'
 import { Header } from '../reusable/header.jsx'
 import { Layer } from '../maps/layer.jsx'
 import { LineData } from '../../data/lineData.js'
@@ -19,6 +20,17 @@ class LineWithoutRouter extends React.Component {
   state = {
     header: '',
     stops: [],
+  }
+  constructor(props) {
+    super(props)
+    if (
+      UiStore.state.lastTransition !== 'backward' &&
+      UiStore.state.cardPosition === 'max'
+    ) {
+      requestAnimationFrame(() => {
+        UiStore.setCardPosition('default')
+      })
+    }
   }
   componentDidMount() {
     this.layer.show()
@@ -45,7 +57,7 @@ class LineWithoutRouter extends React.Component {
         <Header title={this.state.header} />
         {this.state.stops.map(stop => {
           return (
-            <Text key={stop.stop_id}>
+            <Text key={stop.stop_sequence}>
               {stop.stop_id} - {stop.stop_name}
             </Text>
           )
