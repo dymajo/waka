@@ -1,7 +1,7 @@
 import createHistory from 'history/createBrowserHistory'
 
 import Events from './events'
-import { iOS } from '../models/ios.js'
+import { iOS } from '../helpers/ios.js'
 
 class uiStore extends Events {
   constructor(props) {

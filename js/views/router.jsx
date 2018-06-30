@@ -21,10 +21,6 @@ class RouterRender extends React.Component {
           path="/s/:region/:station/realtime/:trip_id"
           component={VehicleLocationBootstrap}
         />
-        <Route
-          path="/l/:region/:line_id"
-          component={VehicleLocationBootstrap}
-        />
       </Switch>
     )
   }

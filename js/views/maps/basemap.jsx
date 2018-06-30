@@ -6,19 +6,19 @@ import * as reactLeaflet from 'react-leaflet'
 
 import { withRouter } from 'react-router'
 
-import local from '../../local'
+import local from '../../../local'
 
-import { vars } from '../styles.js'
-import { CurrentLocation } from '../stores/currentLocation.js'
-import { StationStore } from '../stores/stationStore.js'
-import { SettingsStore } from '../stores/settingsStore.js'
-import { UiStore } from '../stores/uiStore.js'
-import { t } from '../stores/translationStore.js'
-import { TouchableOpacity } from './reusable/touchableOpacity.jsx'
+import { vars } from '../../styles.js'
+import { CurrentLocation } from '../../stores/currentLocation.js'
+import { StationStore } from '../../stores/stationStore.js'
+import { SettingsStore } from '../../stores/settingsStore.js'
+import { UiStore } from '../../stores/uiStore.js'
+import { t } from '../../stores/translationStore.js'
+import { TouchableOpacity } from '../reusable/touchableOpacity.jsx'
 
-import LocateIcon from '../../dist/icons/locate-2.svg'
+import LocateIcon from '../../../dist/icons/locate-2.svg'
 
-import iconhelper from '../helpers/icon.js'
+import iconhelper from '../../helpers/icon.js'
 
 const Icon = leaflet.icon
 const LeafletMap = reactLeaflet.Map
@@ -95,7 +95,7 @@ const getMarker = function(iconType, name) {
 }
 
 // If we stop binding this to the history, we can make this pure
-class Search extends React.Component {
+class BasemapWithoutRouter extends React.Component {
   static propTypes = {
     history: PropTypes.object,
   }
@@ -378,5 +378,5 @@ const styles = StyleSheet.create({
     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
   },
 })
-const SearchWithRouter = withRouter(Search)
-export default SearchWithRouter
+const Basemap = withRouter(BasemapWithoutRouter)
+export { Basemap }

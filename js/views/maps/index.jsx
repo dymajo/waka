@@ -1,12 +1,12 @@
 import React from 'react'
 
-import Search from '../search.jsx'
+import { Basemap } from './basemap.jsx'
 
 export class MapView extends React.PureComponent {
   constructor(props) {
     super(props)
   }
   render() {
-    return <Search />
+    return <Basemap />
   }
 }

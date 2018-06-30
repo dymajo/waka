@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { ScrollView, StyleSheet } from 'react-native'
 
 import { UiStore } from '../../stores/uiStore.js'
-import { iOS } from '../../models/ios.js'
+import { iOS } from '../../helpers/ios.js'
 
 // This component links the scroll to the fancy shell.
 export class LinkedScroll extends React.Component {

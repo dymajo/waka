@@ -2,13 +2,10 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 
-import { iOS } from '../../models/ios.js'
+import { iOS } from '../../helpers/ios.js'
 import { UiStore } from '../../stores/uiStore.js'
-import { StationStore } from '../../stores/stationStore.js'
-import { t } from '../../stores/translationStore.js'
-import { CurrentLocation } from '../../stores/currentLocation.js'
 
-import { MapView } from './map.jsx'
+import { MapView } from '../maps/index.jsx'
 import { ContentView } from './content.jsx'
 
 // routes

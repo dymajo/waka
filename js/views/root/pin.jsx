@@ -1,6 +1,6 @@
 ﻿import React from 'react'
 import PropTypes from 'prop-types'
-import { iOS } from '../../models/ios.js'
+import { iOS } from '../../helpers/ios.js'
 import Clipboard from 'clipboard'
 import local from '../../../local'
 

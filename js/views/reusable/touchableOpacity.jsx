@@ -2,7 +2,7 @@ import React from 'react'
 import { View, findNodeHandle } from 'react-native-web'
 
 import { UiStore } from '../../stores/uiStore.js'
-import { iOS } from '../../models/ios.js'
+import { iOS } from '../../helpers/ios.js'
 
 // # README
 // The whole reason this stupid component exists is because iOS has a flicker problem.
