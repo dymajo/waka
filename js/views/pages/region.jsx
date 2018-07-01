@@ -93,7 +93,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: '#333',
-    backgroundSize: 'cover',
+    backgroundSize: '100%',
+    backgroundRepeat: 'no-repeat',
     backgroundPosition: '50% 50%',
     overflow: 'hidden',
     marginBottom: 10,
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     position: 'relative',
     color: '#fff',
-    lineHeight: 1,
+    lineHeight: 16,
     fontWeight: '600',
     fontFamily: vars.fontFamily,
     textShadowColor: 'rgba(0,0,0,0.25)',
@@ -115,13 +116,11 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
   },
   regionTextSubHeader: {
-    paddingTop: 4,
-    paddingBottom: 12,
+    paddingBottom: 5,
     fontSize: vars.defaultFontSize,
   },
   regionTextHeader: {
     marginTop: 'auto',
-    paddingBottom: 10,
     fontSize: 14,
   },
 })

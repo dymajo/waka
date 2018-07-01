@@ -4,7 +4,8 @@
 @import 'maps';
 
 body {
-  --real-height: 100vh;
+  --bottom-inset: 0px;
+  --real-height: calc(100vh - var(--bottom-inset));
 }
 
 html,
@@ -14,7 +15,7 @@ body,
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background: #eee;
+  background: $default-back;
 }
 html,
 body {

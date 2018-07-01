@@ -38,10 +38,23 @@ class Index extends React.Component {
     super(props)
     this.Search = null // Map Component, dynamic load
 
-    document.body.style.setProperty(
-      '--real-height',
-      document.documentElement.clientHeight + 'px'
-    )
+    if (iOS.detect()) {
+      document.body.style.setProperty(
+        '--bottom-inset',
+        'env(safe-area-inset-bottom)'
+      )
+    }
+    const resize = () => {
+      document.body.style.setProperty(
+        '--real-height',
+        'calc(' +
+          document.documentElement.clientHeight +
+          'px - var(--bottom-inset))'
+      )
+    }
+    window.onresize = () => {
+      requestAnimationFrame(resize)
+    }
 
     this.touchstartpos = null // actual start pos
     this.fakestartpos = null // used for non janky animations
@@ -49,15 +62,6 @@ class Index extends React.Component {
     this.scrolllock = false // used so you know the difference between scroll & transform
 
     this.touchLock = false
-
-    window.onresize = function() {
-      requestAnimationFrame(() => {
-        document.body.style.setProperty(
-          '--real-height',
-          document.documentElement.clientHeight + 'px'
-        )
-      })
-    }
   }
   componentDidMount() {
     UiStore.bind('card-position', this.handleNewCardPosition)
