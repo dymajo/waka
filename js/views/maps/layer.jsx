@@ -6,7 +6,17 @@ import { UiStore } from '../../stores/uiStore.js'
 export class Layer {
   features = []
   visible = false
-  show() {
+  show(bounds = null) {
+    if (bounds !== null) {
+      const options = {}
+      if (document.documentElement.clientWidth <= 850) {
+        options.paddingBottomRight = [0, 350]
+      }
+      UiStore.basemap.fitBounds(
+        [[bounds.lat_min, bounds.lon_min], [bounds.lat_max, bounds.lon_max]],
+        options
+      )
+    }
     if (this.visible === true) return
     this.visible = true
     this.features.forEach(feature => {
@@ -20,8 +30,8 @@ export class Layer {
       feature.remove(UiStore.basemap)
     })
   }
-  add(type, data) {
-    const feature = GeoJSON(data)
+  add(type, data, props = {}) {
+    const feature = GeoJSON(data, props)
     this.features.push(feature)
     if (this.visible === true) {
       feature.addTo(UiStore.basemap)

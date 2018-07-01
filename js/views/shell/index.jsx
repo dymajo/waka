@@ -89,6 +89,9 @@ class Index extends React.Component {
     } else {
       newState.delayCard = false
     }
+    // can still be set to initial at this point
+    // we run this to ensure that the animation runs
+    this.touchcard.style.transition = ''
     this.setState(newState)
   }
   togglePin = () => {

@@ -33,14 +33,17 @@ class LineWithoutRouter extends React.Component {
     }
   }
   componentDidMount() {
-    this.layer.show()
     this.lineData.getMeta().then(metadata => {
       this.setState({
         header: metadata[0].route_long_name,
       })
       this.lineData.shape_id = metadata[0].shape_id
       this.lineData.getShape().then(shape => {
-        this.layer.add('geojson', shape)
+        this.layer.add('geojson', shape, {
+          color: metadata[0].route_color,
+          className: 'line',
+        })
+        this.layer.show(shape.bounds)
       })
       this.lineData.getStops().then(stops => {
         this.setState({ stops: stops })

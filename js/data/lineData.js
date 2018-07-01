@@ -31,6 +31,27 @@ export class LineData {
       fetch(`${local.endpoint}/${this.region}/shapejson/${shape}`)
         .then(response => {
           response.json().then(data => {
+            const bounds = {
+              lon_min: data.coordinates[0][0],
+              lon_max: data.coordinates[0][0],
+              lat_min: data.coordinates[0][1],
+              lat_max: data.coordinates[0][1],
+            }
+            data.coordinates.forEach(item => {
+              if (item[0] < bounds.lon_min) {
+                bounds.lon_min = item[0]
+              }
+              if (item[0] > bounds.lon_max) {
+                bounds.lon_max = item[0]
+              }
+              if (item[1] < bounds.lat_min) {
+                bounds.lat_min = item[1]
+              }
+              if (item[1] > bounds.lat_max) {
+                bounds.lat_max = item[1]
+              }
+            })
+            data.bounds = bounds
             data.center =
               data.coordinates[Math.round(data.coordinates.length / 2)]
             resolve(data)
