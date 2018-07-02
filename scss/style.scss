@@ -5,7 +5,7 @@
 
 body {
   --bottom-inset: 0px;
-  --real-height: calc(100vh - var(--bottom-inset));
+  --real-height: 100vh;
 }
 
 html,

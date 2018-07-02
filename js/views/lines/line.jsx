@@ -17,6 +17,7 @@ class LineWithoutRouter extends React.Component {
     line_id: this.props.match.params.line_id,
   })
   layer = new Layer()
+  pointsLayer = new Layer()
   state = {
     header: '',
     stops: [],
@@ -31,28 +32,56 @@ class LineWithoutRouter extends React.Component {
         UiStore.setCardPosition('default')
       })
     }
+    window.jono = this.pointsLayer
   }
   componentDidMount() {
     this.lineData.getMeta().then(metadata => {
+      const route_color = metadata[0].route_color
       this.setState({
         header: metadata[0].route_long_name,
       })
       this.lineData.shape_id = metadata[0].shape_id
       this.lineData.getShape().then(shape => {
         this.layer.add('geojson', shape, {
-          color: metadata[0].route_color,
+          color: route_color,
           className: 'line',
+          zIndexOffset: 10,
         })
         this.layer.show(shape.bounds)
       })
       this.lineData.getStops().then(stops => {
         this.setState({ stops: stops })
-        this.layer.add('points', stops)
+
+        const geojson = {
+          type: 'MultiPoint',
+          coordinates: [],
+        }
+        stops.forEach(stop => {
+          geojson.coordinates.push([stop.stop_lon, stop.stop_lat])
+        })
+        this.pointsLayer.add('geojson', geojson, {
+          typeExtension: 'CircleMarker',
+          typeExtensionOptions: {
+            className: 'metro-dot',
+            color: route_color,
+            radius: 7,
+            zIndexOffset: 20,
+          },
+          maxZoom: 5,
+        })
+        this.pointsLayer.add('geojson', geojson, {
+          typeExtension: 'InvisibleMarker',
+          typeExtensionOptions: {
+            zIndexOffset: 30,
+          },
+        })
+        this.pointsLayer.show(null, true, 14)
       })
     })
   }
   componentWillUnmount() {
     this.layer.hide()
+    this.pointsLayer.hide()
   }
   render() {
     return (

@@ -38,19 +38,18 @@ class Index extends React.Component {
     super(props)
     this.Search = null // Map Component, dynamic load
 
-    if (iOS.detect()) {
+    if (iOS.detect() && window.navigator.standalone) {
       document.body.style.setProperty(
         '--bottom-inset',
         'env(safe-area-inset-bottom)'
       )
     }
     const resize = () => {
-      document.body.style.setProperty(
-        '--real-height',
-        'calc(' +
-          document.documentElement.clientHeight +
-          'px - var(--bottom-inset))'
-      )
+      let heightStr = document.documentElement.clientHeight + 'px'
+      if (iOS.detect() && window.navigator.standalone) {
+        heightStr = `calc(${heightStr} - var(--bottom-inset))`
+      }
+      document.body.style.setProperty('--real-height', heightStr)
     }
     window.onresize = () => {
       requestAnimationFrame(resize)
