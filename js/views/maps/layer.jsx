@@ -68,8 +68,21 @@ export class Layer {
           className: 'invisible-icon',
         })
         props.typeExtensionOptions.icon = divIcon
-        props.pointToLayer = function(feature, latlng) {
-          return Marker(latlng, props.typeExtensionOptions)
+        if (props.typeExtensionOptions.popupContent) {
+          props.pointToLayer = function(feature, latlng) {
+            const marker = Marker(latlng, props.typeExtensionOptions).bindPopup(
+              props.typeExtensionOptions.popupContent(latlng.lat, latlng.lng)
+            )
+            marker.addEventListener(
+              'popupopen',
+              props.typeExtensionOptions.popupOpen
+            )
+            return marker
+          }
+        } else {
+          props.pointToLayer = function(feature, latlng) {
+            return Marker(latlng, props.typeExtensionOptions)
+          }
         }
       }
       feature = GeoJSON(data, props)
