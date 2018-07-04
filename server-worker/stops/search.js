@@ -80,29 +80,20 @@ const search = {
   getStopsRouteType() {
     const sqlRequest = connection.get().request()
     sqlRequest.query(`
-      SELECT 
-        stops.stop_code as stop_id, routes.route_type
-      FROM
-        stops
-      INNER JOIN
-        stop_times
-      ON stop_times.id = (
-          SELECT TOP 1 id 
-          FROM    stop_times
-          WHERE 
-          stop_times.stop_id = stops.stop_id
-      )
-      INNER JOIN trips ON trips.trip_id = stop_times.trip_id
-      INNER JOIN routes ON routes.route_id = trips.route_id
-      WHERE
-         route_type <> 3`
+      SELECT DISTINCT stops.stop_code AS stop_id, routes.route_type
+      FROM stops
+      JOIN stop_times ON stop_times.stop_id = stops.stop_id
+      JOIN trips ON trips.trip_id = stop_times.trip_id
+      JOIN routes ON routes.route_id = trips.route_id
+      WHERE route_type <> 3
+      ORDER BY stop_code`
     ).then((result) => {
       const route_types = {}
       result.recordset.forEach((stop) => {
         route_types[stop.stop_id] = stop.route_type
       })
       search.stopsRouteType = route_types
-    }).catch((err) => { 
+    }).catch((err) => {
       console.error(err)
     })
   },
@@ -185,13 +176,13 @@ const search = {
       sqlRequest.input('stop_lon_gt', sql.Decimal(10,6), lon - lonDist)
       sqlRequest.input('stop_lon_lt', sql.Decimal(10,6), lon + lonDist)
       sqlRequest.query(`
-        select 
+        select
           stop_code as stop_id,
           stop_name,
           stop_lat,
           stop_lon
         from stops
-        where 
+        where
           (location_type = 0 OR location_type IS NULL)
           and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
           and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
