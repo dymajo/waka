@@ -101,6 +101,9 @@ class uiStore extends Events {
       this.customHistory.push(url)
     }
   }
+  stopVisibility(visible) {
+    this.trigger('stop-visibility', visible)
+  }
   setCardPosition(position, animate = true, manual = false) {
     // don't need to do anything if it's already in the right position
     if (this.state.cardPosition === position) {

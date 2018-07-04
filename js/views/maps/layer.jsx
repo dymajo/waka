@@ -9,7 +9,7 @@ import { UiStore } from '../../stores/uiStore.js'
 export class Layer {
   features = []
   visible = false
-  show(bounds = null, dispose = true, maxZoom = -1) {
+  show(bounds = null, dispose = true, hideStops = true, maxZoom = -1) {
     if (bounds !== null) {
       const options = {}
       if (document.documentElement.clientWidth <= 850) {
@@ -30,8 +30,11 @@ export class Layer {
     this.features.forEach(feature => {
       feature.addTo(UiStore.basemap)
     })
+    if (hideStops) {
+      UiStore.stopVisibility(hideStops)
+    }
   }
-  hide(dispose = true) {
+  hide(dispose = true, hideStops = false) {
     if (this.visible === false) return
     if (this.maxZoom > -1 && dispose === true) {
       UiStore.basemap.off('zoomend', this.toggleOnZoom)
@@ -40,6 +43,9 @@ export class Layer {
     this.features.forEach(feature => {
       feature.remove(UiStore.basemap)
     })
+    if (!hideStops) {
+      UiStore.stopVisibility(hideStops)
+    }
   }
   toggleOnZoom = () => {
     // this is pretty primative. need some way of checking the spacing between items
@@ -72,6 +78,15 @@ export class Layer {
       this.features.push(feature)
       if (this.visible === true) {
         feature.addTo(UiStore.basemap)
+      }
+      if (props.order === 'back') {
+        feature.getLayers().forEach(i => {
+          requestAnimationFrame(() => i.bringToBack())
+        })
+      } else if (props.order === 'front') {
+        feature.getLayers().forEach(i => {
+          requestAnimationFrame(() => i.bringToFront())
+        })
       }
     }
   }

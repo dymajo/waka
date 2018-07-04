@@ -108,15 +108,19 @@ class BasemapWithoutRouter extends React.Component {
     positionMarker: [0, 0],
     initialPosition: true,
     loadmap: true,
+    hideStops: false,
     online: window.navigator.onLine,
   }
+  zoom = 17
+  position = [...SettingsStore.getState().lastLocation, getDist(this.zoom)]
   componentDidMount() {
     window.addEventListener('online', this.triggerRetry)
     window.addEventListener('offline', this.goOffline)
     CurrentLocation.bind('pinmove', this.pinmove)
     CurrentLocation.bind('mapmove', this.mapmove)
     CurrentLocation.bind('mapmove-silent', this.mapmovesilent)
-    this.getData(this.state.position[0], this.state.position[1], getDist(17))
+    UiStore.bind('stop-visibility', this.stopVisibility)
+    this.getData(this.position[0], this.position[1], this.position[2])
 
     UiStore.basemap = this.map.current.leafletElement
 
@@ -138,7 +142,18 @@ class BasemapWithoutRouter extends React.Component {
     CurrentLocation.unbind('pinmove', this.pinmove)
     CurrentLocation.unbind('mapmove', this.mapmove)
     CurrentLocation.unbind('mapmove-silent', this.mapmovesilent)
+    UiStore.unbind('stop-visibility', this.stopVisibility)
     CurrentLocation.stopWatch()
+  }
+  stopVisibility = state => {
+    if (this.state.hideStops !== state) {
+      this.setState({
+        hideStops: state,
+      })
+      if (state === false && this.zoom > 15) {
+        this.getData(this.position[0], this.position[1], this.position[2])
+      }
+    }
   }
   pinmove = () => {
     if (this.state.initialPosition) {
@@ -164,6 +179,7 @@ class BasemapWithoutRouter extends React.Component {
   }
   getData(lat, lon, dist) {
     const { bikeShare } = SettingsStore.state
+    this.position = [lat, lon, dist]
     fetch(
       `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
         4
@@ -204,11 +220,12 @@ class BasemapWithoutRouter extends React.Component {
   }
   moveEnd = e => {
     const zoom = e.target.getZoom()
+    this.zoom = zoom
     let newPos = e.target.getCenter()
 
     StationStore.getCity(newPos.lat, newPos.lng)
     let dist = 0
-    if (zoom < 16) {
+    if (zoom < 16 || this.state.hideStops) {
       this.setState({
         stops: [],
       })
@@ -227,7 +244,7 @@ class BasemapWithoutRouter extends React.Component {
       this.setState({
         loadmap: true,
       })
-      this.getData(this.state.position[0], this.state.position[1], 250)
+      this.getData(this.position[0], this.position[1], 250)
     }, 50)
   }
   goOffline = () => {
@@ -290,7 +307,7 @@ class BasemapWithoutRouter extends React.Component {
           onMoveend={this.moveEnd}
           center={this.state.position}
           maxZoom={18}
-          zoom={17}
+          zoom={this.zoom}
           zoomControl={false}
           className="map"
           ref={this.map}
@@ -302,43 +319,45 @@ class BasemapWithoutRouter extends React.Component {
               '© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }
           />
-          {this.state.stops.map(stop => {
-            let icon, markericon
-            icon = IconHelper.getRouteType(stop.route_type)
-            markericon = this.myIcons[stop.route_type.toString()]
-            if (icon === 'bus') {
-              const stopSplit = stop.stop_name.split('Stop')
-              const platformSplit = stop.stop_name.split('Platform')
-              if (stopSplit.length > 1) {
-                markericon = getMarker('bus', stopSplit[1])
-              } else if (platformSplit.length > 1) {
-                markericon = getMarker('bus', platformSplit[1])
-              }
-            }
+          {this.state.hideStops
+            ? null
+            : this.state.stops.map(stop => {
+                let icon, markericon
+                icon = IconHelper.getRouteType(stop.route_type)
+                markericon = this.myIcons[stop.route_type.toString()]
+                if (icon === 'bus') {
+                  const stopSplit = stop.stop_name.split('Stop')
+                  const platformSplit = stop.stop_name.split('Platform')
+                  if (stopSplit.length > 1) {
+                    markericon = getMarker('bus', stopSplit[1])
+                  } else if (platformSplit.length > 1) {
+                    markericon = getMarker('bus', platformSplit[1])
+                  }
+                }
 
-            // jono's awesome collison detection
-            // basically checks if something is already there
-            var lng = stop.stop_lon
-            if (typeof positionMap[stop.stop_lat] === 'undefined') {
-              positionMap[stop.stop_lat] = [lng]
-            } else {
-              if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
-                lng = lng + 0.0002
-              } else {
-                positionMap[stop.stop_lat].push(lng)
-              }
-            }
+                // jono's awesome collison detection
+                // basically checks if something is already there
+                var lng = stop.stop_lon
+                if (typeof positionMap[stop.stop_lat] === 'undefined') {
+                  positionMap[stop.stop_lat] = [lng]
+                } else {
+                  if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
+                    lng = lng + 0.0002
+                  } else {
+                    positionMap[stop.stop_lat].push(lng)
+                  }
+                }
 
-            return (
-              <Marker
-                alt={t('station.' + icon)}
-                icon={markericon}
-                key={stop.stop_id}
-                position={[stop.stop_lat, lng]}
-                onClick={this.viewServices(stop.stop_id, stop.stop_region)}
-              />
-            )
-          })}
+                return (
+                  <Marker
+                    alt={t('station.' + icon)}
+                    icon={markericon}
+                    key={stop.stop_id}
+                    position={[stop.stop_lat, lng]}
+                    onClick={this.viewServices(stop.stop_id, stop.stop_region)}
+                  />
+                )
+              })}
           {bigCircle}
           <CircleMarker
             className="smallCurrentLocationCircle"
