@@ -32,7 +32,6 @@ class LineWithoutRouter extends React.Component {
         UiStore.setCardPosition('default')
       })
     }
-    window.jono = this.pointsLayer
   }
   componentDidMount() {
     this.lineData.getMeta().then(metadata => {
@@ -45,9 +44,9 @@ class LineWithoutRouter extends React.Component {
         this.layer.add('geojson', shape, {
           color: route_color,
           className: 'line',
-          zIndexOffset: 10,
+          order: 'back',
         })
-        this.layer.show(shape.bounds)
+        this.layer.show(shape.bounds, true, false)
       })
       this.lineData.getStops().then(stops => {
         this.setState({ stops: stops })
@@ -65,7 +64,6 @@ class LineWithoutRouter extends React.Component {
             className: 'metro-dot',
             color: route_color,
             radius: 7,
-            zIndexOffset: 20,
           },
           maxZoom: 5,
         })
@@ -75,12 +73,12 @@ class LineWithoutRouter extends React.Component {
             zIndexOffset: 30,
           },
         })
-        this.pointsLayer.show(null, true, 14)
+        this.pointsLayer.show()
       })
     })
   }
   componentWillUnmount() {
-    this.layer.hide()
+    this.layer.hide(true, true)
     this.pointsLayer.hide()
   }
   render() {
