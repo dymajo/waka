@@ -11,6 +11,7 @@ import { Save } from '../station/save.jsx'
 import { Timetable } from '../pages/timetable.jsx'
 import { Lines } from '../lines/index.jsx'
 import { Line } from '../lines/line.jsx'
+import { LiveLine } from '../lines/lineLive.jsx'
 import { Sponsor } from '../pages/sponsor.jsx'
 import { Region } from '../pages/region.jsx'
 import { Settings } from '../pages/settings.jsx'
@@ -82,6 +83,10 @@ class Content extends React.Component {
           <Route path="/" exact render={this.props.rootComponent} />
           <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
           <Route path="/s/:region/:station/save" exact render={wrapFn(Save)} />
+          <Route
+            path="/s/:region/:station/realtime/:trip_id"
+            component={wrapFn(LiveLine)}
+          />
           <Route
             path="/s/:region/:station/timetable/:route_name"
             exact
