@@ -12,6 +12,7 @@ export class LinkButton extends React.Component {
     label: PropTypes.string,
     onClick: PropTypes.func,
     color: PropTypes.string,
+    size: PropTypes.string,
   }
   triggerLink = () => {
     if (this.props.href.split(':')[0] === 'mailto') {
@@ -21,14 +22,28 @@ export class LinkButton extends React.Component {
     }
   }
   render() {
-    const wrapperStyle =
-      this.props.color === 'secondary'
-        ? [styles.wrapper, styles.wrapperSecondary]
-        : styles.wrapper
-    const textStyle =
-      this.props.color === 'secondary'
-        ? [styles.text, styles.textSecondary]
-        : styles.text
+    let wrapperStyle = null
+    let textStyle = null
+    if (this.props.size === 'small') {
+      wrapperStyle =
+        this.props.color === 'secondary'
+          ? [styles.wrapper, styles.wrapperSecondary, styles.wrapperSmall]
+          : [styles.wrapper, styles.wrapperSmall]
+      textStyle =
+        this.props.color === 'secondary'
+          ? [styles.text, styles.textSecondary, styles.textSmall]
+          : [styles.text, styles.textSmall]
+    } else {
+      wrapperStyle =
+        this.props.color === 'secondary'
+          ? [styles.wrapper, styles.wrapperSecondary]
+          : styles.wrapper
+      textStyle =
+        this.props.color === 'secondary'
+          ? [styles.text, styles.textSecondary]
+          : styles.text
+    }
+
     const inner = (
       <View style={wrapperStyle}>
         <Text style={textStyle}>{this.props.label}</Text>
@@ -75,6 +90,13 @@ const styles = StyleSheet.create({
     marginBottom: vars.padding / 2,
     touchAction: 'manipulation',
   },
+  wrapperSmall: {
+    paddingTop: vars.padding * 0.25,
+    paddingBottom: vars.padding * 0.25,
+    paddingLeft: vars.padding * 0.75,
+    paddingRight: vars.padding * 0.75,
+    marginBottom: 0,
+  },
   wrapperSecondary: {
     backgroundColor: 'rgba(255,255,255,0.5)',
     borderWidth: 1,
@@ -88,6 +110,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
     textAlign: 'center',
+  },
+  textSmall: {
+    fontSize: vars.smallFontSize,
+    fontWeight: 'normal',
+    letterSpacing: 0,
   },
   textSecondary: {
     color: '#000',

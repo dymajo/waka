@@ -12,49 +12,49 @@
     z-index: 1;
   }
 
-    .CircleMarker {
-      fill-opacity: 1;
-      fill: white;
-      // stroke:  $lightblue;
-      stroke-width: 3;
+  .CircleMarker {
+    fill-opacity: 1;
+    fill: white;
+    // stroke:  $lightblue;
+    stroke-width: 3;
+  }
+
+  .material-header {
+    height: $navsize;
+    div {
+      z-index: 10;
     }
 
-    .material-header {
-      height: $navsize;
-      div {
-        z-index: 10;
-      }
-
-      .line-name {
-        line-height: $navsize; 
-        padding-top: 0;
-        display: flex;
-      }
-
-      .selectWrapper {
-        flex: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      select {
-        border: 0;
-        background: transparent;
-        color: $atblue;
-        outline: 0;
-        letter-spacing: -0.5px;
-        font-weight: 600;
-        width: 100%;
-        margin-left: -4px;
-      }
+    .line-name {
+      line-height: $navsize;
+      padding-top: 0;
+      display: flex;
     }
+
+    .selectWrapper {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    select {
+      border: 0;
+      background: transparent;
+      color: $atblue;
+      outline: 0;
+      letter-spacing: -0.5px;
+      font-weight: 600;
+      width: 100%;
+      margin-left: -4px;
+    }
+  }
 }
 
 .line-pill {
   color: #fff;
   display: inline-block;
-  border: 2px solid rgba(0,0,0,0.2);
-  text-shadow: 0 -1px 0 rgba(0,0,0,0.2);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   border-radius: 2px;
   line-height: 1;
   padding: 3px;
@@ -90,10 +90,6 @@
   .leaflet-container {
     height: 100%;
   }
-}
-
-.line {
-  stroke-width: 5;
 }
 
 .vehIcon {
