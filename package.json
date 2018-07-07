@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "npm run document && cross-env NODE_ENV=production webpack --progress --colors -p --display-optimization-bailout",
+    "build": "npm run document && cross-env NODE_ENV=production webpack --progress --colors --display-optimization-bailout",
     "watch": "webpack-dev-server",
     "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
     "anal": "webpack --json > report.json",
@@ -56,7 +56,7 @@
     "node-fetch": "^2.1.2",
     "node-sass": "^4.9.0",
     "react-svg-loader": "^2.1.0",
-    "sass-loader": "^6.0.6",
+    "sass-loader": "^7.0.3",
     "webpack": "^3.6.0",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-manifest-plugin": "^1.3.2",
@@ -91,10 +91,11 @@
     "prop-types": "^15.6.1",
     "protobufjs": "^6.8.6",
     "pug": "^2.0.3",
-    "react": "^16.4.0",
-    "react-dom": "^16.4.0",
+    "react": "^16.4.1",
+    "react-art": "^16.4.1",
+    "react-dom": "^16.4.1",
     "react-leaflet": "^1.7.0",
-    "react-native-web": "^0.7.3",
+    "react-native-web": "^0.8.8",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "request": "^2.87.0",
@@ -104,6 +105,7 @@
     "smoothscroll-polyfill": "^0.4.3",
     "stream-transform": "^0.1.2",
     "style-loader": "^0.19.0",
+    "uglifyjs-webpack-plugin": "^1.2.7",
     "webpack-dev-server": "^2.9.3"
   }
 }

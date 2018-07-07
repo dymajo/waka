@@ -5,6 +5,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 const ManifestPlugin = require('webpack-manifest-plugin')
 const OfflinePlugin = require('offline-plugin')
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
@@ -34,14 +35,6 @@ ConsoleNotifierPlugin.prototype.apply = function(compiler) {
 let config = {
   entry: {
     app: ['whatwg-fetch', './js/app.jsx', './scss/style.scss'],
-    vendor: [
-      'react',
-      'react-dom',
-      'react-router',
-      'react-router-dom',
-      'react-leaflet',
-      'leaflet',
-    ],
     analytics: ['autotrack'],
   },
   output: {
@@ -69,7 +62,7 @@ let config = {
             {
               loader: 'css-loader',
               options: {
-                sourceMap: true,
+                sourceMap: process.env.NODE_ENV !== 'production',
               },
             },
             {
@@ -79,6 +72,7 @@ let config = {
               loader: 'sass-loader',
               options: {
                 sourceMap: true,
+                outputStyle: 'compressed',
               },
             },
           ],
@@ -131,6 +125,14 @@ let config = {
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
+      minChunks: function(module) {
+        // this assumes your vendor imports exist in the node_modules directory
+        return (
+          module.context &&
+          module.context.includes('node_modules') &&
+          !module.context.includes('autotrack')
+        )
+      },
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'app',
@@ -147,23 +149,7 @@ if (process.env.NODE_ENV === 'production') {
   config.output.chunkFilename = 'generated/[name].[chunkhash].chunk.js'
   delete config.devtool
   config.plugins.push(
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-        screw_ie8: true,
-        conditionals: true,
-        unused: true,
-        comparisons: true,
-        sequences: true,
-        dead_code: true,
-        evaluate: true,
-        if_return: true,
-        join_vars: true,
-      },
-      output: {
-        comments: false,
-      },
-    }),
+    new UglifyJsPlugin(),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
       openAnalyzer: false,
