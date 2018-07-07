@@ -44,7 +44,8 @@ const getColor = (agency_id, code) => {
     case 'OUT': // Outer Link
       return '#f7991c'
 
-      case 'TMK':
+    case 'TMK':
+      return '#038fcc'
     
     default:
       return '#0759b0'
