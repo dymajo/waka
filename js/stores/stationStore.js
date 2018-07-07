@@ -1,5 +1,5 @@
 import Events from './events'
-import local from '../../local'
+import local from '../../local.js'
 import { SettingsStore } from './settingsStore.js'
 import { t } from './translationStore.js'
 import iconhelper from '../helpers/icon.js'
@@ -333,7 +333,7 @@ export class stationStore extends Events {
     }
 
     // now we do a request to the realtime API
-    fetch(`${local.endpoint}/${region}/realtime`, {
+    return fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

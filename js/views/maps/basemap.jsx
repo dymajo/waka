@@ -257,7 +257,7 @@ class BasemapWithoutRouter extends React.Component {
   render() {
     let stationMarker = null
     const splitName = window.location.pathname.split('/')
-    if (splitName.length >= 4 && splitName[1][0] === 's') {
+    if (splitName.length === 4 && splitName[1][0] === 's') {
       const currentStation = splitName[3]
       const item = StationStore.stationCache[currentStation]
       if (typeof item !== 'undefined') {
