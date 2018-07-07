@@ -5,6 +5,8 @@ import { StationStore } from '../../stores/stationStore.js'
 import { UiStore } from '../../stores/uiStore.js'
 import { t } from '../../stores/translationStore.js'
 
+import { TouchableOpacity } from '../reusable/touchableOpacity.jsx'
+
 import LinesIcon from '../../../dist/icons/lines.svg'
 import PinIcon from '../../../dist/icons/pin.svg'
 import MultiIcon from '../../../dist/icons/multi.svg'
@@ -56,7 +58,9 @@ class SidebarItemVanilla extends React.Component {
   triggerTap = () => {
     if (this.props.type === 'install') {
       this.props.action()
-    } else if (this.props.type !== 'url') {
+    } else if (this.props.type === 'url') {
+      window.open(this.props.url)
+    } else {
       if (this.props.url === '/l/') {
         return this.props.action()
       }
@@ -79,26 +83,21 @@ class SidebarItemVanilla extends React.Component {
       classname += ' selected'
     }
     let item = (
-      <li className={classname} onClick={this.triggerTap}>
+      <TouchableOpacity
+        iOSHacks={true}
+        opacity={75}
+        className={'touchable ' + classname}
+        onClick={this.triggerTap}
+      >
         <div className="icon">{this.getIcon(this.props.icon)}</div>
         <div className="text-wrapper">
           <h3 className="name">{this.props.name}</h3>
           <div className="description">{this.props.description}</div>
         </div>
-      </li>
+      </TouchableOpacity>
     )
-    if (this.props.type === 'url') {
-      return (
-        <a
-          href={this.props.url}
-          target="_blank"
-          rel="noopener"
-          onClick={this.reject}
-        >
-          {item}
-        </a>
-      )
-    } else if (this.props.type === 'description') {
+
+    if (this.props.type === 'description') {
       let label = 'Read More'
       let className = 'description2'
       if (this.state.description) {
@@ -106,7 +105,7 @@ class SidebarItemVanilla extends React.Component {
         label = 'Close'
       }
       return (
-        <li className={classname + ' text-only'}>
+        <li className={classname + ' text-only touchable'}>
           <div className="text-wrapper">
             <h1 className="name">{this.props.name}</h1>
             <div className="description">{this.props.description}</div>
@@ -127,6 +126,9 @@ class SidebarItemVanilla extends React.Component {
 const SidebarItem = withRouter(SidebarItemVanilla)
 
 export class RootContent extends React.Component {
+  static propTypes = {
+    pin: PropTypes.func,
+  }
   state = {
     stations: StationStore.getData(),
     currentCity: StationStore.currentCity,
@@ -224,18 +226,16 @@ export class RootContent extends React.Component {
         <p>Kia Ora.</p>
         <h3>What’s new in the latest version?</h3>
         <p>
-          Version 2.0 is huge. We added full support for buses, trains, ferries,
-          and the cable car in Te Whanganui-a-Tara, Wellington.
+          Version 2.3 is exciting. There’s now a new interface which gives you
+          access to the map at all times. We’ve also fixed a lot of bugs,
+          especially on iOS. Lastly, we’ve improved the lines view, allowing you
+          to see all the stops at once.
         </p>
         <p>
-          We have a new map design, as well as a new app icon. We hope you like
-          it!
+          We’re all ready for the central new network in Auckland and Wellington
+          too.
         </p>
-        <p>
-          Waka is faster and more reliable than ever before, with new backend
-          systems to encapsulate databases and processes.
-        </p>
-        <p>We hope you enjoy Waka 2.0!</p>
+        <p>We hope you enjoy Waka 2.3!</p>
       </div>
     )
     const onboarding = (

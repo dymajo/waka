@@ -1,7 +1,7 @@
 // honestly, media queries are the best.
 @media (max-width: 850px) {
   .mobile-hide,
-  li.mobile-hide {
+  .touchable.mobile-hide {
     display: none;
   }
 }
