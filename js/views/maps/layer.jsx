@@ -84,6 +84,10 @@ export class Layer {
             return Marker(latlng, props.typeExtensionOptions)
           }
         }
+      } else if (props.icon) {
+        props.pointToLayer = function(feature, latlng) {
+          return Marker(latlng, { icon: props.icon })
+        }
       }
       feature = GeoJSON(data, props)
     }
