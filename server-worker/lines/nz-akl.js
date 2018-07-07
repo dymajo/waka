@@ -155,7 +155,7 @@ const lineGroups = [
     },
     {
       name: 'South',
-      items: ['31', '32', '33', '35', '313', '314', '324', '325', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378', '380', '391', '392', '393', '394', '395', '396', '398', '399',],
+      items: ['31', '32', '33', '35', , '314', '324', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378', '391', '392', '393', '394', '395', '396', '398', '399',],
     },
     {
       name: 'West',
@@ -249,7 +249,7 @@ const allLines = {
 
   // CITY
   CTY: [
-    ['City Link', 'Wynyard Quarter', 'Greys Ave']
+    ['Wynyard Quarter', 'Karangahape Rd', 'Queen St']
   ],
   INN: [
     ['Inner Link Clockwise'],
@@ -266,7 +266,8 @@ const allLines = {
 
   // CENTRAL - Frequent
   TMK: [
-    ['Britomart', 'Glen Innes', 'Tamaki Dr And St Heliers']
+    ['Britomart', 'Glen Innes', 'Tamaki Dr And St Heliers'],
+    ['Glen Innes', 'Britomart', 'St Heliers And Tamaki Dr']
   ],
   '18': [
     ['New Lynn', 'City Centre', 'Great North Rd', ]
@@ -278,7 +279,9 @@ const allLines = {
     ['Avondale', 'City Centre', 'New North Rd']
   ],
   '24W': [
-    ['Wesley', 'City Centre', 'Sandringham Rd']
+    ['Wesley', 'City Centre', 'Sandringham Rd'],
+    ['City Centre', 'Wesley', 'Sandingham Rd'],
+    ['City Centre', 'Wesley', 'Sandringham Rd']
   ],
   '25L': [
     ['Lynfield', 'City Centre', 'Dominion Rd']
@@ -299,7 +302,8 @@ const allLines = {
     ['Papakura', 'Otahuhu', 'Great South Rd']
   ],
   '66': [
-    ['Pt Chevalier Beach', 'Sylvia Park', 'Mt Albert Rd']
+    ['Pt Chevalier Beach', 'Sylvia Park', 'Mt Albert Rd'],
+    ['Sylvia Park', 'Pt Chevalier Beach', 'Mt Albert Park']
   ],
   '68': [
     ['New Lynn', 'Onehunga']
@@ -317,7 +321,7 @@ const allLines = {
     ['Glen Innes', 'Wynyard Quarter', 'Remuera Rd']
   ],
   '380': [
-    ['Onehunga', 'Manukau', 'Airport']
+    ['Onehunga', 'Manukau Bus Station', 'Airport']
   ],
 
   // CENTRAL - Connector
@@ -328,13 +332,18 @@ const allLines = {
     ['New Lynn', 'City Centre', 'New North Rd']
   ],
   '24B': [
-    ['Blockhouse Bay', 'City Centre', 'Sandringham Rd']
+    ['Blockhouse Bay', 'City Centre', 'Sandringham Rd'],
+    ['City Centre', 'Blockhouse Bay', 'Sandingham Rd'],
+    ['City Centre', 'Blockhouse Bay', 'Sandringham Rd']
   ],
   '24R': [
-    ['New Lynn', 'City Centre', 'Sandringham Rd']
+    ['New Lynn', 'City Centre', 'Sandringham Rd'],
+    ['City Centre', 'New Lynn', 'Sandingham Rd'],
+    ['City Centre', 'New Lynn', 'Sandringham Rd']
   ],
   '27H': [
-    ['Waikowhai', 'Britomart', 'Hillsborough Rd And Mt Eden Rd']
+    ['Waikowhai', 'Britomart', 'Hillsborough Rd And Mt Eden Rd'],
+    ['Britomart', 'Waikowhai', 'Mt Eden Rd And Hillsborough Rd']
   ],
   '27W': [
     ['Waikowhai', 'Britomart', 'Mt Eden Rd']
@@ -358,25 +367,30 @@ const allLines = {
     ['Mangere Town Centre', 'City Centre']
   ],
   '313': [
-    ['Manukau Bus Station', 'Onehunga', 'Papatoetoe & Mangere']
+    ['Manukau Bus Station', 'Onehunga', 'Papatoetoe & Mangere'],
+    ['Onehunga', 'Manukau Bus Station', 'Mangere & Papatoetoe']
   ],
   '323': [
     ['Otahuhu Station', 'Panmure', 'Panama Rd']
   ],
   '325': [
-    ['Mangere town Ctr', 'Manukau Station', 'Otahuhu & Otara']
+    ['Mangere Town Ctr', 'Manukau Station', 'Otahuhu & Otara'],
+    ['Manukau Bus Station', 'Mangere Town Ctr', 'Otara & Otahuhu']
   ],
   '650': [
-    ['Pt Chevalier Shops', 'Glen Innes', 'Greenlane']
+    ['Pt Chevalier Shops', 'Glen Innes', 'Greenlane'],
+    ['Glen Innes', 'Pt Chevalier Shops', 'Greenlane And Balmoral']
   ],
   '670': [
-    ['New Lynn', 'Otahuhu', 'Avondale Stoddard Rd And Onehunga']
+    ['New Lynn', 'Otahuhu', 'Avondale Stoddard Rd And Onehunga'],
+    ['Otahuhu', 'New Lynn', 'Onehunga Stoddard Rd And Avondale']
   ],
   '712': [
     ['Bucklands Beach', 'Panmure']
   ],
   '743': [
-    ['Onehunga', 'Glen Innes', 'Sylvia Park And Tripoli Rd']
+    ['Onehunga', 'Glen Innes', 'Sylvia Park And Tripoli Rd'],
+    ['Glen Innes', 'Onehunga', 'Tripoli Rd And Sylvia Park']
   ],
   '744': [
     ['Panmure', 'St Heliers', 'Glen Innes']
@@ -426,10 +440,12 @@ const allLines = {
     ['Howick', 'Panmure']
   ],
   '782': [
-    ['Sylvia Park', 'Mission Bay', 'Ellerslie And Meadowbank']
+    ['Sylvia Park', 'Mission Bay', 'Ellerslie And Meadowbank'],
+    ['Mission Bay', 'Sylvia Park', 'Meadowbank And Ellerslie']
   ],
   '783': [
-    ['Eastern Bays Circuit Clockwise']
+    ['Eastern Bays Circuit Clockwise'],
+    ['Eastern Bays Circuit Anticlockwise']
   ],
 
   // CENTRAL - Peak
@@ -444,6 +460,7 @@ const allLines = {
   ],
   '309X': [
     ['Mangere Town Centre', 'City Centre (Express)']
+    ['City Centre', 'Mangere', 'Town Centre Express']
   ],
   '352': [
     ['Manukau Bus Station', 'Panmure', 'East Tamaki']
@@ -512,22 +529,14 @@ const allLines = {
   '31': [
     ['Mangere Town Centre', 'Botany Town Centre', 'Otara']
   ],
-  '313': [
-    ['Onehunga', 'Manukau Station', 'Mangere & Papatoetoe'],
-    ['Onehunga', 'Manukau Station', 'Papatoetoe & Mangere'],
-  ],
   '314': [
-    ['Papatoetoe Station', 'Ormiston', 'Otara']
+    ['Middlemore Station', 'Ormiston', 'Otara']
   ],
   '32': [
     ['Mangere Town Centre', 'Sylvia Park', 'Otahuhu']
   ],
   '324': [
     ['Mangere Town Centre', 'Seaside Park', 'Otahuhu']
-  ],
-  '325': [
-    ['Mangere Town Centre', 'Manukau Station', 'Otahuhu And Otara'],
-    ['Mangere Town Centre', 'Manukau Station', 'Otara And Otahuhu'],
   ],
   '326': [
     ['Mangere Town Centre', 'Otahuhu Station', 'Tidal Road']
@@ -542,31 +551,30 @@ const allLines = {
     ['Otahuhu Station', 'Botany', 'Highbrook']
   ],
   '352': [
-    ['Manukau Station', 'Panmure', 'East Tamaki']
+    ['Manukau Bus Station', 'Panmure', 'East Tamaki']
   ],
   '353': [
-    ['Manukau Station', 'Botany Town Centre', 'Preston Rd']
+    ['Manukau Bus Station', 'Botany Town Centre', 'Preston Rd']
   ],
   '355': [
-    ['Manukau To Botany Via Ormiston And Mission Heights'],
-    ['Botany To Manukau Via Mission Heights And Ormiston'],
+    ['Manukau Bus Station To Botany Via Ormiston & Mission Heights'],
+    ['Botany To Manukau Bus Station Via Mission Heights & Ormiston'],
   ],
   '361': [
     ['Manurewa Interchange', 'Otara / Mit', 'Mahia Rd']
   ],
   '362': [
-    ['Manukau Station', 'Weymouth', 'Great South Rd']
+    ['Manukau Bus Station', 'Weymouth', 'Great South Rd']
   ],
   '363': [
     ['Manurewa Interchange', 'Wattle Downs Loop']
   ],
   '365': [
-    ['Manukau Station', 'Papakura Interchange', 'Porchester Rd'],
-    ['Manukau Station', 'Papakura Interchange Station', 'Porchest'],
+    ['Manukau Bus Station', 'Papakura Interchange', 'Porchester']
   ],
   '366': [
-    ['Manurewa', 'Everglades', 'Manukau Station'],
-    ['Everglades', 'Manurewa Interchange', 'Manukau Station'],
+    ['Manurewa Interchange', 'Manukau Bus Station', 'The Gardens'],
+    ['Manukau Bus Station', 'Manurewa', 'The Gardens']
   ],
   '368': [
     ['Wiri Industrial Loop Clockwise']
@@ -592,9 +600,6 @@ const allLines = {
   '378': [
     ['Papakura Shops', 'Karaka Harbourside Loop']
   ],
-  '380': [
-    ['Onehunga', 'Manukau', 'Airport']
-  ],
   '391': [
     ['Pukekohe Northeast Loop']
   ],
@@ -617,7 +622,8 @@ const allLines = {
     ['Pukekohe', 'Tuakau']
   ],
   '399': [
-    ['Pukekohe', 'Port Waikato', 'Tuakau']
+    ['Pukekohe', 'Port Waikato', 'Tuakau'],
+    ['Port Waikato', 'Pukekohe Interchange', 'Tuakau']
   ],
 
   // WEST
