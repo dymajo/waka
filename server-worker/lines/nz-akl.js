@@ -155,7 +155,7 @@ const lineGroups = [
     },
     {
       name: 'South',
-      items: ['31', '32', '33', '35', , '314', '324', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378', '391', '392', '393', '394', '395', '396', '398', '399',],
+      items: ['31', '32', '33', '35', '314', '324', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378', '391', '392', '393', '394', '395', '396', '398', '399',],
     },
     {
       name: 'West',
@@ -459,8 +459,8 @@ const allLines = {
     ['Titirangi', 'City']
   ],
   '309X': [
-    ['Mangere Town Centre', 'City Centre (Express)']
-    ['City Centre', 'Mangere', 'Town Centre Express']
+    ['Mangere Town Centre', 'City Centre (Express)'],
+    ['City Centre', 'Mangere Town Centre Express']
   ],
   '352': [
     ['Manukau Bus Station', 'Panmure', 'East Tamaki']
