@@ -131,33 +131,6 @@ class uiStore extends Events {
   setExpandedItem(name) {
     this.trigger('expandChange', name)
   }
-  getAnimation(styleType) {
-    if (iOS.detect() && window.innerWidth <= 850) {
-      return {
-        entering: {
-          animation: '250ms ss-to-stop-station-ios ease 1',
-          zIndex: 5,
-        },
-        exiting: {
-          animation: '250ms stop-to-ss-station-ios ease 1',
-          transform: 'translate3d(100vw,0,0)',
-          pointerEvents: 'none',
-        },
-      }
-    }
-    return {
-      entering: {
-        animation: '250ms ss-to-stop-station ease 1',
-        zIndex: 5,
-      },
-      exiting: {
-        animation: '250ms stop-to-ss-station ease 1',
-        transform: 'translate3d(0,15px,0)',
-        opacity: '0',
-        pointerEvents: 'none',
-      },
-    }
-  }
   goBack = (path, noAnimate = false) => {
     if (window.location.pathname === path) {
       return
