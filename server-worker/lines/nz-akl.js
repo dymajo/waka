@@ -618,10 +618,6 @@ function cacheOperatorsAndShapes() {
         route_short_name = @route_short_name
     `).then(result => {
       // query was successful
-      if (routes[route] === '20'){
-        console.log(sqlRequest)
-        console.log(result)
-      }
       if (result.recordset.length > 0) {
         const agency_id = result.recordset[0].agency_id
         lineColors[routes[route]] = getColor(agency_id, routes[route])
