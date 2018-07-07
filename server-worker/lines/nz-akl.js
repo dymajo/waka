@@ -130,17 +130,7 @@ const lineGroups = [
   },
   {
     name: 'Ferries',
-    items: [
-      'DEV',
-      'HMB',
-      'BIRK',
-      'BAYS',
-      'MTIA',
-      'SBAY',
-      'WSTH',
-      'RAK',
-      'PINE',
-      'HOBS',
+    items: ['DEV', 'HMB', 'BIRK', 'BAYS', 'MTIA', 'SBAY', 'WSTH', 'RAK', 'PINE', 'HOBS',
     ],
   },
     {
@@ -203,113 +193,282 @@ const friendlyNames = {
   '321': 'Hospitals'
 }
 const allLines = {
-   // RAPID
-   NEX: [
+  // RAPID
+  NEX: [
     ['Britomart', 'HC Station', 'all Busway Stations'],
     ['Britomart', 'Hibiscus Coast Station'],
   ],
-  EAST: [['Britomart Train Station', 'Manukau Train Station']],
-  ONE: [['Britomart Train Station', 'Onehunga Train Station']],
-  STH: [['Britomart Train Station', 'Papakura Train Station']],
-  WEST: [['Britomart Train Station', 'Swanson Train Station']],
-  PUK: [['Papakura Train Station', 'Pukekohe Train Station']],
+  EAST: [
+    ['Britomart Train Station', 'Manukau Train Station']
+  ],
+  ONE: [
+    ['Britomart Train Station', 'Onehunga Train Station']
+  ],
+  STH: [
+    ['Britomart Train Station', 'Papakura Train Station']
+  ],
+  WEST: [
+    ['Britomart Train Station', 'Swanson Train Station']
+  ],
+  PUK: [
+    ['Papakura Train Station', 'Pukekohe Train Station']
+  ],
 
   // FERRIES
-  DEV: [['Auckland', 'Devonport']],
-  HMB: [['Auckland', 'Half Moon Bay'], ['Auckland Pier 1', 'Half Moon Bay']],
-  BIRK: [['Auckland', 'Birkenhead', 'Northcote Point']],
-  BAYS: [['Auckland', 'Bayswater']],
-  MTIA: [['Auckland 2', 'Waiheke Island 1']],
-  SBAY: [['Auckland', 'Stanley Bay']],
-  WSTH: [['Auckland', 'West Harbour']],
-  RAK: [['Auckland', 'Rakino Island']],
-  PINE: [['Auckland', 'Pine Harbour']],
-  HOBS: [['Auckland', 'Hobsonville', 'Beach Haven']],
+  DEV: [
+    ['Auckland', 'Devonport']
+  ],
+  HMB: [
+    ['Auckland', 'Half Moon Bay'],
+    ['Auckland Pier 1', 'Half Moon Bay']
+  ],
+  BIRK: [
+    ['Auckland', 'Birkenhead', 'Northcote Point']
+  ],
+  BAYS: [
+    ['Auckland', 'Bayswater']
+  ],
+  MTIA: [
+    ['Auckland 2', 'Waiheke Island 1']
+  ],
+  SBAY: [
+    ['Auckland', 'Stanley Bay']
+  ],
+  WSTH: [
+    ['Auckland', 'West Harbour']
+  ],
+  RAK: [
+    ['Auckland', 'Rakino Island']
+  ],
+  PINE: [
+    ['Auckland', 'Pine Harbour']
+  ],
+  HOBS: [
+    ['Auckland', 'Hobsonville', 'Beach Haven']
+  ],
 
   // CITY
-  CTY: [['City Link', 'Wynyard Quarter', 'Greys Ave']],
-  INN: [['Inner Link Clockwise'], ['Inner Link Anticlockwise']],
+  CTY: [
+    ['City Link', 'Wynyard Quarter', 'Greys Ave']
+  ],
+  INN: [
+    ['Inner Link Clockwise'],
+    ['Inner Link Anticlockwise']
+  ],
   SKY: [
     ['Downtown', 'International Airport', 'Mt Eden Rd'],
     ['Downtown', 'International Airport', 'Dominion Rd'],
   ],
-  OUT: [['Outer Link Clockwise'], ['Outer Link Anticlockwise']],
+  OUT: [
+    ['Outer Link Clockwise'],
+    ['Outer Link Anticlockwise']
+  ],
 
   // CENTRAL - Frequent
-  TMK: [['Britomart', 'Glen Innes','Tamaki Dr And St Heliers']],
-  '18': [['New Lynn', 'City Centre', 'Great North Rd',]],
-  '20': [['St Lukes',  'Wynyard Quarter', 'Kingsland']],
-  '22A': [['Avondale', 'City Centre', 'New North Rd']],
-  '24W': [['Wesley', 'City Centre', 'Sandringham Rd']],
-  '25L': [['Lynfield', 'City Centre', 'Dominion Rd']],
-  '25B': [['Blockhouse Bay', 'City Centre', 'Dominion Rd']],
-  '27T': [['Three Kings', 'Britomart', 'Mt Eden Rd']],
-  '30': [['Onehunga',  'City Centre','Manukau Rd',]],
-  '32': [['Māngere', 'Sylvia Park', 'Otahuhu']],
-  '33': [['Papakura', 'Otahuhu', 'Great South Rd']],
-  '66': [['Pt Chevalier Beach', 'Sylvia Park', 'Mt Albert Rd']],
-  '68': [['New Lynn', 'Onehunga']],
-  '70': [['Botany', 'Britomart', 'Ellerslie']],
-  '72C': [['Botany', 'Panmure', 'Chapel Rd']],
-  '72M': [['Botany', 'Panmure', 'Millhouse Dr']],
-  '75': [['Glen Innes', 'Wynyard Quarter', 'Remuera Rd']],
-  '380': [['Onehunga', 'Manukau', 'Airport']],
+  TMK: [
+    ['Britomart', 'Glen Innes', 'Tamaki Dr And St Heliers']
+  ],
+  '18': [
+    ['New Lynn', 'City Centre', 'Great North Rd', ]
+  ],
+  '20': [
+    ['St Lukes', 'Wynyard Quarter', 'Kingsland']
+  ],
+  '22A': [
+    ['Avondale', 'City Centre', 'New North Rd']
+  ],
+  '24W': [
+    ['Wesley', 'City Centre', 'Sandringham Rd']
+  ],
+  '25L': [
+    ['Lynfield', 'City Centre', 'Dominion Rd']
+  ],
+  '25B': [
+    ['Blockhouse Bay', 'City Centre', 'Dominion Rd']
+  ],
+  '27T': [
+    ['Three Kings', 'Britomart', 'Mt Eden Rd']
+  ],
+  '30': [
+    ['Onehunga', 'City Centre', 'Manukau Rd', ]
+  ],
+  '32': [
+    ['Māngere', 'Sylvia Park', 'Otahuhu']
+  ],
+  '33': [
+    ['Papakura', 'Otahuhu', 'Great South Rd']
+  ],
+  '66': [
+    ['Pt Chevalier Beach', 'Sylvia Park', 'Mt Albert Rd']
+  ],
+  '68': [
+    ['New Lynn', 'Onehunga']
+  ],
+  '70': [
+    ['Botany', 'Britomart', 'Ellerslie']
+  ],
+  '72C': [
+    ['Botany', 'Panmure', 'Chapel Rd']
+  ],
+  '72M': [
+    ['Botany', 'Panmure', 'Millhouse Dr']
+  ],
+  '75': [
+    ['Glen Innes', 'Wynyard Quarter', 'Remuera Rd']
+  ],
+  '380': [
+    ['Onehunga', 'Manukau', 'Airport']
+  ],
 
   // CENTRAL - Connector
-  '22R': [['Rosebank Rd',        'City Centre','New North Rd']],
-  '22N': [['New Lynn',     'City Centre','New North Rd']],
-  '24B': [['Blockhouse Bay',        'City Centre','Sandringham Rd']],
-  '24R': [['New Lynn',        'City Centre','Sandringham Rd']],
-  '27H': [['Waikowhai', 'Britomart','Hillsborough Rd And Mt Eden Rd']],
-  '27W': [['Waikowhai',       'Britomart','Mt Eden Rd']],
-  '105': [['Westmere', 'Britomart', 'Richmond Rd']],
-  '106': [['Freemans Bay Loop']],
-  '186': [['New Lynn', 'Astley Ave', 'Golf Rd']],
-  '195': [['New Lynn', 'City', 'Great North Rd']],
-  '295': [['Royal Oak', 'City Centre']],
-  '309': [['Mangere Town Centre', 'City Centre']],
-  '313': [['Manukau Bus Station', 'Onehunga', 'Papatoetoe & Mangere']],
-  '323': [['Otahuhu Station', 'Panmure', 'Panama Rd']],
-  '325': [['Mangere town Ctr', 'Manukau Station', 'Otahuhu & Otara']],
-  '650': [['Pt Chevalier Shops', 'Glen Innes', 'Greenlane']],
-  '670': [['New Lynn', 'Otahuhu', 'Avondale Stoddard Rd And Onehunga']],
-  '712': [['Bucklands Beach', 'Panmure']],
-  '743': [['Onehunga', 'Glen Innes', 'Sylvia Park And Tripoli Rd']],
-  '744': [['Panmure', 'St Heliers', 'Glen Innes']],
-  '747': [['Panmure', 'Glen Innes', 'Stonefields']],
-  '751': [['Panmure', 'Newmarket', 'Marua Rd And Remuera Rd']],
-  '755': [['Benson Rd', 'Britomart', 'Portland Rd']],
-  '762': [['Glen Innes', 'Britomart', 'Orakei']],
-  '781': [['Mission Bay', 'Museum', 'Orakei']],
+  '22R': [
+    ['Rosebank Rd', 'City Centre', 'New North Rd']
+  ],
+  '22N': [
+    ['New Lynn', 'City Centre', 'New North Rd']
+  ],
+  '24B': [
+    ['Blockhouse Bay', 'City Centre', 'Sandringham Rd']
+  ],
+  '24R': [
+    ['New Lynn', 'City Centre', 'Sandringham Rd']
+  ],
+  '27H': [
+    ['Waikowhai', 'Britomart', 'Hillsborough Rd And Mt Eden Rd']
+  ],
+  '27W': [
+    ['Waikowhai', 'Britomart', 'Mt Eden Rd']
+  ],
+  '105': [
+    ['Westmere', 'Britomart', 'Richmond Rd']
+  ],
+  '106': [
+    ['Freemans Bay Loop']
+  ],
+  '186': [
+    ['New Lynn', 'Astley Ave', 'Golf Rd']
+  ],
+  '195': [
+    ['New Lynn', 'City', 'Great North Rd']
+  ],
+  '295': [
+    ['Royal Oak', 'City Centre']
+  ],
+  '309': [
+    ['Mangere Town Centre', 'City Centre']
+  ],
+  '313': [
+    ['Manukau Bus Station', 'Onehunga', 'Papatoetoe & Mangere']
+  ],
+  '323': [
+    ['Otahuhu Station', 'Panmure', 'Panama Rd']
+  ],
+  '325': [
+    ['Mangere town Ctr', 'Manukau Station', 'Otahuhu & Otara']
+  ],
+  '650': [
+    ['Pt Chevalier Shops', 'Glen Innes', 'Greenlane']
+  ],
+  '670': [
+    ['New Lynn', 'Otahuhu', 'Avondale Stoddard Rd And Onehunga']
+  ],
+  '712': [
+    ['Bucklands Beach', 'Panmure']
+  ],
+  '743': [
+    ['Onehunga', 'Glen Innes', 'Sylvia Park And Tripoli Rd']
+  ],
+  '744': [
+    ['Panmure', 'St Heliers', 'Glen Innes']
+  ],
+  '747': [
+    ['Panmure', 'Glen Innes', 'Stonefields']
+  ],
+  '751': [
+    ['Panmure', 'Newmarket', 'Marua Rd And Remuera Rd']
+  ],
+  '755': [
+    ['Benson Rd', 'Britomart', 'Portland Rd']
+  ],
+  '762': [
+    ['Glen Innes', 'Britomart', 'Orakei']
+  ],
+  '781': [
+    ['Mission Bay', 'Museum', 'Orakei']
+  ],
 
   // CENTRAL - Local
-  '107': [['New Lynn', 'Blockhouse Bay', 'Whitney St']],
-  '138': [['Henderson', 'New Lynn', 'Rosebank Rd']],
-  '161': [['Brains Park', 'New Lynn']],
-  '298': [['Onehunga', 'Sylvia Park', 'Ellerslie']],
-  '321': [['Middlemore Station', 'Britomart', 'Greenlane Hospital']],
-  '324': [['Mangere', 'Seaside Park']],
-  '326': [['Mangere', 'Otahuhu']],
-  '351': [['Botany', 'Otahuhu']],
-  '711': [['Howick', 'Panmure']],
-  '782': [['Sylvia Park', 'Mission Bay', 'Ellerslie And Meadowbank']],
-  '783': [['Eastern Bays Circuit Clockwise']],
+  '107': [
+    ['New Lynn', 'Blockhouse Bay', 'Whitney St']
+  ],
+  '138': [
+    ['Henderson', 'New Lynn', 'Rosebank Rd']
+  ],
+  '161': [
+    ['Brains Park', 'New Lynn']
+  ],
+  '298': [
+    ['Onehunga', 'Sylvia Park', 'Ellerslie']
+  ],
+  '321': [
+    ['Middlemore Station', 'Britomart', 'Greenlane Hospital']
+  ],
+  '324': [
+    ['Mangere', 'Seaside Park']
+  ],
+  '326': [
+    ['Mangere', 'Otahuhu']
+  ],
+  '351': [
+    ['Botany', 'Otahuhu']
+  ],
+  '711': [
+    ['Howick', 'Panmure']
+  ],
+  '782': [
+    ['Sylvia Park', 'Mission Bay', 'Ellerslie And Meadowbank']
+  ],
+  '783': [
+    ['Eastern Bays Circuit Clockwise']
+  ],
 
   // CENTRAL - Peak
-  '72X': [['Botany', 'City', 'Southern Motorway']],
-  '101': [['Pt Chevalier', 'Auckland University', 'Jervois Rd']],
-  '209': [['Titirangi', 'City']],
-  '309X': [['Mangere Town Centre', 'City Centre (Express)']],
-  '352': [['Manukau Bus Station','Panmure','East Tamaki']],
-  '774': [['West Tamaki Rd','Britomart', 'Long Dr And Tamaki Dr',]],
-  '775': [['Glendowie', 'Britomart', 'Tamaki Dr']],
+  '72X': [
+    ['Botany', 'City', 'Southern Motorway']
+  ],
+  '101': [
+    ['Pt Chevalier', 'Auckland University', 'Jervois Rd']
+  ],
+  '209': [
+    ['Titirangi', 'City']
+  ],
+  '309X': [
+    ['Mangere Town Centre', 'City Centre (Express)']
+  ],
+  '352': [
+    ['Manukau Bus Station', 'Panmure', 'East Tamaki']
+  ],
+  '774': [
+    ['West Tamaki Rd', 'Britomart', 'Long Dr And Tamaki Dr', ]
+  ],
+  '775': [
+    ['Glendowie', 'Britomart', 'Tamaki Dr']
+  ],
 
-// NORTH OF MOTORWAY ISTHMUS
+  // NORTH OF MOTORWAY ISTHMUS
   // EAST
-  '70': [['Britomart', 'Botany', 'Panmure']],
-  '711': [['Panmure', 'Howick', 'Cascades Road']],
-  '712': [['Panmure', 'Bucklands Beach']],
-  '714': [['Half Moon Bay', 'Bucklands Beach']],
+  '70': [
+    ['Britomart', 'Botany', 'Panmure']
+  ],
+  '711': [
+    ['Panmure', 'Howick', 'Cascades Road']
+  ],
+  '712': [
+    ['Panmure', 'Bucklands Beach']
+  ],
+  '714': [
+    ['Half Moon Bay', 'Bucklands Beach']
+  ],
   '72C': [
     ['Pamure To Howick And Botany Via Pakuranga Rd, Cook St, and C'],
     ['Botany And Howick To Panmure Via Chapel Rd, Cook St, And Pak'],
@@ -322,7 +481,9 @@ const allLines = {
     ['Britomart To Howick And Botany Express Via Motorway And Panm'],
     ['Botany And Howick To Britomart Express Via Panmure And Motor'],
   ],
-  '733': [['Botany', 'Bucklands Beach', 'Highland Park']],
+  '733': [
+    ['Botany', 'Bucklands Beach', 'Highland Park']
+  ],
   '734': [
     ['Botany', 'Half Moon Bay', 'Highland Park'],
     ['Botany To Half Moon BayýVia Highland Park'],
@@ -335,8 +496,12 @@ const allLines = {
     ['Botany', 'Beachlands And Maraetai', 'Ormiston And Whitford'],
     ['Maraetai And Beachlands To BotanyýVia Whitford And Ormiston'],
   ],
-  '505': [['Britomart', 'Sylvia Park', 'Ruawai Rd and Ellerslie']],
-  '515': [['Britomart', 'Otahuhu Station', 'Ruawai Rd and Panama Rd']],
+  '505': [
+    ['Britomart', 'Sylvia Park', 'Ruawai Rd and Ellerslie']
+  ],
+  '515': [
+    ['Britomart', 'Otahuhu Station', 'Ruawai Rd and Panama Rd']
+  ],
   '525': [
     ['Britomart', 'Mt Wellington', 'Mt Wellington Highway'],
     ['Britomart', 'Sylvia Park', 'Mt Wellington Highway'],
@@ -344,31 +509,57 @@ const allLines = {
 
 
   // SOUTH
-  '31': [['Mangere Town Centre', 'Botany Town Centre', 'Otara']],
+  '31': [
+    ['Mangere Town Centre', 'Botany Town Centre', 'Otara']
+  ],
   '313': [
     ['Onehunga', 'Manukau Station', 'Mangere & Papatoetoe'],
     ['Onehunga', 'Manukau Station', 'Papatoetoe & Mangere'],
   ],
-  '314': [['Papatoetoe Station', 'Ormiston', 'Otara']],
-  '32': [['Mangere Town Centre', 'Sylvia Park', 'Otahuhu']],
-  '324': [['Mangere Town Centre', 'Seaside Park', 'Otahuhu']],
+  '314': [
+    ['Papatoetoe Station', 'Ormiston', 'Otara']
+  ],
+  '32': [
+    ['Mangere Town Centre', 'Sylvia Park', 'Otahuhu']
+  ],
+  '324': [
+    ['Mangere Town Centre', 'Seaside Park', 'Otahuhu']
+  ],
   '325': [
     ['Mangere Town Centre', 'Manukau Station', 'Otahuhu And Otara'],
     ['Mangere Town Centre', 'Manukau Station', 'Otara And Otahuhu'],
   ],
-  '326': [['Mangere Town Centre', 'Otahuhu Station', 'Tidal Road']],
-  '33': [['Otahuhu Station', 'Papakura Interchange', 'Great South Rd']],
-  '35': [['Manukau', 'Botany', 'Chapel Rd And Ormiston']],
-  '351': [['Otahuhu Station', 'Botany', 'Highbrook']],
-  '352': [['Manukau Station', 'Panmure', 'East Tamaki']],
-  '353': [['Manukau Station', 'Botany Town Centre', 'Preston Rd']],
+  '326': [
+    ['Mangere Town Centre', 'Otahuhu Station', 'Tidal Road']
+  ],
+  '33': [
+    ['Otahuhu Station', 'Papakura Interchange', 'Great South Rd']
+  ],
+  '35': [
+    ['Manukau', 'Botany', 'Chapel Rd And Ormiston']
+  ],
+  '351': [
+    ['Otahuhu Station', 'Botany', 'Highbrook']
+  ],
+  '352': [
+    ['Manukau Station', 'Panmure', 'East Tamaki']
+  ],
+  '353': [
+    ['Manukau Station', 'Botany Town Centre', 'Preston Rd']
+  ],
   '355': [
     ['Manukau To Botany Via Ormiston And Mission Heights'],
     ['Botany To Manukau Via Mission Heights And Ormiston'],
   ],
-  '361': [['Manurewa Interchange', 'Otara / Mit', 'Mahia Rd']],
-  '362': [['Manukau Station', 'Weymouth', 'Great South Rd']],
-  '363': [['Manurewa Interchange', 'Wattle Downs Loop']],
+  '361': [
+    ['Manurewa Interchange', 'Otara / Mit', 'Mahia Rd']
+  ],
+  '362': [
+    ['Manukau Station', 'Weymouth', 'Great South Rd']
+  ],
+  '363': [
+    ['Manurewa Interchange', 'Wattle Downs Loop']
+  ],
   '365': [
     ['Manukau Station', 'Papakura Interchange', 'Porchester Rd'],
     ['Manukau Station', 'Papakura Interchange Station', 'Porchest'],
@@ -377,23 +568,57 @@ const allLines = {
     ['Manurewa', 'Everglades', 'Manukau Station'],
     ['Everglades', 'Manurewa Interchange', 'Manukau Station'],
   ],
-  '368': [['Wiri Industrial Loop Clockwise']],
-  '369': [['Wiri Industrial Loop Anticlockwise']],
-  '371': [['Papakura Interchange', 'Takanini Station']],
-  '372': [['Papakura Shops', 'Keri Hill Loop']],
-  '373': [['Papakura Shops', 'Red Hill']],
-  '376': [['Papakura Shops', 'Drury']],
-  '377': [['Papakura Interchange', 'Pahurehure']],
-  '378': [['Papakura Shops', 'Karaka Harbourside Loop']],
-  '380': [['Onehunga', 'Manukau', 'Airport']],
-  '391': [['Pukekohe Northeast Loop']],
-  '392': [['Pukekohe Northwest Loop']],
-  '393': [['Pukekohe South Loop']],
-  '394': [['Pukekohe Interchange', 'Wesley College/Paerata']],
-  '395': [['Papakura Interchange', 'Waiuku']],
-  '396': [['Pukekohe Interchange', 'Waiuku', 'Patumahoe']],
-  '398': [['Pukekohe', 'Tuakau']],
-  '399': [['Pukekohe', 'Port Waikato', 'Tuakau']],
+  '368': [
+    ['Wiri Industrial Loop Clockwise']
+  ],
+  '369': [
+    ['Wiri Industrial Loop Anticlockwise']
+  ],
+  '371': [
+    ['Papakura Interchange', 'Takanini Station']
+  ],
+  '372': [
+    ['Papakura Shops', 'Keri Hill Loop']
+  ],
+  '373': [
+    ['Papakura Shops', 'Red Hill']
+  ],
+  '376': [
+    ['Papakura Shops', 'Drury']
+  ],
+  '377': [
+    ['Papakura Interchange', 'Pahurehure']
+  ],
+  '378': [
+    ['Papakura Shops', 'Karaka Harbourside Loop']
+  ],
+  '380': [
+    ['Onehunga', 'Manukau', 'Airport']
+  ],
+  '391': [
+    ['Pukekohe Northeast Loop']
+  ],
+  '392': [
+    ['Pukekohe Northwest Loop']
+  ],
+  '393': [
+    ['Pukekohe South Loop']
+  ],
+  '394': [
+    ['Pukekohe Interchange', 'Wesley College/Paerata']
+  ],
+  '395': [
+    ['Papakura Interchange', 'Waiuku']
+  ],
+  '396': [
+    ['Pukekohe Interchange', 'Waiuku', 'Patumahoe']
+  ],
+  '398': [
+    ['Pukekohe', 'Tuakau']
+  ],
+  '399': [
+    ['Pukekohe', 'Port Waikato', 'Tuakau']
+  ],
 
   // WEST
   '14T': [
@@ -404,57 +629,111 @@ const allLines = {
     ['New Lynn', 'Westgate', 'Waimumu Rd, Lincoln Rd & Henderson'],
     ['New Lynn', 'Westgate', 'Henderson, Lincoln Rd & Waimumu Rd'],
   ],
-  '18': [['City Centre', 'New Lynn', 'Great North Rd']],
-  '107': [['Avondale Loop']],
-  '110': [['City Centre', 'Westgate', 'Northwestern Motorway']],
-  '111': [['Royal Heights Loop']],
-  '112': [['Westgate', 'Hobsonville Point', 'West Harbour']],
+  '18': [
+    ['City Centre', 'New Lynn', 'Great North Rd']
+  ],
+  '107': [
+    ['Avondale Loop']
+  ],
+  '110': [
+    ['City Centre', 'Westgate', 'Northwestern Motorway']
+  ],
+  '111': [
+    ['Royal Heights Loop']
+  ],
+  '112': [
+    ['Westgate', 'Hobsonville Point', 'West Harbour']
+  ],
   '114': [
     ['Westgate', 'Hobsonville Pt', 'Whenuapai and Herald Island'],
     ['Westgate', 'Hobsonville Pt', 'Herald Island and Whenuapai'],
   ],
-  '120': [['Henderson', 'Constellation Station', 'Westgate']],
-  '122': [['Westgate', 'Huapai']],
-  '125': [['Westgate', 'Helensville']],
-  '125X': [['City Centre', 'Helensville', 'Westgate Express']],
-  '129': [['City Centre', 'Westgate', 'Don Buck Rd']],
-  '131': [['Henderson', 'Te Atatu Peninsula']],
-  '132': [['City Centre', 'Te Atatu Peninsula']],
+  '120': [
+    ['Henderson', 'Constellation Station', 'Westgate']
+  ],
+  '122': [
+    ['Westgate', 'Huapai']
+  ],
+  '125': [
+    ['Westgate', 'Helensville']
+  ],
+  '125X': [
+    ['City Centre', 'Helensville', 'Westgate Express']
+  ],
+  '129': [
+    ['City Centre', 'Westgate', 'Don Buck Rd']
+  ],
+  '131': [
+    ['Henderson', 'Te Atatu Peninsula']
+  ],
+  '132': [
+    ['City Centre', 'Te Atatu Peninsula']
+  ],
   '132X': [
     ['City Centre', 'Te Atatu Peninsula Express'],
     ['City Centre Express', 'Te Atatu Peninsula'],
   ],
-  '133': [['City Centre', 'Henderson', 'Te Atatu Rd']],
-  '133X': [['City Centre', 'Henderson', 'Te Atatu Rd Express']],
-  '134': [['City Centre', 'Henderson', 'Edmonton Rd']],
-  '138': [['New Lynn', 'Henderson', 'Rosebank Rd']],
-  '141': [['Henderson West Loop Anticlockwise']],
-  '142': [['Henderson West Loop Clockwise']],
-  '143': [['Henderson', 'Ranui', 'Sturges Rd']],
+  '133': [
+    ['City Centre', 'Henderson', 'Te Atatu Rd']
+  ],
+  '133X': [
+    ['City Centre', 'Henderson', 'Te Atatu Rd Express']
+  ],
+  '134': [
+    ['City Centre', 'Henderson', 'Edmonton Rd']
+  ],
+  '138': [
+    ['New Lynn', 'Henderson', 'Rosebank Rd']
+  ],
+  '141': [
+    ['Henderson West Loop Anticlockwise']
+  ],
+  '142': [
+    ['Henderson West Loop Clockwise']
+  ],
+  '143': [
+    ['Henderson', 'Ranui', 'Sturges Rd']
+  ],
   '146': [
     ['Henderson', 'Waitakere Village', 'Swanson and Central Park'],
     ['Henderson', 'Waitakere Village', 'Central Park Dr and Swans'],
   ],
-  '151X': [['City Centre', 'Parrs Park', 'New Lynn Express']],
+  '151X': [
+    ['City Centre', 'Parrs Park', 'New Lynn Express']
+  ],
   '152': [
     ['New Lynn', 'Henderson', 'Glen Eden and Sunnyvale'],
     ['New Lynn', 'Henderson', 'Sunnyvale and Glen Eden'],
   ],
-  '154': [['New Lynn', 'Henderson', 'Glen Eden']],
-  '161': [['New Lynn', 'Brains Park']],
-  '162': [['New Lynn', 'Henderson', 'Glendene']],
-  '170': [['New Lynn', 'Titirangi South']],
-  '171': [['New Lynn', 'Laingholm']],
+  '154': [
+    ['New Lynn', 'Henderson', 'Glen Eden']
+  ],
+  '161': [
+    ['New Lynn', 'Brains Park']
+  ],
+  '162': [
+    ['New Lynn', 'Henderson', 'Glendene']
+  ],
+  '170': [
+    ['New Lynn', 'Titirangi South']
+  ],
+  '171': [
+    ['New Lynn', 'Laingholm']
+  ],
   '171X': [
     ['City Centre', 'Laingholm Express'],
     ['City Centre Express', 'Laingholm'],
   ],
-  '172': [['New Lynn', 'Glen Eden', 'Titirangi']],
+  '172': [
+    ['New Lynn', 'Glen Eden', 'Titirangi']
+  ],
   '172X': [
     ['City Centre', 'Glen Eden', 'New Lynn and Titirangi Express'],
     ['City Centre', 'Glen Eden', 'Titirangi and New Lynn Express'],
   ],
-  '186': [['South Lynn Loop']],
+  '186': [
+    ['South Lynn Loop']
+  ],
   '195': [
     ['City Centre', 'New Lynn', 'Blockhouse Bay Rd And Green Bay'],
     ['New Lynn', 'City Centre', 'Green Bay And Blockhouse Bay Rd'],
@@ -465,8 +744,12 @@ const allLines = {
   ],
 
   // NORTH
-  '555': [['Massey University', 'Highbury']],
-  '560': [['Massey University', 'Glenfield']],
+  '555': [
+    ['Massey University', 'Highbury']
+  ],
+  '560': [
+    ['Massey University', 'Glenfield']
+  ],
   '76X': [
     ['Mayoral Dr', 'Long Bay Express'],
     ['City Centre Express', 'Long Bay'],
@@ -479,14 +762,32 @@ const allLines = {
     ['Mayoral Dr', 'Bayswater Express'],
     ['Mayoral Dr Express', 'Bayswater'],
   ],
-  '803': [['Takapuna Loop'], ['Takapuna', 'Bayswater', 'Francis St']],
-  '804': [['Bayswater Wharf', 'Takapuna', 'Westlake']],
-  '813': [['Takapuna', 'Devonport', 'Narrow Neck (R)']],
-  '815': [['Devonport', 'Westwell Rd', 'Ngataringa Rd']],
-  '822': [['Mayoral Dr', 'Castor Bay']],
-  '839': [['Mayoral Dr', 'Long Bay', 'Crown Hill']],
-  '843': [['Akoranga Station', 'Constellation Station', 'Takapuna']],
-  '85X': [['Mayoral Dr', 'Torbay Express'], ['Mayoral Dr Express', 'Torbay']],
+  '803': [
+    ['Takapuna Loop'],
+    ['Takapuna', 'Bayswater', 'Francis St']
+  ],
+  '804': [
+    ['Bayswater Wharf', 'Takapuna', 'Westlake']
+  ],
+  '813': [
+    ['Takapuna', 'Devonport', 'Narrow Neck (R)']
+  ],
+  '815': [
+    ['Devonport', 'Westwell Rd', 'Ngataringa Rd']
+  ],
+  '822': [
+    ['Mayoral Dr', 'Castor Bay']
+  ],
+  '839': [
+    ['Mayoral Dr', 'Long Bay', 'Crown Hill']
+  ],
+  '843': [
+    ['Akoranga Station', 'Constellation Station', 'Takapuna']
+  ],
+  '85X': [
+    ['Mayoral Dr', 'Torbay Express'],
+    ['Mayoral Dr Express', 'Torbay']
+  ],
   '858': [
     ['Mayoral Dr', 'Long Bay', 'North Shore Hospital'],
     ['City Centre', 'Long Bay', 'North Shore Hospital'],
@@ -503,7 +804,9 @@ const allLines = {
     ['Mayoral Dr', 'Long Bay Express', 'Albany Station'],
     ['City Centre Express', 'Long Bay', 'Albany Station'],
   ],
-  '873': [['Constellation Station', 'Takapuna']],
+  '873': [
+    ['Constellation Station', 'Takapuna']
+  ],
   '873X': [
     ['Mayoral Dr', 'Constellation Station Express', 'Sunnynook'],
     ['City Centre Express', 'Constellation Station', 'Sunnynook'],
@@ -512,31 +815,66 @@ const allLines = {
     ['Mayoral Dr', 'Constellation Station Express'],
     ['City Centre Express', 'Constellation Station'],
   ],
-  '875': [['Mayoral Dr', 'Browns Bay']],
+  '875': [
+    ['Mayoral Dr', 'Browns Bay']
+  ],
   '877X': [
     ['Mayoral Dr', 'Torbay Express', 'Forrest Hill'],
     ['City Centre Express', 'Torbay', 'Forrest Hill'],
   ],
-  '879': [['Mayoral Dr', 'Long Bay', 'Forrest Hill']],
-  '880': [['Albany Loop Clockwise'], ['Albany Loop Anticlockwise']],
-  '881': [['Newmarket', 'Albany Station']],
-  '882': [['Albany Station', 'Torbay']],
-  '886': [['Constellation Station', 'Long Bay', 'Browns Bay']],
-  '887': [['Constellation Station', 'Long Bay', 'Albany']],
-  '891': [['Takapuna', 'Albany Station']],
-  '891X': [['Newmarket', 'Albany Village']],
+  '879': [
+    ['Mayoral Dr', 'Long Bay', 'Forrest Hill']
+  ],
+  '880': [
+    ['Albany Loop Clockwise'],
+    ['Albany Loop Anticlockwise']
+  ],
+  '881': [
+    ['Newmarket', 'Albany Station']
+  ],
+  '882': [
+    ['Albany Station', 'Torbay']
+  ],
+  '886': [
+    ['Constellation Station', 'Long Bay', 'Browns Bay']
+  ],
+  '887': [
+    ['Constellation Station', 'Long Bay', 'Albany']
+  ],
+  '891': [
+    ['Takapuna', 'Albany Station']
+  ],
+  '891X': [
+    ['Newmarket', 'Albany Village']
+  ],
   '900X': [
     ['Mayoral Dr', 'Unsworth Heights Express'],
     ['City Centre Express', 'Unsworth Heights'],
   ],
-  '905': [['Takapuna', 'Glenfield', 'Unsworth Heights']],
-  '911': [['Takapuna', 'Glenfield', 'Northcote']],
-  '913': [['Takapuna', 'Windy Ridge', 'North Shore Hospital']],
-  '915': [['Takapuna', 'Bayview']],
-  '920': [['Sylvan Ave', 'Mayoral Dr']],
-  '921': [['Mayoral Dr', 'Hillcrest']],
-  '922': [['Mayoral Dr', 'Takapuna', 'Northcote']],
-  '945': [['Takapuna', 'Glenfield', 'Marlborough']],
+  '905': [
+    ['Takapuna', 'Glenfield', 'Unsworth Heights']
+  ],
+  '911': [
+    ['Takapuna', 'Glenfield', 'Northcote']
+  ],
+  '913': [
+    ['Takapuna', 'Windy Ridge', 'North Shore Hospital']
+  ],
+  '915': [
+    ['Takapuna', 'Bayview']
+  ],
+  '920': [
+    ['Sylvan Ave', 'Mayoral Dr']
+  ],
+  '921': [
+    ['Mayoral Dr', 'Hillcrest']
+  ],
+  '922': [
+    ['Mayoral Dr', 'Takapuna', 'Northcote']
+  ],
+  '945': [
+    ['Takapuna', 'Glenfield', 'Marlborough']
+  ],
   '945X': [
     ['Mayoral Dr', 'Glenfield Express'],
     ['City Centre Express', 'Glenfield'],
@@ -545,18 +883,34 @@ const allLines = {
     ['Mayoral Dr', 'Glenfield Shops', 'Coronation Rd'],
     ['City Centre', 'Glenfield Shops', 'Coronation Rd'],
   ],
-  '953': [['Universities', 'Windy Ridge']],
-  '955': [['Britomart', 'Bayview']],
-  '957': [['Birkenhead Wharf', 'Albany Station', 'Highbury']],
-  '958': [['Britomart', 'Constellation Station', 'Onewa Rd']],
+  '953': [
+    ['Universities', 'Windy Ridge']
+  ],
+  '955': [
+    ['Britomart', 'Bayview']
+  ],
+  '957': [
+    ['Birkenhead Wharf', 'Albany Station', 'Highbury']
+  ],
+  '958': [
+    ['Britomart', 'Constellation Station', 'Onewa Rd']
+  ],
   '960': [
     ['Highbury', 'Northcote Point'],
     ['Highbury Shops', 'Northcote Point'],
   ],
-  '962': [['Newmarket', 'Albany Station', 'Ponsonby']],
-  '966': [['Newmarket', 'Beach Haven', 'Ponsonby']],
-  '971': [['Auckland University', 'Chatswood']],
-  '972': [['Auckland University', 'Beach Haven Wharf']],
+  '962': [
+    ['Newmarket', 'Albany Station', 'Ponsonby']
+  ],
+  '966': [
+    ['Newmarket', 'Beach Haven', 'Ponsonby']
+  ],
+  '971': [
+    ['Auckland University', 'Chatswood']
+  ],
+  '972': [
+    ['Auckland University', 'Beach Haven Wharf']
+  ],
   '973': [
     ['Britomart', 'Beach Haven', 'Birkdale Rd'],
     ['Verrans Corner', 'Britomart', 'Highbury Shops'],
@@ -573,8 +927,12 @@ const allLines = {
     ['Takapuna', 'Beach Haven', 'Rangatira Rd'],
     ['Takapuna', 'Beach Haven Wharf', 'Rangatira Rd'],
   ],
-  '981': [['HC Station', 'Waiwera']],
-  '982': [['HC Station', 'Gulf Harbour']],
+  '981': [
+    ['HC Station', 'Waiwera']
+  ],
+  '982': [
+    ['HC Station', 'Gulf Harbour']
+  ],
   '983': [
     ['HC Station', 'Gulf Harbour', 'Silverdale, Red Beach, Vipond'],
     ['HC Station', 'Gulf Harbour', 'Manly shops, Vipond Rd, Red B'],
@@ -591,21 +949,35 @@ const allLines = {
     ['HC Station', 'Albany Station', 'Dairy Flat Highway, Massey'],
     ['HC Station', 'Albany Station', 'Albany Centre, Massey Uni'],
   ],
-  '987': [['Arkles Bay to The Plaza']],
-  '988': [['Gulf Harbour Ferry', 'The Plaza', 'Shakespear Regional Park']],
-  '991X': [['City Centre (Wellesley St)', 'Waiwera', 'HC Station']],
-  '992X': [['City Centre (Wellesley St)', 'Gulf Harbour', 'HC Station']],
+  '987': [
+    ['Arkles Bay to The Plaza']
+  ],
+  '988': [
+    ['Gulf Harbour Ferry', 'The Plaza', 'Shakespear Regional Park']
+  ],
+  '991X': [
+    ['City Centre (Wellesley St)', 'Waiwera', 'HC Station']
+  ],
+  '992X': [
+    ['City Centre (Wellesley St)', 'Gulf Harbour', 'HC Station']
+  ],
 
 
   // WAIHEKE
-  '1': [['Matiatia Wharf', 'Onetangi']],
+  '1': [
+    ['Matiatia Wharf', 'Onetangi']
+  ],
   // '1a': [['Matiatia Wharf', 'Onetangi', 'Seaview Rd']],
-  '2': [['Matiatia Wharf', 'Rocky Bay']],
+  '2': [
+    ['Matiatia Wharf', 'Rocky Bay']
+  ],
   '3': [
     ['Matiatia Wharf', 'Rocky Bay', 'Ostend & Onetangi'],
     ['Matiatia', 'Rocky Bay', 'Onetangi and Ostend'],
   ],
-  '4': [['Matiatia Wharf', 'Onetangi Direct']],
+  '4': [
+    ['Matiatia Wharf', 'Onetangi Direct']
+  ],
 }
 
 let lineOperators = {}
