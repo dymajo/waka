@@ -5,8 +5,6 @@ const bodyParser = require('body-parser')
 
 const log = require('../server-common/logger.js')
 
-log('Static Server Started')
-
 const app = express()
 app.use(bodyParser.json())
 app.use((req, res, next) => {
@@ -16,5 +14,10 @@ app.use((req, res, next) => {
 app.use(router)
 
 const listener = app.listen(0, function() {
-  process.send({type: 'portbroadcast', data: listener.address().port})
+  log('Static Server Started on Port', listener.address().port)
+  if (process.send) {
+    process.send({ type: 'portbroadcast', data: listener.address().port })
+  } else {
+    log('Not running as a subprocess. ')
+  }
 })

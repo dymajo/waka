@@ -54,56 +54,8 @@ html(lang="en")
     div(id="app")
       block root
         div(class="root-container")
-          header(class="material-header branding-header")
-            span(class="header-left")
-              img(src="/icons/station.svg" alt="Waka Icon")
-            div(class="header-expand")
-              h1(class="full-height")
-                strong Waka
-          div(class="root-card")
-            div(class="root-card-padding-button")
-            div(class="root-card-bar")
-                a(href="/s")
-                  img(src="/icons/station.svg" alt="Stations Icon")
-                  span Stations
-                a(href="/l")
-                  img(src="/icons/lines.svg" alt="Lines Icon")
-                  span Lines
-            div(class="root-card-content")
-              div(class="onboard")
-                ul
-                  li(class=" ss text-only")
-                    div(class="text-wrapper")
-                      h1(class="name") Kia Ora! Welcome to Waka.
-                      div(class="description") Waka is your realtime guide to Buses, Trains, and Ferries.
-                  li(class="lines-btn ss")
-                    div(class="icon")
-                      img(src="/icons/lines.svg" alt="Lines Icon")
-                    div(class="text-wrapper")
-                      a(href="/l")
-                        h3(class="name") Lines
-                      div(class="description") View all Bus, Train, and Ferry services.
-                  noscript
-                    li(class="lines-btn ss")
-                      div(class="icon")
-                        img(src="/icons/station.svg" alt="Stations Icon")
-                      div(class="text-wrapper")
-                        a(href="/s")
-                          h3(class="name") Stations
-                        div(class="description") View all transit stations.
-                  li(class="ss")
-                    div(class="icon")
-                      img(src="/icons/patron.svg" alt="Sponsor Icon")
-                    div(class="text-wrapper")
-                      a(href="/sponsor")
-                        h3(class="name") Become a Sponsor
-                      div(class="description") Contribute to help support development!
-
-              noscript
-                p DYMAJO Waka is realtime, interactive, and faster with JavaScript enabled.
-
-      div(class="content")
-        block content
+          noscript
+            p DYMAJO Waka requires JavaScript to be enabled.
 
     script(src=vendorpath)
     script(src=apppath)

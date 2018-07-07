@@ -1,7 +1,7 @@
 var currentDate = new Date().toISOString().split('T')[0]
 
 // doesn't redirect test
-if (window.location.host === 'transit.dymajo.com' &&
+if (window.location.host === 'transit.dymajo.com' || window.location.host === 'getwaka.com'  &&
 
   // makes sure they have never used or no saved data
   (window.localStorage.getItem('StationOrder') === null || (window.localStorage.getItem('StationOrder') &&
@@ -13,5 +13,8 @@ if (window.location.host === 'transit.dymajo.com' &&
   window.localStorage.getItem('RedirectDate') !== currentDate
 ) {
   window.localStorage.setItem('RedirectDate', currentDate)
-  window.location.href = window.location.href.replace('transit.dymajo.com', 'getwaka.com')
+  let currentUrl = window.location.href
+  currentUrl = currentUrl.replace('transit.dymajo.com', 'waka.app')
+  currentUrl = currentUrl.replace('getwaka.com', 'waka.app')
+  window.location.href = currentUrl
 }
