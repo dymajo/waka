@@ -16,8 +16,9 @@ import CreditsIcon from '../../../dist/icons/credits.svg'
 const authors = [
   ['https://jono.nz', 'Jono Cooper', 'Design, Code'],
   ['http://mattdavidson.kiwi', 'Matt Davidson', 'Code, Photography - Sydney'],
+  ['https://github.com/darth10', 'Akhil Wali', 'Database Optimization'],
   ['https://twitter.com/itemic', 'Terran Kroft', 'Testing, Feedback'],
-  ['https://github.com/blackdragon723', 'Dylan Wragge', 'Testing, Feedback'],
+  ['https://github.com/dwragge', 'Dylan Wragge', 'Testing, Feedback'],
   ['http://www.generationzero.org/', 'Generation Zero', 'Artwork'],
   ['https://twitter.com/pcman2000', 'Edward Zhang', 'Photography - Auckland'],
   [
@@ -145,7 +146,8 @@ export class Settings extends React.Component {
               </div>
             </div>
           </div>
-          <br /><br />
+          <br />
+          <br />
         </LinkedScroll>
       </View>
     )

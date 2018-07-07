@@ -66,8 +66,9 @@ $line-color: #e4e4e4;
     border-top: 1px solid $line-color;
   }
 
-  li {
+  .touchable {
     display: flex;
+    flex-direction: row;
     padding: 8px 10px;
     cursor: default;
     background: #fff;
@@ -81,11 +82,6 @@ $line-color: #e4e4e4;
       &:hover {
         background: #f7f7f7;
       }
-    }
-
-    &.selected,
-    &:active {
-      background: #f5fafe;
     }
   }
 
@@ -108,7 +104,7 @@ $line-color: #e4e4e4;
       width: 36px;
     }
   }
-  ul:first-child li:not(:nth-child(2)) .icon {
+  ul:first-child .touchable:not(:nth-child(2)) .icon {
     img,
     svg {
       width: 34px;
@@ -189,13 +185,13 @@ $line-color: #e4e4e4;
   }
 }
 
-.onboard li:nth-child(3) span {
+.onboard .touchable:nth-child(3) span {
   &:last-child {
     display: none;
   }
 }
 @media (min-width: 481px) {
-  .onboard li:nth-child(3) span {
+  .onboard .touchable:nth-child(3) span {
     &:first-child {
       display: none;
     }
@@ -204,7 +200,7 @@ $line-color: #e4e4e4;
     }
   }
 }
-@media (display-mode: standalone) and (max-width: 850px) {
+@media (display-mode: standalone) {
   .onboard {
     display: none;
   }
@@ -212,7 +208,7 @@ $line-color: #e4e4e4;
 .more-section {
   display: none;
 
-  @media (display-mode: standalone) and (max-width: 850px) {
+  @media (display-mode: standalone) {
     display: block;
   }
 }
@@ -226,18 +222,6 @@ $line-color: #e4e4e4;
     }
   }
 }
-@media (display-mode: standalone) and (min-width: 851px) {
-  .onboard ul li:first-child {
-    display: none;
-  }
-}
-@media (min-width: 851px) {
-  .ios-standalone {
-    .onboard ul li:first-child {
-      display: none;
-    }
-  }
-}
 
 .onboard {
   padding-top: 1rem;
@@ -245,52 +229,5 @@ $line-color: #e4e4e4;
 .blue-fill {
   svg {
     fill: $atblue;
-  }
-}
-
-// .station {
-//   position: relative;
-//   z-index: 4;
-
-//   @media (min-width: 851px) {
-//     left: $sidebar-width;
-//     z-index: 0;
-//   }
-// }
-
-@keyframes ss-to-stop-station {
-  0% {
-    transform: translate3d(0, 15px, 0);
-    opacity: 0;
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-}
-@keyframes stop-to-ss-station {
-  0% {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(0, 15px, 0);
-    opacity: 0;
-  }
-}
-@keyframes ss-to-stop-station-ios {
-  0% {
-    transform: translate3d(100vw, 0, 0);
-  }
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-}
-@keyframes stop-to-ss-station-ios {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(100vw, 0, 0);
   }
 }
