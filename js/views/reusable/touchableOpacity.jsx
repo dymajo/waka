@@ -69,6 +69,7 @@ export class TouchableOpacity extends React.Component {
     const newClassName =
       (className || '') +
       (activeOpacity === 75 ? ' opacity-75' : '') +
+      (activeOpacity === 90 ? ' opacity-90' : '') +
       ' touchable-opacity'
     if (iOS.detect() && iOSHacks === true) {
       return (

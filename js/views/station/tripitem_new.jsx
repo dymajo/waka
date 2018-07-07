@@ -1,6 +1,8 @@
 import React from 'react'
 import { withRouter } from 'react-router'
+import { View } from 'react-native'
 
+import { iOS } from '../../helpers/ios.js'
 import { StationStore } from '../../stores/stationStore.js'
 import { SettingsStore } from '../../stores/settingsStore.js'
 import { UiStore } from '../../stores/uiStore.js'
@@ -197,6 +199,9 @@ class TripItem extends React.Component {
     if (this.state.expanded) {
       className += ' expanded'
     }
+    if (iOS.detect()) {
+      className += ' ios-active'
+    }
     if (this.state.expanded && times.length > 1) {
       inner = (
         <div className="right">
@@ -351,8 +356,8 @@ class TripItem extends React.Component {
       )
     }
     return (
-      <li className={className} style={{ background: background }}>
-        <div className="main" onClick={this.triggerClick}>
+      <div className={className} style={{ backgroundColor: background }}>
+        <div className="main-container" onClick={this.triggerClick}>
           <div className="left">
             <h1 className={route_class} style={route_style}>
               {route_code}
@@ -374,7 +379,7 @@ class TripItem extends React.Component {
             {t('tripitem.timetable')}
           </button>
         </div>
-      </li>
+      </div>
     )
   }
 }

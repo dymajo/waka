@@ -8,7 +8,8 @@ import { UiStore } from '../../stores/uiStore'
 import { t } from '../../stores/translationStore.js'
 import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 
-import Header from '../reusable/header.jsx'
+import { Header } from '../reusable/header.jsx'
+import { TouchableOpacity } from '../reusable/touchableOpacity.jsx'
 
 class LinesView extends React.Component {
   static propTypes = {
@@ -139,9 +140,9 @@ class LinesView extends React.Component {
           }
           return (
             <li key={key}>
-              <a
+              <TouchableOpacity
+                iOSHacks={true}
                 className="line-item"
-                href={`/l/${this.props.match.params.region}/${item}`}
                 onClick={this.hijack(
                   `/l/${this.props.match.params.region}/${item}`
                 )}
@@ -157,7 +158,7 @@ class LinesView extends React.Component {
                   </span>
                 </span>
                 <span className="line-label">{name}</span>
-              </a>
+              </TouchableOpacity>
             </li>
           )
         })

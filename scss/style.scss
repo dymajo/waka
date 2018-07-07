@@ -4,7 +4,7 @@
 @import 'maps';
 
 body {
-  --bottom-inset: 0px;
+  --bottom-inset: env(safe-area-inset-bottom);
   --real-height: 100vh;
 }
 

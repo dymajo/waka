@@ -1,22 +1,23 @@
-.trip-content {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  position: relative;
-  z-index: 1;
-}
-
 .colored-trip {
   color: #fff;
   border-bottom: 1px solid rgba(#000, 0.25);
+  transform: translateZ(0);
 
-  .main {
-    padding: 7px 0 9px 12px;
-    display: flex;
-
-    &:active {
+  &:not(.ios-active) {
+    .main:active {
       background: rgba(#000, 0.1);
     }
+  }
+
+  &.ios-active {
+    .main-container {
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .main-container {
+    padding: 7px 0 9px 12px;
+    display: flex;
   }
   .bottom {
     height: 0;
@@ -78,12 +79,15 @@
   }
   .right {
     text-align: right;
-      display: flex;
-      flex-direction: column;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     margin: 0;
   }
   h1 {
@@ -150,7 +154,7 @@
 
     &.realtime {
       &::after {
-        content: "";
+        content: '';
         background: url(/icons/realtime.svg);
         background-position: -2px -2px;
         background-repeat: no-repeat;
@@ -172,5 +176,4 @@
       letter-spacing: 0.5px;
     }
   }
-
 }
