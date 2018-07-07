@@ -52,7 +52,9 @@ export class Header extends React.Component {
         lineHeight: vars.headerHeight - paddingVertical * 2 - 18,
       }
       subtitleElement = (
-        <Text style={styles.subtitle}>{this.props.subtitle}&nbsp;</Text>
+        <Text numberOfLines={1} style={styles.subtitle}>
+          {this.props.subtitle}&nbsp;
+        </Text>
       )
     }
 

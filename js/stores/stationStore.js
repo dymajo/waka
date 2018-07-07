@@ -48,6 +48,13 @@ export class stationStore extends Events {
   lineCache = {}
   lineCacheRegion = null
 
+  getDirection(region, direction_id) {
+    if (region === 'nz-akl') {
+      direction_id = !direction_id ? 1 : 0
+    }
+    return direction_id === 0 ? 'Outbound' : 'Inbound'
+  }
+
   getCity(lat, lng, map = true) {
     let newCity = 'none'
     if (lat > -37.4 && lat < -36 && lng > 174 && lng < 175.2) {
