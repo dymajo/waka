@@ -6,6 +6,7 @@ import { withRouter } from 'react-router'
 import { vars } from '../../styles.js'
 import { StationStore } from '../../stores/stationStore.js'
 import { UiStore } from '../../stores/uiStore.js'
+import { t } from '../../stores/translationStore.js'
 import { Header } from '../reusable/header.jsx'
 import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 import { LinkButton } from '../reusable/linkButton.jsx'
@@ -15,23 +16,24 @@ import { LineData } from '../../data/lineData.js'
 import { LineStops } from './lineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 
-class LineWithoutRouter extends React.Component {
+class LiveLineWithoutRouter extends React.Component {
   static propTypes = {
     match: PropTypes.object,
   }
   lineData = new LineData({
     region: this.props.match.params.region,
-    line_id: this.props.match.params.line_id,
   })
   layer = new Layer()
   pointsLayer = new Layer()
   state = {
     header: '',
-    color: '#666',
     stops: [],
     direction: 0,
     lineMetadata: [],
     loading: true,
+    noMatch: false,
+    tripInfo: {},
+    stopInfo: {},
   }
   constructor(props) {
     super(props)
@@ -44,38 +46,59 @@ class LineWithoutRouter extends React.Component {
       })
     }
   }
-  triggerSwitchDirection = () => {
-    this.layer.hide(true, true)
-    this.pointsLayer.hide()
-    this.layer = new Layer()
-    this.pointsLayer = new Layer()
-    this.setState({
-      direction: !this.state.direction ? 1 : 0,
-      loading: true,
-    })
-    this.getData()
-  }
   componentDidMount() {
     this.getData()
   }
   getData() {
-    this.lineData.getMeta().then(metadata => {
-      const route_color = metadata[this.state.direction].route_color
-      this.setState({
-        color: route_color,
-        lineMetadata: metadata,
-      })
-      this.lineData.shape_id = metadata[this.state.direction].shape_id
-      renderShape(this.lineData, this.layer, route_color)
-      renderStops(
-        this.lineData,
-        this.pointsLayer,
-        route_color,
-        this.props.match.params.region,
-        this.props.match.params.line_id
-      ).then(stops => {
-        this.setState({ stops: stops, loading: false })
-      })
+    const station = this.props.match.params.station
+    const region = this.props.match.params.region
+    StationStore.getData(station, region).then(data => {
+      const targetId = this.props.match.params.trip_id
+      let info = StationStore.tripData.find(item => item.trip_id === targetId)
+      if (!info) {
+        StationStore.getTimes(station, region).then(() => {
+          info = StationStore.tripData.find(item => item.trip_id === targetId)
+          if (!info) {
+            this.setState({
+              loading: false,
+              noMatch: true,
+            })
+          } else {
+            this.getShape(
+              info.shape_id,
+              info.route_color,
+              info.route_short_name
+            )
+            this.setState({
+              tripInfo: info,
+              loading: false,
+            })
+          }
+        })
+        this.setState({
+          stopInfo: data,
+        })
+      } else {
+        this.setState({
+          tripInfo: info,
+          stopInfo: data,
+          loading: false,
+        })
+        this.getShape(info.shape_id, info.route_color, info.route_short_name)
+      }
+    })
+  }
+  getShape(shape_id, route_color, line_id) {
+    this.lineData.shape_id = shape_id
+    renderShape(this.lineData, this.layer, route_color)
+    renderStops(
+      this.lineData,
+      this.pointsLayer,
+      route_color,
+      this.props.match.params.region,
+      line_id
+    ).then(stops => {
+      this.setState({ stops: stops, loading: false })
     })
   }
   componentWillUnmount() {
@@ -83,45 +106,29 @@ class LineWithoutRouter extends React.Component {
     this.pointsLayer.hide()
   }
   render() {
-    const currentLine =
-      this.state.lineMetadata.length > 0
-        ? this.state.lineMetadata[this.state.direction]
-        : {}
     const inner = this.state.loading ? (
       <div className="spinner" />
+    ) : this.state.noMatch ? (
+      <View>
+        <Text style={styles.direction}>This service could not be found.</Text>
+      </View>
     ) : (
       <React.Fragment>
-        <Text style={styles.direction}>
-          {this.state.lineMetadata.length <= 1
-            ? 'Route Stations'
-            : StationStore.getDirection(
-                this.props.match.params.region,
-                currentLine.direction_id
-              ) + ' Route'}
-        </Text>
+        <Text style={styles.direction}>Stations</Text>
         <LineStops
-          color={this.state.color}
+          color={this.state.tripInfo.route_color}
           stops={this.state.stops}
-          line={this.props.match.params.line_id}
+          line={this.state.tripInfo.route_short_name}
           region={this.props.match.params.region}
         />
-        <View style={styles.linkWrapper}>
-          {this.state.lineMetadata.length <= 1 ? null : (
-            <LinkButton
-              label="Change Direction"
-              color="secondary"
-              onClick={this.triggerSwitchDirection}
-            />
-          )}
-        </View>
       </React.Fragment>
     )
 
     return (
       <View style={styles.wrapper}>
         <Header
-          title={this.props.match.params.line_id}
-          subtitle={currentLine.route_long_name || ''}
+          title={this.state.tripInfo.route_short_name}
+          subtitle={this.state.tripInfo.route_long_name || ''}
         />
         <LinkedScroll>{inner}</LinkedScroll>
       </View>
@@ -144,5 +151,5 @@ const styles = StyleSheet.create({
     padding: vars.padding,
   },
 })
-const Line = withRouter(LineWithoutRouter)
-export { Line }
+const LiveLine = withRouter(LiveLineWithoutRouter)
+export { LiveLine }

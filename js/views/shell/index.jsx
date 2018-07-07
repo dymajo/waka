@@ -10,7 +10,6 @@ import { ContentView } from './content.jsx'
 
 // routes
 import { Root } from '../root/index.jsx'
-import Router from '../router.jsx'
 
 import { Pin } from '../root/pin.jsx'
 
@@ -380,7 +379,6 @@ class Index extends React.Component {
           </div>
           {pin}
         </div>
-        <Router />
       </React.Fragment>
     )
   }

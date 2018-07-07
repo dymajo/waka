@@ -240,7 +240,7 @@ export class stationStore extends Events {
           })
       })
     })
-    Promise.all(promises)
+    return Promise.all(promises)
       .then(allData => {
         this.setOffset(allData[0].currentTime)
         if (allData.length > 0) {
