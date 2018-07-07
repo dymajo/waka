@@ -16,6 +16,9 @@
   &.opacity-75 {
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0.25);
   }
+  &.opacity-90 {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+  }
 }
 .touchable-opacity-active {
   -webkit-tap-highlight-color: transparent;
@@ -27,6 +30,9 @@
   }
   &.opacity-75:active {
     opacity: 0.75;
+  }
+  &.opacity-90:active {
+    opacity: 0.9;
   }
 }
 .checkbox {
@@ -78,4 +84,35 @@
   border-radius: 50%;
   padding: 5px;
   box-shadow: 0 1px 2px rgba(#000, 0.4);
+}
+
+.line-pill {
+  color: #fff;
+  display: inline-block;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  line-height: 1;
+  padding: 3px;
+  margin-right: 7px;
+  font-weight: 600;
+  background: #000;
+
+  &:empty {
+    visibility: hidden;
+  }
+
+  &.cf {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    padding: 4px;
+    border-color: transparent;
+    font-weight: 600;
+    border-radius: 50%;
+    text-align: center;
+    text-shadow: 0 0 0 #000;
+    font-weight: 600;
+    font-size: 0.9em;
+  }
 }

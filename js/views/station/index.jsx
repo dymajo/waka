@@ -456,10 +456,10 @@ class StationView extends React.Component {
           actionFn={this.triggerSave}
         />
         <LinkedScroll ref={this.scrollContent}>
-          <ul className="trip-content" ref={this.swipeContent}>
+          <View className="trip-content" ref={this.swipeContent}>
             {loading}
             {content}
-          </ul>
+          </View>
         </LinkedScroll>
       </View>
     )

@@ -37,12 +37,6 @@ class Index extends React.Component {
     super(props)
     this.Search = null // Map Component, dynamic load
 
-    if (iOS.detect() && window.navigator.standalone) {
-      document.body.style.setProperty(
-        '--bottom-inset',
-        'env(safe-area-inset-bottom)'
-      )
-    }
     const resize = () => {
       let heightStr = document.documentElement.clientHeight + 'px'
       if (iOS.detect() && window.navigator.standalone) {
@@ -50,6 +44,7 @@ class Index extends React.Component {
       }
       document.body.style.setProperty('--real-height', heightStr)
     }
+    resize()
     window.onresize = () => {
       requestAnimationFrame(resize)
     }

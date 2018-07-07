@@ -37,16 +37,18 @@ $left-pad: 80px;
   padding-right: 14px;
   font-weight: 600;
   border-bottom: 1px solid #e4e4e4;
-  -webkit-tap-highlight-color: transparent;
+  flex-direction: row;
 
   @media (pointer: fine) {
     &:hover {
       background: #f7f7f7;
     }
-  }
 
-  &:active {
-    background: #f5fafe;
+    &.expand {
+      &:hover {
+        color: #666;
+      }
+    }
   }
 
   &.expand {
@@ -58,12 +60,6 @@ $left-pad: 80px;
     padding: 6px 0;
     font-size: 15px;
     cursor: default;
-    &:hover {
-      color: #666;
-    }
-    &:active {
-      color: #222;
-    }
   }
 }
 
