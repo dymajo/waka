@@ -33,26 +33,41 @@ const getColor = (agency_id, code) => {
   case 'NZBGW': // NZ Bus - Go West
     return '#4CAF50'
 
-  case 'NZB' || 'NZBML': // NZ Bus - metrolink
+  case 'NZB': // NZ Bus - metrolink
     switch (code) {
-    case 'CTY': // City Link
-      return '#ef3c34'
+      case 'CTY': // City Link
+        return '#ef3c34'
 
-    case 'INN': // Inner Link
-      return '#41b649'
+      case 'INN': // Inner Link
+        return '#41b649'
 
-    case 'OUT': // Outer Link
-      return '#f7991c'
+      case 'OUT': // Outer Link
+        return '#f7991c'
 
-    case 'TMK':
-      return '#038fcc'
-    
-    default:
-      return '#0759b0'
+      case 'TMK':
+        return '#038fcc'
+      
+      default:
+        return '#0759b0'
     }
+    
+  case 'NZBML': // NZ Bus - metrolink
+    switch (code) {
+      case 'CTY': // City Link
+        return '#ef3c34'
 
-  // case 'NZB':
-  //   return '#0759b0'
+      case 'INN': // Inner Link
+        return '#41b649'
+
+      case 'OUT': // Outer Link
+        return '#f7991c'
+
+      case 'TMK':
+        return '#038fcc'
+      
+      default:
+        return '#0759b0'
+    }
 
   case 'NZBNS': // NZ Bus - North Star
     return '#f39c12'
