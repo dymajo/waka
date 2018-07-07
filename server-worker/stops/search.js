@@ -3,7 +3,6 @@ const sql = require('mssql')
 const connection = require('../db/connection.js')
 const akl = require('./nz-akl.js')
 const wlg = require('./nz-wlg.js')
-const onzo = require('./onzo')
 
 const search = {
   _stopsFilter(recordset, mode) {
@@ -91,22 +90,13 @@ const search = {
     sqlRequest
       .query(
         `
-      SELECT 
-        stops.stop_code as stop_id, routes.route_type
-      FROM
-        stops
-      INNER JOIN
-        stop_times
-      ON stop_times.id = (
-          SELECT TOP 1 id 
-          FROM    stop_times
-          WHERE 
-          stop_times.stop_id = stops.stop_id
-      )
-      INNER JOIN trips ON trips.trip_id = stop_times.trip_id
-      INNER JOIN routes ON routes.route_id = trips.route_id
-      WHERE
-         route_type <> 3`
+      SELECT DISTINCT stops.stop_code AS stop_id, routes.route_type
+      FROM stops
+      JOIN stop_times ON stop_times.stop_id = stops.stop_id
+      JOIN trips ON trips.trip_id = stop_times.trip_id
+      JOIN routes ON routes.route_id = trips.route_id
+      WHERE route_type <> 3
+      ORDER BY stop_code`
       )
       .then(result => {
         const route_types = {}
@@ -165,7 +155,7 @@ const search = {
           error: 'too many stops sorry',
         })
       }
-      const bikes = req.query.bikes || false
+
       const lat = parseFloat(req.query.lat)
       const lon = parseFloat(req.query.lng || req.query.lon)
       const dist = req.query.distance
@@ -177,9 +167,6 @@ const search = {
         sources = sources.concat(wlg.extraSources(lat, lon, dist))
       } else if (prefix === 'nz-akl') {
         sources = sources.concat(akl.extraSources(lat, lon, dist))
-        if (bikes == 'true') {
-          sources = sources.concat(onzo.getBikes(lat, lon, dist))
-        }
       }
 
       Promise.all(sources)
@@ -209,13 +196,13 @@ const search = {
       sqlRequest
         .query(
           `
-        select 
+        select
           stop_code as stop_id,
           stop_name,
           stop_lat,
           stop_lon
         from stops
-        where 
+        where
           (location_type = 0 OR location_type IS NULL)
           and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
           and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
