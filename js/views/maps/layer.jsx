@@ -9,7 +9,11 @@ import { UiStore } from '../../stores/uiStore.js'
 export class Layer {
   features = []
   visible = false
+  unmounted = false
   show(bounds = null, dispose = true, hideStops = true, maxZoom = -1) {
+    if (this.unmounted) {
+      return
+    }
     if (bounds !== null) {
       const options = {}
       if (document.documentElement.clientWidth <= 850) {
