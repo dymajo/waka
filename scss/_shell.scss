@@ -118,6 +118,43 @@ $desktop-position-transform: translate3d(0, $desktop-position, 0);
   }
 }
 
+$darken-opacity: 0.85;
+@keyframes shell-darken {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: $darken-opacity;
+  }
+}
+@keyframes shell-lighten {
+  0% {
+    opacity: $darken-opacity + 0.05;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+// android phones not fast enough to do this properly
+.ios .shell-content {
+  &.direction-forward {
+    &.exiting,
+    &.exited {
+      animation: 300ms ease shell-darken 1;
+      opacity: $darken-opacity;
+    }
+  }
+
+  &.direction-backward {
+    &.entering,
+    &.entered {
+      animation: 750ms ease shell-lighten 1;
+      opacity: 1;
+    }
+  }
+}
+
 .shell-content {
   background: $default-back;
   border-radius: 10px 10px 0 0;
@@ -156,7 +193,7 @@ $desktop-position-transform: translate3d(0, $desktop-position, 0);
           transform: $max-position-transform;
         }
         &.exiting {
-          animation: 300ms ease shell-max-exit-max 1;
+          animation: 350ms ease shell-max-exit-max 1;
         }
       }
     }
