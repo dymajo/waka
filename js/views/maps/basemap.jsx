@@ -166,8 +166,10 @@ class BasemapWithoutRouter extends React.Component {
   }
   mapmove = () => {
     this.zoom = 17
+    const position = CurrentLocation.state.position.slice()
+    position[0] = position[0] + 0.00000001
     this.setState({
-      position: CurrentLocation.state.position.slice(),
+      position: position,
       positionMarker: CurrentLocation.state.position.slice(),
       initialPosition: false,
     })

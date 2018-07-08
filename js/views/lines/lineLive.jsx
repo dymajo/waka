@@ -191,6 +191,9 @@ class LiveLineWithoutRouter extends React.Component {
     this.layer.hide(true, true)
     this.pointsLayer.hide()
     this.liveLayer.hide()
+    this.layer.unmounted = true
+    this.pointsLayer.unmounted = true
+    this.liveLayer.unmounted = true
 
     clearInterval(this.liveRefresh)
     this.cancelCallbacks = true
