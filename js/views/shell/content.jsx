@@ -80,7 +80,7 @@ class Content extends React.Component {
     return (
       <View style={styles.rootWrapper} className="root-card-wrapper">
         <Switch location={this.props.location} key="switch" timeout={400}>
-          <Route path="/" exact render={this.props.rootComponent} />
+          <Route path="/" exact render={wrapFn(this.props.rootComponent)} />
           <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
           <Route path="/s/:region/:station/save" exact render={wrapFn(Save)} />
           <Route

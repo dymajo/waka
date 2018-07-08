@@ -37,6 +37,10 @@ class Index extends React.Component {
     super(props)
     this.Search = null // Map Component, dynamic load
 
+    if (iOS.detect()) {
+      document.body.classList.add('ios')
+    }
+
     const resize = () => {
       let heightStr = document.documentElement.clientHeight + 'px'
       if (iOS.detect() && window.navigator.standalone) {

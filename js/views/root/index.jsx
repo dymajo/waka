@@ -91,10 +91,7 @@ export class Root extends React.Component {
 
 const styles = StyleSheet.create({
   wrapper: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: '100%',
+    flex: 1,
   },
   headerWrapper: {
     height: vars.headerHeight,
