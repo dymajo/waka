@@ -1,5 +1,5 @@
 import Events from './events'
-import local from '../../local'
+import local from '../../local.js'
 import { SettingsStore } from './settingsStore.js'
 import { t } from './translationStore.js'
 import iconhelper from '../helpers/icon.js'
@@ -18,7 +18,7 @@ export class stationStore extends Events {
     if (localStorage.getItem('StationData')) {
       this.StationData = JSON.parse(localStorage.getItem('StationData'))
 
-      Object.keys(this.StationData).forEach((item) => {
+      Object.keys(this.StationData).forEach(item => {
         if (item.split('|').length !== 2) {
           this.StationData['nz-akl' + '|' + item] = this.StationData[item]
           delete this.StationData[item]
@@ -31,7 +31,7 @@ export class stationStore extends Events {
       this.StationOrder = JSON.parse(localStorage.getItem('StationOrder'))
 
       // Upgrades...
-      this.StationOrder = this.StationOrder.map((item) => {
+      this.StationOrder = this.StationOrder.map(item => {
         if (item.split('|').length !== 2) {
           return 'nz-akl' + '|' + item
         }
@@ -48,6 +48,13 @@ export class stationStore extends Events {
   lineCache = {}
   lineCacheRegion = null
 
+  getDirection(region, direction_id) {
+    if (region === 'nz-akl') {
+      direction_id = !direction_id ? 1 : 0
+    }
+    return direction_id === 0 ? 'Outbound' : 'Inbound'
+  }
+
   getCity(lat, lng, map = true) {
     let newCity = 'none'
     if (lat > -37.4 && lat < -36 && lng > 174 && lng < 175.2) {
@@ -62,7 +69,7 @@ export class stationStore extends Events {
     if (map === false) {
       return newCity
     }
-    if (this.currentCity !== newCity ) {
+    if (this.currentCity !== newCity) {
       this.currentCity = newCity
       this.trigger('newcity')
       SettingsStore.state.lastLocation = [lat, lng]
@@ -79,31 +86,40 @@ export class stationStore extends Events {
       return this.StationData
     }
     return new Promise((resolve, reject) => {
+      let data = null
       if (typeof this.StationData[region + '|' + station] !== 'undefined') {
-        return resolve(this.StationData[region + '|' + station])
+        data = this.StationData[region + '|' + station]
       } else if (typeof this.stationCache[station] !== 'undefined') {
-        return resolve(this.stationCache[station])
+        data = this.stationCache[station]
       }
       if (station.split('+').length > 1) {
-        return resolve({
+        data = {
           stop_lat: 0,
           stop_lon: 0,
-          stop_name: t('savedStations.multi')
-        })
-      }
-      fetch(`${local.endpoint}/${region}/station/${station}`).then((response) => {
-        if (response.status === 404) {
-          throw new Error(response.status)
-        } else {
-          response.json().then(resolve)
+          stop_name: t('savedStations.multi'),
         }
-      }).catch(err => reject(err))
+      }
+      if (data && data.icon !== 'parkingbuilding') {
+        return resolve(data)
+      }
+      fetch(`${local.endpoint}/${region}/station/${station}`)
+        .then(response => {
+          if (response.status === 404) {
+            throw new Error(response.status)
+          } else {
+            response.json().then(resolve)
+          }
+        })
+        .catch(err => reject(err))
     })
   }
   getOrder(region = null) {
     if (region) {
-      return this.StationOrder.filter((item) => {
-        return this.StationData[item].region === region || typeof(this.StationData[item].region) === 'undefined'
+      return this.StationOrder.filter(item => {
+        return (
+          this.StationData[item].region === region ||
+          typeof this.StationData[item].region === 'undefined'
+        )
       })
     }
     return this.StationOrder
@@ -112,18 +128,25 @@ export class stationStore extends Events {
     if (stopNumber.trim() === '') {
       return
     }
-    const promises = stopNumber.split('+').map((station) => {
+    const promises = stopNumber.split('+').map(station => {
       return new Promise((resolve, reject) => {
-        fetch(`${local.endpoint}/${region}/station/${station}`).then((response) => {
-          response.json().then(resolve)
-        })
+        fetch(`${local.endpoint}/${region}/station/${station}`).then(
+          response => {
+            response.json().then(resolve)
+          }
+        )
       })
     })
-    Promise.all(promises).then((dataCollection) => {
+    Promise.all(promises).then(dataCollection => {
       dataCollection.forEach((data, key) => {
         let no = stopNumber.split('+')[key]
-        let description = t('savedStations.stop', {number: `${no} / ${data.stop_name}`})
         let icon = IconHelper.getRouteType(data.route_type)
+        let description = t('savedStations.stop', {
+          number: `${no} / ${data.stop_name}`,
+        })
+        if (icon === 'parkingbuilding') {
+          description = data.stop_name
+        }
 
         let zName = stopName
         if (stopNumber.split('+').length > 1) {
@@ -135,7 +158,7 @@ export class stationStore extends Events {
           stop_lon: data.stop_lon,
           description: description,
           icon: icon,
-          region: region
+          region: region,
         }
       })
 
@@ -144,9 +167,11 @@ export class stationStore extends Events {
           name: stopName || t('savedStations.multi'),
           stop_lat: dataCollection[0].stop_lat,
           stop_lon: dataCollection[0].stop_lon,
-          description: t('savedStations.stops', {number: stopNumber.split('+').join(', ')}),
+          description: t('savedStations.stops', {
+            number: stopNumber.split('+').join(', '),
+          }),
           icon: 'multi',
-          region: region
+          region: region,
         }
       }
 
@@ -169,20 +194,25 @@ export class stationStore extends Events {
   }
   getLines(prefix = 'nz-akl') {
     return new Promise((resolve, reject) => {
-      if (Object.keys(this.lineCache).length === 0 || this.lineCacheRegion !== prefix) {
+      if (
+        Object.keys(this.lineCache).length === 0 ||
+        this.lineCacheRegion !== prefix
+      ) {
         if (!navigator.onLine) {
           reject(t('app.nointernet'))
           return
         }
-        fetch(`${local.endpoint}/${prefix}/lines`).then((response)=>{
-          response.json().then((data) => {
-            this.lineCache = data
-            this.lineCacheRegion = prefix
-            resolve(data)
+        fetch(`${local.endpoint}/${prefix}/lines`)
+          .then(response => {
+            response.json().then(data => {
+              this.lineCache = data
+              this.lineCacheRegion = prefix
+              resolve(data)
+            })
           })
-        }).catch(() => {
-          reject(t('lines.error'))
-        })
+          .catch(() => {
+            reject(t('lines.error'))
+          })
       } else {
         resolve(this.lineCache)
       }
@@ -193,47 +223,56 @@ export class stationStore extends Events {
       this.trigger('error', t('app.nointernet'))
       return
     }
-    const promises = stations.split('+').map((station) => {
+    const promises = stations.split('+').map(station => {
       return new Promise((resolve, reject) => {
-        fetch(`${local.endpoint}/${region}/station/${station}/times`).then((response) => {    
-          response.json().then(data => {
-            data.trips = data.trips.map(trip => {
-              trip.station = station
-              return trip
+        fetch(`${local.endpoint}/${region}/station/${station}/times`)
+          .then(response => {
+            response.json().then(data => {
+              data.trips = data.trips.map(trip => {
+                trip.station = station
+                return trip
+              })
+              resolve(data)
             })
-            resolve(data)
           })
-        }).catch((err) => {
-          reject(err)
-        })
+          .catch(err => {
+            reject(err)
+          })
       })
     })
-    Promise.all(promises).then((allData) => {
-      this.setOffset(allData[0].currentTime)
-      if (allData.length > 0) {
-        if ('html' in allData[0]) {
-          this.trigger('html', allData[0])
-          return
+    return Promise.all(promises)
+      .then(allData => {
+        this.setOffset(allData[0].currentTime)
+        if (allData.length > 0) {
+          if ('html' in allData[0]) {
+            this.trigger('html', allData[0])
+            return
+          }
         }
-      }
 
-      let trips = []
-      let realtime = {}
-      allData.forEach((data) => {
-        trips = trips.concat(data.trips)
-        realtime = Object.assign(realtime, data.realtime)
+        let trips = []
+        let realtime = {}
+        allData.forEach(data => {
+          trips = trips.concat(data.trips)
+          realtime = Object.assign(realtime, data.realtime)
+        })
+        trips.sort((a, b) => {
+          return a.departure_time_seconds - b.departure_time_seconds
+        })
+        this.timesFor = [stations, new Date()]
+        this.tripData = trips
+        this.realtimeData = this.realtimeModifier(
+          trips,
+          realtime,
+          stations,
+          region
+        )
+        this.trigger('times', stations)
       })
-      trips.sort((a,b) => {
-        return a.departure_time_seconds - b.departure_time_seconds
+      .catch(err => {
+        console.error(err)
+        this.trigger('error', t('station.error'))
       })
-      this.timesFor = [stations, new Date()]
-      this.tripData = trips
-      this.realtimeData = this.realtimeModifier(trips, realtime, stations, region)
-      this.trigger('times', stations)
-    }).catch((err) => {
-      console.error(err)
-      this.trigger('error', t('station.error'))
-    })
   }
   setOffset(time) {
     let offsetTime = new Date()
@@ -260,71 +299,82 @@ export class stationStore extends Events {
     }
 
     const queryString = {}
-    tripData.filter(function(trip) {
-      const arrival = new Date()
-      if (arrival.getHours() < 5) {
-        arrival.setDate(arrival.getDate() - 1)
-      }
-      arrival.setHours(0)
-      arrival.setMinutes(0)
-      arrival.setSeconds(parseInt(trip.departure_time_seconds))
+    tripData
+      .filter(function(trip) {
+        const arrival = new Date()
+        if (arrival.getHours() < 5) {
+          arrival.setDate(arrival.getDate() - 1)
+        }
+        arrival.setHours(0)
+        arrival.setMinutes(0)
+        arrival.setSeconds(parseInt(trip.departure_time_seconds))
 
-      // only gets realtime info for things +30mins away
-      if (arrival.getTime() < (new Date().getTime() + 1800000)) {
-        return true
-      }
-      return false
-    }).forEach(trip => {
-      queryString[trip.trip_id] = {
-        departure_time_seconds: trip.departure_time_seconds,
-        route_short_name: trip.route_short_name,
-        station: trip.station
-      }
-    })
+        // only gets realtime info for things +30mins away
+        if (arrival.getTime() < new Date().getTime() + 1800000) {
+          return true
+        }
+        return false
+      })
+      .forEach(trip => {
+        queryString[trip.trip_id] = {
+          departure_time_seconds: trip.departure_time_seconds,
+          route_short_name: trip.route_short_name,
+          station: trip.station,
+        }
+      })
 
     // we need to pass an extra param for train trips
     let requestData = {
       stop_id: stop_id,
-      trips: queryString
+      trips: queryString,
     }
     if (route_type === 2) {
       requestData.train = true
     }
 
     // now we do a request to the realtime API
-    fetch(`${local.endpoint}/${region}/realtime`, {
+    return fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestData)
-    }).then((response) => {
-      response.json().then((data) => {
-        this.realtimeData = this.realtimeModifier(tripData, data, stop_id, region)
+      body: JSON.stringify(requestData),
+    }).then(response => {
+      response.json().then(data => {
+        this.realtimeData = this.realtimeModifier(
+          tripData,
+          data,
+          stop_id,
+          region
+        )
         this.trigger('realtime')
       })
     })
   }
   // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
-  getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     const deg2rad = function(deg) {
-      return deg * (Math.PI/180)
+      return deg * (Math.PI / 180)
     }
     const R = 6371 // Radius of the earth in km
-    const dLat = deg2rad(lat2-lat1)  // deg2rad below
-    const dLon = deg2rad(lon2-lon1) 
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+    const dLat = deg2rad(lat2 - lat1) // deg2rad below
+    const dLon = deg2rad(lon2 - lon1)
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     const d = R * c // Distance in km
     return d
   }
   realtimeModifier(tripData, rtData, stop, region) {
     if (tripData.length > 0 && tripData[0].route_type === 2) {
       const stationId = region + '|' + stop.split('+')[0]
-      const station = this.StationData[stationId] || this.stationCache[stationId.split('|')[1]]
+      const station =
+        this.StationData[stationId] ||
+        this.stationCache[stationId.split('|')[1]]
       if (typeof station === 'undefined') {
         return {}
       }
@@ -332,7 +382,12 @@ export class stationStore extends Events {
       for (var key in rtData) {
         rtData[key] = {
           v_id: rtData[key].v_id,
-          distance: this.getDistanceFromLatLonInKm(rtData[key].latitude, rtData[key].longitude, pos[0], pos[1])
+          distance: this.getDistanceFromLatLonInKm(
+            rtData[key].latitude,
+            rtData[key].longitude,
+            pos[0],
+            pos[1]
+          ),
         }
       }
     }
@@ -343,15 +398,21 @@ export class stationStore extends Events {
       return a.departure_time_seconds - b.departure_time_seconds
     }
     return new Promise((resolve, reject) => {
-      fetch(`${local.endpoint}/${region}/station/${station}/timetable/${route}/${direction}/${offset}`).then((request) => {
-        request.json().then((data) => {
-          if (data.length > 0) {
-            this.setOffset(data[0].currentTime)
-            data.sort(sortfn)
-          }
-          resolve(data)
+      fetch(
+        `${
+          local.endpoint
+        }/${region}/station/${station}/timetable/${route}/${direction}/${offset}`
+      )
+        .then(request => {
+          request.json().then(data => {
+            if (data.length > 0) {
+              this.setOffset(data[0].currentTime)
+              data.sort(sortfn)
+            }
+            resolve(data)
+          })
         })
-      }).catch(reject)
+        .catch(reject)
     })
   }
 }

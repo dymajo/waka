@@ -1,8 +1,11 @@
 const webpack = require('webpack')
 const path = require('path')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin
 const ManifestPlugin = require('webpack-manifest-plugin')
 const OfflinePlugin = require('offline-plugin')
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
@@ -10,8 +13,11 @@ const generate = require('./server-static/generator.js')
 generate()
 
 const extractSass = new ExtractTextPlugin({
-  filename: process.env.NODE_ENV === 'production' ? 'generated/[name].[contenthash].css' : 'generated/[name].css',
-  allChunks: true
+  filename:
+    process.env.NODE_ENV === 'production'
+      ? 'generated/[name].[contenthash].css'
+      : 'generated/[name].css',
+  allChunks: true,
 })
 const ConsoleNotifierPlugin = function() {}
 
@@ -29,15 +35,13 @@ ConsoleNotifierPlugin.prototype.apply = function(compiler) {
 let config = {
   entry: {
     app: ['whatwg-fetch', './js/app.jsx', './scss/style.scss'],
-    maps: ['./scss/maps.scss'],
-    vendor: ['react', 'react-dom', 'react-router', 'react-router-dom', 'react-transition-group', 'react-tap-event-plugin'],
-    analytics: ['autotrack']
+    analytics: ['autotrack'],
   },
   output: {
     path: __dirname + '/dist/',
     publicPath: '/',
     filename: 'generated/[name].bundle.js',
-    chunkFilename: 'generated/[id].chunk.js'
+    chunkFilename: 'generated/[id].chunk.js',
   },
   devtool: 'cheap-module-source-map',
   module: {
@@ -48,51 +52,58 @@ let config = {
         include: [
           path.resolve(__dirname + '/js'),
           path.resolve(__dirname, 'node_modules/autotrack'), // compat with autotrack, as it's published in es6
-          path.resolve(__dirname, 'node_modules/dom-utils') // autotrack
-        ]
+          path.resolve(__dirname, 'node_modules/dom-utils'), // autotrack
+        ],
       },
       {
         test: /\.scss$/,
         use: extractSass.extract({
-          use: [{
-            loader: 'css-loader',
-            options: {
-              sourceMap: true
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: process.env.NODE_ENV !== 'production',
+              },
             },
-          }, {
-            loader: 'resolve-url-loader'
-          }, {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
+            {
+              loader: 'resolve-url-loader',
             },
-          }],
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: true,
+                outputStyle: 'compressed',
+              },
+            },
+          ],
           // use style-loader in development
-          fallback: 'style-loader'
-        })
+          fallback: 'style-loader',
+        }),
       },
       {
         test: /\.svg$/,
-        use: [{
-          loader: 'react-svg-loader',
-          options: {
-            es5: true,
-            svgo: {
-              plugins: [{
-                removeAttrs: {attrs: 'xmlns.*'}
-              }]
-            }
-          }
-        }]
-      }
-    ]
+        use: [
+          {
+            loader: 'react-svg-loader',
+            options: {
+              es5: true,
+              svgo: {
+                plugins: [
+                  {
+                    removeAttrs: { attrs: 'xmlns.*' },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    ],
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
-    historyApiFallback:  {
-      rewrites: [
-        { from: /./, to: '/index-generated.html' }
-      ]
+    historyApiFallback: {
+      rewrites: [{ from: /./, to: '/index-generated.html' }],
     },
     port: 8009,
     host: '0.0.0.0',
@@ -100,57 +111,50 @@ let config = {
     proxy: {
       '/a': {
         target: 'http://localhost:8000',
-      }
-    }
+      },
+    },
   },
   plugins: [
     extractSass,
+    // not compatible with leaflet
+    // new LodashModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify(process.env.NODE_ENV)
-      }
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+      },
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor'
+      name: 'vendor',
+      minChunks: function(module) {
+        // this assumes your vendor imports exist in the node_modules directory
+        return (
+          module.context &&
+          module.context.includes('node_modules') &&
+          !module.context.includes('autotrack')
+        )
+      },
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'app',
       async: true,
-      minChunks: 2
+      minChunks: 2,
     }),
     new ManifestPlugin({
-      fileName: 'assets.json'
-    })
-
-  ]
+      fileName: 'assets.json',
+    }),
+  ],
 }
 if (process.env.NODE_ENV === 'production') {
   config.output.filename = 'generated/[name].[chunkhash].bundle.js'
   config.output.chunkFilename = 'generated/[name].[chunkhash].chunk.js'
   delete config.devtool
   config.plugins.push(
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-        screw_ie8: true,
-        conditionals: true,
-        unused: true,
-        comparisons: true,
-        sequences: true,
-        dead_code: true,
-        evaluate: true,
-        if_return: true,
-        join_vars: true
-      },
-      output: {
-        comments: false
-      }
-    }),
+    new UglifyJsPlugin(),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
-      openAnalyzer: false
+      openAnalyzer: false,
     }),
-    new webpack.optimize.ModuleConcatenationPlugin(),
+    new webpack.optimize.ModuleConcatenationPlugin()
   )
 
   config.plugins.push(
@@ -165,8 +169,8 @@ if (process.env.NODE_ENV === 'production') {
         '/fonts/OpenSansBold.woff2',
       ],
       ServiceWorker: {
-        navigateFallbackURL: '/'
-      }
+        navigateFallbackURL: '/',
+      },
     })
   )
 } else {
@@ -174,11 +178,10 @@ if (process.env.NODE_ENV === 'production') {
   console.log('Not building Service Worker')
 }
 
-
 if (process.env.NODE_ENV === 'devlive') {
   console.log('Using Live Server for API')
   config.devServer.proxy['/a'].target = 'https://getwaka.com'
-  config.devServer.proxy['/a'].changeOrigin= true
+  config.devServer.proxy['/a'].changeOrigin = true
 }
 
 module.exports = config

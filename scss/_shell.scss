@@ -1,0 +1,264 @@
+// NEED TO SORT THE DEFINITION OF THIS.
+$initial-transform: translate3d(0, 0, 0);
+$default-position: 300px + 50px;
+$default-position-transform: translate3d(0, $default-position, 0);
+$map-position: 66px;
+$map-position-transform: translate3d(0, $map-position, 0);
+$max-position: 100vh;
+$max-position-transform: translate3d(0, $max-position, 0);
+$desktop-position: 32px;
+$desktop-position-transform: translate3d(0, $desktop-position, 0);
+
+// TODO: Lots of these are the same maybe we should optimize a little.
+// ENTER
+@keyframes shell-max-enter-max {
+  0% {
+    transform: $max-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-max-enter-default {
+  0% {
+    transform: $default-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-default-enter-max {
+  0% {
+    transform: $default-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-default-enter-default {
+  0% {
+    transform: $default-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-map-enter-map {
+  0% {
+    transform: $map-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-map-enter-default {
+  0% {
+    transform: $map-position-transform;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+// EXIT
+@keyframes shell-max-exit-max {
+  0% {
+    transform: $initial-transform;
+  }
+  100% {
+    transform: $max-position-transform;
+  }
+}
+@keyframes shell-default-exit-default {
+  0% {
+    transform: $initial-transform;
+  }
+  100% {
+    transform: $default-position-transform;
+  }
+}
+@keyframes shell-map-exit-map {
+  0% {
+    transform: $initial-transform;
+  }
+  100% {
+    transform: $map-position-transform;
+  }
+}
+@keyframes shell-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes shell-desktop-in {
+  0% {
+    opacity: 0;
+    transform: $desktop-position-transform;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: $initial-transform;
+  }
+}
+@keyframes shell-desktop-out {
+  0% {
+    opacity: 1;
+    transform: $initial-transform;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: $desktop-position-transform;
+  }
+}
+
+$darken-opacity: 0.85;
+@keyframes shell-darken {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: $darken-opacity;
+  }
+}
+@keyframes shell-lighten {
+  0% {
+    opacity: $darken-opacity + 0.05;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+// android phones not fast enough to do this properly
+.ios .shell-content {
+  &.direction-forward {
+    &.exiting,
+    &.exited {
+      animation: 300ms ease shell-darken 1;
+      opacity: $darken-opacity;
+    }
+  }
+
+  &.direction-backward {
+    &.entering,
+    &.entered {
+      animation: 750ms ease shell-lighten 1;
+      opacity: 1;
+    }
+  }
+}
+
+.shell-content {
+  background: $default-back;
+  border-radius: 10px 10px 0 0;
+
+  &.entering,
+  &.exiting,
+  &.exited {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    min-height: 70vh;
+  }
+
+  &.direction-forward,
+  &.direction-fade-forward {
+    &.entering,
+    &.entered {
+      z-index: 1;
+    }
+  }
+  &.direction-fade-forward {
+    &.entering {
+      animation: 200ms ease shell-fade 1;
+    }
+  }
+
+  // Mobile UI
+  @media (max-width: 850px) {
+    &.max-position-max {
+      &.direction-forward.entering {
+        animation: 300ms ease shell-max-enter-max 1;
+      }
+      &.direction-backward {
+        &.exiting,
+        &.exited {
+          transform: $max-position-transform;
+        }
+        &.exiting {
+          animation: 350ms ease shell-max-exit-max 1;
+        }
+      }
+    }
+    &.max-position-default {
+      &.direction-forward.entering {
+        animation: 250ms ease shell-max-enter-default 1;
+        animation-delay: 100ms;
+      }
+    }
+    &.default-position-max {
+      &.direction-forward.entering {
+        animation: 150ms ease-in shell-default-enter-max 1;
+      }
+    }
+    &.default-position-default {
+      &.direction-forward.entering {
+        animation: 300ms ease shell-default-enter-default 1;
+      }
+      &.direction-backward {
+        &.exiting,
+        &.exited {
+          transform: $default-position-transform;
+        }
+        &.exiting {
+          animation: 300ms ease shell-default-exit-default 1;
+        }
+      }
+    }
+    &.map-position-default {
+      &.direction-forward.entering {
+        animation: 50ms ease shell-map-enter-default 1;
+      }
+      &.direction-fade-forward.entering {
+        animation: 50ms ease shell-fade 1;
+      }
+    }
+
+    &.map-position-map {
+      &.direction-forward.entering {
+        animation: 50ms ease shell-fade 1;
+      }
+      &.direction-backward {
+        &.exiting,
+        &.exited {
+          transform: $map-position-transform;
+        }
+        &.exiting {
+          animation: 250ms ease shell-map-exit-map 1;
+        }
+      }
+    }
+  }
+
+  @media (min-width: 851px) {
+    &.direction-forward.entering {
+      animation: 300ms ease shell-desktop-in 1;
+    }
+    &.direction-backward {
+      &.exiting,
+      &.exited {
+        transform: $max-position-transform;
+      }
+      &.exiting {
+        animation: 300ms ease shell-desktop-out 1;
+      }
+    }
+  }
+}

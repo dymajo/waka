@@ -1,12 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter } from 'react-router-dom'
-import { iOS } from './models/ios.js'
+import { Router } from 'react-router-dom'
 
-import Index from './views/index.jsx'
+import { UiStore } from './stores/uiStore.js'
 
-import injectTapEventPlugin from 'react-tap-event-plugin'
-injectTapEventPlugin()
+import Index from './views/shell/index.jsx'
 
 import smoothscroll from 'smoothscroll-polyfill'
 smoothscroll.polyfill()
@@ -14,9 +12,9 @@ smoothscroll.polyfill()
 class App extends React.Component {
   render() {
     return (
-      <BrowserRouter>
+      <Router history={UiStore.customHistory}>
         <Index />
-      </BrowserRouter>
+      </Router>
     )
   }
 }
@@ -33,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
 let startApp = function() {
   window.defaultContent = [
     window.location.pathname,
-    (document.querySelector('.default-container') || {}).innerHTML || null
+    (document.querySelector('.default-container') || {}).innerHTML || null,
   ]
   ReactDOM.render(<App />, document.getElementById('app'))
 }
