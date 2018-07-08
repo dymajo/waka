@@ -6,7 +6,7 @@ export default {
     errorRetry: 'Retry',
   },
   regions: {
-    'pick': 'Pick City',
+    pick: 'Pick City',
     'au-syd': 'Sydney',
     'au-syd-long': 'New South Wales, Sydney',
     'nz-akl': 'Auckland',
@@ -19,8 +19,8 @@ export default {
     'nz-zqn-long': 'Tāhuna, Queenstown',
     'nz-wlg': 'Wellington',
     'nz-wlg-long': 'Te Whanganui-a-Tara, Wellington',
-    'vote': 'Want to use %{appname} in your city?',
-    'activator': 'Let us know!',
+    vote: 'Want to use %{appname} in your city?',
+    activator: 'Let us know!',
   },
   root: {
     stationsLabel: 'Stations',
@@ -29,21 +29,30 @@ export default {
   onboarding: {
     welcome: {
       name: 'Kia Ora! Welcome to %{appname}.',
-      description: '%{appname} is your realtime guide to public transport in Auckland and Wellington.',
+      description:
+        '%{appname} is your realtime guide to public transport in Auckland and Wellington',
     },
     lines: {
       name: 'Lines',
-      description: 'View all Bus, Train, and Ferry services.',
+      description: 'View all Bus, Train, and Ferry services',
     },
     install: {
       name: 'Install App',
-      description: 'Add %{appname} to your home screen.',
-      description2: 'Send %{appname} to your phone.',
+      description: 'Add %{appname} to your home screen',
+      description2: 'Send %{appname} to your phone',
+    },
+    city: {
+      name: 'Switch City',
+      description: 'Get directions in another city',
     },
     sponsor: {
       name: 'Become a Sponsor',
-      description: 'Contribute to help support development!'
-    }
+      description: 'Contribute to help support development!',
+    },
+    settings: {
+      name: 'Settings',
+      description: 'Preferences & Credits',
+    },
   },
   savedStations: {
     title: 'Saved Stations',
@@ -70,7 +79,7 @@ export default {
     title: 'All Lines',
     more: '%{number} more',
     less: '%{number} less',
-    error: 'We couldn’t download the lines.'
+    error: 'We couldn’t download the lines.',
   },
   settings: {
     title: 'Settings',
@@ -87,7 +96,11 @@ export default {
       title: 'More',
       feedback: 'Send Feedback',
       credits: 'View Credits',
-    }
+    },
+  },
+  notFound: {
+    header: 'Not Found',
+    body: 'Sorry, but the page you were trying to view does not exist.',
   },
   sponsor: {
     title: 'Contribute',
@@ -95,13 +108,17 @@ export default {
     slug2: 'Help us build the world’s best transit app.',
     email: 'Get in Touch',
     sponsorTitle: 'Become a Sponsor',
-    sponsorDescription: 'If you want your business to appear on the map or elsewhere in the app, you can become a sponsor!',
+    sponsorDescription:
+      'If you want your business to appear on the map or elsewhere in the app, you can become a sponsor!',
     patreonTitle: 'Patreon',
-    patreonDescription: 'Help cover our costs and support development by becoming a patron.',
+    patreonDescription:
+      'Help cover our costs and support development by becoming a patron.',
     contributeTitle: 'Contribute Code',
-    contributeDescription: 'Want to improve %{appname} directly? %{appname} is open source software, so check out the issues and submit a pull request!',
+    contributeDescription:
+      'Want to improve %{appname} directly? %{appname} is open source software, so check out the issues and submit a pull request!',
     translateTitle: 'Translations',
-    translateDescription: 'Spot an issue in a translation, or want to translate %{appname} into another language?',
+    translateDescription:
+      'Spot an issue in a translation, or want to translate %{appname} into another language?',
   },
   station: {
     parkingbuilding: 'Parking Building',
@@ -111,7 +128,7 @@ export default {
     ferry: 'Ferry Terminal',
     cablecar: 'Cable Car Station',
     noservices: 'There are no services in the next two hours.',
-    error: 'We couldn’t get stop times for this station.'
+    error: 'We couldn’t get stop times for this station.',
   },
   stationedit: {
     title: 'Edit Station',
@@ -124,7 +141,7 @@ export default {
   },
   tripitem: {
     via: 'via %{location}',
-    due: 'Due', 
+    due: 'Due',
     stops: '%{smart_count} &stop |||| %{smart_count} &stops',
     minsaway: '%{time}&m',
     kmaway: '%{distance}&km',
@@ -132,13 +149,13 @@ export default {
     and: 'and in&%{times}& min',
     last: 'Last',
     map: 'Route Map',
-    timetable: 'Timetable'
+    timetable: 'Timetable',
   },
   timetable: {
     title: 'Timetable',
     header: '%{route} Timetable - %{appname}',
     error: 'We couldn’t get the timetable for this route.',
-    empty: 'There were no services found today.'
+    empty: 'There were no services found today.',
   },
   vech_loc: {
     header: '%{route} - Live Location - %{appname}',
@@ -157,6 +174,6 @@ export default {
       north: 'North Shore',
       night: 'Late Night',
       waiheke: 'Waiheke Island',
-    }
-  }
+    },
+  },
 }

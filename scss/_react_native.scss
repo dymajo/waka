@@ -1,0 +1,118 @@
+// this is dodgy code that should be css-in-js, but it's not for reasons...
+// please be descriptive with your reason
+
+// touchable-opacity
+// reason: active psuedo element is better than js with like, state.
+.touchable-opacity {
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.5);
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: none;
+  -webkit-user-select: none;
+
+  // why css in js is better
+  &.opacity-25 {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.75);
+  }
+  &.opacity-75 {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.25);
+  }
+  &.opacity-90 {
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+  }
+}
+.touchable-opacity-active {
+  -webkit-tap-highlight-color: transparent;
+  &:active {
+    opacity: 0.5;
+  }
+  &.opacity-25:active {
+    opacity: 0.25;
+  }
+  &.opacity-75:active {
+    opacity: 0.75;
+  }
+  &.opacity-90:active {
+    opacity: 0.9;
+  }
+}
+.checkbox {
+  input[type='checkbox'] {
+    display: none;
+
+    + label {
+      display: inline-block;
+      vertical-align: top;
+      font-size: 15px;
+      line-height: 22px;
+
+      &::before {
+        content: '✔';
+        text-align: center;
+        vertical-align: top;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        display: inline-block;
+        margin-right: 0.5rem;
+        border: 2px solid $atblue;
+        border-radius: 2px;
+        color: transparent;
+        font-size: 14px;
+        transition: 75ms ease-in background;
+      }
+    }
+
+    &:checked + label {
+      &::before {
+        background: $atblue;
+        color: #fff;
+      }
+    }
+  }
+}
+
+.metro-dot {
+  fill-opacity: 1;
+  fill: white;
+  stroke-width: 2;
+}
+.metro-line {
+  stroke-width: 4;
+}
+.vehIcon {
+  background: #fff;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0 1px 2px rgba(#000, 0.4);
+}
+
+.line-pill {
+  color: #fff;
+  display: inline-block;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  line-height: 1;
+  padding: 3px;
+  margin-right: 7px;
+  font-weight: 600;
+  background: #000;
+
+  &:empty {
+    visibility: hidden;
+  }
+
+  &.cf {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    padding: 4px;
+    border-color: transparent;
+    font-weight: 600;
+    border-radius: 50%;
+    text-align: center;
+    text-shadow: 0 0 0 #000;
+    font-weight: 600;
+    font-size: 0.9em;
+  }
+}

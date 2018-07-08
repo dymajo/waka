@@ -1,3 +1,4 @@
+$line-color: #e4e4e4;
 .root-card-content {
   a {
     text-decoration: none;
@@ -50,7 +51,6 @@
     margin: 0;
     text-indent: 14px;
     padding: 20px 0 5px;
-    border-bottom: 1px solid #e4e4e4;
   }
 
   h3 {
@@ -63,14 +63,16 @@
   ul {
     margin: 0;
     padding: 0;
+    border-top: 1px solid $line-color;
   }
 
-  li {
+  .touchable {
     display: flex;
+    flex-direction: row;
     padding: 8px 10px;
     cursor: default;
     background: #fff;
-    border-bottom: 1px solid #e4e4e4;
+    border-bottom: 1px solid $line-color;
 
     &.ss {
       padding-bottom: 5px;
@@ -81,23 +83,11 @@
         background: #f7f7f7;
       }
     }
-
-    &.selected, &:active {
-      background: #f5fafe;
-    }
-
   }
 
   @media (min-width: 481px) {
     h2 {
       padding: 21px 0 7px;
-    }
-    ul {
-      box-shadow: 0 1px 3px rgba(#000, 0.3);
-    }
-
-    li:last-child:not(.lines-btn) {
-      border-bottom: 0;
     }
   }
 
@@ -108,13 +98,15 @@
     width: 36px;
     text-align: center;
 
-    img, svg {
+    img,
+    svg {
       height: auto;
       width: 36px;
     }
   }
-  ul:first-child li:not(:nth-child(2)) .icon {
-    img, svg {
+  ul:first-child .touchable:not(:nth-child(2)) .icon {
+    img,
+    svg {
       width: 34px;
     }
   }
@@ -149,7 +141,8 @@
     background: #fff;
     border-bottom: 1px dotted #ddd;
 
-    &:hover, &:active {
+    &:hover,
+    &:active {
       background: #fff;
     }
 
@@ -168,16 +161,10 @@
   }
   @media (min-width: 601px) {
     nav {
-      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
       z-index: 3;
     }
   }
-  @media (max-width: 850px) {
-    .lines-btn {
-      display: none;
-    }
-  }
-
   @media (max-width: 900px) {
     nav {
       display: none;
@@ -189,7 +176,7 @@
       display: flex;
     }
     .ss:after {
-      content: "›";
+      content: '›';
       font-size: 42px;
       line-height: 34px;
       padding-right: 5px;
@@ -198,13 +185,13 @@
   }
 }
 
-.onboard li:nth-child(3) span {
+.onboard .touchable:nth-child(3) span {
   &:last-child {
     display: none;
   }
 }
 @media (min-width: 481px) {
-  .onboard li:nth-child(3) span {
+  .onboard .touchable:nth-child(3) span {
     &:first-child {
       display: none;
     }
@@ -213,15 +200,15 @@
     }
   }
 }
-@media (display-mode: standalone) and (max-width: 850px) {
+@media (display-mode: standalone) {
   .onboard {
     display: none;
-  } 
+  }
 }
 .more-section {
   display: none;
 
-  @media (display-mode: standalone) and (max-width: 850px) {
+  @media (display-mode: standalone) {
     display: block;
   }
 }
@@ -235,18 +222,6 @@
     }
   }
 }
-@media (display-mode: standalone) and (min-width: 851px) {
-  .onboard ul li:first-child {
-    display: none;
-  }
-}
-@media (min-width: 851px) {
-  .ios-standalone {
-    .onboard ul li:first-child {
-      display: none;
-    }
-  }
-}
 
 .onboard {
   padding-top: 1rem;
@@ -254,52 +229,5 @@
 .blue-fill {
   svg {
     fill: $atblue;
-  }
-}
-
-// .station {
-//   position: relative;
-//   z-index: 4;
-
-//   @media (min-width: 851px) {
-//     left: $sidebar-width;
-//     z-index: 0;
-//   }
-// }
-
-@keyframes ss-to-stop-station {
-  0% {
-    transform: translate3d(0,15px,0);
-    opacity: 0;
-  }
-  100% {
-    transform: translate3d(0,0,0);
-    opacity: 1;
-  }
-}
-@keyframes stop-to-ss-station {
-  0% {
-    transform: translate3d(0,0,0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(0,15px,0);
-    opacity: 0;
-  }
-}
-@keyframes ss-to-stop-station-ios {
-  0% {
-    transform: translate3d(100vw,0,0);
-  }
-  100% {
-    transform: translate3d(0,0,0);
-  }
-}
-@keyframes stop-to-ss-station-ios {
-  0% {
-    transform: translate3d(0,0,0);
-  }
-  100% {
-    transform: translate3d(100vw,0,0);
   }
 }

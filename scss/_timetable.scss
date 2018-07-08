@@ -1,31 +1,4 @@
-.timetable-container {
-  background: #fff;
-  top: 0;
-  bottom: 0;
-  position: absolute;
-  left: 0;
-  right: 0;
-  z-index: 4;
-
-  @media (min-width: 851px) {
-    left: $sidebar-width;
-    z-index: 1;
-  }
-
-  .line-pill {
-  	float: right;
-  	margin: 15px 10px 0 0;
-
-    &.cf {
-      margin: 14px 10px 14px 0;
-    }
-  }
-}
 .timetable-content {
-  height: calc(100vh - 48px);
-  height: calc(var(--real-height) - #{$mobilenavsize});
-  overflow-y: auto;
-
   ul {
   	padding: 0 14px 14px;
   }
@@ -56,28 +29,11 @@
   		padding: 22px 7px 4px;
   		border-bottom: 2px solid #ddd;
       color: #555;
-      background: #fff;
+      background: #f8f8f8;
       position: -webkit-sticky;
       position: sticky;
-      top: -1px;
+      top: 0;
       z-index: 1;
   	}
-  }
-}
-
-@media (min-width: 851px) {
-  $cap: 800px;
-  .timetable-container {
-    background: #eee;
-
-    .material-header {
-      max-width: $cap;
-    }
-  }
-  .timetable-content {
-    max-width: $cap;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
-    min-height: calc(var(--real-height) - 56px);
-    background: #fff;
   }
 }

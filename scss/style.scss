@@ -1,43 +1,48 @@
-@import "_normalize";
-@import "_fonts";
-@import "_vars";
+@import '_normalize';
+@import '_fonts';
+@import '_vars';
+@import 'maps';
 
 body {
+  --bottom-inset: env(safe-area-inset-bottom);
   --real-height: 100vh;
 }
 
-html, body, #app {
-  // width: 100vw;
-  // height: 100%;
+html,
+body,
+#app {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select:  none;
-  background: #eee;
+  user-select: none;
+  background: $default-back;
+}
+html,
+body {
+  overscroll-behavior: none;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
-html, body, input, button {
+html,
+body,
+input,
+button {
   font-family: 'Open Sans', sans-serif;
 }
 
-.panes {
-  height: 100%;
-}
-
-@import "_mixins";
-@import "_buttons";
-@import "_defaults";
-@import "_navigation";
-@import "_root";
-@import "_search";
-@import "_content";
-@import "_trip";
-@import "_modal";
-@import "_settings";
-@import "_splash";
-@import "_ios";
-@import "_lines";
-@import "_veh_loc";
-@import "_timetable";
-@import "_region-popover";
-@import "_sign";
+@import '_mixins';
+@import '_buttons';
+@import '_defaults';
+@import '_shell';
+@import '_navigation';
+@import '_root';
+@import '_search';
+@import '_content';
+@import '_trip';
+@import '_settings';
+@import '_splash';
+@import '_lines';
+@import '_timetable';
+@import '_react_native';
+@import '_react_native_desktop';
