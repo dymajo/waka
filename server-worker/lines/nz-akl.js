@@ -135,11 +135,11 @@ const lineGroups = [
   },
     {
       name: 'Central - Frequent',
-      items: ['CTY', 'INN', 'OUT', 'TMK', '18', '20', '22A', '24W', '25B', '25L', '27T', '30', '32', '33', '66', '68', '70', '72C', '72M',  '75', '380'],
+      items: ['CTY', 'INN', 'OUT', 'TMK', '18', '20', '22A', '24W', '25B', '25L', '27T', '30', '32', '33', '380', '66', '68', '70', '72C', '72M',  '75'],
     },
     {
       name: 'Central - Connector',
-      items: ['22N', '22R', '24B', '24R', '27H', '27W', '105', '106', '186', '195', '295', '309', '313', '323', '325', '650', '670', '712', '743', '744', '747', '751', '755', '762', '781'],
+      items: [ '105', '106', '186', '195','22N', '22R', '24B', '24R', '27H', '27W', '295', '309', '313', '323', '325', '650', '670', '712', '743', '744', '747', '751', '755', '762', '781'],
     },
     {
       name: 'Central - Local',
@@ -147,7 +147,7 @@ const lineGroups = [
     },
     {
       name: 'Central - Peak Period',
-      items: ['72X', '101', '209', '309X', '352', '774', '775'],
+      items: [ '101', '209','22A', '24W', '27T', '221X', '223X', '243X', '248X', '252', '253', '309X', '352', '774', '775', '72X',],
     },
     {
       name: 'East',
@@ -470,6 +470,24 @@ const allLines = {
   ],
   '775': [
     ['Glendowie', 'Britomart', 'Tamaki Dr']
+  ],
+  '221X': [
+    ['Rosebank Rd', 'City Centre', 'New North Rd Express']
+  ],
+  '223X': [
+    ['New Lynn', 'City Centre', 'New North Rd Express']
+  ],
+  '243X': [
+    ['New Lynn', 'City Centre', 'Sandringham Rd Express']
+  ],
+  '248X': [
+    ['Blockhouse Bay', 'City Centre', 'Sandringham Rd Express']
+  ],
+  '252': [
+    ['Lynfield','Civic Centre','Dominion Rd']
+  ],
+  '253': [
+    ['Blockhouse Bay', 'Civic Centre', 'Dominion Rd']
   ],
 
   // NORTH OF MOTORWAY ISTHMUS
