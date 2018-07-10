@@ -4,122 +4,235 @@ const cache = require('../cache.js')
 const log = require('../../server-common/logger.js')
 
 const getColor = (agency_id, code) => {
-  switch(agency_id) {
-  case 'AM': // Auckland Metro
-    switch (code) {
-    case 'WEST': // West Line
-      //return '#006553' official
-      return '#4f9734'
-    case 'STH': // South Line
-      //return '#a60048' official
-      return '#e52f2b'
-    case 'EAST': // East Line
-      return '#f39c12'
-    case 'PUK': // South Line
-      //return '#a60048'
-      return '#e52f2b'
-    case 'ONE': // ONE Line
-      return '#21b4e3'
-
+  switch (code) {
+    case 'CTY':
+      return '#CA2B36'
+    case 'INN':
+      return '#66AC4C'
+    case 'OUT':
+      return '#E08A3D'
+    case 'TMK':
+      return '#388FC7'
+    case '20':
+      return '#C8228B'
+    case '22':
+      return '#9E7797'
+    case '24':
+      return '#408AAF'
+    case '252':
+      return '#994D33'
+    case '253':
+      return '#994D33'
+    case '25B':
+      return '#994D33'
+    case '25L':
+      return '#994D33'
+    case '27H':
+      return '#4FA3B6'
+    case '27T':
+      return '#4FA3B6'
+    case '27W':
+      return '#4FA3B6'
+    case '30':
+      return '#6F7EA8'
+    case '66':
+      return '#458E50'
+    case '68':
+      return '#805B8A'
+    case '75':
+      return '#71030C'
+    case '650':
+      return '#7A588B'
+    case '747':
+      return '#E77F86'
+    case '751':
+      return '#398B88'
+    case '755':
+      return '#76C8D7'
+    case '781':
+      return '#F5B635'
+    case '782':
+      return '#96C349'
+    case '670':
+      return '#374489'
+    case '221X':
+      return '#A67DA6'
+    case '223X':
+      return '#A67DA6'
+    case '22A':
+      return '#A67DA6'
+    case '22N':
+      return '#A67DA6'
+    case '22R':
+      return '#A67DA6'
+    case '243X':
+      return '#3A92C2'
+    case '248X':
+      return '#3A92C2'
+    case '24B':
+      return '#3A92C2'
+    case '24R':
+      return '#3A92C2'
+    case '24W':
+      return '#3A92C2'
+    case '18':
+      return '#2C73B8'
+    case '101':
+      return '#4AB7C1'
+    case '105':
+      return '#6F5E9E'
+    case '106':
+      return '#3A5E85'
+    case '32':
+      return '#E04C82'
+    case '70':
+      return '#C52A35'
+    case '298':
+      return '#537EBC'
+    case '321':
+      return '#87318D'
+    case '323':
+      return '#55C0DB'
+    case '743':
+      return '#EF9B44'
+    case '744':
+      return '#77B38A'
+    case '782':
+      return '#96C349'
+    case '295':
+      return '#878768'
+    case '309X':
+      return '#4C3A65'
+    case '309':
+      return '#4C3A65'
+    case '762':
+      return '#8F579E'
+    case '774':
+      return '#B9A340'
+    case '783':
+      return '#E1515D'
+    case '195':
+      return '#63796C'
+    case '209':
+      return '#4BAC8F'
     default:
-      return '#17232f'
-    }
-  case 'FGL': // Fullers
-    return '#2756a4'
+      switch(agency_id) {
+      case 'AM': // Auckland Metro
+        switch (code) {
+        case 'WEST': // West Line
+          //return '#006553' official
+          return '#4f9734'
+        case 'STH': // South Line
+          //return '#a60048' official
+          return '#e52f2b'
+        case 'EAST': // East Line
+          return '#f39c12'
+        case 'PUK': // South Line
+          //return '#a60048'
+          return '#e52f2b'
+        case 'ONE': // ONE Line
+          return '#21b4e3'
 
-  case 'HE': // Howick and Eastern
-    return '#2196F3'
+        default:
+          return '#17232f'
+        }
+      case 'FGL': // Fullers
+        return '#2756a4'
 
-  case 'NZBGW': // NZ Bus - Go West
-    return '#4CAF50'
+      case 'HE': // Howick and Eastern
+        return '#2196F3'
 
-  case 'NZB': // NZ Bus - metrolink
-    switch (code) {
-      case 'CTY': // City Link
-        return '#ef3c34'
+      case 'NZBGW': // NZ Bus - Go West
+        return '#4CAF50'
 
-      case 'INN': // Inner Link
-        return '#41b649'
+      case 'NZB': // NZ Bus - metrolink
+        switch (code) {
+          case 'CTY': // City Link
+            return '#ef3c34'
 
-      case 'OUT': // Outer Link
-        return '#f7991c'
+          case 'INN': // Inner Link
+            return '#41b649'
 
-      case 'TMK':
-        return '#038fcc'
-      
-      default:
-        return '#0759b0'
-    }
-    
-  case 'NZBML': // NZ Bus - metrolink
-    switch (code) {
-      case 'CTY': // City Link
-        return '#ef3c34'
+          case 'OUT': // Outer Link
+            return '#f7991c'
 
-      case 'INN': // Inner Link
-        return '#41b649'
+          case 'TMK':
+            return '#038fcc'
+          
+          default:
+            return '#0759b0'
+        }
+        
+      case 'NZBML': // NZ Bus - metrolink
+        switch (code) {
+          case 'CTY': // City Link
+            return '#ef3c34'
 
-      case 'OUT': // Outer Link
-        return '#f7991c'
+          case 'INN': // Inner Link
+            return '#41b649'
 
-      case 'TMK':
-        return '#038fcc'
-      
-      default:
-        return '#0759b0'
-    }
+          case 'OUT': // Outer Link
+            return '#f7991c'
 
-  case 'NZBNS': // NZ Bus - North Star
-    return '#f39c12'
+          case 'TMK':
+            return '#038fcc'
+          
+          default:
+            return '#0759b0'
+        }
 
-  case 'NZBWP': // NZ Bus - Waka Pacific
-    return '#0f91ab'
+      case 'NZBNS': // NZ Bus - North Star
+        return '#f39c12'
 
-  case 'UE': // Urban Express / Same as Pavolich
-    return '#776242'
+      case 'NZBWP': // NZ Bus - Waka Pacific
+        return '#0f91ab'
 
-  case 'BTL': // Birkenhead Transport
-    return '#b2975b'
+      case 'UE': // Urban Express / Same as Pavolich
+        return '#776242'
 
-  case 'RTH': // Ritchies
-    switch (code) {
-    case 'NEX': // Northern Express
-      //return '#0079c2' official
-      return '#0056a9' 
-    
-    default:
-      return '#ff6f2c'
-    }
+      case 'BTL': // Birkenhead Transport
+        return '#b2975b'
 
-  case 'WBC': // Waiheke Bus Company
-    return '#2196F3'
+      case 'RTH': // Ritchies
+        switch (code) {
+        case 'NEX': // Northern Express
+          //return '#0079c2' official
+          return '#0056a9' 
+        
+        default:
+          return '#ff6f2c'
+        }
 
-  case 'EXPNZ': // Explore Waiheke - supposed to be closed?
-    return '#ffe81c'
+      case 'WBC': // Waiheke Bus Company
+        return '#2196F3'
 
-  case 'BFL': // Belaire Ferries
-    return '#ffd503'
+      case 'EXPNZ': // Explore Waiheke - supposed to be closed?
+        return '#ffe81c'
 
-  case 'ATAPT': // AT Airporter
-    return '#f7931d'
+      case 'BFL': // Belaire Ferries
+        return '#ffd503'
 
-  case 'SLPH': // Pine Harbour / Sealink
-    return '#d92732'
+      case 'ATAPT': // AT Airporter
+        return '#f7931d'
 
-  case 'GBT': // Go Bus
-    return '#58aa17'
+      case 'SLPH': // Pine Harbour / Sealink
+        return '#d92732'
 
-  case '360D': // 360 Discovery
-    return '#2756a4'
+      case 'GBT': // Go Bus
+        return '#58aa17'
 
-  case 'ABEXP': //Skybus
-    return '#F44336'
+      case '360D': // 360 Discovery
+        return '#2756a4'
 
-  case 'PC': // Pavolich
-    return '#776242'
+      case 'ABEXP': //Skybus
+        return '#F44336'
 
-  default: //MSB, PBC, BAYES - Schools
-    return '#17232f'
+      case 'PC': // Pavolich
+        return '#776242'
+
+      default: //MSB, PBC, BAYES - Schools
+        return '#17232f'
+      }
   }
 }
 
