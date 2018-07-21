@@ -6,15 +6,20 @@ const Storage = require('../db/storage.js')
 const search = require('../stops/search.js')
 const cache = require('../cache.js')
 const config = require('../../config.js')
+const log = require('../../server-common/logger.js')
 
 let lineData = {}
 cache.preReady.push(() => {
-  lineData = require('./' + global.config.prefix)
+  try {
+    lineData = require('./' + global.config.prefix)
+  } catch (err) {
+    log(('No Line Data Available for ' + global.config.prefix).red)
+  }
 })
 
 const storageSvc = new Storage({
   backing: config.storageService,
-  local: config.emulatedStorage
+  local: config.emulatedStorage,
 })
 
 var line = {
@@ -22,60 +27,60 @@ var line = {
     if (lineData.getColor) {
       return lineData.getColor(agency_id, route_short_name)
     } else if (lineData.lineColors) {
-      return lineData.lineColors[route_short_name] || '#000'     
+      return lineData.lineColors[route_short_name] || '#000'
     }
     return '#000'
   },
   /**
-  * @api {get} /:region/lines List - All
-  * @apiName GetLines
-  * @apiGroup Lines
-  * 
-  * @apiParam {String} region Region of Worker
-  * 
-  * @apiSuccess {Object[]} friendlyNames Key value store of Route Short Names to more official names
-  * @apiSuccess {Object[]} colors Key value store of Route Short Names to corresponding colors
-  * @apiSuccess {Object[]} groups Grouping for all the lines into region.
-  * @apiSuccess {String} groups.name Name of Group
-  * @apiSuccess {String[]} groups.items Route Short Names that belong in the group
-  * @apiSuccess {Object[]} lines List of all lines
-  * @apiSuccess {String[]} lines.line Can have more than one item - depends on how many route variants.
-  * For each variant: 0th Element - Origin (or full name if length 1), 1st Element - Destination. 2nd Element - Via.
-  * 
-  * @apiSuccessExample Success-Response:
-  *     HTTP/1.1 200 OK
-  *     {
-  *       "friendlyNames": {
-  *         "380": "Airporter"
-  *       },
-  *       "colors": {
-  *         "380": "#2196F3"
-  *       },
-  *       "groups": [
-  *         {
-  *           "name": "Congestion Free Network",
-  *           "items": [
-  *             "380"
-  *           ]
-  *         }
-  *       ],
-  *       "lines": {
-  *         "380": [
-  *           [
-  *             "Onehunga",
-  *             "Manukau",
-  *             "Airport"
-  *           ],
-  *           [
-  *             "Howick",
-  *             "Pukekohe",
-  *             "Airport"
-  *           ]
-  *         ]
-  *       }
-  *     }
-  * 
-  */
+   * @api {get} /:region/lines List - All
+   * @apiName GetLines
+   * @apiGroup Lines
+   *
+   * @apiParam {String} region Region of Worker
+   *
+   * @apiSuccess {Object[]} friendlyNames Key value store of Route Short Names to more official names
+   * @apiSuccess {Object[]} colors Key value store of Route Short Names to corresponding colors
+   * @apiSuccess {Object[]} groups Grouping for all the lines into region.
+   * @apiSuccess {String} groups.name Name of Group
+   * @apiSuccess {String[]} groups.items Route Short Names that belong in the group
+   * @apiSuccess {Object[]} lines List of all lines
+   * @apiSuccess {String[]} lines.line Can have more than one item - depends on how many route variants.
+   * For each variant: 0th Element - Origin (or full name if length 1), 1st Element - Destination. 2nd Element - Via.
+   *
+   * @apiSuccessExample Success-Response:
+   *     HTTP/1.1 200 OK
+   *     {
+   *       "friendlyNames": {
+   *         "380": "Airporter"
+   *       },
+   *       "colors": {
+   *         "380": "#2196F3"
+   *       },
+   *       "groups": [
+   *         {
+   *           "name": "Congestion Free Network",
+   *           "items": [
+   *             "380"
+   *           ]
+   *         }
+   *       ],
+   *       "lines": {
+   *         "380": [
+   *           [
+   *             "Onehunga",
+   *             "Manukau",
+   *             "Airport"
+   *           ],
+   *           [
+   *             "Howick",
+   *             "Pukekohe",
+   *             "Airport"
+   *           ]
+   *         ]
+   *       }
+   *     }
+   *
+   */
   getLines: function(req, res) {
     res.send(line._getLines())
   },
@@ -87,60 +92,60 @@ var line = {
       groups: lineData.lineGroups,
       lines: lineData.allLines,
       operators: lineData.lineOperators,
-    } 
+    }
   },
   /**
-  * @api {get} /:region/line/:line Info - by route_short_name
-  * @apiName GetLine
-  * @apiGroup Lines
-  * 
-  * @apiParam {String} region Region of Worker
-  * @apiParam {String} line route_short_name of particular line
-  *
-  * @apiSuccess {Object[]} line All the variants for a particular line.
-  * @apiSuccess {String} line.route_id GTFS route_id
-  * @apiSuccess {String} line.route_long_name Long name for route variant
-  * @apiSuccess {String} line.route_short_name Short name for route variant
-  * @apiSuccess {String} line.route_color Color for route
-  * @apiSuccess {Number} line.direction_id Direction of route
-  * @apiSuccess {String} line.shape_id GTFS Shape_id
-  * @apiSuccess {Number} line.route_type GTFS route_type - Transport mode
-  *
-  * @apiSuccessExample Success-Response:
-  * HTTP/1.1 200 OK
-  * [
-  *   {
-  *     "route_id": "50140-20171113160906_v60.12",
-  *     "route_long_name": "Britomart Train Station to Manukau Train Station",
-  *     "route_short_name": "EAST",
-  *     "route_color": "#f39c12",
-  *     "direction_id": 1,
-  *     "shape_id": "1199-20171113160906_v60.12",
-  *     "route_type": 2
-  *   },
-  *   {
-  *     "route_id": "50151-20171113160906_v60.12",
-  *     "route_long_name": "Manukau Train Station to Britomart Train Station",
-  *     "route_short_name": "EAST",
-  *     "route_color": "#f39c12",
-  *     "direction_id": 0,
-  *     "shape_id": "1198-20171113160906_v60.12",
-  *     "route_type": 2
-  *   }
-  * ]
-  */
+   * @api {get} /:region/line/:line Info - by route_short_name
+   * @apiName GetLine
+   * @apiGroup Lines
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} line route_short_name of particular line
+   *
+   * @apiSuccess {Object[]} line All the variants for a particular line.
+   * @apiSuccess {String} line.route_id GTFS route_id
+   * @apiSuccess {String} line.route_long_name Long name for route variant
+   * @apiSuccess {String} line.route_short_name Short name for route variant
+   * @apiSuccess {String} line.route_color Color for route
+   * @apiSuccess {Number} line.direction_id Direction of route
+   * @apiSuccess {String} line.shape_id GTFS Shape_id
+   * @apiSuccess {Number} line.route_type GTFS route_type - Transport mode
+   *
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *   {
+   *     "route_id": "50140-20171113160906_v60.12",
+   *     "route_long_name": "Britomart Train Station to Manukau Train Station",
+   *     "route_short_name": "EAST",
+   *     "route_color": "#f39c12",
+   *     "direction_id": 1,
+   *     "shape_id": "1199-20171113160906_v60.12",
+   *     "route_type": 2
+   *   },
+   *   {
+   *     "route_id": "50151-20171113160906_v60.12",
+   *     "route_long_name": "Manukau Train Station to Britomart Train Station",
+   *     "route_short_name": "EAST",
+   *     "route_color": "#f39c12",
+   *     "direction_id": 0,
+   *     "shape_id": "1198-20171113160906_v60.12",
+   *     "route_type": 2
+   *   }
+   * ]
+   */
   getLine: async function(req, res) {
     const lineId = req.params.line.trim()
     try {
       const data = await line._getLine(lineId)
       res.send(data)
-    } catch(err) {
+    } catch (err) {
       res.status(500).send(err)
     }
   },
   _getLine: async function(lineId) {
     const sqlRequest = connection.get().request()
-    
+
     // filter by agency if a filter exists
     let agency = ''
     if (lineData.agencyFilter) {
@@ -187,11 +192,14 @@ var line = {
     const results = []
     result.recordset.forEach(function(route) {
       // checks to make it's the right route (the whole exception thing)
-      if (line.exceptionCheck(route) === false){
+      if (line.exceptionCheck(route) === false) {
         return
       }
       // make sure it's not already in the response
-      if (typeof(versions[route.route_long_name + (route.direction_id || '0')]) === 'undefined') {
+      if (
+        typeof versions[route.route_long_name + (route.direction_id || '0')] ===
+        'undefined'
+      ) {
         versions[route.route_long_name + (route.direction_id || '0')] = true
       } else {
         return
@@ -204,7 +212,7 @@ var line = {
         route_color: line.getColor(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
-        route_type: route.route_type  
+        route_type: route.route_type,
       }
       // if it's the best match, inserts at the front
       if (line.exceptionCheck(route, true) === true) {
@@ -220,49 +228,68 @@ var line = {
         }
         let regexed = candidate.route_long_name.match(/\((.+?)\)/g)
         if (regexed) {
-          const newName = '('+regexed[0].slice(1, -1).split(' - ').reverse().join(' - ')+')'
-          candidate.route_long_name = candidate.route_long_name.replace(/\((.+?)\)/g, newName)
+          const newName =
+            '(' +
+            regexed[0]
+              .slice(1, -1)
+              .split(' - ')
+              .reverse()
+              .join(' - ') +
+            ')'
+          candidate.route_long_name = candidate.route_long_name.replace(
+            /\((.+?)\)/g,
+            newName
+          )
         } else {
-          candidate.route_long_name = candidate.route_long_name.split(' - ').reverse().join(' - ')
+          candidate.route_long_name = candidate.route_long_name
+            .split(' - ')
+            .reverse()
+            .join(' - ')
         }
       }
     }
     return results
   },
   /**
-  * @api {get} /:region/shapejson/:shape_id Line Shape - by shape_id
-  * @apiName GetShape
-  * @apiGroup Lines
-  * 
-  * @apiParam {String} region Region of Worker
-  * @apiParam {String} shape_id GTFS Shape_id for particular shape.
-  *
-  * @apiSuccess {String} type GeoJSON Shape Type
-  * @apiSuccess {Object[]} coordinates GeoJSON Coordinates
-  *
-  * @apiSuccessExample Success-Response:
-  * HTTP/1.1 200 OK
-  * {
-  *   "type": "LineString",
-  *   "coordinates": [
-  *     [
-  *         174.76848,
-  *         -36.84429
-  *     ],
-  *     [
-  *         174.76863,
-  *         -36.84438
-  *     ]
-  *   ]
-  * }
-  */
+   * @api {get} /:region/shapejson/:shape_id Line Shape - by shape_id
+   * @apiName GetShape
+   * @apiGroup Lines
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} shape_id GTFS Shape_id for particular shape.
+   *
+   * @apiSuccess {String} type GeoJSON Shape Type
+   * @apiSuccess {Object[]} coordinates GeoJSON Coordinates
+   *
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   "type": "LineString",
+   *   "coordinates": [
+   *     [
+   *         174.76848,
+   *         -36.84429
+   *     ],
+   *     [
+   *         174.76863,
+   *         -36.84438
+   *     ]
+   *   ]
+   * }
+   */
   getShapeJSON: function(req, res) {
     const prefix = global.config.prefix
     const version = global.config.version
-    const containerName = encodeURIComponent((prefix+'-'+version).replace('_','-').replace('.','-'))
+    const containerName = encodeURIComponent(
+      (prefix + '-' + version).replace('_', '-').replace('.', '-')
+    )
     const shape_id = req.params.shape_id
-    const fileName = encodeURIComponent(new Buffer(shape_id).toString('base64') + '.json')
-    storageSvc.downloadStream(containerName, fileName, res, function(blobError) {
+    const fileName = encodeURIComponent(
+      new Buffer(shape_id).toString('base64') + '.json'
+    )
+    storageSvc.downloadStream(containerName, fileName, res, function(
+      blobError
+    ) {
       if (blobError) {
         res.status(404)
       }
@@ -281,10 +308,10 @@ var line = {
     }
 
     // blanket thing for no schools
-    if (route.trip_headsign === 'Schools'){
+    if (route.trip_headsign === 'Schools') {
       return false
     }
-    if (typeof(allLines[route.route_short_name]) === 'undefined') {
+    if (typeof allLines[route.route_short_name] === 'undefined') {
       return true
     }
     let retval = false
@@ -297,61 +324,79 @@ var line = {
     routes.forEach(function(variant) {
       if (variant.length === 1 && route.route_long_name === variant[0]) {
         retval = true
-      // normal routes - from x to x
+        // normal routes - from x to x
       } else if (variant.length === 2) {
         let splitName = route.route_long_name.toLowerCase().split(' to ')
-        if (variant[0].toLowerCase() == splitName[0] && variant[1].toLowerCase() == splitName[1]) {
+        if (
+          variant[0].toLowerCase() == splitName[0] &&
+          variant[1].toLowerCase() == splitName[1]
+        ) {
           retval = true
-        // reverses the order
-        } else if (variant[1].toLowerCase() == splitName[0] && variant[0].toLowerCase() == splitName[1]  && !bestMatchMode) {
+          // reverses the order
+        } else if (
+          variant[1].toLowerCase() == splitName[0] &&
+          variant[0].toLowerCase() == splitName[1] &&
+          !bestMatchMode
+        ) {
           retval = true
         }
-      // handles via Flyover or whatever
+        // handles via Flyover or whatever
       } else if (variant.length === 3) {
         let splitName = route.route_long_name.toLowerCase().split(' to ')
-        if (splitName.length > 1 && splitName[1].split(' via ')[1] === variant[2].toLowerCase()) {
+        if (
+          splitName.length > 1 &&
+          splitName[1].split(' via ')[1] === variant[2].toLowerCase()
+        ) {
           splitName[1] = splitName[1].split(' via ')[0]
-          if (variant[0].toLowerCase() === splitName[0] && variant[1].toLowerCase() === splitName[1]) {
+          if (
+            variant[0].toLowerCase() === splitName[0] &&
+            variant[1].toLowerCase() === splitName[1]
+          ) {
             retval = true
-          // reverses the order
-          } else if (variant[1].toLowerCase() === splitName[0] && variant[0].toLowerCase() === splitName[1] && !bestMatchMode) {
+            // reverses the order
+          } else if (
+            variant[1].toLowerCase() === splitName[0] &&
+            variant[0].toLowerCase() === splitName[1] &&
+            !bestMatchMode
+          ) {
             retval = true
           }
         }
       }
     })
     return retval
-
   },
 
   /**
-  * @api {get} /:region/stops/trip/:trip_id Line Stops - by trip_id
-  * @apiName GetStopsByTrip
-  * @apiGroup Lines
-  * 
-  * @apiParam {String} region Region of Worker
-  * @apiParam {String} trip_id GTFS trip_id for particular trip
-  *
-  * @apiSuccess {Object[]} stops Array of stops
-  *
-  * @apiSuccessExample Success-Response:
-  * HTTP/1.1 200 OK
-  * [
-  *   {
-  *     "stop_id": "9218",
-  *     "stop_name": "Manukau Train Station",
-  *     "stop_lat": -36.99388,
-  *     "stop_lon": 174.8774,
-  *     "departure_time": "1970-01-01T18:00:00.000Z",
-  *     "departure_time_24": false,
-  *     "stop_sequence": 1
-  *   }
-  * ]
-  */
-  getStopsFromTrip: function(req, res){
+   * @api {get} /:region/stops/trip/:trip_id Line Stops - by trip_id
+   * @apiName GetStopsByTrip
+   * @apiGroup Lines
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} trip_id GTFS trip_id for particular trip
+   *
+   * @apiSuccess {Object[]} stops Array of stops
+   *
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *   {
+   *     "stop_id": "9218",
+   *     "stop_name": "Manukau Train Station",
+   *     "stop_lat": -36.99388,
+   *     "stop_lon": 174.8774,
+   *     "departure_time": "1970-01-01T18:00:00.000Z",
+   *     "departure_time_24": false,
+   *     "stop_sequence": 1
+   *   }
+   * ]
+   */
+  getStopsFromTrip: function(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
-    sqlRequest.query(`
+    sqlRequest
+      .query(
+        `
       SELECT 
         stops.stop_code as stop_id,
         stops.stop_name,
@@ -366,45 +411,51 @@ var line = {
       WHERE
         stop_times.trip_id = @trip_id
       ORDER BY stop_sequence`
-    ).then((result) => {
-      res.send(search._stopsFilter(result.recordset))
-    }).catch((err) => {
-      res.status(500).send(err)
-    })
+      )
+      .then(result => {
+        res.send(search._stopsFilter(result.recordset))
+      })
+      .catch(err => {
+        res.status(500).send(err)
+      })
   },
   /**
-  * @api {get} /:region/stops/shape/:shape_id Line Stops - by shape_id
-  * @apiName GetStopsByShape
-  * @apiGroup Lines
-  * 
-  * @apiParam {String} region Region of Worker
-  * @apiParam {String} shape_id GTFS shape_id for particular trip
-  *
-  * @apiSuccess {Object[]} stops Array of stops
-  *
-  * @apiSuccessExample Success-Response:
-  * HTTP/1.1 200 OK
-  * [
-  *   {
-  *     "stop_id": "9218",
-  *     "stop_name": "Manukau Train Station",
-  *     "stop_lat": -36.99388,
-  *     "stop_lon": 174.8774,
-  *     "departure_time": "1970-01-01T18:00:00.000Z",
-  *     "departure_time_24": false,
-  *     "stop_sequence": 1
-  *   }
-  * ]
-  */
+   * @api {get} /:region/stops/shape/:shape_id Line Stops - by shape_id
+   * @apiName GetStopsByShape
+   * @apiGroup Lines
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} shape_id GTFS shape_id for particular trip
+   *
+   * @apiSuccess {Object[]} stops Array of stops
+   *
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *   {
+   *     "stop_id": "9218",
+   *     "stop_name": "Manukau Train Station",
+   *     "stop_lat": -36.99388,
+   *     "stop_lon": 174.8774,
+   *     "departure_time": "1970-01-01T18:00:00.000Z",
+   *     "departure_time_24": false,
+   *     "stop_sequence": 1
+   *   }
+   * ]
+   */
   getStopsFromShape: function(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
-    sqlRequest.query('SELECT TOP(1) trip_id FROM trips WHERE trips.shape_id = @shape_id').then((result) => {
-      let trip_id = result.recordset[0].trip_id
-      req.params.trip_id =  trip_id
-      line.getStopsFromTrip(req, res)
-    })
-  }
+    sqlRequest
+      .query(
+        'SELECT TOP(1) trip_id FROM trips WHERE trips.shape_id = @shape_id'
+      )
+      .then(result => {
+        let trip_id = result.recordset[0].trip_id
+        req.params.trip_id = trip_id
+        line.getStopsFromTrip(req, res)
+      })
+  },
 }
 
 module.exports = line

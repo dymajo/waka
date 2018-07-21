@@ -6,27 +6,29 @@ const Static = require('./static.js')
 const WorkerManager = require('./workerManager.js')
 
 const proxy = httpProxy.createProxyServer({
-  ignorePath: true
+  ignorePath: true,
 })
 const proxyHandle = function(req, res) {
   let prefix = req.params.prefix
   if (req.params.prefix === 'auto') {
     if (parseFloat(req.query.lat) < -44.5) {
       prefix = 'nz-otg'
+    } else if (parseFloat(req.query.lat) < -41.9) {
+      prefix = 'nz-chc'
     } else if (parseFloat(req.query.lat) < -40.6) {
       prefix = 'nz-wlg'
-    } else if (parseFloat(req.query.lon) < 159 ){
+    } else if (parseFloat(req.query.lon) < 159) {
       prefix = 'au-syd'
-    } else{
+    } else {
       prefix = 'nz-akl'
-    } 
+    }
   }
 
   const port = WorkerManager.getMapping(prefix)
   if (port === 404 || prefix === '') {
     res.status(404).send({
       message: 'prefix not found',
-      url: req.originalUrl
+      url: req.originalUrl,
     })
   } else {
     const url = req.originalUrl.split('/a/' + req.params.prefix)[1]
@@ -43,7 +45,7 @@ router.all('/a/:prefix/*', proxyHandle)
 router.all('/a/*', proxyHandle)
 router.all('/a', (req, res) => {
   res.send({
-    message: 'the waka api docs are located at /docs/index.html'
+    message: 'the waka api docs are located at /docs/index.html',
   })
 })
 router.all('/*', staticServer.route)
