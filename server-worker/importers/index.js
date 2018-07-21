@@ -2,16 +2,29 @@ const fs = require('fs')
 const path = require('path')
 const rimraf = require('rimraf')
 
-// const log = require('../../server-common/logger.js')
+const log = require('../../server-common/logger.js')
 const gtfsImport = require('../db/gtfs-import.js')
 const createShapes = require('../db/create-shapes.js')
 
 class Importer {
   constructor() {
     this.importer = new gtfsImport()
-    this.current = require('./' + global.config.prefix + '.js')
+    this.current = null
+    try {
+      this.current = require('./' + global.config.prefix + '.js')
+    } catch (err) {
+      log(
+        'fatal error'.red,
+        'Could not find an importer in ',
+        path.join(__dirname, global.config.prefix + '.js')
+      )
+    }
   }
   async start() {
+    if (!this.current) {
+      return
+    }
+
     await this.download()
     await this.unzip()
     await this.db()
