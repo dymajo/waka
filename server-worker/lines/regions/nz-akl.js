@@ -1,7 +1,7 @@
-const connection = require('../db/connection.js')
+const connection = require('../../db/connection.js')
 const sql = require('mssql')
-const cache = require('../cache.js')
-const log = require('../../server-common/logger.js')
+const cache = require('../../cache.js')
+const log = require('../../../server-common/logger.js')
 
 const getColor = (agency_id, code) => {
   switch(agency_id) {

@@ -11,9 +11,10 @@ const log = require('../../server-common/logger.js')
 let lineData = {}
 cache.preReady.push(() => {
   try {
-    lineData = require('./' + global.config.prefix)
+    lineData = require(`./regions/${global.config.prefix}.js`)
   } catch (err) {
-    log(('No Line Data Available for ' + global.config.prefix).red)
+    log(('Could not load line data for ' + global.config.prefix).red)
+    console.error(err)
   }
 })
 
@@ -86,12 +87,12 @@ var line = {
   },
   _getLines: function() {
     return {
-      friendlyNames: lineData.friendlyNames,
+      colors: lineData.lineColors || {},
+      friendlyNames: lineData.friendlyNames || {},
       friendlyNumbers: lineData.friendlyNumbers || {},
-      colors: lineData.lineColors,
-      groups: lineData.lineGroups,
-      lines: lineData.allLines,
-      operators: lineData.lineOperators,
+      groups: lineData.lineGroups || [],
+      lines: lineData.allLines || {},
+      operators: lineData.lineOperators || {},
     }
   },
   /**
