@@ -2,20 +2,34 @@ const fs = require('fs')
 const path = require('path')
 const rimraf = require('rimraf')
 
-// const log = require('../../server-common/logger.js')
+const log = require('../../server-common/logger.js')
 const gtfsImport = require('../db/gtfs-import.js')
 const createShapes = require('../db/create-shapes.js')
 
 class Importer {
   constructor() {
     this.importer = new gtfsImport()
-    this.current = require('./' + global.config.prefix + '.js')
+    this.current = null
+    try {
+      this.current = require('./' + global.config.prefix + '.js')
+    } catch (err) {
+      log(
+        'fatal error'.red,
+        'Could not find an importer in ',
+        path.join(__dirname, global.config.prefix + '.js')
+      )
+    }
   }
   async start() {
+    if (!this.current) {
+      return
+    }
+
     await this.download()
     await this.unzip()
     await this.db()
     await this.shapes()
+    await this.postImport()
   }
 
   async unzip() {
@@ -28,13 +42,24 @@ class Importer {
 
   async db() {
     for (let file of this.current.files) {
-      await this.importer.upload(this.current.zipLocation + 'unarchived', file, global.config.version, file.versioned)
+      await this.importer.upload(
+        this.current.zipLocation + 'unarchived',
+        file,
+        global.config.version,
+        file.versioned
+      )
     }
   }
   async shapes() {
     const creator = new createShapes()
-    const inputDir = path.resolve(this.current.zipLocation + 'unarchived', 'shapes.txt')
-    const outputDir = path.resolve(this.current.zipLocation + 'unarchived', 'shapes')
+    const inputDir = path.resolve(
+      this.current.zipLocation + 'unarchived',
+      'shapes.txt'
+    )
+    const outputDir = path.resolve(
+      this.current.zipLocation + 'unarchived',
+      'shapes'
+    )
     const outputDir2 = path.resolve(outputDir, global.config.version)
 
     // make sure the old output dir exists
@@ -47,14 +72,24 @@ class Importer {
       await new Promise((resolve, reject) => {
         rimraf(outputDir2, resolve)
       })
-    }    
+    }
     fs.mkdirSync(outputDir2)
 
     // creates the new datas
     await creator.create(inputDir, outputDir, [global.config.version])
 
-    const containerName = (global.config.prefix + '-' + global.config.version).replace('.', '-').replace('_', '-')
-    await creator.upload(containerName, path.resolve(outputDir, global.config.version))
+    const containerName = (global.config.prefix + '-' + global.config.version)
+      .replace('.', '-')
+      .replace('_', '-')
+    await creator.upload(
+      containerName,
+      path.resolve(outputDir, global.config.version)
+    )
+  }
+  async postImport() {
+    if (this.current.postImport) {
+      await this.current.postImport()
+    }
   }
 }
 module.exports = Importer
