@@ -1,0 +1,26 @@
+{
+  "au-syd": {
+    "name": "Sydney",
+    "secondaryName": "New South Wales"
+  },
+  "nz-akl": {
+    "name": "Tāmaki Makaurau",
+    "secondaryName": "Auckland"
+  },
+  "nz-chc": {
+    "name": "Ōtautahi",
+    "secondaryName": "Christchurch"
+  },
+  "nz-dud": {
+    "name": "Ōtepoti",
+    "secondaryName": "Dunedin"
+  },
+  "nz-wlg": {
+    "name": "Te Whanganui-a-Tara",
+    "secondaryName": "Wellington"
+  },
+  "nz-zqn": {
+    "name": "Tāhuna",
+    "secondaryName": "Queenstown"
+  }
+}

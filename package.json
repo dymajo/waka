@@ -10,7 +10,7 @@
     "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
     "anal": "webpack --json > report.json",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "document": "apidoc -i server-worker/ -o dist/docs"
+    "document": "apidoc -i server-master -i server-worker -o dist/docs"
   },
   "repository": {
     "type": "git",
