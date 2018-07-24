@@ -12,12 +12,12 @@ class Importer {
     this.importer = new gtfsImport()
     this.current = null
     try {
-      this.current = require('./' + global.config.prefix + '.js')
+      this.current = require('./regions/' + global.config.prefix + '.js')
     } catch (err) {
       log(
         'fatal error'.red,
         'Could not find an importer in ',
-        path.join(__dirname, global.config.prefix + '.js')
+        path.join(__dirname, './regions', global.config.prefix + '.js')
       )
     }
   }

@@ -286,7 +286,7 @@ var line = {
     )
     const shape_id = req.params.shape_id
     const fileName = encodeURIComponent(
-      new Buffer(shape_id).toString('base64') + '.json'
+      Buffer.from(shape_id).toString('base64') + '.json'
     )
     storageSvc.downloadStream(containerName, fileName, res, function(
       blobError

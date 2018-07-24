@@ -2,7 +2,6 @@ const httpProxy = require('http-proxy')
 const router = require('express').Router()
 const log = require('../server-common/logger.js')
 
-const cityMetadata = require('../cityMetadata.json')
 const Static = require('./static.js')
 const WorkerManager = require('./workerManager.js')
 
@@ -10,25 +9,16 @@ const proxy = httpProxy.createProxyServer({
   ignorePath: true,
 })
 const proxyHandle = function(req, res) {
-  let prefix = req.params.prefix
-  if (req.params.prefix === 'auto') {
-    if (parseFloat(req.query.lat) < -44.5) {
-      prefix = 'nz-otg'
-    } else if (parseFloat(req.query.lat) < -41.9) {
-      prefix = 'nz-chc'
-    } else if (parseFloat(req.query.lat) < -40.6) {
-      prefix = 'nz-wlg'
-    } else if (parseFloat(req.query.lon) < 159) {
-      prefix = 'au-syd'
-    } else {
-      prefix = 'nz-akl'
-    }
-  }
-
+  const prefix =
+    req.params.prefix === 'auto'
+      ? WorkerManager.getPrefix(req.query.lat, req.query.lon)
+      : req.params.prefix
+      
   const port = WorkerManager.getMapping(prefix)
+
   if (port === 404 || prefix === '') {
     res.status(404).send({
-      message: 'prefix not found',
+      message: `prefix ${prefix} not found`,
       url: req.originalUrl,
     })
   } else {
@@ -69,23 +59,7 @@ router.all('/a/email', staticServer.route)
  *
  */
 router.get('/a/regions', (req, res) => {
-  const availableRegions = {}
-  const allMappings = WorkerManager.getAllMappings()
-  Object.keys(allMappings).forEach(region => {
-    const regionPair = allMappings[region].split('|')
-    if (
-      regionPair[0] !== 'null' &&
-      WorkerManager.getPort(regionPair[0], regionPair[1])
-    ) {
-      const meta = cityMetadata[region]
-      availableRegions[region] = {
-        prefix: region,
-        name: meta.name,
-        secondaryName: meta.secondaryName,
-      }
-    }
-  })
-  res.send(availableRegions)
+  res.send(WorkerManager.getAllRegions())
 })
 router.all('/a/:prefix', proxyHandle)
 router.all('/a/:prefix/*', proxyHandle)

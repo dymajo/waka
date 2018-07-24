@@ -3,12 +3,14 @@ const Worker = require('./worker.js')
 const connection = require('./db/connection.js')
 const sql = require('mssql')
 const log = require('../server-common/logger.js')
+const cityMetadata = require('../cityMetadata.json')
 
 const WorkerManager = {
   _workerTable: {},
   _workerMap: {},
   _currentMapping: {},
   _currentWorkers: {},
+  _currentBounds: {},
   provision: function(conf) {
     return new Promise((resolve, reject) => {
       // manipulates the db into a nice shape
@@ -46,8 +48,78 @@ const WorkerManager = {
     }
     return 404
   },
+  getPrefix(lat, lon) {
+    const returnPrefix = Object.keys(WorkerManager._currentBounds).filter(
+      prefix => {
+        const bounds = WorkerManager._currentBounds[prefix]
+        return (
+          lat >= bounds.lat.min &&
+          lat <= bounds.lat.max &&
+          lon >= bounds.lon.min &&
+          lon <= bounds.lon.max
+        )
+      }
+    )
+    // we just only are doing one prefix for now, no fancy combination
+    // hits the nz-akl database if there's no prefix
+    return returnPrefix[0] || 'nz-akl'
+  },
+  setBound: function(prefix, bound) {
+    WorkerManager._currentBounds[prefix] = bound
+  },
+  loadAllBounds: async function() {
+    // is called recursively if it can't get a bound
+    const loadBound = (prefix, url, timeout) => {
+      request(url + '/a/info', function(err, response, body) {
+        if (err) {
+          return log('Could not get bounds for ' + prefix)
+        }
+        body = JSON.parse(body)
+        if (Object.keys(body.bounds).length === 0) {
+          log(
+            `Bound data not available for ${prefix} yet, trying in ${timeout}ms`
+          )
+          setTimeout(() => {
+            // the timeout * 2, or 10 mins, whichever is less
+            const newTime = Math.min(timeout * 2, 1000 * 60 * 10)
+            loadBound(prefix, url, newTime)
+          }, timeout)
+        } else {
+          WorkerManager.setBound(prefix, body.bounds)
+        }
+      })
+    }
+
+    log('Getting Worker Bounds')
+    const allRegions = WorkerManager.getAllRegions(true)
+    Object.keys(allRegions).forEach(prefix => {
+      const region = allRegions[prefix]
+      const url = WorkerManager.getWorker(region.port).url()
+      loadBound(prefix, url, 100)
+    })
+  },
   getAllMappings: function() {
     return WorkerManager._currentMapping
+  },
+  getAllRegions: function(returnPort = false) {
+    const availableRegions = {}
+    const allMappings = WorkerManager.getAllMappings()
+    Object.keys(allMappings).forEach(region => {
+      const regionPair = allMappings[region].split('|')
+      const port = WorkerManager.getPort(regionPair[0], regionPair[1])
+      if (regionPair[0] !== 'null' && port) {
+        const meta = cityMetadata[region]
+        availableRegions[region] = {
+          prefix: region,
+          name: meta.name,
+          secondaryName: meta.secondaryName,
+        }
+        if (returnPort === true) {
+          availableRegions[region].port = port
+        }
+      }
+    })
+    return availableRegions
   },
   setMapping: function(prefix, version) {
     return new Promise((resolve, reject) => {
@@ -68,6 +140,7 @@ const WorkerManager = {
         .then(() => {
           WorkerManager._currentMapping[prefix] = prefix + '|' + version
           log('Mapped', prefix, 'to', version)
+          WorkerManager.loadAllBounds()
           resolve()
         })
         .catch(reject)
@@ -93,6 +166,7 @@ const WorkerManager = {
           })
           WorkerManager._currentMapping = mappings
           log('Loaded mappings from database')
+          WorkerManager.loadAllBounds()
           resolve()
         })
         .catch(reject)
@@ -106,6 +180,8 @@ const WorkerManager = {
         .query('delete from mappings where prefix = @prefix')
         .then(() => {
           delete WorkerManager._currentMapping[prefix]
+          log('Deleted mapping', prefix)
+          WorkerManager.loadAllBounds()
           resolve()
         })
         .catch(reject)
