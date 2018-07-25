@@ -151,8 +151,18 @@ const pullCarparkData = async function() {
 }
 
 const aklStops = {
-  extraSources: () => {
-    return Promise.resolve(Object.values(carparks))
+  extraSources: (lat, lng, distance) => {
+    const latDist = distance / 100000
+    const lonDist = distance / 65000
+
+    return Promise.resolve(Object.values(carparks).filter(carpark => {
+      return (
+          lat >= carpark.stop_lat - latDist &&
+          lat <= carpark.stop_lat + latDist &&
+          carpark.stop_lon >= carpark.stop_lon - lonDist &&
+          carpark.stop_lon <= carpark.stop_lon + lonDist
+        )
+    }))
   },
   getSingle: (code) => {
     if (code in carparks) {

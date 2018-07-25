@@ -34,6 +34,23 @@ const getHeadsign = function(longname, direction) {
 }
 
 var station = {
+  getBounds: async function() {
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query(`
+      SELECT
+        MIN(stop_lat) as lat_min,
+        MAX(stop_lat) as lat_max,
+        MIN(stop_lon) as lon_min,
+        MAX(stop_lon) as lon_max
+      FROM stops;`)
+
+    const data = result.recordset[0]
+    return {
+      lat: { min: data.lat_min, max: data.lat_max },
+      lon: { min: data.lon_min, max: data.lon_max },
+    }
+  },
+
   /**
    * @api {get} /:region/station/:stop_id Info - by stop_id
    * @apiName GetStation
@@ -76,22 +93,28 @@ var station = {
    */
   stopInfo: function(req, res) {
     if (req.params.station) {
-      station._stopInfo(req.params.station).then(function(data) {
-        res.send(data)
-      }).catch(function(err) {
-        if (global.config.prefix === 'nz-akl') {
-          akl.getSingle(req.params.station).then((data) => {
-            res.send(data)
-          }).catch(() => {
-            res.status(404).send(err)
-          })
-          return
-        }
-        res.status(404).send(err)  
-      })
+      station
+        ._stopInfo(req.params.station)
+        .then(function(data) {
+          res.send(data)
+        })
+        .catch(function(err) {
+          if (global.config.prefix === 'nz-akl') {
+            akl
+              .getSingle(req.params.station)
+              .then(data => {
+                res.send(data)
+              })
+              .catch(() => {
+                res.status(404).send(err)
+              })
+            return
+          }
+          res.status(404).send(err)
+        })
     } else {
       res.status(404).send({
-        'error': 'please specify a station'
+        error: 'please specify a station',
       })
     }
   },
@@ -101,14 +124,19 @@ var station = {
 
       // returns data
       let override = false
-      if (global.config.prefix === 'nz-wlg' && wlg.badStops.indexOf(stop) > -1) {
+      if (
+        global.config.prefix === 'nz-wlg' &&
+        wlg.badStops.indexOf(stop) > -1
+      ) {
         override = stop
         stop = stop + '1'
       }
 
       const sqlRequest = connection.get().request()
       sqlRequest.input('stop_id', sql.VarChar, stop)
-      sqlRequest.query(`
+      sqlRequest
+        .query(
+          `
         SELECT 
           stops.stop_code as stop_id, 
           stops.stop_name,
@@ -135,19 +163,22 @@ var station = {
         LEFT JOIN routes on routes.route_id = trips.route_id
         WHERE
           stops.stop_code = @stop_id
-      `).then((result) => {
-        const data = result.recordset[0]
-        data.prefix = global.config.prefix
-        delete data.uid
-        if (override) {
-          data.stop_id = override
-        }
-        resolve(data)
-      }).catch(err => {
-        return reject({
-          error: 'station not found'
+      `
+        )
+        .then(result => {
+          const data = result.recordset[0]
+          data.prefix = global.config.prefix
+          delete data.uid
+          if (override) {
+            data.stop_id = override
+          }
+          resolve(data)
         })
-      })
+        .catch(err => {
+          return reject({
+            error: 'station not found',
+          })
+        })
     })
   },
   /**
@@ -219,13 +250,12 @@ var station = {
     // }
     if (!req.params.station) {
       return res.status(404).send({
-        'error': 'please x specify a station'
+        error: 'please x specify a station',
       })
     }
 
-
     req.params.station = req.params.station.trim()
-    
+
     if (global.config.prefix === 'nz-akl') {
       const data = akl.getTimes(req.params.station)
       if (data !== null) {
@@ -234,21 +264,21 @@ var station = {
     }
 
     let sending = {
-      provider: 'sql-server'
+      provider: 'sql-server',
     }
 
     const time = moment().tz('Pacific/Auckland')
-    let currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute()))
+    let currentTime = new Date(Date.UTC(1970, 0, 1, time.hour(), time.minute()))
     let midnightOverride = false
     if (req.params.time) {
       const split = req.params.time.split(':')
-      let tentativeDate = new Date(Date.UTC(1970,0,1,split[0],split[1]))
+      let tentativeDate = new Date(Date.UTC(1970, 0, 1, split[0], split[1]))
       if (tentativeDate.toString !== 'Invalid Date') {
         currentTime = tentativeDate
         midnightOverride = true
       }
     }
-    sending.currentTime = currentTime.getTime()/1000
+    sending.currentTime = currentTime.getTime() / 1000
 
     const today = new Date(0)
     today.setFullYear(time.year())
@@ -257,40 +287,55 @@ var station = {
 
     // midnight fix
     if (time.hour() < 5 && midnightOverride === false) {
-      today.setTime(today.getTime() - (1000 * 60 * 60 * 24))
+      today.setTime(today.getTime() - 1000 * 60 * 60 * 24)
     }
 
     // combines train stations platforms together
     let procedure = 'GetStopTimes'
-    if (global.config.prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
+    if (
+      global.config.prefix === 'nz-wlg' &&
+      wlg.badStops.indexOf(req.params.station) > -1
+    ) {
       procedure = 'GetMultipleStopTimes'
     }
 
     const realtimeTrips = []
-    connection.get().request()
+    connection
+      .get()
+      .request()
       .input('stop_id', sql.VarChar(100), req.params.station)
       .input('departure_time', sql.Time, currentTime)
       .input('date', sql.Date, today)
       .execute(procedure)
-      .then((trips) => {
-        sending.trips = trips.recordset.map((record) => {
-          record.departure_time_seconds = new Date(record.departure_time).getTime()/1000
+      .then(trips => {
+        sending.trips = trips.recordset.map(record => {
+          record.departure_time_seconds =
+            new Date(record.departure_time).getTime() / 1000
           if (record.departure_time_24) {
-            record.departure_time_seconds += 86400    
+            record.departure_time_seconds += 86400
           }
           record.arrival_time_seconds = record.departure_time_seconds
           if (global.config.prefix === 'au-syd') {
             record.route_color = '#' + record.route_color // probably want to do this at db level #jonoshitfixbutbymatt
           } else {
-            record.route_color = line.getColor(record.agency_id, record.route_short_name)
+            record.route_color = line.getColor(
+              record.agency_id,
+              record.route_short_name
+            )
           }
-          // 30mins of realtime 
-          if (record.departure_time_seconds < (sending.currentTime + 1800) || record.departure_time_24) {
+          // 30mins of realtime
+          if (
+            record.departure_time_seconds < sending.currentTime + 1800 ||
+            record.departure_time_24
+          ) {
             realtimeTrips.push(record.trip_id)
           }
 
           if (record.trip_headsign === null) {
-            record.trip_headsign = getHeadsign(record.route_long_name, record.direction_id)
+            record.trip_headsign = getHeadsign(
+              record.route_long_name,
+              record.direction_id
+            )
           }
 
           delete record.arrival_time
@@ -300,65 +345,67 @@ var station = {
           return record
         })
 
-        sending.realtime = rtFn(realtimeTrips) 
+        sending.realtime = rtFn(realtimeTrips)
         res.send(sending)
-        
-      }).catch(function(err) {
+      })
+      .catch(function(err) {
         console.log(err)
         res.status(500).send(err)
-        
       })
   },
   /**
-  * @api {get} /:region/station/:stop_id/timetable/:route/:direction/:offset Timetable - by stop_id
-  * @apiName GetTimetable
-  * @apiGroup Station
-  * @apiDescription Shows timetable for a particular service at a particular station.
-  *
-  * @apiParam {String} region Region of Worker
-  * @apiParam {String} stop_id Station Stop ID, find using All Stations or Stations by Location routes.
-  * @apiParam {String} route route_short_name to look up.
-  * @apiParam {Number} direction 0 for inbound, 1 for outbound, 2 for both directions.
-  * @apiParam {Number} [offset] The number of days from today to get the timetable for 
-  *
-  * @apiSuccess {Object[]} trips List of all the trips for the station - just in root array, no actual object
-  * @apiSuccess {String} trips.trip_id GTFS trip_id
-  * @apiSuccess {String} trips.service_id GTFS service_id
-  * @apiSuccess {String} trips.shape_id GTFS shape_id
-  * @apiSuccess {String} trips.trip_headsign General direction of where the service is going - usually displayed on vehicle
-  * @apiSuccess {Number} trips.direction_id 0 for outbound, 1 for inbound.
-  * @apiSuccess {Number} trips.stop_sequence What stop of the line this station corresponds to.
-  * @apiSuccess {String} trips.route_id GTFS route_id
-  * @apiSuccess {String} trips.route_long_name Long service name - usually origin & destination. Sometimes "Eastern Line"
-  * @apiSuccess {String} trips.agency_id Agency that operates this service
-  * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
-  * @apiSuccess {String} trips.route_color Colour for the route
-  * @apiSuccess {Number} trips.currentTime Server Time, in Seconds
-  * @apiSuccess {Number} trips.date Date of Trip
-  *
-  * @apiSuccessExample Success-Response:
-  *    HTTP/1.1 200 OK
-  *    [
-  *      {
-  *        "trip_id": "50051071494-20171113160906_v60.12",
-  *        "service_id": "50051071494-20171113160906_v60.12",
-  *        "shape_id": "1198-20171113160906_v60.12",
-  *        "trip_headsign": "Britomart",
-  *        "direction_id": 0,
-  *        "stop_sequence": 11,
-  *        "route_id": "50151-20171113160906_v60.12",
-  *        "route_long_name": "Manukau Train Station to Britomart Train Station",
-  *        "agency_id": "AM",
-  *        "departure_time_seconds": 20880,
-  *        "route_color": "#f39c12",
-  *        "currentTime": 47760,
-  *        "date": "2017-12-08T00:00:00.000Z"
-  *      }
-  *    ]
-  */
+   * @api {get} /:region/station/:stop_id/timetable/:route/:direction/:offset Timetable - by stop_id
+   * @apiName GetTimetable
+   * @apiGroup Station
+   * @apiDescription Shows timetable for a particular service at a particular station.
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} stop_id Station Stop ID, find using All Stations or Stations by Location routes.
+   * @apiParam {String} route route_short_name to look up.
+   * @apiParam {Number} direction 0 for inbound, 1 for outbound, 2 for both directions.
+   * @apiParam {Number} [offset] The number of days from today to get the timetable for
+   *
+   * @apiSuccess {Object[]} trips List of all the trips for the station - just in root array, no actual object
+   * @apiSuccess {String} trips.trip_id GTFS trip_id
+   * @apiSuccess {String} trips.service_id GTFS service_id
+   * @apiSuccess {String} trips.shape_id GTFS shape_id
+   * @apiSuccess {String} trips.trip_headsign General direction of where the service is going - usually displayed on vehicle
+   * @apiSuccess {Number} trips.direction_id 0 for outbound, 1 for inbound.
+   * @apiSuccess {Number} trips.stop_sequence What stop of the line this station corresponds to.
+   * @apiSuccess {String} trips.route_id GTFS route_id
+   * @apiSuccess {String} trips.route_long_name Long service name - usually origin & destination. Sometimes "Eastern Line"
+   * @apiSuccess {String} trips.agency_id Agency that operates this service
+   * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
+   * @apiSuccess {String} trips.route_color Colour for the route
+   * @apiSuccess {Number} trips.currentTime Server Time, in Seconds
+   * @apiSuccess {Number} trips.date Date of Trip
+   *
+   * @apiSuccessExample Success-Response:
+   *    HTTP/1.1 200 OK
+   *    [
+   *      {
+   *        "trip_id": "50051071494-20171113160906_v60.12",
+   *        "service_id": "50051071494-20171113160906_v60.12",
+   *        "shape_id": "1198-20171113160906_v60.12",
+   *        "trip_headsign": "Britomart",
+   *        "direction_id": 0,
+   *        "stop_sequence": 11,
+   *        "route_id": "50151-20171113160906_v60.12",
+   *        "route_long_name": "Manukau Train Station to Britomart Train Station",
+   *        "agency_id": "AM",
+   *        "departure_time_seconds": 20880,
+   *        "route_color": "#f39c12",
+   *        "currentTime": 47760,
+   *        "date": "2017-12-08T00:00:00.000Z"
+   *      }
+   *    ]
+   */
   timetable: function(req, res) {
-    if (parseInt(req.params.direction) > 2 || parseInt(req.params.direction) < 0) {
-      return res.status(400).send({error: 'Direction is not valid.'})
+    if (
+      parseInt(req.params.direction) > 2 ||
+      parseInt(req.params.direction) < 0
+    ) {
+      return res.status(400).send({ error: 'Direction is not valid.' })
     }
     let offset = 0
     if (!isNaN(parseInt(req.params.offset))) {
@@ -368,38 +415,50 @@ var station = {
     let sending = {}
 
     const time = moment().tz('Pacific/Auckland')
-    const currentTime = new Date(Date.UTC(1970,0,1,time.hour(),time.minute()))
+    const currentTime = new Date(
+      Date.UTC(1970, 0, 1, time.hour(), time.minute())
+    )
 
-    const today = new Date(Date.UTC(1970,0,1,0,0))
+    const today = new Date(Date.UTC(1970, 0, 1, 0, 0))
     today.setFullYear(time.year())
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date() + offset)
 
     // combines train stations platforms together
     let procedure = 'GetTimetable'
-    if (global.config.prefix === 'nz-wlg' && wlg.badStops.indexOf(req.params.station) > -1) {
+    if (
+      global.config.prefix === 'nz-wlg' &&
+      wlg.badStops.indexOf(req.params.station) > -1
+    ) {
       procedure = 'GetMultipleTimetable'
     }
 
-    connection.get().request()
+    connection
+      .get()
+      .request()
       .input('stop_id', sql.VarChar(100), req.params.station)
       .input('route_short_name', sql.VarChar(50), req.params.route)
       .input('date', sql.Date, today)
       .input('direction', sql.Int, req.params.direction)
       .execute(procedure)
-      .then((trips) => {
-        sending.trips = trips.recordset.map((record) => {
-          record.departure_time_seconds = new Date(record.departure_time || record.arrival_time).getTime()/1000
+      .then(trips => {
+        sending.trips = trips.recordset.map(record => {
+          record.departure_time_seconds =
+            new Date(record.departure_time || record.arrival_time).getTime() /
+            1000
           if (record.departure_time_24 || record.arrival_time_24) {
             record.arrival_time_seconds += 86400
           }
           record.arrival_time_seconds = record.departure_time_seconds
           record.route_color = line.getColor(record.agency_id, req.params.route)
-          record.currentTime = currentTime.getTime()/1000
+          record.currentTime = currentTime.getTime() / 1000
           record.date = today
 
           if (record.trip_headsign === null) {
-            record.trip_headsign = getHeadsign(record.route_long_name, record.direction_id)
+            record.trip_headsign = getHeadsign(
+              record.route_long_name,
+              record.direction_id
+            )
           }
 
           delete record.departure_time
@@ -407,9 +466,10 @@ var station = {
           return record
         })
         res.send(sending.trips)
-      }).catch(function(err) {
+      })
+      .catch(function(err) {
         res.status(500).send(err)
       })
-  }
+  },
 }
 module.exports = station

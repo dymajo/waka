@@ -1,4 +1,4 @@
-const defaultConfig = require('./defaultConfig.js')
+const defaultConfig = require('../defaultConfig.js')
 
 const auckland = defaultConfig.get('at', {
   url: 'https://atcdn.blob.core.windows.net/data/gtfs.zip',

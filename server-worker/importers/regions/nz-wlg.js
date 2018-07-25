@@ -1,6 +1,6 @@
-const connection = require('../db/connection.js')
-const defaultConfig = require('./defaultConfig.js')
-const log = require('../../server-common/logger.js')
+const connection = require('../../db/connection.js')
+const defaultConfig = require('../defaultConfig.js')
+const log = require('../../../server-common/logger.js')
 
 const wellington = defaultConfig.get('metlink', {
   url: 'https://www.metlink.org.nz/assets/Google_Transit/google-transit.zip',

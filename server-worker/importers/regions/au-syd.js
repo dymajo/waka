@@ -1,4 +1,4 @@
-const defaultConfig = require('./defaultConfig.js')
+const defaultConfig = require('../defaultConfig.js')
 
 const sydney = defaultConfig.get('sydney', {
   url:
