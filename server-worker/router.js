@@ -2,6 +2,7 @@ const log = require('../server-common/logger.js')
 const router = require('express').Router()
 const request = require('request')
 
+const cache = require('./cache.js')
 const importers = require('./importers/index.js')
 const station = require('./stops/station.js')
 const search = require('./stops/search.js')
@@ -9,10 +10,16 @@ const line = require('./lines/index.js')
 const onzo = require('./stops/onzo.js')
 const realtime = new (require('./realtime/index.js'))()
 
+let bounds = {}
+cache.ready.push(async () => {
+  bounds = await station.getBounds()
+})
+
 const signature = function() {
   return {
     prefix: global.config.prefix,
     version: global.config.version,
+    bounds: bounds,
   }
 }
 /**
@@ -24,12 +31,29 @@ const signature = function() {
  *
  * @apiSuccess {String} prefix Region Code.
  * @apiSuccess {String} version  Version of GTFS Schedule currently in use.
+ * @apiSuccess {Object} bounds LatLng Bound of stop data in region.
+ * @apiSuccess {Object} bounds.lat Latitude Bounds
+ * @apiSuccess {Number} bounds.lat.min Latitude Minimum Bound
+ * @apiSuccess {Number} bounds.lat.max Latitude Minimum Bound
+ * @apiSuccess {Object} bounds.lon Longitude Bounds
+ * @apiSuccess {Number} bounds.lon.min Longitude Minimum Bound
+ * @apiSuccess {Number} bounds.lon.max Longitude Minimum Bound
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
  *       "prefix": "nz-akl",
- *       "version": "20171013114012_v59.18"
+ *       "version": "20180702170310_v67.28",
+ *       "bounds": {
+ *         "lat": {
+ *           "min": -37.39747,
+ *           "max": -36.54297
+ *         },
+ *         "lon": {
+ *           "min": 174.43058,
+ *           "max": 175.09714
+ *         }
+ *       }
  *     }
  *
  */

@@ -5,18 +5,19 @@ const rimraf = require('rimraf')
 const log = require('../../server-common/logger.js')
 const gtfsImport = require('../db/gtfs-import.js')
 const createShapes = require('../db/create-shapes.js')
+const connection = require('../db/connection.js')
 
 class Importer {
   constructor() {
     this.importer = new gtfsImport()
     this.current = null
     try {
-      this.current = require('./' + global.config.prefix + '.js')
+      this.current = require('./regions/' + global.config.prefix + '.js')
     } catch (err) {
       log(
         'fatal error'.red,
         'Could not find an importer in ',
-        path.join(__dirname, global.config.prefix + '.js')
+        path.join(__dirname, './regions', global.config.prefix + '.js')
       )
     }
   }
@@ -29,6 +30,7 @@ class Importer {
     await this.unzip()
     await this.db()
     await this.shapes()
+    await this.fixStopCodes()
     await this.postImport()
   }
 
@@ -84,6 +86,20 @@ class Importer {
     await creator.upload(
       containerName,
       path.resolve(outputDir, global.config.version)
+    )
+  }
+  async fixStopCodes() {
+    // GTFS says it's optional, but Waka uses stop_code for stop lookups
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE stops
+      SET stop_code = stop_id
+      WHERE stop_code is null;
+    `)
+    const rows = res.rowsAffected[0]
+    log(
+      (global.config.prefix + ' ' + global.config.version).magenta,
+      `Updated ${rows} null stop codes`
     )
   }
   async postImport() {

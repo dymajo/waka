@@ -6,27 +6,20 @@ const Static = require('./static.js')
 const WorkerManager = require('./workerManager.js')
 
 const proxy = httpProxy.createProxyServer({
-  ignorePath: true
+  ignorePath: true,
 })
 const proxyHandle = function(req, res) {
-  let prefix = req.params.prefix
-  if (req.params.prefix === 'auto') {
-    if (parseFloat(req.query.lat) < -44.5) {
-      prefix = 'nz-otg'
-    } else if (parseFloat(req.query.lat) < -40.6) {
-      prefix = 'nz-wlg'
-    } else if (parseFloat(req.query.lon) < 159 ){
-      prefix = 'au-syd'
-    } else{
-      prefix = 'nz-akl'
-    } 
-  }
-
+  const prefix =
+    req.params.prefix === 'auto'
+      ? WorkerManager.getPrefix(req.query.lat, req.query.lon)
+      : req.params.prefix
+      
   const port = WorkerManager.getMapping(prefix)
+
   if (port === 404 || prefix === '') {
     res.status(404).send({
-      message: 'prefix not found',
-      url: req.originalUrl
+      message: `prefix ${prefix} not found`,
+      url: req.originalUrl,
     })
   } else {
     const url = req.originalUrl.split('/a/' + req.params.prefix)[1]
@@ -38,12 +31,42 @@ const staticServer = new Static()
 staticServer.start()
 router.all('/', staticServer.route)
 router.all('/a/email', staticServer.route)
+
+/**
+ * @api {get} /regions Get Available Regions
+ * @apiName GetRegions
+ * @apiGroup Info
+ *
+ * @apiSuccess {Object} region Object of available regions
+ * @apiSuccess {String} region.prefix Region Prefix
+ * @apiSuccess {String} region.name Name of the Region
+ * @apiSuccess {String} region.secondaryName Extra Region Name (State, Country etc)
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "nz-akl": {
+ *         "prefix": "nz-akl",
+ *         "name": "Tāmaki Makaurau",
+ *         "secondaryName": "Auckland"
+ *       },
+ *       "nz-syd": {
+ *         "prefix": "nz-chc",
+ *         "name": "Sydney",
+ *         "secondaryName": "New South Wales"
+ *       }
+ *     }
+ *
+ */
+router.get('/a/regions', (req, res) => {
+  res.send(WorkerManager.getAllRegions())
+})
 router.all('/a/:prefix', proxyHandle)
 router.all('/a/:prefix/*', proxyHandle)
 router.all('/a/*', proxyHandle)
 router.all('/a', (req, res) => {
   res.send({
-    message: 'the waka api docs are located at /docs/index.html'
+    message: 'the waka api docs are located at /docs/index.html',
   })
 })
 router.all('/*', staticServer.route)
