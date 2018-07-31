@@ -70,15 +70,8 @@ const lineColorizer = (agency, route_short_name, db_color) => {
 
 const sortLines = lineGroups => {
   lineGroups.forEach(group => {
-    group.items.sort((a, b) => {
-      const parsedA = parseInt(a.replace(/\D+/g, ''))
-      const parsedB = parseInt(b.replace(/\D+/g, ''))
-
-      if (parsedA === parsedB) {
-        return a.length - b.length
-      }
-      return parsedA - parsedB
-    })
+    const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
+    group.items.sort(collator.compare)
   })
 }
 
