@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, findNodeHandle } from 'react-native'
 import PropTypes from 'prop-types'
 
 import { vars } from '../../styles.js'
+import { t } from '../../stores/translationStore.js'
 import { UiStore } from '../../stores/uiStore.js'
 import CloseIcon from '../../../dist/icons/close.svg'
 import { TouchableOpacity } from './touchableOpacity.jsx'
@@ -17,6 +18,7 @@ export class Header extends React.Component {
     actionIcon: PropTypes.node,
     actionFn: PropTypes.func,
     hideClose: PropTypes.bool,
+    disableTitle: PropTypes.bool,
   }
   wrapper = React.createRef()
 
@@ -47,6 +49,8 @@ export class Header extends React.Component {
     let subtitleStyle,
       subtitleElement,
       actionIcon = null
+
+    const title = [t('app.name')]
     if (typeof this.props.subtitle !== 'undefined') {
       subtitleStyle = {
         lineHeight: vars.headerHeight - paddingVertical * 2 - 18,
@@ -56,7 +60,12 @@ export class Header extends React.Component {
           {this.props.subtitle}&nbsp;
         </Text>
       )
+      title.unshift(this.props.subtitle)
     }
+    if (typeof this.props.title !== 'undefined') {
+      title.unshift(this.props.title)
+    }
+    document.title = this.props.disableTitle ? t('app.name') : title.join(' - ')
 
     if (typeof this.props.actionIcon !== 'undefined') {
       const style =

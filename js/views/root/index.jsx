@@ -22,7 +22,6 @@ export class Root extends React.Component {
   wrapper = React.createRef()
 
   componentDidMount() {
-    document.title = t('app.name')
     this.wrapperNode = findNodeHandle(this.wrapper.current)
     this.wrapperNode.addEventListener('touchstart', this.triggerTouchStart)
   }
@@ -80,6 +79,7 @@ export class Root extends React.Component {
           hideClose={true}
           actionIcon={<SettingsIcon style={{ fill: vars.headerIconColor }} />}
           actionFn={this.triggerSettings}
+          disableTitle={true}
         />
         <LinkedScroll>
           <RootContent togglePin={this.props.togglePin} />

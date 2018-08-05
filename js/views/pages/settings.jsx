@@ -41,9 +41,6 @@ export class Settings extends React.Component {
     credits: false,
     animation: 'unmounted',
   }
-  componentDidMount() {
-    document.title = t('settings.title') + ' - ' + t('app.name')
-  }
   triggerCredits = () => {
     this.setState({
       credits: true,
