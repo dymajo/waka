@@ -40,7 +40,10 @@ const signature = function() {
  *
  * @apiSuccess {String} prefix Region Code.
  * @apiSuccess {String} version  Version of GTFS Schedule currently in use.
- * @apiSuccess {Object} bounds LatLng Bound of stop data in region.
+ * @apiSuccess {String} name Name of the Region
+ * @apiSuccess {String} secondaryName Extra Region Name (State, Country etc)
+ * @apiSuccess {String} longName The name and secondary name combined.
+ * @apiSuccess {Object} bounds latlon Bound of stop data in region.
  * @apiSuccess {Object} bounds.lat Latitude Bounds
  * @apiSuccess {Number} bounds.lat.min Latitude Minimum Bound
  * @apiSuccess {Number} bounds.lat.max Latitude Minimum Bound
@@ -53,6 +56,9 @@ const signature = function() {
  *     {
  *       "prefix": "nz-akl",
  *       "version": "20180702170310_v67.28",
+ *       "name": "Tāmaki Makaurau",
+ *       "secondaryName": "Auckland",
+ *       "longName": "Tāmaki Makaurau, Auckland",
  *       "bounds": {
  *         "lat": {
  *           "min": -37.39747,
