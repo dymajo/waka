@@ -51,8 +51,8 @@ class LinesView extends React.Component {
     StationStore.unbind('newcity', this.newcity)
   }
   newcity = () => {
-    if (StationStore.currentCity !== 'none') {
-      this.props.history.push('/l/' + StationStore.currentCity)
+    if (StationStore.currentCity.prefix !== 'none') {
+      this.props.history.push('/l/' + StationStore.currentCity.prefix)
     }
   }
   triggerGetLines = () => {

@@ -9,6 +9,7 @@ const search = require('./stops/search.js')
 const line = require('./lines/index.js')
 const onzo = require('./stops/onzo.js')
 const realtime = new (require('./realtime/index.js'))()
+const cityMetadata = require('../cityMetadata.json')
 
 let bounds = {}
 cache.ready.push(async () => {
@@ -16,9 +17,17 @@ cache.ready.push(async () => {
 })
 
 const signature = function() {
+  let city = cityMetadata[global.config.prefix]
+  // if the region has multiple cities
+  if (!city.hasOwnProperty('name')) {
+    city = city[global.config.prefix]
+  }
   return {
     prefix: global.config.prefix,
     version: global.config.version,
+    name: cityMetadata[global.config.prefix].name,
+    secondaryName: cityMetadata[global.config.prefix].secondaryName,
+    longName: cityMetadata[global.config.prefix].longName,
     bounds: bounds,
   }
 }

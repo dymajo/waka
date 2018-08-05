@@ -161,7 +161,7 @@ export class RootContent extends React.Component {
   }
   render() {
     let twitterAcc
-    if (this.state.currentCity === 'nz-akl') {
+    if (this.state.currentCity.prefix === 'nz-akl') {
       twitterAcc = (
         <SidebarItem
           type="url"
@@ -171,7 +171,7 @@ export class RootContent extends React.Component {
           description={t('serviceAlerts.twitter', { account: 'AklTransport' })}
         />
       )
-    } else if (this.state.currentCity === 'nz-wlg') {
+    } else if (this.state.currentCity.prefix === 'nz-wlg') {
       twitterAcc = (
         <SidebarItem
           type="url"
@@ -252,7 +252,9 @@ export class RootContent extends React.Component {
           <SidebarItem
             url={
               '/l/' +
-              (this.state.currentCity === 'none' ? '' : this.state.currentCity)
+              (this.state.currentCity.prefix === 'none'
+                ? ''
+                : this.state.currentCity.prefix)
             }
             icon="lines.svg"
             action={this.toggleRegion}

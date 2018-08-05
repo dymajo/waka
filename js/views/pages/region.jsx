@@ -81,12 +81,10 @@ export class Region extends React.Component {
       )
     } else if (this.state.liveCities.length === 0) {
       loading = (
-        <div className="error">
-          <p>{t('regions.error')}</p>
-          <button className="nice-button primary" onClick={this.triggerRetry}>
-            {t('app.errorRetry')}
-          </button>
-        </div>
+        <View style={styles.voteWrapper}>
+          <Text style={styles.vote}>{t('regions.error')}</Text>
+          <LinkButton onClick={this.triggerRetry} label={t('app.errorRetry')} />
+        </View>
       )
     }
     return (
