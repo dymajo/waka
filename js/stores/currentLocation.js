@@ -98,18 +98,8 @@ export class currentLocation extends Events {
     this.trigger(updateType)
   }
 
-  setCity(prefix) {
-    if (prefix === 'nz-akl') {
-      this.state.position = [-36.844229, 174.767823] // britomart
-    } else if (prefix === 'nz-dud') {
-      this.state.position = [-45.873097, 170.505368] // octagon
-    } else if (prefix === 'nz-zqn') {
-      this.state.position = [-45.031825, 168.661642] // main bus stop?
-    } else if (prefix === 'nz-wlg') {
-      this.state.position = [-41.278366, 174.779359] // wellington station
-    } else if (prefix === 'au-syd') {
-      this.state.position = [-33.8825, 151.206667] // central station
-    }
+  setCity(prefix, position) {
+    this.state.position = position
     this.trigger('mapmove-silent')
     StationStore.getCity(...this.state.position)
   }

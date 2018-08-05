@@ -205,7 +205,10 @@ class LinesView extends React.Component {
 
     return (
       <View style={styles.wrapper}>
-        <Header title={t('lines.title')} subtitle={this.state.meta.longName} />
+        <Header
+          title={t('lines.title')}
+          subtitle={this.state.meta.longName || ''}
+        />
         <LinkedScroll>
           <div className="list-lines">{ret}</div>
         </LinkedScroll>
