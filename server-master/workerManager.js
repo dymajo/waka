@@ -119,6 +119,7 @@ const WorkerManager = {
             prefix: region,
             name: meta.name,
             secondaryName: meta.secondaryName,
+            longName: meta.longName,
             initialLocation: meta.initialLocation,
             showInCityList: meta.showInCityList,
           }
@@ -129,6 +130,7 @@ const WorkerManager = {
               prefix: region,
               name: meta[city].name,
               secondaryName: meta[city].secondaryName,
+              longName: meta[city].longName,
               initialLocation: meta[city].initialLocation,
               showInCityList: meta[city].showInCityList,
             }

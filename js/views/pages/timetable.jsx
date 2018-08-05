@@ -31,11 +31,6 @@ class TimetableRender extends React.Component {
 
   componentDidMount() {
     this.getData()
-    const routeName = this.props.match.params.route_name.split('-')[0]
-    document.title = t('timetable.header', {
-      route: routeName,
-      appname: t('app.name'),
-    })
     window.addEventListener('online', this.triggerRetry)
   }
   componentWillUnmount() {
