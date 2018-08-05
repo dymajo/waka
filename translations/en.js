@@ -6,6 +6,7 @@ export default {
     errorRetry: 'Retry',
   },
   regions: {
+    error: 'We couldn’t get any cities.',
     pick: 'Pick City',
     'au-syd': 'Sydney',
     'au-syd-long': 'New South Wales, Sydney',
