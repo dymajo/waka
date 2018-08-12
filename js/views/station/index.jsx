@@ -91,7 +91,6 @@ class StationView extends React.Component {
           })
         }
 
-        document.title = name + ' - ' + t('app.name')
         this.setState({
           name: this.getName(name),
           description: description,

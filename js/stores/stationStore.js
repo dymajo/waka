@@ -9,7 +9,13 @@ const IconHelper = new iconhelper()
 export class stationStore extends Events {
   constructor(props) {
     super(props)
-    this.currentCity = 'none'
+    this.currentCity = {
+      prefix: 'none',
+      name: '',
+      longName: '',
+      secondaryName: '',
+      version: '',
+    }
     this.StationData = {}
 
     // sets the actual default city
@@ -55,26 +61,17 @@ export class stationStore extends Events {
     return direction_id === 0 ? 'Outbound' : 'Inbound'
   }
 
-  getCity(lat, lng, map = true) {
-    let newCity = 'none'
-    if (lat > -37.4 && lat < -36 && lng > 174 && lng < 175.2) {
-      newCity = 'nz-akl'
-    } else if (lat > -41.5 && lat < -40.5 && lng > 174.6 && lng < 175.8) {
-      newCity = 'nz-wlg'
-    } else if (lat > -46.5 && lat < -44.5 && lng > 168 && lng < 171) {
-      newCity = 'nz-otg'
-    } else if (lat > -35 && lat < -32.4 && lng > 148 && lng < 154) {
-      newCity = 'au-syd'
-    }
-    if (map === false) {
-      return newCity
-    }
-    if (this.currentCity !== newCity) {
-      this.currentCity = newCity
-      this.trigger('newcity')
-      SettingsStore.state.lastLocation = [lat, lng]
-      SettingsStore.saveState()
-    }
+  getCity(lat, lon) {
+    fetch(`${local.endpoint}/auto/info?lat=${lat}&lon=${lon}`)
+      .then(response => response.json())
+      .then(data => {
+        if (this.currentCity.prefix !== data.prefix) {
+          this.currentCity = data
+          this.trigger('newcity')
+          SettingsStore.state.lastLocation = [lat, lon]
+          SettingsStore.saveState()
+        }
+      })
   }
   // persists data to localStorage
   saveData() {
@@ -130,11 +127,10 @@ export class stationStore extends Events {
     }
     const promises = stopNumber.split('+').map(station => {
       return new Promise((resolve, reject) => {
-        fetch(`${local.endpoint}/${region}/station/${station}`).then(
-          response => {
-            response.json().then(resolve)
-          }
-        )
+        fetch(`${local.endpoint}/${region}/station/${station}`)
+          .then(response => response.json())
+          .then(resolve)
+          .catch(reject)
       })
     })
     Promise.all(promises).then(dataCollection => {

@@ -94,8 +94,11 @@ const WorkerManager = {
     const allRegions = WorkerManager.getAllRegions(true)
     Object.keys(allRegions).forEach(prefix => {
       const region = allRegions[prefix]
-      const url = WorkerManager.getWorker(region.port).url()
-      loadBound(prefix, url, 100)
+      // doesn't load bounds on the regions that are just city stubs
+      if (region.prefix === prefix) {
+        const url = WorkerManager.getWorker(region.port).url()
+        loadBound(prefix, url, 100)
+      }
     })
   },
   getAllMappings: function() {
@@ -109,11 +112,31 @@ const WorkerManager = {
       const port = WorkerManager.getPort(regionPair[0], regionPair[1])
       if (regionPair[0] !== 'null' && port) {
         const meta = cityMetadata[region]
-        availableRegions[region] = {
-          prefix: region,
-          name: meta.name,
-          secondaryName: meta.secondaryName,
+
+        // this is if there is a 1-1 mapping of region to setting
+        if (meta.hasOwnProperty('name')) {
+          availableRegions[region] = {
+            prefix: region,
+            name: meta.name,
+            secondaryName: meta.secondaryName,
+            longName: meta.longName,
+            initialLocation: meta.initialLocation,
+            showInCityList: meta.showInCityList,
+          }
+        } else {
+          // this is if there are multiple cities to a region
+          Object.keys(meta).forEach(city => {
+            availableRegions[city] = {
+              prefix: region,
+              name: meta[city].name,
+              secondaryName: meta[city].secondaryName,
+              longName: meta[city].longName,
+              initialLocation: meta[city].initialLocation,
+              showInCityList: meta[city].showInCityList,
+            }
+          })
         }
+
         if (returnPort === true) {
           availableRegions[region].port = port
         }

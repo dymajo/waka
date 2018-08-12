@@ -9,6 +9,7 @@ const search = require('./stops/search.js')
 const line = require('./lines/index.js')
 const onzo = require('./stops/onzo.js')
 const realtime = new (require('./realtime/index.js'))()
+const cityMetadata = require('../cityMetadata.json')
 
 let bounds = {}
 cache.ready.push(async () => {
@@ -16,9 +17,17 @@ cache.ready.push(async () => {
 })
 
 const signature = function() {
+  let city = cityMetadata[global.config.prefix]
+  // if the region has multiple cities
+  if (!city.hasOwnProperty('name')) {
+    city = city[global.config.prefix]
+  }
   return {
     prefix: global.config.prefix,
     version: global.config.version,
+    name: cityMetadata[global.config.prefix].name,
+    secondaryName: cityMetadata[global.config.prefix].secondaryName,
+    longName: cityMetadata[global.config.prefix].longName,
     bounds: bounds,
   }
 }
@@ -31,7 +40,10 @@ const signature = function() {
  *
  * @apiSuccess {String} prefix Region Code.
  * @apiSuccess {String} version  Version of GTFS Schedule currently in use.
- * @apiSuccess {Object} bounds LatLng Bound of stop data in region.
+ * @apiSuccess {String} name Name of the Region
+ * @apiSuccess {String} secondaryName Extra Region Name (State, Country etc)
+ * @apiSuccess {String} longName The name and secondary name combined.
+ * @apiSuccess {Object} bounds latlon Bound of stop data in region.
  * @apiSuccess {Object} bounds.lat Latitude Bounds
  * @apiSuccess {Number} bounds.lat.min Latitude Minimum Bound
  * @apiSuccess {Number} bounds.lat.max Latitude Minimum Bound
@@ -44,6 +56,9 @@ const signature = function() {
  *     {
  *       "prefix": "nz-akl",
  *       "version": "20180702170310_v67.28",
+ *       "name": "Tāmaki Makaurau",
+ *       "secondaryName": "Auckland",
+ *       "longName": "Tāmaki Makaurau, Auckland",
  *       "bounds": {
  *         "lat": {
  *           "min": -37.39747,

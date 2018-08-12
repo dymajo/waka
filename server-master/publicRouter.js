@@ -13,7 +13,7 @@ const proxyHandle = function(req, res) {
     req.params.prefix === 'auto'
       ? WorkerManager.getPrefix(req.query.lat, req.query.lon)
       : req.params.prefix
-      
+
   const port = WorkerManager.getMapping(prefix)
 
   if (port === 404 || prefix === '') {
@@ -41,6 +41,9 @@ router.all('/a/email', staticServer.route)
  * @apiSuccess {String} region.prefix Region Prefix
  * @apiSuccess {String} region.name Name of the Region
  * @apiSuccess {String} region.secondaryName Extra Region Name (State, Country etc)
+ * @apiSuccess {String} region.longName The name and secondary name combined.
+ * @apiSuccess {Array} region.initialLocation Lat, Lon array of location that map should go to when selected in the UI
+ * @apiSuccess {Bool} region.showInCityList Whether this region should be visible in the UI
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -48,12 +51,18 @@ router.all('/a/email', staticServer.route)
  *       "nz-akl": {
  *         "prefix": "nz-akl",
  *         "name": "Tāmaki Makaurau",
- *         "secondaryName": "Auckland"
+ *         "secondaryName": "Auckland",
+ *         "longName": "Tāmaki Makaurau, Auckland",
+ *         "initialLocation": [-36.844229, 174.767823],
+ *         "showInCityList": true,
  *       },
  *       "nz-syd": {
- *         "prefix": "nz-chc",
+ *         "prefix": "au-syd",
  *         "name": "Sydney",
- *         "secondaryName": "New South Wales"
+ *         "secondaryName": "New South Wales",
+ *         "longName": "Sydney, New South Wales",
+ *         "initialLocation": [-43.534658, 172.637573],
+ *         "showInCityList": false,
  *       }
  *     }
  *

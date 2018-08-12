@@ -117,7 +117,7 @@ const search = {
    *
    * @apiParam {String} region="auto" Region of Worker, can be set to "auto" to automatically determine worker.
    * @apiParam {String} lat Latitude. Example: -41.2790
-   * @apiParam {String} lng Longitude. Example: 174.7806
+   * @apiParam {String} lon Longitude. Example: 174.7806
    * @apiParam {number{0-1250}} distance Search Distance. Example: 380
    *
    * @apiSuccess {Object[]} items A list of all the stations. Not actually called items, the root object is an array.

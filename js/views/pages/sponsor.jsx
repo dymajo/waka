@@ -9,9 +9,6 @@ import { LinkedScroll } from '../reusable/linkedScroll.jsx'
 import { LinkButton } from '../reusable/linkButton.jsx'
 
 export class Sponsor extends React.Component {
-  componentDidMount() {
-    document.title = t('sponsor.title') + ' - ' + t('app.name')
-  }
   render() {
     return (
       <View style={styles.wrapper}>

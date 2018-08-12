@@ -7,6 +7,7 @@ const search = require('../stops/search.js')
 const cache = require('../cache.js')
 const config = require('../../config.js')
 const log = require('../../server-common/logger.js')
+const cityMetadata = require('../../cityMetadata.json')
 
 let lineData = {}
 cache.preReady.push(() => {
@@ -39,6 +40,11 @@ var line = {
    *
    * @apiParam {String} region Region of Worker
    *
+   * @apiSuccess {Object} meta Region metadata
+   * @apiSuccess {String} meta.prefix Region Prefix
+   * @apiSuccess {String} meta.name Name of the Region
+   * @apiSuccess {String} meta.secondaryName Extra Region Name (State, Country etc)
+   * @apiSuccess {String} meta.longName The name and secondary name combined.
    * @apiSuccess {Object[]} friendlyNames Key value store of Route Short Names to more official names
    * @apiSuccess {Object[]} colors Key value store of Route Short Names to corresponding colors
    * @apiSuccess {Object[]} groups Grouping for all the lines into region.
@@ -51,6 +57,12 @@ var line = {
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *     {
+   *       "meta": {
+   *         "prefix": "nz-akl",
+   *         "name": "Tāmaki Makaurau",
+   *         "secondaryName": "Auckland"
+   *         "longName": "Tāmaki Makaurau, Auckland"
+   *       },
    *       "friendlyNames": {
    *         "380": "Airporter"
    *       },
@@ -86,7 +98,18 @@ var line = {
     res.send(line._getLines())
   },
   _getLines: function() {
+    let city = cityMetadata[global.config.prefix]
+    // if the region has multiple cities
+    if (!city.hasOwnProperty('name')) {
+      city = city[global.config.prefix]
+    }
     return {
+      meta: {
+        prefix: global.config.prefix,
+        name: cityMetadata[global.config.prefix].name,
+        secondaryName: cityMetadata[global.config.prefix].secondaryName,
+        longName: cityMetadata[global.config.prefix].longName,
+      },
       colors: lineData.lineColors || {},
       friendlyNames: lineData.friendlyNames || {},
       friendlyNumbers: lineData.friendlyNumbers || {},

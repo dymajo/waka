@@ -227,7 +227,12 @@ class BasemapWithoutRouter extends React.Component {
     this.zoom = zoom
     let newPos = e.target.getCenter()
 
-    StationStore.getCity(newPos.lat, newPos.lng)
+    if (
+      this.state.stops.length > 0 &&
+      this.state.stops[0].stop_region !== StationStore.currentCity.prefix
+    ) {
+      StationStore.getCity(newPos.lat, newPos.lng)
+    }
     let dist = 0
     if (zoom < 16 || this.state.hideStops) {
       this.setState({
@@ -265,7 +270,7 @@ class BasemapWithoutRouter extends React.Component {
       if (typeof item !== 'undefined') {
         let icon = IconHelper.getRouteType(item.route_type)
         let markericon = IconHelper.getIcon(
-          StationStore.currentCity,
+          StationStore.currentCity.prefix,
           item.route_type,
           'selection'
         )

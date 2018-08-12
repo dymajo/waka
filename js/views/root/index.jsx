@@ -20,14 +20,23 @@ export class Root extends React.Component {
     togglePin: PropTypes.func,
   }
   wrapper = React.createRef()
+  state = {
+    currentCity: StationStore.currentCity,
+  }
 
   componentDidMount() {
-    document.title = t('app.name')
     this.wrapperNode = findNodeHandle(this.wrapper.current)
     this.wrapperNode.addEventListener('touchstart', this.triggerTouchStart)
+    StationStore.bind('newcity', this.newcity)
   }
   componentWillUnmount() {
     this.wrapperNode.removeEventListener('touchstart', this.triggerTouchStart)
+    StationStore.unbind('newcity', this.newcity)
+  }
+  newcity = () => {
+    this.setState({
+      currentCity: StationStore.currentCity,
+    })
   }
   toggleStations = () => {
     // the request animation frame fixes a jump on iOS
@@ -36,7 +45,7 @@ export class Root extends React.Component {
     })
   }
   toggleLines = () => {
-    UiStore.safePush('/l/' + StationStore.currentCity)
+    UiStore.safePush(`/l/${this.state.currentCity.prefix}`)
     if (UiStore.state.cardPosition === 'map') {
       setTimeout(() => {
         UiStore.setCardPosition('default')
@@ -72,14 +81,11 @@ export class Root extends React.Component {
         <Header
           title={t('app.name')}
           className="mobile-hide"
-          subtitle={
-            StationStore.currentCity === 'none'
-              ? ''
-              : t('regions.' + StationStore.currentCity + '-long')
-          }
+          subtitle={this.state.currentCity.longName}
           hideClose={true}
           actionIcon={<SettingsIcon style={{ fill: vars.headerIconColor }} />}
           actionFn={this.triggerSettings}
+          disableTitle={true}
         />
         <LinkedScroll>
           <RootContent togglePin={this.props.togglePin} />

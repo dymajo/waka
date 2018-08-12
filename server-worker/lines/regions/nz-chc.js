@@ -2,6 +2,29 @@ const cache = require('../../cache.js')
 const log = require('../../../server-common/logger.js')
 const queries = require('../queries.js')
 
+const friendlyNames = {
+  'Orbiter': 'The Orbiter'
+}
+
+const sortLines = lineGroups => {
+  lineGroups.forEach(group => {
+    // this sorts text names before numbers
+    group.items.sort((a, b) => {
+      const parsedA = parseInt(a)
+      const parsedB = parseInt(b)
+      if (isNaN(parsedA) && isNaN(parsedB)) {
+        return a.localeCompare(b)
+      } else if (isNaN(parsedA)) {
+        return -1
+      } else if (isNaN(parsedB)) {
+        return 1
+      } else {
+        return parsedA - parsedB
+      }
+    })
+  })
+}
+
 const allLines = {}
 const getLines = async () => {
   const result = await queries.getRoutes()
@@ -17,10 +40,22 @@ const getLines = async () => {
       lineEntry.push(splitName[1])
     }
 
-    allLines[record.route_short_name] = [lineEntry]
-    lineGroups[0].items.push(record.route_short_name)
+    // deduplicates same route short names - orbiter
+    if (allLines.hasOwnProperty(record.route_short_name)) {
+      allLines[record.route_short_name].push(lineEntry)
+    } else {
+      allLines[record.route_short_name] = [lineEntry]
+
+      const numericLine = parseInt(record.route_short_name)
+      if (numericLine < 85 || isNaN(numericLine)) {
+        lineGroups[0].items.push(record.route_short_name)
+      } else {
+        lineGroups[1].items.push(record.route_short_name)
+      }
+    }
   })
 
+  sortLines(lineGroups)
   log('nz-chc'.magenta, 'Cached Lines')
 }
 cache.ready.push(getLines)
@@ -62,10 +97,15 @@ const lineGroups = [
     name: 'Frequent',
     items: [],
   },
+  {
+    name: 'Connector',
+    items: [],
+  }
 ]
 
 module.exports = {
   allLines: allLines,
+  friendlyNames: friendlyNames,
   lineColors: lineColors,
   lineGroups: lineGroups,
 }
