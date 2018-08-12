@@ -17,6 +17,7 @@ class LinesView extends React.Component {
     match: PropTypes.object,
   }
   state = {
+    meta: {},
     error: null,
     allLines: undefined,
     groups: null,
@@ -40,13 +41,6 @@ class LinesView extends React.Component {
     }
   }
   componentDidMount() {
-    document.title =
-      t('lines.title') +
-      ' - ' +
-      t('regions.' + this.props.match.params.region) +
-      ' - ' +
-      t('app.name')
-
     window.addEventListener('online', this.triggerGetLines)
     StationStore.bind('newcity', this.newcity)
 
@@ -57,8 +51,8 @@ class LinesView extends React.Component {
     StationStore.unbind('newcity', this.newcity)
   }
   newcity = () => {
-    if (StationStore.currentCity !== 'none') {
-      this.props.history.push('/l/' + StationStore.currentCity)
+    if (StationStore.currentCity.prefix !== 'none') {
+      this.props.history.push('/l/' + StationStore.currentCity.prefix)
     }
   }
   triggerGetLines = () => {
@@ -76,6 +70,7 @@ class LinesView extends React.Component {
           groupShow[group.name] = ''
         })
         this.setState({
+          meta: data.meta,
           allLines: data.lines,
           colors: data.colors,
           groups: data.groups,
@@ -112,7 +107,6 @@ class LinesView extends React.Component {
         let innerLineList = group.items.map((item, lineKey) => {
           let key = group.name + lineKey
           let el = this.state.allLines[item]
-          let operator = this.state.operators[item]
           let name = el[0][0].replace(' Train Station', '')
           if (el[0].length > 1) {
             name =
@@ -209,14 +203,12 @@ class LinesView extends React.Component {
       ret = <div className="spinner" />
     }
 
-    const subtitle =
-      StationStore.currentCity === 'none'
-        ? ''
-        : t('regions.' + StationStore.currentCity + '-long')
-
     return (
       <View style={styles.wrapper}>
-        <Header title={t('lines.title')} subtitle={subtitle} />
+        <Header
+          title={t('lines.title')}
+          subtitle={this.state.meta.longName || ''}
+        />
         <LinkedScroll>
           <div className="list-lines">{ret}</div>
         </LinkedScroll>
