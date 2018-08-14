@@ -1,0 +1,22 @@
+{
+  "name": "waka-importer",
+  "version": "0.1.0",
+  "description": "Waka GTFS Importer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dymajo/waka-importer.git"
+  },
+  "keywords": [
+    "gtfs"
+  ],
+  "author": "Dymajo Ltd.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dymajo/waka-importer/issues"
+  },
+  "homepage": "https://github.com/dymajo/waka-importer#readme"
+}
