@@ -30,7 +30,7 @@
     "header": {
       "filename": "dist/header.md"
     },
-    "url": "https://getwaka.com/a",
+    "url": "https://waka.app/a",
     "sampleUrl": "/a"
   },
   "author": "Jono Cooper <jono@jono.nz>",
@@ -38,7 +38,7 @@
   "bugs": {
     "url": "https://github.com/consindo/waka/issues"
   },
-  "homepage": "https://getwaka.com",
+  "homepage": "https://waka.app",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
