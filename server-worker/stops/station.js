@@ -206,6 +206,7 @@ var station = {
    * @apiSuccess {Number} trips.route_type GTFS Route Transport Type
    * @apiSuccess {String} trips.agency_id Agency that operates this service
    * @apiSuccess {String} trips.route_color Colour for the route
+   * @apiSuccess {String} trips.route_icon Icon for the route (optional)
    * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
    * @apiSuccess {Object[]} realtime Realtime Info, only provided for some services. If empty, call the realtime API.
    *
@@ -228,6 +229,7 @@ var station = {
    *           "route_type": 2,
    *           "agency_id": "AM",
    *           "route_color": "#f39c12",
+   *           "route_icon": "nz/at-metro-eastern",
    *           "departure_time_seconds": 44280
    *         },
    *       ],
@@ -315,14 +317,15 @@ var station = {
             record.departure_time_seconds += 86400
           }
           record.arrival_time_seconds = record.departure_time_seconds
-          if (global.config.prefix === 'au-syd') {
-            record.route_color = '#' + record.route_color // probably want to do this at db level #jonoshitfixbutbymatt
-          } else {
-            record.route_color = line.getColor(
-              record.agency_id,
-              record.route_short_name
-            )
-          }
+          record.route_color = line.getColor(
+            record.agency_id,
+            record.route_short_name
+          )
+          record.route_icon = line.getIcon(
+            record.agency_id,
+            record.route_short_name
+          )
+
           // 30mins of realtime
           if (
             record.departure_time_seconds < sending.currentTime + 1800 ||
@@ -377,6 +380,7 @@ var station = {
    * @apiSuccess {String} trips.agency_id Agency that operates this service
    * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
    * @apiSuccess {String} trips.route_color Colour for the route
+   * @apiSuccess {String} trips.route_icon Icon for the route (optional)
    * @apiSuccess {Number} trips.currentTime Server Time, in Seconds
    * @apiSuccess {Number} trips.date Date of Trip
    *
@@ -395,6 +399,7 @@ var station = {
    *        "agency_id": "AM",
    *        "departure_time_seconds": 20880,
    *        "route_color": "#f39c12",
+   *        "route_icon": "nz/at-metro-eastern",
    *        "currentTime": 47760,
    *        "date": "2017-12-08T00:00:00.000Z"
    *      }
@@ -451,6 +456,7 @@ var station = {
           }
           record.arrival_time_seconds = record.departure_time_seconds
           record.route_color = line.getColor(record.agency_id, req.params.route)
+          record.route_icon = line.getIcon(record.agency_id, req.params.route)
           record.currentTime = currentTime.getTime() / 1000
           record.date = today
 

@@ -168,10 +168,18 @@ const lineGroups = [
       name: 'Waiheke Island',
       items: ['1', '2', '3', '4'],
     },
-
-
-
 ]
+
+const lineIcons = {
+  'NEX': 'nz/at-metro-northern',
+  'EAST': 'nz/at-metro-eastern',
+  'ONE': 'nz/at-metro-onehunga',
+  'STH': 'nz/at-metro-southern',
+  'PUK': 'nz/at-metro-southern',
+  'WEST': 'nz/at-metro-western',
+  'SKY': 'nz/skybus',
+}
+
 const friendlyNames = {
   'NEX': 'Northern Express',
   'EAST': 'Eastern Line',
@@ -185,7 +193,7 @@ const friendlyNames = {
   '380': 'Airporter',
   'MTIA': 'Auckland to Waiheke Island',
   'SKY': 'SkyBus',
-  'TMK': 'Tamaki Link',
+  'TMK': 'Tāmaki Link',
   '106': 'Freemans Bay Loop',
   '107': 'Avondale Loop',
   '186': 'South Lynn Loop',
@@ -1046,6 +1054,7 @@ cache.ready.push(cacheOperatorsAndShapes)
 
 module.exports = {
   lineColors: lineColors,
+  lineIcons: lineIcons,
   lineGroups: lineGroups,
   lineOperators: lineOperators,
   friendlyNames: friendlyNames,

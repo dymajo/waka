@@ -8,7 +8,7 @@ This is the Waka API documentation! We think this is a great API, and you can us
 
 ## Terms of Use
 - Don't abuse the service - there's no API keys yet, so be nice.
-- **Please do not build another real time board mobile app.** Making something like a smartwatch app, Facebook Messenger bot, or a realtime sign is fine. However if you want to build an app, we would appreciate if you just contributed to Waka directly <https://github.com/consindo/waka>
+- **Please do not build another real time board mobile app.** Making something like a smartwatch app, Facebook Messenger bot, or a realtime sign is fine. However if you want to build an app, we would appreciate if you just contributed to Waka directly <https://github.com/dymajo/waka>
 
 ## Weird Things
 - Bits of the API are inconsistent, but we're trying to make things better.

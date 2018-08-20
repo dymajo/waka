@@ -60,6 +60,15 @@ const getLines = async () => {
 }
 cache.ready.push(getLines)
 
+const lineIcons = {
+  'Blue': 'nz/metro-blue',
+  'Orange': 'nz/metro-orange',
+  'Orbiter': 'nz/metro-orbiter',
+  'Purple': 'nz/metro-purple',
+  'Yellow': 'nz/metro-yellow',
+  'Diamond': 'nz/metro-diamond'
+}
+
 // obtained from: http://www.metroinfo.co.nz/timetables/Pages/default.aspx
 // with Array.from(document.querySelectorAll('.routelistingnumber'))
 // .map((item) => ({route_short_name: item.innerText.trim(), color: item.style.backgroundColor}))
@@ -107,5 +116,6 @@ module.exports = {
   allLines: allLines,
   friendlyNames: friendlyNames,
   lineColors: lineColors,
+  lineIcons: lineIcons,
   lineGroups: lineGroups,
 }
