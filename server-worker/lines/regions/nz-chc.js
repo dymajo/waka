@@ -66,7 +66,7 @@ const lineIcons = {
   'Orbiter': 'nz/metro-orbiter',
   'Purple': 'nz/metro-purple',
   'Yellow': 'nz/metro-yellow',
-  'Diamond': 'nz/metro-diamond'
+  'Diamond': 'nz/metro-ferry'
 }
 
 // obtained from: http://www.metroinfo.co.nz/timetables/Pages/default.aspx
