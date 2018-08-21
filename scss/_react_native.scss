@@ -95,7 +95,10 @@ $line-pill-margin: 7px;
   border-radius: 2px;
   line-height: 1;
   padding: 3px;
+  margin-top: 1px;
+  margin-bottom: 1px;
   margin-right: $line-pill-margin;
+  margin-left: auto;
   font-weight: 600;
   background: #000;
 
@@ -117,10 +120,17 @@ $line-pill-margin: 7px;
     font-size: 0.9em;
   }
 }
+.line-pill-wrapper {
+  width: $left-pad;
+  display: flex;
+  font-size: 17px;
+}
 .line-pill-icon {
   vertical-align: top; 
   margin-right: $line-pill-margin;
-  height: 26px;
+  margin-left: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  max-height: 28px;
   width: auto;
-  margin-top: 1px;
 }
