@@ -3,6 +3,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/bf59f49c861eee7e624e/maintainability)](https://codeclimate.com/github/consindo/waka/maintainability)
 [![Dependency Status](https://david-dm.org/consindo/waka.svg?theme=shields.io)](https://david-dm.org/consindo/waka)
 [![devDependency Status](https://david-dm.org/consindo/waka/dev-status.svg?theme=shields.io)](https://david-dm.org/consindo/waka#info=devDependencies)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdymajo%2Fwaka.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdymajo%2Fwaka?ref=badge_shield)
 
 ![Waka Icon](https://raw.githubusercontent.com/consindo/waka/master/dist/branding/launcher-icon-3x.png)
 
@@ -52,3 +53,7 @@ We're currently working on making new cities easier to add, so these instruction
 ### Code Style
 
 * Run it through Prettier <https://github.com/prettier/prettier>
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdymajo%2Fwaka.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdymajo%2Fwaka?ref=badge_large)
