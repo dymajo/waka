@@ -1,65 +1,65 @@
-const path = require('path')
-const request = require('request')
-const fs = require('fs')
-const log = require('../logger.js')
+const path = require('path');
+const request = require('request');
+const fs = require('fs');
+const log = require('../logger.js');
 
 const get = (zipname, downloadOptions) => {
-  const zipLocation = path.join(__dirname, `../../cache/${zipname}.zip`)
+  const zipLocation = path.join(__dirname, `../../cache/${zipname}.zip`);
   return {
     zipLocation: zipLocation,
     files: [
       {
         name: 'agency.txt',
         table: 'agency',
-        versioned: false,
+        versioned: false
       },
       {
         name: 'stops.txt',
         table: 'stops',
-        versioned: false,
+        versioned: false
       },
       {
         name: 'routes.txt',
         table: 'routes',
-        versioned: false,
+        versioned: false
       },
       {
         name: 'trips.txt',
         table: 'trips',
-        versioned: false,
+        versioned: false
       },
       {
         name: 'stop_times.txt',
         table: 'stop_times',
-        versioned: false,
+        versioned: false
       },
       {
         name: 'calendar.txt',
         table: 'calendar',
-        versioned: false,
+        versioned: false
       },
       {
         name: 'calendar_dates.txt',
         table: 'calendar_dates',
-        versioned: false,
-      },
+        versioned: false
+      }
     ],
     shapeFile: 'shapes.txt',
     download: () => {
       return new Promise((resolve, reject) => {
-        log(global.config.prefix.magenta, 'Downloading GTFS Data')
+        log(global.config.prefix.magenta, 'Downloading GTFS Data');
         const gtfsRequest = request(downloadOptions).pipe(
           fs.createWriteStream(zipLocation)
-        )
+        );
         gtfsRequest.on('finish', function() {
-          log('Finished Downloading GTFS Data')
-          resolve()
-        })
-        gtfsRequest.on('error', reject)
-      })
-    },
-  }
-}
+          log('Finished Downloading GTFS Data');
+          resolve();
+        });
+        gtfsRequest.on('error', reject);
+      });
+    }
+  };
+};
 module.exports = {
-  get: get,
-}
+  get: get
+};
