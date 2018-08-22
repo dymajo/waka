@@ -106,6 +106,26 @@ class TripItem extends React.Component {
       route_class = 'text'
     }
 
+    let route_symbol = null
+    const route_icon = trip.route_icon
+    if (route_icon === null) {
+      route_symbol = (
+        <h1 className={route_class} style={route_style}>
+          {route_code}
+        </h1>
+      )
+    } else {
+      route_symbol = (
+        <div className="route-symbol-wrapper">
+          <img 
+            className="route-symbol-icon"
+            src={`/route_icons/${route_icon}-mono.svg`}
+            alt={route_code}
+          />
+        </div>
+      )
+    }
+
     this.props.collection.sort((a, b) => {
       let aTime = a.departure_time_seconds
       let bTime = b.departure_time_seconds
@@ -359,9 +379,7 @@ class TripItem extends React.Component {
       <div className={className} style={{ backgroundColor: background }}>
         <div className="main-container" onClick={this.triggerClick}>
           <div className="left">
-            <h1 className={route_class} style={route_style}>
-              {route_code}
-            </h1>
+            {route_symbol}
             <h2>
               {direction}
               {trip.trip_headsign} {via}
