@@ -8,21 +8,18 @@ const getColor = (agency_id, code) => {
   case 'AM': // Auckland Metro
     switch (code) {
     case 'WEST': // West Line
-      //return '#006553' official
-      return '#4f9734'
+      return '#84bd00'
     case 'STH': // South Line
-      //return '#a60048' official
-      return '#e52f2b'
+      return '#da291c'
     case 'EAST': // East Line
-      return '#f39c12'
+      return '#ed8b00'
     case 'PUK': // South Line
-      //return '#a60048'
-      return '#e52f2b'
+      return '#da291c'
     case 'ONE': // ONE Line
-      return '#21b4e3'
+      return '#00a6d6'
 
     default:
-      return '#17232f'
+      return '#00254b'
     }
   case 'FGL': // Fullers
     return '#2756a4'
@@ -84,8 +81,7 @@ const getColor = (agency_id, code) => {
   case 'RTH': // Ritchies
     switch (code) {
     case 'NEX': // Northern Express
-      //return '#0079c2' official
-      return '#0056a9' 
+      return '#00254b' 
     
     default:
       return '#ff6f2c'

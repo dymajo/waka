@@ -86,31 +86,12 @@ class TripItem extends React.Component {
       via = null
     }
 
-    let route_class = ''
-    let route_style = {}
-    if (
-      route_code === 'EAST' ||
-      route_code === 'WEST' ||
-      route_code === 'ONE' ||
-      route_code === 'STH' ||
-      route_code === 'PUK' ||
-      route_code === 'NEX'
-    ) {
-      route_code = route_code.slice(0, 1)
-      if (route_code === 'P') {
-        route_code = 'S'
-      }
-      route_class = 'cf'
-      route_style = { color: background }
-    } else if (isNaN(parseInt(route_code.slice(0, 1)))) {
-      route_class = 'text'
-    }
-
     let route_symbol = null
+    let route_class = isNaN(parseInt(route_code.slice(0, 1))) ? 'text' : ''
     const route_icon = trip.route_icon
     if (route_icon === null) {
       route_symbol = (
-        <h1 className={route_class} style={route_style}>
+        <h1 className={route_class}>
           {route_code}
         </h1>
       )

@@ -118,34 +118,18 @@ class LinesView extends React.Component {
           }
           name = this.state.friendlyNames[item] || name
 
-          let linePillInner = null
+          let linePillInner
           if (this.state.icons.hasOwnProperty(item)) {
             linePillInner = <img className="line-pill-icon" src={`/route_icons/${this.state.icons[item]}-color.svg`}/>
           } else {
-            let roundelStyle = 'line-pill'
-            let code = this.state.friendlyNumbers[item] || item
-            if (
-              item === 'WEST' ||
-              item === 'EAST' ||
-              item === 'ONE' ||
-              item === 'STH' ||
-              item === 'NEX' ||
-              item === 'PUK'
-            ) {
-              roundelStyle += ' cf'
-              code = item[0]
-              if (item === 'PUK') {
-                code = 'S'
-              }
-            }
             linePillInner = (
               <span
-                className={roundelStyle}
+                className="line-pill"
                 style={{
                   backgroundColor: this.state.colors[item] || '#000',
                 }}
               >
-                {code}
+                {this.state.friendlyNumbers[item] || item}
               </span>
             )
           }
