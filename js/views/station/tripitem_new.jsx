@@ -96,11 +96,12 @@ class TripItem extends React.Component {
         </h1>
       )
     } else {
+      const filename = route_icon.match('raster') ? `${route_icon}-mono.png` : `${route_icon}-mono.svg`
       route_symbol = (
         <div className="route-symbol-wrapper">
           <img 
             className="route-symbol-icon"
-            src={`/route_icons/${route_icon}-mono.svg`}
+            src={`/route_icons/${filename}`}
             alt={route_code}
           />
         </div>
