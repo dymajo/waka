@@ -173,7 +173,8 @@ const lineIcons = {
   'STH': 'nz/at-metro-southern',
   'PUK': 'nz/at-metro-southern',
   'WEST': 'nz/at-metro-western',
-  'SKY': 'nz/skybus',
+  // enable this if they want to pay us lots of money
+  // 'SKY': 'nz/skybus-raster',
 }
 
 const friendlyNames = {
