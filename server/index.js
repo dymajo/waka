@@ -1,8 +1,17 @@
 const connection = require('./db/connection.js');
-const createDb = require('./db/create.js');
+const CreateDb = require('./db/create.js');
 const log = require('./logger.js');
 const cache = require('./cache');
 const importers = require('./importers/index');
+const sql = require('mssql');
+const dotenv = require('dotenv');
+const result = dotenv.config();
+
+if (result.error) {
+  throw result.error;
+}
+
+console.log(result.parsed);
 
 log('Worker Started');
 
@@ -23,6 +32,7 @@ const {
   DB_REQUEST_TIMEOUT,
   MODE
 } = process.env;
+
 global.config = {
   id: ID,
   prefix: PREFIX,
@@ -50,14 +60,21 @@ log(
   global.config.version,
   'config'
 );
-
-// connect to db
-connection
-  .open()
+connection.isReady
   .then(() => {
     log('Connected to Database');
+    const dbName = global.config.db.database;
 
     const sqlRequest = connection.get().request();
+    sqlRequest.input('name', sql.VarChar, dbName);
+
+    sqlRequest.query(
+      `
+        IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = @name)
+        EXEC('CREATE DATABASE '+ @name)
+      `
+    );
+
     sqlRequest
       .query(
         `
@@ -67,11 +84,12 @@ connection
       .then(data => {
         if (data.recordset[0].dbcreated === null) {
           log('Building Database from Template');
-          const creator = new createDb();
+          const creator = new CreateDb();
           creator
             .start()
             .then(() => {
               log('Worker Ready');
+              startImport();
             })
             .catch(err => {
               console.log(err);
@@ -87,14 +105,11 @@ connection
   .catch(err => console.log(err));
 
 const startImport = () => {
-  console.log('object');
   const importer = new importers();
   const { mode } = global.config;
   const cb = mode => {
     log(`Completed ${mode}`);
   };
-
-  console.log(mode);
 
   if (mode === 'all') {
     log('Started import of ALL');
@@ -113,13 +128,3 @@ const startImport = () => {
     importer.download().then(cb);
   }
 };
-
-let lastbeat = new Date();
-
-const duration = 3 * 60 * 1000;
-setInterval(() => {
-  if (new Date().getTime() - lastbeat.getTime() > duration) {
-    log('No Heartbeat recieved in last 3 mins, killing process');
-    process.exit();
-  }
-}, 60 * 1000);
