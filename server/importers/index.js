@@ -3,24 +3,25 @@ const path = require('path');
 const rimraf = require('rimraf');
 
 const log = require('../logger.js');
-const gtfsImport = require('../db/gtfs-import.js');
-const createShapes = require('../db/create-shapes.js');
+const GtfsImport = require('../db/gtfs-import.js');
+const CreateShapes = require('../db/create-shapes.js');
 const connection = require('../db/connection.js');
 
 class Importer {
   constructor() {
-    this.importer = new gtfsImport();
+    this.importer = new GtfsImport();
     this.current = null;
     try {
-      this.current = require('./regions/' + global.config.prefix + '.js');
+      this.current = require(`./regions/${global.config.prefix}.js`);
     } catch (err) {
       log(
         'fatal error'.red,
         'Could not find an importer in ',
-        path.join(__dirname, './regions', global.config.prefix + '.js')
+        path.join(__dirname, './regions', `${global.config.prefix}.js`)
       );
     }
   }
+
   async start() {
     if (!this.current) {
       return;
@@ -43,23 +44,24 @@ class Importer {
   }
 
   async db() {
-    for (let file of this.current.files) {
+    for (const file of this.current.files) {
       await this.importer.upload(
-        this.current.zipLocation + 'unarchived',
+        `${this.current.zipLocation}unarchived`,
         file,
         global.config.version,
         file.versioned
       );
     }
   }
+
   async shapes() {
-    const creator = new createShapes();
+    const creator = new CreateShapes();
     const inputDir = path.resolve(
-      this.current.zipLocation + 'unarchived',
+      `${this.current.zipLocation}unarchived`,
       'shapes.txt'
     );
     const outputDir = path.resolve(
-      this.current.zipLocation + 'unarchived',
+      `${this.current.zipLocation}unarchived`,
       'shapes'
     );
     const outputDir2 = path.resolve(outputDir, global.config.version);
@@ -78,9 +80,9 @@ class Importer {
     fs.mkdirSync(outputDir2);
 
     // creates the new datas
-    await creator.create(inputDir, outputDir, [global.config.version]);
+    await creator.create(inputDir, outputDir, [global.config.versmassaion]);
 
-    const containerName = (global.config.prefix + '-' + global.config.version)
+    const containerName = `${global.config.prefix}-${global.config.version}`
       .replace('.', '-')
       .replace('_', '-');
     await creator.upload(
@@ -88,6 +90,7 @@ class Importer {
       path.resolve(outputDir, global.config.version)
     );
   }
+
   async fixStopCodes() {
     // GTFS says it's optional, but Waka uses stop_code for stop lookups
     const sqlRequest = connection.get().request();
@@ -98,10 +101,11 @@ class Importer {
     `);
     const rows = res.rowsAffected[0];
     log(
-      (global.config.prefix + ' ' + global.config.version).magenta,
+      `${global.config.prefix} ${global.config.version}`.magenta,
       `Updated ${rows} null stop codes`
     );
   }
+
   async postImport() {
     if (this.current.postImport) {
       await this.current.postImport();
