@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
+const sql = require('mssql');
 
 const log = require('../logger.js');
 const GtfsImport = require('../db/gtfs-import.js');
@@ -32,6 +33,7 @@ class Importer {
     await this.db();
     await this.shapes();
     await this.fixStopCodes();
+    await this.exportDb();
     await this.postImport();
   }
 
@@ -110,6 +112,25 @@ class Importer {
     if (this.current.postImport) {
       await this.current.postImport();
     }
+  }
+
+  async exportDb() {
+    const sqlRequest = connection.get().request();
+    const {
+      db: { database }
+    } = global.config;
+    sqlRequest.input('dbName', sql.VarChar, database);
+    await sqlRequest
+      .query(
+        `
+    BACKUP DATABASE @dbName TO  DISK =
+    N'C:/temp/full.bak'
+    WITH NOFORMAT, NOINIT, NAME = @dbName,
+    SKIP, NOREWIND, NOUNLOAD, STATS = 10
+    `
+      )
+      .catch(err => console.log(err));
+    log('Export complete');
   }
 }
 module.exports = Importer;
