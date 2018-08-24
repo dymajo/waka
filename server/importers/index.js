@@ -124,7 +124,7 @@ class Importer {
       .query(
         `
     BACKUP DATABASE @dbName TO  DISK =
-    N'C:/temp/full.bak'
+    N'/var/opt/mssql/backup/backup.bak'
     WITH NOFORMAT, NOINIT, NAME = @dbName,
     SKIP, NOREWIND, NOUNLOAD, STATS = 10
     `
