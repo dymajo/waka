@@ -41,7 +41,7 @@ global.config = {
   startpolicy: START_POLICY,
   dbconfig: DB_CONFIG,
   dbname: DB_NAME,
-  mode: MODE || 'all',
+  mode: MODE || 'export',
   db: {
     user: DB_USER,
     password: DB_PASSWORD,
@@ -108,23 +108,26 @@ const startImport = () => {
   const importer = new importers();
   const { mode } = global.config;
   const cb = mode => {
-    log(`Completed ${mode}`);
+    log(`Completed ${mode.toUpperCase()}`);
   };
 
   if (mode === 'all') {
     log('Started import of ALL');
-    importer.start().then(cb);
+    importer.start().then(() => cb(mode));
   } else if (mode === 'db') {
     log('Started import of DB');
-    importer.db().then(cb);
+    importer.db().then(() => cb(mode));
   } else if (mode === 'shapes') {
     log('Started import of SHAPES');
-    importer.shapes().then(cb);
+    importer.shapes().then(() => cb(mode));
   } else if (mode === 'unzip') {
     log('Started UNZIP');
-    importer.unzip().then(cb);
+    importer.unzip().then(() => cb(mode));
   } else if (mode === 'download') {
     log('Started DOWNLOAD');
-    importer.download().then(cb);
+    importer.download().then(() => cb(mode));
+  } else if (mode === 'export') {
+    log('Started EXPORT');
+    importer.exportDb().then(() => cb(mode));
   }
 };
