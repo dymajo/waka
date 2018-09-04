@@ -88,18 +88,16 @@ class TripItem extends React.Component {
 
     let route_symbol = null
     let route_class = isNaN(parseInt(route_code.slice(0, 1))) ? 'text' : ''
-    const route_icon = trip.route_icon
+    const route_icon = trip.route_icon || null
     if (route_icon === null) {
-      route_symbol = (
-        <h1 className={route_class}>
-          {route_code}
-        </h1>
-      )
+      route_symbol = <h1 className={route_class}>{route_code}</h1>
     } else {
-      const filename = route_icon.match('raster') ? `${route_icon}-mono.png` : `${route_icon}-mono.svg`
+      const filename = route_icon.match('raster')
+        ? `${route_icon}-mono.png`
+        : `${route_icon}-mono.svg`
       route_symbol = (
         <div className="route-symbol-wrapper">
-          <img 
+          <img
             className="route-symbol-icon"
             src={`/route_icons/${filename}`}
             alt={route_code}
