@@ -3,7 +3,7 @@ const log = require('../../../server-common/logger.js')
 const queries = require('../queries.js')
 
 const friendlyNames = {
-  'Orbiter': 'The Orbiter'
+  Orbiter: 'The Orbiter',
 }
 
 const sortLines = lineGroups => {
@@ -60,6 +60,15 @@ const getLines = async () => {
 }
 cache.ready.push(getLines)
 
+const lineIcons = {
+  Blue: 'nz/metro-blue',
+  Orange: 'nz/metro-orange',
+  Orbiter: 'nz/metro-orbiter',
+  Purple: 'nz/metro-purple',
+  Yellow: 'nz/metro-yellow',
+  Diamond: 'nz/metro-ferry',
+}
+
 // obtained from: http://www.metroinfo.co.nz/timetables/Pages/default.aspx
 // with Array.from(document.querySelectorAll('.routelistingnumber'))
 // .map((item) => ({route_short_name: item.innerText.trim(), color: item.style.backgroundColor}))
@@ -100,12 +109,13 @@ const lineGroups = [
   {
     name: 'Connector',
     items: [],
-  }
+  },
 ]
 
 module.exports = {
-  allLines: allLines,
-  friendlyNames: friendlyNames,
-  lineColors: lineColors,
-  lineGroups: lineGroups,
+  allLines,
+  friendlyNames,
+  lineColors,
+  lineIcons,
+  lineGroups,
 }

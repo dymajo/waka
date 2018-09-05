@@ -8,21 +8,18 @@ const getColor = (agency_id, code) => {
   case 'AM': // Auckland Metro
     switch (code) {
     case 'WEST': // West Line
-      //return '#006553' official
-      return '#4f9734'
+      return '#84bd00'
     case 'STH': // South Line
-      //return '#a60048' official
-      return '#e52f2b'
+      return '#da291c'
     case 'EAST': // East Line
-      return '#f39c12'
+      return '#ed8b00'
     case 'PUK': // South Line
-      //return '#a60048'
-      return '#e52f2b'
+      return '#da291c'
     case 'ONE': // ONE Line
-      return '#21b4e3'
+      return '#00a6d6'
 
     default:
-      return '#17232f'
+      return '#00254b'
     }
   case 'FGL': // Fullers
     return '#2756a4'
@@ -84,8 +81,7 @@ const getColor = (agency_id, code) => {
   case 'RTH': // Ritchies
     switch (code) {
     case 'NEX': // Northern Express
-      //return '#0079c2' official
-      return '#0056a9' 
+      return '#00254b' 
     
     default:
       return '#ff6f2c'
@@ -168,10 +164,19 @@ const lineGroups = [
       name: 'Waiheke Island',
       items: ['1', '2', '3', '4'],
     },
-
-
-
 ]
+
+const lineIcons = {
+  'NEX': 'nz/at-metro-northern',
+  'EAST': 'nz/at-metro-eastern',
+  'ONE': 'nz/at-metro-onehunga',
+  'STH': 'nz/at-metro-southern',
+  'PUK': 'nz/at-metro-southern',
+  'WEST': 'nz/at-metro-western',
+  // enable this if they want to pay us lots of money
+  // 'SKY': 'nz/skybus-raster',
+}
+
 const friendlyNames = {
   'NEX': 'Northern Express',
   'EAST': 'Eastern Line',
@@ -179,13 +184,13 @@ const friendlyNames = {
   'STH': 'Southern Line',
   'WEST': 'Western Line',
   'PUK': 'Pukekohe Shuttle',
-  'CTY': 'City Link',
-  'INN': 'Inner Link',
-  'OUT': 'Outer Link',
+  'CTY': 'CityLink',
+  'INN': 'InnerLink',
+  'OUT': 'OuterLink',
   '380': 'Airporter',
   'MTIA': 'Auckland to Waiheke Island',
   'SKY': 'SkyBus',
-  'TMK': 'Tamaki Link',
+  'TMK': 'TāmakiLink',
   '106': 'Freemans Bay Loop',
   '107': 'Avondale Loop',
   '186': 'South Lynn Loop',
@@ -1045,10 +1050,11 @@ function cacheOperatorsAndShapes() {
 cache.ready.push(cacheOperatorsAndShapes)
 
 module.exports = {
-  lineColors: lineColors,
-  lineGroups: lineGroups,
-  lineOperators: lineOperators,
-  friendlyNames: friendlyNames,
-  allLines: allLines,
-  getColor: getColor,
+  lineColors,
+  lineIcons,
+  lineGroups,
+  lineOperators,
+  friendlyNames,
+  allLines,
+  getColor,
 }

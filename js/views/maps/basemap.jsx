@@ -315,7 +315,7 @@ class BasemapWithoutRouter extends React.Component {
         <LeafletMap
           onMoveend={this.moveEnd}
           center={this.state.position}
-          maxZoom={18}
+          maxZoom={17}
           zoom={this.zoom}
           zoomControl={false}
           className="map"
@@ -323,7 +323,9 @@ class BasemapWithoutRouter extends React.Component {
         >
           <ZoomControl position="bottomleft" />
           <TileLayer
-            url={'https://maps.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'}
+            url={
+              'https://maps-ap-southeast-2.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'
+            }
             attribution={
               '© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }

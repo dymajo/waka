@@ -12,7 +12,25 @@ const cityMetadata = require('../../cityMetadata.json')
 let lineData = {}
 cache.preReady.push(() => {
   try {
-    lineData = require(`./regions/${global.config.prefix}.js`)
+    const lineDataSource = require(`./regions/${global.config.prefix}.js`)
+
+    // the second element in the array is default, if it is not exported from the source
+    const requiredProps = [
+      ['lineColors', {}],
+      ['lineIcons', {}],
+      ['friendlyNames', {}],
+      ['friendlyNumbers', {}],
+      ['lineGroups', []],
+      ['allLines', {}],
+      ['lineOperators', {}],
+    ]
+    requiredProps.forEach(prop => {
+      if (lineDataSource.hasOwnProperty(prop[0])) {
+        lineData[prop[0]] = lineDataSource[prop[0]]
+      } else {
+        lineData[prop[0]] = prop[1]
+      }
+    })
   } catch (err) {
     log(('Could not load line data for ' + global.config.prefix).red)
     console.error(err)
@@ -24,14 +42,21 @@ const storageSvc = new Storage({
   local: config.emulatedStorage,
 })
 
-var line = {
-  getColor: function(agency_id, route_short_name) {
+const line = {
+  getColor(agency_id, route_short_name) {
     if (lineData.getColor) {
       return lineData.getColor(agency_id, route_short_name)
     } else if (lineData.lineColors) {
-      return lineData.lineColors[route_short_name] || '#000'
+      return lineData.lineColors[route_short_name] || '#00263A'
     }
-    return '#000'
+    return '#00263A'
+  },
+  getIcon(agency_id, route_short_name) {
+    // this will probably be revised soon
+    if (lineData.lineIcons) {
+      return lineData.lineIcons[route_short_name] || null
+    }
+    return null
   },
   /**
    * @api {get} /:region/lines List - All
@@ -47,6 +72,7 @@ var line = {
    * @apiSuccess {String} meta.longName The name and secondary name combined.
    * @apiSuccess {Object[]} friendlyNames Key value store of Route Short Names to more official names
    * @apiSuccess {Object[]} colors Key value store of Route Short Names to corresponding colors
+   * @apiSuccess {Object[]} icons Key value store of Route Short Names to corresponding icons (optional)
    * @apiSuccess {Object[]} groups Grouping for all the lines into region.
    * @apiSuccess {String} groups.name Name of Group
    * @apiSuccess {String[]} groups.items Route Short Names that belong in the group
@@ -68,6 +94,9 @@ var line = {
    *       },
    *       "colors": {
    *         "380": "#2196F3"
+   *       },
+   *       "icons": {
+   *         "380": "nz/at-metro-airporter"
    *       },
    *       "groups": [
    *         {
@@ -94,10 +123,10 @@ var line = {
    *     }
    *
    */
-  getLines: function(req, res) {
+  getLines(req, res) {
     res.send(line._getLines())
   },
-  _getLines: function() {
+  _getLines() {
     let city = cityMetadata[global.config.prefix]
     // if the region has multiple cities
     if (!city.hasOwnProperty('name')) {
@@ -110,12 +139,13 @@ var line = {
         secondaryName: cityMetadata[global.config.prefix].secondaryName,
         longName: cityMetadata[global.config.prefix].longName,
       },
-      colors: lineData.lineColors || {},
-      friendlyNames: lineData.friendlyNames || {},
-      friendlyNumbers: lineData.friendlyNumbers || {},
-      groups: lineData.lineGroups || [],
-      lines: lineData.allLines || {},
-      operators: lineData.lineOperators || {},
+      colors: lineData.lineColors,
+      icons: lineData.lineIcons,
+      friendlyNames: lineData.friendlyNames,
+      friendlyNumbers: lineData.friendlyNumbers,
+      groups: lineData.lineGroups,
+      lines: lineData.allLines,
+      operators: lineData.lineOperators,
     }
   },
   /**
@@ -131,6 +161,7 @@ var line = {
    * @apiSuccess {String} line.route_long_name Long name for route variant
    * @apiSuccess {String} line.route_short_name Short name for route variant
    * @apiSuccess {String} line.route_color Color for route
+   * @apiSuccess {String} line.route_icon Icon for route (optional)
    * @apiSuccess {Number} line.direction_id Direction of route
    * @apiSuccess {String} line.shape_id GTFS Shape_id
    * @apiSuccess {Number} line.route_type GTFS route_type - Transport mode
@@ -143,6 +174,7 @@ var line = {
    *     "route_long_name": "Britomart Train Station to Manukau Train Station",
    *     "route_short_name": "EAST",
    *     "route_color": "#f39c12",
+   *     "route_icon": "nz/at-metro-eastern",
    *     "direction_id": 1,
    *     "shape_id": "1199-20171113160906_v60.12",
    *     "route_type": 2
@@ -152,13 +184,14 @@ var line = {
    *     "route_long_name": "Manukau Train Station to Britomart Train Station",
    *     "route_short_name": "EAST",
    *     "route_color": "#f39c12",
+   *     "route_icon": "nz/at-metro-eastern",
    *     "direction_id": 0,
    *     "shape_id": "1198-20171113160906_v60.12",
    *     "route_type": 2
    *   }
    * ]
    */
-  getLine: async function(req, res) {
+  async getLine(req, res) {
     const lineId = req.params.line.trim()
     try {
       const data = await line._getLine(lineId)
@@ -167,7 +200,7 @@ var line = {
       res.status(500).send(err)
     }
   },
-  _getLine: async function(lineId) {
+  async _getLine(lineId) {
     const sqlRequest = connection.get().request()
 
     // filter by agency if a filter exists
@@ -234,6 +267,7 @@ var line = {
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
         route_color: line.getColor(route.agency_id, route.route_short_name),
+        route_icon: line.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
         route_type: route.route_type,
@@ -301,7 +335,7 @@ var line = {
    *   ]
    * }
    */
-  getShapeJSON: function(req, res) {
+  getShapeJSON(req, res) {
     const prefix = global.config.prefix
     const version = global.config.version
     const containerName = encodeURIComponent(
@@ -322,7 +356,7 @@ var line = {
     })
   },
 
-  exceptionCheck: function(route, bestMatchMode = false) {
+  exceptionCheck(route, bestMatchMode = false) {
     let allLines
     const prefix = global.config.prefix
     if (prefix === 'nz-akl' || prefix === 'nz-wlg') {
@@ -415,7 +449,7 @@ var line = {
    *   }
    * ]
    */
-  getStopsFromTrip: function(req, res) {
+  getStopsFromTrip(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
     sqlRequest
@@ -467,7 +501,7 @@ var line = {
    *   }
    * ]
    */
-  getStopsFromShape: function(req, res) {
+  getStopsFromShape(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
     sqlRequest

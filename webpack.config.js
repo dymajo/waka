@@ -180,7 +180,7 @@ if (process.env.NODE_ENV === 'production') {
 
 if (process.env.NODE_ENV === 'devlive') {
   console.log('Using Live Server for API')
-  config.devServer.proxy['/a'].target = 'https://getwaka.com'
+  config.devServer.proxy['/a'].target = 'https://waka.app'
   config.devServer.proxy['/a'].changeOrigin = true
 }
 
