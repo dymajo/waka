@@ -12,7 +12,25 @@ const cityMetadata = require('../../cityMetadata.json')
 let lineData = {}
 cache.preReady.push(() => {
   try {
-    lineData = require(`./regions/${global.config.prefix}.js`)
+    const lineDataSource = require(`./regions/${global.config.prefix}.js`)
+
+    // the second element in the array is default, if it is not exported from the source
+    const requiredProps = [
+      ['lineColors', {}],
+      ['lineIcons', {}],
+      ['friendlyNames', {}],
+      ['friendlyNumbers', {}],
+      ['lineGroups', []],
+      ['allLines', {}],
+      ['lineOperators', {}],
+    ]
+    requiredProps.forEach(prop => {
+      if (lineDataSource.hasOwnProperty(prop[0])) {
+        lineData[prop[0]] = lineDataSource[prop[0]]
+      } else {
+        lineData[prop[0]] = prop[1]
+      }
+    })
   } catch (err) {
     log(('Could not load line data for ' + global.config.prefix).red)
     console.error(err)
@@ -24,8 +42,8 @@ const storageSvc = new Storage({
   local: config.emulatedStorage,
 })
 
-var line = {
-  getColor: function(agency_id, route_short_name) {
+const line = {
+  getColor(agency_id, route_short_name) {
     if (lineData.getColor) {
       return lineData.getColor(agency_id, route_short_name)
     } else if (lineData.lineColors) {
@@ -33,7 +51,7 @@ var line = {
     }
     return '#00263A'
   },
-  getIcon: function(agency_id, route_short_name) {
+  getIcon(agency_id, route_short_name) {
     // this will probably be revised soon
     if (lineData.lineIcons) {
       return lineData.lineIcons[route_short_name] || null
@@ -105,10 +123,10 @@ var line = {
    *     }
    *
    */
-  getLines: function(req, res) {
+  getLines(req, res) {
     res.send(line._getLines())
   },
-  _getLines: function() {
+  _getLines() {
     let city = cityMetadata[global.config.prefix]
     // if the region has multiple cities
     if (!city.hasOwnProperty('name')) {
@@ -121,13 +139,13 @@ var line = {
         secondaryName: cityMetadata[global.config.prefix].secondaryName,
         longName: cityMetadata[global.config.prefix].longName,
       },
-      colors: lineData.lineColors || {},
-      icons: lineData.lineIcons || {},
-      friendlyNames: lineData.friendlyNames || {},
-      friendlyNumbers: lineData.friendlyNumbers || {},
-      groups: lineData.lineGroups || [],
-      lines: lineData.allLines || {},
-      operators: lineData.lineOperators || {},
+      colors: lineData.lineColors,
+      icons: lineData.lineIcons,
+      friendlyNames: lineData.friendlyNames,
+      friendlyNumbers: lineData.friendlyNumbers,
+      groups: lineData.lineGroups,
+      lines: lineData.allLines,
+      operators: lineData.lineOperators,
     }
   },
   /**
@@ -173,7 +191,7 @@ var line = {
    *   }
    * ]
    */
-  getLine: async function(req, res) {
+  async getLine(req, res) {
     const lineId = req.params.line.trim()
     try {
       const data = await line._getLine(lineId)
@@ -182,7 +200,7 @@ var line = {
       res.status(500).send(err)
     }
   },
-  _getLine: async function(lineId) {
+  async _getLine(lineId) {
     const sqlRequest = connection.get().request()
 
     // filter by agency if a filter exists
@@ -317,7 +335,7 @@ var line = {
    *   ]
    * }
    */
-  getShapeJSON: function(req, res) {
+  getShapeJSON(req, res) {
     const prefix = global.config.prefix
     const version = global.config.version
     const containerName = encodeURIComponent(
@@ -338,7 +356,7 @@ var line = {
     })
   },
 
-  exceptionCheck: function(route, bestMatchMode = false) {
+  exceptionCheck(route, bestMatchMode = false) {
     let allLines
     const prefix = global.config.prefix
     if (prefix === 'nz-akl' || prefix === 'nz-wlg') {
@@ -431,7 +449,7 @@ var line = {
    *   }
    * ]
    */
-  getStopsFromTrip: function(req, res) {
+  getStopsFromTrip(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
     sqlRequest
@@ -483,7 +501,7 @@ var line = {
    *   }
    * ]
    */
-  getStopsFromShape: function(req, res) {
+  getStopsFromShape(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
     sqlRequest

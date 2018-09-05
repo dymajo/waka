@@ -1050,11 +1050,11 @@ function cacheOperatorsAndShapes() {
 cache.ready.push(cacheOperatorsAndShapes)
 
 module.exports = {
-  lineColors: lineColors,
-  lineIcons: lineIcons,
-  lineGroups: lineGroups,
-  lineOperators: lineOperators,
-  friendlyNames: friendlyNames,
-  allLines: allLines,
-  getColor: getColor,
+  lineColors,
+  lineIcons,
+  lineGroups,
+  lineOperators,
+  friendlyNames,
+  allLines,
+  getColor,
 }
