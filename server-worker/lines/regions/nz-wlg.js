@@ -42,12 +42,11 @@ groups.forEach((data, index) => {
 const lineGroups = groups.map(item => {
   return {
     name: item.name,
-    items: []
+    items: [],
   }
 })
 
 const lineColors = {}
-const friendlyNames = {}
 const allLines = {}
 const lineOperators = {}
 
@@ -70,7 +69,10 @@ const lineColorizer = (agency, route_short_name, db_color) => {
 
 const sortLines = lineGroups => {
   lineGroups.forEach(group => {
-    const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'})
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    })
     group.items.sort(collator.compare)
   })
 }
@@ -118,9 +120,8 @@ const getLines = async () => {
 cache.ready.push(getLines)
 
 module.exports = {
-  lineColors: lineColors,
-  lineGroups: lineGroups,
-  friendlyNames: friendlyNames,
-  allLines: allLines,
-  lineOperators: lineOperators,
+  lineColors,
+  lineGroups,
+  allLines,
+  lineOperators,
 }

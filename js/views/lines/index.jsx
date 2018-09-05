@@ -22,6 +22,7 @@ class LinesView extends React.Component {
     allLines: undefined,
     groups: null,
     colors: {},
+    icons: {},
     groupShow: {},
     friendlyNames: {},
   }
@@ -73,6 +74,7 @@ class LinesView extends React.Component {
           meta: data.meta,
           allLines: data.lines,
           colors: data.colors,
+          icons: data.icons,
           groups: data.groups,
           operators: data.operators,
           friendlyNames: data.friendlyNames,
@@ -116,22 +118,22 @@ class LinesView extends React.Component {
           }
           name = this.state.friendlyNames[item] || name
 
-          let roundelStyle = 'line-pill'
-          let code = this.state.friendlyNumbers[item] || item
-          if (
-            item === 'WEST' ||
-            item === 'EAST' ||
-            item === 'ONE' ||
-            item === 'STH' ||
-            item === 'NEX' ||
-            item === 'PUK'
-          ) {
-            roundelStyle += ' cf'
-            code = item[0]
-            if (item === 'PUK') {
-              code = 'S'
-            }
+          let linePillInner
+          if (this.state.icons.hasOwnProperty(item)) {
+            linePillInner = <img className="line-pill-icon" src={`/route_icons/${this.state.icons[item]}-color.svg`}/>
+          } else {
+            linePillInner = (
+              <span
+                className="line-pill"
+                style={{
+                  backgroundColor: this.state.colors[item] || '#000',
+                }}
+              >
+                {this.state.friendlyNumbers[item] || item}
+              </span>
+            )
           }
+
           return (
             <li key={key}>
               <TouchableOpacity
@@ -141,16 +143,7 @@ class LinesView extends React.Component {
                   `/l/${this.props.match.params.region}/${item}`
                 )}
               >
-                <span className="line-pill-wrapper">
-                  <span
-                    className={roundelStyle}
-                    style={{
-                      backgroundColor: this.state.colors[item] || '#000',
-                    }}
-                  >
-                    {code}
-                  </span>
-                </span>
+                <span className="line-pill-wrapper">{linePillInner}</span>
                 <span className="line-label">{name}</span>
               </TouchableOpacity>
             </li>
