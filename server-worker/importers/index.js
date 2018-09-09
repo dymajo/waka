@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const rimraf = require('rimraf')
 
+const config = require('../../config.js')
 const log = require('../../server-common/logger.js')
 const gtfsImport = require('../db/gtfs-import.js')
 const createShapes = require('../db/create-shapes.js')
@@ -80,11 +81,8 @@ class Importer {
     // creates the new datas
     await creator.create(inputDir, outputDir, [global.config.version])
 
-    const containerName = (global.config.prefix + '-' + global.config.version)
-      .replace('.', '-')
-      .replace('_', '-')
     await creator.upload(
-      containerName,
+      config.shapesContainer,
       path.resolve(outputDir, global.config.version)
     )
   }

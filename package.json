@@ -66,6 +66,7 @@
     "apidoc": "^0.17.6",
     "applicationinsights": "^1.0.2",
     "autotrack": "^2.4.1",
+    "aws-sdk": "^2.311.0",
     "azure-storage": "^2.8.3",
     "babel-preset-stage-2": "^6.24.1",
     "body-parser": "^1.18.3",

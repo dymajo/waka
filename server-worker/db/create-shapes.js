@@ -9,7 +9,8 @@ const config = require('../../config.js')
 const Storage = require('./storage.js')
 const storageSvc = new Storage({
   backing: config.storageService,
-  local: config.emulatedStorage
+  local: config.emulatedStorage,
+  region: config.shapesRegion
 })
 
 class createShapes {
@@ -83,8 +84,9 @@ class createShapes {
         }
 
         const fileName = files[index]
+        const key = encodeURIComponent(`${global.config.prefix}/${directory.replace('_', '-').replace('.', '-')}/${fileName}`)
         const fileLocation = path.resolve(directory, fileName)
-        storageSvc.uploadFile(container, encodeURIComponent(fileName), fileLocation, function(error) {
+        storageSvc.uploadFile(container, key, fileLocation, function(error) {
           if (error) {
             console.error(container.magenta+':', 'Could not upload shape.', error)
           }
@@ -96,14 +98,12 @@ class createShapes {
         })
       }
 
-      storageSvc.createContainer(container, function() {
-        log(container.magenta +':', 'Blob Container Created.')
-        fs.readdir(directory, function(err, files) {
-          if (err) {
-            console.error(err)
-          }
-          uploadSingle(files, 0, uploadSingle)
-        })    
+      // TODO: this should be fixed to be a loop, not a weird recursive thing
+      fs.readdir(directory, function(err, files) {
+        if (err) {
+          console.error(err)
+        }
+        uploadSingle(files, 0, uploadSingle)
       })
     })
   }
