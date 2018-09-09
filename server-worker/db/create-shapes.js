@@ -84,7 +84,7 @@ class createShapes {
         }
 
         const fileName = files[index]
-        const key = encodeURIComponent(`${global.config.prefix}/${directory.replace('_', '-').replace('.', '-')}/${fileName}`)
+        const key = `${global.config.prefix}/${directory.split('/').slice(-1)[0].replace('_', '-').replace('.', '-')}/${fileName}`
         const fileLocation = path.resolve(directory, fileName)
         storageSvc.uploadFile(container, key, fileLocation, function(error) {
           if (error) {
