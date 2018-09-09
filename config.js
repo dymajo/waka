@@ -11,6 +11,8 @@ module.exports = {
   privateport: 8001,
 
   // aws or azure
-  storageService: 'azure',
-  emulatedStorage: true,
+  storageService: 'aws',
+  shapesContainer: 'shapes-us-west-2.waka.app' || process.env.shapesContainer,
+  shapesRegion: 'us-west-2',
+  emulatedStorage: false,
 }

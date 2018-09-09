@@ -40,6 +40,7 @@ cache.preReady.push(() => {
 const storageSvc = new Storage({
   backing: config.storageService,
   local: config.emulatedStorage,
+  region: config.shapesRegion
 })
 
 const line = {
@@ -336,13 +337,13 @@ const line = {
    * }
    */
   getShapeJSON(req, res) {
+    const containerName = config.shapesContainer
     const prefix = global.config.prefix
     const version = global.config.version
-    const containerName = encodeURIComponent(
-      (prefix + '-' + version).replace('_', '-').replace('.', '-')
-    )
     const shape_id = req.params.shape_id
     const fileName = encodeURIComponent(
+      prefix + '/' +
+      version.replace('_', '-').replace('.', '-') + '/' +
       Buffer.from(shape_id).toString('base64') + '.json'
     )
     storageSvc.downloadStream(containerName, fileName, res, function(
