@@ -341,27 +341,21 @@ const line = {
     const prefix = global.config.prefix
     const version = global.config.version
     const shape_id = req.params.shape_id
-    const fileName = encodeURIComponent(
+    const fileName = 
       prefix + '/' +
       version.replace('_', '-').replace('.', '-') + '/' +
       Buffer.from(shape_id).toString('base64') + '.json'
-    )
+    
 
-    // TODO: need a better solution, rather than putting a try catch around the whole lot
-    try {
-      storageSvc.downloadStream(containerName, fileName, res, function(
-        blobError
-      ) {
-        if (blobError) {
-          res.status(404)
-        }
-        res.end()
-        return
-      })
-    } catch(err) {
-      res.status(404)
+    storageSvc.downloadStream(containerName, fileName, res, function(
+      blobError
+    ) {
+      if (blobError) {
+        res.status(404)
+      }
       res.end()
-    }
+      return
+    })
   },
 
   exceptionCheck(route, bestMatchMode = false) {
