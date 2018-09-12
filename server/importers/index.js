@@ -3,6 +3,7 @@ const path = require('path');
 const rimraf = require('rimraf');
 const sql = require('mssql');
 
+const config = require('../../config');
 const log = require('../logger.js');
 const GtfsImport = require('../db/gtfs-import.js');
 const CreateShapes = require('../db/create-shapes.js');
@@ -88,7 +89,7 @@ class Importer {
       .replace('.', '-')
       .replace('_', '-');
     await creator.upload(
-      containerName,
+      config.shapesContainer,
       path.resolve(outputDir, global.config.version)
     );
   }
@@ -123,11 +124,13 @@ class Importer {
     await sqlRequest
       .query(
         `
-    BACKUP DATABASE @dbName TO  DISK =
-    N'/var/opt/mssql/backup/backup.bak'
-    WITH NOFORMAT, NOINIT, NAME = @dbName,
-    SKIP, NOREWIND, NOUNLOAD, STATS = 10
-    `
+        USE master;
+        ALTER DATABASE ${database} SET RECOVERY SIMPLE;
+        BACKUP DATABASE ${database} TO  DISK =
+        N'/var/opt/mssql/backup/backup.bak'
+        WITH NOFORMAT, NOINIT, NAME = ${database},
+        SKIP, NOREWIND, NOUNLOAD, STATS = 10
+        `
       )
       .catch(err => console.log(err));
     log('Export complete');

@@ -10,7 +10,8 @@ const Storage = require('./storage.js');
 
 const storageSvc = new Storage({
   backing: config.storageService,
-  local: config.emulatedStorage
+  local: config.emulatedStorage,
+  region: config.shapesRegion
 });
 
 class CreateShapes {
@@ -91,36 +92,33 @@ class CreateShapes {
         }
 
         const fileName = files[index];
+        const key = `${global.config.prefix}/${directory
+          .split('/')
+          .slice(-1)[0]
+          .replace('_', '-')
+          .replace('.', '-')}/${fileName}`;
         const fileLocation = path.resolve(directory, fileName);
-        storageSvc.uploadFile(
-          container,
-          encodeURIComponent(fileName),
-          fileLocation,
-          error => {
-            if (error) {
-              console.error(
-                `${container.magenta}:`,
-                'Could not upload shape.',
-                error
-              );
-            }
-            total++;
-            if (total % 100 === 0) {
-              log(`${container.magenta}:`, 'Uploaded', total, 'Shapes.');
-            }
-            callback(files, index + 1, callback);
+        storageSvc.uploadFile(container, key, fileLocation, error => {
+          if (error) {
+            console.error(
+              `${container.magenta}:`,
+              'Could not upload shape.',
+              error
+            );
           }
-        );
+          total++;
+          if (total % 100 === 0) {
+            log(`${container.magenta}:`, 'Uploaded', total, 'Shapes.');
+          }
+          callback(files, index + 1, callback);
+        });
       };
 
-      storageSvc.createContainer(container, () => {
-        log(`${container.magenta}:`, 'Blob Container Created.');
-        fs.readdir(directory, (err, files) => {
-          if (err) {
-            console.error(err);
-          }
-          uploadSingle(files, 0, uploadSingle);
-        });
+      fs.readdir(directory, (err, files) => {
+        if (err) {
+          console.error(object);
+        }
+        uploadSingle(files, 0, uploadSingle);
       });
     });
   }
