@@ -54,13 +54,13 @@ connection.isReady.then(() => {
 
 const publicApp = express()
 publicApp.use(function(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8009')
+  res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST')
   res.setHeader('X-Frame-Options', 'SAMEORIGIN')
   res.setHeader('X-Content-Type-Options', 'nosniff')
   res.setHeader('X-XSS-Protection', '1; mode=block')
-  res.setHeader('X-Powered-By', 'dymajo-transit-master')
+  res.setHeader('X-Powered-By', 'waka-master')
   next() 
 })
 // redirects trailing slash to /
