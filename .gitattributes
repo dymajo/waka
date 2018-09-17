@@ -1,0 +1,24 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+*.js text
+*.jsx text
+*.html text
+*.json text
+*.md text
+*.svg text
+*.txt text
+*.css text
+*.scss text
+*.sql text
+*.template text
+*.pug text
+*.proto text
+.babelrc text
+.dockerignore text
+
+
+*.zip binary
+*.png binary
+*.ico binary
+*.woff2 binary
