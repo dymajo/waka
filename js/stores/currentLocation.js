@@ -26,28 +26,17 @@ export class currentLocation extends Events {
       })
     }
   }
-  startWatch() {
+  startWatch(updateType = 'pinmove') {
     // use this on page load to start watching poistion
     this.geoID = navigator.geolocation.watchPosition(
       position => {
         // make the geoID watch the position
         this.state.hasGranted = true
-        if (this.state.position[0] === 0) {
-          // if there's no current location loaded
-          // only set the city if they're in a valid city
-          if (
-            StationStore.getCity(
-              this.state.position[0],
-              this.state.position[1],
-              false
-            ) !== 'none'
-          ) {
-            this.resetCurrentPosition()
-          } else {
-            this.setCurrentPosition(position)
-          }
-        } else {
-          this.setCurrentPosition(position)
+        this.setCurrentPosition(position, updateType)
+
+        // can only move the map once
+        if (updateType === 'mapmove') {
+          updateType = 'pinmove'
         }
 
         // stops watching geolocation after 20 seconds
@@ -106,7 +95,7 @@ export class currentLocation extends Events {
 
   currentLocationButton() {
     if (this.geoID === null) {
-      this.startWatch()
+      this.startWatch('mapmove')
       return
     }
     if (this.state.error === '') {
