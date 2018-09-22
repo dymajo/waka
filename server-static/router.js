@@ -32,6 +32,11 @@ router.get('/docs', (req, res) => {
 })
 router.use('/scss', express.static(path.resolve(__dirname + '/../scss')))
 router.use('/', express.static(path.resolve(__dirname + '/../dist')))
+router.get('/a/*', (req, res) => {
+  res.status(502).send({
+    error: 'server-static is online, but the API is not.',
+  })
+})
 
 router.get('/*', defaults.index)
 

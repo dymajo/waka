@@ -36,13 +36,6 @@ class Defaults {
   constructor() {
     this.name = ' - Waka'
     this.canonical = dcanonical
-    this.server = 'http://localhost:8000/a'
-    this.prefixes = {
-      'nz-akl': 'Auckland',
-      'nz-otg': 'Otago',
-      'nz-wlg': 'Wellington',
-      'au-syd': 'Sydney',
-    }
     this.index = this.index.bind(this)
   }
   success(templateName, title, description, canonical, data = null, region) {
