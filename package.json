@@ -1,16 +1,18 @@
 {
     "name": "dymajo-transit",
     "version": "2.1.0",
-    "description": "A progressive web app for Auckland & Wellington Public Transport.",
+    "description":
+        "A progressive web app for Auckland & Wellington Public Transport.",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
         "build": "npm run document && npm run build:production",
-        "build:production": "cross-env NODE_ENV=production webpack --progress --colors --display-optimization-bailout",
+        "build:production":
+            "cross-env NODE_ENV=production webpack --progress --colors --display-optimization-bailout",
         "watch": "webpack-dev-server",
         "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
         "anal": "webpack --json > report.json",
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "echo \"Error: no test specified\"",
         "document": "apidoc -i server-master -i server-worker -o dist/docs"
     },
     "repository": {
