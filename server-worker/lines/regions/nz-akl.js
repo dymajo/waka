@@ -32,38 +32,38 @@ const getColor = (agency_id, code) => {
 
   case 'NZB': // NZ Bus - metrolink
     switch (code) {
-      case 'CTY': // City Link
-        return '#ef3c34'
+    case 'CTY': // City Link
+      return '#ef3c34'
 
-      case 'INN': // Inner Link
-        return '#41b649'
+    case 'INN': // Inner Link
+      return '#41b649'
 
-      case 'OUT': // Outer Link
-        return '#f7991c'
+    case 'OUT': // Outer Link
+      return '#f7991c'
 
-      case 'TMK':
-        return '#038fcc'
-      
-      default:
-        return '#0759b0'
+    case 'TMK':
+      return '#038fcc'
+    
+    default:
+      return '#0759b0'
     }
     
   case 'NZBML': // NZ Bus - metrolink
     switch (code) {
-      case 'CTY': // City Link
-        return '#ef3c34'
+    case 'CTY': // City Link
+      return '#ef3c34'
 
-      case 'INN': // Inner Link
-        return '#41b649'
+    case 'INN': // Inner Link
+      return '#41b649'
 
-      case 'OUT': // Outer Link
-        return '#f7991c'
+    case 'OUT': // Outer Link
+      return '#f7991c'
 
-      case 'TMK':
-        return '#038fcc'
-      
-      default:
-        return '#0759b0'
+    case 'TMK':
+      return '#038fcc'
+    
+    default:
+      return '#0759b0'
     }
 
   case 'NZBNS': // NZ Bus - North Star
@@ -122,52 +122,51 @@ const getColor = (agency_id, code) => {
 const lineGroups = [
   {
     name: 'Congestion Free Network',
-    items: ['EAST', 'WEST', 'NEX', 'ONE', 'STH', 'PUK'],
+    items: ['EAST', 'NX1', 'NX2', 'WEST', 'ONE', 'STH', 'PUK'],
   },
   {
     name: 'Ferries',
     items: ['DEV', 'HMB', 'BIRK', 'BAYS', 'MTIA', 'SBAY', 'WSTH', 'RAK', 'PINE', 'HOBS',
     ],
   },
-    {
-      name: 'Central - Frequent',
-      items: ['CTY', 'INN', 'OUT', 'TMK', '18', '20', '22A', '24W', '25B', '25L', '27T', '30', '32', '33', '380', '66', '68', '70', '72C', '72M',  '75'],
-    },
-    {
-      name: 'Central - Connector',
-      items: [ '105', '106', '186', '195','22N', '22R', '24B', '24R', '27H', '27W', '295', '309', '313', '323', '325', '650', '670', '712', '743', '744', '747', '751', '755', '762', '781'],
-    },
-    {
-      name: 'Central - Local',
-      items: ['107', '138', '161', '298', '321', '324', '326', '351', '650', '711', '782', '783'],
-    },
-    {
-      name: 'Central - Peak Period',
-      items: [ '101', '209','22A', '24W', '27T', '221X', '223X', '243X', '248X', '252', '253', '309X', '352', '774', '775', '72X',],
-    },
-    {
-      name: 'East',
-      items: ['70', '711', '712', '714', '72C', '72M', '72X', '733', '734', '735', '739', '505', '515', '525',],
-    },
-    {
-      name: 'South',
-      items: ['31', '32', '33', '35', '314', '324', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378', '391', '392', '393', '394', '395', '396', '398', '399',],
-    },
-    {
-      name: 'West',
-      items: ['14T', '14W', '18', '107', '110', '111', '112', '114', '120', '122', '125', '125X', '129', '131', '132', '132X', '133', '133X', '134', '138', '141', '142', '143', '146', '151X', '152', '154', '161', '162', '170', '171', '171X', '172', '172X', '186', '195', '209',],},
-    {
-      name: 'North',
-      items: ['555', '560', '76X', '779', '802X', '803', '804', '813', '815', '822', '839', '843', '85X', '858', '86X', '863X', '87X', '873', '873X', '874X', '875', '877X', '879', '880', '881', '882', '886', '887', '891', '891X', '900X', '905', '911', '913', '915', '920', '921', '922', '945', '945X', '952', '953', '955', '957', '958', '960', '962', '966', '971', '972', '973', '974', '975', '976', '981', '982', '983', '984', '985', '986', '987', '988', '991X', '992X',],
-    },
-    {
-      name: 'Waiheke Island',
-      items: ['1', '2', '3', '4'],
-    },
+  {
+    name: 'Central - Frequent',
+    items: ['CTY', 'INN', 'OUT', 'TMK', '18', '20', '22A', '24W', '25B', '25L', '27T', '30', '380', '66', '68', '70', '72C', '72M',  '75'],
+  },
+  {
+    name: 'Central - Connector',
+    items: [ '105', '106', '195','22N', '22R', '24B', '24R', '27H', '27W', '295', '309', '313', '323', '325', '650', '670', '712', '743', '744', '747', '751', '755', '762', '781'],
+  },
+  {
+    name: 'Central - Local',
+    items: ['107', '298', '321', '650', '711', '782', '783'],
+  },
+  {
+    name: 'Central - Peak Period',
+    items: [ '101', '209','22A', '24W', '27T', '221X', '223X', '243X', '248X', '252', '253', '309X', '774', '775', '72X',],
+  },
+  {
+    name: 'East',
+    items: ['70', '711', '712', '714', '72C', '72M', '72X', '733', '734', '735', '739', '505', '515', '525',],
+  },
+  {
+    name: 'South',
+    items: ['31', '32', '33', '35', '314', '324', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378', '391', '392', '393', '394', '395', '396', '398', '399',],
+  },
+  {
+    name: 'West',
+    items: ['14T', '14W', '18', '107', '110', '111', '112', '114', '120', '122', '125', '125X', '129', '131', '132', '132X', '133', '133X', '134', '138', '141', '142', '143', '146', '151X', '152', '154', '161', '162', '170', '171', '171X', '172', '172X', '186', '195', '209',],},
+  {
+    name: 'North',
+    items: ['555', '560', '76X', '779', '802X', '803', '804', '813', '815', '822', '839', '843', '85X', '858', '86X', '863X', '87X', '873', '873X', '874X', '875', '877X', '879', '880', '881', '882', '886', '887', '891', '891X', '900X', '905', '911', '913', '915', '920', '921', '922', '945', '945X', '952', '953', '955', '957', '958', '960', '962', '966', '971', '972', '973', '974', '975', '976', '981', '982', '983', '984', '985', '986', '987', '988', '991X', '992X',],
+  },
+  {
+    name: 'Waiheke Island',
+    items: ['1', '2', '3', '4'],
+  },
 ]
 
 const lineIcons = {
-  'NEX': 'nz/at-metro-northern',
   'EAST': 'nz/at-metro-eastern',
   'ONE': 'nz/at-metro-onehunga',
   'STH': 'nz/at-metro-southern',
@@ -199,9 +198,12 @@ const friendlyNames = {
 }
 const allLines = {
   // RAPID
-  NEX: [
-    ['Britomart', 'HC Station', 'all Busway Stations'],
-    ['Britomart', 'Hibiscus Coast Station'],
+  NX1: [
+    ['Britomart (Lower Albert St)', 'Hibiscus Coast Stn'],
+    ['Hibiscus Coast Station', 'Britomart (Lower Albert St)']
+  ],
+  NX2: [
+    ['Auckland Universities', 'Albany Station', 'Wellesley St']
   ],
   EAST: [
     ['Britomart Train Station', 'Manukau Train Station']
@@ -274,9 +276,6 @@ const allLines = {
     ['Britomart', 'Glen Innes', 'Tamaki Dr And St Heliers'],
     ['Glen Innes', 'Britomart', 'St Heliers And Tamaki Dr']
   ],
-  '18': [
-    ['New Lynn', 'City Centre', 'Great North Rd', ]
-  ],
   '20': [
     ['St Lukes', 'Wynyard Quarter', 'Kingsland']
   ],
@@ -300,27 +299,12 @@ const allLines = {
   '30': [
     ['Onehunga', 'City Centre', 'Manukau Rd', ]
   ],
-  '32': [
-    ['Māngere', 'Sylvia Park', 'Otahuhu']
-  ],
-  '33': [
-    ['Papakura', 'Otahuhu', 'Great South Rd']
-  ],
   '66': [
     ['Pt Chevalier Beach', 'Sylvia Park', 'Mt Albert Rd'],
     ['Sylvia Park', 'Pt Chevalier Beach', 'Mt Albert Park']
   ],
   '68': [
     ['New Lynn', 'Onehunga']
-  ],
-  '70': [
-    ['Botany', 'Britomart', 'Ellerslie']
-  ],
-  '72C': [
-    ['Botany', 'Panmure', 'Chapel Rd']
-  ],
-  '72M': [
-    ['Botany', 'Panmure', 'Millhouse Dr']
   ],
   '75': [
     ['Glen Innes', 'Wynyard Quarter', 'Remuera Rd']
@@ -359,12 +343,6 @@ const allLines = {
   '106': [
     ['Freemans Bay Loop']
   ],
-  '186': [
-    ['New Lynn', 'Astley Ave', 'Golf Rd']
-  ],
-  '195': [
-    ['New Lynn', 'City', 'Great North Rd']
-  ],
   '295': [
     ['Royal Oak', 'City Centre']
   ],
@@ -390,9 +368,6 @@ const allLines = {
     ['New Lynn', 'Otahuhu', 'Avondale Stoddard Rd And Onehunga'],
     ['Otahuhu', 'New Lynn', 'Onehunga Stoddard Rd And Avondale']
   ],
-  '712': [
-    ['Bucklands Beach', 'Panmure']
-  ],
   '743': [
     ['Onehunga', 'Glen Innes', 'Sylvia Park And Tripoli Rd'],
     ['Glen Innes', 'Onehunga', 'Tripoli Rd And Sylvia Park']
@@ -417,32 +392,11 @@ const allLines = {
   ],
 
   // CENTRAL - Local
-  '107': [
-    ['New Lynn', 'Blockhouse Bay', 'Whitney St']
-  ],
-  '138': [
-    ['Henderson', 'New Lynn', 'Rosebank Rd']
-  ],
-  '161': [
-    ['Brains Park', 'New Lynn']
-  ],
   '298': [
     ['Onehunga', 'Sylvia Park', 'Ellerslie']
   ],
   '321': [
     ['Middlemore Station', 'Britomart', 'Greenlane Hospital']
-  ],
-  '324': [
-    ['Mangere', 'Seaside Park']
-  ],
-  '326': [
-    ['Mangere', 'Otahuhu']
-  ],
-  '351': [
-    ['Botany', 'Otahuhu']
-  ],
-  '711': [
-    ['Howick', 'Panmure']
   ],
   '782': [
     ['Sylvia Park', 'Mission Bay', 'Ellerslie And Meadowbank'],
@@ -454,21 +408,12 @@ const allLines = {
   ],
 
   // CENTRAL - Peak
-  '72X': [
-    ['Botany', 'City', 'Southern Motorway']
-  ],
   '101': [
     ['Pt Chevalier', 'Auckland University', 'Jervois Rd']
-  ],
-  '209': [
-    ['Titirangi', 'City']
   ],
   '309X': [
     ['Mangere Town Centre', 'City Centre (Express)'],
     ['City Centre', 'Mangere Town Centre Express']
-  ],
-  '352': [
-    ['Manukau Bus Station', 'Panmure', 'East Tamaki']
   ],
   '774': [
     ['West Tamaki Rd', 'Britomart', 'Long Dr And Tamaki Dr', ]
