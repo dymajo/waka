@@ -32,38 +32,38 @@ const getColor = (agency_id, code) => {
 
   case 'NZB': // NZ Bus - metrolink
     switch (code) {
-      case 'CTY': // City Link
-        return '#ef3c34'
+    case 'CTY': // City Link
+      return '#ef3c34'
 
-      case 'INN': // Inner Link
-        return '#41b649'
+    case 'INN': // Inner Link
+      return '#41b649'
 
-      case 'OUT': // Outer Link
-        return '#f7991c'
+    case 'OUT': // Outer Link
+      return '#f7991c'
 
-      case 'TMK':
-        return '#038fcc'
-      
-      default:
-        return '#0759b0'
+    case 'TMK':
+      return '#038fcc'
+    
+    default:
+      return '#0759b0'
     }
     
   case 'NZBML': // NZ Bus - metrolink
     switch (code) {
-      case 'CTY': // City Link
-        return '#ef3c34'
+    case 'CTY': // City Link
+      return '#ef3c34'
 
-      case 'INN': // Inner Link
-        return '#41b649'
+    case 'INN': // Inner Link
+      return '#41b649'
 
-      case 'OUT': // Outer Link
-        return '#f7991c'
+    case 'OUT': // Outer Link
+      return '#f7991c'
 
-      case 'TMK':
-        return '#038fcc'
-      
-      default:
-        return '#0759b0'
+    case 'TMK':
+      return '#038fcc'
+    
+    default:
+      return '#0759b0'
     }
 
   case 'NZBNS': // NZ Bus - North Star
@@ -80,12 +80,16 @@ const getColor = (agency_id, code) => {
 
   case 'RTH': // Ritchies
     switch (code) {
-    case 'NEX': // Northern Express
-      return '#00254b' 
+    case 'NX1': // Northern Express 1
+      return '#123f90'
     
     default:
       return '#ff6f2c'
     }
+
+  // Northern Express 2
+  case 'TZG':
+    return '#008540'
 
   case 'WBC': // Waiheke Bus Company
     return '#2196F3'
@@ -122,52 +126,76 @@ const getColor = (agency_id, code) => {
 const lineGroups = [
   {
     name: 'Congestion Free Network',
-    items: ['EAST', 'WEST', 'NEX', 'ONE', 'STH', 'PUK'],
+    items: ['EAST', 'NX1', 'NX2', 'WEST', 'ONE', 'STH', 'PUK'],
   },
   {
     name: 'Ferries',
     items: ['DEV', 'HMB', 'BIRK', 'BAYS', 'MTIA', 'SBAY', 'WSTH', 'RAK', 'PINE', 'HOBS',
     ],
   },
-    {
-      name: 'Central - Frequent',
-      items: ['CTY', 'INN', 'OUT', 'TMK', '18', '20', '22A', '24W', '25B', '25L', '27T', '30', '32', '33', '380', '66', '68', '70', '72C', '72M',  '75'],
-    },
-    {
-      name: 'Central - Connector',
-      items: [ '105', '106', '186', '195','22N', '22R', '24B', '24R', '27H', '27W', '295', '309', '313', '323', '325', '650', '670', '712', '743', '744', '747', '751', '755', '762', '781'],
-    },
-    {
-      name: 'Central - Local',
-      items: ['107', '138', '161', '298', '321', '324', '326', '351', '650', '711', '782', '783'],
-    },
-    {
-      name: 'Central - Peak Period',
-      items: [ '101', '209','22A', '24W', '27T', '221X', '223X', '243X', '248X', '252', '253', '309X', '352', '774', '775', '72X',],
-    },
-    {
-      name: 'East',
-      items: ['70', '711', '712', '714', '72C', '72M', '72X', '733', '734', '735', '739', '505', '515', '525',],
-    },
-    {
-      name: 'South',
-      items: ['31', '32', '33', '35', '314', '324', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378', '391', '392', '393', '394', '395', '396', '398', '399',],
-    },
-    {
-      name: 'West',
-      items: ['14T', '14W', '18', '107', '110', '111', '112', '114', '120', '122', '125', '125X', '129', '131', '132', '132X', '133', '133X', '134', '138', '141', '142', '143', '146', '151X', '152', '154', '161', '162', '170', '171', '171X', '172', '172X', '186', '195', '209',],},
-    {
-      name: 'North',
-      items: ['555', '560', '76X', '779', '802X', '803', '804', '813', '815', '822', '839', '843', '85X', '858', '86X', '863X', '87X', '873', '873X', '874X', '875', '877X', '879', '880', '881', '882', '886', '887', '891', '891X', '900X', '905', '911', '913', '915', '920', '921', '922', '945', '945X', '952', '953', '955', '957', '958', '960', '962', '966', '971', '972', '973', '974', '975', '976', '981', '982', '983', '984', '985', '986', '987', '988', '991X', '992X',],
-    },
-    {
-      name: 'Waiheke Island',
-      items: ['1', '2', '3', '4'],
-    },
+  {
+    name: 'Central - Frequent',
+    items: ['CTY', 'INN', 'OUT', 'TMK', '18', '20', '22A', '24W', '25B', '25L', '27T', '30', '380', '66', '68', '70', '72C', '72M',  '75'],
+  },
+  {
+    name: 'Central - Connector',
+    items: [ '105', '106', '195','22N', '22R', '24B', '24R', '27H', '27W', '295', '309', '313', '323', '325', '650', '670', '712', '743', '744', '747', '751', '755', '762', '781'],
+  },
+  {
+    name: 'Central - Local',
+    items: ['107', '298', '321', '650', '711', '782', '783'],
+  },
+  {
+    name: 'Central - Peak Period',
+    items: [ '101', '209','22A', '24W', '27T', '221X', '223X', '243X', '248X', '252', '253', '309X', '774', '775', '72X',],
+  },
+  {
+    name: 'East',
+    items: ['70', '711', '712', '714', '72C', '72M', '72X', '733', '734', '735', '739', '505', '515', '525',],
+  },
+  {
+    name: 'South',
+    items: ['31', '32', '33', '35', '314', '324', '326', '351', '352', '353', '355', '361', '362', '363', '365', '366', '368', '369', '371', '372', '373', '376', '377', '378',],
+  },
+  {
+    name: 'West',
+    items: ['14T', '14W', '18', '107', '110', '111', '112', '114', '120', '122', '125', '125X', '129', '131', '132', '132X', '133', '133X', '134', '138', '141', '142', '143', '146', '151X', '152', '154', '161', '162', '170', '171', '171X', '172', '172X', '186', '195', '209',],
+  },
+  {
+    name: 'North - Frequent',
+    items: ['95B', '95C', '95G', '97B', '97R', '97V'],
+  },
+  {
+    name: 'North - Connector',
+    items: ['801', '814', '843', '856', '861', '865', '871', '878', '917', '923', '941', '942']
+  },
+  {
+    name: 'North - Local',
+    items: ['120', '806', '807', '845', '883', '884', '885', '889', '901', '906', '907', '926', '928', '931', '933', '966', '986']
+  },
+  {
+    name: 'North - Peak Period',
+    items: ['802', '842', '890', '924', '939', '966']
+  },
+  {
+    name: 'Rural',
+    items: ['122', '125', '125X', '995', '996', '997'],
+  },
+  {
+    name: 'Hibiscus Coast', 
+    items: ['981', '982', '983', '984', '985', '986', '987', '988'],
+  },
+  {
+    name: 'Pukekohe',
+    items: ['PUK', '391', '392', '393', '394', '395', '396', '398', '399',]
+  },
+  {
+    name: 'Waiheke Island',
+    items: ['1', '2', '3', '4'],
+  },
 ]
 
 const lineIcons = {
-  'NEX': 'nz/at-metro-northern',
   'EAST': 'nz/at-metro-eastern',
   'ONE': 'nz/at-metro-onehunga',
   'STH': 'nz/at-metro-southern',
@@ -178,7 +206,8 @@ const lineIcons = {
 }
 
 const friendlyNames = {
-  'NEX': 'Northern Express',
+  'NX1': 'Northern Express 1',
+  'NX2': 'Northern Express 2',
   'EAST': 'Eastern Line',
   'ONE': 'Onehunga Line',
   'STH': 'Southern Line',
@@ -199,9 +228,12 @@ const friendlyNames = {
 }
 const allLines = {
   // RAPID
-  NEX: [
-    ['Britomart', 'HC Station', 'all Busway Stations'],
-    ['Britomart', 'Hibiscus Coast Station'],
+  NX1: [
+    ['Britomart (Lower Albert St)', 'Hibiscus Coast Stn'],
+    ['Hibiscus Coast Station', 'Britomart (Lower Albert St)']
+  ],
+  NX2: [
+    ['Auckland Universities', 'Albany Station', 'Wellesley St']
   ],
   EAST: [
     ['Britomart Train Station', 'Manukau Train Station']
@@ -274,9 +306,6 @@ const allLines = {
     ['Britomart', 'Glen Innes', 'Tamaki Dr And St Heliers'],
     ['Glen Innes', 'Britomart', 'St Heliers And Tamaki Dr']
   ],
-  '18': [
-    ['New Lynn', 'City Centre', 'Great North Rd', ]
-  ],
   '20': [
     ['St Lukes', 'Wynyard Quarter', 'Kingsland']
   ],
@@ -300,27 +329,12 @@ const allLines = {
   '30': [
     ['Onehunga', 'City Centre', 'Manukau Rd', ]
   ],
-  '32': [
-    ['Māngere', 'Sylvia Park', 'Otahuhu']
-  ],
-  '33': [
-    ['Papakura', 'Otahuhu', 'Great South Rd']
-  ],
   '66': [
     ['Pt Chevalier Beach', 'Sylvia Park', 'Mt Albert Rd'],
     ['Sylvia Park', 'Pt Chevalier Beach', 'Mt Albert Park']
   ],
   '68': [
     ['New Lynn', 'Onehunga']
-  ],
-  '70': [
-    ['Botany', 'Britomart', 'Ellerslie']
-  ],
-  '72C': [
-    ['Botany', 'Panmure', 'Chapel Rd']
-  ],
-  '72M': [
-    ['Botany', 'Panmure', 'Millhouse Dr']
   ],
   '75': [
     ['Glen Innes', 'Wynyard Quarter', 'Remuera Rd']
@@ -359,12 +373,6 @@ const allLines = {
   '106': [
     ['Freemans Bay Loop']
   ],
-  '186': [
-    ['New Lynn', 'Astley Ave', 'Golf Rd']
-  ],
-  '195': [
-    ['New Lynn', 'City', 'Great North Rd']
-  ],
   '295': [
     ['Royal Oak', 'City Centre']
   ],
@@ -390,9 +398,6 @@ const allLines = {
     ['New Lynn', 'Otahuhu', 'Avondale Stoddard Rd And Onehunga'],
     ['Otahuhu', 'New Lynn', 'Onehunga Stoddard Rd And Avondale']
   ],
-  '712': [
-    ['Bucklands Beach', 'Panmure']
-  ],
   '743': [
     ['Onehunga', 'Glen Innes', 'Sylvia Park And Tripoli Rd'],
     ['Glen Innes', 'Onehunga', 'Tripoli Rd And Sylvia Park']
@@ -417,32 +422,11 @@ const allLines = {
   ],
 
   // CENTRAL - Local
-  '107': [
-    ['New Lynn', 'Blockhouse Bay', 'Whitney St']
-  ],
-  '138': [
-    ['Henderson', 'New Lynn', 'Rosebank Rd']
-  ],
-  '161': [
-    ['Brains Park', 'New Lynn']
-  ],
   '298': [
     ['Onehunga', 'Sylvia Park', 'Ellerslie']
   ],
   '321': [
     ['Middlemore Station', 'Britomart', 'Greenlane Hospital']
-  ],
-  '324': [
-    ['Mangere', 'Seaside Park']
-  ],
-  '326': [
-    ['Mangere', 'Otahuhu']
-  ],
-  '351': [
-    ['Botany', 'Otahuhu']
-  ],
-  '711': [
-    ['Howick', 'Panmure']
   ],
   '782': [
     ['Sylvia Park', 'Mission Bay', 'Ellerslie And Meadowbank'],
@@ -454,21 +438,12 @@ const allLines = {
   ],
 
   // CENTRAL - Peak
-  '72X': [
-    ['Botany', 'City', 'Southern Motorway']
-  ],
   '101': [
     ['Pt Chevalier', 'Auckland University', 'Jervois Rd']
-  ],
-  '209': [
-    ['Titirangi', 'City']
   ],
   '309X': [
     ['Mangere Town Centre', 'City Centre (Express)'],
     ['City Centre', 'Mangere Town Centre Express']
-  ],
-  '352': [
-    ['Manukau Bus Station', 'Panmure', 'East Tamaki']
   ],
   '774': [
     ['West Tamaki Rd', 'Britomart', 'Long Dr And Tamaki Dr', ]
@@ -773,224 +748,173 @@ const allLines = {
   ],
 
   // NORTH
-  '555': [
-    ['Massey University', 'Highbury']
+  '82': ['Mayoral Dr', 'Milford', 'Takapuna'],
+  '83': ['Massey University', 'Takapuna', 'Browns Bay'],
+  '95B': [
+    ['Britomart (Quay St)', 'Bayview (Full Loop)'],
+    ['Bayview', 'Britomart (Lower Albert St)']
   ],
-  '560': [
-    ['Massey University', 'Glenfield']
+  '95C': [
+    ['Constellation Station', 'Britomart (Albert St)', 'Glenfield'],
+    ['Britomart (Quay St)', 'Constellation Station', 'Glenfield']
   ],
-  '76X': [
-    ['Mayoral Dr', 'Long Bay Express'],
-    ['City Centre Express', 'Long Bay'],
+  '95G': [
+    ['Glenfield', 'Britomart (Lower Albert St)'],
+    ['Britomart (Quay St)', 'Glenfield']
   ],
-  '779': [
-    ['Devonport Wharf', 'Stanley Bay And Return'],
-    ['Devonport Wharf', 'Cheltenham And Return'],
+  '97B': [
+    ['Beach Haven', 'Britomart (Lower Albert)', 'Highbury'],
+    ['Britomart (Quay St)', 'Beach Haven', 'Highbury and Birkdale']
   ],
-  '802X': [
-    ['Mayoral Dr', 'Bayswater Express'],
-    ['Mayoral Dr Express', 'Bayswater'],
+  '97R': [
+    ['Britomart (Quay St)', 'Beach Haven', 'Highbury & Rangitira'],
+    ['Beach Haven', 'Britomart (Lower Albert St)']
   ],
-  '803': [
-    ['Takapuna Loop'],
-    ['Takapuna', 'Bayswater', 'Francis St']
+  '97V': [
+    ['Verrans Corner', 'Britomart (Lower Albert St)'],
+    ['Britomart (Quay St)', 'Verrans Corner']
   ],
-  '804': [
-    ['Bayswater Wharf', 'Takapuna', 'Westlake']
+  '801': [
+    ['Bayswater Wharf', 'Akoranga Station', 'Takapuna']
   ],
-  '813': [
-    ['Takapuna', 'Devonport', 'Narrow Neck (R)']
+  '802': [
+    ['Bayswater', 'City (Mayoral Dr)']
   ],
-  '815': [
-    ['Devonport', 'Westwell Rd', 'Ngataringa Rd']
+  '806': [
+    ['Devonport Wharf', 'Stanley Pt Loop']
   ],
-  '822': [
-    ['Mayoral Dr', 'Castor Bay']
+  '807': [
+    ['Devonport Wharf', 'Cheltenham Loop']
   ],
-  '839': [
-    ['Mayoral Dr', 'Long Bay', 'Crown Hill']
+  '814': [
+    ['Devonport Wharf', 'Akoranga Station', 'Takapuna']
+  ],
+  '842': [
+    ['Crown Hill', 'Smales Farm Station', 'East Coast Rd']
   ],
   '843': [
     ['Akoranga Station', 'Constellation Station', 'Takapuna']
   ],
-  '85X': [
-    ['Mayoral Dr', 'Torbay Express'],
-    ['Mayoral Dr Express', 'Torbay']
+  '845': [
+    ['Milford', 'Takapuna', 'North Shore Hospital']
   ],
-  '858': [
-    ['Mayoral Dr', 'Long Bay', 'North Shore Hospital'],
-    ['City Centre', 'Long Bay', 'North Shore Hospital'],
+  '856': [
+    ['Albany Station', 'Takapuna', 'Beach Rd And Milford'],
+    ['Takapuna', 'Albany Station', 'Milford And Beach Rd']
   ],
-  '86X': [
-    ['Mayoral Dr', 'Browns Bay Express'],
-    ['Mayoral Dr Express', 'Browns Bay'],
+  '861': [
+    ['Long Bay', 'Constellation Station', 'Bush Rd']
   ],
-  '863X': [
-    ['Mayoral Dr', 'Mairangi Bay Express'],
-    ['City Centre Express', 'Mairangi Bay'],
+  '865': [
+    ['Browns Bay', 'Albany Station', 'Oaktree Ave']
   ],
-  '87X': [
-    ['Mayoral Dr', 'Long Bay Express', 'Albany Station'],
-    ['City Centre Express', 'Long Bay', 'Albany Station'],
+  '866': [
+    ['Albany Stn', 'Newmarket', 'Ponsonby And Auckland Hospital'],
+    ['Newmaket', 'Albany Station', 'Auckland Hospital & Ponsonby']
   ],
-  '873': [
-    ['Constellation Station', 'Takapuna']
+  '871': [
+    ['Constellation Station', 'Takapuna', 'Forrest Hill Rd']
   ],
-  '873X': [
-    ['Mayoral Dr', 'Constellation Station Express', 'Sunnynook'],
-    ['City Centre Express', 'Constellation Station', 'Sunnynook'],
+  '878': [
+    ['Browns Bay', 'Constellation Station', 'and East Coast Rd'],
+    ['Browns Bay', 'Constellation Station', 'East Coast Rd']
   ],
-  '874X': [
-    ['Mayoral Dr', 'Constellation Station Express'],
-    ['City Centre Express', 'Constellation Station'],
+  '883': [
+    ['Schnapper Rock', 'Constellation Station']
   ],
-  '875': [
-    ['Mayoral Dr', 'Browns Bay']
+  '884': [
+    ['Constellation Station', 'NHIE Loop Anticlockwise']
   ],
-  '877X': [
-    ['Mayoral Dr', 'Torbay Express', 'Forrest Hill'],
-    ['City Centre Express', 'Torbay', 'Forrest Hill'],
+  '885': [
+    ['Constellation Station', 'NHIE Loop Clockwise']
   ],
-  '879': [
-    ['Mayoral Dr', 'Long Bay', 'Forrest Hill']
+  '889': [
+    ['Albany Station', 'Constellation Station', 'Hugh Green Dr']
   ],
-  '880': [
-    ['Albany Loop Clockwise'],
-    ['Albany Loop Anticlockwise']
+  '890': [
+    ['Albany Station To Corinthian Dr Loop']
   ],
-  '881': [
-    ['Newmarket', 'Albany Station']
+  '901': [
+    ['Smales Farm', 'Constellation Station', 'Wairau Rd']
   ],
-  '882': [
-    ['Albany Station', 'Torbay']
+  '906': [
+    ['Constellation', 'Smales Farm', 'Windy Ridge And Archers Rd'],
+    ['Smales Farm', 'Constellation', 'Archers Rd And Windy Ridge']
   ],
-  '886': [
-    ['Constellation Station', 'Long Bay', 'Browns Bay']
+  '907': [
+    ['Campbells Bay', 'Constellation Station', 'Sunnynook Station']
   ],
-  '887': [
-    ['Constellation Station', 'Long Bay', 'Albany']
+  '917': [
+    ['Birkenhead Wharf', 'Albany Station', 'Glenfield Rd']
   ],
-  '891': [
-    ['Takapuna', 'Albany Station']
+  '923': [
+    ['Akoranga Station', 'City (Mayoral Dr)', 'Hillcrest']
   ],
-  '891X': [
-    ['Newmarket', 'Albany Village']
+  '924': [
+    ['Hillcrest', 'City (Mayoral Dr)']
   ],
-  '900X': [
-    ['Mayoral Dr', 'Unsworth Heights Express'],
-    ['City Centre Express', 'Unsworth Heights'],
+  '926': [
+    ['Glenfield', 'Akoranga Station', 'Hillcrest West']
   ],
-  '905': [
-    ['Takapuna', 'Glenfield', 'Unsworth Heights']
+  '928': [
+    ['Northcote Point', 'Smales Farm Stn', 'North Shore Hospital']
   ],
-  '911': [
-    ['Takapuna', 'Glenfield', 'Northcote']
+  '931': [
+    ['Chatswood', 'University Of Auckland', 'Customs St'],
+    ['Chatswood', 'Unniversity Of Auckland', 'Customs St']
   ],
-  '913': [
-    ['Takapuna', 'Windy Ridge', 'North Shore Hospital']
+  '933': [
+    ['Beach Haven Wharf', 'University Of Auckland', 'Customs St']
   ],
-  '915': [
-    ['Takapuna', 'Bayview']
+  '939': [
+    ['Windy Ridge', 'University of Auckland', 'Customs St']
   ],
-  '920': [
-    ['Sylvan Ave', 'Mayoral Dr']
+  '941': [
+    ['Beach Haven To Takapuna Via Glenfield And Smales Farm Stn'],
+    ['Takapuna To Beach Haven Smales Farm Station And Glenfield']
   ],
-  '921': [
-    ['Mayoral Dr', 'Hillcrest']
-  ],
-  '922': [
-    ['Mayoral Dr', 'Takapuna', 'Northcote']
-  ],
-  '945': [
-    ['Takapuna', 'Glenfield', 'Marlborough']
-  ],
-  '945X': [
-    ['Mayoral Dr', 'Glenfield Express'],
-    ['City Centre Express', 'Glenfield'],
-  ],
-  '952': [
-    ['Mayoral Dr', 'Glenfield Shops', 'Coronation Rd'],
-    ['City Centre', 'Glenfield Shops', 'Coronation Rd'],
-  ],
-  '953': [
-    ['Universities', 'Windy Ridge']
-  ],
-  '955': [
-    ['Britomart', 'Bayview']
-  ],
-  '957': [
-    ['Birkenhead Wharf', 'Albany Station', 'Highbury']
-  ],
-  '958': [
-    ['Britomart', 'Constellation Station', 'Onewa Rd']
-  ],
-  '960': [
-    ['Highbury', 'Northcote Point'],
-    ['Highbury Shops', 'Northcote Point'],
-  ],
-  '962': [
-    ['Newmarket', 'Albany Station', 'Ponsonby']
+  '942': [
+    ['Takapuna', 'Beach Haven', 'Northcote Shops And Highbury'],
+    ['Beach Haven', 'Takapuna', 'Highbury And Northcote Shops'],
   ],
   '966': [
-    ['Newmarket', 'Beach Haven', 'Ponsonby']
-  ],
-  '971': [
-    ['Auckland University', 'Chatswood']
-  ],
-  '972': [
-    ['Auckland University', 'Beach Haven Wharf']
-  ],
-  '973': [
-    ['Britomart', 'Beach Haven', 'Birkdale Rd'],
-    ['Verrans Corner', 'Britomart', 'Highbury Shops'],
-  ],
-  '974': [
-    ['Britomart', 'Beach Haven', 'Rangatira Rd'],
-    ['Verrans Corner', 'Britomart'],
-  ],
-  '975': [
-    ['Takapuna', 'Beach Haven Wharf', 'Birkdale Rd'],
-    ['Takapuna', 'Beach Haven', 'Birkdale Rd'],
-  ],
-  '976': [
-    ['Takapuna', 'Beach Haven', 'Rangatira Rd'],
-    ['Takapuna', 'Beach Haven Wharf', 'Rangatira Rd'],
+    ['Newmaket', 'Beach Haven', 'Auckland Hospital And Ponsonby R'],
+    ['Beach Haven', 'Newmarket', 'Ponsonby And Auckland Hospital']
   ],
   '981': [
-    ['HC Station', 'Waiwera']
+    ['Waiwera', 'Hibiscus Coast Station']
   ],
   '982': [
-    ['HC Station', 'Gulf Harbour']
+    ['Gulf Harbour', 'Hibiscus Coast Station']
   ],
   '983': [
-    ['HC Station', 'Gulf Harbour', 'Silverdale, Red Beach, Vipond'],
-    ['HC Station', 'Gulf Harbour', 'Manly shops, Vipond Rd, Red B'],
+    ['Gulf Harbour', 'Hibiscus Coast Station', 'Vipond Rd']
   ],
   '984': [
-    ['HC Station to Orewa, via Silverdale and Red Beach Rd'],
-    ['Orewa to HC Station, via Maygrove, Red Beach and Silverdale'],
+    ['Orewa', 'Hibiscus Coast Station', 'Maygrove'],
   ],
   '985': [
-    ['HC Station', 'Orewa', 'Silverdale and Millwater'],
-    ['HC Station', 'Orewa', 'Millwater and Silverdale'],
+    ['Orewa', 'Hibiscus Coast Station', 'Millwater'],
   ],
   '986': [
-    ['HC Station', 'Albany Station', 'Dairy Flat Highway, Massey'],
-    ['HC Station', 'Albany Station', 'Albany Centre, Massey Uni'],
+    ['Hibiscus Coast Station', 'Albany Station', 'Dairy Flat'],
+    ['Hibiscus Coast Station', 'Albany Station', 'Dariy Flat']
   ],
   '987': [
-    ['Arkles Bay to The Plaza']
+    ['Arkles Bay Loop']
   ],
   '988': [
-    ['Gulf Harbour Ferry', 'The Plaza', 'Shakespear Regional Park']
+    ['Gulf Harbour Ferry', 'The Plaza', 'Army Bay']
   ],
-  '991X': [
-    ['City Centre (Wellesley St)', 'Waiwera', 'HC Station']
+  '995': [
+    ['Warkworth', 'Hibiscus Coast Station']
   ],
-  '992X': [
-    ['City Centre (Wellesley St)', 'Gulf Harbour', 'HC Station']
+  '996': [
+    ['Algies Bay', 'Warkworth', 'Snells Beach']
   ],
-
+  '997': [
+    ['Warkworth', 'Omaha', 'Matakana And Port Wells']
+  ],
 
   // WAIHEKE
   '1': [
@@ -1014,7 +938,7 @@ let lineColors = {}
 
 function cacheOperatorsAndShapes() {
   let routes = []
-  for (var key in allLines) {
+  for (let key in allLines) {
     routes.push(key)
   }
 
