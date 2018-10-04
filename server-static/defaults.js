@@ -3,6 +3,9 @@ const fs = require('fs')
 const colors = require('colors')
 const path = require('path')
 
+const log = require('./lib/logger.js')
+const Storage = require('./lib/storage.js')
+
 let manifest = null
 if (fs.existsSync(path.join(__dirname, '../dist/assets.json'))) {
   manifest = require('../dist/assets.json')
@@ -17,19 +20,64 @@ if (fs.existsSync(path.join(__dirname, '../dist/assets.json'))) {
 }
 
 const template = {
-  layout: pug.compileFile('server-static/templates/layout.pug'),
+  layout: pug.compileFile(path.join(__dirname, 'templates/layout.pug')),
 }
 
 const dtitle = 'Waka'
 const ddescription =
   'Your way around Auckland & Wellington. Realtime, beautiful, and runs on all of your devices.'
-const dcanonical = 'https://getwaka.com'
+const dcanonical = 'https://waka.app'
 
 const defaults = {
   vendorpath: '/' + manifest['vendor.js'],
   apppath: '/' + manifest['app.js'],
   analyticspath: '/' + manifest['analytics.js'],
   csspath: '/' + manifest['app.css'],
+}
+
+const uploadFiles = async () => {
+  const client = new Storage({
+    backing: process.env.storageService,
+    local: false,
+    region: process.env.storageRegion,
+  })
+  const container = process.env.storageContainer
+
+  // we need this so we know what file maps to what key
+  // it's 1-1 relationship, so it's okay
+  const reverseDefaults = {}
+  for (let key in defaults) {
+    reverseDefaults[defaults[key]] = key
+  }
+
+  for (let file in manifest) {
+    await new Promise((resolve, reject) => {
+      client.uploadFile(
+        container,
+        manifest[file],
+        path.join(__dirname, '../dist', manifest[file]),
+        error => {
+          if (error) reject(error)
+
+          // remaps the path from the local source to the bucket
+          defaults[
+            reverseDefaults[`/${manifest[file]}`]
+          ] = `https://${container}/${manifest[file]}`
+
+          log('Uploaded & Mapped', manifest[file])
+          resolve()
+        }
+      )
+    })
+  }
+}
+if (process.env.storageLocal === 'false') {
+  // if you have storageLocal set to true,
+  // we will upload all the static js & css to S3 & remap the hrefs
+  // this is done at runtime, because it's difficult to do in a CI environment
+  uploadFiles().then(() => {
+    log('Uploaded generated files.')
+  })
 }
 
 class Defaults {
@@ -57,17 +105,12 @@ class Defaults {
     return template[templateName](content)
   }
   notFound(res) {
-    res.status(404).send(
-      template.layout({
-        title: 'Not Found - Waka',
-        description:
-          'Sorry, but the page you were trying to view does not exist.',
-        vendorpath: '/' + manifest['vendor.js'],
-        apppath: '/' + manifest['app.js'],
-        analyticspath: '/' + manifest['analytics.js'],
-        csspath: '/' + manifest['app.css'],
-      })
-    )
+    const content = Object.assign(defaults, {
+      title: 'Not Found - Waka',
+      description:
+        'Sorry, but the page you were trying to view does not exist.',
+    })
+    res.status(404).send(template.layout(content))
   }
   index(req, res) {
     res.send(this.success('layout', undefined, undefined, req.path))

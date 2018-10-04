@@ -1,5 +1,5 @@
 const colors = require('colors')
-const log = require('../server-common/logger.js')
+const log = require('./lib/logger.js')
 var helper = require('sendgrid').mail
 var from_email = new helper.Email('hello@dymajo.com', 'Waka')
 var subject = 'Your requested link to Waka'
@@ -361,7 +361,7 @@ const cb = function(req, res) {
   var request = sg.emptyRequest({
     method: 'POST',
     path: '/v3/mail/send',
-    body: mail.toJSON()
+    body: mail.toJSON(),
   })
   sg.API(request, function(error, response) {
     if (error) {
@@ -376,7 +376,7 @@ var email = {
       return res.status(500).send('SendGrid not configured!')
     }
     cb(req, res)
-  }
+  },
 }
 
 module.exports = email

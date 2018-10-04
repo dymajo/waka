@@ -1,9 +1,8 @@
-const colors = require('colors')
 const express = require('express')
 const router = require('./router.js')
 const bodyParser = require('body-parser')
 
-const log = require('../server-common/logger.js')
+const log = require('./lib/logger.js')
 
 const app = express()
 app.use(bodyParser.json())
