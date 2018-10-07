@@ -2,9 +2,12 @@ const moment = require('moment-timezone')
 const line = require('../lines/index')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
+const StopsDataAccess = require('./dataAccess.js')
 const akl = require('./nz-akl.js')
 const wlg = require('./nz-wlg.js')
 const cache = require('../cache.js')
+
+const dataAccess = new StopsDataAccess()
 
 let rtFn = function() {
   return {}
@@ -349,7 +352,10 @@ var station = {
         })
 
         sending.realtime = rtFn(realtimeTrips)
-        res.send(sending)
+        dataAccess.getRoutesForStop(req.params.station).then(routes => {
+          sending.allRoutes = routes
+          res.send(sending)
+        })
       })
       .catch(function(err) {
         console.log(err)
