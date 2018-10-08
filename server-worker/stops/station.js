@@ -7,8 +7,6 @@ const akl = require('./nz-akl.js')
 const wlg = require('./nz-wlg.js')
 const cache = require('../cache.js')
 
-const dataAccess = new StopsDataAccess()
-
 let rtFn = function() {
   return {}
 }
@@ -18,39 +16,13 @@ cache.preReady.push(() => {
   }
 })
 
-const getHeadsign = function(longname, direction) {
-  const prefix = global.config.prefix
-  if (prefix === 'nz-wlg') {
-    let rawname = longname.split('(')
-    if (rawname.length > 1) {
-      rawname = rawname[1].replace(')', '')
-    } else {
-      rawname = longname
-    }
-    rawname = rawname.split(' - ')
-    if (direction === 1) {
-      rawname.reverse()
-    }
-    return rawname[0]
-  }
-  return longname.split('/')[0]
-}
-
-var station = {
+const dataAccess = new StopsDataAccess()
+const station = {
   getBounds: async function() {
-    const sqlRequest = connection.get().request()
-    const result = await sqlRequest.query(`
-      SELECT
-        MIN(stop_lat) as lat_min,
-        MAX(stop_lat) as lat_max,
-        MIN(stop_lon) as lon_min,
-        MAX(stop_lon) as lon_max
-      FROM stops;`)
-
-    const data = result.recordset[0]
+    const bounds = await dataAccess.getBounds()
     return {
-      lat: { min: data.lat_min, max: data.lat_max },
-      lon: { min: data.lon_min, max: data.lon_max },
+      lat: { min: bounds.lat_min, max: bounds.lat_max },
+      lon: { min: bounds.lon_min, max: bounds.lon_max },
     }
   },
 
@@ -248,11 +220,6 @@ var station = {
    *     }
    */
   stopTimes: function(req, res) {
-    // option in the future?
-    // let fastData = false
-    // if (req.params.fast === 'fast') {
-    //   fastData = true
-    // }
     if (!req.params.station) {
       return res.status(404).send({
         error: 'please x specify a station',
@@ -338,10 +305,8 @@ var station = {
           }
 
           if (record.trip_headsign === null) {
-            record.trip_headsign = getHeadsign(
-              record.route_long_name,
-              record.direction_id
-            )
+            console.warn(global.config.prefix, 'This dataset has a null trip_headsign.')
+            record.trip_headsign = record.route_long_name
           }
 
           delete record.arrival_time
@@ -352,10 +317,17 @@ var station = {
         })
 
         sending.realtime = rtFn(realtimeTrips)
-        dataAccess.getRoutesForStop(req.params.station).then(routes => {
-          sending.allRoutes = routes
+
+        // the all routes stuff is possibly an extra call to the database,
+        // so we only do it if we need to
+        if (req.query.allRoutes || sending.trips.length === 0) {
+          dataAccess.getRoutesForStop(req.params.station).then(routes => {
+            sending.allRoutes = routes
+            res.send(sending)
+          })
+        } else {
           res.send(sending)
-        })
+        }
       })
       .catch(function(err) {
         console.log(err)
@@ -466,11 +438,10 @@ var station = {
           record.currentTime = currentTime.getTime() / 1000
           record.date = today
 
+
           if (record.trip_headsign === null) {
-            record.trip_headsign = getHeadsign(
-              record.route_long_name,
-              record.direction_id
-            )
+            console.warn(global.config.prefix, 'This dataset has a null trip_headsign.')
+            record.trip_headsign = record.route_long_name
           }
 
           delete record.departure_time
