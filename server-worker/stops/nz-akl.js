@@ -164,11 +164,11 @@ const aklStops = {
         )
     }))
   },
-  getSingle: (code) => {
+  getSingle: async (code) => {
     if (code in carparks) {
-      return Promise.resolve(carparks[code])
+      return carparks[code]
     } else {
-      return Promise.reject()
+      throw Error({ message: 'Carpark Not Found!' })
     }
   },
   getTimes: (code) => {

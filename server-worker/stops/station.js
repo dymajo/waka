@@ -2,6 +2,7 @@ const moment = require('moment-timezone')
 const line = require('../lines/index')
 const sql = require('mssql')
 const connection = require('../db/connection.js')
+const StopsDataAccess = require('./dataAccess.js')
 const akl = require('./nz-akl.js')
 const wlg = require('./nz-wlg.js')
 const cache = require('../cache.js')
@@ -15,39 +16,13 @@ cache.preReady.push(() => {
   }
 })
 
-const getHeadsign = function(longname, direction) {
-  const prefix = global.config.prefix
-  if (prefix === 'nz-wlg') {
-    let rawname = longname.split('(')
-    if (rawname.length > 1) {
-      rawname = rawname[1].replace(')', '')
-    } else {
-      rawname = longname
-    }
-    rawname = rawname.split(' - ')
-    if (direction === 1) {
-      rawname.reverse()
-    }
-    return rawname[0]
-  }
-  return longname.split('/')[0]
-}
-
-var station = {
+const dataAccess = new StopsDataAccess()
+const station = {
   getBounds: async function() {
-    const sqlRequest = connection.get().request()
-    const result = await sqlRequest.query(`
-      SELECT
-        MIN(stop_lat) as lat_min,
-        MAX(stop_lat) as lat_max,
-        MIN(stop_lon) as lon_min,
-        MAX(stop_lon) as lon_max
-      FROM stops;`)
-
-    const data = result.recordset[0]
+    const bounds = await dataAccess.getBounds()
     return {
-      lat: { min: data.lat_min, max: data.lat_max },
-      lon: { min: data.lon_min, max: data.lon_max },
+      lat: { min: bounds.lat_min, max: bounds.lat_max },
+      lon: { min: bounds.lon_min, max: bounds.lon_max },
     }
   },
 
@@ -91,95 +66,41 @@ var station = {
    *    }
    *
    */
-  stopInfo: function(req, res) {
-    if (req.params.station) {
-      station
-        ._stopInfo(req.params.station)
-        .then(function(data) {
-          res.send(data)
-        })
-        .catch(function(err) {
-          if (global.config.prefix === 'nz-akl') {
-            akl
-              .getSingle(req.params.station)
-              .then(data => {
-                res.send(data)
-              })
-              .catch(() => {
-                res.status(404).send(err)
-              })
-            return
-          }
-          res.status(404).send(err)
-        })
-    } else {
-      res.status(404).send({
-        error: 'please specify a station',
+  stopInfo: async function(req, res) {
+    if (!req.params.station) {
+      return res.status(404).send({
+        message: 'Please specify a station.',
       })
     }
-  },
-  _stopInfo: function(stop) {
-    return new Promise(function(resolve, reject) {
-      stop = stop.trim()
 
-      // returns data
-      let override = false
-      if (
-        global.config.prefix === 'nz-wlg' &&
-        wlg.badStops.indexOf(stop) > -1
-      ) {
-        override = stop
-        stop = stop + '1'
+    let stop_code = req.params.station.trim()
+    let override = false
+    if (
+      global.config.prefix === 'nz-wlg' &&
+      wlg.badStops.indexOf(stop_code) > -1
+    ) {
+      override = stop_code
+      stop_code = stop_code + '1'
+    }
+
+    let data = { message: 'Station not found.' }
+    try {
+      data = await dataAccess.getStopInfo(stop_code)
+      if (override) {
+        data.stop_id = override
       }
-
-      const sqlRequest = connection.get().request()
-      sqlRequest.input('stop_id', sql.VarChar, stop)
-      sqlRequest
-        .query(
-          `
-        SELECT 
-          stops.stop_code as stop_id, 
-          stops.stop_name,
-          stops.stop_desc,
-          stops.stop_lat,
-          stops.stop_lon,
-          stops.zone_id,
-          stops.location_type,
-          stops.parent_station,
-          stops.stop_timezone,
-          stops.wheelchair_boarding,
-          routes.route_type
-        FROM
-          stops
-        LEFT JOIN
-          stop_times
-        ON stop_times.id = (
-            SELECT TOP 1 id 
-            FROM    stop_times
-            WHERE 
-            stop_times.stop_id = stops.stop_id
-        )
-        LEFT JOIN trips ON trips.trip_id = stop_times.trip_id
-        LEFT JOIN routes on routes.route_id = trips.route_id
-        WHERE
-          stops.stop_code = @stop_id
-      `
-        )
-        .then(result => {
-          const data = result.recordset[0]
-          data.prefix = global.config.prefix
-          delete data.uid
-          if (override) {
-            data.stop_id = override
-          }
-          resolve(data)
-        })
-        .catch(err => {
-          return reject({
-            error: 'station not found',
-          })
-        })
-    })
+      res.send(data)
+    } catch {
+      // TODO: make this more generic
+      if (global.config.prefix === 'nz-akl') {
+        try {
+          data = await akl.getSingle(stop_code)
+        } catch (err) {
+          // couldn't get any carpark
+        }
+      }
+      res.status(404).send(data)
+    }
   },
   /**
    * @api {get} /:region/station/:stop_id/times/:time Stop Times - by stop_id
@@ -244,20 +165,16 @@ var station = {
    *       }
    *     }
    */
-  stopTimes: function(req, res) {
-    // option in the future?
-    // let fastData = false
-    // if (req.params.fast === 'fast') {
-    //   fastData = true
-    // }
+  stopTimes: async function(req, res) {
     if (!req.params.station) {
       return res.status(404).send({
-        error: 'please x specify a station',
+        message: 'Please specify a stop.',
       })
     }
 
     req.params.station = req.params.station.trim()
 
+    // carparks
     if (global.config.prefix === 'nz-akl') {
       const data = akl.getTimes(req.params.station)
       if (data !== null) {
@@ -283,7 +200,7 @@ var station = {
     sending.currentTime = currentTime.getTime() / 1000
 
     const today = new Date(0)
-    today.setFullYear(time.year())
+    today.setUTCFullYear(time.year())
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date())
 
@@ -301,60 +218,77 @@ var station = {
       procedure = 'GetMultipleStopTimes'
     }
 
+    let trips = []
     const realtimeTrips = []
-    connection
-      .get()
-      .request()
-      .input('stop_id', sql.VarChar(100), req.params.station)
-      .input('departure_time', sql.Time, currentTime)
-      .input('date', sql.Date, today)
-      .execute(procedure)
-      .then(trips => {
-        sending.trips = trips.recordset.map(record => {
-          record.departure_time_seconds =
-            new Date(record.departure_time).getTime() / 1000
-          if (record.departure_time_24) {
-            record.departure_time_seconds += 86400
-          }
-          record.arrival_time_seconds = record.departure_time_seconds
-          record.route_color = line.getColor(
-            record.agency_id,
-            record.route_short_name
-          )
-          record.route_icon = line.getIcon(
-            record.agency_id,
-            record.route_short_name
-          )
+    try {
+      trips = await dataAccess.getStopTimes(
+        req.params.station,
+        currentTime,
+        today,
+        procedure
+      )
+    } catch (err) {
+      console.error(err)
+      return res.status(500).send(err)
+    }
 
-          // 30mins of realtime
-          if (
-            record.departure_time_seconds < sending.currentTime + 1800 ||
-            record.departure_time_24
-          ) {
-            realtimeTrips.push(record.trip_id)
-          }
+    sending.trips = trips.map(record => {
+      record.departure_time_seconds =
+        new Date(record.departure_time).getTime() / 1000
+      if (record.departure_time_24) {
+        record.departure_time_seconds += 86400
+      }
+      record.arrival_time_seconds = record.departure_time_seconds
+      record.route_color = line.getColor(
+        record.agency_id,
+        record.route_short_name
+      )
+      record.route_icon = line.getIcon(
+        record.agency_id,
+        record.route_short_name
+      )
 
-          if (record.trip_headsign === null) {
-            record.trip_headsign = getHeadsign(
-              record.route_long_name,
-              record.direction_id
-            )
-          }
+      // 30mins of realtime
+      if (
+        record.departure_time_seconds < sending.currentTime + 1800 ||
+        record.departure_time_24
+      ) {
+        realtimeTrips.push(record.trip_id)
+      }
 
-          delete record.arrival_time
-          delete record.arrival_time_24
-          delete record.departure_time
-          delete record.departure_time_24
-          return record
-        })
+      if (record.trip_headsign === null) {
+        console.warn(
+          global.config.prefix,
+          'This dataset has a null trip_headsign.'
+        )
+        record.trip_headsign = record.route_long_name
+      }
 
-        sending.realtime = rtFn(realtimeTrips)
-        res.send(sending)
-      })
-      .catch(function(err) {
-        console.log(err)
-        res.status(500).send(err)
-      })
+      delete record.arrival_time
+      delete record.arrival_time_24
+      delete record.departure_time
+      delete record.departure_time_24
+      return record
+    })
+
+    sending.realtime = rtFn(realtimeTrips)
+
+    // the all routes stuff is possibly an extra call to the database,
+    // so we only do it if we need to
+    if (req.query.allRoutes || sending.trips.length === 0) {
+      try {
+        sending.allRoutes = await dataAccess.getRoutesForStop(
+          req.params.station
+        )
+      } catch (err) {
+        console.error(
+          global.config.prefix,
+          'Could not get all routes for',
+          req.params.station
+        )
+      }
+    }
+    res.send(sending)
   },
   /**
    * @api {get} /:region/station/:stop_id/timetable/:route/:direction/:offset Timetable - by stop_id
@@ -405,7 +339,7 @@ var station = {
    *      }
    *    ]
    */
-  timetable: function(req, res) {
+  timetable: async function(req, res) {
     if (
       parseInt(req.params.direction) > 2 ||
       parseInt(req.params.direction) < 0
@@ -417,15 +351,13 @@ var station = {
       offset = parseInt(req.params.offset)
     }
 
-    let sending = {}
-
     const time = moment().tz('Pacific/Auckland')
     const currentTime = new Date(
       Date.UTC(1970, 0, 1, time.hour(), time.minute())
     )
 
     const today = new Date(Date.UTC(1970, 0, 1, 0, 0))
-    today.setFullYear(time.year())
+    today.setUTCFullYear(time.year())
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date() + offset)
 
@@ -438,44 +370,45 @@ var station = {
       procedure = 'GetMultipleTimetable'
     }
 
-    connection
-      .get()
-      .request()
-      .input('stop_id', sql.VarChar(100), req.params.station)
-      .input('route_short_name', sql.VarChar(50), req.params.route)
-      .input('date', sql.Date, today)
-      .input('direction', sql.Int, req.params.direction)
-      .execute(procedure)
-      .then(trips => {
-        sending.trips = trips.recordset.map(record => {
-          record.departure_time_seconds =
-            new Date(record.departure_time || record.arrival_time).getTime() /
-            1000
-          if (record.departure_time_24 || record.arrival_time_24) {
-            record.arrival_time_seconds += 86400
-          }
-          record.arrival_time_seconds = record.departure_time_seconds
-          record.route_color = line.getColor(record.agency_id, req.params.route)
-          record.route_icon = line.getIcon(record.agency_id, req.params.route)
-          record.currentTime = currentTime.getTime() / 1000
-          record.date = today
+    let trips = []
+    try {
+      trips = await dataAccess.getTimetable(
+        req.params.station,
+        req.params.route,
+        today,
+        req.params.direction,
+        procedure
+      )
+    } catch (err) {
+      return res.status(500).send(err)
+    }
 
-          if (record.trip_headsign === null) {
-            record.trip_headsign = getHeadsign(
-              record.route_long_name,
-              record.direction_id
-            )
-          }
+    const sending = trips.map(record => {
+      record.departure_time_seconds =
+        new Date(record.departure_time || record.arrival_time).getTime() /
+        1000
+      if (record.departure_time_24 || record.arrival_time_24) {
+        record.arrival_time_seconds += 86400
+      }
+      record.arrival_time_seconds = record.departure_time_seconds
+      record.route_color = line.getColor(record.agency_id, req.params.route)
+      record.route_icon = line.getIcon(record.agency_id, req.params.route)
+      record.currentTime = currentTime.getTime() / 1000
+      record.date = today
 
-          delete record.departure_time
-          delete record.departure_time_24
-          return record
-        })
-        res.send(sending.trips)
-      })
-      .catch(function(err) {
-        res.status(500).send(err)
-      })
+      if (record.trip_headsign === null) {
+        console.warn(
+          global.config.prefix,
+          'This dataset has a null trip_headsign.'
+        )
+        record.trip_headsign = record.route_long_name
+      }
+
+      delete record.departure_time
+      delete record.departure_time_24
+      return record
+    })
+    res.send(sending)
   },
 }
 module.exports = station
