@@ -91,15 +91,20 @@ class StopsDataAccess {
       .input('stop_code', sql.VarChar, stop_code)
 
     const result = await sqlRequest.query(`
-      SELECT 
+      DECLARE @stop_id varchar(200)
+
+      SELECT @stop_id = stop_id
+      FROM stops
+      WHERE stop_code = @stop_code
+
+      SELECT
         route_short_name,
         trip_headsign,
         direction_id
-      FROM stops 
-        JOIN stop_times ON stop_times.stop_id = stops.stop_id
+      FROM stop_times
         JOIN trips ON trips.trip_id = stop_times.trip_id
         JOIN routes ON routes.route_id = trips.route_id
-      WHERE stop_code = @stop_code
+      WHERE stop_times.stop_id = @stop_id
       GROUP BY 
         route_short_name,
         trip_headsign,
