@@ -4,10 +4,19 @@ const connection = require('../db/connection.js')
 class StopsDataAccess {
   constructor() {
     this.stopRouteCache = new Map()
-    this.collator = new Intl.Collator(undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    })
+  }
+  async getBounds() {
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query(`
+      SELECT
+        MIN(stop_lat) as lat_min,
+        MAX(stop_lat) as lat_max,
+        MIN(stop_lon) as lon_min,
+        MAX(stop_lon) as lon_max
+      FROM stops;`)
+
+    const data = result.recordset[0]
+    return data
   }
   async getRoutesForStop(stop_code) {
     const cachedRoutes = this.stopRouteCache.get(stop_code)
@@ -19,18 +28,27 @@ class StopsDataAccess {
     sqlRequest.input('stop_code', sql.VarChar, stop_code)
 
     const result = await sqlRequest.query(`
-      SELECT DISTINCT
+      SELECT 
         route_short_name,
+        trip_headsign,
         direction_id
       FROM stops 
         JOIN stop_times ON stop_times.stop_id = stops.stop_id
         JOIN trips ON trips.trip_id = stop_times.trip_id
         JOIN routes ON routes.route_id = trips.route_id
       WHERE stop_code = @stop_code
+      GROUP BY 
+        route_short_name,
+        trip_headsign,
+        direction_id
+      ORDER BY
+        route_short_name,
+        direction_id,
+        -- this is so it chooses normal services first before expresses or others
+        count(trip_headsign) desc
     `)
-    const routes = result.recordset.map(r => [r.route_short_name, r.direction_id])
-    routes.sort(this.collator.compare)
 
+    const routes = result.recordset
     this.stopRouteCache.set(stop_code, routes)
     return routes
   }
