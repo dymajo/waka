@@ -117,7 +117,7 @@ class gtfsImport {
       if (column === 'date' || column === 'start_date' || column === 'end_date') {
         const stringDate = row[rowSchema[column]]
         const date = new Date(0)
-        date.setFullYear(stringDate.slice(0,4))
+        date.setUTCFullYear(stringDate.slice(0,4))
         date.setUTCMonth(parseInt(stringDate.slice(4,6)) - 1) // dates start from 0??
         date.setUTCDate(stringDate.slice(6,8))
         return date
