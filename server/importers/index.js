@@ -8,12 +8,12 @@ const log = require('../logger.js');
 const GtfsImport = require('../db/gtfs-import.js');
 const CreateShapes = require('../db/create-shapes.js');
 const connection = require('../db/connection.js');
-const UploadDb = require('../db/upload-db');
+const Storage = require('../db/storage');
 
 class Importer {
   constructor() {
     this.importer = new GtfsImport();
-    this.uploader = new UploadDb();
+    this.storage = new Storage({});
     this.current = null;
     try {
       this.current = require(`./regions/${global.config.prefix}.js`);
@@ -131,9 +131,7 @@ class Importer {
       console.log(err);
     }
     const location = '/path/to/db';
-
-    await this.uploader.start(location);
-    log('Export complete');
+    await this.storage.upload(location);
   }
 }
 module.exports = Importer;
