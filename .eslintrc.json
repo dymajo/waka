@@ -1,0 +1,43 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb",
+    "prettier",
+    "prettier/react",
+    "plugin:promise/recommended"
+  ],
+  "parser": "babel-eslint",
+  "plugins": ["prettier", "jsx-a11y", "promise"],
+  "rules": {
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "never"],
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "react/jsx-key": 2,
+    "react/no-typos": 0,
+    "no-return-assign": 0,
+    "global-require": "off",
+    "react/jsx-filename-extension": 0,
+    "import/prefer-default-export": 0,
+    "react/prefer-stateless-function": 0,
+    "no-constant-condition": [
+      "error",
+      {
+        "checkLoops": false
+      }
+    ],
+    "no-underscore-dangle": [2, { "allow": ["_id"] }],
+    "comma-dangle": ["error", "always-multiline"],
+    "no-shadow": "off",
+    "react/prop-types": 0,
+    "no-unused-vars": 1,
+    "no-nested-ternary": 0,
+    "promise/prefer-await-to-then": "warn",
+    "promise/prefer-await-to-callbacks": "warn"
+  }
+}
