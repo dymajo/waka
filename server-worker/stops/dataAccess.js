@@ -5,6 +5,7 @@ class StopsDataAccess {
   constructor() {
     this.stopRouteCache = new Map()
   }
+
   async getBounds() {
     const sqlRequest = connection.get().request()
     const result = await sqlRequest.query(`
@@ -18,11 +19,12 @@ class StopsDataAccess {
     const data = result.recordset[0]
     return data
   }
-  async getStopInfo(stop_code) {
+
+  async getStopInfo(stopCode) {
     const sqlRequest = connection
       .get()
       .request()
-      .input('stop_code', sql.VarChar, stop_code)
+      .input('stop_code', sql.VarChar, stopCode)
 
     const result = await sqlRequest.query(`
       SELECT 
@@ -56,31 +58,34 @@ class StopsDataAccess {
     data.prefix = global.config.prefix
     return data
   }
-  async getStopTimes(stop_code, time, date, procedure = 'GetStopTimes') {
+
+  async getStopTimes(stopCode, time, date, procedure = 'GetStopTimes') {
     const sqlRequest = connection
       .get()
       .request()
-      .input('stop_id', sql.VarChar(100), stop_code)
+      .input('stop_id', sql.VarChar(100), stopCode)
       .input('departure_time', sql.Time, time)
       .input('date', sql.Date, date)
 
     const result = await sqlRequest.execute(procedure)
     return result.recordset
   }
-  async getTimetable(stop_code, route_id, date, direction, procedure = 'GetTimetable') {
+
+  async getTimetable(stopCode, routeId, date, direction, procedure = 'GetTimetable') {
     const sqlRequest = connection
       .get()
       .request()
-      .input('stop_id', sql.VarChar(100), stop_code)
-      .input('route_short_name', sql.VarChar(50), route_id)
+      .input('stop_id', sql.VarChar(100), stopCode)
+      .input('route_short_name', sql.VarChar(50), routeId)
       .input('date', sql.Date, date)
       .input('direction', sql.Int, direction)
 
     const result = await sqlRequest.execute(procedure)
     return result.recordset
   }
-  async getRoutesForStop(stop_code) {
-    const cachedRoutes = this.stopRouteCache.get(stop_code)
+
+  async getRoutesForStop(stopCode) {
+    const cachedRoutes = this.stopRouteCache.get(stopCode)
     if (cachedRoutes !== undefined) {
       return cachedRoutes
     }
@@ -88,7 +93,7 @@ class StopsDataAccess {
     const sqlRequest = connection
       .get()
       .request()
-      .input('stop_code', sql.VarChar, stop_code)
+      .input('stop_code', sql.VarChar, stopCode)
 
     const result = await sqlRequest.query(`
       DECLARE @stop_id varchar(200)
@@ -117,8 +122,77 @@ class StopsDataAccess {
     `)
 
     const routes = result.recordset
-    this.stopRouteCache.set(stop_code, routes)
+    this.stopRouteCache.set(stopCode, routes)
     return routes
+  }
+
+  async getRoutesForMultipleStops(stopCodes) {
+    const routesContainer = {}
+    const filteredStopCodes = stopCodes.filter(stopCode => {
+      const cachedRoutes = this.stopRouteCache.get(stopCode)
+      if (cachedRoutes !== undefined) {
+        routesContainer[stopCode] = cachedRoutes
+        return false
+      }
+      return true
+    })
+
+    if (filteredStopCodes.length > 0) {
+      // TODO: This isn't SQL Injection Proof, but it shouldn't be hit from there anyway.
+      // This should also be a stored procedure.
+      const stopCodesQuery = `('${filteredStopCodes.join('\',\'')}')`
+
+      const sqlRequest = connection.get().request()
+      const result = await sqlRequest.query(`
+        DECLARE @stop_id varchar(200)
+
+        SELECT stop_id, stop_code
+        INTO #stops
+        FROM stops
+        WHERE stop_code in ${stopCodesQuery}
+
+        SELECT
+          #stops.stop_code,
+          route_short_name,
+          trip_headsign,
+          direction_id
+        FROM stop_times
+          JOIN #stops on stop_times.stop_id = #stops.stop_id
+          JOIN trips ON trips.trip_id = stop_times.trip_id
+          JOIN routes ON routes.route_id = trips.route_id
+        GROUP BY 
+          #stops.stop_code,
+          route_short_name,
+          trip_headsign,
+          direction_id
+        ORDER BY
+          #stops.stop_code,
+          route_short_name,
+          direction_id,
+          -- this is so it chooses normal services first before expresses or others
+          count(trip_headsign) desc
+
+        DROP TABLE #stops;
+      `)
+      
+      result.recordset.forEach(record => {
+        if (routesContainer[record.stop_code] === undefined) {
+          routesContainer[record.stop_code] = []
+        }
+
+        routesContainer[record.stop_code].push({
+          route_short_name: record.route_short_name,
+          trip_headsign: record.trip_headsign,
+          direction_id: record.direction_id,
+        })
+      })
+    }
+
+    Object.keys(routesContainer).forEach(stopCode => {
+      this.stopRouteCache.set(stopCode, routesContainer[stopCode])
+    })
+
+    return routesContainer
   }
 }
 module.exports = StopsDataAccess

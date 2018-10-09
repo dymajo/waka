@@ -8,6 +8,7 @@ const cache = require('../cache.js')
 const config = require('../../config.js')
 const log = require('../../server-common/logger.js')
 const cityMetadata = require('../../cityMetadata.json')
+const StopsDataAccess = require('../stops/dataAccess.js')
 
 let lineData = {}
 cache.preReady.push(() => {
@@ -40,9 +41,14 @@ cache.preReady.push(() => {
 const storageSvc = new Storage({
   backing: config.storageService,
   local: config.emulatedStorage,
-  region: config.shapesRegion
+  region: config.shapesRegion,
+})
+const collator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: 'base',
 })
 
+const stopsDataAccess = new StopsDataAccess()
 const line = {
   getColor(agency_id, route_short_name) {
     if (lineData.getColor) {
@@ -451,33 +457,39 @@ const line = {
    *   }
    * ]
    */
-  getStopsFromTrip(req, res) {
+  async getStopsFromTrip(req, res) {
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
-    sqlRequest
-      .query(
-        `
-      SELECT 
-        stops.stop_code as stop_id,
-        stops.stop_name,
-        stops.stop_lat,
-        stops.stop_lon,
-        stop_times.departure_time,
-        stop_times.departure_time_24,
-        stop_times.stop_sequence
-      FROM stop_times
-      LEFT JOIN stops
-        on stops.stop_id = stop_times.stop_id
-      WHERE
-        stop_times.trip_id = @trip_id
-      ORDER BY stop_sequence`
-      )
-      .then(result => {
-        res.send(search._stopsFilter(result.recordset))
-      })
-      .catch(err => {
-        res.status(500).send(err)
-      })
+    try {
+      const result = await sqlRequest.query(`
+        SELECT 
+          stops.stop_code as stop_id,
+          stops.stop_name,
+          stops.stop_lat,
+          stops.stop_lon,
+          stop_times.departure_time,
+          stop_times.departure_time_24,
+          stop_times.stop_sequence
+        FROM stop_times
+        LEFT JOIN stops
+          on stops.stop_id = stop_times.stop_id
+        WHERE
+          stop_times.trip_id = @trip_id
+        ORDER BY stop_sequence`)
+
+      const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(result.recordset.map(i => i.stop_id))
+      res.send(search._stopsFilter(result.recordset.map(i => {
+        const transfers = stopRoutes[i.stop_id].filter(j => j.trip_headsign !== 'Schools').map(j => j.route_short_name)
+        const deduplicatedTransfers = Array.from(new Set(transfers).values())
+        const transfersWithColors = deduplicatedTransfers.map(j => [j, line.getColor(null, j)])
+        transfersWithColors.sort(collator.compare)
+        i.transfers = transfersWithColors
+        return i
+      }), 'keep'))
+    } catch (err) {
+      console.error(err)
+      res.status(500).send(err)
+    }
   },
   /**
    * @api {get} /:region/stops/shape/:shape_id Line Stops - by shape_id
