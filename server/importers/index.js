@@ -8,10 +8,12 @@ const log = require('../logger.js');
 const GtfsImport = require('../db/gtfs-import.js');
 const CreateShapes = require('../db/create-shapes.js');
 const connection = require('../db/connection.js');
+const UploadDb = require('../db/upload-db');
 
 class Importer {
   constructor() {
     this.importer = new GtfsImport();
+    this.uploader = new UploadDb();
     this.current = null;
     try {
       this.current = require(`./regions/${global.config.prefix}.js`);
@@ -35,7 +37,6 @@ class Importer {
     await this.shapes();
     await this.fixStopCodes();
     await this.exportDb();
-    await this.postImport();
   }
 
   async unzip() {
@@ -109,20 +110,14 @@ class Importer {
     );
   }
 
-  async postImport() {
-    if (this.current.postImport) {
-      await this.current.postImport();
-    }
-  }
-
   async exportDb() {
     const sqlRequest = connection.get().request();
     const {
-      db: { database }
+      db: { database },
     } = global.config;
     sqlRequest.input('dbName', sql.VarChar, database);
-    await sqlRequest
-      .query(
+    try {
+      await sqlRequest.query(
         `
         USE master;
         ALTER DATABASE ${database} SET RECOVERY SIMPLE;
@@ -131,8 +126,13 @@ class Importer {
         WITH NOFORMAT, NOINIT, NAME = ${database},
         SKIP, NOREWIND, NOUNLOAD, STATS = 10
         `
-      )
-      .catch(err => console.log(err));
+      );
+    } catch (err) {
+      console.log(err);
+    }
+    const location = '/path/to/db';
+
+    await this.uploader.start(location);
     log('Export complete');
   }
 }
