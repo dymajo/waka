@@ -22,6 +22,7 @@
     "react/no-typos": 0,
     "no-return-assign": 0,
     "global-require": "off",
+    "class-methods-use-this": "off",
     "react/jsx-filename-extension": 0,
     "import/prefer-default-export": 0,
     "react/prefer-stateless-function": 0,
