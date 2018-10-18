@@ -30,7 +30,7 @@ class Wellington {
     await this.download()
     await this.unzip()
     const meta = await this.findMeta()
-    const version = meta[0]
+    const version = meta[0].replace(/ /g, '_')
 
     // import version if it doesn't exist
     if (WorkerManager.get('nz-wlg', version) === null) {
