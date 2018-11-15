@@ -94,6 +94,7 @@ router.get('/a/stops/trip/:trip_id', line.getStopsFromTrip)
 router.get('/a/stops/shape/:shape_id', line.getStopsFromShape)
 router.get('/a/shapejson/:shape_id', line.getShapeJSON)
 router.get('/a/onzo', onzo.getBikes)
+router.get('/a/realtime-healthcheck', realtime.healthcheck)
 router.post('/a/realtime', realtime.stopInfo)
 router.post('/a/vehicle_location', realtime.vehicleLocation)
 
