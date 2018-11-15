@@ -90,7 +90,7 @@ const station = {
         data.stop_id = override
       }
       res.send(data)
-    } catch {
+    } catch (err) {
       // TODO: make this more generic
       if (global.config.prefix === 'nz-akl') {
         try {
