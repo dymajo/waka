@@ -13,6 +13,7 @@ class Realtime {
     })
     this.stopInfo = this.stopInfo.bind(this)
     this.vehicleLocation = this.vehicleLocation.bind(this)
+    this.healthcheck = this.healthcheck.bind(this)
   }
   /**
   * @api {post} /:region/realtime Trip Updates
@@ -111,7 +112,7 @@ class Realtime {
         message: 'realtime not available'
       })
     }
-  },
+  }
 
   healthcheck(req, res) {
     if (this.fn) {
