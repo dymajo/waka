@@ -62,6 +62,7 @@ const isEV = vehicle => {
 
 
 var realtime = {
+  lastUpdate: null,
   currentData: {},
   currentDataFails: 0,
   schedulePull: function() {
@@ -89,6 +90,7 @@ var realtime = {
         })
         realtime.currentData = newData
         realtime.currentDataFails = 0
+        realtime.lastUpdate = new Date()
       } else {
         console.log('could not get at data')  
       }
