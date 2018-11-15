@@ -111,6 +111,20 @@ class Realtime {
         message: 'realtime not available'
       })
     }
+  },
+
+  healthcheck(req, res) {
+    if (this.fn) {
+      let lastUpdate = null
+      if (this.fn.lastUpdate !== undefined) {
+        lastUpdate = this.fn.lastUpdate
+      }
+      res.send({lastUpdate: lastUpdate})
+    } else {
+      res.status(400).send({
+        message: 'realtime not available'
+      })
+    }
   }
 }
 module.exports = Realtime
