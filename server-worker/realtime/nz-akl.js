@@ -256,7 +256,9 @@ const realtime = {
       const result = trips.map(entity => ({
         latitude: entity.vehicle.position.latitude,
         longitude: entity.vehicle.position.longitude,
-        bearing: entity.vehicle.position.bearing || null,
+        bearing: entity.vehicle.position.bearing
+          ? parseInt(entity.vehicle.position.bearing, 10)
+          : null,
         direction: tripIdsMap[entity.vehicle.trip.trip_id],
         updatedAt: realtime.lastVehicleUpdate,
       }))
