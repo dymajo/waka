@@ -12,6 +12,7 @@ class Realtime {
     })
     this.stopInfo = this.stopInfo.bind(this)
     this.vehicleLocation = this.vehicleLocation.bind(this)
+    this.vehicleLocationV2 = this.vehicleLocationV2.bind(this)
     this.healthcheck = this.healthcheck.bind(this)
   }
 
@@ -107,6 +108,16 @@ class Realtime {
   vehicleLocation(req, res) {
     if (this.fn) {
       this.fn.getVehicleLocationEndpoint(req, res)
+    } else {
+      res.status(400).send({
+        message: 'realtime not available',
+      })
+    }
+  }
+
+  vehicleLocationV2(req, res) {
+    if (this.fn) {
+      this.fn.getLocationsForLine(req, res)
     } else {
       res.status(400).send({
         message: 'realtime not available',
