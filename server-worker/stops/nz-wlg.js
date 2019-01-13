@@ -16,9 +16,9 @@ const badStops = [
 ]
 
 module.exports = {
-  badStops: () => badStops,
+  badStops,
   extraSources: () => Promise.resolve([]),
-  filter: (recordset, mode = 'nothing') => (
+  filter: (recordset, mode = 'nothing') =>
     recordset
       .filter(item => {
         if (
@@ -31,11 +31,11 @@ module.exports = {
         }
         return true
       })
-      .map(item => {
+      .map(i => {
+        const item = i
         if (badStops.indexOf(item.stop_id.slice(0, -1)) !== -1) {
           item.stop_id = item.stop_id.slice(0, -1)
         }
         return item
-      })
-  ),
+      }),
 }

@@ -103,6 +103,7 @@ const station = {
     }
     return data
   },
+
   /**
    * @api {get} /:region/station/:stop_id/times/:time Stop Times - by stop_id
    * @apiName GetTimes
@@ -166,7 +167,7 @@ const station = {
    *       }
    *     }
    */
-  stopTimes: async function(req, res) {
+  stopTimes: async (req, res) => {
     if (!req.params.station) {
       return res.status(404).send({
         message: 'Please specify a stop.',
@@ -233,7 +234,8 @@ const station = {
       return res.status(500).send(err)
     }
 
-    sending.trips = trips.map(record => {
+    sending.trips = trips.map(r => {
+      const record = r // clone?
       record.departure_time_seconds =
         new Date(record.departure_time).getTime() / 1000
       if (record.departure_time_24) {
@@ -290,6 +292,7 @@ const station = {
       }
     }
     res.send(sending)
+    return sending
   },
   /**
    * @api {get} /:region/station/:stop_id/timetable/:route/:direction/:offset Timetable - by stop_id
@@ -386,8 +389,7 @@ const station = {
 
     const sending = trips.map(record => {
       record.departure_time_seconds =
-        new Date(record.departure_time || record.arrival_time).getTime() /
-        1000
+        new Date(record.departure_time || record.arrival_time).getTime() / 1000
       if (record.departure_time_24 || record.arrival_time_24) {
         record.arrival_time_seconds += 86400
       }
