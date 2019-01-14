@@ -102,15 +102,24 @@ class LineWithoutRouter extends React.Component {
   getData() {
     return this.lineData
       .getMeta()
+
       .then(metadata => {
+        if (metadata.length === 0) {
+          throw new Error('The line was not found.')
+        } else if (metadata[0].shape_id === null) {
+          throw new Error('The line had missing data.')
+        }
         const { match } = this.props
         const { direction } = this.state
-        const routeColor = metadata[direction].route_color
+        const routeColor = metadata.find(i => i.direction_id === direction)
+          .route_color
         this.setState({
           color: routeColor,
           lineMetadata: metadata,
         })
-        this.lineData.shape_id = metadata[direction].shape_id
+        this.lineData.shape_id = metadata.find(
+          i => i.direction_id === direction
+        ).shape_id
         renderShape(this.lineData, this.layer, routeColor)
 
         return renderStops(
@@ -126,7 +135,12 @@ class LineWithoutRouter extends React.Component {
         return stops
       })
       .catch(err => {
+        clearInterval(this.liveRefresh)
         console.error(err)
+        this.setState({
+          error: true,
+          errorMessage: err.message,
+        })
       })
   }
 
@@ -134,12 +148,8 @@ class LineWithoutRouter extends React.Component {
     const { match } = this.props
     const { direction } = this.state
     let busPositions = null
-    fetch(
-      `${local.endpoint}/${match.params.region}/realtime/${
-        match.params.line_id
-      }`
-    )
-      .then(r => r.json())
+    this.lineData
+      .getRealtime()
       .then(data => {
         this.liveLayer.hide()
         this.liveLayer = new Layer()
@@ -147,7 +157,6 @@ class LineWithoutRouter extends React.Component {
           type: 'MultiPoint',
           coordinates: [],
         }
-        console.log(direction)
         data.forEach(trip => {
           if (trip.latitude !== undefined && trip.direction === direction) {
             busPositions.coordinates.push([
@@ -158,6 +167,7 @@ class LineWithoutRouter extends React.Component {
           }
         })
 
+        // this makes sure the route data has been loaded.
         return this.dataResolved
       })
       .then(() => {
@@ -169,7 +179,8 @@ class LineWithoutRouter extends React.Component {
         return 'done!'
       })
       .catch(err => {
-        console.error(err)
+        // who cares about the error
+        console.error('Could not load realtime.')
       })
   }
 
@@ -194,9 +205,20 @@ class LineWithoutRouter extends React.Component {
 
   render() {
     const { match } = this.props
-    const { color, direction, lineMetadata, loading, stops } = this.state
+    const {
+      color,
+      direction,
+      error,
+      errorMessage,
+      lineMetadata,
+      loading,
+      stops,
+    } = this.state
 
-    const currentLine = lineMetadata.length > 0 ? lineMetadata[direction] : {}
+    const currentLine =
+      lineMetadata.length > 0
+        ? lineMetadata.find(i => i.direction_id === direction)
+        : {}
     let lineLabel = null
     if (lineMetadata.length <= 1) {
       lineLabel = 'Route Stations'
@@ -204,6 +226,19 @@ class LineWithoutRouter extends React.Component {
       lineLabel = StationStore.getDirection(
         match.params.region,
         currentLine.direction_id
+      )
+    }
+    if (error) {
+      return (
+        <View style={styles.wrapper}>
+          <Header title="Line Error" />
+          <View style={styles.error}>
+            <Text style={styles.errorMessage}>
+              We couldn&apos;t load the {match.params.line_id} line in {match.params.region}.
+            </Text>
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+        </View>
       )
     }
 
@@ -256,6 +291,13 @@ styles = StyleSheet.create({
   },
   linkWrapper: {
     padding: vars.padding,
+  },
+  error: {
+    padding: vars.padding,
+  },
+  errorMessage: {
+    fontSize: vars.defaultFontSize,
+    fontFamily: vars.defaultFontFamily,
   },
 })
 const Line = withRouter(LineWithoutRouter)
