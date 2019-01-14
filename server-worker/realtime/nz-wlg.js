@@ -171,17 +171,22 @@ const realtime = {
   },
   getLocationsForLine: async (req, res) => {
     const { line } = req.params
-    const metlinkData = await fetch(`${serviceLocation}${line}`).then(r =>
-      r.json()
-    )
-    const responseData = metlinkData.Services.map(service => ({
-      latitude: parseFloat(service.Lat),
-      longitude: parseFloat(service.Long),
-      bearing: parseInt(service.Bearing, 10),
-      direction: service.Direction === 'Inbound' ? 1 : 0,
-      updatedAt: new Date(service.RecordedAtTime),
-    }))
-    res.send(responseData)
+    try {
+      const metlinkData = await fetch(`${serviceLocation}${line}`).then(r =>
+        r.json()
+      )
+      const responseData = metlinkData.Services.map(service => ({
+        latitude: parseFloat(service.Lat),
+        longitude: parseFloat(service.Long),
+        bearing: parseInt(service.Bearing, 10),
+        direction: service.Direction === 'Inbound' ? 1 : 0,
+        updatedAt: new Date(service.RecordedAtTime),
+      }))
+      res.send(responseData)
+    } catch (err) {
+      console.log(err)
+      res.status(500).send({ message: 'Bad Request' })
+    }
   },
 }
 module.exports = realtime
