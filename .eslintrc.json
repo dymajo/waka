@@ -20,11 +20,16 @@
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
     "react/jsx-key": 2,
     "react/no-typos": 0,
+    "react/forbid-prop-types": 0,
     "no-return-assign": 0,
     "global-require": "off",
-    "react/jsx-filename-extension": 0,
+    "class-methods-use-this": "off",
+    "react/jsx-filename-extension": 1,
     "import/prefer-default-export": 0,
     "react/prefer-stateless-function": 0,
+    "import/no-dynamic-require": 0,
+    "import/extensions": 0,
+    "import/no-unresolved": 0,
     "no-constant-condition": [
       "error",
       {
