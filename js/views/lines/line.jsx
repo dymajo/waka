@@ -184,8 +184,9 @@ class LineWithoutRouter extends React.Component {
         this.liveLayer.add('geojson', busPositions, {
           icon: icons[lineMetadata[0].route_type],
         })
+        if (this.cancelCallbacks === true) return 'cancelled'
         this.liveLayer.show()
-        return 'done!'
+        return 'done'
       })
       .catch(err => {
         // who cares about the error
