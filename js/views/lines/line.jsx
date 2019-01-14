@@ -62,7 +62,16 @@ class LineWithoutRouter extends React.Component {
   constructor(props) {
     super(props)
 
-    const { match } = this.props
+    const { match, location } = this.props
+
+    // sets the direction
+    if (location.search !== '') {
+      const direction = location.search.split('?direction=')[1]
+      if (direction === '1') {
+        this.state.direction = 1
+      }
+    }
+
     this.lineData = new LineData({
       region: match.params.region,
       line_id: match.params.line_id,
@@ -234,7 +243,8 @@ class LineWithoutRouter extends React.Component {
           <Header title="Line Error" />
           <View style={styles.error}>
             <Text style={styles.errorMessage}>
-              We couldn&apos;t load the {match.params.line_id} line in {match.params.region}.
+              We couldn&apos;t load the {match.params.line_id} line in{' '}
+              {match.params.region}.
             </Text>
             <Text style={styles.errorMessage}>{errorMessage}</Text>
           </View>

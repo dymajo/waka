@@ -34,26 +34,21 @@ class TripItem extends React.Component {
       this.props.index,
     ])
   }
+
   triggerMap = () => {
-    const i = this.props.collection[0]
-    const url = [
-      '/s',
-      this.props.match.params.region,
-      i.station,
-      'realtime/',
-    ].join('/')
-    this.props.history.push(url + i.trip_id)
+    const { collection, history, match } = this.props
+    const i = collection[0]
+    const url = ['/l', match.params.region, i.route_short_name].join('/')
+    history.push(`${url}?direction=${i.direction_id}`)
   }
+
   triggerTimetable = () => {
-    const i = this.props.collection[0]
-    const url = [
-      '/s',
-      this.props.match.params.region,
-      i.station,
-      'timetable/',
-    ].join('/')
-    this.props.history.push(url + i.route_short_name + '-' + i.direction_id)
+    const { collection, history, match } = this.props
+    const i = collection[0]
+    const url = ['/s', match.params.region, i.station, 'timetable/'].join('/')
+    history.push(`${url}${i.route_short_name}-${i.direction_id}`)
   }
+
   expandChange = item => {
     if (item[0] === this.props.collection[0].trip_id) {
       this.setState({
@@ -239,7 +234,8 @@ class TripItem extends React.Component {
                 <h4 className={className} key={key}>
                   {dd}
                   <strong>{stops[0]}</strong>
-                  {stops[1]}&nbsp;
+                  {stops[1]}
+                  &nbsp;
                   <span className="opacity">&middot;</span>{' '}
                   <strong>{min[0]}</strong> {min[1]}
                 </h4>
@@ -295,7 +291,8 @@ class TripItem extends React.Component {
           latest = (
             <h3 className={className}>
               {dd} <span className="number-small">{stops[0]}</span>
-              {stops[1]}&nbsp;
+              {stops[1]}
+              &nbsp;
               <span className="opacity">&middot;</span>{' '}
               <span className="number">{minsaway[0]}</span>
               {minsaway[1]}
