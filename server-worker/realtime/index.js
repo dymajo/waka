@@ -76,8 +76,9 @@ class Realtime {
   }
 
   /**
-   * @api {post} /:region/vehicle_location Vehicle Location
+   * @api {post} /:region/vehicle_location Vehicle Location v1
    * @apiName GetRealtimeLocation
+   * @apiDeprecated please use (#Realtime:GetRealtimeLocationV2).
    * @apiGroup Realtime
    * @apiDescription The in built API tester doesn't work for this endpoint! Look at the request example and try it out yourself.
    *
@@ -92,7 +93,7 @@ class Realtime {
    *
    * @apiSuccess {Object} trips Object of Requested Trips, blank if no data
    * @apiSuccess {Number} trips.latitude Latitude of Vehicle
-   * @apiSuccess {Number} trips.latitude longitude of Vehicle
+   * @apiSuccess {Number} trips.longitude longitude of Vehicle
    * @apiSuccess {Number} trips.bearing Bearing of Vehicle, in Degrees
    *
    * @apiSuccessExample Success-Response:
@@ -115,6 +116,40 @@ class Realtime {
     }
   }
 
+  /**
+   * @api {get} /:region/realtime/:line Vehicle Location v2 - by route_short_name
+   * @apiName GetRealtimeLocationV2
+   * @apiGroup Realtime
+   *
+   * @apiParam {String} region Region of Worker
+   * @apiParam {String} line route_short_name of particular line
+   *
+   * @apiSuccess {Object[]} vehicle All the vehicles for a particular line.
+   * @apiSuccess {Number} trips.latitude Latitude of Vehicle
+   * @apiSuccess {Number} trips.longitude longitude of Vehicle
+   * @apiSuccess {Number} trips.bearing Bearing of Vehicle, in Degrees
+   * @apiSuccess {Number} trips.direction Direction of Vehicle, corresponds to GTFS
+   * @apiSuccess {Date} trips.updatedAt When the data for this vehicle was last updated by Waka
+   *
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   *   {
+   *     "bearing": null,
+   *     "direction": 0,
+   *     "latitude": -36.77570838,
+   *     "longitude": 174.74512788,
+   *     "updatedAt": "2019-01-13T18:50:40.694Z"
+   *   },
+   *   {
+   *     "bearing": 258,
+   *     "direction": 1,
+   *     "latitude": -36.72550673,
+   *     "longitude": 174.71478548,
+   *     "updatedAt": "2019-01-13T18:50:40.694Z"
+   *   }
+   * ]
+   */
   vehicleLocationV2(req, res) {
     if (this.fn) {
       this.fn.getLocationsForLine(req, res)
