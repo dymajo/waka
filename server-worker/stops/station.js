@@ -18,7 +18,7 @@ cache.preReady.push(() => {
 
 const dataAccess = new StopsDataAccess()
 const station = {
-  getBounds: async function() {
+  getBounds: async () => {
     const bounds = await dataAccess.getBounds()
     return {
       lat: { min: bounds.lat_min, max: bounds.lat_max },
@@ -66,26 +66,26 @@ const station = {
    *    }
    *
    */
-  stopInfo: async function(req, res) {
+  stopInfo: async (req, res) => {
     if (!req.params.station) {
       return res.status(404).send({
         message: 'Please specify a station.',
       })
     }
 
-    let stop_code = req.params.station.trim()
+    let stopCode = req.params.station.trim()
     let override = false
     if (
       global.config.prefix === 'nz-wlg' &&
-      wlg.badStops.indexOf(stop_code) > -1
+      wlg.badStops.indexOf(stopCode) > -1
     ) {
-      override = stop_code
-      stop_code = stop_code + '1'
+      override = stopCode
+      stopCode = stopCode + '1'
     }
 
     let data = { message: 'Station not found.' }
     try {
-      data = await dataAccess.getStopInfo(stop_code)
+      data = await dataAccess.getStopInfo(stopCode)
       if (override) {
         data.stop_id = override
       }
@@ -94,14 +94,16 @@ const station = {
       // TODO: make this more generic
       if (global.config.prefix === 'nz-akl') {
         try {
-          data = await akl.getSingle(stop_code)
+          data = await akl.getSingle(stopCode)
         } catch (err) {
           // couldn't get any carpark
         }
       }
       res.status(404).send(data)
     }
+    return data
   },
+
   /**
    * @api {get} /:region/station/:stop_id/times/:time Stop Times - by stop_id
    * @apiName GetTimes
@@ -165,7 +167,7 @@ const station = {
    *       }
    *     }
    */
-  stopTimes: async function(req, res) {
+  stopTimes: async (req, res) => {
     if (!req.params.station) {
       return res.status(404).send({
         message: 'Please specify a stop.',
@@ -232,7 +234,8 @@ const station = {
       return res.status(500).send(err)
     }
 
-    sending.trips = trips.map(record => {
+    sending.trips = trips.map(r => {
+      const record = r // clone?
       record.departure_time_seconds =
         new Date(record.departure_time).getTime() / 1000
       if (record.departure_time_24) {
@@ -289,6 +292,7 @@ const station = {
       }
     }
     res.send(sending)
+    return sending
   },
   /**
    * @api {get} /:region/station/:stop_id/timetable/:route/:direction/:offset Timetable - by stop_id
@@ -385,8 +389,7 @@ const station = {
 
     const sending = trips.map(record => {
       record.departure_time_seconds =
-        new Date(record.departure_time || record.arrival_time).getTime() /
-        1000
+        new Date(record.departure_time || record.arrival_time).getTime() / 1000
       if (record.departure_time_24 || record.arrival_time_24) {
         record.arrival_time_seconds += 86400
       }

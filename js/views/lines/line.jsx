@@ -1,8 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { View, Text, StyleSheet } from 'react-native'
+import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 
+import local from '../../../local.js'
 import { vars } from '../../styles.js'
 import { StationStore } from '../../stores/stationStore.js'
 import { UiStore } from '../../stores/uiStore.js'
@@ -15,26 +17,66 @@ import { LineData } from '../../data/lineData.js'
 import { LineStops } from './lineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 
+const Icon = leaflet.icon
+const icons = [
+  null,
+  null,
+  Icon({
+    iconUrl: '/icons/normal/train-fill.svg',
+    iconSize: [24, 24],
+    className: 'vehIcon',
+  }),
+  Icon({
+    iconUrl: '/icons/normal/bus-fill.svg',
+    iconSize: [24, 24],
+    className: 'vehIcon',
+  }),
+  Icon({
+    iconUrl: '/icons/normal/ferry-fill.svg',
+    iconSize: [24, 24],
+    className: 'vehIcon',
+  }),
+]
+
+let styles = null
+
 class LineWithoutRouter extends React.Component {
   static propTypes = {
-    match: PropTypes.object,
+    match: PropTypes.object.isRequired,
   }
-  lineData = new LineData({
-    region: this.props.match.params.region,
-    line_id: this.props.match.params.line_id,
-  })
+
   layer = new Layer()
+
   pointsLayer = new Layer()
+
+  liveLayer = new Layer()
+
   state = {
-    header: '',
     color: '#666',
     stops: [],
     direction: 0,
     lineMetadata: [],
     loading: true,
   }
+
   constructor(props) {
     super(props)
+
+    const { match, location } = this.props
+
+    // sets the direction
+    if (location.search !== '') {
+      const direction = location.search.split('?direction=')[1]
+      if (direction === '1') {
+        this.state.direction = 1
+      }
+    }
+
+    this.lineData = new LineData({
+      region: match.params.region,
+      line_id: match.params.line_id,
+    })
+
     if (
       UiStore.state.lastTransition !== 'backward' &&
       UiStore.state.cardPosition === 'max'
@@ -44,71 +86,185 @@ class LineWithoutRouter extends React.Component {
       })
     }
   }
-  triggerSwitchDirection = () => {
-    this.layer.hide(true, true)
-    this.pointsLayer.hide()
-    this.layer = new Layer()
-    this.pointsLayer = new Layer()
-    this.setState({
-      direction: !this.state.direction ? 1 : 0,
-      loading: true,
-    })
-    this.getData()
-  }
+
   componentDidMount() {
-    this.getData()
+    this.dataResolved = this.getData()
+    this.getPositionData()
+
+    this.liveRefresh = setInterval(() => {
+      this.getPositionData()
+    }, 10000)
   }
-  getData() {
-    this.lineData.getMeta().then(metadata => {
-      const route_color = metadata[this.state.direction].route_color
-      this.setState({
-        color: route_color,
-        lineMetadata: metadata,
-      })
-      this.lineData.shape_id = metadata[this.state.direction].shape_id
-      renderShape(this.lineData, this.layer, route_color)
-      renderStops(
-        this.lineData,
-        this.pointsLayer,
-        route_color,
-        this.props.match.params.region,
-        this.props.match.params.line_id
-      ).then(stops => {
-        this.setState({ stops: stops, loading: false })
-      })
-    })
-  }
+
   componentWillUnmount() {
     this.layer.hide(true, true)
     this.pointsLayer.hide()
+    this.liveLayer.hide()
     this.layer.unmounted = true
     this.pointsLayer.unmounted = true
+    this.liveLayer.unmounted = true
+
+    clearInterval(this.liveRefresh)
+    this.cancelCallbacks = true
   }
+
+  getData() {
+    return this.lineData
+      .getMeta()
+
+      .then(metadata => {
+        if (metadata.length === 0) {
+          throw new Error('The line was not found.')
+        } else if (metadata[0].shape_id === null) {
+          throw new Error('The line had missing data.')
+        }
+        const { match } = this.props
+        const { direction } = this.state
+        const routeColor = metadata.find(i => i.direction_id === direction)
+          .route_color
+        this.setState({
+          color: routeColor,
+          lineMetadata: metadata,
+        })
+        this.lineData.shape_id = metadata.find(
+          i => i.direction_id === direction
+        ).shape_id
+        renderShape(this.lineData, this.layer, routeColor)
+
+        return renderStops(
+          this.lineData,
+          this.pointsLayer,
+          routeColor,
+          match.params.region,
+          match.params.line_id
+        )
+      })
+      .then(stops => {
+        this.setState({ stops, loading: false })
+        return stops
+      })
+      .catch(err => {
+        clearInterval(this.liveRefresh)
+        console.error(err)
+        this.setState({
+          error: true,
+          errorMessage: err.message,
+        })
+      })
+  }
+
+  getPositionData = () => {
+    const { match } = this.props
+    const { direction } = this.state
+    let busPositions = null
+    this.lineData
+      .getRealtime()
+      .then(data => {
+        this.liveLayer.hide()
+        this.liveLayer = new Layer()
+        busPositions = {
+          type: 'MultiPoint',
+          coordinates: [],
+        }
+        data.forEach(trip => {
+          if (trip.latitude !== undefined && trip.direction === direction) {
+            busPositions.coordinates.push([
+              trip.longitude,
+              trip.latitude,
+              // TODO: bearing
+            ])
+          }
+        })
+
+        // this makes sure the route data has been loaded.
+        return this.dataResolved
+      })
+      .then(() => {
+        const { lineMetadata } = this.state
+        this.liveLayer.add('geojson', busPositions, {
+          icon: icons[lineMetadata[0].route_type],
+        })
+        this.liveLayer.show()
+        return 'done!'
+      })
+      .catch(err => {
+        // who cares about the error
+        console.error('Could not load realtime.')
+      })
+  }
+
+  triggerSwitchDirection = () => {
+    const { direction } = this.state
+    this.layer.hide(true, true)
+    this.pointsLayer.hide()
+    this.liveLayer.hide()
+    this.layer = new Layer()
+    this.pointsLayer = new Layer()
+    this.setState(
+      {
+        direction: !direction ? 1 : 0,
+        loading: true,
+      },
+      () => {
+        this.getPositionData()
+      }
+    )
+    this.getData()
+  }
+
   render() {
+    const { match } = this.props
+    const {
+      color,
+      direction,
+      error,
+      errorMessage,
+      lineMetadata,
+      loading,
+      stops,
+    } = this.state
+
     const currentLine =
-      this.state.lineMetadata.length > 0
-        ? this.state.lineMetadata[this.state.direction]
+      lineMetadata.length > 0
+        ? lineMetadata.find(i => i.direction_id === direction)
         : {}
-    const inner = this.state.loading ? (
+    let lineLabel = null
+    if (lineMetadata.length <= 1) {
+      lineLabel = 'Route Stations'
+    } else {
+      lineLabel = StationStore.getDirection(
+        match.params.region,
+        currentLine.direction_id
+      )
+    }
+    if (error) {
+      return (
+        <View style={styles.wrapper}>
+          <Header title="Line Error" />
+          <View style={styles.error}>
+            <Text style={styles.errorMessage}>
+              We couldn&apos;t load the {match.params.line_id} line in{' '}
+              {match.params.region}.
+            </Text>
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+        </View>
+      )
+    }
+
+    const inner = loading ? (
       <div className="spinner" />
     ) : (
       <React.Fragment>
-        <Text style={styles.direction}>
-          {this.state.lineMetadata.length <= 1
-            ? 'Route Stations'
-            : StationStore.getDirection(
-                this.props.match.params.region,
-                currentLine.direction_id
-              ) + ' Route'}
-        </Text>
+        <Text style={styles.direction}>{lineLabel}</Text>
         <LineStops
-          color={this.state.color}
-          stops={this.state.stops}
-          line={this.props.match.params.line_id}
-          region={this.props.match.params.region}
+          color={color}
+          stops={stops}
+          line={match.params.line_id}
+          region={match.params.region}
         />
         <View style={styles.linkWrapper}>
-          {this.state.lineMetadata.length <= 1 ? null : (
+          {lineMetadata.length <= 1 ? null : (
             <LinkButton
               label="Change Direction"
               color="secondary"
@@ -122,7 +278,7 @@ class LineWithoutRouter extends React.Component {
     return (
       <View style={styles.wrapper}>
         <Header
-          title={this.props.match.params.line_id}
+          title={match.params.line_id}
           subtitle={currentLine.route_long_name || ''}
         />
         <LinkedScroll>{inner}</LinkedScroll>
@@ -130,7 +286,8 @@ class LineWithoutRouter extends React.Component {
     )
   }
 }
-const styles = StyleSheet.create({
+
+styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },
@@ -144,6 +301,13 @@ const styles = StyleSheet.create({
   },
   linkWrapper: {
     padding: vars.padding,
+  },
+  error: {
+    padding: vars.padding,
+  },
+  errorMessage: {
+    fontSize: vars.defaultFontSize,
+    fontFamily: vars.defaultFontFamily,
   },
 })
 const Line = withRouter(LineWithoutRouter)

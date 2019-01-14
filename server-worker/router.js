@@ -72,9 +72,7 @@ const signature = function() {
  *     }
  *
  */
-router.get('/a/info', function(req, res) {
-  res.send(signature())
-})
+router.get('/a/info', (req, res) => res.send(signature()))
 
 router.get('/a/stations', search.all)
 router.get('/a/station', station.stopInfo)
@@ -95,6 +93,7 @@ router.get('/a/stops/shape/:shape_id', line.getStopsFromShape)
 router.get('/a/shapejson/:shape_id', line.getShapeJSON)
 router.get('/a/onzo', onzo.getBikes)
 router.get('/a/realtime-healthcheck', realtime.healthcheck)
+router.get('/a/realtime/:line', realtime.vehicleLocationV2)
 router.post('/a/realtime', realtime.stopInfo)
 router.post('/a/vehicle_location', realtime.vehicleLocation)
 
