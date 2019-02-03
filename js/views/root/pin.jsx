@@ -4,6 +4,14 @@ import { iOS } from '../../helpers/ios.js'
 import Clipboard from 'clipboard'
 import local from '../../../local'
 
+let deferredPrompt = null
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent Chrome 67 and earlier from automatically showing the prompt
+  e.preventDefault()
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e
+})
+
 let clipboard = undefined
 export class Pin extends React.Component {
   static propTypes = {
@@ -17,6 +25,22 @@ export class Pin extends React.Component {
   }
   componentDidMount() {
     clipboard = new Clipboard('.clipboardcopy')
+
+    if (deferredPrompt !== null) {
+      // Show the prompt
+      deferredPrompt.prompt()
+      // Wait for the user to respond to the prompt
+      deferredPrompt.userChoice
+        .then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the A2HS prompt')
+          } else {
+            console.log('User dismissed the A2HS prompt')
+          }
+          this.triggerClose()
+          deferredPrompt = null
+        });
+    }
   }
   componentWillUnmount() {
     clipboard.destroy()
@@ -68,6 +92,9 @@ export class Pin extends React.Component {
     })
   }
   render() {
+    if (deferredPrompt !== null) {
+      return null
+    }
     var userAgent = window.navigator.userAgent.toLowerCase()
     var output = (
       <div className="other">
@@ -196,7 +223,7 @@ export class Pin extends React.Component {
             <br />
             <button className="nice-button primary" type="submit">
               Send Link
-            </button>{' '}
+            </button>
             <button className="nice-button" onClick={this.triggerClose}>
               Cancel
             </button>
