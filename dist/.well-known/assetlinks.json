@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.dymajo.waka",
+      "sha256_cert_fingerprints": [
+        "5C:25:FA:26:D2:58:7C:DC:36:F3:7A:8F:65:0E:7B:4F:5B:3D:AA:65:AB:96:1A:DC:26:58:92:31:34:2F:34:89"
+      ]
+    }
+  }
+]
