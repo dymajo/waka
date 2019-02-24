@@ -121,7 +121,7 @@ export class Pin extends React.Component {
             <p>You’ll need to open this app in Safari first!</p>
             <button
               className="nice-button primary clipboardcopy"
-              data-clipboard-text="https://getwaka.com"
+              data-clipboard-text="https://waka.app"
               onClick={this.triggerClipboard}
             >
               {linktext}
@@ -148,13 +148,13 @@ export class Pin extends React.Component {
           <div className="ios-other">
             <p>You’ll need to open this app in Safari first!</p>
             <p>
-              <a href="https://getwaka.com" onClick={this.doNothing}>
-                getwaka.com
+              <a href="https://waka.app" onClick={this.doNothing}>
+                waka.app
               </a>
             </p>
             <button
               className="nice-button primary clipboardcopy"
-              data-clipboard-text="https://getwaka.com"
+              data-clipboard-text="https://waka.app"
               onClick={this.triggerClipboard}
             >
               {linktext}
