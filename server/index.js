@@ -17,26 +17,34 @@ const {
   DB_USER,
   DB_PASSWORD,
   DB_SERVER,
-  DB_DATABASE,
+  DB_MASTER_DATABASE,
   DB_TRANSACTION_LIMIT,
   DB_CONNECTION_TIMEOUT,
   DB_REQUEST_TIMEOUT,
   MODE,
+  STORAGE_SERVICE,
+  SHAPES_CONTAINER,
+  SHAPES_REGION,
+  EMULATED_STORAGE,
 } = process.env
 
 global.config = {
   prefix: PREFIX,
   version: VERSION,
-  dbname: DB_NAME,
   mode: MODE || 'all',
+  storageService: 'aws' || STORAGE_SERVICE,
+  shapesContainer: 'shapes-us-west-2.waka.app' || SHAPES_CONTAINER,
+  shapesRegion: 'us-west-2' || SHAPES_REGION,
+  emulatedStorage: EMULATED_STORAGE || false,
   db: {
     user: DB_USER,
     password: DB_PASSWORD,
     server: DB_SERVER,
-    database: DB_DATABASE,
-    transactionLimit: parseInt(DB_TRANSACTION_LIMIT, 10),
-    connectionTimeout: parseInt(DB_CONNECTION_TIMEOUT, 10),
-    requestTimeout: parseInt(DB_REQUEST_TIMEOUT, 10),
+    database: DB_NAME || `${PREFIX}_${VERSION}`,
+    master_database: DB_MASTER_DATABASE || 'master',
+    transactionLimit: parseInt(DB_TRANSACTION_LIMIT, 10) || 50000,
+    connectionTimeout: parseInt(DB_CONNECTION_TIMEOUT, 10) || 60000,
+    requestTimeout: parseInt(DB_REQUEST_TIMEOUT, 10) || 60000,
   },
 }
 
@@ -51,18 +59,10 @@ log('prefix: '.magenta, global.config.prefix)
 log('version:'.magenta, global.config.version)
 
 const start = async () => {
-  await connection.isReady
+  await connection.open()
 
   log('Connected to Database')
-  const dbName = global.config.db.database
-
   const sqlRequest = connection.get().request()
-  sqlRequest.input('name', sql.VarChar, dbName)
-
-  await sqlRequest.query(`
-    IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = @name)
-    EXEC('CREATE DATABASE '+ @name)`)
-
   const databaseCreated = await sqlRequest.query(
     `
       select OBJECT_ID('agency', 'U') as 'dbcreated'

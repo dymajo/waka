@@ -3,7 +3,6 @@ const path = require('path')
 const rimraf = require('rimraf')
 const sql = require('mssql')
 
-const config = require('../../config')
 const log = require('../logger.js')
 const GtfsImport = require('../db/gtfs-import.js')
 const CreateShapes = require('../db/create-shapes.js')
@@ -90,7 +89,7 @@ class Importer {
       .replace('.', '-')
       .replace('_', '-')
     await creator.upload(
-      config.shapesContainer,
+      global.config.shapesContainer,
       path.resolve(outputDir, global.config.version)
     )
   }
