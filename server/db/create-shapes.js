@@ -4,17 +4,16 @@ const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 const colors = require('colors')
 const log = require('../logger.js')
-
-const config = require('../../config.js')
 const Storage = require('./storage.js')
 
-const storageSvc = new Storage({
-  backing: config.storageService,
-  local: config.emulatedStorage,
-  region: config.shapesRegion,
-})
-
 class CreateShapes {
+  constructor() {
+    this.storageSvc = new Storage({
+      backing: global.config.storageService,
+      local: global.config.emulatedStorage,
+      region: global.config.shapesRegion,
+    })
+  }
   create(inputFile, outputDirectory, versions) {
     return new Promise((resolve, reject) => {
       const input = fs.createReadStream(inputFile)
@@ -98,7 +97,7 @@ class CreateShapes {
           .replace('_', '-')
           .replace('.', '-')}/${fileName}`
         const fileLocation = path.resolve(directory, fileName)
-        storageSvc.uploadFile(container, key, fileLocation, error => {
+        this.storageSvc.uploadFile(container, key, fileLocation, error => {
           if (error) {
             console.error(
               `${container.magenta}:`,
