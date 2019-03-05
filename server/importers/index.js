@@ -25,17 +25,22 @@ class Importer {
     }
   }
 
-  async start() {
+  async start(created = false) {
     if (!this.current) {
       return
     }
 
-    await this.download()
-    await this.unzip()
-    await this.db()
+    // if the db is already there, avoid the first few steps
+    if (!created) {
+      await this.download()
+      await this.unzip()
+      await this.db()
+    } else {
+      log('DB already created - skipping download & unzip.')
+    }
     await this.shapes()
     await this.fixStopCodes()
-    await this.exportDb()
+    // await this.exportDb()
   }
 
   async unzip() {
@@ -129,8 +134,6 @@ class Importer {
     } catch (err) {
       console.log(err)
     }
-    const location = '/path/to/db'
-    await this.storage.upload(location)
   }
 }
 module.exports = Importer
