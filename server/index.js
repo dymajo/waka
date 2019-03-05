@@ -68,8 +68,8 @@ const start = async () => {
       select OBJECT_ID('agency', 'U') as 'dbcreated'
     `
   )
-
-  if (databaseCreated.recordset[0].dbcreated === null) {
+  const created = !(databaseCreated.recordset[0].dbcreated === null)
+  if (!created) {
     log('Building Database from Template')
     const creator = new CreateDb()
     await creator.start()
@@ -82,7 +82,7 @@ const start = async () => {
 
   if (mode === 'all') {
     log('Started import of ALL')
-    await importer.start()
+    await importer.start(created)
   } else if (mode === 'db') {
     log('Started import of DB')
     await importer.db()
