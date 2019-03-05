@@ -75,5 +75,4 @@ class Storage {
     log('uploading to local');
   }
 }
-}
 module.exports = Storage
