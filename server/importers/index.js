@@ -1,50 +1,50 @@
-const fs = require('fs');
-const path = require('path');
-const rimraf = require('rimraf');
-const sql = require('mssql');
+const fs = require('fs')
+const path = require('path')
+const rimraf = require('rimraf')
+const sql = require('mssql')
 
-const config = require('../../config');
-const log = require('../logger.js');
-const GtfsImport = require('../db/gtfs-import.js');
-const CreateShapes = require('../db/create-shapes.js');
-const connection = require('../db/connection.js');
-const Storage = require('../db/storage');
+const config = require('../../config')
+const log = require('../logger.js')
+const GtfsImport = require('../db/gtfs-import.js')
+const CreateShapes = require('../db/create-shapes.js')
+const connection = require('../db/connection.js')
+const Storage = require('../db/storage')
 
 class Importer {
   constructor() {
-    this.importer = new GtfsImport();
-    this.storage = new Storage({});
-    this.current = null;
+    this.importer = new GtfsImport()
+    this.storage = new Storage({})
+    this.current = null
     try {
-      this.current = require(`./regions/${global.config.prefix}.js`);
+      this.current = require(`./regions/${global.config.prefix}.js`)
     } catch (err) {
       log(
         'fatal error'.red,
         'Could not find an importer in ',
         path.join(__dirname, './regions', `${global.config.prefix}.js`)
-      );
+      )
     }
   }
 
   async start() {
     if (!this.current) {
-      return;
+      return
     }
 
-    await this.download();
-    await this.unzip();
-    await this.db();
-    await this.shapes();
-    await this.fixStopCodes();
-    await this.exportDb();
+    await this.download()
+    await this.unzip()
+    await this.db()
+    await this.shapes()
+    await this.fixStopCodes()
+    await this.exportDb()
   }
 
   async unzip() {
-    await this.importer.unzip(this.current.zipLocation);
+    await this.importer.unzip(this.current.zipLocation)
   }
 
   async download() {
-    await this.current.download();
+    await this.current.download()
   }
 
   async db() {
@@ -54,68 +54,68 @@ class Importer {
         file,
         global.config.version,
         file.versioned
-      );
+      )
     }
   }
 
   async shapes() {
-    const creator = new CreateShapes();
+    const creator = new CreateShapes()
     const inputDir = path.resolve(
       `${this.current.zipLocation}unarchived`,
       'shapes.txt'
-    );
+    )
     const outputDir = path.resolve(
       `${this.current.zipLocation}unarchived`,
       'shapes'
-    );
-    const outputDir2 = path.resolve(outputDir, global.config.version);
+    )
+    const outputDir2 = path.resolve(outputDir, global.config.version)
 
     // make sure the old output dir exists
     if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
+      fs.mkdirSync(outputDir)
     }
 
     // cleans up old import if exists
     if (fs.existsSync(outputDir2)) {
       await new Promise((resolve, reject) => {
-        rimraf(outputDir2, resolve);
-      });
+        rimraf(outputDir2, resolve)
+      })
     }
-    fs.mkdirSync(outputDir2);
+    fs.mkdirSync(outputDir2)
 
     // creates the new datas
-    await creator.create(inputDir, outputDir, [global.config.versmassaion]);
+    await creator.create(inputDir, outputDir, [global.config.version])
 
     const containerName = `${global.config.prefix}-${global.config.version}`
       .replace('.', '-')
-      .replace('_', '-');
+      .replace('_', '-')
     await creator.upload(
       config.shapesContainer,
       path.resolve(outputDir, global.config.version)
-    );
+    )
   }
 
   async fixStopCodes() {
     // GTFS says it's optional, but Waka uses stop_code for stop lookups
-    const sqlRequest = connection.get().request();
+    const sqlRequest = connection.get().request()
     const res = await sqlRequest.query(`
       UPDATE stops
       SET stop_code = stop_id
       WHERE stop_code is null;
-    `);
-    const rows = res.rowsAffected[0];
+    `)
+    const rows = res.rowsAffected[0]
     log(
       `${global.config.prefix} ${global.config.version}`.magenta,
       `Updated ${rows} null stop codes`
-    );
+    )
   }
 
   async exportDb() {
-    const sqlRequest = connection.get().request();
+    const sqlRequest = connection.get().request()
     const {
       db: { database },
-    } = global.config;
-    sqlRequest.input('dbName', sql.VarChar, database);
+    } = global.config
+    sqlRequest.input('dbName', sql.VarChar, database)
     try {
       await sqlRequest.query(
         `
@@ -126,12 +126,12 @@ class Importer {
         WITH NOFORMAT, NOINIT, NAME = ${database},
         SKIP, NOREWIND, NOUNLOAD, STATS = 10
         `
-      );
+      )
     } catch (err) {
-      console.log(err);
+      console.log(err)
     }
-    const location = '/path/to/db';
-    await this.storage.upload(location);
+    const location = '/path/to/db'
+    await this.storage.upload(location)
   }
 }
-module.exports = Importer;
+module.exports = Importer

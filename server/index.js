@@ -1,27 +1,18 @@
-const connection = require('./db/connection.js');
-const CreateDb = require('./db/create.js');
-const log = require('./logger.js');
-const cache = require('./cache');
-const importers = require('./importers/index');
-const sql = require('mssql');
-const dotenv = require('dotenv');
-const result = dotenv.config();
+const sql = require('mssql')
+const dotenv = require('dotenv')
 
-if (result.error) {
-  throw result.error;
-}
+const connection = require('./db/connection.js')
+const CreateDb = require('./db/create.js')
+const log = require('./logger.js')
+const Importers = require('./importers/index')
 
-console.log(result.parsed);
+dotenv.config()
 
-log('Worker Started');
+log('Importer Started')
 
 const {
-  ID,
   PREFIX,
   VERSION,
-  STATUS,
-  START_POLICY,
-  DB_CONFIG,
   DB_NAME,
   DB_USER,
   DB_PASSWORD,
@@ -30,18 +21,14 @@ const {
   DB_TRANSACTION_LIMIT,
   DB_CONNECTION_TIMEOUT,
   DB_REQUEST_TIMEOUT,
-  MODE
-} = process.env;
+  MODE,
+} = process.env
 
 global.config = {
-  id: ID,
   prefix: PREFIX,
   version: VERSION,
-  status: STATUS,
-  startpolicy: START_POLICY,
-  dbconfig: DB_CONFIG,
   dbname: DB_NAME,
-  mode: MODE || 'export',
+  mode: MODE || 'all',
   db: {
     user: DB_USER,
     password: DB_PASSWORD,
@@ -49,85 +36,70 @@ global.config = {
     database: DB_DATABASE,
     transactionLimit: parseInt(DB_TRANSACTION_LIMIT, 10),
     connectionTimeout: parseInt(DB_CONNECTION_TIMEOUT, 10),
-    requestTimeout: parseInt(DB_REQUEST_TIMEOUT, 10)
+    requestTimeout: parseInt(DB_REQUEST_TIMEOUT, 10),
+  },
+}
+
+Object.keys(global.config).forEach(key => {
+  if (global.config[key] === undefined) {
+    throw new Error(`Variable ${key} was undefined.`)
   }
-};
+  return true
+})
 
-log(
-  'prefix: '.magenta,
-  global.config.prefix,
-  '\n       version:'.magenta,
-  global.config.version,
-  'config'
-);
-connection.isReady
-  .then(() => {
-    log('Connected to Database');
-    const dbName = global.config.db.database;
+log('prefix: '.magenta, global.config.prefix)
+log('version:'.magenta, global.config.version)
 
-    const sqlRequest = connection.get().request();
-    sqlRequest.input('name', sql.VarChar, dbName);
+const start = async () => {
+  await connection.isReady
 
-    sqlRequest.query(
-      `
-        IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = @name)
-        EXEC('CREATE DATABASE '+ @name)
-      `
-    );
+  log('Connected to Database')
+  const dbName = global.config.db.database
 
-    sqlRequest
-      .query(
-        `
-        select OBJECT_ID('agency', 'U') as 'dbcreated'
-      `
-      )
-      .then(data => {
-        if (data.recordset[0].dbcreated === null) {
-          log('Building Database from Template');
-          const creator = new CreateDb();
-          creator
-            .start()
-            .then(() => {
-              log('Worker Ready');
-              startImport();
-            })
-            .catch(err => {
-              console.log(err);
-            });
-        } else {
-          log('Worker Ready');
-          cache.runReady();
+  const sqlRequest = connection.get().request()
+  sqlRequest.input('name', sql.VarChar, dbName)
 
-          startImport();
-        }
-      });
-  })
-  .catch(err => console.log(err));
+  await sqlRequest.query(`
+    IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = @name)
+    EXEC('CREATE DATABASE '+ @name)`)
 
-const startImport = () => {
-  const importer = new importers();
-  const { mode } = global.config;
-  const cb = mode => {
-    log(`Completed ${mode.toUpperCase()}`);
-  };
+  const databaseCreated = await sqlRequest.query(
+    `
+      select OBJECT_ID('agency', 'U') as 'dbcreated'
+    `
+  )
+
+  if (databaseCreated.recordset[0].dbcreated === null) {
+    log('Building Database from Template')
+    const creator = new CreateDb()
+    await creator.start()
+  }
+
+  log('Worker Ready')
+
+  const importer = new Importers()
+  const { mode } = global.config
 
   if (mode === 'all') {
-    log('Started import of ALL');
-    importer.start().then(() => cb(mode));
+    log('Started import of ALL')
+    await importer.start()
   } else if (mode === 'db') {
-    log('Started import of DB');
-    importer.db().then(() => cb(mode));
+    log('Started import of DB')
+    await importer.db()
   } else if (mode === 'shapes') {
-    log('Started import of SHAPES');
-    importer.shapes().then(() => cb(mode));
+    log('Started import of SHAPES')
+    await importer.shapes()
   } else if (mode === 'unzip') {
-    log('Started UNZIP');
-    importer.unzip().then(() => cb(mode));
+    log('Started UNZIP')
+    await importer.unzip()
   } else if (mode === 'download') {
-    log('Started DOWNLOAD');
-    importer.download().then(() => cb(mode));
+    log('Started DOWNLOAD')
+    await importer.download()
   } else if (mode === 'export') {
-    log('Started EXPORT');
-    importer.exportDb().then(() => cb(mode));
+    log('Started EXPORT')
+    await importer.exportDb()
   }
-};
+  log(`Completed ${mode.toUpperCase()}`)
+  process.exit(0)
+}
+start()
