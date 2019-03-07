@@ -1,19 +1,23 @@
-const fs = require('fs')
-const path = require('path')
-const cache = require('../cache')
+// const fs = require('fs')
+// const path = require('path')
+// const cache = require('../cache')
 
 class Realtime {
   constructor() {
     this.fn = null
-    cache.preReady.push(() => {
-      if (fs.existsSync(path.join(__dirname, `./${global.config.prefix}.js`))) {
-        this.fn = require(`./${global.config.prefix}`)
-      }
-    })
     this.stopInfo = this.stopInfo.bind(this)
     this.vehicleLocation = this.vehicleLocation.bind(this)
     this.vehicleLocationV2 = this.vehicleLocationV2.bind(this)
     this.healthcheck = this.healthcheck.bind(this)
+  }
+
+  start() {
+    // Do this but better.
+    // cache.preReady.push(() => {V
+    //   if (fs.existsSync(path.join(__dirname, `./${global.config.prefix}.js`))) {
+    //     this.fn = require(`./${global.config.prefix}`)
+    //   }
+    // })
   }
 
   /**

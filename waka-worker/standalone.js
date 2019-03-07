@@ -25,7 +25,7 @@ const {
 const app = new Express()
 app.use(bodyParser.json())
 app.use((req, res, next) => {
-  res.setHeader('X-Powered-By', `waka-${PREFIX}-${VERSION}`)
+  res.setHeader('X-Powered-By', `waka-worker-${PREFIX}-${VERSION}`)
   next()
 })
 const worker = new WakaWorker({
