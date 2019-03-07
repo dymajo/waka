@@ -8,7 +8,8 @@ app.use((req, res, next) => {
   res.setHeader('X-Powered-By', 'waka-orchestrator')
   next()
 })
-const endpoint = process.env.ENDPOINT || 'https://waka.app/a'
+const port = process.env.PORT || 9001
+const endpoint = process.env.ENDPOINT || `http://localhost:${port}`
 const proxy = new WakaProxy({ endpoint })
 const wellington = new WakaWorker({
   prefix: 'nz-wlg',
@@ -23,10 +24,10 @@ const wellington = new WakaWorker({
     requestTimeout: 60000,
   },
 })
-app.use(wellington.router)
+app.use('/nz-wlg', wellington.router)
 app.use(proxy.router)
 
-const listener = app.listen(process.env.PORT || 9001, () => {
+const listener = app.listen(port, () => {
   logger.info(
     { port: listener.address().port, endpoint },
     'waka-orchestrator listening'
