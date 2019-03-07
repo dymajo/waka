@@ -7,6 +7,8 @@ class WakaProxy {
     this.discovery = new WorkerDiscovery({
       endpoint: props.endpoint,
     })
+
+    this.smartRedirect = this.smartRedirect.bind(this)
     this.bindRoutes()
   }
 
@@ -14,6 +16,27 @@ class WakaProxy {
     this.router.get('/regions', (req, res) => {
       res.send(this.discovery.getRegions())
     })
+    this.router.all('/:prefix', this.smartRedirect)
+    this.router.all('/:prefix/*', this.smartRedirect)
+  }
+
+  smartRedirect(req, res) {
+    const { originalUrl, params, query } = req
+    const { prefix } = params
+    const { lat, lon } = query
+    if (prefix === 'auto') {
+      const region = this.discovery.getRegionByBounds(
+        parseFloat(lat),
+        parseFloat(lon)
+      )
+      const newUrl = `/${region}/${originalUrl.split('/auto')[1]}`
+      res.redirect(newUrl)
+    } else {
+      res.status(404).send({
+        message: `prefix ${prefix} not found`,
+        url: req.originalUrl,
+      })
+    }
   }
 
   start() {
@@ -57,5 +80,3 @@ module.exports = WakaProxy
  *     }
  *
  */
-// router.all('/a/:prefix', proxyHandle)
-// router.all('/a/:prefix/*', proxyHandle)
