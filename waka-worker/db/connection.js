@@ -1,24 +1,32 @@
 const sql = require('mssql')
- 
-let pool1, ready
-const connection = {
-  get: () => {
-    return pool1
-  },
-  open: () => {
-    pool1 = new sql.ConnectionPool(global.config.db, err => {
-      if (err) {
-        console.error(err)
-        return connection.reject()
-      }
-      connection.resolve()
+
+class Connection {
+  constructor(props) {
+    const { logger, db } = props
+    this.db = db
+    this.logger = logger
+
+    this.pool = null
+    this.ready = new Promise((resolve, reject) => {
+      this.readyResolve = resolve
+      this.readyReject = reject
     })
-    return ready
-  },
-  isReady: ready
+  }
+
+  get() {
+    return this.pool
+  }
+
+  open() {
+    this.pool = new sql.ConnectionPool(this.db, err => {
+      if (err) {
+        this.logger.error(err)
+        return this.readyReject()
+      }
+      this.readyResolve()
+      return this.ready
+    })
+    return this.ready
+  }
 }
-ready = new Promise((resolve, reject) => {
-  connection.resolve = resolve
-  connection.reject = reject
-})
-module.exports = connection
+module.exports = Connection
