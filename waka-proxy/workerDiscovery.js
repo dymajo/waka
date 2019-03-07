@@ -38,6 +38,22 @@ class WorkerDiscovery {
     logger.info({ region: prefix, status: request.status }, message)
   }
 
+  getRegionByBounds(lat, lon) {
+    let region = 'nz-akl' // default
+    this.responseMap.forEach(response => {
+      const { prefix, bounds } = response
+      if (
+        lat >= bounds.lat.min &&
+        lat <= bounds.lat.max &&
+        lon >= bounds.lon.min &&
+        lon <= bounds.lon.max
+      ) {
+        region = prefix
+      }
+    })
+    return region
+  }
+
   getRegions() {
     const availableRegions = {}
     this.responseMap.forEach(response => {
