@@ -1,3 +1,5 @@
+const sql = require('mssql')
+
 class DataAccess {
   constructor(props) {
     const { connection } = props
@@ -13,6 +15,22 @@ class DataAccess {
       FROM routes
       ORDER BY route_type, route_short_name
     `)
+    return data
+  }
+
+  async getOperator(route) {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('route_short_name', sql.VarChar(50), route)
+    const data = await sqlRequest.query(
+      `
+      SELECT top(1)
+        agency_id
+      FROM routes 
+      WHERE 
+        route_short_name = @route_short_name
+    `
+    )
     return data
   }
 }

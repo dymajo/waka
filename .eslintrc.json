@@ -6,7 +6,7 @@
   "extends": ["airbnb-base", "prettier", "plugin:promise/recommended"],
   "plugins": ["prettier", "promise"],
   "rules": {
-    "indent": ["error", 2],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
     "semi": "off",
@@ -27,6 +27,7 @@
     "promise/prefer-await-to-then": "warn",
     "promise/prefer-await-to-callbacks": "warn",
     "class-methods-use-this": "off",
-    "import/no-dynamic-require": "off"
+    "import/no-dynamic-require": "off",
+    "quote-props": "off"
   }
 }
