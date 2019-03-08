@@ -1,12 +1,16 @@
 const sql = require('mssql')
-const connection = require('../db/connection.js')
 
 class StopsDataAccess {
-  constructor() {
+  constructor(props) {
+    const { connection, prefix } = props
+    this.connection = connection
+    this.prefix = prefix
+
     this.stopRouteCache = new Map()
   }
 
   async getBounds() {
+    const { connection } = this
     const sqlRequest = connection.get().request()
     const result = await sqlRequest.query(`
       SELECT
@@ -21,6 +25,7 @@ class StopsDataAccess {
   }
 
   async getStopInfo(stopCode) {
+    const { connection, prefix } = this
     const sqlRequest = connection
       .get()
       .request()
@@ -55,11 +60,12 @@ class StopsDataAccess {
         stops.stop_code = @stop_code
     `)
     const data = result.recordset[0]
-    data.prefix = global.config.prefix
+    data.prefix = prefix
     return data
   }
 
   async getStopTimes(stopCode, time, date, procedure = 'GetStopTimes') {
+    const { connection } = this
     const sqlRequest = connection
       .get()
       .request()
@@ -71,7 +77,14 @@ class StopsDataAccess {
     return result.recordset
   }
 
-  async getTimetable(stopCode, routeId, date, direction, procedure = 'GetTimetable') {
+  async getTimetable(
+    stopCode,
+    routeId,
+    date,
+    direction,
+    procedure = 'GetTimetable'
+  ) {
+    const { connection } = this
     const sqlRequest = connection
       .get()
       .request()
@@ -85,6 +98,7 @@ class StopsDataAccess {
   }
 
   async getRoutesForStop(stopCode) {
+    const { connection } = this
     const cachedRoutes = this.stopRouteCache.get(stopCode)
     if (cachedRoutes !== undefined) {
       return cachedRoutes
@@ -127,6 +141,7 @@ class StopsDataAccess {
   }
 
   async getRoutesForMultipleStops(stopCodes) {
+    const { connection } = this
     const routesContainer = {}
     const filteredStopCodes = stopCodes.filter(stopCode => {
       const cachedRoutes = this.stopRouteCache.get(stopCode)
@@ -140,7 +155,7 @@ class StopsDataAccess {
     if (filteredStopCodes.length > 0) {
       // TODO: This isn't SQL Injection Proof, but it shouldn't be hit from there anyway.
       // This should also be a stored procedure.
-      const stopCodesQuery = `('${filteredStopCodes.join('\',\'')}')`
+      const stopCodesQuery = `('${filteredStopCodes.join("','")}')`
 
       const sqlRequest = connection.get().request()
       const result = await sqlRequest.query(`
@@ -174,7 +189,7 @@ class StopsDataAccess {
 
         DROP TABLE #stops;
       `)
-      
+
       result.recordset.forEach(record => {
         if (routesContainer[record.stop_code] === undefined) {
           routesContainer[record.stop_code] = []

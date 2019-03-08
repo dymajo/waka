@@ -106,7 +106,7 @@ class RealtimeNZAKL {
     const data =
       train || this.currentDataFails > 3
         ? await this.getTripsAuckland(trips, train)
-        : this.getTripsCachedAuckland(trips)
+        : this.getTripsCached(trips)
     res.send(data)
   }
 
@@ -156,7 +156,7 @@ class RealtimeNZAKL {
     return realtimeInfo
   }
 
-  getTripsCachedAuckland(trips) {
+  getTripsCached(trips) {
     // this is essentially the same function as above, but just pulls from cache
     const realtimeInfo = {}
     trips.forEach(trip => {

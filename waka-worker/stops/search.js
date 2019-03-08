@@ -1,21 +1,14 @@
 const sql = require('mssql')
-const StopsNZAKL = require('./regions/nz-akl.js')
-const StopsNZWLG = require('./regions/nz-wlg.js')
 
 class Search {
   constructor(props) {
-    const { logger, connection, prefix, api } = props
+    const { logger, connection, prefix, stopsExtras } = props
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
+    this.regionSpecific = stopsExtras
 
     this.stopsRouteType = {}
-    this.regionSpecific = null
-    if (prefix === 'nz-akl') {
-      this.regionSpecific = new StopsNZAKL({ logger, apiKey: api['agenda-21'] })
-    } else if (prefix === 'nz-wlg') {
-      this.regionSpecific = new StopsNZWLG({ logger })
-    }
 
     this._stopsFilter = this._stopsFilter.bind(this)
     this.all = this.all.bind(this)
@@ -26,17 +19,10 @@ class Search {
   }
 
   start() {
-    if (this.regionSpecific) {
-      this.regionSpecific.start()
-    }
     this.getStopsRouteType()
   }
 
-  stop() {
-    if (this.regionSpecific) {
-      this.regionSpecific.stop()
-    }
-  }
+  stop() {}
 
   _stopsFilter(recordset, mode) {
     const { prefix, regionSpecific } = this
