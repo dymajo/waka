@@ -18,7 +18,7 @@ class WakaWorker {
     this.connection = connection
 
     this.router = new Router()
-    this.realtime = new Realtime({ logger, connection })
+    this.realtime = new Realtime({ logger, connection, prefix })
 
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
     this.signature = this.signature.bind(this)
@@ -29,7 +29,7 @@ class WakaWorker {
   async start() {
     await this.connection.open()
     this.logger.info('Connected to the Database')
-    // cache start or something.
+    this.realtime.start()
   }
 
   signature() {
