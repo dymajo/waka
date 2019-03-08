@@ -10,6 +10,7 @@ class RealtimeNZAKL {
     const { logger, connection, apiKey } = props
     this.connection = connection
     this.logger = logger
+    this.apiKey = apiKey
 
     this.lastUpdate = null
     this.lastVehicleUpdate = null
@@ -44,9 +45,14 @@ class RealtimeNZAKL {
   }
 
   start() {
+    const { apiKey, logger } = this
+    if (!apiKey) {
+      logger.warn('No Auckland Transport API Key, will not show realtime.')
+      return
+    }
     this.schedulePull()
     this.scheduleLocationPull()
-    this.logger.info('Auckland Realtime Started.')
+    logger.info('Auckland Realtime Started.')
   }
 
   stop() {

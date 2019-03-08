@@ -4,33 +4,13 @@ const Storage = require('../db/storage.js')
 const cityMetadata = require('../../cityMetadata.json')
 const StopsDataAccess = require('../stops/dataAccess.js')
 
-// let lineData = {}
-// cache.preReady.push(() => {
-//   try {
-//     const lineDataSource = require(`./regions/${global.config.prefix}.js`)
+const LinesNZAKL = require('./regions/nz-akl.js')
+const LinesNZWLG = require('./regions/nz-wlg.js')
 
-//     // the second element in the array is default, if it is not exported from the source
-//     const requiredProps = [
-//       ['lineColors', {}],
-//       ['lineIcons', {}],
-//       ['friendlyNames', {}],
-//       ['friendlyNumbers', {}],
-//       ['lineGroups', []],
-//       ['allLines', {}],
-//       ['lineOperators', {}],
-//     ]
-//     requiredProps.forEach(prop => {
-//       if (lineDataSource.hasOwnProperty(prop[0])) {
-//         lineData[prop[0]] = lineDataSource[prop[0]]
-//       } else {
-//         lineData[prop[0]] = prop[1]
-//       }
-//     })
-//   } catch (err) {
-//     log(('Could not load line data for ' + global.config.prefix).red)
-//     console.error(err)
-//   }
-// })
+const regions = {
+  'nz-akl': LinesNZAKL,
+  'nz-wlg': LinesNZWLG,
+}
 
 class Lines {
   constructor(props) {
@@ -49,7 +29,12 @@ class Lines {
       local: config.emulatedStorage,
       region: config.shapesRegion,
     })
+
     this.lineData = {}
+    this.lineDataSource =
+      regions[prefix] !== undefined
+        ? new regions[prefix]({ logger, connection })
+        : null
 
     this.getLines = this.getLines.bind(this)
     this.getLine = this.getLine.bind(this)
@@ -58,7 +43,37 @@ class Lines {
     this.getStopsFromShape = this.getStopsFromShape.bind(this)
   }
 
-  start() {}
+  async start() {
+    const { logger, lineDataSource } = this
+    try {
+      if (lineDataSource === null) {
+        throw new Error('Region not implemented.')
+      }
+      await lineDataSource.start()
+
+      // the second element in the array is default, if it is not exported from the source
+      const requiredProps = [
+        ['lineColors', {}],
+        ['lineIcons', {}],
+        ['friendlyNames', {}],
+        ['friendlyNumbers', {}],
+        ['lineGroups', []],
+        ['allLines', {}],
+        ['lineOperators', {}],
+      ]
+      requiredProps.forEach(prop => {
+        if (Object.prototype.hasOwnProperty.call(lineDataSource, prop[0])) {
+          this.lineData[prop[0]] = lineDataSource[prop[0]]
+        } else {
+          this.lineData[prop[0]] = prop[1]
+        }
+      })
+    } catch (err) {
+      logger.error({ err }, 'Could not load line data.')
+    }
+  }
+
+  stop() {}
 
   getColor(agencyId, routeShortName) {
     const { lineData } = this

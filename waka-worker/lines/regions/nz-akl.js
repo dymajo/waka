@@ -170,8 +170,8 @@ class LinesNZAKL {
     this.lineColors = {}
   }
 
-  start() {
-    this.cacheOperatorsAndShapes()
+  async start() {
+    await this.cacheOperatorsAndShapes()
   }
 
   async cacheOperatorsAndShapes() {

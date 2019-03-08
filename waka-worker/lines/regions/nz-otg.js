@@ -1,3 +1,4 @@
+// TODO: make into a class
 const connection = require('../../db/connection.js')
 const cache = require('../../cache.js')
 
