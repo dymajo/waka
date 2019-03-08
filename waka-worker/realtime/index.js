@@ -1,10 +1,25 @@
 // const fs = require('fs')
 // const path = require('path')
 // const cache = require('../cache')
+// const RealtimeNZAKL = require('./nz-akl.js')
+const RealtimeNZWLG = require('./nz-wlg.js')
+
+const regions = {
+  // 'nz-akl': RealtimeNZAKL,
+  'nz-wlg': RealtimeNZWLG,
+}
 
 class Realtime {
-  constructor() {
-    this.fn = null
+  constructor(props) {
+    const { connection, logger, prefix } = props
+    this.connection = connection
+    this.logger = logger
+    this.prefix = prefix
+
+    this.fn =
+      regions[prefix] !== undefined
+        ? new regions[prefix]({ logger, connection })
+        : null
     this.stopInfo = this.stopInfo.bind(this)
     this.vehicleLocation = this.vehicleLocation.bind(this)
     this.vehicleLocationV2 = this.vehicleLocationV2.bind(this)
@@ -12,12 +27,12 @@ class Realtime {
   }
 
   start() {
-    // Do this but better.
-    // cache.preReady.push(() => {V
-    //   if (fs.existsSync(path.join(__dirname, `./${global.config.prefix}.js`))) {
-    //     this.fn = require(`./${global.config.prefix}`)
-    //   }
-    // })
+    const { fn, logger } = this
+    if (fn) {
+      fn.start()
+    } else {
+      logger.warn('Realtime not implemented!')
+    }
   }
 
   /**
