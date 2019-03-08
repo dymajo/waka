@@ -1,9 +1,9 @@
+// TODO: Busted, needs to be a class, and probably needs to be rewritten anyway.
 const request = require('request')
 const path = require('path')
 const protobuf = require('protobufjs')
 
 const log = require('../../server-common/logger.js')
-const cache = require('../cache.js')
 const search = require('../stops/search.js')
 
 const routeTypeMap = new Map()
@@ -127,5 +127,4 @@ const realtime = {
 }
 
 realtime.initPB()
-cache.ready.push(realtime.schedulePull)
 module.exports = realtime

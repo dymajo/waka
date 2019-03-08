@@ -1,24 +1,22 @@
-// const fs = require('fs')
-// const path = require('path')
-// const cache = require('../cache')
-// const RealtimeNZAKL = require('./nz-akl.js')
+const RealtimeNZAKL = require('./nz-akl.js')
 const RealtimeNZWLG = require('./nz-wlg.js')
 
 const regions = {
-  // 'nz-akl': RealtimeNZAKL,
+  'nz-akl': RealtimeNZAKL,
   'nz-wlg': RealtimeNZWLG,
 }
 
 class Realtime {
   constructor(props) {
-    const { connection, logger, prefix } = props
+    const { connection, logger, prefix, api } = props
     this.connection = connection
     this.logger = logger
     this.prefix = prefix
 
+    const apiKey = api[prefix]
     this.fn =
       regions[prefix] !== undefined
-        ? new regions[prefix]({ logger, connection })
+        ? new regions[prefix]({ logger, connection, apiKey })
         : null
     this.stopInfo = this.stopInfo.bind(this)
     this.vehicleLocation = this.vehicleLocation.bind(this)

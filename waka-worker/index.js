@@ -9,7 +9,7 @@ const Realtime = require('./realtime/index.js')
 
 class WakaWorker {
   constructor(config) {
-    const { prefix, version, db } = config
+    const { prefix, version, db, api } = config
 
     this.config = config
     const logger = createLogger(prefix, version)
@@ -18,7 +18,7 @@ class WakaWorker {
     this.connection = connection
 
     this.router = new Router()
-    this.realtime = new Realtime({ logger, connection, prefix })
+    this.realtime = new Realtime({ logger, connection, prefix, api })
 
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
     this.signature = this.signature.bind(this)
