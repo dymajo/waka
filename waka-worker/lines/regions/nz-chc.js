@@ -1,3 +1,4 @@
+// TODO: make into a class
 const cache = require('../../cache.js')
 const log = require('../../../server-common/logger.js')
 const queries = require('../queries.js')

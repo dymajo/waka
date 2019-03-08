@@ -143,7 +143,7 @@ class StopsNZAKL {
   start() {
     const { logger, apiKey } = this
     if (!apiKey) {
-      logger.info(
+      logger.warn(
         'No Agenda 21 AKL API Key, will not show latest carpark availability'
       )
     } else {

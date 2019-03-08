@@ -49,8 +49,8 @@ class LinesNZWLG {
     this.lineOperators = {}
   }
 
-  start() {
-    this.getLines()
+  async start() {
+    await this.getLines()
   }
 
   async getLines() {
