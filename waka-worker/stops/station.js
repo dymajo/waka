@@ -1,16 +1,21 @@
 const moment = require('moment-timezone')
-const sql = require('mssql')
-
-// const line = require('../lines/index') // TODO
 const StopsDataAccess = require('./dataAccess.js')
 
 class Station {
   constructor(props) {
-    const { logger, connection, prefix, stopsExtras, realtimeTimes } = props
+    const {
+      logger,
+      connection,
+      prefix,
+      stopsExtras,
+      lines,
+      realtimeTimes,
+    } = props
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
     this.regionSpecific = stopsExtras
+    this.lines = lines
     this.realtimeTimes = realtimeTimes
 
     this.dataAccess = new StopsDataAccess({ connection, prefix })
@@ -169,7 +174,14 @@ class Station {
    *     }
    */
   async stopTimes(req, res) {
-    const { prefix, dataAccess, logger, regionSpecific, realtimeTimes } = this
+    const {
+      prefix,
+      dataAccess,
+      logger,
+      lines,
+      regionSpecific,
+      realtimeTimes,
+    } = this
 
     if (!req.params.station) {
       return res.status(404).send({
@@ -242,14 +254,14 @@ class Station {
         record.departure_time_seconds += 86400
       }
       record.arrival_time_seconds = record.departure_time_seconds
-      // record.route_color = line.getColor(
-      //   record.agency_id,
-      //   record.route_short_name
-      // )
-      // record.route_icon = line.getIcon(
-      //   record.agency_id,
-      //   record.route_short_name
-      // )
+      record.route_color = lines.getColor(
+        record.agency_id,
+        record.route_short_name
+      )
+      record.route_icon = lines.getIcon(
+        record.agency_id,
+        record.route_short_name
+      )
 
       // 30mins of realtime
       if (
@@ -336,7 +348,7 @@ class Station {
    *    ]
    */
   async timetable(req, res) {
-    const { prefix, dataAccess, logger, regionSpecific } = this
+    const { prefix, dataAccess, logger, regionSpecific, lines } = this
     const { station, route, direction, offset } = req.params
     if (parseInt(direction, 10) > 2 || parseInt(direction, 10) < 0) {
       return res.status(400).send({ error: 'Direction is not valid.' })
@@ -384,8 +396,8 @@ class Station {
         record.arrival_time_seconds += 86400
       }
       record.arrival_time_seconds = record.departure_time_seconds
-      // record.route_color = line.getColor(record.agency_id, req.params.route)
-      // record.route_icon = line.getIcon(record.agency_id, req.params.route)
+      record.route_color = lines.getColor(record.agency_id, req.params.route)
+      record.route_icon = lines.getIcon(record.agency_id, req.params.route)
       record.currentTime = currentTime.getTime() / 1000
       record.date = today
 
