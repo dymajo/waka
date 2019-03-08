@@ -6,16 +6,25 @@ const cityMetadata = require('../cityMetadata.json')
 const Connection = require('./db/connection.js')
 // const cache = require('./cache')
 
+const Lines = require('./lines/index.js')
 const Search = require('./stops/search.js')
 const Station = require('./stops/station.js')
 const StopsNZAKL = require('./stops/regions/nz-akl.js')
 const StopsNZWLG = require('./stops/regions/nz-wlg.js')
-
 const Realtime = require('./realtime/index.js')
 
 class WakaWorker {
   constructor(config) {
-    const { prefix, version, db, api } = config
+    const {
+      prefix,
+      version,
+      db,
+      api,
+      storageService,
+      shapesContainer,
+      shapesRegion,
+      emulatedStorage,
+    } = config
 
     this.config = config
     const logger = createLogger(prefix, version)
@@ -35,11 +44,25 @@ class WakaWorker {
     const { stopsExtras } = this
 
     this.search = new Search({ logger, connection, prefix, stopsExtras })
+    this.lines = new Lines({
+      logger,
+      connection,
+      prefix,
+      version,
+      search: this.search,
+      config: {
+        storageService,
+        shapesContainer,
+        shapesRegion,
+        emulatedStorage,
+      },
+    })
     this.station = new Station({
       logger,
       connection,
       prefix,
       stopsExtras,
+      lines: this.lines,
       realtimeTimes: this.realtime.getCachedTrips,
     })
 
@@ -52,6 +75,7 @@ class WakaWorker {
   async start() {
     await this.connection.open()
     this.logger.info('Connected to the Database')
+    this.lines.start()
     this.search.start()
     if (this.stopsExtras) this.stopsExtras.start()
     this.realtime.start()
@@ -60,6 +84,7 @@ class WakaWorker {
   }
 
   async stop() {
+    this.lines.stop()
     this.search.stop()
     if (this.stopsExtras) this.stopsExtras.stop()
     this.realtime.stop()
@@ -79,7 +104,7 @@ class WakaWorker {
   }
 
   bindRoutes() {
-    const { search, station, realtime, router } = this
+    const { lines, search, station, realtime, router } = this
 
     /**
      * @api {get} /:region/info Get worker info
@@ -139,6 +164,12 @@ class WakaWorker {
       station.timetable
     )
     router.get('/stations', search.all)
+
+    router.get('/lines', lines.getLines)
+    router.get('/line/:line', lines.getLine)
+    router.get('/stops/trip/:tripId', lines.getStopsFromTrip)
+    router.get('/stops/shape/:shapeId', lines.getStopsFromShape)
+    router.get('/shapejson/:shapeId', lines.getShapeJSON)
 
     router.get('/realtime-healthcheck', realtime.healthcheck)
     router.get('/realtime/:line', realtime.vehicleLocationV2)

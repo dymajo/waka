@@ -1,70 +1,85 @@
-const colors = require('colors')
 const sql = require('mssql')
-const connection = require('../db/connection.js')
 const Storage = require('../db/storage.js')
 
-const search = require('../stops/search.js')
-const cache = require('../cache.js')
-const config = require('../../config.js')
-const log = require('../../server-common/logger.js')
 const cityMetadata = require('../../cityMetadata.json')
 const StopsDataAccess = require('../stops/dataAccess.js')
 
-let lineData = {}
-cache.preReady.push(() => {
-  try {
-    const lineDataSource = require(`./regions/${global.config.prefix}.js`)
+// let lineData = {}
+// cache.preReady.push(() => {
+//   try {
+//     const lineDataSource = require(`./regions/${global.config.prefix}.js`)
 
-    // the second element in the array is default, if it is not exported from the source
-    const requiredProps = [
-      ['lineColors', {}],
-      ['lineIcons', {}],
-      ['friendlyNames', {}],
-      ['friendlyNumbers', {}],
-      ['lineGroups', []],
-      ['allLines', {}],
-      ['lineOperators', {}],
-    ]
-    requiredProps.forEach(prop => {
-      if (lineDataSource.hasOwnProperty(prop[0])) {
-        lineData[prop[0]] = lineDataSource[prop[0]]
-      } else {
-        lineData[prop[0]] = prop[1]
-      }
+//     // the second element in the array is default, if it is not exported from the source
+//     const requiredProps = [
+//       ['lineColors', {}],
+//       ['lineIcons', {}],
+//       ['friendlyNames', {}],
+//       ['friendlyNumbers', {}],
+//       ['lineGroups', []],
+//       ['allLines', {}],
+//       ['lineOperators', {}],
+//     ]
+//     requiredProps.forEach(prop => {
+//       if (lineDataSource.hasOwnProperty(prop[0])) {
+//         lineData[prop[0]] = lineDataSource[prop[0]]
+//       } else {
+//         lineData[prop[0]] = prop[1]
+//       }
+//     })
+//   } catch (err) {
+//     log(('Could not load line data for ' + global.config.prefix).red)
+//     console.error(err)
+//   }
+// })
+
+class Lines {
+  constructor(props) {
+    const { logger, connection, prefix, version, config, search } = props
+    this.logger = logger
+    this.connection = connection
+    this.prefix = prefix
+    this.version = version
+    this.search = search
+
+    // not too happy about this
+    this.stopsDataAccess = new StopsDataAccess({ connection, prefix })
+
+    this.storageSvc = new Storage({
+      backing: config.storageService,
+      local: config.emulatedStorage,
+      region: config.shapesRegion,
     })
-  } catch (err) {
-    log(('Could not load line data for ' + global.config.prefix).red)
-    console.error(err)
+    this.lineData = {}
+
+    this.getLines = this.getLines.bind(this)
+    this.getLine = this.getLine.bind(this)
+    this.getShapeJSON = this.getShapeJSON.bind(this)
+    this.getStopsFromTrip = this.getStopsFromTrip.bind(this)
+    this.getStopsFromShape = this.getStopsFromShape.bind(this)
   }
-})
 
-const storageSvc = new Storage({
-  backing: config.storageService,
-  local: config.emulatedStorage,
-  region: config.shapesRegion,
-})
-const collator = new Intl.Collator(undefined, {
-  numeric: true,
-  sensitivity: 'base',
-})
+  start() {}
 
-const stopsDataAccess = new StopsDataAccess()
-const line = {
-  getColor(agency_id, route_short_name) {
+  getColor(agencyId, routeShortName) {
+    const { lineData } = this
     if (lineData.getColor) {
-      return lineData.getColor(agency_id, route_short_name)
-    } else if (lineData.lineColors) {
-      return lineData.lineColors[route_short_name] || '#00263A'
+      return lineData.getColor(agencyId, routeShortName)
+    }
+    if (lineData.lineColors) {
+      return lineData.lineColors[routeShortName] || '#00263A'
     }
     return '#00263A'
-  },
-  getIcon(agency_id, route_short_name) {
+  }
+
+  getIcon(agencyId, routeShortName) {
     // this will probably be revised soon
+    const { lineData } = this
     if (lineData.lineIcons) {
-      return lineData.lineIcons[route_short_name] || null
+      return lineData.lineIcons[routeShortName] || null
     }
     return null
-  },
+  }
+
   /**
    * @api {get} /:region/lines List - All
    * @apiName GetLines
@@ -131,20 +146,22 @@ const line = {
    *
    */
   getLines(req, res) {
-    res.send(line._getLines())
-  },
+    res.send(this._getLines())
+  }
+
   _getLines() {
-    let city = cityMetadata[global.config.prefix]
+    const { prefix, lineData } = this
     // if the region has multiple cities
-    if (!city.hasOwnProperty('name')) {
-      city = city[global.config.prefix]
+    let city = cityMetadata[prefix]
+    if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
+      city = city[prefix]
     }
     return {
       meta: {
-        prefix: global.config.prefix,
-        name: cityMetadata[global.config.prefix].name,
-        secondaryName: cityMetadata[global.config.prefix].secondaryName,
-        longName: cityMetadata[global.config.prefix].longName,
+        prefix,
+        name: cityMetadata[prefix].name,
+        secondaryName: cityMetadata[prefix].secondaryName,
+        longName: cityMetadata[prefix].longName,
       },
       colors: lineData.lineColors,
       icons: lineData.lineIcons,
@@ -154,7 +171,8 @@ const line = {
       lines: lineData.allLines,
       operators: lineData.lineOperators,
     }
-  },
+  }
+
   /**
    * @api {get} /:region/line/:line Info - by route_short_name
    * @apiName GetLine
@@ -201,14 +219,17 @@ const line = {
   async getLine(req, res) {
     const lineId = req.params.line.trim()
     try {
-      const data = await line._getLine(lineId)
+      const data = await this._getLine(lineId)
       res.send(data)
     } catch (err) {
       res.status(500).send(err)
     }
-  },
-  async _getLine(lineId) {
+  }
+
+  async _getLine(id) {
+    const { connection, lineData } = this
     const sqlRequest = connection.get().request()
+    let lineId = id
 
     // filter by agency if a filter exists
     let agency = ''
@@ -254,9 +275,9 @@ const line = {
     const result = await sqlRequest.query(query)
     const versions = {}
     const results = []
-    result.recordset.forEach(function(route) {
+    result.recordset.forEach(route => {
       // checks to make it's the right route (the whole exception thing)
-      if (line.exceptionCheck(route) === false) {
+      if (this.exceptionCheck(route) === false) {
         return
       }
       // make sure it's not already in the response
@@ -269,19 +290,20 @@ const line = {
         return
       }
 
-      let result = {
+      const result = {
         route_id: route.route_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
-        route_color: line.getColor(route.agency_id, route.route_short_name),
-        route_icon: line.getIcon(route.agency_id, route.route_short_name),
+        route_color: this.getColor(route.agency_id, route.route_short_name),
+        route_icon: this.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
         route_type: route.route_type,
       }
       // if it's the best match, inserts at the front
-      if (line.exceptionCheck(route, true) === true) {
-        return results.unshift(result)
+      if (this.exceptionCheck(route, true) === true) {
+        results.unshift(result)
+        return
       }
       results.push(result)
     })
@@ -291,16 +313,13 @@ const line = {
         if (results[0].direction_id !== 1) {
           candidate = results[0]
         }
-        let regexed = candidate.route_long_name.match(/\((.+?)\)/g)
+        const regexed = candidate.route_long_name.match(/\((.+?)\)/g)
         if (regexed) {
-          const newName =
-            '(' +
-            regexed[0]
-              .slice(1, -1)
-              .split(' - ')
-              .reverse()
-              .join(' - ') +
-            ')'
+          const newName = `(${regexed[0]
+            .slice(1, -1)
+            .split(' - ')
+            .reverse()
+            .join(' - ')})`
           candidate.route_long_name = candidate.route_long_name.replace(
             /\((.+?)\)/g,
             newName
@@ -314,7 +333,8 @@ const line = {
       }
     }
     return results
-  },
+  }
+
   /**
    * @api {get} /:region/shapejson/:shape_id Line Shape - by shape_id
    * @apiName GetShape
@@ -343,35 +363,29 @@ const line = {
    * }
    */
   getShapeJSON(req, res) {
+    const { prefix, version, config, storageSvc } = this
     const containerName = config.shapesContainer
-    const prefix = global.config.prefix
-    const version = global.config.version
-    const shape_id = req.params.shape_id
-    const fileName = 
-      prefix + '/' +
-      version.replace('_', '-').replace('.', '-') + '/' +
-      Buffer.from(shape_id).toString('base64') + '.json'
-    
+    const { shapeId } = req.params
+    const fileName = `${prefix}/${version
+      .replace('_', '-')
+      .replace('.', '-')}/${Buffer.from(shapeId).toString('base64')}.json`
 
-    storageSvc.downloadStream(containerName, fileName, res, function(
-      blobError
-    ) {
+    storageSvc.downloadStream(containerName, fileName, res, blobError => {
       if (blobError) {
         res.status(404)
       }
       res.end()
-      return
     })
-  },
+  }
 
+  // TODO: Probably move these to the Auckland & Wellington Specific Files
   exceptionCheck(route, bestMatchMode = false) {
-    let allLines
-    const prefix = global.config.prefix
-    if (prefix === 'nz-akl' || prefix === 'nz-wlg') {
-      allLines = lineData.allLines
-    } else {
+    const { prefix, lineData } = this
+    if (prefix !== 'nz-akl' && prefix !== 'nz-wlg') {
       return true
     }
+
+    const { allLines } = lineData
 
     // blanket thing for no schools
     if (route.trip_headsign === 'Schools') {
@@ -387,28 +401,28 @@ const line = {
     if (bestMatchMode) {
       routes = [routes[0]]
     }
-    routes.forEach(function(variant) {
+    routes.forEach(variant => {
       if (variant.length === 1 && route.route_long_name === variant[0]) {
         retval = true
         // normal routes - from x to x
       } else if (variant.length === 2) {
-        let splitName = route.route_long_name.toLowerCase().split(' to ')
+        const splitName = route.route_long_name.toLowerCase().split(' to ')
         if (
-          variant[0].toLowerCase() == splitName[0] &&
-          variant[1].toLowerCase() == splitName[1]
+          variant[0].toLowerCase() === splitName[0] &&
+          variant[1].toLowerCase() === splitName[1]
         ) {
           retval = true
           // reverses the order
         } else if (
-          variant[1].toLowerCase() == splitName[0] &&
-          variant[0].toLowerCase() == splitName[1] &&
+          variant[1].toLowerCase() === splitName[0] &&
+          variant[0].toLowerCase() === splitName[1] &&
           !bestMatchMode
         ) {
           retval = true
         }
         // handles via Flyover or whatever
       } else if (variant.length === 3) {
-        let splitName = route.route_long_name.toLowerCase().split(' to ')
+        const splitName = route.route_long_name.toLowerCase().split(' to ')
         if (
           splitName.length > 1 &&
           splitName[1].split(' via ')[1] === variant[2].toLowerCase()
@@ -431,7 +445,7 @@ const line = {
       }
     })
     return retval
-  },
+  }
 
   /**
    * @api {get} /:region/stops/trip/:trip_id Line Stops - by trip_id
@@ -458,6 +472,11 @@ const line = {
    * ]
    */
   async getStopsFromTrip(req, res) {
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    })
+    const { connection, logger, stopsDataAccess, search } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
     try {
@@ -477,20 +496,36 @@ const line = {
           stop_times.trip_id = @trip_id
         ORDER BY stop_sequence`)
 
-      const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(result.recordset.map(i => i.stop_id))
-      res.send(search._stopsFilter(result.recordset.map(i => {
-        const transfers = stopRoutes[i.stop_id].filter(j => j.trip_headsign !== 'Schools').map(j => j.route_short_name)
-        const deduplicatedTransfers = Array.from(new Set(transfers).values())
-        const transfersWithColors = deduplicatedTransfers.map(j => [j, line.getColor(null, j)])
-        transfersWithColors.sort(collator.compare)
-        i.transfers = transfersWithColors
-        return i
-      }), 'keep'))
+      const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(
+        result.recordset.map(i => i.stop_id)
+      )
+      res.send(
+        search._stopsFilter(
+          result.recordset.map(i => {
+            const transfers = stopRoutes[i.stop_id]
+              .filter(j => j.trip_headsign !== 'Schools')
+              .map(j => j.route_short_name)
+            const deduplicatedTransfers = Array.from(
+              new Set(transfers).values()
+            )
+            const transfersWithColors = deduplicatedTransfers.map(j => [
+              j,
+              this.getColor(null, j),
+            ])
+            transfersWithColors.sort(collator.compare)
+            const result = JSON.parse(JSON.stringify(i))
+            result.transfers = transfersWithColors
+            return i
+          }),
+          'keep'
+        )
+      )
     } catch (err) {
-      console.error(err)
+      logger.error({ err }, 'Could not get stops from trip.')
       res.status(500).send(err)
     }
-  },
+  }
+
   /**
    * @api {get} /:region/stops/shape/:shape_id Line Stops - by shape_id
    * @apiName GetStopsByShape
@@ -515,19 +550,23 @@ const line = {
    *   }
    * ]
    */
-  getStopsFromShape(req, res) {
+  async getStopsFromShape(req, res) {
+    const { connection, logger } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
-    sqlRequest
-      .query(
+    try {
+      const result = await sqlRequest.query(
         'SELECT TOP(1) trip_id FROM trips WHERE trips.shape_id = @shape_id'
       )
-      .then(result => {
-        let trip_id = result.recordset[0].trip_id
-        req.params.trip_id = trip_id
-        line.getStopsFromTrip(req, res)
-      })
-  },
+
+      // forwards the request on.
+      const tripId = result.recordset[0].trip_id
+      req.params.trip_id = tripId
+      this.getStopsFromTrip(req, res)
+    } catch (err) {
+      logger.error({ err }, 'Could not get stops from shape.')
+    }
+  }
 }
 
-module.exports = line
+module.exports = Lines
