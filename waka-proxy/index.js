@@ -13,11 +13,13 @@ class WakaProxy {
   }
 
   bindRoutes() {
-    this.router.get('/regions', (req, res) => {
-      res.send(this.discovery.getRegions())
+    const { router, discovery, smartRedirect } = this
+    router.get('/ping', (req, res) => res.send('pong'))
+    router.get('/regions', (req, res) => {
+      res.send(discovery.getRegions())
     })
-    this.router.all('/:prefix', this.smartRedirect)
-    this.router.all('/:prefix/*', this.smartRedirect)
+    router.all('/:prefix', smartRedirect)
+    router.all('/:prefix/*', smartRedirect)
   }
 
   smartRedirect(req, res) {

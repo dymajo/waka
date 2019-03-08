@@ -144,6 +144,7 @@ class WakaWorker {
      *     }
      *
      */
+    router.get('/ping', (req, res) => res.send('pong'))
     router.get('/info', (req, res) => res.send(this.signature()))
 
     router.get('/station', station.stopInfo)
