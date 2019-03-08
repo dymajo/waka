@@ -1,5 +1,5 @@
-const RealtimeNZAKL = require('./nz-akl.js')
-const RealtimeNZWLG = require('./nz-wlg.js')
+const RealtimeNZAKL = require('./regions/nz-akl.js')
+const RealtimeNZWLG = require('./regions/nz-wlg.js')
 
 const regions = {
   'nz-akl': RealtimeNZAKL,
