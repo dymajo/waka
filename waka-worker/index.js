@@ -7,6 +7,10 @@ const Connection = require('./db/connection.js')
 // const cache = require('./cache')
 
 const Search = require('./stops/search.js')
+const Station = require('./stops/station.js')
+const StopsNZAKL = require('./stops/regions/nz-akl.js')
+const StopsNZWLG = require('./stops/regions/nz-wlg.js')
+
 const Realtime = require('./realtime/index.js')
 
 class WakaWorker {
@@ -20,8 +24,24 @@ class WakaWorker {
     this.connection = connection
 
     this.router = new Router()
-    this.search = new Search({ logger, connection, prefix, api })
     this.realtime = new Realtime({ logger, connection, prefix, api })
+
+    this.stopsExtras = null
+    if (prefix === 'nz-akl') {
+      this.stopsExtras = new StopsNZAKL({ logger, apiKey: api['agenda-21'] })
+    } else if (prefix === 'nz-wlg') {
+      this.stopsExtras = new StopsNZWLG({ logger })
+    }
+    const { stopsExtras } = this
+
+    this.search = new Search({ logger, connection, prefix, stopsExtras })
+    this.station = new Station({
+      logger,
+      connection,
+      prefix,
+      stopsExtras,
+      realtimeTimes: this.realtime.getCachedTrips,
+    })
 
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
     this.signature = this.signature.bind(this)
@@ -33,7 +53,16 @@ class WakaWorker {
     await this.connection.open()
     this.logger.info('Connected to the Database')
     this.search.start()
+    if (this.stopsExtras) this.stopsExtras.start()
     this.realtime.start()
+
+    this.bounds = await this.station.getBounds()
+  }
+
+  async stop() {
+    this.search.stop()
+    if (this.stopsExtras) this.stopsExtras.stop()
+    this.realtime.stop()
   }
 
   signature() {
@@ -50,7 +79,7 @@ class WakaWorker {
   }
 
   bindRoutes() {
-    const { search, realtime, router } = this
+    const { search, station, realtime, router } = this
 
     /**
      * @api {get} /:region/info Get worker info
@@ -95,8 +124,21 @@ class WakaWorker {
      */
     router.get('/info', (req, res) => res.send(this.signature()))
 
-    router.get('/stations', search.all)
+    router.get('/station', station.stopInfo)
     router.get('/station/search', search.getStopsLatLon)
+    router.get('/station/:station', station.stopInfo)
+    router.get('/station/:station/times', station.stopTimes)
+    router.get('/station/:station/times/:time', station.stopTimes)
+    router.get('/station/:station/times/:fast', station.stopTimes)
+    router.get(
+      '/station/:station/timetable/:route/:direction',
+      station.timetable
+    )
+    router.get(
+      '/station/:station/timetable/:route/:direction/:offset',
+      station.timetable
+    )
+    router.get('/stations', search.all)
 
     router.get('/realtime-healthcheck', realtime.healthcheck)
     router.get('/realtime/:line', realtime.vehicleLocationV2)

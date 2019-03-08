@@ -18,6 +18,8 @@ class Realtime {
       regions[prefix] !== undefined
         ? new regions[prefix]({ logger, connection, apiKey })
         : null
+
+    this.getCachedTrips = this.getCachedTrips.bind(this)
     this.stopInfo = this.stopInfo.bind(this)
     this.vehicleLocation = this.vehicleLocation.bind(this)
     this.vehicleLocationV2 = this.vehicleLocationV2.bind(this)
@@ -31,6 +33,14 @@ class Realtime {
     } else {
       logger.warn('Realtime not implemented!')
     }
+  }
+
+  getCachedTrips(trips) {
+    const { fn } = this
+    if (fn && fn.getTripsCached) {
+      return fn.getTripsCached(trips)
+    }
+    return {}
   }
 
   /**

@@ -1,30 +1,33 @@
 const moment = require('moment-timezone')
-const line = require('../lines/index')
 const sql = require('mssql')
-const connection = require('../db/connection.js')
+
+// const line = require('../lines/index') // TODO
 const StopsDataAccess = require('./dataAccess.js')
-const akl = require('./nz-akl.js')
-const wlg = require('./nz-wlg.js')
-const cache = require('../cache.js')
 
-let rtFn = function() {
-  return {}
-}
-cache.preReady.push(() => {
-  if (global.config.prefix === 'nz-akl') {
-    rtFn = require('../realtime/nz-akl.js').getTripsCachedAuckland
+class Station {
+  constructor(props) {
+    const { logger, connection, prefix, stopsExtras, realtimeTimes } = props
+    this.logger = logger
+    this.connection = connection
+    this.prefix = prefix
+    this.regionSpecific = stopsExtras
+    this.realtimeTimes = realtimeTimes
+
+    this.dataAccess = new StopsDataAccess({ connection, prefix })
+
+    this.stopInfo = this.stopInfo.bind(this)
+    this.stopTimes = this.stopTimes.bind(this)
+    this.timetable = this.timetable.bind(this)
   }
-})
 
-const dataAccess = new StopsDataAccess()
-const station = {
-  getBounds: async () => {
+  async getBounds() {
+    const { dataAccess } = this
     const bounds = await dataAccess.getBounds()
     return {
       lat: { min: bounds.lat_min, max: bounds.lat_max },
       lon: { min: bounds.lon_min, max: bounds.lon_max },
     }
-  },
+  }
 
   /**
    * @api {get} /:region/station/:stop_id Info - by stop_id
@@ -66,7 +69,8 @@ const station = {
    *    }
    *
    */
-  stopInfo: async (req, res) => {
+  async stopInfo(req, res) {
+    const { prefix, dataAccess, regionSpecific } = this
     if (!req.params.station) {
       return res.status(404).send({
         message: 'Please specify a station.',
@@ -75,12 +79,9 @@ const station = {
 
     let stopCode = req.params.station.trim()
     let override = false
-    if (
-      global.config.prefix === 'nz-wlg' &&
-      wlg.badStops.indexOf(stopCode) > -1
-    ) {
+    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(stopCode) > -1) {
       override = stopCode
-      stopCode = stopCode + '1'
+      stopCode = `${stopCode}1`
     }
 
     let data = { message: 'Station not found.' }
@@ -92,9 +93,9 @@ const station = {
       res.send(data)
     } catch (err) {
       // TODO: make this more generic
-      if (global.config.prefix === 'nz-akl') {
+      if (prefix === 'nz-akl') {
         try {
-          data = await akl.getSingle(stopCode)
+          data = await regionSpecific.getSingle(stopCode)
         } catch (err) {
           // couldn't get any carpark
         }
@@ -102,7 +103,7 @@ const station = {
       res.status(404).send(data)
     }
     return data
-  },
+  }
 
   /**
    * @api {get} /:region/station/:stop_id/times/:time Stop Times - by stop_id
@@ -167,24 +168,26 @@ const station = {
    *       }
    *     }
    */
-  stopTimes: async (req, res) => {
+  async stopTimes(req, res) {
+    const { prefix, dataAccess, logger, regionSpecific, realtimeTimes } = this
+
     if (!req.params.station) {
       return res.status(404).send({
         message: 'Please specify a stop.',
       })
     }
 
-    req.params.station = req.params.station.trim()
+    const station = req.params.station.trim()
 
     // carparks
-    if (global.config.prefix === 'nz-akl') {
-      const data = akl.getTimes(req.params.station)
+    if (prefix === 'nz-akl') {
+      const data = regionSpecific.getTimes(station)
       if (data !== null) {
         return res.send(data)
       }
     }
 
-    let sending = {
+    const sending = {
       provider: 'sql-server',
     }
 
@@ -193,7 +196,7 @@ const station = {
     let midnightOverride = false
     if (req.params.time) {
       const split = req.params.time.split(':')
-      let tentativeDate = new Date(Date.UTC(1970, 0, 1, split[0], split[1]))
+      const tentativeDate = new Date(Date.UTC(1970, 0, 1, split[0], split[1]))
       if (tentativeDate.toString !== 'Invalid Date') {
         currentTime = tentativeDate
         midnightOverride = true
@@ -213,10 +216,7 @@ const station = {
 
     // combines train stations platforms together
     let procedure = 'GetStopTimes'
-    if (
-      global.config.prefix === 'nz-wlg' &&
-      wlg.badStops.indexOf(req.params.station) > -1
-    ) {
+    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(station) > -1) {
       procedure = 'GetMultipleStopTimes'
     }
 
@@ -224,13 +224,13 @@ const station = {
     const realtimeTrips = []
     try {
       trips = await dataAccess.getStopTimes(
-        req.params.station,
+        station,
         currentTime,
         today,
         procedure
       )
     } catch (err) {
-      console.error(err)
+      logger.error({ err }, 'Could not get stop times.')
       return res.status(500).send(err)
     }
 
@@ -242,14 +242,14 @@ const station = {
         record.departure_time_seconds += 86400
       }
       record.arrival_time_seconds = record.departure_time_seconds
-      record.route_color = line.getColor(
-        record.agency_id,
-        record.route_short_name
-      )
-      record.route_icon = line.getIcon(
-        record.agency_id,
-        record.route_short_name
-      )
+      // record.route_color = line.getColor(
+      //   record.agency_id,
+      //   record.route_short_name
+      // )
+      // record.route_icon = line.getIcon(
+      //   record.agency_id,
+      //   record.route_short_name
+      // )
 
       // 30mins of realtime
       if (
@@ -260,10 +260,7 @@ const station = {
       }
 
       if (record.trip_headsign === null) {
-        console.warn(
-          global.config.prefix,
-          'This dataset has a null trip_headsign.'
-        )
+        logger.warn('This dataset has a null trip_headsign.')
         record.trip_headsign = record.route_long_name
       }
 
@@ -274,26 +271,21 @@ const station = {
       return record
     })
 
-    sending.realtime = rtFn(realtimeTrips)
+    sending.realtime = realtimeTimes(realtimeTrips)
 
     // the all routes stuff is possibly an extra call to the database,
     // so we only do it if we need to
     if (req.query.allRoutes || sending.trips.length === 0) {
       try {
-        sending.allRoutes = await dataAccess.getRoutesForStop(
-          req.params.station
-        )
+        sending.allRoutes = await dataAccess.getRoutesForStop(station)
       } catch (err) {
-        console.error(
-          global.config.prefix,
-          'Could not get all routes for',
-          req.params.station
-        )
+        logger.error({ err, station }, 'Could not get all routes for station.')
       }
     }
     res.send(sending)
     return sending
-  },
+  }
+
   /**
    * @api {get} /:region/station/:stop_id/timetable/:route/:direction/:offset Timetable - by stop_id
    * @apiName GetTimetable
@@ -343,16 +335,15 @@ const station = {
    *      }
    *    ]
    */
-  timetable: async function(req, res) {
-    if (
-      parseInt(req.params.direction) > 2 ||
-      parseInt(req.params.direction) < 0
-    ) {
+  async timetable(req, res) {
+    const { prefix, dataAccess, logger, regionSpecific } = this
+    const { station, route, direction, offset } = req.params
+    if (parseInt(direction, 10) > 2 || parseInt(direction, 10) < 0) {
       return res.status(400).send({ error: 'Direction is not valid.' })
     }
-    let offset = 0
-    if (!isNaN(parseInt(req.params.offset))) {
-      offset = parseInt(req.params.offset)
+    let dateOffset = 0
+    if (!Number.isNaN(parseInt(offset, 10))) {
+      dateOffset = parseInt(offset, 10)
     }
 
     const time = moment().tz('Pacific/Auckland')
@@ -363,47 +354,43 @@ const station = {
     const today = new Date(Date.UTC(1970, 0, 1, 0, 0))
     today.setUTCFullYear(time.year())
     today.setUTCMonth(time.month())
-    today.setUTCDate(time.date() + offset)
+    today.setUTCDate(time.date() + dateOffset)
 
     // combines train stations platforms together
     let procedure = 'GetTimetable'
-    if (
-      global.config.prefix === 'nz-wlg' &&
-      wlg.badStops.indexOf(req.params.station) > -1
-    ) {
+    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(station) > -1) {
       procedure = 'GetMultipleTimetable'
     }
 
     let trips = []
     try {
       trips = await dataAccess.getTimetable(
-        req.params.station,
-        req.params.route,
+        station,
+        route,
         today,
-        req.params.direction,
+        direction,
         procedure
       )
     } catch (err) {
+      logger.error({ err }, 'Could not get timetable.')
       return res.status(500).send(err)
     }
 
-    const sending = trips.map(record => {
+    const sending = trips.map(oldRecord => {
+      const record = JSON.parse(JSON.stringify(oldRecord))
       record.departure_time_seconds =
         new Date(record.departure_time || record.arrival_time).getTime() / 1000
       if (record.departure_time_24 || record.arrival_time_24) {
         record.arrival_time_seconds += 86400
       }
       record.arrival_time_seconds = record.departure_time_seconds
-      record.route_color = line.getColor(record.agency_id, req.params.route)
-      record.route_icon = line.getIcon(record.agency_id, req.params.route)
+      // record.route_color = line.getColor(record.agency_id, req.params.route)
+      // record.route_icon = line.getIcon(record.agency_id, req.params.route)
       record.currentTime = currentTime.getTime() / 1000
       record.date = today
 
       if (record.trip_headsign === null) {
-        console.warn(
-          global.config.prefix,
-          'This dataset has a null trip_headsign.'
-        )
+        logger.warn('This dataset has a null trip_headsign.')
         record.trip_headsign = record.route_long_name
       }
 
@@ -412,6 +399,7 @@ const station = {
       return record
     })
     res.send(sending)
-  },
+    return sending
+  }
 }
-module.exports = station
+module.exports = Station
