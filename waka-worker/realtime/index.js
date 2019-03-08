@@ -35,6 +35,13 @@ class Realtime {
     }
   }
 
+  stop() {
+    const { fn } = this
+    if (fn) {
+      fn.stop()
+    }
+  }
+
   getCachedTrips(trips) {
     const { fn } = this
     if (fn && fn.getTripsCached) {
