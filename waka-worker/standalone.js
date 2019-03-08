@@ -44,6 +44,9 @@ const worker = new WakaWorker({
     connectionTimeout: parseInt(DB_CONNECTION_TIMEOUT, 10) || 60000,
     requestTimeout: parseInt(DB_REQUEST_TIMEOUT, 10) || 60000,
   },
+  api: {
+    'nz-akl': process.env.atApiKey, // TODO
+  },
 })
 app.use(worker.router)
 

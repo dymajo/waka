@@ -1,168 +1,166 @@
-const request = require('request')
 const fetch = require('node-fetch')
-const cache = require('../cache')
 const sql = require('mssql')
-const connection = require('../db/connection.js')
 const doubleDeckers = require('./nz-akl-doubledecker.json')
 
-const tripUpdatesOptions = {
-  url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
-  headers: {
-    'Ocp-Apim-Subscription-Key': process.env.atApiKey,
-  },
-}
-const vehicleLocationsOptions = {
-  url: 'https://api.at.govt.nz/v2/public/realtime/vehiclelocations',
-  headers: {
-    'Ocp-Apim-Subscription-Key': process.env.atApiKey,
-  },
-}
+const schedulePullTimeout = 20000
+const scheduleLocationPullTimeout = 15000
 
-// https://fleetlists.busaustralia.com/index-nz.php
-const isDoubleDecker = vehicle => doubleDeckers.includes(vehicle)
+class RealtimeNZAKL {
+  constructor(props) {
+    const { logger, connection, apiKey } = props
+    this.connection = connection
+    this.logger = logger
 
-const EVs = ['2840', '2841']
-const isEV = vehicle => EVs.includes(vehicle)
+    this.lastUpdate = null
+    this.lastVehicleUpdate = null
+    this.currentData = {}
+    this.currentDataFails = 0
+    this.currentVehicleData = {}
+    this.currentVehicleDataFails = null
 
-const realtime = {
-  lastUpdate: null,
-  lastVehicleUpdate: null,
-  currentData: {},
-  currentDataFails: 0,
-  currentVehicleData: {},
-  currentVehicleDataFails: null,
+    this.tripUpdatesOptions = {
+      url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
+      headers: {
+        'Ocp-Apim-Subscription-Key': apiKey,
+      },
+    }
+    this.vehicleLocationsOptions = {
+      url: 'https://api.at.govt.nz/v2/public/realtime/vehiclelocations',
+      headers: {
+        'Ocp-Apim-Subscription-Key': apiKey,
+      },
+    }
 
-  schedulePull: function() {
-    const newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
-    newOpts.url = 'https://api.at.govt.nz/v2/public/realtime/tripupdates'
-    request(newOpts, (err, response, body) => {
-      if (err) {
-        console.warn(err)
-        realtime.currentDataFails++
-        setTimeout(realtime.schedulePull, 20000)
-        return
-      }
-      try {
-        body = JSON.parse(body)
-      } catch (err) {
-        console.warn('rt error', err)
-        realtime.currentDataFails++
-        setTimeout(realtime.schedulePull, 20000)
-        return
-      }
-      if (body.response && body.response.entity) {
+    this.schedulePull = this.schedulePull.bind(this)
+    this.scheduleLocationPull = this.scheduleLocationPull.bind(this)
+  }
+
+  isDoubleDecker(vehicle) {
+    return doubleDeckers.includes(vehicle)
+  }
+
+  isEV(vehicle) {
+    return ['2840', '2841'].includes(vehicle)
+  }
+
+  start() {
+    this.schedulePull()
+    this.scheduleLocationPull()
+    this.logger.info('Auckland Realtime Started.')
+  }
+
+  stop() {
+    // TODO!
+    this.logger.warn('Auckland Realtime Not Stopped! Not Implemented.')
+  }
+
+  async schedulePull() {
+    const { logger, tripUpdatesOptions } = this
+    try {
+      const data = await fetch(tripUpdatesOptions.url, {
+        headers: tripUpdatesOptions.headers,
+      }).then(r => r.json())
+      if (data.response && data.response.entity) {
         const newData = {}
-        body.response.entity.forEach(function(trip) {
+        data.response.entity.forEach(trip => {
           newData[trip.trip_update.trip.trip_id] = trip.trip_update
         })
-        realtime.currentData = newData
-        realtime.currentDataFails = 0
-        realtime.lastUpdate = new Date()
+        this.currentData = newData
+        this.currentDataFails = 0
+        this.lastUpdate = new Date()
+        setTimeout(this.schedulePull, schedulePullTimeout)
       } else {
-        console.log('could not get at data')
+        logger.warn({ response: data }, 'Could not get AT Data')
       }
-      setTimeout(realtime.schedulePull, 20000)
-    })
-  },
+    } catch (err) {
+      this.currentDataFails += 1
+      logger.warn({ err }, 'Could not get AT Data')
+      setTimeout(this.schedulePull, schedulePullTimeout)
+    }
+  }
 
-  scheduleLocationPull: async () => {
+  async scheduleLocationPull() {
+    const { logger, vehicleLocationsOptions } = this
     try {
       const data = await fetch(vehicleLocationsOptions.url, {
         headers: vehicleLocationsOptions.headers,
       }).then(r => r.json())
-      realtime.currentVehicleData = data.response
-      realtime.currentDataFails = 0
-      realtime.lastVehicleUpdate = new Date()
+      this.currentVehicleData = data.response
+      this.currentDataFails = 0
+      this.lastVehicleUpdate = new Date()
     } catch (err) {
-      realtime.currentVehicleDataFails += 1
-      console.log(err)
-      console.error('could not get AT data')
+      this.currentVehicleDataFails += 1
+      logger.error({ err }, 'Could not get AT Data')
     }
-    setTimeout(realtime.scheduleLocationPull, 15000)
-  },
+    setTimeout(this.scheduleLocationPull, scheduleLocationPullTimeout)
+  }
 
-  getTripsEndpoint: (req, res) => {
+  async getTripsEndpoint(req, res) {
     // compat with old version of api
     if (req.body.trips.constructor !== Array) {
       req.body.trips = Object.keys(req.body.trips)
     }
+    const { trips, train } = req.body
 
     // falls back to API if we're out of date
-    if (req.body.train || realtime.currentDataFails > 3) {
-      realtime.getTripsAuckland(req.body.trips, req.body.train).then(data => {
-        res.send(data)
-      })
-    } else {
-      const rt = realtime.getTripsCachedAuckland(req.body.trips)
-      res.send(rt)
-    }
-  },
-  endpointBypass: async (req, res) => {
-    const { trips, train } = req.body
-    const data = await realtime.getTripsAuckland(trips, train)
+    const data =
+      train || this.currentDataFails > 3
+        ? await this.getTripsAuckland(trips, train)
+        : this.getTripsCachedAuckland(trips)
     res.send(data)
-  },
-  getTripsAuckland: (trips, train = false) => {
-    var realtimeInfo = {}
-    trips.forEach(function(trip) {
+  }
+
+  async getTripsAuckland(trips, train = false) {
+    const { logger, vehicleLocationsOptions, tripUpdatesOptions } = this
+    const realtimeInfo = {}
+    trips.forEach(trip => {
       realtimeInfo[trip] = {}
     })
 
-    return new Promise((resolve, reject) => {
-      var newOpts
-      if (train) {
-        newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
-      } else {
-        newOpts = JSON.parse(JSON.stringify(tripUpdatesOptions))
-      }
+    const opts = train ? vehicleLocationsOptions : tripUpdatesOptions
 
-      // i feel like we should sanatize this or something...
-      newOpts.url += '?tripid=' + trips.join(',')
-      request(newOpts, function(err, response, body) {
-        if (err) {
-          return reject(err)
+    try {
+      const data = await fetch(`${opts.url}?tripid=${trips.join(',')}`, {
+        headers: opts.headers,
+      }).then(r => r.json())
+      if (data.response && data.response.entity) {
+        if (train) {
+          data.response.entity.forEach(trip => {
+            realtimeInfo[trip.vehicle.trip.trip_id] = {
+              v_id: trip.vehicle.vehicle.id,
+              latitude: trip.vehicle.position.latitude,
+              longitude: trip.vehicle.position.longitude,
+              bearing: trip.vehicle.position.bearing,
+            }
+          })
+        } else {
+          data.response.entity.forEach(trip => {
+            const timeUpdate =
+              trip.trip_update.stop_time_update.departure ||
+              trip.trip_update.stop_time_update.arrival ||
+              {}
+            realtimeInfo[trip.trip_update.trip.trip_id] = {
+              stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
+              delay: timeUpdate.delay,
+              timestamp: timeUpdate.time,
+              v_id: trip.trip_update.vehicle.id,
+              double_decker: this.isDoubleDecker(trip.trip_update.vehicle.id),
+              ev: this.isEV(trip.trip_update.vehicle.id),
+            }
+          })
         }
-        try {
-          body = JSON.parse(body)
-        } catch (err) {
-          return reject(err)
-        }
-        if (body && body.response && body.response.entity) {
-          if (train) {
-            body.response.entity.forEach(function(trip) {
-              realtimeInfo[trip.vehicle.trip.trip_id] = {
-                v_id: trip.vehicle.vehicle.id,
-                latitude: trip.vehicle.position.latitude,
-                longitude: trip.vehicle.position.longitude,
-                bearing: trip.vehicle.position.bearing,
-              }
-            })
-          } else {
-            body.response.entity.forEach(function(trip) {
-              var timeUpdate =
-                trip.trip_update.stop_time_update.departure ||
-                trip.trip_update.stop_time_update.arrival ||
-                {}
-              realtimeInfo[trip.trip_update.trip.trip_id] = {
-                stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
-                delay: timeUpdate.delay,
-                timestamp: timeUpdate.time,
-                v_id: trip.trip_update.vehicle.id,
-                double_decker: isDoubleDecker(trip.trip_update.vehicle.id),
-                ev: isEV(trip.trip_update.vehicle.id),
-              }
-            })
-          }
-        }
-        resolve(realtimeInfo) // ???
-      })
-    })
-  },
-  getTripsCachedAuckland: function(trips) {
+      }
+    } catch (err) {
+      logger.error({ err }, 'Could not get data from AT.')
+    }
+    return realtimeInfo
+  }
+
+  getTripsCachedAuckland(trips) {
     // this is essentially the same function as above, but just pulls from cache
     const realtimeInfo = {}
-    trips.forEach(function(trip) {
-      const data = realtime.currentData[trip]
+    trips.forEach(trip => {
+      const data = this.currentData[trip]
       if (typeof data !== 'undefined') {
         const timeUpdate =
           data.stop_time_update.departure || data.stop_time_update.arrival || {}
@@ -171,55 +169,52 @@ const realtime = {
           delay: timeUpdate.delay,
           timestamp: timeUpdate.time,
           v_id: data.vehicle.id,
-          double_decker: isDoubleDecker(data.vehicle.id),
-          ev: isEV(data.vehicle.id),
+          double_decker: this.isDoubleDecker(data.vehicle.id),
+          ev: this.isEV(data.vehicle.id),
         }
       }
     })
 
     return realtimeInfo
-  },
-  getVehicleLocationEndpoint: function(req, res) {
-    var vehicleInfo = {}
-    req.body.trips.forEach(function(trip) {
+  }
+
+  async getVehicleLocationEndpoint(req, res) {
+    const { logger, vehicleLocationsOptions } = this
+    const { trips } = req.body
+
+    const vehicleInfo = {}
+    req.body.trips.forEach(trip => {
       vehicleInfo[trip] = {}
     })
-    const newOpts = JSON.parse(JSON.stringify(vehicleLocationsOptions))
-    newOpts.url += '?tripid=' + req.body.trips.join(',')
-    request(newOpts, function(err, response, body) {
-      if (err) {
-        res.send({
-          error: err,
-        })
-        return
-      }
-      try {
-        body = JSON.parse(body)
-      } catch (err) {
-        console.error('rt error', err)
-        return res.send({
-          error: err,
-        })
-      }
-      if (body.response.entity) {
-        //console.log('1', body.response.entity)
-        // console.log('getting vehiclelocations')
-        body.response.entity.forEach(function(trip) {
+    try {
+      const data = await fetch(
+        `${vehicleLocationsOptions.url}?tripid=${trips.join(',')}`,
+        {
+          headers: vehicleLocationsOptions.headers,
+        }
+      ).then(r => r.json())
+      if (data.response.entity) {
+        data.response.entity.forEach(trip => {
           vehicleInfo[trip.vehicle.trip.trip_id] = {
             latitude: trip.vehicle.position.latitude,
             longitude: trip.vehicle.position.longitude,
             bearing: trip.vehicle.position.bearing,
           }
-          //console.log(vehicleInfo[trip.vehicle.trip.trip_id])
         })
       }
       res.send(vehicleInfo)
-    })
-  },
+      return vehicleInfo
+    } catch (err) {
+      logger.error({ err }, 'Could not get vehicle location from AT.')
+      res.send({ error: err })
+      return err
+    }
+  }
 
-  getLocationsForLine: async (req, res) => {
+  async getLocationsForLine(req, res) {
+    const { logger, connection } = this
     const { line } = req.params
-    if (realtime.currentVehicleData.entity === undefined) {
+    if (this.currentVehicleData.entity === undefined) {
       return res.send([])
     }
 
@@ -234,7 +229,7 @@ const realtime = {
         `
       )
       const routeIds = routeIdResult.recordset.map(r => r.route_id)
-      const trips = realtime.currentVehicleData.entity.filter(entity =>
+      const trips = this.currentVehicleData.entity.filter(entity =>
         routeIds.includes(entity.vehicle.trip.route_id)
       )
       // this is good enough because data comes from auckland transport
@@ -260,15 +255,15 @@ const realtime = {
           ? parseInt(entity.vehicle.position.bearing, 10)
           : null,
         direction: tripIdsMap[entity.vehicle.trip.trip_id],
-        updatedAt: realtime.lastVehicleUpdate,
+        updatedAt: this.lastVehicleUpdate,
       }))
       res.send(result)
+      return result
     } catch (err) {
-      console.error(err)
+      logger.error({ err }, 'Could not get locations from line.')
       res.status(500).send(err)
+      return err
     }
-  },
+  }
 }
-cache.ready.push(realtime.schedulePull)
-cache.ready.push(realtime.scheduleLocationPull)
-module.exports = realtime
+module.exports = RealtimeNZAKL

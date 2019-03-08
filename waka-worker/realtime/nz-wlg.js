@@ -1,4 +1,3 @@
-const request = require('request')
 const fetch = require('node-fetch')
 const sql = require('mssql')
 const moment = require('moment-timezone')
@@ -11,12 +10,14 @@ class RealtimeNZWLG {
     const { logger, connection } = props
     this.connection = connection
     this.logger = logger
-
-    this.start = this.start.bind(this)
   }
 
   start() {
     this.logger.info('Wellington Realtime Started.')
+  }
+
+  stop() {
+    this.logger.info('Wellington Realtime Stopped.')
   }
 
   async getTripsEndpoint(req, res) {
