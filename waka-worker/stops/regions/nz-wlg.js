@@ -18,6 +18,10 @@ class StopsNZWLG {
     ]
   }
 
+  start() {}
+
+  stop() {}
+
   extraSources() {
     return Promise.resolve([])
   }

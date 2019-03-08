@@ -2,10 +2,7 @@ const { Router } = require('express')
 const createLogger = require('./logger.js')
 const cityMetadata = require('../cityMetadata.json')
 
-// const router = require('./router.js')
 const Connection = require('./db/connection.js')
-// const cache = require('./cache')
-
 const Lines = require('./lines/index.js')
 const Search = require('./stops/search.js')
 const Station = require('./stops/station.js')
