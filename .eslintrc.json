@@ -19,7 +19,7 @@
         "checkLoops": false
       }
     ],
-    "no-underscore-dangle": [2, { "allow": ["_id"] }],
+    "no-underscore-dangle": "off",
     "comma-dangle": ["error", "always-multiline"],
     "no-shadow": "off",
     "no-unused-vars": 1,

@@ -1,24 +1,29 @@
-const badStops = [
-  'WATE',
-  'WOBU',
-  'PETO',
-  'TAKA',
-  'REDW',
-  'TAWA',
-  'PORI',
-  'TAIT',
-  'NGAI',
-  'KHAN',
-  'MANA',
-  'PLIM',
-  'PAEK',
-  'PARA',
-]
+class StopsNZWLG {
+  constructor() {
+    this.badStops = [
+      'WATE',
+      'WOBU',
+      'PETO',
+      'TAKA',
+      'REDW',
+      'TAWA',
+      'PORI',
+      'TAIT',
+      'NGAI',
+      'KHAN',
+      'MANA',
+      'PLIM',
+      'PAEK',
+      'PARA',
+    ]
+  }
 
-module.exports = {
-  badStops,
-  extraSources: () => Promise.resolve([]),
-  filter: (recordset, mode = 'nothing') =>
+  extraSources() {
+    return Promise.resolve([])
+  }
+
+  filter(recordset, mode = 'nothing') {
+    const { badStops } = this.badStops
     recordset
       .filter(item => {
         if (
@@ -37,5 +42,8 @@ module.exports = {
           item.stop_id = item.stop_id.slice(0, -1)
         }
         return item
-      }),
+      })
+  }
 }
+
+module.exports = StopsNZWLG
