@@ -1,7 +1,11 @@
-const connection = require('../db/connection.js')
+class DataAccess {
+  constructor(props) {
+    const { connection } = props
+    this.connection = connection
+  }
 
-const queries = {
-  getRoutes: async () => {
+  async getRoutes() {
+    const { connection } = this
     const sqlRequest = connection.get().request()
     const data = await sqlRequest.query(`
       SELECT
@@ -10,6 +14,6 @@ const queries = {
       ORDER BY route_type, route_short_name
     `)
     return data
-  },
+  }
 }
-module.exports = queries
+module.exports = DataAccess
