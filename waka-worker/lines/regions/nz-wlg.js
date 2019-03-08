@@ -1,7 +1,4 @@
-const colors = require('colors')
-const cache = require('../../cache.js')
-const log = require('../../../server-common/logger.js')
-const queries = require('../queries.js')
+const DataAccess = require('../dataAccess.js')
 
 const groups = [
   {
@@ -39,89 +36,98 @@ groups.forEach((data, index) => {
   regionEnum[data.id] = index
 })
 
-const lineGroups = groups.map(item => {
-  return {
-    name: item.name,
-    items: [],
+class LinesNZWLG {
+  constructor(props) {
+    const { logger, connection } = props
+    this.logger = logger
+    this.connection = connection
+    this.dataAccess = new DataAccess({ connection })
+
+    this.lineColors = {}
+    this.lineGroups = {}
+    this.allLines = {}
+    this.lineOperators = {}
   }
-})
 
-const lineColors = {}
-const allLines = {}
-const lineOperators = {}
-
-const lineColorizer = (agency, route_short_name, db_color) => {
-  const ag_mapper = {
-    WCCL: 'e43e42',
-    EBYW: '41bada',
+  start() {
+    this.getLines()
   }
-  const rt_mapper = {
-    HVL: 'e52f2b',
-    JVL: '4f9734',
-    KPL: 'f39c12',
-    MEL: '21b4e3',
-    WRL: 'e52f2b',
-  }
-  let retValue =
-    rt_mapper[route_short_name] || ag_mapper[agency] || db_color || '000000'
-  return '#' + retValue
-}
 
-const sortLines = lineGroups => {
-  lineGroups.forEach(group => {
-    const collator = new Intl.Collator(undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    })
-    group.items.sort(collator.compare)
-  })
-}
+  async getLines() {
+    const { logger, dataAccess } = this
+    const allLines = {}
+    const lineOperators = {}
+    const lineColors = {}
+    const lineGroups = groups.map(item => ({
+      name: item.name,
+      items: [],
+    }))
 
-const getLines = async () => {
-  const result = await queries.getRoutes()
-  result.recordset.forEach(record => {
-    allLines[record.route_short_name] = [[record.route_long_name]]
+    const result = await dataAccess.getRoutes()
+    result.recordset.forEach(record => {
+      const routeShortName = record.route_short_name
+      allLines[routeShortName] = [[record.route_long_name]]
 
-    lineOperators[record.route_short_name] = record.agency_id
-    if (record.route_type !== 3) {
-      lineGroups[regionEnum.cf].items.push(record.route_short_name)
-    } else {
-      if (record.route_short_name.slice(0, 1) === 'N') {
-        lineGroups[regionEnum.lateNight].items.push(record.route_short_name)
-      } else if (parseInt(record.route_short_name) >= 250) {
-        lineGroups[regionEnum.paraparaumu].items.push(record.route_short_name)
+      lineOperators[routeShortName] = record.agency_id
+      if (record.route_type !== 3) {
+        lineGroups[regionEnum.cf].items.push(routeShortName)
+      } else if (routeShortName.slice(0, 1) === 'N') {
+        lineGroups[regionEnum.lateNight].items.push(routeShortName)
+      } else if (parseInt(routeShortName, 10) >= 250) {
+        lineGroups[regionEnum.paraparaumu].items.push(routeShortName)
       } else if (
-        parseInt(record.route_short_name) >= 200 &&
-        parseInt(record.route_short_name) < 210
+        parseInt(routeShortName, 10) >= 200 &&
+        parseInt(routeShortName, 10) < 210
       ) {
-        lineGroups[regionEnum.wairarapa].items.push(record.route_short_name)
+        lineGroups[regionEnum.wairarapa].items.push(routeShortName)
       } else if (
-        parseInt(record.route_short_name) >= 80 &&
-        parseInt(record.route_short_name) < 200
+        parseInt(routeShortName, 10) >= 80 &&
+        parseInt(routeShortName, 10) < 200
       ) {
-        lineGroups[regionEnum.hutt].items.push(record.route_short_name)
-      } else if (parseInt(record.route_short_name) > 200) {
-        lineGroups[regionEnum.porirua].items.push(record.route_short_name)
+        lineGroups[regionEnum.hutt].items.push(routeShortName)
+      } else if (parseInt(routeShortName, 10) > 200) {
+        lineGroups[regionEnum.porirua].items.push(routeShortName)
       } else {
-        lineGroups[regionEnum.central].items.push(record.route_short_name)
+        lineGroups[regionEnum.central].items.push(routeShortName)
       }
+
+      lineColors[routeShortName] = this.lineColorizer(
+        record.agency_id,
+        record.routeShortName,
+        record.route_color
+      )
+    })
+
+    lineGroups.forEach(group => {
+      const collator = new Intl.Collator(undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      })
+      group.items.sort(collator.compare)
+    })
+
+    this.allLines = allLines
+    this.lineOperators = lineOperators
+    this.lineColors = lineColors
+    this.lineGroups = lineGroups
+    logger.info('Cached Lines')
+  }
+
+  lineColorizer(agency, routeShortName, dbColor) {
+    const agMapper = {
+      WCCL: 'e43e42',
+      EBYW: '41bada',
     }
-
-    lineColors[record.route_short_name] = lineColorizer(
-      record.agency_id,
-      record.route_short_name,
-      record.route_color
-    )
-  })
-
-  sortLines(lineGroups)
-  log('nz-wlg'.magenta, 'Cached Lines')
+    const rtMapper = {
+      HVL: 'e52f2b',
+      JVL: '4f9734',
+      KPL: 'f39c12',
+      MEL: '21b4e3',
+      WRL: 'e52f2b',
+    }
+    const retValue =
+      rtMapper[routeShortName] || agMapper[agency] || dbColor || '000000'
+    return `#${retValue}`
+  }
 }
-cache.ready.push(getLines)
-
-module.exports = {
-  lineColors,
-  lineGroups,
-  allLines,
-  lineOperators,
-}
+module.exports = LinesNZWLG
