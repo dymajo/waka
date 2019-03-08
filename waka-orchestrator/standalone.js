@@ -23,8 +23,24 @@ const wellington = new WakaWorker({
     connectionTimeout: 60000,
     requestTimeout: 60000,
   },
+  api: {},
+})
+const auckland = new WakaWorker({
+  prefix: 'nz-akl',
+  version: '20181217100848_v74_2',
+  db: {
+    user: 'SA',
+    password: 'Str0ngPassword',
+    server: 'localhost',
+    database: 'nz_akl_20181217100848_v74_2',
+    transactionLimit: 50000,
+    connectionTimeout: 60000,
+    requestTimeout: 60000,
+  },
+  api: {},
 })
 app.use('/nz-wlg', wellington.router)
+app.use('/nz-akl', auckland.router)
 app.use(proxy.router)
 
 const listener = app.listen(port, () => {
@@ -33,5 +49,6 @@ const listener = app.listen(port, () => {
     'waka-orchestrator listening'
   )
   wellington.start()
+  auckland.start()
   proxy.start()
 })
