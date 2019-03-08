@@ -5,6 +5,8 @@ const cityMetadata = require('../cityMetadata.json')
 // const router = require('./router.js')
 const Connection = require('./db/connection.js')
 // const cache = require('./cache')
+
+const Search = require('./stops/search.js')
 const Realtime = require('./realtime/index.js')
 
 class WakaWorker {
@@ -18,6 +20,7 @@ class WakaWorker {
     this.connection = connection
 
     this.router = new Router()
+    this.search = new Search({ logger, connection, prefix, api })
     this.realtime = new Realtime({ logger, connection, prefix, api })
 
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
@@ -29,6 +32,7 @@ class WakaWorker {
   async start() {
     await this.connection.open()
     this.logger.info('Connected to the Database')
+    this.search.start()
     this.realtime.start()
   }
 
@@ -46,8 +50,54 @@ class WakaWorker {
   }
 
   bindRoutes() {
-    const { realtime, router } = this
+    const { search, realtime, router } = this
+
+    /**
+     * @api {get} /:region/info Get worker info
+     * @apiName GetInfo
+     * @apiGroup Info
+     *
+     * @apiParam {String} region Region of Worker
+     *
+     * @apiSuccess {String} prefix Region Code.
+     * @apiSuccess {String} version  Version of GTFS Schedule currently in use.
+     * @apiSuccess {String} name Name of the Region
+     * @apiSuccess {String} secondaryName Extra Region Name (State, Country etc)
+     * @apiSuccess {String} longName The name and secondary name combined.
+     * @apiSuccess {Object} bounds latlon Bound of stop data in region.
+     * @apiSuccess {Object} bounds.lat Latitude Bounds
+     * @apiSuccess {Number} bounds.lat.min Latitude Minimum Bound
+     * @apiSuccess {Number} bounds.lat.max Latitude Minimum Bound
+     * @apiSuccess {Object} bounds.lon Longitude Bounds
+     * @apiSuccess {Number} bounds.lon.min Longitude Minimum Bound
+     * @apiSuccess {Number} bounds.lon.max Longitude Minimum Bound
+     *
+     * @apiSuccessExample Success-Response:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "prefix": "nz-akl",
+     *       "version": "20180702170310_v67.28",
+     *       "name": "Tāmaki Makaurau",
+     *       "secondaryName": "Auckland",
+     *       "longName": "Tāmaki Makaurau, Auckland",
+     *       "bounds": {
+     *         "lat": {
+     *           "min": -37.39747,
+     *           "max": -36.54297
+     *         },
+     *         "lon": {
+     *           "min": 174.43058,
+     *           "max": 175.09714
+     *         }
+     *       }
+     *     }
+     *
+     */
     router.get('/info', (req, res) => res.send(this.signature()))
+
+    router.get('/stations', search.all)
+    router.get('/station/search', search.getStopsLatLon)
+
     router.get('/realtime-healthcheck', realtime.healthcheck)
     router.get('/realtime/:line', realtime.vehicleLocationV2)
     router.post('/realtime', realtime.stopInfo)

@@ -46,6 +46,7 @@ const worker = new WakaWorker({
   },
   api: {
     'nz-akl': process.env.atApiKey, // TODO
+    'agenda-21': process.env.AGENDA21_API_KEY,
   },
 })
 app.use(worker.router)

@@ -1,20 +1,50 @@
-const cache = require('../cache')
 const sql = require('mssql')
-const connection = require('../db/connection.js')
-const akl = require('./nz-akl.js')
-const wlg = require('./nz-wlg.js')
+const StopsNZAKL = require('./regions/nz-akl.js')
+const StopsNZWLG = require('./regions/nz-wlg.js')
 
-const search = {
+class Search {
+  constructor(props) {
+    const { logger, connection, prefix, api } = props
+    this.logger = logger
+    this.connection = connection
+    this.prefix = prefix
+
+    this.stopsRouteType = {}
+    this.regionSpecific = null
+    if (prefix === 'nz-akl') {
+      this.regionSpecific = new StopsNZAKL({ logger, apiKey: api['agenda-21'] })
+    } else if (prefix === 'nz-wlg') {
+      this.regionSpecific = new StopsNZWLG({ logger })
+    }
+
+    this._stopsFilter = this._stopsFilter.bind(this)
+    this.all = this.all.bind(this)
+    this._allStops = this._allStops.bind(this)
+    this.getStopsRouteType = this.getStopsRouteType.bind(this)
+    this.getStopsLatLon = this.getStopsLatLon.bind(this)
+    this._stopsFromDb = this._stopsFromDb.bind(this)
+  }
+
+  start() {
+    if (this.regionSpecific) {
+      this.regionSpecific.start()
+    }
+    this.getStopsRouteType()
+  }
+
+  stop() {
+    if (this.regionSpecific) {
+      this.regionSpecific.stop()
+    }
+  }
+
   _stopsFilter(recordset, mode) {
-    const prefix = global.config.prefix
+    const { prefix, regionSpecific } = this
     if (prefix === 'nz-wlg') {
-      return wlg.filter(recordset, mode)
+      return regionSpecific.filter(recordset, mode)
     }
     return recordset
-  },
-
-  // This gets cached on launch
-  stopsRouteType: {},
+  }
 
   /**
    * @api {get} /:region/stations List - All
@@ -44,22 +74,25 @@ const search = {
    *     }
    *
    */
-  all: function(req, res) {
-    search
-      ._allStops()
-      .then(data => {
-        res.send(data)
-      })
-      .catch(err => {
-        res.status(500).send(err)
-      })
-  },
-  _allStops: function() {
-    return new Promise(function(resolve, reject) {
+  async all(req, res) {
+    const { logger, _allStops } = this
+    try {
+      const data = await _allStops()
+      res.send(data)
+      return data
+    } catch (err) {
+      logger.error({ err })
+      res.status(500).send(err)
+      return err
+    }
+  }
+
+  async _allStops() {
+    const { logger, connection, stopsRouteType, _stopsFilter } = this
+    try {
       const sqlRequest = connection.get().request()
-      sqlRequest
-        .query(
-          `
+      const result = await sqlRequest.query(
+        `
         SELECT
           stop_code as stop_id,
           stop_name
@@ -71,44 +104,42 @@ const search = {
           len(stop_code),
           stop_code
       `
-        )
-        .then(result => {
-          resolve({
-            route_types: search.stopsRouteType,
-            items: search._stopsFilter(result.recordset, 'delete'),
-          })
-        })
-        .catch(err => {
-          return reject({
-            error: err,
-          })
-        })
-    })
-  },
-  getStopsRouteType() {
-    const sqlRequest = connection.get().request()
-    sqlRequest
-      .query(
-        `
-      SELECT DISTINCT stops.stop_code AS stop_id, routes.route_type
-      FROM stops
-      JOIN stop_times ON stop_times.stop_id = stops.stop_id
-      JOIN trips ON trips.trip_id = stop_times.trip_id
-      JOIN routes ON routes.route_id = trips.route_id
-      WHERE route_type <> 3
-      ORDER BY stop_code`
       )
-      .then(result => {
-        const route_types = {}
-        result.recordset.forEach(stop => {
-          route_types[stop.stop_id] = stop.route_type
-        })
-        search.stopsRouteType = route_types
+      return {
+        route_types: stopsRouteType,
+        items: _stopsFilter(result.recordset, 'delete'),
+      }
+    } catch (err) {
+      logger.error({ err }, 'Could not get all stops from database.')
+      throw err
+    }
+  }
+
+  async getStopsRouteType() {
+    const { logger, connection } = this
+    const sqlRequest = connection.get().request()
+    try {
+      const result = await sqlRequest.query(
+        `
+        SELECT DISTINCT stops.stop_code AS stop_id, routes.route_type
+        FROM stops
+        JOIN stop_times ON stop_times.stop_id = stops.stop_id
+        JOIN trips ON trips.trip_id = stop_times.trip_id
+        JOIN routes ON routes.route_id = trips.route_id
+        WHERE route_type <> 3
+        ORDER BY stop_code`
+      )
+
+      const routeTypes = {}
+      result.recordset.forEach(stop => {
+        routeTypes[stop.stop_id] = stop.route_type
       })
-      .catch(err => {
-        console.error(err)
-      })
-  },
+      this.stopsRouteType = routeTypes
+    } catch (err) {
+      logger.error({ err }, 'Could not all stops route types from database.')
+    }
+  }
+
   /**
    * @api {get} /:region/station/search List - by Location
    * @apiName GetStationSearch
@@ -142,8 +173,9 @@ const search = {
    *     ]
    *
    */
-  getStopsLatLng(req, res) {
+  async getStopsLatLon(req, res) {
     // no caching here, maybe we need it?
+    const { logger, prefix, regionSpecific, _stopsFromDb } = this
     if (
       req.query.lat &&
       (req.query.lng || req.query.lon) &&
@@ -161,71 +193,70 @@ const search = {
       const dist = req.query.distance
 
       // the database is the default source
-      let sources = [search._stopsFromDb(lat, lon, dist)]
-      const prefix = global.config.prefix
+      let sources = [_stopsFromDb(lat, lon, dist)]
       if (prefix === 'nz-wlg') {
-        sources = sources.concat(wlg.extraSources(lat, lon, dist))
+        sources = sources.concat(regionSpecific.extraSources(lat, lon, dist))
       } else if (prefix === 'nz-akl') {
-        sources = sources.concat(akl.extraSources(lat, lon, dist))
+        sources = sources.concat(regionSpecific.extraSources(lat, lon, dist))
       }
 
-      Promise.all(sources)
-        .then(data => {
-          // merges all the arays of data together
-          res.send([].concat.apply([], data))
-        })
-        .catch(err => {
-          res.status(500).send(err)
-        })
+      try {
+        // merges all the arays of data together
+        const data = await Promise.all(sources)
+        const response = [].concat(...data)
+        res.send(response)
+        return response
+      } catch (err) {
+        logger.error({ err }, 'Could not get stops lat lng.')
+        res.status(500).send(err)
+        return err
+      }
     } else {
-      res.status(400).send({
+      const error = {
         message: 'please send all required params (lat, lng, distance)',
-      })
+      }
+      res.status(400).send(error)
+      return error
     }
-  },
-  _stopsFromDb(lat, lon, distance) {
-    return new Promise((resolve, reject) => {
-      const latDist = distance / 100000
-      const lonDist = distance / 65000
+  }
 
-      const sqlRequest = connection.get().request()
-      sqlRequest.input('stop_lat_gt', sql.Decimal(10, 6), lat - latDist)
-      sqlRequest.input('stop_lat_lt', sql.Decimal(10, 6), lat + latDist)
-      sqlRequest.input('stop_lon_gt', sql.Decimal(10, 6), lon - lonDist)
-      sqlRequest.input('stop_lon_lt', sql.Decimal(10, 6), lon + lonDist)
-      sqlRequest
-        .query(
-          `
-        select
-          stop_code as stop_id,
-          stop_name,
-          stop_lat,
-          stop_lon
-        from stops
-        where
-          (location_type = 0 OR location_type IS NULL)
-          and stop_lat > @stop_lat_gt and stop_lat < @stop_lat_lt
-          and stop_lon > @stop_lon_gt and stop_lon < @stop_lon_lt`
-        )
-        .then(result => {
-          const stops = search._stopsFilter(
-            result.recordset.map(item => {
-              item.stop_region = global.config.prefix
-              item.stop_lng = item.stop_lon // this is fucking dumb
-              item.route_type = search.stopsRouteType[item.stop_id]
-              if (typeof item.route_type === 'undefined') {
-                item.route_type = 3
-              }
-              return item
-            })
-          )
-          resolve(stops)
-        })
-        .catch(err => {
-          reject(err)
-        })
-    })
-  },
+  async _stopsFromDb(lat, lon, distance) {
+    const { connection, prefix, _stopsFilter } = this
+    const latDist = distance / 100000
+    const lonDist = distance / 65000
+
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('stop_lat_gt', sql.Decimal(10, 6), lat - latDist)
+    sqlRequest.input('stop_lat_lt', sql.Decimal(10, 6), lat + latDist)
+    sqlRequest.input('stop_lon_gt', sql.Decimal(10, 6), lon - lonDist)
+    sqlRequest.input('stop_lon_lt', sql.Decimal(10, 6), lon + lonDist)
+    const result = await sqlRequest.query(
+      `
+      SELECT
+        stop_code AS stop_id,
+        stop_name,
+        stop_lat,
+        stop_lon
+      FROM stops
+      WHERE
+        (location_type = 0 OR location_type IS NULL)
+        AND stop_lat > @stop_lat_gt AND stop_lat < @stop_lat_lt
+        AND stop_lon > @stop_lon_gt AND stop_lon < @stop_lon_lt`
+    )
+
+    const stops = _stopsFilter(
+      result.recordset.map(item => {
+        const newItem = JSON.parse(JSON.stringify(item))
+        newItem.stop_region = prefix
+        newItem.stop_lng = item.stop_lon // this is a dumb api choice in the past
+        newItem.route_type = this.stopsRouteType[item.stop_id]
+        if (typeof item.route_type === 'undefined') {
+          newItem.route_type = 3
+        }
+        return newItem
+      })
+    )
+    return stops
+  }
 }
-cache.ready.push(search.getStopsRouteType)
-module.exports = search
+module.exports = Search
