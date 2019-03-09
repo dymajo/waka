@@ -1,6 +1,4 @@
-const sql = require('mssql')
 const dotenv = require('dotenv')
-
 const connection = require('./db/connection.js')
 const CreateDb = require('./db/create.js')
 const log = require('./logger.js')
@@ -25,6 +23,7 @@ const {
   STORAGE_SERVICE,
   SHAPES_CONTAINER,
   SHAPES_REGION,
+  SHAPES_SKIP,
   EMULATED_STORAGE,
 } = process.env
 
@@ -35,7 +34,8 @@ global.config = {
   storageService: 'aws' || STORAGE_SERVICE,
   shapesContainer: 'shapes-us-west-2.waka.app' || SHAPES_CONTAINER,
   shapesRegion: 'us-west-2' || SHAPES_REGION,
-  emulatedStorage: EMULATED_STORAGE || false,
+  shapesSkip: SHAPES_SKIP === 'true' || false,
+  emulatedStorage: EMULATED_STORAGE === 'true' || false,
   db: {
     user: DB_USER,
     password: DB_PASSWORD,

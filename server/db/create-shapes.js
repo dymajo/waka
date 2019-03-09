@@ -83,6 +83,10 @@ class CreateShapes {
 
   upload(container, directory) {
     return new Promise((resolve, reject) => {
+      if (global.config.shapesSkip === true) {
+        log('Skipping Shapes Upload.')
+        return resolve()
+      }
       let total = 0
       const uploadSingle = (files, index, callback) => {
         if (index === files.length) {

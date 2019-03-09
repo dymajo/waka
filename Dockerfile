@@ -1,6 +1,7 @@
 FROM node:alpine
 
 WORKDIR /usr/src/app
+RUN mkdir cache
 
 COPY package*.json ./
 
