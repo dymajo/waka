@@ -1,4 +1,12 @@
 class DomController {
+  constructor(controller) {
+    this.controller = controller
+
+    this.workerButton = this.workerButton.bind(this)
+    this.workerCreateButton = this.workerCreateButton.bind(this)
+    this.dropdownButton = this.dropdownButton.bind(this)
+  }
+
   start() {
     document
       .getElementById('createWorkerConfirm')
@@ -18,7 +26,8 @@ class DomController {
   }
 
   workerButton(e) {
-    const action = e.currentTarget.dataset.action
+    const { controller } = this
+    const { action } = e.currentTarget.dataset
     const worker = JSON.stringify(
       e.currentTarget.parentElement.parentElement.dataset
     )
@@ -28,6 +37,7 @@ class DomController {
   }
 
   workerCreateButton() {
+    const { controller } = this
     const prefix = document.getElementById('workerPrefix')
     const version = document.getElementById('workerVersion')
     const dbconfig = document.getElementById('workerDbconfig')
@@ -57,6 +67,7 @@ class DomController {
   }
 
   dropdownButton(e) {
+    const { controller } = this
     e.preventDefault()
     const action = e.currentTarget.dataset.action
     const worker =
@@ -80,7 +91,7 @@ class DomController {
 class WorkerController {
   constructor() {
     this.endpoint = '.'
-    this.domController = new DomController()
+    this.domController = new DomController(this)
   }
 
   start() {
@@ -153,15 +164,15 @@ class WorkerController {
         `
       let ctrl = '<span class="badge badge-pill badge-warning">inactive</span>'
       let btns =
-        '<button type="button" data-action="/worker/start" class="btn btn-light btn-sm">activate</button>'
+        '<button type="button" data-action="/mapping/set" class="btn btn-light btn-sm">activate</button>'
       if (item.id === mappings[item.prefix]) {
         ctrl = '<span class="badge badge-pill badge-success">active</span>'
         btns =
-          '<button type="button" data-action="/worker/stop" class="btn btn-danger btn-sm">stop</button>'
+          '<button type="button" data-action="/mapping/delete" class="btn btn-danger btn-sm">unmap</button>'
       }
 
       domString += `
-        <tr data-prefix="${item.prefix}" data-version="${item.version}">
+        <tr data-id="${item.id}" data-prefix="${item.prefix}">
           <td>${item.prefix}</td>
           <td>${item.version}</td>
           <td class="td-truncate" title="${item.dbname}">${item.dbname}</td>

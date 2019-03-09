@@ -44,6 +44,18 @@ class KeyvalueLocal {
     }
   }
 
+  async delete(key) {
+    const data = await this.read()
+    delete data[key]
+    try {
+      await this.write(data)
+      return true
+    } catch (err) {
+      logger.error({ err }, 'Could not write data.')
+      return false
+    }
+  }
+
   async scan() {
     const data = await this.read()
     return data

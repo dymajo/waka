@@ -27,24 +27,20 @@ class VersionManager {
     logger.info({ mappings }, `Found ${mappings.length} Mappings`)
 
     // load data for version
-    mappings.forEach(async prefix => {
-      const workerConfig = await this.versions.get(mappingsTable[prefix])
-      this.updateGateway(prefix, workerConfig)
-    })
+    mappings.forEach(prefix =>
+      this.updateGateway(prefix, mappingsTable[prefix])
+    )
   }
 
   async stop() {
-    const { gateway } = this
     const mappingsTable = await this.mappings.scan()
     const mappings = Object.keys(mappingsTable)
-    mappings.forEach(prefix => {
-      logger.info({ prefix }, 'Stopping Gateway')
-      gateway.stop(prefix)
-    })
+    mappings.forEach(prefix => this.stopGateway(prefix))
   }
 
-  async updateGateway(prefix, workerConfig) {
-    const { gateway, config } = this
+  async updateGateway(prefix, versionId) {
+    const { gateway, config, versions } = this
+    const workerConfig = await versions.get(versionId)
 
     // the gateway needs some settings from the orchestrator,
     // but also some settings from the worker config
@@ -67,6 +63,23 @@ class VersionManager {
         requestTimeout: config.requestTimeout,
       },
     })
+  }
+
+  stopGateway(prefix) {
+    const { gateway } = this
+    logger.info({ prefix }, 'Stopping Gateway')
+    gateway.stop(prefix)
+  }
+
+  async updateMapping(prefix, versionId) {
+    await this.mappings.set(prefix, versionId)
+    await this.updateGateway(prefix, versionId)
+  }
+
+  async deleteMapping(prefix) {
+    this.stopGateway(prefix)
+    logger.info({ prefix }, 'Deleting Gateway')
+    await this.mappings.delete(prefix)
   }
 
   async allVersions() {
