@@ -4,6 +4,7 @@ const WakaProxy = require('../waka-proxy/index.js')
 const GatewayLocal = require('./adaptors/gatewayLocal.js')
 const GatewayEcs = require('./adaptors/gatewayEcs.js')
 const GatewayKubernetes = require('./adaptors/gatewayKubernetes.js')
+const VersionManager = require('./versionManager.js')
 
 class WakaOrchestrator {
   constructor(config) {
@@ -19,13 +20,14 @@ class WakaOrchestrator {
     } else if (gateway === 'kubernetes') {
       this.gateway = new GatewayKubernetes()
     }
+    this.versionManager = new VersionManager({ config, gateway: this.gateway })
 
     this.bindRoutes()
   }
 
   start() {
-    const { gateway, proxy, config } = this
-    gateway.start()
+    const { proxy, config } = this
+    this.versionManager.start()
 
     if (config.gateway === 'local') {
       proxy.start()
