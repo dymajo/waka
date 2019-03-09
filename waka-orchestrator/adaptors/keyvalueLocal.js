@@ -23,7 +23,7 @@ class KeyvalueLocal {
 
   async write(data) {
     const { name } = this
-    await fs.writeFile(`${filePath}${name}.json`, JSON.stringify(data))
+    await fs.writeFile(`${filePath}${name}.json`, JSON.stringify(data, ' ', 2))
   }
 
   async get(key) {

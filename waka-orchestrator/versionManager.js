@@ -63,7 +63,7 @@ class VersionManager {
         requestTimeout: config.requestTimeout,
       },
     }
-    logger.info({ config: gatewayConfig }, 'Gateway Config')
+    logger.debug({ config: gatewayConfig }, 'Gateway Config')
     gateway.start(prefix, gatewayConfig)
   }
 
@@ -82,6 +82,34 @@ class VersionManager {
     this.stopGateway(prefix)
     logger.info({ prefix }, 'Deleting Gateway')
     await this.mappings.delete(prefix)
+  }
+
+  async addVersion(workerConfig) {
+    const { config, versions } = this
+    const {
+      prefix,
+      version,
+      shapesContainer,
+      shapesRegion,
+      dbconfig,
+    } = workerConfig
+
+    // sanitizes the names
+    const id = `${prefix.replace(/-/g, '_')}_${version
+      .replace(/-/g, '_')
+      .replace(/ /g, '_')}`
+    const db = JSON.parse(JSON.stringify(config.db[dbconfig]))
+    db.database = id
+
+    const newConfig = {
+      prefix,
+      version,
+      shapesContainer,
+      shapesRegion,
+      status: 'empty',
+      db,
+    }
+    await versions.set(id, newConfig)
   }
 
   async allVersions() {

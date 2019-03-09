@@ -40,12 +40,19 @@ class DomController {
     const { controller } = this
     const prefix = document.getElementById('workerPrefix')
     const version = document.getElementById('workerVersion')
+    const shapesContainer = document.getElementById('workerShapesContainer')
+    const shapesRegion = document.getElementById('workerShapesRegion')
     const dbconfig = document.getElementById('workerDbconfig')
 
     // none are allowed to be blank
     if (
-      [prefix.value, version.value, dbconfig.value].filter(v => v.length === 0)
-        .length > 0
+      [
+        prefix.value,
+        version.value,
+        shapesContainer.value,
+        shapesRegion.value,
+        dbconfig.value,
+      ].filter(v => v.length === 0).length > 0
     ) {
       return
     }
@@ -55,12 +62,16 @@ class DomController {
       JSON.stringify({
         prefix: prefix.value,
         version: version.value,
+        shapesContainer: shapesContainer.value,
+        shapesRegion: shapesRegion.value,
         dbconfig: dbconfig.value,
       })
     )
 
     prefix.value = ''
     version.value = ''
+    shapesContainer.value = ''
+    shapesRegion.value = ''
     dbconfig.value = ''
 
     $('#createWorkerModal').modal('hide')
@@ -178,7 +189,7 @@ class WorkerController {
 
       domString += `
         <tr data-id="${item.id}" data-prefix="${item.prefix}">
-          <td>${item.prefix}</td>
+          <td><a href="../${item.prefix}/info">${item.prefix}</a></td>
           <td>${item.version}</td>
           <td class="td-truncate" title="${item.dbname}">${item.dbname}</td>
           <td>${item.status}</td>

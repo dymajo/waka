@@ -58,6 +58,7 @@ class PrivateApi {
         return {
           id: versionKey,
           prefix: versionData.prefix,
+          status: versionData.status,
           version: versionData.version,
           dbname: versionData.db.database,
         }
@@ -65,11 +66,15 @@ class PrivateApi {
       res.send(response)
     })
 
-    // router.post('/worker/add', (req, res) => {
-    //   WorkerManager.add(req.body).then(() => {
-    //     res.send('Added worker.')
-    //   })
-    // })
+    router.post('/worker/add', async (req, res) => {
+      const { versionManager } = this
+      try {
+        await versionManager.addVersion(req.body)
+        res.send({ message: 'Added worker.' })
+      } catch (err) {
+        res.status(500).send(err)
+      }
+    })
 
     // router.post('/worker/delete', (req, res) => {
     //   WorkerManager.delete(req.body.prefix, req.body.version)
