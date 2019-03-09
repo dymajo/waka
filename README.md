@@ -17,3 +17,11 @@ Used when someone requests a non-prefixed route.
 ### waka-worker
 
 The API.
+
+## Running Locally
+
+First, start Microsoft SQL Server. It's recommended that you run it with Docker:
+
+```
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Str0ngPassword" -p 1433:1433 -d --name="waka-db" microsoft/mssql-server-linux:latest
+```
