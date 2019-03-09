@@ -36,7 +36,7 @@ class Importer {
       await this.unzip()
       await this.db()
     } else {
-      log('DB already created - skipping download & unzip.')
+      console.warn('DB already created - skipping download & unzip.')
     }
     await this.shapes()
     await this.fixStopCodes()
@@ -63,6 +63,11 @@ class Importer {
   }
 
   async shapes() {
+    if (!fs.existsSync(this.current.zipLocation)) {
+      console.warn('Shapes could not be found!')
+      return
+    }
+
     const creator = new CreateShapes()
     const inputDir = path.resolve(
       `${this.current.zipLocation}unarchived`,
