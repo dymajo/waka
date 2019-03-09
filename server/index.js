@@ -11,7 +11,7 @@ log('Importer Started')
 const {
   PREFIX,
   VERSION,
-  DB_NAME,
+  DB_DATABASE,
   DB_USER,
   DB_PASSWORD,
   DB_SERVER,
@@ -40,7 +40,7 @@ global.config = {
     user: DB_USER,
     password: DB_PASSWORD,
     server: DB_SERVER,
-    database: DB_NAME || `${PREFIX}_${VERSION}`,
+    database: DB_DATABASE || `${PREFIX}_${VERSION}`,
     master_database: DB_MASTER_DATABASE || 'master',
     transactionLimit: parseInt(DB_TRANSACTION_LIMIT, 10) || 50000,
     connectionTimeout: parseInt(DB_CONNECTION_TIMEOUT, 10) || 60000,
