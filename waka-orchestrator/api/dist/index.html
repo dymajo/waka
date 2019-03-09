@@ -16,14 +16,28 @@
   </div>
 
   <div class="container main-container pt-5">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-2">
       <h2>Workers</h2>
       <div class="btn-toolbar mb-2 mb-md-0">
         <button class="btn btn-sm btn-outline-primary"  data-toggle="modal" data-target="#createWorkerModal">Create Worker</button>
       </div>
     </div>
-    <div id="workers">
+    <div id="workers" class="mb-4">
       Loading...
+    </div>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-1">
+      <h2>Config</h2>
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <button class="btn btn-sm btn-outline-primary" id="saveConfig">Save Config</button>
+      </div>
+    </div>
+    <div class="mb-4">
+      <div class="form-group">
+        <textarea class="form-control pre" id="configTextarea" rows="3"></textarea>
+        <small class="form-text text-muted">
+          You can override the <a href="https://github.com/dymajo/waka-server/blob/master/waka-orchestrator/configManager.js">default config</a> by putting values in here. However, you will need to restart the app!
+        </small>
+    </div>
     </div>
     <div>
       <h5>Instructions</h5>

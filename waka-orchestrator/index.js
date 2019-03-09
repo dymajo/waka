@@ -21,8 +21,9 @@ class WakaOrchestrator {
     } else if (gateway === 'kubernetes') {
       this.gateway = new GatewayKubernetes()
     }
-    this.versionManager = new VersionManager({ config, gateway: this.gateway })
-    this.privateApi = new PrivateApi({ versionManager: this.versionManager })
+    const versionManager = new VersionManager({ config, gateway: this.gateway })
+    this.versionManager = versionManager
+    this.privateApi = new PrivateApi({ config, versionManager })
 
     this.bindRoutes()
   }
