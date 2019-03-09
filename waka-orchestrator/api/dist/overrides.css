@@ -4,3 +4,6 @@
   white-space: pre;
   text-overflow: ellipsis;
 }
+.pre {
+  font-family: 'Consolas', 'Monaco', monospace;
+}

@@ -5,12 +5,17 @@ class DomController {
     this.workerButton = this.workerButton.bind(this)
     this.workerCreateButton = this.workerCreateButton.bind(this)
     this.dropdownButton = this.dropdownButton.bind(this)
+    this.saveConfig = this.saveConfig.bind(this)
   }
 
   start() {
     document
       .getElementById('createWorkerConfirm')
       .addEventListener('click', this.workerCreateButton)
+
+    document
+      .getElementById('saveConfig')
+      .addEventListener('click', this.saveConfig)
   }
 
   writeWorkers(str) {
@@ -95,6 +100,20 @@ prefix: ${worker.prefix}`)
       controller.runAction(action, JSON.stringify(worker))
     }
   }
+
+  saveConfig(e) {
+    const { controller } = this
+    e.preventDefault()
+    try {
+      const config = JSON.parse(document.getElementById('configTextarea').value)
+      controller
+        .runAction('/config', JSON.stringify({ config }))
+        .then(() => alert('Saved Config! Please restart Waka.'))
+    } catch (err) {
+      console.error(err)
+      alert('Error in JSON')
+    }
+  }
 }
 
 class WorkerController {
@@ -106,6 +125,7 @@ class WorkerController {
   start() {
     this.domController.start()
     this.loadWorkers()
+    this.loadConfig()
   }
 
   runAction(action, data) {
@@ -124,6 +144,7 @@ class WorkerController {
       })
       .then(() => {
         this.loadWorkers()
+        this.loadConfig()
       })
   }
 
@@ -204,6 +225,16 @@ class WorkerController {
     })
     domString += '</table>'
     this.domController.writeWorkers(domString)
+  }
+
+  async loadConfig() {
+    const response = await fetch(`${this.endpoint}/config`)
+    const data = await response.json()
+    document.getElementById('configTextarea').value = JSON.stringify(
+      data.config,
+      ' ',
+      2
+    )
   }
 }
 const controller = new WorkerController()

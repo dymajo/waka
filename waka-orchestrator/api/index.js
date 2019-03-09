@@ -1,16 +1,25 @@
 const path = require('path')
 const express = require('express')
 const logger = require('../logger.js')
+const KeyvalueLocal = require('../adaptors/keyvalueLocal.js')
+const KeyvalueDynamo = require('../adaptors/keyvalueDynamo.js')
 
 const { Router } = express
 
 class PrivateApi {
   constructor(props) {
-    const { versionManager } = props
+    const { config, versionManager } = props
     this.versionManager = versionManager
 
     this.router = new Router()
     this.bindRoutes()
+
+    const kvPrefix = config.keyvaluePrefix
+    if (config.keyvalue === 'dynamo') {
+      this.meta = new KeyvalueDynamo({ name: `${kvPrefix}-meta` })
+    } else {
+      this.meta = new KeyvalueLocal({ name: `${kvPrefix}-meta` })
+    }
   }
 
   bindRoutes() {
@@ -18,18 +27,22 @@ class PrivateApi {
 
     router.get('/worker', async (req, res) => {
       const { versionManager } = this
-      const data = await versionManager.allVersions()
-      const response = Object.keys(data).map(versionKey => {
-        const versionData = data[versionKey]
-        return {
-          id: versionKey,
-          prefix: versionData.prefix,
-          status: versionData.status,
-          version: versionData.version,
-          dbname: versionData.db.database,
-        }
-      })
-      res.send(response)
+      try {
+        const data = await versionManager.allVersions()
+        const response = Object.keys(data).map(versionKey => {
+          const versionData = data[versionKey]
+          return {
+            id: versionKey,
+            prefix: versionData.prefix,
+            status: versionData.status,
+            version: versionData.version,
+            dbname: versionData.db.database,
+          }
+        })
+        res.send(response)
+      } catch (err) {
+        res.status(500).send(err)
+      }
     })
 
     router.post('/worker/add', async (req, res) => {
@@ -58,6 +71,7 @@ class PrivateApi {
         const command = await versionManager.getDockerCommand(req.body.id)
         res.send({ command })
       } catch (err) {
+        logger.error({ err }, 'Error getting docker command')
         res.status(500).send(err)
       }
     })
@@ -93,6 +107,26 @@ class PrivateApi {
         res.send({ message: 'Deleting mapping.' })
       } catch (err) {
         logger.error({ err }, 'Error unmapping worker.')
+        res.status(500).send(err)
+      }
+    })
+
+    router.get('/config', async (req, res) => {
+      try {
+        const remoteConfig = await this.meta.get('config')
+        res.send({ config: remoteConfig })
+      } catch (err) {
+        logger.error({ err }, 'Error getting remote config')
+        res.status(500).send(err)
+      }
+    })
+
+    router.post('/config', async (req, res) => {
+      try {
+        await this.meta.set('config', req.body.config)
+        res.send({ message: 'Saved config.' })
+      } catch (err) {
+        logger.error({ err }, 'Error saving config.')
         res.status(500).send(err)
       }
     })
