@@ -5,6 +5,7 @@ const GatewayLocal = require('./adaptors/gatewayLocal.js')
 const GatewayEcs = require('./adaptors/gatewayEcs.js')
 const GatewayKubernetes = require('./adaptors/gatewayKubernetes.js')
 const VersionManager = require('./versionManager.js')
+const PrivateApi = require('./api/index.js')
 
 class WakaOrchestrator {
   constructor(config) {
@@ -21,6 +22,7 @@ class WakaOrchestrator {
       this.gateway = new GatewayKubernetes()
     }
     this.versionManager = new VersionManager({ config, gateway: this.gateway })
+    this.privateApi = new PrivateApi({ versionManager: this.versionManager })
 
     this.bindRoutes()
   }
@@ -35,8 +37,9 @@ class WakaOrchestrator {
   }
 
   bindRoutes() {
-    const { gateway, router, proxy, config } = this
+    const { gateway, router, privateApi, proxy, config } = this
     router.get('/ping', (req, res) => res.send('pong'))
+    router.use('/private', privateApi.router)
 
     if (config.gateway === 'local') {
       router.use(gateway.router)

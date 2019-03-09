@@ -1,0 +1,6 @@
+.td-truncate {
+  max-width: 150px;
+  overflow: hidden;
+  white-space: pre;
+  text-overflow: ellipsis;
+}
