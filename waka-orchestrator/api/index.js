@@ -15,41 +15,7 @@ class PrivateApi {
 
   bindRoutes() {
     const { router } = this
-    // router.post('/import-start/:mode', (req, res) => {
-    //   const body = req.body
-    //   const worker = WorkerManager.getWorker(
-    //     WorkerManager.getPort(body.prefix, body.version)
-    //   )
-    //   let force = false
-    //   if (req.query.force) {
-    //     force = true
-    //   }
-    //   if (worker) {
-    //     worker
-    //       .import(req.params.mode, force)
-    //       .then(() => {
-    //         res.send({ message: 'Import Started.' })
-    //       })
-    //       .catch(err => {
-    //         res.status(400).send(err)
-    //       })
-    //   } else {
-    //     res.status(400).send({ message: 'Worker does not exist.' })
-    //   }
-    // })
-    // router.post('/import-complete', (req, res) => {
-    //   const body = req.body
-    //   const worker = WorkerManager.getWorker(
-    //     WorkerManager.getPort(body.prefix, body.version)
-    //   )
-    //   log(
-    //     req.body.prefix.magenta,
-    //     req.body.version.magenta,
-    //     'Client Import Complete'
-    //   )
-    //   res.send('Thanks!')
-    //   worker.complete()
-    // })
+
     router.get('/worker', async (req, res) => {
       const { versionManager } = this
       const data = await versionManager.allVersions()
@@ -76,15 +42,20 @@ class PrivateApi {
       }
     })
 
-    // router.post('/worker/delete', (req, res) => {
-    //   WorkerManager.delete(req.body.prefix, req.body.version)
-    //     .then(() => {
-    //       res.send('Deleted Worker.')
-    //     })
-    //     .catch(err => {
-    //       res.status(500).send(err)
-    //     })
-    // })
+    router.post('/worker/status/:status', async (req, res) => {
+      const { versionManager } = this
+      try {
+        await versionManager.updateVersionStatus(req.body.id, req.params.status)
+        res.send({ message: 'Updated Status' })
+      } catch (err) {
+        res.status(500).send(err)
+      }
+    })
+
+    // TODO
+    router.post('/worker/delete', (req, res) => {
+      res.status(500).send({ message: 'Not implemented!' })
+    })
 
     router.get('/mapping', async (req, res) => {
       const { versionManager } = this

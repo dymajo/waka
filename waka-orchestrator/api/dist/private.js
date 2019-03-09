@@ -176,14 +176,10 @@ class WorkerController {
 
         <div class="dropdown-menu">
           ${recycle}
-          <a class="dropdown-item" data-action="/import-start/all" href="#">Run Import All</a>
-          <a class="dropdown-item" data-action="/import-start/db" href="#">Run Import DB</a>
-          <a class="dropdown-item" data-action="/import-start/shapes" href="#">Run Import Shapes</a>
-          <a class="dropdown-item" data-action="/import-complete" href="#">Trigger Import Completion</a>
-          <a class="dropdown-item" data-action="/worker/delete" href="#">Delete Worker</a>
+          <a class="dropdown-item" data-action="/worker/status/pending" href="#">Start Import</a>
+          <a class="dropdown-item" data-action="/worker/status/imported" href="#">Set Status to Imported</a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" data-action="/import-start/download" href="#">Run Download</a>
-          <a class="dropdown-item" data-action="/import-start/unzip" href="#">Run Unzip</a>
+          <a class="dropdown-item" data-action="/worker/delete" href="#">Delete Worker</a>
         </div>
         `
 

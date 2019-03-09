@@ -8,12 +8,13 @@ class VersionManager {
     this.config = config
     this.gateway = gateway
 
+    const kvPrefix = config.keyvaluePrefix
     if (config.keyvalue === 'dynamo') {
-      this.versions = new KeyvalueDynamo({ name: 'waka-versions' })
-      this.mappings = new KeyvalueDynamo({ name: 'waka-mappings' })
+      this.versions = new KeyvalueDynamo({ name: `${kvPrefix}-versions` })
+      this.mappings = new KeyvalueDynamo({ name: `${kvPrefix}-mappings` })
     } else {
-      this.versions = new KeyvalueLocal({ name: 'waka-versions' })
-      this.mappings = new KeyvalueLocal({ name: 'waka-mappings' })
+      this.versions = new KeyvalueLocal({ name: `${kvPrefix}-versions` })
+      this.mappings = new KeyvalueLocal({ name: `${kvPrefix}-mappings` })
     }
   }
 
@@ -110,6 +111,13 @@ class VersionManager {
       db,
     }
     await versions.set(id, newConfig)
+  }
+
+  async updateVersionStatus(versionId, status) {
+    const { versions } = this
+    const version = await versions.get(versionId)
+    version.status = status
+    await versions.set(versionId, version)
   }
 
   async allVersions() {
