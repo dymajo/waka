@@ -18,6 +18,13 @@ class ConfigManager {
         'nz-akl': null, // dev-portal.at.govt.nz
         'agenda-21': null, // ask @DowntownCarpark on Twitter
       },
+      db: {
+        local: {
+          server: 'localhost',
+          user: 'SA',
+          password: 'Str0ngPassword',
+        },
+      },
       updaters: {
         'nz-akl': false,
         'nz-wlg': false,
