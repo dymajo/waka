@@ -1,0 +1,179 @@
+class DomController {
+  start() {
+    document
+      .getElementById('createWorkerConfirm')
+      .addEventListener('click', this.workerCreateButton)
+  }
+
+  writeWorkers(str) {
+    document.getElementById('workers').innerHTML = str
+    Array.from(document.querySelectorAll('#workers button')).forEach(btn => {
+      btn.addEventListener('click', this.workerButton)
+    })
+    Array.from(document.querySelectorAll('#workers .dropdown-item')).forEach(
+      a => {
+        a.addEventListener('click', this.dropdownButton)
+      }
+    )
+  }
+
+  workerButton(e) {
+    const action = e.currentTarget.dataset.action
+    const worker = JSON.stringify(
+      e.currentTarget.parentElement.parentElement.dataset
+    )
+    e.currentTarget.innerHTML = '...'
+    e.currentTarget.disabled = true
+    controller.runAction(action, worker)
+  }
+
+  workerCreateButton() {
+    const prefix = document.getElementById('workerPrefix')
+    const version = document.getElementById('workerVersion')
+    const dbconfig = document.getElementById('workerDbconfig')
+
+    // none are allowed to be blank
+    if (
+      [prefix.value, version.value, dbconfig.value].filter(v => v.length === 0)
+        .length > 0
+    ) {
+      return
+    }
+
+    controller.runAction(
+      '/worker/add',
+      JSON.stringify({
+        prefix: prefix.value,
+        version: version.value,
+        dbconfig: dbconfig.value,
+      })
+    )
+
+    prefix.value = ''
+    version.value = ''
+    dbconfig.value = ''
+
+    $('#createWorkerModal').modal('hide')
+  }
+
+  dropdownButton(e) {
+    e.preventDefault()
+    const action = e.currentTarget.dataset.action
+    const worker =
+      e.currentTarget.parentElement.parentElement.parentElement.dataset
+
+    if (
+      confirm(
+        'are you sure you want to run:\n' +
+          action +
+          '\n\n prefix:' +
+          worker.prefix +
+          '\n version:' +
+          worker.version
+      )
+    ) {
+      controller.runAction(action, JSON.stringify(worker))
+    }
+  }
+}
+
+class WorkerController {
+  constructor() {
+    this.endpoint = '.'
+    this.domController = new DomController()
+  }
+
+  start() {
+    this.domController.start()
+    this.loadWorkers()
+  }
+
+  runAction(action, data) {
+    return fetch(this.endpoint + action, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: data,
+    }).then(() => {
+      this.loadWorkers()
+    })
+  }
+
+  async loadWorkers() {
+    let domString = `
+      <table class="table">
+        <thead>
+          <th>Prefix</th>
+          <th>Version</th>
+          <th>DB Name</th>
+          <th>Import Status</th>
+          <th>Status</th>
+          <th>Control</th>
+        </thead>
+    `
+    let mappings = {}
+    let data = []
+    try {
+      const error = new Error('Error')
+      const mappingsRequest = await fetch(`${this.endpoint}/mapping`)
+      mappings = await mappingsRequest.json()
+      error.response = mappings
+      if (mappingsRequest.status >= 400) throw error
+
+      const workersRequest = await fetch(`${this.endpoint}/worker`)
+      data = await workersRequest.json()
+      error.response = data
+      if (workersRequest.status >= 400) throw error
+    } catch (err) {
+      console.error(err)
+      this.domController.writeWorkers(`
+        <h4>Error!</h4>
+        <pre>${JSON.stringify(err.response)}</pre>
+      `)
+      return
+    }
+
+    data.forEach(item => {
+      let dropdown = `
+        <a class="btn btn-sm btn-light dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          actions
+        </a>
+
+        <div class="dropdown-menu">
+          <a class="dropdown-item" data-action="/import-start/all" href="#">Run Import All</a>
+          <a class="dropdown-item" data-action="/import-start/db" href="#">Run Import DB</a>
+          <a class="dropdown-item" data-action="/import-start/shapes" href="#">Run Import Shapes</a>
+          <a class="dropdown-item" data-action="/import-complete" href="#">Trigger Import Completion</a>
+          <a class="dropdown-item" data-action="/worker/delete" href="#">Delete Worker</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" data-action="/import-start/download" href="#">Run Download</a>
+          <a class="dropdown-item" data-action="/import-start/unzip" href="#">Run Unzip</a>
+        </div>
+        `
+      let ctrl = '<span class="badge badge-pill badge-warning">inactive</span>'
+      let btns =
+        '<button type="button" data-action="/worker/start" class="btn btn-light btn-sm">activate</button>'
+      if (item.id === mappings[item.prefix]) {
+        ctrl = '<span class="badge badge-pill badge-success">active</span>'
+        btns =
+          '<button type="button" data-action="/worker/stop" class="btn btn-danger btn-sm">stop</button>'
+      }
+
+      domString += `
+        <tr data-prefix="${item.prefix}" data-version="${item.version}">
+          <td>${item.prefix}</td>
+          <td>${item.version}</td>
+          <td class="td-truncate" title="${item.dbname}">${item.dbname}</td>
+          <td>${item.status}</td>
+          <td>${ctrl}</td>
+          <td>${btns}${dropdown}</td>
+        </tr>
+      `
+    })
+    domString += '</table>'
+    this.domController.writeWorkers(domString)
+  }
+}
+const controller = new WorkerController()
+window.addEventListener('DOMContentLoaded', () => controller.start())

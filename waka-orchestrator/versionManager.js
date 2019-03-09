@@ -69,9 +69,14 @@ class VersionManager {
     })
   }
 
-  async all() {
+  async allVersions() {
     // get all versions
-    this.versions.scan()
+    return this.versions.scan()
+  }
+
+  async allMappings() {
+    // get all mappings
+    return this.mappings.scan()
   }
 }
 module.exports = VersionManager
