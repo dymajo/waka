@@ -1,5 +1,6 @@
 const path = require('path')
 const express = require('express')
+const logger = require('../logger.js')
 
 const { Router } = express
 
@@ -63,43 +64,13 @@ class PrivateApi {
       })
       res.send(response)
     })
+
     // router.post('/worker/add', (req, res) => {
     //   WorkerManager.add(req.body).then(() => {
     //     res.send('Added worker.')
     //   })
     // })
-    // router.post('/worker/load', (req, res) => {
-    //   WorkerManager.load().then(() => {
-    //     res.send('Loaded workers')
-    //   })
-    // })
-    // router.post('/worker/start', (req, res) => {
-    //   WorkerManager.start(req.body.prefix, req.body.version)
-    //     .then(() => {
-    //       res.send('Started Worker.')
-    //     })
-    //     .catch(err => {
-    //       res.status(500).send(err)
-    //     })
-    // })
-    // router.post('/worker/startall', (req, res) => {
-    //   WorkerManager.startAll()
-    //     .then(() => {
-    //       res.send('Started All Auto Workers.')
-    //     })
-    //     .catch(err => {
-    //       res.status(500).send(err)
-    //     })
-    // })
-    // router.post('/worker/stop', (req, res) => {
-    //   WorkerManager.stop(req.body.prefix, req.body.version)
-    //     .then(() => {
-    //       res.send('Stopped Worker.')
-    //     })
-    //     .catch(err => {
-    //       res.status(500).send(err)
-    //     })
-    // })
+
     // router.post('/worker/delete', (req, res) => {
     //   WorkerManager.delete(req.body.prefix, req.body.version)
     //     .then(() => {
@@ -109,38 +80,37 @@ class PrivateApi {
     //       res.status(500).send(err)
     //     })
     // })
+
     router.get('/mapping', async (req, res) => {
       const { versionManager } = this
       const data = await versionManager.allMappings()
       res.send(data)
     })
-    // router.post('/mapping/load', (req, res) => {
-    //   WorkerManager.loadMappings()
-    //     .then(() => {
-    //       res.send('Loaded mappings.')
-    //     })
-    //     .catch(err => {
-    //       res.status(500).send(err)
-    //     })
-    // })
-    // router.post('/mapping/set', (req, res) => {
-    //   WorkerManager.setMapping(req.body.prefix, req.body.version)
-    //     .then(() => {
-    //       res.send('Mapped Worker.')
-    //     })
-    //     .catch(err => {
-    //       res.status(500).send(err)
-    //     })
-    // })
-    // router.post('/mapping/delete', (req, res) => {
-    //   WorkerManager.deleteMapping(req.body.prefix)
-    //     .then(() => {
-    //       res.send('Deleted mapping.')
-    //     })
-    //     .catch(err => {
-    //       res.status(500).send(err)
-    //     })
-    // })
+
+    router.post('/mapping/set', async (req, res) => {
+      const { versionManager } = this
+      try {
+        const { prefix, id } = req.body
+        await versionManager.updateMapping(prefix, id)
+        res.send({ message: 'Activated worker.' })
+      } catch (err) {
+        logger.error({ err }, 'Error mapping worker.')
+        res.status(500).send(err)
+      }
+    })
+
+    router.post('/mapping/delete', async (req, res) => {
+      const { versionManager } = this
+      try {
+        const { prefix } = req.body
+        await versionManager.deleteMapping(prefix)
+        res.send({ message: 'Deleting mapping.' })
+      } catch (err) {
+        logger.error({ err }, 'Error unmapping worker.')
+        res.status(500).send(err)
+      }
+    })
+
     router.use('/', express.static(path.join(__dirname, '/dist')))
   }
 }

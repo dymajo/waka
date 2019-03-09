@@ -1,11 +1,13 @@
 const Express = require('express')
 const dotenv = require('dotenv')
+const bodyParser = require('body-parser')
 const WakaOrchestrator = require('./index.js')
 const logger = require('./logger.js')
 
 dotenv.config()
 
 const app = new Express()
+app.use(bodyParser.json())
 app.use((req, res, next) => {
   res.setHeader('X-Powered-By', 'waka-orchestrator')
   next()
