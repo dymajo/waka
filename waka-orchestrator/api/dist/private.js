@@ -115,9 +115,16 @@ class WorkerController {
         'Content-Type': 'application/json',
       },
       body: data,
-    }).then(() => {
-      this.loadWorkers()
     })
+      .then(r => r.json())
+      .then(data => {
+        if (data.command) {
+          alert(data.command)
+        }
+      })
+      .then(() => {
+        this.loadWorkers()
+      })
   }
 
   async loadWorkers() {
@@ -176,6 +183,7 @@ class WorkerController {
 
         <div class="dropdown-menu">
           ${recycle}
+          <a class="dropdown-item" data-action="/worker/docker" href="#">Get Docker Import Command</a>
           <a class="dropdown-item" data-action="/worker/status/pending" href="#">Start Import</a>
           <a class="dropdown-item" data-action="/worker/status/imported" href="#">Set Status to Imported</a>
           <div class="dropdown-divider"></div>

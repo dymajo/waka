@@ -1,6 +1,32 @@
 class EnvMapper {
-  toEnvironental(config) {
-    return 'not implemented'
+  toEnvironmental(config, subset) {
+    const base = {
+      PREFIX: config.prefix,
+      VERSION: config.version,
+      DB_DATABASE: config.db.database,
+      DB_USER: config.db.user,
+      DB_PASSWORD: config.db.password,
+      DB_SERVER: config.db.server,
+      DB_TRANSACTION_LIMIT: config.db.transactionLimit,
+      DB_CONNECTION_TIMEOUT: config.db.connectionTimeout,
+      DB_REQUEST_TIMEOUT: config.db.requestTimeout,
+      STORAGE_SERVICE: config.storageService,
+      SHAPES_CONTAINER: config.shapesContainer,
+      SHAPES_REGION: config.shapesRegion,
+      SHAPES_SKIP: 'true',
+      EMULATED_STORAGE: config.emulatedStorage,
+      AT_API_KEY: config.api['nz-akl'],
+      AGENDA21_API_KEY: config.api['agenda-21'],
+    }
+
+    if (subset === 'importer' || subset === 'importer-local') {
+      delete base.AT_API_KEY
+      delete base.AGENDA21_API_KEY
+      if (subset === 'importer') {
+        delete base.SHAPES_SKIP
+      }
+    }
+    return base
   }
 
   fromEnvironmental(env) {

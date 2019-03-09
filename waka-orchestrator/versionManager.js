@@ -1,12 +1,14 @@
 const logger = require('./logger.js')
 const KeyvalueLocal = require('./adaptors/keyvalueLocal.js')
 const KeyvalueDynamo = require('./adaptors/keyvalueDynamo.js')
+const EnvMapper = require('../envMapper.js')
 
 class VersionManager {
   constructor(props) {
     const { gateway, config } = props
     this.config = config
     this.gateway = gateway
+    this.envMapper = new EnvMapper()
 
     const kvPrefix = config.keyvaluePrefix
     if (config.keyvalue === 'dynamo') {
@@ -40,31 +42,10 @@ class VersionManager {
   }
 
   async updateGateway(prefix, versionId) {
-    const { gateway, config, versions } = this
-    const workerConfig = await versions.get(versionId)
+    const { gateway } = this
 
-    // the gateway needs some settings from the orchestrator,
-    // but also some settings from the worker config
-    logger.info({ prefix, version: workerConfig.version }, 'Updating Gateway')
-    const gatewayConfig = {
-      prefix: workerConfig.prefix,
-      version: workerConfig.version,
-      storageService: config.storageService,
-      shapesContainer: workerConfig.shapesContainer,
-      shapesRegion: workerConfig.shapesRegion,
-      emulatedStorage: config.emulatedStorage,
-      api: config.api,
-      db: {
-        user: workerConfig.db.user,
-        password: workerConfig.db.password,
-        server: workerConfig.db.server,
-        database: workerConfig.db.database,
-        transactionLimit: config.transactionLimit,
-        connectionTimeout: config.connectionTimeout,
-        requestTimeout: config.requestTimeout,
-      },
-    }
-    logger.debug({ config: gatewayConfig }, 'Gateway Config')
+    const gatewayConfig = await this.getVersionConfig(versionId)
+    logger.info({ prefix, version: gatewayConfig.version }, 'Updating Gateway')
     gateway.start(prefix, gatewayConfig)
   }
 
@@ -113,6 +94,34 @@ class VersionManager {
     await versions.set(id, newConfig)
   }
 
+  async getVersionConfig(versionId) {
+    const { config, versions } = this
+
+    // the gateway needs some settings from the orchestrator,
+    // but also some settings from the worker config
+    const workerConfig = await versions.get(versionId)
+    const gatewayConfig = {
+      prefix: workerConfig.prefix,
+      version: workerConfig.version,
+      storageService: config.storageService,
+      shapesContainer: workerConfig.shapesContainer,
+      shapesRegion: workerConfig.shapesRegion,
+      emulatedStorage: config.emulatedStorage,
+      api: config.api,
+      db: {
+        user: workerConfig.db.user,
+        password: workerConfig.db.password,
+        server: workerConfig.db.server,
+        database: workerConfig.db.database,
+        transactionLimit: config.transactionLimit,
+        connectionTimeout: config.connectionTimeout,
+        requestTimeout: config.requestTimeout,
+      },
+    }
+    logger.debug({ config: gatewayConfig }, 'Gateway Config')
+    return gatewayConfig
+  }
+
   async updateVersionStatus(versionId, status) {
     const { versions } = this
     const version = await versions.get(versionId)
@@ -128,6 +137,19 @@ class VersionManager {
   async allMappings() {
     // get all mappings
     return this.mappings.scan()
+  }
+
+  async getDockerCommand(versionId) {
+    const config = await this.getVersionConfig(versionId)
+    const env = this.envMapper.toEnvironmental(config, 'importer-local')
+    const envArray = Object.keys(env).map(
+      value => `${value}=${env[value].toString()}`
+    )
+
+    const command = `docker run -e "${envArray.join(
+      '" -e "'
+    )}" --network="container:waka-db" dymajo/waka-importer`
+    return command
   }
 }
 module.exports = VersionManager

@@ -52,6 +52,16 @@ class PrivateApi {
       }
     })
 
+    router.post('/worker/docker', async (req, res) => {
+      const { versionManager } = this
+      try {
+        const command = await versionManager.getDockerCommand(req.body.id)
+        res.send({ command })
+      } catch (err) {
+        res.status(500).send(err)
+      }
+    })
+
     // TODO
     router.post('/worker/delete', (req, res) => {
       res.status(500).send({ message: 'Not implemented!' })
