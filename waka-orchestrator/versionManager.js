@@ -8,12 +8,12 @@ class VersionManager {
     this.config = config
     this.gateway = gateway
 
-    if (config.keyvalue === 'local') {
-      this.versions = new KeyvalueLocal({ name: 'waka-versions' })
-      this.mappings = new KeyvalueLocal({ name: 'waka-mappings' })
-    } else if (config.keyvalue === 'dynamo') {
+    if (config.keyvalue === 'dynamo') {
       this.versions = new KeyvalueDynamo({ name: 'waka-versions' })
       this.mappings = new KeyvalueDynamo({ name: 'waka-mappings' })
+    } else {
+      this.versions = new KeyvalueLocal({ name: 'waka-versions' })
+      this.mappings = new KeyvalueLocal({ name: 'waka-mappings' })
     }
   }
 
@@ -45,7 +45,7 @@ class VersionManager {
     // the gateway needs some settings from the orchestrator,
     // but also some settings from the worker config
     logger.info({ prefix, version: workerConfig.version }, 'Updating Gateway')
-    gateway.start(prefix, {
+    const gatewayConfig = {
       prefix: workerConfig.prefix,
       version: workerConfig.version,
       storageService: config.storageService,
@@ -62,7 +62,9 @@ class VersionManager {
         connectionTimeout: config.connectionTimeout,
         requestTimeout: config.requestTimeout,
       },
-    })
+    }
+    logger.info({ config: gatewayConfig }, 'Gateway Config')
+    gateway.start(prefix, gatewayConfig)
   }
 
   stopGateway(prefix) {

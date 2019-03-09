@@ -69,19 +69,17 @@ class DomController {
   dropdownButton(e) {
     const { controller } = this
     e.preventDefault()
-    const action = e.currentTarget.dataset.action
+    const { action } = e.currentTarget.dataset
     const worker =
       e.currentTarget.parentElement.parentElement.parentElement.dataset
 
     if (
-      confirm(
-        'are you sure you want to run:\n' +
-          action +
-          '\n\n prefix:' +
-          worker.prefix +
-          '\n version:' +
-          worker.version
-      )
+      confirm(`
+Are you sure you want to run?
+${action}
+
+id: ${worker.id}
+prefix: ${worker.prefix}`)
     ) {
       controller.runAction(action, JSON.stringify(worker))
     }
@@ -146,12 +144,27 @@ class WorkerController {
     }
 
     data.forEach(item => {
-      let dropdown = `
+      let ctrl = '<span class="badge badge-pill badge-warning">inactive</span>'
+      let btns =
+        '<button type="button" data-action="/mapping/set" class="btn btn-light btn-sm">activate</button>'
+      let recycle = ''
+      if (item.id === mappings[item.prefix]) {
+        ctrl = '<span class="badge badge-pill badge-success">active</span>'
+        btns =
+          '<button type="button" data-action="/mapping/delete" class="btn btn-danger btn-sm">unmap</button>'
+        recycle = `
+          <a class="dropdown-item" data-action="/mapping/set" href="#">Recycle Service</a>
+          <div class="dropdown-divider"></div>
+        `
+      }
+
+      const dropdown = `
         <a class="btn btn-sm btn-light dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           actions
         </a>
 
         <div class="dropdown-menu">
+          ${recycle}
           <a class="dropdown-item" data-action="/import-start/all" href="#">Run Import All</a>
           <a class="dropdown-item" data-action="/import-start/db" href="#">Run Import DB</a>
           <a class="dropdown-item" data-action="/import-start/shapes" href="#">Run Import Shapes</a>
@@ -162,14 +175,6 @@ class WorkerController {
           <a class="dropdown-item" data-action="/import-start/unzip" href="#">Run Unzip</a>
         </div>
         `
-      let ctrl = '<span class="badge badge-pill badge-warning">inactive</span>'
-      let btns =
-        '<button type="button" data-action="/mapping/set" class="btn btn-light btn-sm">activate</button>'
-      if (item.id === mappings[item.prefix]) {
-        ctrl = '<span class="badge badge-pill badge-success">active</span>'
-        btns =
-          '<button type="button" data-action="/mapping/delete" class="btn btn-danger btn-sm">unmap</button>'
-      }
 
       domString += `
         <tr data-id="${item.id}" data-prefix="${item.prefix}">
