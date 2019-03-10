@@ -35,7 +35,7 @@ class WorkerDiscovery {
       this.responseMap.delete(prefix)
       message = `${prefix} is unavailable`
     }
-    logger.info({ region: prefix, status: request.status }, message)
+    logger.info({ prefix, status: request.status }, message)
   }
 
   getRegionByBounds(lat, lon) {

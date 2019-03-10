@@ -4,6 +4,7 @@ const WakaProxy = require('../waka-proxy/index.js')
 const GatewayLocal = require('./adaptors/gatewayLocal.js')
 const GatewayEcs = require('./adaptors/gatewayEcs.js')
 const GatewayKubernetes = require('./adaptors/gatewayKubernetes.js')
+const UpdateManager = require('./updaters/index.js')
 const VersionManager = require('./versionManager.js')
 const PrivateApi = require('./api/index.js')
 
@@ -24,6 +25,7 @@ class WakaOrchestrator {
     const versionManager = new VersionManager({ config, gateway: this.gateway })
     this.versionManager = versionManager
     this.privateApi = new PrivateApi({ config, versionManager })
+    this.updateManager = new UpdateManager({ config, versionManager })
 
     this.bindRoutes()
   }
@@ -31,6 +33,7 @@ class WakaOrchestrator {
   start() {
     const { proxy, config } = this
     this.versionManager.start()
+    this.updateManager.start()
 
     if (config.gateway === 'local') {
       proxy.start()
