@@ -9,6 +9,7 @@ class ConfigManager {
       gateway: process.env.GATEWAY || 'local',
       keyvalue: process.env.KEYVALUE || 'local',
       keyvaluePrefix: process.env.KEYVALUE_PREFIX || 'waka',
+      keyvalueRegion: process.env.KEYVALUE_REGION || 'us-west-2',
       storageService: 'aws',
       emulatedStorage: false,
       transactionLimit: 50000,
@@ -35,9 +36,14 @@ class ConfigManager {
 
     const kvPrefix = config.keyvaluePrefix
     if (config.keyvalue === 'dynamo') {
-      this.meta = new KeyvalueDynamo({ name: `${kvPrefix}-meta` })
+      this.meta = new KeyvalueDynamo({
+        name: `${kvPrefix}-meta`,
+        region: config.keyvalueRegion,
+      })
     } else {
-      this.meta = new KeyvalueLocal({ name: `${kvPrefix}-meta` })
+      this.meta = new KeyvalueLocal({
+        name: `${kvPrefix}-meta`,
+      })
     }
   }
 

@@ -187,7 +187,7 @@ class WorkerController {
       let btns =
         '<button type="button" data-action="/mapping/set" class="btn btn-light btn-sm">activate</button>'
       let recycle = ''
-      if (item.id === mappings[item.prefix]) {
+      if (item.id === (mappings[item.prefix] || {}).value) {
         ctrl = '<span class="badge badge-pill badge-success">active</span>'
         btns =
           '<button type="button" data-action="/mapping/delete" class="btn btn-danger btn-sm">unmap</button>'

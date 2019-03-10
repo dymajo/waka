@@ -16,7 +16,10 @@ class PrivateApi {
 
     const kvPrefix = config.keyvaluePrefix
     if (config.keyvalue === 'dynamo') {
-      this.meta = new KeyvalueDynamo({ name: `${kvPrefix}-meta` })
+      this.meta = new KeyvalueDynamo({
+        name: `${kvPrefix}-meta`,
+        region: config.keyvalueRegion,
+      })
     } else {
       this.meta = new KeyvalueLocal({ name: `${kvPrefix}-meta` })
     }

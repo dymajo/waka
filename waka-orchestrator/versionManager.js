@@ -11,9 +11,16 @@ class VersionManager {
     this.envMapper = new EnvMapper()
 
     const kvPrefix = config.keyvaluePrefix
+    const region = config.keyvalueRegion
     if (config.keyvalue === 'dynamo') {
-      this.versions = new KeyvalueDynamo({ name: `${kvPrefix}-versions` })
-      this.mappings = new KeyvalueDynamo({ name: `${kvPrefix}-mappings` })
+      this.versions = new KeyvalueDynamo({
+        name: `${kvPrefix}-versions`,
+        region,
+      })
+      this.mappings = new KeyvalueDynamo({
+        name: `${kvPrefix}-mappings`,
+        region,
+      })
     } else {
       this.versions = new KeyvalueLocal({ name: `${kvPrefix}-versions` })
       this.mappings = new KeyvalueLocal({ name: `${kvPrefix}-mappings` })
@@ -31,7 +38,7 @@ class VersionManager {
 
     // load data for version
     mappings.forEach(prefix =>
-      this.updateGateway(prefix, mappingsTable[prefix])
+      this.updateGateway(prefix, mappingsTable[prefix].value)
     )
   }
 
@@ -56,7 +63,7 @@ class VersionManager {
   }
 
   async updateMapping(prefix, versionId) {
-    await this.mappings.set(prefix, versionId)
+    await this.mappings.set(prefix, { value: versionId })
     await this.updateGateway(prefix, versionId)
   }
 
