@@ -73,6 +73,19 @@ class VersionManager {
     await this.mappings.delete(prefix)
   }
 
+  async checkVersionExists(prefix, version) {
+    const { versions } = this
+    const id = `${prefix.replace(/-/g, '_')}_${version
+      .replace(/-/g, '_')
+      .replace(/ /g, '_')}`
+    const data = await versions.get(id)
+
+    return {
+      id,
+      exists: Object.keys(data).length > 0,
+    }
+  }
+
   async addVersion(workerConfig) {
     const { config, versions } = this
     const {
@@ -99,6 +112,7 @@ class VersionManager {
       db,
     }
     await versions.set(id, newConfig)
+    return id
   }
 
   async getVersionConfig(versionId) {
@@ -113,6 +127,7 @@ class VersionManager {
       storageService: config.storageService,
       shapesContainer: workerConfig.shapesContainer,
       shapesRegion: workerConfig.shapesRegion,
+      status: workerConfig.status,
       emulatedStorage: config.emulatedStorage,
       api: config.api,
       db: {
@@ -130,6 +145,9 @@ class VersionManager {
   }
 
   async updateVersionStatus(versionId, status) {
+    // statuses:
+    // empty -> pendingimport -> importing -> imported
+    // empty -> pendingimport-willmap -> importing-willmap -> imported-willmap -> imported
     const { versions } = this
     const version = await versions.get(versionId)
     version.status = status
