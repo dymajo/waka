@@ -7,8 +7,8 @@ class ConfigManager {
     const config = {
       port: process.env.PORT || 9001,
       gateway: process.env.GATEWAY || 'local',
-      keyvalue: process.env.KEYVALUE || 'dynamo',
-      keyvaluePrefix: process.env.KEYVALUE_PREFIX || 'waka-test',
+      keyvalue: process.env.KEYVALUE || 'local',
+      keyvaluePrefix: process.env.KEYVALUE_PREFIX || 'waka',
       keyvalueRegion: process.env.KEYVALUE_REGION || 'us-west-2',
       storageService: 'aws',
       emulatedStorage: false,
