@@ -205,8 +205,10 @@ class WorkerController {
         <div class="dropdown-menu">
           ${recycle}
           <a class="dropdown-item" data-action="/worker/docker" href="#">Get Docker Import Command</a>
-          <a class="dropdown-item" data-action="/worker/status/pending" href="#">Start Import</a>
+          <a class="dropdown-item" data-action="/worker/status/pendingimport" href="#">Start Import (pending)</a>
+          <a class="dropdown-item" data-action="/worker/status/pendingimport-willmap" href="#">Start Import & Map (pending)</a>
           <a class="dropdown-item" data-action="/worker/status/imported" href="#">Set Status to Imported</a>
+          <a class="dropdown-item" data-action="/worker/status/imported-willmap" href="#">Set Status to Imported & Map</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" data-action="/worker/delete" href="#">Delete Worker</a>
         </div>

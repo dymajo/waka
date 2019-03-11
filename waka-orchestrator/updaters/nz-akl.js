@@ -1,6 +1,6 @@
 const fetch = require('node-fetch')
-const logger = require('../logger.js')
 const moment = require('moment-timezone')
+const logger = require('../logger.js')
 
 class ATUpdater {
   constructor(props) {
