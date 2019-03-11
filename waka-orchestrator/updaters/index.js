@@ -10,6 +10,7 @@ class UpdateManager {
 
     this.updaters = {}
     this.callback = this.callback.bind(this)
+    this.checkVersions = this.checkVersions.bind(this)
   }
 
   start() {
@@ -40,6 +41,13 @@ class UpdateManager {
       updater.start()
       this.updaters[prefix] = updater
     })
+
+    // check the versions for remappings
+    this.interval = setInterval(this.checkVersions, 60000)
+  }
+
+  stop() {
+    setInterval(this.checkVersions)
   }
 
   async callback(prefix, version, adjustMapping) {
@@ -63,7 +71,10 @@ class UpdateManager {
         dbconfig,
       })
       logger.info({ prefix, version, status: 'empty' }, 'Created empty worker.')
+    }
 
+    const { status } = await versionManager.getVersionConfig(id)
+    if (status === 'empty') {
       const newStatus = adjustMapping
         ? 'pendingimport-willmap'
         : 'pendingimport'
@@ -74,24 +85,46 @@ class UpdateManager {
       )
     }
 
-    const { status } = await versionManager.getVersionConfig(id)
-    if (status === 'pendingimport' || status === 'pendingimport-willmap') {
-      if (adjustMapping === true && status === 'pendingimport') {
+    const newStatus = (await versionManager.getVersionConfig(id)).status
+    if (
+      newStatus === 'pendingimport' ||
+      newStatus === 'pendingimport-willmap'
+    ) {
+      if (adjustMapping === true && newStatus === 'pendingimport') {
         await versionManager.updateVersionStatus(id, 'pendingimport-willmap')
         logger.info(
           { prefix, version, status: 'pendingimport-willmap' },
           'Adjusted status from pendingimport to pendingimport-willmap.'
         )
       }
-
-      console.log('TODO: Trigger Import on Fargate.')
+      // checkVersions() running on the interval will pick this up
     } else if (
-      (adjustMapping === true && status === 'imported') ||
-      status === 'imported-willmap'
+      (adjustMapping === true && newStatus === 'imported') ||
+      newStatus === 'imported-willmap'
     ) {
       logger.info({ prefix, version }, 'Import is complete - updating mapping.')
       versionManager.updateMapping(prefix, id)
+      versionManager.updateVersionStatus(id, 'imported')
     }
+  }
+
+  async checkVersions() {
+    const { versionManager } = this
+    const allVersions = await versionManager.allVersions()
+    Object.keys(allVersions).forEach(id => {
+      const version = allVersions[id]
+      const { prefix, status } = version
+      if (status === 'pendingimport' || status === 'pendingimport-willmap') {
+        console.log('TODO: trigger fargate.')
+      } else if (version.status === 'imported-willmap') {
+        logger.info(
+          { prefix, version: version.version },
+          'Import is complete - updating mapping.'
+        )
+        versionManager.updateMapping(prefix, id)
+        versionManager.updateVersionStatus(id, 'imported')
+      }
+    })
   }
 }
 module.exports = UpdateManager

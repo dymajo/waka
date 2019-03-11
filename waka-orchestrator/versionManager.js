@@ -139,6 +139,10 @@ class VersionManager {
         connectionTimeout: config.connectionTimeout,
         requestTimeout: config.requestTimeout,
       },
+      // importer only, should be ignored
+      keyvalue: config.keyvalue,
+      keyvaluePrefix: config.keyvaluePrefix,
+      keyvalueRegion: config.keyvalueRegion,
     }
     logger.debug({ config: gatewayConfig }, 'Gateway Config')
     return gatewayConfig
@@ -168,7 +172,7 @@ class VersionManager {
     const config = await this.getVersionConfig(versionId)
     const env = this.envMapper.toEnvironmental(config, 'importer-local')
     const envArray = Object.keys(env).map(
-      value => `${value}=${env[value].toString()}`
+      value => `${value}=${(env[value] || '').toString()}`
     )
 
     const command = `docker run -e "${envArray.join(

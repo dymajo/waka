@@ -15,6 +15,11 @@ class EnvMapper {
       SHAPES_REGION: config.shapesRegion,
       SHAPES_SKIP: 'true',
       EMULATED_STORAGE: config.emulatedStorage,
+      // importer only:
+      KEYVALUE: config.keyvalue,
+      KEYVALUE_VERSION_TABLE: `${config.keyvaluePrefix}-versions`,
+      KEYVALUE_REGION: config.keyvalueRegion,
+      // worker only:
       AT_API_KEY: config.api['nz-akl'],
       AGENDA21_API_KEY: config.api['agenda-21'],
     }
@@ -25,6 +30,10 @@ class EnvMapper {
       if (subset === 'importer') {
         delete base.SHAPES_SKIP
       }
+    } else {
+      delete base.KEYVALUE
+      delete base.KEYVALUE_VERSION_TABLE
+      delete base.KEYVALUE_REGION
     }
     return base
   }
