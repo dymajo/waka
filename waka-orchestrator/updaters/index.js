@@ -1,5 +1,6 @@
 const logger = require('../logger.js')
 const BasicUpdater = require('./basic.js')
+const ATUpdater = require('./nz-akl.js')
 
 class UpdateManager {
   constructor(props) {
@@ -24,9 +25,18 @@ class UpdateManager {
 
     regions.forEach(prefix => {
       logger.info({ prefix, type: updaters[prefix].type }, 'Starting Updater')
-      const { url, delay, interval } = updaters[prefix]
-      const params = { prefix, url, delay, interval, callback }
-      const updater = new BasicUpdater(params)
+      const { url, delay, interval, type } = updaters[prefix]
+
+      let updater
+      if (type === 'nz-akl') {
+        const apiKey = config.api['nz-akl']
+        const params = { prefix, apiKey, delay, interval, callback }
+        updater = new ATUpdater(params)
+      } else {
+        const params = { prefix, url, delay, interval, callback }
+        updater = new BasicUpdater(params)
+      }
+
       updater.start()
       this.updaters[prefix] = updater
     })

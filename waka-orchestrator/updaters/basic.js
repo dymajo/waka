@@ -17,10 +17,6 @@ class BasicUpdater {
     this.interval = interval || 1440
     this.url = url
 
-    if (!url) {
-      throw new Error('URL must be supplied!')
-    }
-
     this.timeout = 0
     this.start = this.start.bind(this)
     this.check = this.check.bind(this)
@@ -31,7 +27,11 @@ class BasicUpdater {
   }
 
   async start() {
-    const { prefix, check, delay } = this
+    const { prefix, check, delay, url } = this
+    if (!url) {
+      logger.error({ prefix }, 'URL must be supplied!')
+      return
+    }
 
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
     this.timeout = setTimeout(check, delay * 60000)
