@@ -11,6 +11,9 @@ log('Importer Started')
 const {
   PREFIX,
   VERSION,
+  KEYVALUE,
+  KEYVALUE_VERSION_TABLE,
+  KEYVALUE_REGION,
   DB_DATABASE,
   DB_USER,
   DB_PASSWORD,
@@ -77,7 +80,11 @@ const start = async () => {
 
   log('Worker Ready')
 
-  const importer = new Importers()
+  const importer = new Importers({
+    keyvalue: KEYVALUE,
+    keyvalueVersionTable: KEYVALUE_VERSION_TABLE,
+    keyvalueRegion: KEYVALUE_REGION,
+  })
   const { mode } = global.config
 
   if (mode === 'all') {

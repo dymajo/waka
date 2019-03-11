@@ -7,12 +7,23 @@ const log = require('../logger.js')
 const GtfsImport = require('../db/gtfs-import.js')
 const CreateShapes = require('../db/create-shapes.js')
 const connection = require('../db/connection.js')
-const Storage = require('../db/storage')
+const Storage = require('../db/storage.js')
+const KeyvalueDynamo = require('../db/keyvalue-dynamo.js')
 
 class Importer {
-  constructor() {
+  constructor(props) {
     this.importer = new GtfsImport()
     this.storage = new Storage({})
+
+    const { keyvalue, keyvalueVersionTable, keyvalueRegion } = props
+    this.versions = null
+    if (keyvalue === 'dynamo') {
+      this.versions = new KeyvalueDynamo({
+        name: keyvalueVersionTable,
+        region: keyvalueRegion,
+      })
+    }
+
     this.current = null
     try {
       this.current = require(`./regions/${global.config.prefix}.js`)
@@ -30,6 +41,24 @@ class Importer {
       return
     }
 
+    const { versions } = this
+    const versionId = global.config.db.database
+    if (versions) {
+      const version = await versions.get(versionId)
+      let newStatus
+      if (version.status === 'pendingimport') {
+        newStatus = 'importing'
+      } else if (version.status === 'pendingimport-willmap') {
+        newStatus = 'importing-willmap'
+      } else {
+        log(versionId, 'Status is not pending! Cancelling import!')
+        return
+      }
+      version.status = newStatus
+      await versions.set(versionId, version)
+      log(versionId, 'Updated status to', newStatus)
+    }
+
     // if the db is already there, avoid the first few steps
     if (!created) {
       await this.download()
@@ -41,6 +70,21 @@ class Importer {
     await this.shapes()
     await this.fixStopCodes()
     // await this.exportDb()
+
+    if (versions) {
+      const version = await versions.get(versionId)
+      let newStatus
+      if (version.status === 'importing') {
+        newStatus = 'imported'
+      } else if (version.status === 'importing-willmap') {
+        newStatus = 'imported-willmap'
+      } else {
+        return
+      }
+      version.status = newStatus
+      await versions.set(versionId, version)
+      log(versionId, 'Updated status to', newStatus)
+    }
   }
 
   async unzip() {
