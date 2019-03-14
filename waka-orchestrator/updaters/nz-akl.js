@@ -9,34 +9,33 @@ class ATUpdater {
     this.callback = callback
     this.delay = delay || 5
     this.interval = interval || 1440
+    this.prefix = 'nz-akl'
 
     this.timeout = 0
     this.start = this.start.bind(this)
     this.check = this.check.bind(this)
     this.checkApi = this.checkApi.bind(this)
+    this.stop = this.stop.bind(this)
   }
 
   async start() {
-    const { check, delay, apiKey } = this
+    const { check, delay, apiKey, prefix } = this
     if (!apiKey) {
-      logger.error({ prefix: 'nz-akl' }, 'API Key must be supplied!')
+      logger.error({ prefix }, 'API Key must be supplied!')
       return
     }
 
-    logger.info({ prefix: 'nz-akl', mins: delay }, 'Waiting to download.')
+    logger.info({ prefix, mins: delay }, 'Waiting to download.')
     this.timeout = setTimeout(check, delay * 60000)
   }
 
   async check() {
-    const { callback, check, interval, checkApi } = this
+    const { callback, check, interval, checkApi, prefix } = this
 
     try {
       const versions = await checkApi()
       versions.forEach(version => {
-        logger.info(
-          { prefix: 'nz-akl', version: version.version },
-          'Found version.'
-        )
+        logger.info({ prefix, version: version.version }, 'Found version.')
 
         const now = moment().tz('Pacific/Auckland')
         const start = moment(version.startdate).tz('Pacific/Auckland')
@@ -44,14 +43,14 @@ class ATUpdater {
 
         // Only adjust the mapping if we're within the correct interval
         const adjustMapping = start < now && now < end
-        callback('nz-akl', version.version, adjustMapping)
+        callback(prefix, version.version, adjustMapping)
       })
     } catch (err) {
       logger.error({ err }, 'Could not update.')
     }
 
     logger.info(
-      { prefix: 'nz-akl', mins: interval },
+      { prefix, mins: interval },
       'Check complete - re-scheduled download.'
     )
     this.timeout = setTimeout(check, interval * 60000)
@@ -73,7 +72,8 @@ class ATUpdater {
   }
 
   stop() {
-    logger.info({ prefix: 'nz-akl' }, 'Stopped updater.')
+    const { prefix } = this
+    logger.info({ prefix }, 'Stopped updater.')
     clearTimeout(this.timeout)
   }
 }
