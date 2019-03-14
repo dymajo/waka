@@ -1,6 +1,7 @@
 const logger = require('../logger.js')
 const BasicUpdater = require('./basic.js')
 const ATUpdater = require('./nz-akl.js')
+const TfNSWUpdater = require('./au-syd.js')
 
 class UpdateManager {
   constructor(props) {
@@ -14,10 +15,9 @@ class UpdateManager {
   }
 
   start() {
-    const { callback, config } = this
+    const { callback, config, versionManager } = this
     const { updaters } = config
     const regions = Object.keys(updaters).filter(k => updaters[k] !== false)
-
     if (regions.length === 0) {
       logger.info(
         'No updaters are turned on. Waka will not update automatically.'
@@ -26,13 +26,24 @@ class UpdateManager {
 
     regions.forEach(prefix => {
       logger.info({ prefix, type: updaters[prefix].type }, 'Starting Updater')
-      const { url, delay, interval, type } = updaters[prefix]
 
+      const { url, delay, interval, type } = updaters[prefix]
       let updater
-      if (type === 'nz-akl') {
+      if (prefix === 'nz-akl') {
         const apiKey = config.api['nz-akl']
         const params = { prefix, apiKey, delay, interval, callback }
         updater = new ATUpdater(params)
+      } else if (prefix === 'au-syd') {
+        const apiKey = config.api['au-syd']
+        const params = {
+          prefix,
+          apiKey,
+          delay,
+          interval,
+          callback,
+          versionManager,
+        }
+        updater = new TfNSWUpdater(params)
       } else {
         const params = { prefix, url, delay, interval, callback }
         updater = new BasicUpdater(params)
