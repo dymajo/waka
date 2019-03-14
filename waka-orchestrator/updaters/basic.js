@@ -133,6 +133,7 @@ class BasicUpdater {
   }
 
   stop() {
+    const { prefix } = this
     logger.info({ prefix }, 'Stopped updater.')
     clearTimeout(this.timeout)
   }
