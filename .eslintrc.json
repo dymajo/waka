@@ -27,6 +27,9 @@
     "promise/prefer-await-to-then": "warn",
     "promise/prefer-await-to-callbacks": "warn",
     "class-methods-use-this": "off",
-    "import/no-dynamic-require": "off"
+    "import/no-dynamic-require": "off",
+    "no-restricted-syntax": "off",
+    "no-await-in-loop": "off",
+    "camelcase": "off"
   }
 }

@@ -2,7 +2,8 @@ const dotenv = require('dotenv')
 const connection = require('./db/connection.js')
 const CreateDb = require('./db/create.js')
 const log = require('./logger.js')
-const Importers = require('./importers/index')
+const Importer = require('./importers/index')
+const TfNSWImporter = require('./importers/au-syd')
 
 dotenv.config()
 
@@ -79,14 +80,22 @@ const start = async () => {
   }
 
   log('Worker Ready')
-
-  const importer = new Importers({
-    keyvalue: KEYVALUE,
-    keyvalueVersionTable: KEYVALUE_VERSION_TABLE,
-    keyvalueRegion: KEYVALUE_REGION,
-  })
+  let importer
+  if (global.config.prefix === 'au-syd') {
+    importer = new TfNSWImporter({
+      keyvalue: KEYVALUE,
+      keyvalueVersionTable: KEYVALUE_VERSION_TABLE,
+      keyvalueRegion: KEYVALUE_REGION,
+    })
+  } else {
+    importer = new Importer({
+      keyvalue: KEYVALUE,
+      keyvalueVersionTable: KEYVALUE_VERSION_TABLE,
+      keyvalueRegion: KEYVALUE_REGION,
+    })
+  }
   const { mode } = global.config
-
+  console.log(mode)
   if (mode === 'all') {
     log('Started import of ALL')
     await importer.start(created)
