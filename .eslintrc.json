@@ -28,6 +28,7 @@
     "promise/prefer-await-to-callbacks": "warn",
     "class-methods-use-this": "off",
     "import/no-dynamic-require": "off",
-    "quote-props": "off"
+    "quote-props": "off",
+    "no-restricted-syntax": "off"
   }
 }
