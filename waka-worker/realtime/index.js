@@ -1,7 +1,9 @@
-const RealtimeNZAKL = require('./regions/nz-akl.js')
-const RealtimeNZWLG = require('./regions/nz-wlg.js')
+const RealtimeAUSYD = require('./regions/au-syd')
+const RealtimeNZAKL = require('./regions/nz-akl')
+const RealtimeNZWLG = require('./regions/nz-wlg')
 
 const regions = {
+  'au-syd': RealtimeAUSYD,
   'nz-akl': RealtimeNZAKL,
   'nz-wlg': RealtimeNZWLG,
 }
