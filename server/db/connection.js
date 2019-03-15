@@ -1,7 +1,7 @@
 const sql = require('mssql')
 const colors = require('colors')
 
-const connectMaster = async function() {
+const connectMaster = async () => {
   const { database } = global.config.db
   const masterConfig = JSON.parse(JSON.stringify(global.config.db))
   masterConfig.database = masterConfig.master_database
