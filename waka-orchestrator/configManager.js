@@ -19,6 +19,7 @@ class ConfigManager {
       api: {
         'nz-akl': null, // dev-portal.at.govt.nz
         'agenda-21': null, // ask @DowntownCarpark on Twitter
+        'au-syd': null, // opendata.transport.nsw.gov.au
       },
       db: {
         local: {
@@ -30,6 +31,7 @@ class ConfigManager {
       updaters: {
         'nz-akl': false,
         'nz-wlg': false,
+        'au-syd': false,
       },
     }
     this.config = config
