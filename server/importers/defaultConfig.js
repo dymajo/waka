@@ -45,21 +45,19 @@ const get = (zipname, downloadOptions) => {
       },
     ],
     shapeFile: 'shapes.txt',
-    download: () => {
-      return new Promise((resolve, reject) => {
-        log(global.config.prefix.magenta, 'Downloading GTFS Data')
-        const gtfsRequest = request(downloadOptions).pipe(
-          fs.createWriteStream(zipLocation)
-        )
-        gtfsRequest.on('finish', () => {
-          log('Finished Downloading GTFS Data')
-          resolve()
-        })
-        gtfsRequest.on('error', reject)
+    download: () => new Promise((resolve, reject) => {
+      log(global.config.prefix.magenta, 'Downloading GTFS Data')
+      const gtfsRequest = request(downloadOptions).pipe(
+        fs.createWriteStream(zipLocation)
+      )
+      gtfsRequest.on('finish', () => {
+        log('Finished Downloading GTFS Data')
+        resolve()
       })
-    },
+      gtfsRequest.on('error', reject)
+    }),
   }
 }
 module.exports = {
-  get: get,
+  get,
 }
