@@ -33,7 +33,7 @@
     "dotenv": "^6.0.0",
     "extract-zip": "^1.6.7",
     "mssql": "^4.1.0",
-    "request": "^2.88.0",
+    "node-fetch": "^2.3.0",
     "rimraf": "^2.6.2",
     "stream-transform": "^1.0.2"
   },
