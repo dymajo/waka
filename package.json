@@ -27,6 +27,7 @@
     "dotenv": "^6.0.0",
     "express": "^4.16.4",
     "extract-zip": "^1.6.7",
+    "gtfs-realtime-bindings": "0.0.4",
     "moment-timezone": "^0.5.23",
     "mssql": "^4.1.0",
     "node-fetch": "^2.3.0",
