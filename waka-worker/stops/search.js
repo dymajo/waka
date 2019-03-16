@@ -112,7 +112,7 @@ class Search {
         JOIN stop_times ON stop_times.stop_id = stops.stop_id
         JOIN trips ON trips.trip_id = stop_times.trip_id
         JOIN routes ON routes.route_id = trips.route_id
-        WHERE route_type <> 3
+        WHERE route_type <> 3 and route_type <> 700 and route_type <> 712
         ORDER BY stop_code`
       )
 
@@ -173,7 +173,6 @@ class Search {
           error: 'too many stops sorry',
         })
       }
-
       const lat = parseFloat(req.query.lat)
       const lon = parseFloat(req.query.lng || req.query.lon)
       const dist = req.query.distance
@@ -210,12 +209,15 @@ class Search {
     const { connection, prefix, _stopsFilter } = this
     const latDist = distance / 100000
     const lonDist = distance / 65000
-
+    const stop_lat_gt = lat - latDist
+    const stop_lat_lt = lat + latDist
+    const stop_lng_gt = lon - lonDist
+    const stop_lng_lt = lon + lonDist
     const sqlRequest = connection.get().request()
-    sqlRequest.input('stop_lat_gt', sql.Decimal(10, 6), lat - latDist)
-    sqlRequest.input('stop_lat_lt', sql.Decimal(10, 6), lat + latDist)
-    sqlRequest.input('stop_lon_gt', sql.Decimal(10, 6), lon - lonDist)
-    sqlRequest.input('stop_lon_lt', sql.Decimal(10, 6), lon + lonDist)
+    sqlRequest.input('stop_lat_gt', sql.Decimal(10, 6), stop_lat_gt)
+    sqlRequest.input('stop_lat_lt', sql.Decimal(10, 6), stop_lat_lt)
+    sqlRequest.input('stop_lon_gt', sql.Decimal(10, 6), stop_lng_gt)
+    sqlRequest.input('stop_lon_lt', sql.Decimal(10, 6), stop_lng_lt)
     const result = await sqlRequest.query(
       `
       SELECT
@@ -229,14 +231,13 @@ class Search {
         AND stop_lat > @stop_lat_gt AND stop_lat < @stop_lat_lt
         AND stop_lon > @stop_lon_gt AND stop_lon < @stop_lon_lt`
     )
-
     const stops = _stopsFilter(
       result.recordset.map(item => {
         const newItem = JSON.parse(JSON.stringify(item))
         newItem.stop_region = prefix
         newItem.stop_lng = item.stop_lon // this is a dumb api choice in the past
         newItem.route_type = this.stopsRouteType[item.stop_id]
-        if (typeof item.route_type === 'undefined') {
+        if (typeof newItem.route_type === 'undefined') {
           newItem.route_type = 3
         }
         return newItem
