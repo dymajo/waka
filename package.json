@@ -31,6 +31,7 @@
     "moment-timezone": "^0.5.23",
     "mssql": "^4.1.0",
     "node-fetch": "^2.3.0",
+    "protobufjs": "^6.8.8",
     "request": "^2.88.0",
     "rimraf": "^2.6.2",
     "stream-transform": "^1.0.2"
