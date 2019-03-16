@@ -1,5 +1,7 @@
 const GtfsRealtimeBindings = require('gtfs-realtime-bindings')
 const fetch = require('node-fetch')
+const request = require('request')
+const protobuf = require('protobufjs')
 
 const schedulePullTimeout = 20000
 const scheduleLocationPullTimeout = 15000
@@ -51,34 +53,39 @@ class RealtimeAUSYD {
       logger.warn('No TfNSW API Key, will not show realtime.')
     }
     this.schedulePull()
-    // this.scheduleLocationPull()
+    this.scheduleLocationPull()
     logger.info('TfNSW Realtime Started.')
   }
 
   async schedulePull() {
     const { logger, tripUpdateOptions } = this
     const newData = {}
+    const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
+    const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
     modes.forEach(async mode => {
-      const data = await fetch(`${tripUpdateOptions.url}/${mode}`, {
-        headers: tripUpdateOptions.headers,
-      })
-      if (data.ok) {
-        const body = await data.text()
-        const buffer = Buffer.from(body)
-        try {
-          const feed = GtfsRealtimeBindings.FeedMessage.decode(buffer)
-          feed.entity.forEach(trip => {
-            console.log(trip)
-            if (trip.trip_update) {
-              newData[trip.trip_update.trip.trip_id] = trip.trip_update
+      request(
+        {
+          url: `${tripUpdateOptions.url}/${mode}`,
+          headers: tripUpdateOptions.headers,
+          encoding: null,
+        },
+        (err, res, body) => {
+          if (!err && res.statusCode === 200) {
+            try {
+              const feed = FeedMessage.decode(body)
+
+              // const feed = GtfsRealtimeBindings.TripUpdate.decode(buffer)
+              feed.entity.forEach(trip => {
+                if (trip.trip_update) {
+                  newData[trip.trip_update.trip.trip_id] = trip.trip_update
+                }
+              })
+            } catch (err) {
+              logger.error(err)
             }
-          })
-        } catch (error) {
-          console.error(error)
+          }
         }
-      } else {
-        console.log(data.statusText)
-      }
+      )
     })
     this.currentData = newData
     this.currentDataFails = 0
@@ -88,25 +95,34 @@ class RealtimeAUSYD {
 
   async scheduleLocationPull() {
     const { logger, vehicleLocationOptions } = this
+    const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
+
+    const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
     const newVehicleData = {}
     modes.forEach(async mode => {
-      const data = await fetch(`${vehicleLocationOptions.url}/${mode}`, {
-        headers: vehicleLocationOptions.headers,
-      })
-      if (data.ok) {
-        const body = await data.text()
-        const buffer = Buffer.from(body)
+      request(
+        {
+          url: `${vehicleLocationOptions.url}/${mode}`,
+          headers: vehicleLocationOptions.headers,
+          encoding: null,
+        },
+        (err, res, body) => {
+          if (!err && res.statusCode === 200) {
+            try {
+              const feed = FeedMessage.decode(body)
 
-        const feed = GtfsRealtimeBindings.FeedMessage.decode(buffer)
-        feed.entity.forEach(trip => {
-          console.log(trip)
-          if (trip.trip_update) {
-            newVehicleData[trip.trip_update.trip.trip_id] = trip.trip_update
+              feed.entity.forEach(trip => {
+                if (trip.trip_update) {
+                  newVehicleData[trip.trip_update.trip.trip_id] =
+                    trip.trip_update
+                }
+              })
+            } catch (err) {
+              console.error(err)
+            }
           }
-        })
-      } else {
-        console.log(data.statusText)
-      }
+        }
+      )
     })
   }
 }
