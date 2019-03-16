@@ -8,6 +8,16 @@ const util = require('util')
 const connection = require('./connection.js')
 const log = require('../logger.js')
 
+const primaryKeys = {
+  agency: 'agency_id',
+  stops: 'stop_id',
+  routes: 'route_id',
+  trips: 'trip_id',
+  stop_times: 'trip_id',
+  calendar: 'service_id',
+  calendar_dates: 'service_id',
+}
+
 const schemas = {
   agency: [
     'agency_id',
@@ -93,8 +103,15 @@ class GtfsImport {
     extractor(location, { dir: path.resolve(`${location}unarchived`) })
   }
 
-  getTable(name) {
-    const table = new sql.Table(name)
+  getTable(name, hash = false) {
+    let newName = name
+    if (hash) {
+      newName = `#${name}`
+    }
+    const table = new sql.Table(newName)
+    if (hash) {
+      table.create = true
+    }
     if (name === 'agency') {
       table.columns.add('agency_id', sql.VarChar(50), { nullable: false })
       table.columns.add('agency_name', sql.VarChar(100), { nullable: false })
@@ -242,10 +259,12 @@ class GtfsImport {
     })
   }
 
-  async upload(location, config, version, containsVersion, endpoint) {
-    let table = this.getTable(config.table)
+  async mergeFirst(location, config, version, containsVersion, endpoint) {
+    let table = this.getTable(config.table, true)
+    const finalTable = this.getTable(config.table)
     if (table === null) return null
-    const logstr = config.table.toString().magenta
+
+    const logstr = config.table.toString().yellow
     return new Promise((resolve, reject) => {
       const input = fs.createReadStream(path.resolve(location, config.name))
       input.on('error', reject)
@@ -253,17 +272,6 @@ class GtfsImport {
       let headers = null
       let transactions = 0
       let totalTransactions = 0
-      const commit = async table => {
-        try {
-          const result = await connection
-            .get()
-            .request()
-            .bulk(table)
-          return result
-        } catch (error) {
-          // console.error(error)
-        }
-      }
 
       const transformer = transform(
         async (row, callback) => {
@@ -305,7 +313,7 @@ class GtfsImport {
           } else {
             log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
             try {
-              await commit(table)
+              await this.commit(table)
               log(endpoint, logstr, 'Transaction Committed.')
               transactions = 0
 
@@ -326,7 +334,113 @@ class GtfsImport {
         }
         log(endpoint, logstr, transactionsStr, 'Rows')
         try {
-          await commit(table)
+          await this.commit(table)
+
+          log(endpoint, logstr, 'Transaction Committed.')
+          await this.mergeToFinal(config.table)
+          log(endpoint, logstr, 'Merge Committed.')
+
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+      input.pipe(parser).pipe(transformer)
+    })
+  }
+
+  async upload(
+    location,
+    config,
+    version,
+    containsVersion,
+    endpoint,
+    merge = false
+  ) {
+    if (merge) {
+      return this.mergeFirst(
+        location,
+        config,
+        version,
+        containsVersion,
+        endpoint
+      )
+    }
+    let table = this.getTable(config.table)
+    if (table === null) return null
+    const logstr = config.table.toString().magenta
+    return new Promise((resolve, reject) => {
+      const input = fs.createReadStream(path.resolve(location, config.name))
+      input.on('error', reject)
+      const parser = csvparse({ delimiter: ',' })
+      let headers = null
+      let transactions = 0
+      let totalTransactions = 0
+
+      const transformer = transform(
+        async (row, callback) => {
+          // builds the csv headers for easy access later
+          if (headers === null) {
+            headers = {}
+            row.forEach((item, index) => {
+              headers[item] = index
+            })
+            return callback(null)
+          }
+
+          const processRow = async () => {
+            if (row && row.length > 1) {
+              const tableSchema = schemas[config.table]
+              if (tableSchema) {
+                const record = this._mapRowToRecord(row, headers, tableSchema)
+
+                // check if the row is versioned, and whether to upload it
+                if (
+                  containsVersion &&
+                  record.join(',').match(version) === null
+                ) {
+                  return
+                }
+
+                table.rows.add(...record)
+
+                transactions += 1
+                totalTransactions += 1
+              }
+            }
+          }
+
+          // assembles our CSV into JSON
+          if (transactions < global.config.db.transactionLimit) {
+            processRow()
+            callback(null)
+          } else {
+            log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
+            try {
+              await this.commit(table)
+              log(endpoint, logstr, 'Transaction Committed.')
+              transactions = 0
+
+              table = this.getTable(config.table)
+              processRow()
+              callback(null)
+            } catch (err) {
+              console.log(err)
+            }
+          }
+        },
+        { parallel: 1 }
+      )
+      transformer.on('finish', async () => {
+        let transactionsStr = totalTransactions
+        if (transactionsStr > 1000) {
+          transactionsStr = `${Math.round(transactionsStr / 1000)}k`
+        }
+        log(endpoint, logstr, transactionsStr, 'Rows')
+        try {
+          await this.commit(table)
+
           log(endpoint, logstr, 'Transaction Committed.')
           resolve()
         } catch (error) {
@@ -336,6 +450,36 @@ class GtfsImport {
 
       input.pipe(parser).pipe(transformer)
     })
+  }
+
+  async commit(table) {
+    try {
+      const result = await connection
+        .get()
+        .request()
+        .bulk(table)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  async mergeToFinal(table) {
+    const hashTable = `#${table}`
+    const primaryKey = primaryKeys[table]
+    const sqlRequest = connection.get().request()
+    const columns = schemas[table].join()
+    const insertColumns = schemas[table].map(col => `H.${col}`).join()
+    const merge = await sqlRequest.query(
+      `MERGE
+        INTO ${table} as T
+        USING ${hashTable} AS H
+        ON T.${primaryKey} = H.${primaryKey}
+        WHEN NOT MATCHED BY TARGET
+          THEN INSERT (${columns})
+            VALUES (${insertColumns});
+
+        `
+    )
   }
 }
 module.exports = GtfsImport
