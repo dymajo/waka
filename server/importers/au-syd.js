@@ -108,6 +108,8 @@ class TfNSWImporter {
     this.get = this.get.bind(this)
     this.download = this.download.bind(this)
     this.unzip = this.unzip.bind(this)
+    this.fixStopCodes = this.fixStopCodes.bind(this)
+    this.shapes = this.shapes.bind(this)
   }
 
   async start(created = false) {
@@ -115,7 +117,11 @@ class TfNSWImporter {
     await this.download()
     await this.unzip()
     await this.db()
+    // } else {
+    // console.warn('DB already created - skipping download & unzip.')
     // }
+    // await this.shapes()
+    await this.fixStopCodes()
   }
 
   async get(batch) {
@@ -124,7 +130,7 @@ class TfNSWImporter {
         const { endpoint, type } = batch[mode]
 
         const zipLocation = {
-          path: path.join(__dirname, `../../cache/${mode}.zip`),
+          p: path.join(__dirname, `../../cache/${mode}.zip`),
           type,
           endpoint,
         }
@@ -141,7 +147,7 @@ class TfNSWImporter {
           )
           if (res.ok) {
             await new Promise((resolve, reject) => {
-              const dest = fs.createWriteStream(zipLocation)
+              const dest = fs.createWriteStream(zipLocation.p)
               res.body.pipe(dest)
               res.body.on('error', err => {
                 reject(err)
@@ -152,6 +158,7 @@ class TfNSWImporter {
             })
             log('Finished Downloading GTFS Data')
           } else {
+            console.log(res)
             throw Error(res.statusText)
           }
         } catch (err) {
@@ -177,8 +184,8 @@ class TfNSWImporter {
 
   async unzip() {
     const promises = []
-    for (const { path } of this.zipLocations) {
-      promises.push(this.importer.unzip(path))
+    for (const { p } of this.zipLocations) {
+      promises.push(this.importer.unzip(p))
     }
     try {
       await Promise.all(promises)
@@ -189,21 +196,75 @@ class TfNSWImporter {
 
   async db() {
     const { zipLocations } = this
-    for (const { path, type, endpoint } of zipLocations) {
+    for (const { p, type, endpoint } of zipLocations) {
       for (const file of files) {
         try {
           await this.importer.upload(
-            `${path}unarchived`,
+            `${p}unarchived`,
             file,
             global.config.version,
             file.versioned,
-            endpoint
+            endpoint,
+            true
           )
         } catch (error) {
           console.error(error)
         }
       }
     }
+  }
+
+  async shapes() {
+    const { zipLocations } = this
+    for (const { p } of zipLocations) {
+      if (!fs.existsSync(p)) {
+        console.warn('Shapes could not be found!')
+        return
+      }
+      const creator = new CreateShapes()
+      const inputDir = path.resolve(`${p}unarchived`, 'shapes.txt')
+      const outputDir = path.resolve(`${p}unarchived`, 'shapes')
+      const outputDir2 = path.resolve(outputDir, global.config.version)
+
+      // make sure the old output dir exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir)
+      }
+
+      // cleans up old import if exists
+      if (fs.existsSync(outputDir2)) {
+        await new Promise((resolve, reject) => {
+          rimraf(outputDir2, resolve)
+        })
+      }
+      fs.mkdirSync(outputDir2)
+
+      // creates the new datas
+      await creator.create(inputDir, outputDir, [global.config.version])
+
+      const containerName = `${global.config.prefix}-${global.config.version}`
+        .replace('.', '-')
+        .replace('_', '-')
+      await creator.upload(
+        global.config.shapesContainer,
+        path.resolve(outputDir, global.config.version)
+      )
+    }
+  }
+
+  async fixStopCodes() {
+    // GTFS says it's optional, but Waka uses stop_code for stop lookups
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE stops
+      SET stop_code = stop_id
+      WHERE stop_code is null;
+    `)
+    const rows = res.rowsAffected[0]
+    log(
+      `${global.config.prefix} ${global.config.version}`.magenta,
+      `Updated ${rows} null stop codes`
+    )
   }
 }
 
