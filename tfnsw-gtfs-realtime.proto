@@ -23,7 +23,6 @@
 // https://developers.google.com/transit/gtfs-realtime/
 
 syntax = "proto2";
-option java_package = "com.google.transit.realtime";
 package transit_realtime;
 
 // The contents of a feed message.
@@ -639,11 +638,9 @@ message TranslatedString {
   extensions 1000 to 1999;
 }
 
-option java_package = "com.google.transit.realtime";
 
-package transit_realtime;
 
-import "au_nsw_sydney.proto";
+// import "au_nsw_sydney.proto";
 
 message TfnswVehicleDescriptor {
 
