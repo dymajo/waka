@@ -3,7 +3,7 @@ const connection = require('./db/connection.js')
 const CreateDb = require('./db/create.js')
 const log = require('./logger.js')
 const Importer = require('./importers/index')
-const TfNSWImporter = require('./importers/au-syd')
+const TfNSWImporter = require('./importers/regions/au-syd')
 
 dotenv.config()
 
