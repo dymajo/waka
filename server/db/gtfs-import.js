@@ -103,10 +103,10 @@ class GtfsImport {
     extractor(location, { dir: path.resolve(`${location}unarchived`) })
   }
 
-  getTable(name, hash = false) {
+  getTable(name, hashName, hash = false) {
     let newName = name
     if (hash) {
-      newName = `#${name}`
+      newName = `${hashName}`
     }
     const table = new sql.Table(newName)
     if (hash) {
@@ -212,7 +212,7 @@ class GtfsImport {
       ) {
         const stringDate = row[rowSchema[column]]
         const date = new Date(0)
-        date.setFullYear(stringDate.slice(0, 4))
+        date.setUTCFullYear(stringDate.slice(0, 4))
         date.setUTCMonth(parseInt(stringDate.slice(4, 6), 10) - 1) // dates start from 0??
         date.setUTCDate(stringDate.slice(6, 8))
         return date
@@ -260,7 +260,8 @@ class GtfsImport {
   }
 
   async mergeFirst(location, config, version, containsVersion, endpoint) {
-    let table = this.getTable(config.table, true)
+    const hashName = `temp_${config.table}`
+    let table = this.getTable(config.table, hashName, true)
     const finalTable = this.getTable(config.table)
     if (table === null) return null
 
@@ -316,7 +317,8 @@ class GtfsImport {
               await this.commit(table)
               log(endpoint, logstr, 'Transaction Committed.')
               transactions = 0
-
+              // await this.mergeToFinal(config.table, hashName)
+              // log(endpoint, logstr, 'Merge Committed.')
               table = this.getTable(config.table)
               processRow()
               callback(null)
@@ -337,9 +339,8 @@ class GtfsImport {
           await this.commit(table)
 
           log(endpoint, logstr, 'Transaction Committed.')
-          await this.mergeToFinal(config.table)
+          await this.mergeToFinal(config.table, hashName)
           log(endpoint, logstr, 'Merge Committed.')
-
           resolve()
         } catch (error) {
           reject(error)
@@ -464,11 +465,12 @@ class GtfsImport {
   }
 
   async mergeToFinal(table) {
-    const hashTable = `#${table}`
+    const hashTable = `temp_${table}`
     const primaryKey = primaryKeys[table]
     const sqlRequest = connection.get().request()
     const columns = schemas[table].join()
     const insertColumns = schemas[table].map(col => `H.${col}`).join()
+
     const merge = await sqlRequest.query(
       `MERGE
         INTO ${table} as T
@@ -477,9 +479,13 @@ class GtfsImport {
         WHEN NOT MATCHED BY TARGET
           THEN INSERT (${columns})
             VALUES (${insertColumns});
+      TRUNCATE TABLE ${hashTable}
 
-        `
+
+
+   `
     )
+    // DROP TABLE ${hashTable};
   }
 }
 module.exports = GtfsImport
