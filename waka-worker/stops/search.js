@@ -112,11 +112,12 @@ class Search {
         JOIN stop_times ON stop_times.stop_id = stops.stop_id
         JOIN trips ON trips.trip_id = stop_times.trip_id
         JOIN routes ON routes.route_id = trips.route_id
-        WHERE route_type <> 3 and route_type <> 700 and route_type <> 712
+        WHERE route_type <> 3 and route_type <> 700 and route_type <> 712 and route_type <>2
         ORDER BY stop_code`
       )
 
       const routeTypes = {}
+
       result.recordset.forEach(stop => {
         routeTypes[stop.stop_id] = stop.route_type
       })
@@ -224,10 +225,17 @@ class Search {
         stop_code AS stop_id,
         stop_name,
         stop_lat,
-        stop_lon
+        stop_lon,
+        location_type
       FROM stops
       WHERE
-        (location_type = 0 OR location_type IS NULL)
+        (
+          (location_type = 1 and parent_station is null)
+          OR
+          (location_type is null and parent_station is null)
+          OR
+          (location_type =0 and parent_station is null)
+        )
         AND stop_lat > @stop_lat_gt AND stop_lat < @stop_lat_lt
         AND stop_lon > @stop_lon_gt AND stop_lon < @stop_lon_lt`
     )
@@ -237,6 +245,9 @@ class Search {
         newItem.stop_region = prefix
         newItem.stop_lng = item.stop_lon // this is a dumb api choice in the past
         newItem.route_type = this.stopsRouteType[item.stop_id]
+        if (newItem.location_type === 1) {
+          newItem.route_type = 2
+        }
         if (typeof newItem.route_type === 'undefined') {
           newItem.route_type = 3
         }
