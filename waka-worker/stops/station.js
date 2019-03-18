@@ -256,8 +256,10 @@ class Station {
       record.arrival_time_seconds = record.departure_time_seconds
       record.route_color = lines.getColor(
         record.agency_id,
-        record.route_short_name
+        record.route_short_name,
+        record.route_color
       )
+
       record.route_icon = lines.getIcon(
         record.agency_id,
         record.route_short_name

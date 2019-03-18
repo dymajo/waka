@@ -4,10 +4,12 @@ const Storage = require('../db/storage.js')
 const cityMetadata = require('../../cityMetadata.json')
 const StopsDataAccess = require('../stops/dataAccess.js')
 
+const LinesAUSYD = require('./regions/au-syd.js')
 const LinesNZAKL = require('./regions/nz-akl.js')
 const LinesNZWLG = require('./regions/nz-wlg.js')
 
 const regions = {
+  // 'au-syd': LinesAUSYD,
   'nz-akl': LinesNZAKL,
   'nz-wlg': LinesNZWLG,
 }
@@ -75,7 +77,10 @@ class Lines {
 
   stop() {}
 
-  getColor(agencyId, routeShortName) {
+  getColor(agencyId, routeShortName, routeColor) {
+    if (routeColor) {
+      return `#${routeColor}`
+    }
     const { lineData } = this
     if (lineData.getColor) {
       return lineData.getColor(agencyId, routeShortName)
@@ -171,6 +176,7 @@ class Lines {
     if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
       city = city[prefix]
     }
+
     return {
       meta: {
         prefix,
@@ -259,7 +265,7 @@ class Lines {
     sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
 
     const query = `
-      SELECT 
+      SELECT
         routes.route_id,
         routes.agency_id,
         routes.route_short_name,
@@ -270,9 +276,9 @@ class Lines {
         trips.direction_id,
         count(trips.shape_id) as shape_score
       FROM routes
-          LEFT JOIN trips on 
+          LEFT JOIN trips on
           trips.route_id = routes.route_id
-      WHERE 
+      WHERE
           routes.route_short_name = @route_short_name
           ${agency}
       GROUP BY
@@ -309,7 +315,9 @@ class Lines {
         route_id: route.route_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
-        route_color: this.getColor(route.agency_id, route.route_short_name),
+        route_color:
+          route.route_color ||
+          this.getColor(route.agency_id, route.route_short_name),
         route_icon: this.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
@@ -496,7 +504,7 @@ class Lines {
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
     try {
       const result = await sqlRequest.query(`
-        SELECT 
+        SELECT
           stops.stop_code as stop_id,
           stops.stop_name,
           stops.stop_lat,
