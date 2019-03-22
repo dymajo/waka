@@ -12,7 +12,15 @@ Sets up the services.
 
 ### waka-proxy
 
-Used when someone requests a non-prefixed route.
+Used when someone requests a non-prefixed route - returns a 302 to the appropriate worker. Use the ENDPOINT environment variable to choose where it does the discovery.
+
+If you're running this on the load balancer, it should be the lowest priority - after all the regional waka-worker.
+
+#### Build:
+
+```
+docker build ./ -f waka-proxy/Dockerfile -t waka-server:proxy
+```
 
 ### waka-worker
 
