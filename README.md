@@ -8,7 +8,13 @@ If you want to just run one microservice at a time, run the `standalone.js` file
 
 ### waka-orchestrator
 
-Sets up the services.
+Sets up the services, manages the imports & updates - run this on your local machine, and it'll call out to waka-proxy, waka-worker, and waka-importer.
+
+#### Build:
+
+```
+docker build ./ -f waka-orchestrator/Dockerfile -t waka-server:orchestrator
+```
 
 ### waka-proxy
 
