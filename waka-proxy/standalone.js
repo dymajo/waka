@@ -9,6 +9,7 @@ app.use((req, res, next) => {
 })
 const endpoint = process.env.ENDPOINT || 'https://waka.app/a'
 const proxy = new WakaProxy({ endpoint })
+app.use('/a', proxy.router)
 app.use(proxy.router)
 
 const listener = app.listen(process.env.PORT || 9001, () => {
