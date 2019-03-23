@@ -100,7 +100,7 @@ class GtfsImport {
     log('Unzipping GTFS Data')
     const extractor = util.promisify(extract)
 
-    extractor(location, { dir: path.resolve(`${location}unarchived`) })
+    await extractor(location, { dir: path.resolve(`${location}unarchived`) })
   }
 
   getTable(name, hashName, hash = false) {
