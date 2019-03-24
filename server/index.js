@@ -35,9 +35,9 @@ global.config = {
   prefix: PREFIX,
   version: VERSION,
   mode: MODE || 'all',
-  storageService: 'aws' || STORAGE_SERVICE,
-  shapesContainer: 'shapes-us-west-2.waka.app' || SHAPES_CONTAINER,
-  shapesRegion: 'us-west-2' || SHAPES_REGION,
+  storageService: STORAGE_SERVICE || 'aws',
+  shapesContainer: SHAPES_CONTAINER || 'shapes-us-west-2.waka.app',
+  shapesRegion: SHAPES_REGION || 'us-west-2',
   shapesSkip: SHAPES_SKIP === 'true' || false,
   emulatedStorage: EMULATED_STORAGE === 'true' || false,
   db: {
