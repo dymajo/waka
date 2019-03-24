@@ -180,5 +180,15 @@ class VersionManager {
     )}" --network="container:waka-db" dymajo/waka-importer`
     return command
   }
+
+  async getFargateVariables(versionId) {
+    const config = await this.getVersionConfig(versionId)
+    const env = this.envMapper.toEnvironmental(config, 'importer')
+    const envArray = Object.keys(env).map(name => ({
+      name,
+      value: (env[name] || '').toString(),
+    }))
+    return envArray
+  }
 }
 module.exports = VersionManager
