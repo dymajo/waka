@@ -31,7 +31,8 @@ class WakaProxy {
         parseFloat(lat),
         parseFloat(lon)
       )
-      const newUrl = `/${region}${originalUrl.split('/auto')[1]}`
+      const a = originalUrl.substring(0, 2) === '/a' ? '/a' : ''
+      const newUrl = `${a}/${region}${originalUrl.split('/auto')[1]}`
       res.redirect(newUrl)
     } else {
       res.status(404).send({
