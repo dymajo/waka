@@ -18,9 +18,9 @@ class WakaOrchestrator {
       this.gateway = new GatewayLocal()
       this.proxy = new WakaProxy({ endpoint: `http://localhost:${port}` })
     } else if (gateway === 'ecs') {
-      this.gateway = new GatewayEcs()
+      this.gateway = new GatewayEcs(config.gatewayConfig.ecs)
     } else if (gateway === 'kubernetes') {
-      this.gateway = new GatewayKubernetes()
+      this.gateway = new GatewayKubernetes(config.gatewayConfig.kubernetes)
     }
     const versionManager = new VersionManager({ config, gateway: this.gateway })
     this.versionManager = versionManager

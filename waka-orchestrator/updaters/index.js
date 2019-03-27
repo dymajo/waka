@@ -61,7 +61,7 @@ class UpdateManager {
     })
 
     // check the versions for remappings
-    setTimeout(this.checkVersions, 1 * 60 * 1000) // initially after a minute
+    setTimeout(this.checkVersions, 1 * 30 * 1000) // initially after 30 seconds
     this.interval = setInterval(this.checkVersions, 10 * 60 * 1000) // then every 10 mins
   }
 
@@ -117,6 +117,8 @@ class UpdateManager {
         )
       }
       // checkVersions() running on the interval will pick this up
+      // but we're going to run it anyway, to improve speed (only runs every 10 mins)
+      this.checkVersions()
     } else if (
       (adjustMapping === true && newStatus === 'imported') ||
       newStatus === 'imported-willmap'

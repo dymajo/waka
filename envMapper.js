@@ -31,6 +31,7 @@ class EnvMapper {
         delete base.SHAPES_SKIP
       }
     } else {
+      delete base.SHAPES_SKIP
       delete base.KEYVALUE
       delete base.KEYVALUE_VERSION_TABLE
       delete base.KEYVALUE_REGION

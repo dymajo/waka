@@ -43,6 +43,7 @@ class VersionManager {
   }
 
   async stop() {
+    // This is never called, and it probably never should be.
     const mappingsTable = await this.mappings.scan()
     const mappings = Object.keys(mappingsTable)
     mappings.forEach(prefix => this.stopGateway(prefix))
@@ -53,6 +54,9 @@ class VersionManager {
 
     const gatewayConfig = await this.getVersionConfig(versionId)
     logger.info({ prefix, version: gatewayConfig.version }, 'Updating Gateway')
+
+    // We trust the gateways to handle the scheduling of new tasks / configs
+    // We shouldn't have to stop the gateway or anything silly.
     gateway.start(prefix, gatewayConfig)
   }
 
