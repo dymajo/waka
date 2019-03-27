@@ -27,8 +27,8 @@ class StopsNZWLG {
   }
 
   filter(recordset, mode = 'nothing') {
-    const { badStops } = this.badStops
-    recordset
+    const { badStops } = this
+    return recordset
       .filter(item => {
         if (
           mode !== 'keep' &&

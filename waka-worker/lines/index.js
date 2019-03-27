@@ -21,6 +21,7 @@ class Lines {
     this.prefix = prefix
     this.version = version
     this.search = search
+    this.config = config
 
     // not too happy about this
     this.stopsDataAccess = new StopsDataAccess({ connection, prefix })
