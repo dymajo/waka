@@ -498,7 +498,7 @@ class Lines {
     })
     const { connection, logger, stopsDataAccess, search } = this
     const sqlRequest = connection.get().request()
-    sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
+    sqlRequest.input('trip_id', sql.VarChar(100), req.params.tripId)
     try {
       const result = await sqlRequest.query(`
         SELECT
@@ -535,7 +535,7 @@ class Lines {
             transfersWithColors.sort(collator.compare)
             const result = JSON.parse(JSON.stringify(i))
             result.transfers = transfersWithColors
-            return i
+            return result
           }),
           'keep'
         )
@@ -573,7 +573,7 @@ class Lines {
   async getStopsFromShape(req, res) {
     const { connection, logger } = this
     const sqlRequest = connection.get().request()
-    sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
+    sqlRequest.input('shape_id', sql.VarChar(100), req.params.shapeId)
     try {
       const result = await sqlRequest.query(
         'SELECT TOP(1) trip_id FROM trips WHERE trips.shape_id = @shape_id'
@@ -581,10 +581,11 @@ class Lines {
 
       // forwards the request on.
       const tripId = result.recordset[0].trip_id
-      req.params.trip_id = tripId
+      req.params.tripId = tripId
       this.getStopsFromTrip(req, res)
     } catch (err) {
       logger.error({ err }, 'Could not get stops from shape.')
+      res.status(500).send({ message: 'Could not get stops from shape.' })
     }
   }
 }
