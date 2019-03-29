@@ -8,7 +8,31 @@ If you want to just run one microservice at a time, run the `standalone.js` file
 
 ### waka-orchestrator
 
-Sets up the services, manages the imports & updates - run this on your local machine, and it'll call out to waka-proxy, waka-worker, and waka-importer. There's also a Web UI available at `/private`.
+The idea behind Waka Orchestrator is that it's a lightweight layer on top of proper application orchestration (ECS, Fargate, or Kubernetes). It performs a few functions:
+
+1. Has a number of updaters, for each particular city.
+2. Schedules waka-importer as a task when it has not been imported.
+3. Updates deployment of that city to change to latest version.
+4. Has a management UI available at `/private`
+
+#### Locally:
+
+- Instead of DynamoDB, it just stores files in a JSON object on disk.
+- Instead of Tasks (Fargate), it provides you a Docker command to do the import.
+- Instead of Services (ECS or Kubernetes), it takes the existing deployment, updates the variables, and relies on the platform to deploy the new service.
+
+#### In Production:
+
+Because Waka Orchestrator doesn't lock the update process yet, it should not be run in High-Availability. It will probably spin up multiple importers on the same database, and they might hang or crash. This however does not matter, because **Waka Orchestrator doesn't do any routing** (when not running locally).
+
+Your load balancer should be set up to route things in this order:
+
+- /a/:region1/ - waka-server:worker (Your first region)
+- /a/:regionN/ - waka-server:worker (Each of your next regions)
+- /a/ - waka-server:proxy
+- / - waka
+
+The orchestrator `/private` UI should either be protected by authorization on your load balancer, or not be publicly routable.
 
 #### Build:
 
@@ -52,3 +76,27 @@ Then, start the orchestrator. The Web UI will be available at <http://localhost:
 npm ci
 node waka-orchestrator/standalone.js
 ```
+
+## DYMAJO Specific Implementation Notes
+
+### ECS
+
+- [Terraform](https://terraform.io) creates ECS services without any environmental variables, scaled to 0.
+- Services exist for the proxy, each region, and the orchestrator.
+- waka-orchestrator scales these tasks, and sets variables.
+
+### ALB
+
+- An Application Load Balancer is used, with routing rules to each ECS service.
+
+### Fargate
+
+- waka-orchestrator starts waka-importer Fargate tasks.
+
+### IAM
+
+- waka-orchestrator has access to describe and update task definitions, start and update ecs services, run Fargate tasks, pass IAM specific roles, and talk to DynamoDB.
+- waka-worker has access to S3, DynamoDB, and SQL Server.
+- waka-importer has access to S3, DynamoDB, and SQL Server.
+- waka-proxy does not have any IAM permissions.
+- waka has access to S3.
