@@ -25,7 +25,6 @@
   "101": [["Pt Chevalier", "Auckland University", "Jervois Rd"]],
   "105": [["Westmere", "Britomart", "Richmond Rd"]],
   "106": [["Freemans Bay Loop"]],
-  "107": [["Avondale Loop"]],
   "110": [["City Centre", "Westgate", "Northwestern Motorway"]],
   "111": [["Royal Heights Loop"]],
   "112": [["Westgate", "Hobsonville Point", "West Harbour"]],
@@ -60,6 +59,10 @@
   "171": [["New Lynn", "Laingholm"]],
   "172": [["New Lynn", "Glen Eden", "Titirangi"]],
   "186": [["South Lynn Loop"]],
+  "191": [
+    ["Lynfield", "New Lynn", "Blockhouse Bay And Avondale"],
+    ["New Lynn", "Lynfield", "Avondale And Blockhouse Bay"]
+  ],
   "195": [
     ["City Centre", "New Lynn", "Blockhouse Bay Rd And Green Bay"],
     ["New Lynn", "City Centre", "Green Bay And Blockhouse Bay Rd"]

@@ -3,23 +3,37 @@ const lineGroups = require('./nz-akl-groups.json')
 const allLines = require('./nz-akl-lines.json')
 
 const getColor = (agencyId, code) => {
+  // First for our fancy services.
+  switch (code) {
+    case 'CTY': // City Link
+      return '#ef3c34'
+    case 'INN': // Inner Link
+      return '#41b649'
+    case 'OUT': // Outer Link
+      return '#f7991c'
+    case 'TMK':
+      return '#038fcc'
+    case 'WEST': // Western Line
+      return '#84bd00'
+    case 'STH': // South Line
+      return '#da291c'
+    case 'EAST': // East Line
+      return '#ed8b00'
+    case 'PUK': // South Line
+      return '#da291c'
+    case 'ONE': // ONE Line
+      return '#00a6d6'
+    case 'NX1': // Northern Express 1
+      return '#123f90'
+    case 'NX2': // Northern Express 2
+      return '#008540'
+    default:
+    // do nothing
+  }
   switch (agencyId) {
     case 'AM': // Auckland Metro
-      switch (code) {
-        case 'WEST': // West Line
-          return '#84bd00'
-        case 'STH': // South Line
-          return '#da291c'
-        case 'EAST': // East Line
-          return '#ed8b00'
-        case 'PUK': // South Line
-          return '#da291c'
-        case 'ONE': // ONE Line
-          return '#00a6d6'
+      return '#00254b'
 
-        default:
-          return '#00254b'
-      }
     case 'FGL': // Fullers
       return '#2756a4'
 
@@ -30,40 +44,10 @@ const getColor = (agencyId, code) => {
       return '#4CAF50'
 
     case 'NZB': // NZ Bus - metrolink
-      switch (code) {
-        case 'CTY': // City Link
-          return '#ef3c34'
-
-        case 'INN': // Inner Link
-          return '#41b649'
-
-        case 'OUT': // Outer Link
-          return '#f7991c'
-
-        case 'TMK':
-          return '#038fcc'
-
-        default:
-          return '#0759b0'
-      }
+      return '#0759b0'
 
     case 'NZBML': // NZ Bus - metrolink
-      switch (code) {
-        case 'CTY': // City Link
-          return '#ef3c34'
-
-        case 'INN': // Inner Link
-          return '#41b649'
-
-        case 'OUT': // Outer Link
-          return '#f7991c'
-
-        case 'TMK':
-          return '#038fcc'
-
-        default:
-          return '#0759b0'
-      }
+      return '#0759b0'
 
     case 'NZBNS': // NZ Bus - North Star
       return '#f39c12'
@@ -78,16 +62,9 @@ const getColor = (agencyId, code) => {
       return '#b2975b'
 
     case 'RTH': // Ritchies
-      switch (code) {
-        case 'NX1': // Northern Express 1
-          return '#123f90'
+      return '#ff6f2c'
 
-        default:
-          return '#ff6f2c'
-      }
-
-    // Northern Express 2
-    case 'TZG':
+    case 'TZG': // Tranzit
       return '#008540'
 
     case 'WBC': // Waiheke Bus Company
@@ -183,16 +160,17 @@ class LinesNZAKL {
     await Promise.all(
       routes.map(
         route =>
-          new Promise(async (resolve, reject) => {
+          new Promise(async resolve => {
             const result = await dataAccess.getOperator(route)
             if (result.recordset.length > 0) {
               const agencyId = result.recordset[0].agency_id
-              lineColors[route] = getColor(agencyId, routes[route])
+              lineColors[route] = getColor(agencyId, route)
               lineOperators[route] = agencyId
               resolve(route)
             } else {
-              logger.warn({ route }, 'Could not find agency.')
-              reject(route)
+              logger.warn({ route }, 'Could not find agency for route.')
+              // don't reject, because one error will cause everything to fail
+              resolve(route)
             }
           })
       )
