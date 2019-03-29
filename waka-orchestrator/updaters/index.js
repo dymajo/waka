@@ -117,8 +117,7 @@ class UpdateManager {
         )
       }
       // checkVersions() running on the interval will pick this up
-      // but we're going to run it anyway, to improve speed (only runs every 10 mins)
-      this.checkVersions()
+      // we can't run it because if callback is run twice, it'll start all the tasks twice probably
     } else if (
       (adjustMapping === true && newStatus === 'imported') ||
       newStatus === 'imported-willmap'
