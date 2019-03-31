@@ -33,6 +33,7 @@ const defaults = {
   apppath: '/' + manifest['app.js'],
   analyticspath: '/' + manifest['analytics.js'],
   csspath: '/' + manifest['app.css'],
+  cssimagerealtimepath: '/icons/realtime.svg',
 }
 
 const uploadFiles = async () => {
