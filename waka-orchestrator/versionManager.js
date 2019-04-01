@@ -60,6 +60,14 @@ class VersionManager {
     gateway.start(prefix, gatewayConfig)
   }
 
+  async recycleGateway(prefix) {
+    const { gateway } = this
+    logger.info({ prefix }, 'Recycling Gateway')
+    const versionId = (await this.mappings.get(prefix)).value
+    const gatewayConfig = await this.getVersionConfig(versionId)
+    gateway.recycle(prefix, gatewayConfig)
+  }
+
   stopGateway(prefix) {
     const { gateway } = this
     logger.info({ prefix }, 'Stopping Gateway')

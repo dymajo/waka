@@ -141,6 +141,18 @@ class GatewayEcs {
     }
   }
 
+  async recycle(prefix) {
+    const { ecs, servicePrefix, serviceSuffix, replicas } = this
+    const serviceName = `${servicePrefix}${prefix}${serviceSuffix}`
+
+    await ecs.updateService({
+      service: serviceName,
+      forceNewDeployment: true,
+      desiredCount: replicas,
+    })
+    logger.info({ prefix, service: serviceName }, 'ECS Service Updated')
+  }
+
   async stop(prefix) {
     const { ecs, servicePrefix, serviceSuffix } = this
     if (!ecs) {

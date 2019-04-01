@@ -42,6 +42,11 @@ class GatewayLocal {
     }
   }
 
+  recycle(prefix, config) {
+    this.stop(prefix)
+    this.start(prefix, config)
+  }
+
   stop(prefix) {
     const { workers } = this
     if (workers[prefix] !== undefined) {
