@@ -93,7 +93,7 @@ class LinesNZWLG {
 
       lineColors[routeShortName] = this.lineColorizer(
         record.agency_id,
-        record.routeShortName,
+        record.route_short_name,
         record.route_color
       )
     })
