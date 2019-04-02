@@ -100,3 +100,4 @@ node waka-orchestrator/standalone.js
 - waka-importer has access to S3, DynamoDB, and SQL Server.
 - waka-proxy does not have any IAM permissions.
 - waka has access to S3.
+
