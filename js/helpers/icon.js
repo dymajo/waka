@@ -49,17 +49,21 @@ class iconhelper {
   }
 
   getFileName(route_type, prefix, variant) {
-    let fileName = this.getRouteType(route_type)
+    const fileName = this.getRouteType(route_type)
     if (prefix === 'normal' && variant === 'selection') {
-      return fileName + '-fill'
+      return `${fileName}-fill`
     }
     return fileName
   }
 
   getIcon(prefix, route_type, variant = null) {
+    if (route_type >= 100 && route_type <= 199) {
+      route_type = 2
+    }
+
     const icon = {}
     let variantfile = ''
-    let filetype = '.svg'
+    const filetype = '.svg'
 
     if (typeof style_map[prefix] === 'undefined') {
       prefix = 'normal'
@@ -68,13 +72,11 @@ class iconhelper {
       variantfile = '-selection'
     }
 
-    icon.iconUrl =
-      '/icons/' +
-      prefix +
-      '/' +
-      this.getFileName(route_type, prefix, variant) +
-      variantfile +
-      filetype
+    icon.iconUrl = `/icons/${prefix}/${this.getFileName(
+      route_type,
+      prefix,
+      variant
+    )}${variantfile}${filetype}`
 
     icon.iconSize = this.getSize(route_type, prefix, variant)
 
@@ -98,6 +100,7 @@ class iconhelper {
     }
     return style_map[prefix].get('default')
   }
+
   getRouteType(route_type) {
     return route_type_map.get(route_type)
   }

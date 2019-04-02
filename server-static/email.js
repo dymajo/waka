@@ -303,7 +303,7 @@ var emailBody = `
                                 <table border="0" cellpadding="0" cellspacing="0">
                                   <tbody>
                                     <tr>
-                                      <td> <p>getwaka.com</p> </td>
+                                      <td> <p>waka.app</p> </td>
                                     </tr>
                                   </tbody>
                                 </table>

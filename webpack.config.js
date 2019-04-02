@@ -110,7 +110,8 @@ let config = {
     index: 'index-generated.html',
     proxy: {
       '/a': {
-        target: 'http://localhost:8000',
+        pathRewrite: {'^/a' : ''},
+        target: 'http://localhost:9001',
       },
     },
   },
@@ -181,6 +182,7 @@ if (process.env.NODE_ENV === 'production') {
 if (process.env.NODE_ENV === 'devlive') {
   console.log('Using Live Server for API')
   config.devServer.proxy['/a'].target = 'https://waka.app'
+  config.devServer.proxy['/a'].pathRewrite = null
   config.devServer.proxy['/a'].changeOrigin = true
 }
 

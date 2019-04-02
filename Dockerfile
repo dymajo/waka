@@ -1,4 +1,4 @@
-FROM node:alpine as build
+FROM node:lts as build
 
 WORKDIR /app
 COPY /package.json ./
@@ -22,7 +22,7 @@ COPY /server-static ./server-static
 RUN npm run build
 
 # This shaves off like 100mb. Could be better.
-FROM node:alpine as runtime
+FROM node:lts-alpine as runtime
 WORKDIR /app
 COPY /package.json ./
 COPY /package-lock.json ./
@@ -35,4 +35,4 @@ COPY /server-static ./server-static
 ENV serverStaticPort 8000
 EXPOSE 8000
 
-ENTRYPOINT ["node", "server-static"]
+CMD node ./server-static/
