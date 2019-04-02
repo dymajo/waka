@@ -69,6 +69,7 @@ class Importer {
     }
     await this.shapes()
     await this.fixStopCodes()
+    await this.postImport()
     // await this.exportDb()
 
     if (versions) {
@@ -161,6 +162,12 @@ class Importer {
       `${global.config.prefix} ${global.config.version}`.magenta,
       `Updated ${rows} null stop codes`
     )
+  }
+
+  async postImport() {
+    if (this.current.postImport) {
+      await this.current.postImport()
+    }
   }
 
   async exportDb() {
