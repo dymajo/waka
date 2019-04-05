@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const WorkerDiscovery = require('./workerDiscovery.js')
 
@@ -18,6 +19,7 @@ class WakaProxy {
     router.get('/regions', (req, res) => {
       res.send(discovery.getRegions())
     })
+    router.use('/docs', express.static(path.join(__dirname, '../dist/docs/')))
     router.all('/:prefix', smartRedirect)
     router.all('/:prefix/*', smartRedirect)
   }
