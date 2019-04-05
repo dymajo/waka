@@ -5,13 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "npm run document && npm run build:production",
-    "build:production": "cross-env NODE_ENV=production webpack --progress --colors --display-optimization-bailout",
+    "build": "cross-env NODE_ENV=production webpack --progress --colors --display-optimization-bailout",
     "watch": "webpack-dev-server",
     "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
     "anal": "webpack --json > report.json",
-    "test": "echo \"Error: no test specified\"",
-    "document": "apidoc -i server-master -i server-worker -o dist/docs"
+    "test": "echo \"Error: no test specified\""
   },
   "repository": {
     "type": "git",
@@ -19,25 +17,16 @@
   },
   "keywords": [
     "auckland",
+    "Wellington",
     "transport",
-    "at",
-    "hop",
+    "waka",
     "transit",
     "dymajo"
   ],
-  "apidoc": {
-    "name": "Waka",
-    "title": "Waka API",
-    "header": {
-      "filename": "dist/header.md"
-    },
-    "url": "https://waka.app/a",
-    "sampleUrl": "/a"
-  },
-  "author": "Jono Cooper <jono@jono.nz>",
+  "author": "Jono Cooper <jono@dymajo.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/consindo/waka/issues"
+    "url": "https://github.com/dymajo/waka/issues"
   },
   "homepage": "https://waka.app",
   "devDependencies": {
@@ -71,8 +60,6 @@
     "whatwg-fetch": "^2.0.4"
   },
   "dependencies": {
-    "apidoc": "^0.17.6",
-    "applicationinsights": "^1.0.2",
     "autotrack": "^2.4.1",
     "aws-sdk": "^2.311.0",
     "babel-preset-stage-2": "^6.24.1",
@@ -80,20 +67,15 @@
     "clipboard": "^1.7.1",
     "colors": "^1.3.0",
     "css-loader": "^0.28.7",
-    "csv-parse": "^1.3.3",
     "express": "^4.16.3",
     "extract-text-webpack-plugin": "^3.0.0",
     "extract-zip": "^1.6.7",
     "history": "^4.7.2",
     "http-proxy": "^1.17.0",
     "leaflet": "^1.3.1",
-    "moment-timezone": "^0.5.17",
-    "mssql": "^4.1.0",
-    "node-fetch": "^2.3.0",
     "node-polyglot": "^2.2.2",
     "offline-plugin": "^4.9.1",
     "prop-types": "^15.6.1",
-    "protobufjs": "^6.8.6",
     "pug": "^2.0.3",
     "react": "^16.4.1",
     "react-art": "^16.4.1",
@@ -102,12 +84,9 @@
     "react-native-web": "^0.8.8",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
-    "request": "^2.87.0",
     "resolve-url-loader": "^2.1.0",
-    "rimraf": "^2.6.2",
     "sendgrid": "^4.3.0",
     "smoothscroll-polyfill": "^0.4.3",
-    "stream-transform": "^0.1.2",
     "style-loader": "^0.19.0",
     "uglifyjs-webpack-plugin": "^1.2.7",
     "webpack-dev-server": "^2.9.3"

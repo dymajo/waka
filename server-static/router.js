@@ -32,9 +32,7 @@ router.get('/l/:region/*', (req, res) => defaults.notFound(res))
 
 // because we have a thing that removes trailing slashes...
 router.get('/docs', (req, res) => {
-  res.send(
-    'docs are located at <a href="/docs/index.html">/docs/index.html</a>'
-  )
+  res.redirect(301, '/a/docs/')
 })
 router.use('/scss', express.static(path.resolve(__dirname + '/../scss')))
 router.use('/', express.static(path.resolve(__dirname + '/../dist')))

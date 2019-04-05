@@ -14,10 +14,6 @@ COPY /local.js ./
 COPY /.babelrc ./
 COPY /webpack.config.js ./
 
-# This is just for documentaiton
-COPY /server-common ./server-common
-COPY /server-master ./server-master
-COPY /server-worker ./server-worker
 COPY /server-static ./server-static
 RUN npm run build
 
@@ -29,7 +25,6 @@ COPY /package-lock.json ./
 RUN npm ci --production
 
 COPY --from=build /app/dist ./dist
-COPY /server-common ./server-common
 COPY /server-static ./server-static
 
 ENV serverStaticPort 8000
