@@ -1,8 +1,8 @@
 const path = require('path')
 const request = require('request')
 const fs = require('fs')
-const log = require('../../logger.js')
-const config = require('../../config')
+const log = require('../logger.js')
+const config = require('../config')
 
 class BaseImporter {
   constructor() {
