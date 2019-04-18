@@ -1,5 +1,5 @@
 const connection = require('../../db/connection.js')
-const BaseImporter = require('./BaseImporter')
+const BaseImporter = require('../BaseImporter')
 const log = require('../../logger.js')
 const config = require('../../config')
 

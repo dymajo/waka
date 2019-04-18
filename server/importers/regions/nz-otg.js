@@ -1,4 +1,4 @@
-const BaseImporter = require('./BaseImporter')
+const BaseImporter = require('../BaseImporter')
 
 class OtagoImporter extends BaseImporter {
   constructor() {
