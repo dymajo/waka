@@ -1,13 +1,11 @@
 const path = require('path')
 const request = require('request')
 const fs = require('fs')
-const log = require('../logger.js')
+const log = require('../../logger.js')
 
-const get = (zipname, downloadOptions) => {
-  const zipLocation = path.join(__dirname, `../../cache/${zipname}.zip`)
-  return {
-    zipLocation,
-    files: [
+class BaseImporter {
+  constructor() {
+    this.files = [
       {
         name: 'agency.txt',
         table: 'agency',
@@ -43,22 +41,25 @@ const get = (zipname, downloadOptions) => {
         table: 'calendar_dates',
         versioned: false,
       },
-    ],
-    shapeFile: 'shapes.txt',
-    download: () =>
-      new Promise((resolve, reject) => {
-        log(global.config.prefix.magenta, 'Downloading GTFS Data')
-        const gtfsRequest = request(downloadOptions).pipe(
-          fs.createWriteStream(zipLocation)
-        )
-        gtfsRequest.on('finish', () => {
-          log('Finished Downloading GTFS Data')
-          resolve()
-        })
-        gtfsRequest.on('error', reject)
-      }),
+    ]
+    this.shapeFile = 'shapes.txt'
+    this.zipLocation = path.join(__dirname, `../../cache/${this.zipname}.zip`)
+    this.downloadOptions = { url: this.url }
+  }
+
+  download() {
+    return new Promise((resolve, reject) => {
+      log(global.config.prefix.magenta, 'Downloading GTFS Data')
+      const gtfsRequest = request(this.downloadOptions).pipe(
+        fs.createWriteStream(this.zipLocation)
+      )
+      gtfsRequest.on('finish', () => {
+        log('Finished Downloading GTFS Data')
+        resolve()
+      })
+      gtfsRequest.on('error', reject)
+    })
   }
 }
-module.exports = {
-  get,
-}
+
+module.exports = BaseImporter
