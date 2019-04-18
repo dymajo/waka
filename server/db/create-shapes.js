@@ -5,15 +5,17 @@ const transform = require('stream-transform')
 const colors = require('colors')
 const log = require('../logger.js')
 const Storage = require('./storage.js')
+const config = require('../config')
 
 class CreateShapes {
   constructor() {
     this.storageSvc = new Storage({
-      backing: global.config.storageService,
-      local: global.config.emulatedStorage,
-      region: global.config.shapesRegion,
+      backing: config.storageService,
+      local: config.emulatedStorage,
+      region: config.shapesRegion,
     })
   }
+
   create(inputFile, outputDirectory, versions) {
     return new Promise((resolve, reject) => {
       const input = fs.createReadStream(inputFile)
@@ -83,7 +85,7 @@ class CreateShapes {
 
   upload(container, directory) {
     return new Promise((resolve, reject) => {
-      if (global.config.shapesSkip === true) {
+      if (config.shapesSkip === true) {
         log('Skipping Shapes Upload.')
         return resolve()
       }
@@ -95,7 +97,7 @@ class CreateShapes {
         }
 
         const fileName = files[index]
-        const key = `${global.config.prefix}/${directory
+        const key = `${config.prefix}/${directory
           .split('/')
           .slice(-1)[0]
           .replace('_', '-')
