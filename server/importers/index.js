@@ -11,6 +11,20 @@ const Storage = require('../db/storage.js')
 const KeyvalueDynamo = require('../db/keyvalue-dynamo.js')
 const config = require('../config')
 
+const ATImporter = require('./regions/nz-akl')
+const ChchImporter = require('./regions/nz-chc')
+const OtagoImporter = require('./regions/nz-otg')
+const TfNSWImporter = require('./regions/au-syd')
+const MetlinkImporter = require('./regions/nz-wlg')
+
+const regions = {
+  'nz-akl': ATImporter,
+  'nz-chc': ChchImporter,
+  'nz-otg': OtagoImporter,
+  'nz-wlg': MetlinkImporter,
+  'au-syd': TfNSWImporter,
+}
+
 class Importer {
   constructor(props) {
     this.importer = new GtfsImport()
@@ -27,7 +41,8 @@ class Importer {
 
     this.current = null
     try {
-      this.current = require(`./regions/${config.prefix}.js`)
+      const Region = regions[config.prefix]
+      this.current = new Region()
     } catch (err) {
       log(
         'fatal error'.red,
