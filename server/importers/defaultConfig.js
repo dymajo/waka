@@ -2,6 +2,7 @@ const path = require('path')
 const request = require('request')
 const fs = require('fs')
 const log = require('../logger.js')
+const config = require('../config')
 
 const get = (zipname, downloadOptions) => {
   const zipLocation = path.join(__dirname, `../../cache/${zipname}.zip`)
@@ -47,7 +48,7 @@ const get = (zipname, downloadOptions) => {
     shapeFile: 'shapes.txt',
     download: () =>
       new Promise((resolve, reject) => {
-        log(global.config.prefix.magenta, 'Downloading GTFS Data')
+        log(config.prefix.magenta, 'Downloading GTFS Data')
         const gtfsRequest = request(downloadOptions).pipe(
           fs.createWriteStream(zipLocation)
         )
