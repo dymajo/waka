@@ -2,6 +2,7 @@ const path = require('path')
 const request = require('request')
 const fs = require('fs')
 const log = require('../../logger.js')
+const config = require('../../config')
 
 class BaseImporter {
   constructor() {
@@ -49,7 +50,7 @@ class BaseImporter {
 
   download() {
     return new Promise((resolve, reject) => {
-      log(global.config.prefix.magenta, 'Downloading GTFS Data')
+      log(config.prefix.magenta, 'Downloading GTFS Data')
       const gtfsRequest = request(this.downloadOptions).pipe(
         fs.createWriteStream(this.zipLocation)
       )

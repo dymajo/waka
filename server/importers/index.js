@@ -9,6 +9,7 @@ const CreateShapes = require('../db/create-shapes.js')
 const connection = require('../db/connection.js')
 const Storage = require('../db/storage.js')
 const KeyvalueDynamo = require('../db/keyvalue-dynamo.js')
+const config = require('../config')
 
 class Importer {
   constructor(props) {
@@ -26,12 +27,12 @@ class Importer {
 
     this.current = null
     try {
-      this.current = require(`./regions/${global.config.prefix}.js`)
+      this.current = require(`./regions/${config.prefix}.js`)
     } catch (err) {
       log(
         'fatal error'.red,
         'Could not find an importer in ',
-        path.join(__dirname, './regions', `${global.config.prefix}.js`)
+        path.join(__dirname, './regions', `${config.prefix}.js`)
       )
     }
   }
@@ -42,7 +43,7 @@ class Importer {
     }
 
     const { versions } = this
-    const versionId = global.config.db.database
+    const versionId = config.db.database
     if (versions) {
       const version = await versions.get(versionId)
       let newStatus
@@ -101,7 +102,7 @@ class Importer {
       await this.importer.upload(
         `${this.current.zipLocation}unarchived`,
         file,
-        global.config.version,
+        config.version,
         file.versioned
       )
     }
@@ -122,7 +123,7 @@ class Importer {
       `${this.current.zipLocation}unarchived`,
       'shapes'
     )
-    const outputDir2 = path.resolve(outputDir, global.config.version)
+    const outputDir2 = path.resolve(outputDir, config.version)
 
     // make sure the old output dir exists
     if (!fs.existsSync(outputDir)) {
@@ -138,14 +139,14 @@ class Importer {
     fs.mkdirSync(outputDir2)
 
     // creates the new datas
-    await creator.create(inputDir, outputDir, [global.config.version])
+    await creator.create(inputDir, outputDir, [config.version])
 
-    const containerName = `${global.config.prefix}-${global.config.version}`
+    const containerName = `${config.prefix}-${config.version}`
       .replace('.', '-')
       .replace('_', '-')
     await creator.upload(
-      global.config.shapesContainer,
-      path.resolve(outputDir, global.config.version)
+      config.shapesContainer,
+      path.resolve(outputDir, config.version)
     )
   }
 
@@ -159,7 +160,7 @@ class Importer {
     `)
     const rows = res.rowsAffected[0]
     log(
-      `${global.config.prefix} ${global.config.version}`.magenta,
+      `${config.prefix} ${config.version}`.magenta,
       `Updated ${rows} null stop codes`
     )
   }
@@ -174,7 +175,7 @@ class Importer {
     const sqlRequest = connection.get().request()
     const {
       db: { database },
-    } = global.config
+    } = config
     sqlRequest.input('dbName', sql.VarChar, database)
     try {
       await sqlRequest.query(
