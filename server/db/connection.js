@@ -1,9 +1,10 @@
 const sql = require('mssql')
 const colors = require('colors')
+const config = require('../config')
 
 const connectMaster = async () => {
-  const { database } = global.config.db
-  const masterConfig = JSON.parse(JSON.stringify(global.config.db))
+  const { database } = config.db
+  const masterConfig = JSON.parse(JSON.stringify(config.db))
   masterConfig.database = masterConfig.master_database
   try {
     const pool = await sql.connect(masterConfig)
@@ -35,7 +36,7 @@ const connection = {
   open: () => {
     connectMaster()
       .then(() => {
-        pool1 = new sql.ConnectionPool(global.config.db, err => {
+        pool1 = new sql.ConnectionPool(config.db, err => {
           if (err) {
             console.error(err)
             return creject()

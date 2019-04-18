@@ -10,6 +10,7 @@ const CreateShapes = require('../../db/create-shapes.js')
 const connection = require('../../db/connection.js')
 const Storage = require('../../db/storage.js')
 const KeyvalueDynamo = require('../../db/keyvalue-dynamo.js')
+const config = require('../../config')
 
 const batch1 = {
   buses1: { endpoint: 'buses/SMBSC001', type: 'bus' },
@@ -134,7 +135,7 @@ class TfNSWImporter {
           type,
           endpoint,
         }
-        log(global.config.prefix.magenta, 'Downloading GTFS Data')
+        log(config.prefix.magenta, 'Downloading GTFS Data')
         try {
           const res = await fetch(
             `https://api.transport.nsw.gov.au/v1/gtfs/schedule/${endpoint}`,
@@ -207,7 +208,7 @@ class TfNSWImporter {
           await this.importer.upload(
             `${p}unarchived`,
             file,
-            global.config.version,
+            config.version,
             file.versioned,
             endpoint,
             true
@@ -229,7 +230,7 @@ class TfNSWImporter {
       const creator = new CreateShapes()
       const inputDir = path.resolve(`${p}unarchived`, 'shapes.txt')
       const outputDir = path.resolve(`${p}unarchived`, 'shapes')
-      const outputDir2 = path.resolve(outputDir, global.config.version)
+      const outputDir2 = path.resolve(outputDir, config.version)
 
       // make sure the old output dir exists
       if (!fs.existsSync(outputDir)) {
@@ -245,14 +246,14 @@ class TfNSWImporter {
       fs.mkdirSync(outputDir2)
 
       // creates the new datas
-      await creator.create(inputDir, outputDir, [global.config.version])
+      await creator.create(inputDir, outputDir, [config.version])
 
-      const containerName = `${global.config.prefix}-${global.config.version}`
+      const containerName = `${config.prefix}-${config.version}`
         .replace('.', '-')
         .replace('_', '-')
       await creator.upload(
-        global.config.shapesContainer,
-        path.resolve(outputDir, global.config.version)
+        config.shapesContainer,
+        path.resolve(outputDir, config.version)
       )
     }
   }
@@ -267,7 +268,7 @@ class TfNSWImporter {
     `)
     const rows = res.rowsAffected[0]
     log(
-      `${global.config.prefix} ${global.config.version}`.magenta,
+      `${config.prefix} ${config.version}`.magenta,
       `Updated ${rows} null stop codes`
     )
   }
