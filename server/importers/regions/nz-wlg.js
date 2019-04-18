@@ -1,6 +1,7 @@
 const connection = require('../../db/connection.js')
 const BaseImporter = require('./BaseImporter')
 const log = require('../../logger.js')
+const config = require('../../config')
 
 class MetlinkImporter extends BaseImporter {
   constructor() {
@@ -19,7 +20,7 @@ class MetlinkImporter extends BaseImporter {
       WHERE stop_sequence = 0 and trips.trip_headsign is null
     `)
     log(
-      `${global.config.prefix} ${global.config.version}`.magenta,
+      `${config.prefix} ${config.version}`.magenta,
       'Post Import: Completed Trip Headsign Override'
     )
   }
