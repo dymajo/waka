@@ -5,7 +5,11 @@ const log = require('../logger.js')
 const config = require('../config')
 
 class BaseImporter {
-  constructor() {
+  constructor(props) {
+    const { zipname, url } = props
+    this.zipname = zipname
+    this.url = url
+
     this.files = [
       {
         name: 'agency.txt',

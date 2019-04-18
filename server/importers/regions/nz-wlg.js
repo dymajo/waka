@@ -5,10 +5,11 @@ const config = require('../../config')
 
 class MetlinkImporter extends BaseImporter {
   constructor() {
-    super()
-    this.zipname = 'metlink'
-    this.url =
-      'https://www.metlink.org.nz/assets/Google_Transit/google-transit.zip'
+    super({
+      zipname: 'metlink',
+      url:
+        'https://www.metlink.org.nz/assets/Google_Transit/google-transit.zip',
+    })
   }
 
   async postImport() {
