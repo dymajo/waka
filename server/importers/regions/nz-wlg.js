@@ -1,6 +1,7 @@
 const connection = require('../../db/connection.js')
 const defaultConfig = require('../defaultConfig.js')
 const log = require('../../logger.js')
+const config = require('../../config')
 
 const wellington = defaultConfig.get('metlink', {
   url: 'https://www.metlink.org.nz/assets/Google_Transit/google-transit.zip',
@@ -14,7 +15,7 @@ wellington.postImport = async () => {
     WHERE stop_sequence = 0 and trips.trip_headsign is null
   `)
   log(
-    (global.config.prefix + ' ' + global.config.version).magenta,
+    (`${config.prefix  } ${  config.version}`).magenta,
     'Post Import: Completed Trip Headsign Override'
   )
 }

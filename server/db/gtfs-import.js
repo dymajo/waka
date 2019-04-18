@@ -7,6 +7,7 @@ const path = require('path')
 const util = require('util')
 const connection = require('./connection.js')
 const log = require('../logger.js')
+const config = require('../config')
 
 const primaryKeys = {
   agency: 'agency_id',
@@ -259,15 +260,15 @@ class GtfsImport {
     })
   }
 
-  async mergeFirst(location, config, version, containsVersion, endpoint) {
-    const hashName = `temp_${config.table}`
-    let table = this.getTable(config.table, hashName, true)
-    const finalTable = this.getTable(config.table)
+  async mergeFirst(location, file, version, containsVersion, endpoint) {
+    const hashName = `temp_${file.table}`
+    let table = this.getTable(file.table, hashName, true)
+    const finalTable = this.getTable(file.table)
     if (table === null) return null
 
-    const logstr = config.table.toString().yellow
+    const logstr = file.table.toString().yellow
     return new Promise((resolve, reject) => {
-      const input = fs.createReadStream(path.resolve(location, config.name))
+      const input = fs.createReadStream(path.resolve(location, file.name))
       input.on('error', reject)
       const parser = csvparse({ delimiter: ',' })
       let headers = null
@@ -287,7 +288,7 @@ class GtfsImport {
 
           const processRow = async () => {
             if (row && row.length > 1) {
-              const tableSchema = schemas[config.table]
+              const tableSchema = schemas[file.table]
               if (tableSchema) {
                 const record = this._mapRowToRecord(row, headers, tableSchema)
 
@@ -308,7 +309,7 @@ class GtfsImport {
           }
 
           // assembles our CSV into JSON
-          if (transactions < global.config.db.transactionLimit) {
+          if (transactions < config.db.transactionLimit) {
             processRow()
             callback(null)
           } else {
@@ -319,7 +320,7 @@ class GtfsImport {
               transactions = 0
               // await this.mergeToFinal(config.table, hashName)
               // log(endpoint, logstr, 'Merge Committed.')
-              table = this.getTable(config.table)
+              table = this.getTable(file.table)
               processRow()
               callback(null)
             } catch (err) {
@@ -339,7 +340,7 @@ class GtfsImport {
           await this.commit(table)
 
           log(endpoint, logstr, 'Transaction Committed.')
-          await this.mergeToFinal(config.table, hashName)
+          await this.mergeToFinal(file.table, hashName)
           log(endpoint, logstr, 'Merge Committed.')
           resolve()
         } catch (error) {
@@ -353,26 +354,20 @@ class GtfsImport {
 
   async upload(
     location,
-    config,
+    file,
     version,
     containsVersion,
     endpoint,
     merge = false
   ) {
     if (merge) {
-      return this.mergeFirst(
-        location,
-        config,
-        version,
-        containsVersion,
-        endpoint
-      )
+      return this.mergeFirst(location, file, version, containsVersion, endpoint)
     }
-    let table = this.getTable(config.table)
+    let table = this.getTable(file.table)
     if (table === null) return null
-    const logstr = config.table.toString().magenta
+    const logstr = file.table.toString().magenta
     return new Promise((resolve, reject) => {
-      const input = fs.createReadStream(path.resolve(location, config.name))
+      const input = fs.createReadStream(path.resolve(location, file.name))
       input.on('error', reject)
       const parser = csvparse({ delimiter: ',' })
       let headers = null
@@ -392,7 +387,7 @@ class GtfsImport {
 
           const processRow = async () => {
             if (row && row.length > 1) {
-              const tableSchema = schemas[config.table]
+              const tableSchema = schemas[file.table]
               if (tableSchema) {
                 const record = this._mapRowToRecord(row, headers, tableSchema)
 
@@ -413,7 +408,7 @@ class GtfsImport {
           }
 
           // assembles our CSV into JSON
-          if (transactions < global.config.db.transactionLimit) {
+          if (transactions < config.db.transactionLimit) {
             processRow()
             callback(null)
           } else {
@@ -423,7 +418,7 @@ class GtfsImport {
               log(endpoint, logstr, 'Transaction Committed.')
               transactions = 0
 
-              table = this.getTable(config.table)
+              table = this.getTable(file.table)
               processRow()
               callback(null)
             } catch (err) {
