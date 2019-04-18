@@ -1,6 +1,10 @@
-const defaultConfig = require('../defaultConfig.js')
+const BaseImporter = require('./BaseImporter')
 
-const christchurch = defaultConfig.get('metro-christchurch', {
-  url: 'http://metroinfo.co.nz/Documents/gtfs.zip',
-})
-module.exports = christchurch
+class ChchImporter extends BaseImporter {
+  constructor() {
+    super()
+    this.zipname = 'metro-christchurch'
+    this.url = 'http://metroinfo.co.nz/Documents/gtfs.zip'
+  }
+}
+module.exports = ChchImporter
