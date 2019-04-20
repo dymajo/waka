@@ -39,19 +39,18 @@ const start = async () => {
   let importer
   if (config.prefix === 'au-syd') {
     importer = new TfNSWImporter({
-      keyvalue: KEYVALUE,
-      keyvalueVersionTable: KEYVALUE_VERSION_TABLE,
-      keyvalueRegion: KEYVALUE_REGION,
+      keyvalue: config.keyValue,
+      keyvalueVersionTable: config.keyValueVersionTable,
+      keyvalueRegion: config.keyValueRegion,
     })
   } else {
     importer = new Importer({
-      keyvalue: KEYVALUE,
-      keyvalueVersionTable: KEYVALUE_VERSION_TABLE,
-      keyvalueRegion: KEYVALUE_REGION,
+      keyvalue: config.keyValue,
+      keyvalueVersionTable: config.keyValueVersionTable,
+      keyvalueRegion: config.keyValueRegion,
     })
   }
   const { mode } = config
-  console.log(mode)
   if (mode === 'all') {
     log('Started import of ALL')
     await importer.start(created)
