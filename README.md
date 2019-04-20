@@ -74,7 +74,7 @@ Then, start the orchestrator. The Web UI will be available at <http://localhost:
 
 ```bash
 npm ci
-node waka-orchestrator/standalone.js
+npm start
 ```
 
 ## DYMAJO Specific Implementation Notes

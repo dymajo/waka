@@ -4,7 +4,7 @@
   "description": "The API that powers Waka.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node ./waka-orchestrator/standalone.js | bunyan -L -o short",
     "document": "apidoc -i waka-orchestrator -i waka-proxy -i waka-worker -o dist/docs"
   },
   "repository": {
