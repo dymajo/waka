@@ -1,65 +1,8 @@
-// TODO: make into a class
-const cache = require('../../cache.js')
-const log = require('../../../server-common/logger.js')
-const queries = require('../queries.js')
+const DataAccess = require('../dataAccess.js')
 
 const friendlyNames = {
   Orbiter: 'The Orbiter',
 }
-
-const sortLines = lineGroups => {
-  lineGroups.forEach(group => {
-    // this sorts text names before numbers
-    group.items.sort((a, b) => {
-      const parsedA = parseInt(a)
-      const parsedB = parseInt(b)
-      if (isNaN(parsedA) && isNaN(parsedB)) {
-        return a.localeCompare(b)
-      } else if (isNaN(parsedA)) {
-        return -1
-      } else if (isNaN(parsedB)) {
-        return 1
-      } else {
-        return parsedA - parsedB
-      }
-    })
-  })
-}
-
-const allLines = {}
-const getLines = async () => {
-  const result = await queries.getRoutes()
-  result.recordset.map(record => {
-    const splitName = record.route_long_name.replace(/^\d+\W+/, '').split(' - ')
-    const viaSplit = (splitName[1] || '').split('via')
-
-    const lineEntry = [splitName[0]]
-    if (viaSplit.length > 1) {
-      lineEntry.push(viaSplit[0])
-      lineEntry.push(viaSplit[1])
-    } else if (splitName.length == 2) {
-      lineEntry.push(splitName[1])
-    }
-
-    // deduplicates same route short names - orbiter
-    if (allLines.hasOwnProperty(record.route_short_name)) {
-      allLines[record.route_short_name].push(lineEntry)
-    } else {
-      allLines[record.route_short_name] = [lineEntry]
-
-      const numericLine = parseInt(record.route_short_name)
-      if (numericLine < 85 || isNaN(numericLine)) {
-        lineGroups[0].items.push(record.route_short_name)
-      } else {
-        lineGroups[1].items.push(record.route_short_name)
-      }
-    }
-  })
-
-  sortLines(lineGroups)
-  log('nz-chc'.magenta, 'Cached Lines')
-}
-cache.ready.push(getLines)
 
 const lineIcons = {
   Blue: 'nz/metro-blue',
@@ -78,7 +21,7 @@ const lineColors = {
   Orange: 'rgb(243, 112, 33)',
   Orbiter: 'rgb(121, 188, 67)',
   Purple: 'rgb(85, 69, 136)',
-  Yellow: 'rgb(255, 194, 14)',
+  Yellow: 'rgb(239, 181, 6)',
   Diamond: 'rgb(0, 88, 153)',
   '17': 'rgb(236, 0, 140)',
   '28': 'rgb(247, 147, 40)',
@@ -102,21 +45,87 @@ const lineColors = {
   '820': 'rgb(70, 186, 124)',
 }
 
-const lineGroups = [
-  {
-    name: 'Frequent',
-    items: [],
-  },
-  {
-    name: 'Connector',
-    items: [],
-  },
-]
+class LinesNZCHC {
+  constructor(props) {
+    const { logger, connection } = props
+    this.logger = logger
+    this.connection = connection
+    this.dataAccess = new DataAccess({ connection })
 
-module.exports = {
-  allLines,
-  friendlyNames,
-  lineColors,
-  lineIcons,
-  lineGroups,
+    this.lineIcons = lineIcons
+    this.lineColors = lineColors
+    this.allLines = {}
+    this.lineGroups = {}
+    this.lineOperators = {}
+    this.friendlyNames = friendlyNames
+  }
+
+  async start() {
+    await this.getLines()
+  }
+
+  async getLines() {
+    const { logger, dataAccess } = this
+    const allLines = {}
+    const lineOperators = {}
+    const lineGroups = [
+      {
+        name: 'Frequent',
+        items: [],
+      },
+      {
+        name: 'Connector',
+        items: [],
+      },
+    ]
+
+    const result = await dataAccess.getRoutes()
+    result.recordset.forEach(record => {
+      lineOperators[record.route_short_name] = record.agency_id
+      const splitName = record.route_long_name
+        .replace(/^\d+\W+/, '')
+        .split(' - ')
+      const viaSplit = (splitName[1] || '').split('via')
+
+      const lineEntry = [splitName[0]]
+      if (viaSplit.length > 1) {
+        lineEntry.push(viaSplit[0])
+        lineEntry.push(viaSplit[1])
+      } else if (splitName.length === 2) {
+        lineEntry.push(splitName[1])
+      }
+
+      // deduplicates same route short names - orbiter
+      if (allLines.hasOwnProperty(record.route_short_name)) {
+        allLines[record.route_short_name].push(lineEntry)
+      } else {
+        allLines[record.route_short_name] = [lineEntry]
+
+        const numericLine = parseInt(record.route_short_name, 10)
+        if (numericLine < 85 || isNaN(numericLine)) {
+          lineGroups[0].items.push(record.route_short_name)
+        } else {
+          lineGroups[1].items.push(record.route_short_name)
+        }
+      }
+    })
+
+    lineGroups.forEach(group => {
+      // this sorts text names before numbers
+      group.items.sort((a, b) => {
+        const parsedA = parseInt(a, 10)
+        const parsedB = parseInt(b, 10)
+        if (isNaN(parsedA) && isNaN(parsedB)) return a.localeCompare(b)
+        if (isNaN(parsedA)) return -1
+        if (isNaN(parsedB)) return 1
+        return parsedA - parsedB
+      })
+    })
+
+    this.allLines = allLines
+    this.lineOperators = lineOperators
+    this.lineGroups = lineGroups
+    logger.info('Cached Lines')
+  }
 }
+module.exports = LinesNZCHC

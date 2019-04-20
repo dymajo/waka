@@ -5,11 +5,13 @@ const cityMetadata = require('../../cityMetadata.json')
 const StopsDataAccess = require('../stops/dataAccess.js')
 
 const LinesNZAKL = require('./regions/nz-akl.js')
+const LinesNZCHC = require('./regions/nz-chc.js')
 const LinesNZWLG = require('./regions/nz-wlg.js')
 
 const regions = {
   // 'au-syd': LinesAUSYD,
   'nz-akl': LinesNZAKL,
+  'nz-chc': LinesNZCHC,
   'nz-wlg': LinesNZWLG,
 }
 
