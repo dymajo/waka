@@ -41,14 +41,6 @@ dist/*.css
 dist/*.js
 dist/*.map
 dist/docs
-cache/*.json
-cache/*.txt
-cache/*/*.txt
-cache/stops/*/*.txt
-cache/*.zip
-cache/*/*
-cache/maps/*.png
-cache/maps/*.webp
 dist/generated/*
 appcache
 

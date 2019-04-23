@@ -35,13 +35,6 @@ class uiStore extends Events {
       lastTransition: 'forward',
     }
 
-    // restores history if it's an iphone web clip :/
-    // if (window.navigator.standalone) {
-    //   if (localStorage.getItem('CurrentUrl')) {
-    //     this.state.currentUrl = localStorage.getItem('CurrentUrl')
-    //   }
-    // }
-
     // allows stuff in the class to use the history - push and pop
     const customHistory = createHistory()
     const historyTracker = [customHistory.location.key]

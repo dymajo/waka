@@ -21,12 +21,15 @@ import LocateIcon from '../../../dist/icons/locate-2.svg'
 import iconhelper from '../../helpers/icon.js'
 
 const Icon = leaflet.icon
+const { CRS, point, latLng } = leaflet
 const LeafletMap = reactLeaflet.Map
-const Marker = reactLeaflet.Marker
-const TileLayer = reactLeaflet.TileLayer
-const ZoomControl = reactLeaflet.ZoomControl
-const Circle = reactLeaflet.Circle
-const CircleMarker = reactLeaflet.CircleMarker
+const {
+  Marker,
+  TileLayer,
+  ZoomControl,
+  Circle,
+  CircleMarker,
+} = reactLeaflet
 
 const IconHelper = new iconhelper()
 
@@ -94,15 +97,72 @@ const getMarker = function(iconType, name) {
   }
 }
 
+const calculateSnap = (stop, collisionMap) => {
+  const markerWidth = 28
+  const markerHeight = 34
+      
+  const xSnap = Math.floor(stop.x / markerWidth / 1)
+  const ySnap = Math.floor(stop.y / markerHeight / 1)
+
+  // checks itself, plus the 8 positions around it 
+  const foundColision = [
+    (collisionMap[xSnap] || {})[ySnap], 
+    (collisionMap[xSnap + 1] || {})[ySnap],
+    (collisionMap[xSnap + 1] || {})[ySnap + 1],
+    (collisionMap[xSnap] || {})[ySnap + 1],
+    (collisionMap[xSnap - 1] || {})[ySnap + 1],
+    (collisionMap[xSnap - 1] || {})[ySnap],
+    (collisionMap[xSnap - 1] || {})[ySnap - 1],
+    (collisionMap[xSnap] || {})[ySnap - 1],
+    (collisionMap[xSnap + 1] || {})[ySnap - 1],
+  ].filter(f => f !== undefined)[0]
+
+  collisionMap[xSnap] = collisionMap[xSnap] || {}
+  if (collisionMap[xSnap][ySnap] === undefined && collisionMap[xSnap][ySnap] === undefined) {
+    collisionMap[xSnap][ySnap] = stop
+  }
+
+  if (foundColision !== undefined) {
+    const xDelta = (foundColision.x - stop.x)
+    const yDelta = (foundColision.y - stop.y)
+
+    if (Math.abs(xDelta) > Math.abs(yDelta) || xDelta === yDelta) {
+      if (Math.abs(xDelta) < markerWidth) {
+        if (xDelta < 0) {
+          stop.x = stop.x + xDelta + markerWidth + 1
+        } else {
+          stop.x = stop.x + xDelta - markerWidth - 1
+        }
+      }
+    } else if (Math.abs(yDelta) < markerHeight) {
+      if (yDelta < 0) {
+        stop.y = stop.y + yDelta + markerHeight + 1
+      } else {
+        stop.y = stop.y + yDelta - markerHeight - 1
+      }
+    }
+    const nxSnap = stop.x
+    const nySnap = stop.y
+    collisionMap[stop.x] = collisionMap[nxSnap] || {}
+    if (collisionMap[nxSnap][nySnap] === undefined) {
+      collisionMap[nxSnap][nySnap] = stop
+    } else {
+      // bail out
+    }
+  }
+}
+
 // If we stop binding this to the history, we can make this pure
 class BasemapWithoutRouter extends React.Component {
   static propTypes = {
-    history: PropTypes.object,
+    history: PropTypes.object.isRequired,
   }
+
   map = React.createRef()
+
   myIcons = {}
+
   state = {
-    station: '',
     stops: [],
     position: SettingsStore.getState().lastLocation,
     positionMarker: [0, 0],
@@ -111,8 +171,11 @@ class BasemapWithoutRouter extends React.Component {
     hideStops: false,
     online: window.navigator.onLine,
   }
+
   zoom = 17
+
   position = [...SettingsStore.getState().lastLocation, getDist(this.zoom)]
+
   componentDidMount() {
     window.addEventListener('online', this.triggerRetry)
     window.addEventListener('offline', this.goOffline)
@@ -128,14 +191,7 @@ class BasemapWithoutRouter extends React.Component {
       CurrentLocation.startWatch()
     }
   }
-  // stops requesting location when not in use
-  // componentWillReceiveProps() {
-  //   setTimeout(() => {
-  //     if (window.location.pathname !== '/') {
-  //       CurrentLocation.stopWatch()
-  //     }
-  //   }, 300)
-  // }
+
   componentWillUnmount() {
     window.removeEventListener('online', this.triggerRetry)
     window.removeEventListener('offline', this.goOffline)
@@ -145,6 +201,7 @@ class BasemapWithoutRouter extends React.Component {
     UiStore.unbind('stop-visibility', this.stopVisibility)
     CurrentLocation.stopWatch()
   }
+
   stopVisibility = state => {
     if (this.state.hideStops !== state) {
       this.setState({
@@ -155,6 +212,7 @@ class BasemapWithoutRouter extends React.Component {
       }
     }
   }
+
   pinmove = () => {
     if (this.state.initialPosition) {
       this.mapmove()
@@ -164,6 +222,7 @@ class BasemapWithoutRouter extends React.Component {
       })
     }
   }
+
   mapmove = () => {
     this.zoom = 17
     const position = CurrentLocation.state.position.slice()
@@ -174,6 +233,7 @@ class BasemapWithoutRouter extends React.Component {
       initialPosition: false,
     })
   }
+
   mapmovesilent = () => {
     this.zoom = 17
     this.setState({
@@ -181,6 +241,7 @@ class BasemapWithoutRouter extends React.Component {
       initialPosition: false,
     })
   }
+
   getData(lat, lon, dist) {
     const { bikeShare } = SettingsStore.state
     this.position = [lat, lon, dist]
@@ -205,23 +266,24 @@ class BasemapWithoutRouter extends React.Component {
       })
     })
   }
+
   triggerCurrentLocation = () => {
     CurrentLocation.currentLocationButton()
   }
+
   viewServices = (station, region = 'nz-akl') => {
     return () => {
-      const split = this.props.history.location.pathname.split('/')
+      const { history } = this.props
+      const split = history.location.pathname.split('/')
       const currentStation = `/s/${region}/${station}`
       if (split[1] === 's' && split.length === 4) {
-        this.props.history.replace(currentStation)
+        history.replace(currentStation)
       } else {
-        this.props.history.push(currentStation)
+        history.push(currentStation)
       }
-      this.setState({
-        currentStation: currentStation,
-      })
     }
   }
+
   moveEnd = e => {
     const zoom = e.target.getZoom()
     this.zoom = zoom
@@ -239,11 +301,11 @@ class BasemapWithoutRouter extends React.Component {
         stops: [],
       })
       return
-    } else {
-      dist = getDist(zoom)
     }
+    dist = getDist(zoom)
     this.getData(newPos.lat, newPos.lng, dist)
   }
+
   triggerRetry = () => {
     this.setState({
       loadmap: false,
@@ -256,12 +318,33 @@ class BasemapWithoutRouter extends React.Component {
       this.getData(this.position[0], this.position[1], 250)
     }, 50)
   }
+
   goOffline = () => {
     this.setState({
       online: false,
     })
   }
+
   render() {
+    const { stops } = this.state
+    const collisionMap = {}
+    stops.forEach(stop => {
+      const point = CRS.EPSG3857.latLngToPoint(latLng(stop.stop_lat, stop.stop_lon), this.zoom)
+      stop.x = point.x
+      stop.y = point.y
+      calculateSnap(stop, collisionMap)
+    })
+    // changes stuff in place (a bit gross)
+    Object.keys(collisionMap).forEach(a => {
+      Object.keys(collisionMap[a]).forEach(b => {
+        const stop = collisionMap[a][b]
+        const coords = CRS.EPSG3857.pointToLatLng(point(stop.x, stop.y), this.zoom)
+        stop.stop_lat = coords.lat
+        stop.stop_lon = coords.lng
+        return b
+      })
+    })
+
     let stationMarker = null
     const splitName = window.location.pathname.split('/')
     if (splitName.length === 4 && splitName[1][0] === 's') {

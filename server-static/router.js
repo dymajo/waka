@@ -1,12 +1,18 @@
 const express = require('express')
 const path = require('path')
-const router = express.Router()
-
+const httpProxy = require('http-proxy')
 const Defaults = require('./defaults.js')
-const defaults = new Defaults()
-
 const sitemap = require('./sitemap.js')
 const email = require('./email.js')
+
+const router = express.Router()
+const defaults = new Defaults()
+const proxy = httpProxy.createProxyServer({
+  changeOrigin: true,
+  target: {
+    https: true,
+  },
+})
 
 router.get('/', defaults.index)
 router.get('/sitemap.txt', sitemap.get)
@@ -26,18 +32,17 @@ router.get('/l/:region/*', (req, res) => defaults.notFound(res))
 
 // because we have a thing that removes trailing slashes...
 router.get('/docs', (req, res) => {
-  res.send(
-    'docs are located at <a href="/docs/index.html">/docs/index.html</a>'
-  )
+  res.redirect(301, '/a/docs/')
 })
 router.use('/scss', express.static(path.resolve(__dirname + '/../scss')))
 router.use('/', express.static(path.resolve(__dirname + '/../dist')))
-router.get('/a/*', (req, res) => {
-  res.status(502).send({
-    error: 'server-static is online, but the API is not.',
-  })
-})
 
+const proxyHandle = (req, res) => {
+  proxy.web(req, res, { target: 'https://waka.app/' })
+}
+
+router.all('/a', proxyHandle)
+router.all('/a/*', proxyHandle)
 router.get('/*', defaults.index)
 
 module.exports = router

@@ -212,14 +212,12 @@ $line-color: #e4e4e4;
     display: block;
   }
 }
-@media (max-width: 850px) {
-  .ios-standalone {
-    .onboard {
-      display: none;
-    }
-    .more-section {
-      display: block;
-    }
+.twa-standalone {
+  .onboard {
+    display: none;
+  }
+  .more-section {
+    display: block;
   }
 }
 

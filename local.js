@@ -1,4 +1,4 @@
 const local = {
-  endpoint: '/a'
+  endpoint: '/a',
 }
 module.exports = local
