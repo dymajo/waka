@@ -112,7 +112,7 @@ class Search {
         JOIN stop_times ON stop_times.stop_id = stops.stop_id
         JOIN trips ON trips.trip_id = stop_times.trip_id
         JOIN routes ON routes.route_id = trips.route_id
-        WHERE route_type <> 3 and route_type <> 700 and route_type <> 712 and route_type <>2
+        WHERE route_type <> 3 and route_type <> 700 and route_type <> 712
         ORDER BY stop_code`
       )
 
@@ -219,6 +219,18 @@ class Search {
     sqlRequest.input('stop_lat_lt', sql.Decimal(10, 6), stop_lat_lt)
     sqlRequest.input('stop_lon_gt', sql.Decimal(10, 6), stop_lng_gt)
     sqlRequest.input('stop_lon_lt', sql.Decimal(10, 6), stop_lng_lt)
+
+    // TODO: Temporary - needs to be more robust
+    // Other cities have hubs.
+    const locationQuery =
+      prefix === 'nz-syd'
+        ? `
+    (
+      (location_type is null and parent_station is null) OR
+      (location_type = 1 and parent_station is null) OR
+      (location_type = 0 and parent_station is null)
+    )`
+        : '(location_type = 0 OR location_type IS NULL)'
     const result = await sqlRequest.query(
       `
       SELECT
@@ -229,13 +241,7 @@ class Search {
         location_type
       FROM stops
       WHERE
-        (
-          (location_type = 1 and parent_station is null)
-          OR
-          (location_type is null and parent_station is null)
-          OR
-          (location_type =0 and parent_station is null)
-        )
+        ${locationQuery}
         AND stop_lat > @stop_lat_gt AND stop_lat < @stop_lat_lt
         AND stop_lon > @stop_lon_gt AND stop_lon < @stop_lon_lt`
     )
@@ -245,6 +251,8 @@ class Search {
         newItem.stop_region = prefix
         newItem.stop_lng = item.stop_lon // this is a dumb api choice in the past
         newItem.route_type = this.stopsRouteType[item.stop_id]
+
+        // TODO: This is a poor assumption - Bus Hubs are a thing (Auckland)
         if (newItem.location_type === 1) {
           newItem.route_type = 2
         }

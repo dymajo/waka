@@ -17,6 +17,7 @@ app.use((req, res, next) => {
 const envMapper = new EnvMapper()
 const config = envMapper.fromEnvironmental(process.env)
 const worker = new WakaWorker(config)
+app.use(`/a/${PREFIX}`, worker.router)
 app.use(worker.router)
 
 const listener = app.listen(PORT, () => {

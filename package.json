@@ -1,14 +1,24 @@
 {
   "name": "waka-server",
-  "version": "0.1.0",
-  "description": "Waka Server",
+  "version": "2.0.0",
+  "description": "The API that powers Waka.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node ./waka-orchestrator/standalone.js | bunyan -L -o short",
+    "document": "apidoc -i waka-orchestrator -i waka-proxy -i waka-worker -o dist/docs"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dymajo/waka-server.git"
+  },
+  "apidoc": {
+    "name": "Waka",
+    "title": "Waka API",
+    "header": {
+      "filename": "dist/header.md"
+    },
+    "url": "https://waka.app/a",
+    "sampleUrl": "/a"
   },
   "keywords": [],
   "author": "Dymajo Ltd.",
@@ -18,6 +28,7 @@
   },
   "homepage": "https://github.com/dymajo/waka-server#readme",
   "dependencies": {
+    "apidoc": "^0.17.7",
     "aws-sdk": "^2.313.0",
     "azure-storage": "^2.10.1",
     "body-parser": "^1.18.3",

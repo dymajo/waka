@@ -74,15 +74,15 @@ class RealtimeNZAKL {
         this.currentData = newData
         this.currentDataFails = 0
         this.lastUpdate = new Date()
-        setTimeout(this.schedulePull, schedulePullTimeout)
+        logger.info('Pulled AT Trip Updates Data.')
       } else {
         logger.warn({ response: data }, 'Could not get AT Data')
       }
     } catch (err) {
       this.currentDataFails += 1
       logger.warn({ err }, 'Could not get AT Data')
-      setTimeout(this.schedulePull, schedulePullTimeout)
     }
+    setTimeout(this.schedulePull, schedulePullTimeout)
   }
 
   async scheduleLocationPull() {
@@ -94,6 +94,7 @@ class RealtimeNZAKL {
       this.currentVehicleData = data.response
       this.currentDataFails = 0
       this.lastVehicleUpdate = new Date()
+      logger.info('Pulled AT Location Data.')
     } catch (err) {
       this.currentVehicleDataFails += 1
       logger.error({ err }, 'Could not get AT Data')

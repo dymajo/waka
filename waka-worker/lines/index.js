@@ -6,11 +6,13 @@ const StopsDataAccess = require('../stops/dataAccess.js')
 
 const LinesAUSYD = require('./regions/au-syd.js')
 const LinesNZAKL = require('./regions/nz-akl.js')
+const LinesNZCHC = require('./regions/nz-chc.js')
 const LinesNZWLG = require('./regions/nz-wlg.js')
 
 const regions = {
   // 'au-syd': LinesAUSYD,
   'nz-akl': LinesNZAKL,
+  'nz-chc': LinesNZCHC,
   'nz-wlg': LinesNZWLG,
 }
 
@@ -22,6 +24,7 @@ class Lines {
     this.prefix = prefix
     this.version = version
     this.search = search
+    this.config = config
 
     // not too happy about this
     this.stopsDataAccess = new StopsDataAccess({ connection, prefix })
@@ -77,10 +80,9 @@ class Lines {
 
   stop() {}
 
-  getColor(agencyId, routeShortName, routeColor) {
-    if (routeColor) {
-      return `#${routeColor}`
-    }
+  getColor(agencyId, routeShortName) {
+    // If you need to get colors from the DB, please see the Wellington Lines Code.
+    // Essentially does a one-time cache of all the colors into the lineData object.
     const { lineData } = this
     if (lineData.getColor) {
       return lineData.getColor(agencyId, routeShortName)
@@ -315,9 +317,7 @@ class Lines {
         route_id: route.route_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
-        route_color:
-          route.route_color ||
-          this.getColor(route.agency_id, route.route_short_name),
+        route_color: this.getColor(route.agency_id, route.route_short_name),
         route_icon: this.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
@@ -501,7 +501,7 @@ class Lines {
     })
     const { connection, logger, stopsDataAccess, search } = this
     const sqlRequest = connection.get().request()
-    sqlRequest.input('trip_id', sql.VarChar(100), req.params.trip_id)
+    sqlRequest.input('trip_id', sql.VarChar(100), req.params.tripId)
     try {
       const result = await sqlRequest.query(`
         SELECT
@@ -538,7 +538,7 @@ class Lines {
             transfersWithColors.sort(collator.compare)
             const result = JSON.parse(JSON.stringify(i))
             result.transfers = transfersWithColors
-            return i
+            return result
           }),
           'keep'
         )
@@ -576,7 +576,7 @@ class Lines {
   async getStopsFromShape(req, res) {
     const { connection, logger } = this
     const sqlRequest = connection.get().request()
-    sqlRequest.input('shape_id', sql.VarChar(100), req.params.shape_id)
+    sqlRequest.input('shape_id', sql.VarChar(100), req.params.shapeId)
     try {
       const result = await sqlRequest.query(
         'SELECT TOP(1) trip_id FROM trips WHERE trips.shape_id = @shape_id'
@@ -584,10 +584,11 @@ class Lines {
 
       // forwards the request on.
       const tripId = result.recordset[0].trip_id
-      req.params.trip_id = tripId
+      req.params.tripId = tripId
       this.getStopsFromTrip(req, res)
     } catch (err) {
       logger.error({ err }, 'Could not get stops from shape.')
+      res.status(500).send({ message: 'Could not get stops from shape.' })
     }
   }
 }

@@ -108,8 +108,16 @@ class BasicUpdater {
 
   async findVersion(gtfsLocation) {
     return new Promise((resolve, reject) => {
+      // checks to see if the file has a feed_info.txt
+      let feedLocation = 'feed_info.txt'
+      try {
+        fs.statSync(path.resolve(gtfsLocation, feedLocation))
+      } catch (err) {
+        feedLocation = 'calendar.txt'
+      }
+
       const input = fs.createReadStream(
-        path.resolve(gtfsLocation, 'feed_info.txt')
+        path.resolve(gtfsLocation, feedLocation)
       )
       const parser = csvparse({ delimiter: ',' })
 
@@ -118,11 +126,21 @@ class BasicUpdater {
         if (!headers) {
           headers = row
           callback()
-        } else {
+        } else if (feedLocation === 'feed_info.txt') {
           resolve({
             version: row[headers.indexOf('feed_version')],
             startDate: row[headers.indexOf('feed_start_date')],
             endDate: row[headers.indexOf('feed_end_date')],
+          })
+          transformer.end()
+        } else if (feedLocation === 'calendar.txt') {
+          // if there's no feed info, just use the start_date + end_date as the name
+          resolve({
+            version:
+              row[headers.indexOf('start_date')] +
+              row[headers.indexOf('end_date')],
+            startDate: row[headers.indexOf('start_date')],
+            endDate: row[headers.indexOf('end_date')],
           })
           transformer.end()
         }

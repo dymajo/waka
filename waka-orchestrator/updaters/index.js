@@ -1,4 +1,5 @@
 const logger = require('../logger.js')
+const Fargate = require('./fargate.js')
 const BasicUpdater = require('./basic.js')
 const ATUpdater = require('./nz-akl.js')
 const TfNSWUpdater = require('./au-syd.js')
@@ -8,6 +9,12 @@ class UpdateManager {
     const { config, versionManager } = props
     this.config = config
     this.versionManager = versionManager
+    const { importer } = config
+
+    this.fargate = null
+    if (importer && importer.provider === 'fargate') {
+      this.fargate = new Fargate(importer)
+    }
 
     this.updaters = {}
     this.callback = this.callback.bind(this)
@@ -25,9 +32,9 @@ class UpdateManager {
     }
 
     regions.forEach(prefix => {
-      logger.info({ prefix, type: updaters[prefix].type }, 'Starting Updater')
-
       const { url, delay, interval, type } = updaters[prefix]
+      logger.info({ prefix, type }, 'Starting Updater')
+
       let updater
       if (prefix === 'nz-akl') {
         const apiKey = config.api['nz-akl']
@@ -54,7 +61,8 @@ class UpdateManager {
     })
 
     // check the versions for remappings
-    this.interval = setInterval(this.checkVersions, 60000)
+    setTimeout(this.checkVersions, 1 * 30 * 1000) // initially after 30 seconds
+    this.interval = setInterval(this.checkVersions, 10 * 60 * 1000) // then every 10 mins
   }
 
   stop() {
@@ -109,6 +117,7 @@ class UpdateManager {
         )
       }
       // checkVersions() running on the interval will pick this up
+      // we can't run it because if callback is run twice, it'll start all the tasks twice probably
     } else if (
       (adjustMapping === true && newStatus === 'imported') ||
       newStatus === 'imported-willmap'
@@ -120,13 +129,22 @@ class UpdateManager {
   }
 
   async checkVersions() {
-    const { versionManager } = this
+    const { versionManager, fargate } = this
     const allVersions = await versionManager.allVersions()
-    Object.keys(allVersions).forEach(id => {
+    Object.keys(allVersions).forEach(async id => {
       const version = allVersions[id]
       const { prefix, status } = version
       if (status === 'pendingimport' || status === 'pendingimport-willmap') {
-        console.log('TODO: trigger fargate.')
+        if (this.fargate === null) {
+          logger.info(
+            { prefix, version: version.version },
+            'No Fargate Configured - Please open /private and do a manual import.'
+          )
+        } else {
+          logger.info({ prefix, version: version.version }, 'Starting Import')
+          const environment = await versionManager.getFargateVariables(id)
+          fargate.startTask(environment)
+        }
       } else if (version.status === 'imported-willmap') {
         logger.info(
           { prefix, version: version.version },

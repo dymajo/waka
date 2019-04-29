@@ -68,6 +68,17 @@ class PrivateApi {
       }
     })
 
+    router.post('/worker/recycle', async (req, res) => {
+      const { versionManager } = this
+      try {
+        versionManager.recycleGateway(req.body.prefix)
+        res.send({ message: 'Recycled worker.' })
+      } catch (err) {
+        logger.error({ err }, 'Error recycling app.')
+        res.status(500).send(err)
+      }
+    })
+
     router.post('/worker/docker', async (req, res) => {
       const { versionManager } = this
       try {
@@ -132,6 +143,12 @@ class PrivateApi {
         logger.error({ err }, 'Error saving config.')
         res.status(500).send(err)
       }
+    })
+
+    router.post('/orchestrator/kill', async (req, res) => {
+      logger.info('Orchestrator killed by user.')
+      await res.send({ message: 'sending SIGTERM' })
+      process.exit()
     })
 
     router.use('/', express.static(path.join(__dirname, '/dist')))

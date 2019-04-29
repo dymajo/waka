@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 class DomController {
   constructor(controller) {
     this.controller = controller
@@ -9,6 +11,7 @@ class DomController {
   }
 
   start() {
+    const { controller } = this
     document
       .getElementById('createWorkerConfirm')
       .addEventListener('click', this.workerCreateButton)
@@ -16,6 +19,18 @@ class DomController {
     document
       .getElementById('saveConfig')
       .addEventListener('click', this.saveConfig)
+
+    document
+      .getElementById('restartOrchestrator')
+      .addEventListener('click', () => {
+        if (
+          confirm(
+            'Are you sure you want to restart the orchestrator?\nDepending on your environment, it may not restart automatically.'
+          )
+        ) {
+          controller.runAction('/orchestrator/kill')
+        }
+      })
   }
 
   writeWorkers(str) {
@@ -192,7 +207,7 @@ class WorkerController {
         btns =
           '<button type="button" data-action="/mapping/delete" class="btn btn-danger btn-sm">unmap</button>'
         recycle = `
-          <a class="dropdown-item" data-action="/mapping/set" href="#">Recycle Service</a>
+          <a class="dropdown-item" data-action="/worker/recycle" href="#">Recycle Service</a>
           <div class="dropdown-divider"></div>
         `
       }
