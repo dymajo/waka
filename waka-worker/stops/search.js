@@ -112,7 +112,7 @@ class Search {
         JOIN stop_times ON stop_times.stop_id = stops.stop_id
         JOIN trips ON trips.trip_id = stop_times.trip_id
         JOIN routes ON routes.route_id = trips.route_id
-        WHERE route_type <> 3 and route_type <> 700 and route_type <> 712
+        WHERE route_type <> 3 and route_type >= 700 and route_type <= 717
         ORDER BY stop_code`
       )
 
