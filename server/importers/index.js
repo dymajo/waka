@@ -17,6 +17,10 @@ const OtagoImporter = require('./regions/nz-otg')
 const TCImporter = require('./regions/au-cbr')
 const TfNSWImporter = require('./regions/au-syd')
 const MetlinkImporter = require('./regions/nz-wlg')
+const PTVImporter = require('./regions/au-mel')
+const RATPImporter = require('./regions/fr-par')
+const SEQImporter = require('./regions/au-seq')
+const SBBCFFFFSImporter = require('./regions/ch-sfr')
 
 const regions = {
   'nz-akl': ATImporter,
