@@ -14,6 +14,7 @@ const config = require('../config')
 const ATImporter = require('./regions/nz-akl')
 const ChchImporter = require('./regions/nz-chc')
 const OtagoImporter = require('./regions/nz-otg')
+const TCImporter = require('./regions/au-cbr')
 const TfNSWImporter = require('./regions/au-syd')
 const MetlinkImporter = require('./regions/nz-wlg')
 
@@ -22,7 +23,10 @@ const regions = {
   'nz-chc': ChchImporter,
   'nz-otg': OtagoImporter,
   'nz-wlg': MetlinkImporter,
-  'au-syd': TfNSWImporter,
+  'au-seq': SEQImporter,
+  'au-mel': PTVImporter,
+  'fr-par': RATPImporter,
+  'ch-sfr': SBBCFFFFSImporter,
 }
 
 class Importer {
@@ -83,8 +87,9 @@ class Importer {
     } else {
       console.warn('DB already created - skipping download & unzip.')
     }
-    await this.shapes()
+    // await this.shapes()
     await this.fixStopCodes()
+    await this.fixRoutes()
     await this.postImport()
     // await this.exportDb()
 
@@ -177,6 +182,20 @@ class Importer {
     log(
       `${config.prefix} ${config.version}`.magenta,
       `Updated ${rows} null stop codes`
+    )
+  }
+
+  async fixRoutes() {
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE routes
+      SET route_long_name = route_short_name
+      WHERE route_long_name is null;
+    `)
+    const rows = res.rowsAffected[0]
+    log(
+      `${config.prefix} ${config.version}`.magenta,
+      `Updated ${rows} null route codes`
     )
   }
 
