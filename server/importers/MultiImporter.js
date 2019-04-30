@@ -95,6 +95,7 @@ class MultiImporter {
     }
     await this.shapes()
     await this.fixStopCodes()
+    await this.fixRoutes()
   }
 
   async get(location) {
@@ -240,6 +241,20 @@ class MultiImporter {
     log(
       `${config.prefix} ${config.version}`.magenta,
       `Updated ${rows} null stop codes`
+    )
+  }
+
+  async fixRoutes() {
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE routes
+      SET route_long_name = route_short_name
+      WHERE route_long_name is null;
+    `)
+    const rows = res.rowsAffected[0]
+    log(
+      `${config.prefix} ${config.version}`.magenta,
+      `Updated ${rows} null route codes`
     )
   }
 }

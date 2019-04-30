@@ -1,6 +1,7 @@
 const path = require('path')
 const request = require('request')
 const fs = require('fs')
+const colors = require('colors')
 const log = require('../logger.js')
 const config = require('../config')
 
