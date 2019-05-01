@@ -11,6 +11,28 @@ const Storage = require('../db/storage.js')
 const KeyvalueDynamo = require('../db/keyvalue-dynamo.js')
 const config = require('../config')
 
+const ATImporter = require('./regions/nz-akl')
+const ChchImporter = require('./regions/nz-chc')
+const OtagoImporter = require('./regions/nz-otg')
+const TCImporter = require('./regions/au-cbr')
+const TfNSWImporter = require('./regions/au-syd')
+const MetlinkImporter = require('./regions/nz-wlg')
+const PTVImporter = require('./regions/au-mel')
+const RATPImporter = require('./regions/fr-par')
+const SEQImporter = require('./regions/au-seq')
+const SBBCFFFFSImporter = require('./regions/ch-sfr')
+
+const regions = {
+  'nz-akl': ATImporter,
+  'nz-chc': ChchImporter,
+  'nz-otg': OtagoImporter,
+  'nz-wlg': MetlinkImporter,
+  'au-seq': SEQImporter,
+  'au-mel': PTVImporter,
+  'fr-par': RATPImporter,
+  'ch-sfr': SBBCFFFFSImporter,
+}
+
 class Importer {
   constructor(props) {
     this.importer = new GtfsImport()
@@ -27,7 +49,8 @@ class Importer {
 
     this.current = null
     try {
-      this.current = require(`./regions/${config.prefix}.js`)
+      const Region = regions[config.prefix]
+      this.current = new Region()
     } catch (err) {
       log(
         'fatal error'.red,
@@ -70,6 +93,7 @@ class Importer {
     }
     await this.shapes()
     await this.fixStopCodes()
+    await this.fixRoutes()
     await this.postImport()
     // await this.exportDb()
 
@@ -162,6 +186,20 @@ class Importer {
     log(
       `${config.prefix} ${config.version}`.magenta,
       `Updated ${rows} null stop codes`
+    )
+  }
+
+  async fixRoutes() {
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE routes
+      SET route_long_name = route_short_name
+      WHERE route_long_name is null;
+    `)
+    const rows = res.rowsAffected[0]
+    log(
+      `${config.prefix} ${config.version}`.magenta,
+      `Updated ${rows} null route codes`
     )
   }
 
