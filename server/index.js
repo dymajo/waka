@@ -58,7 +58,6 @@ const start = async () => {
     })
   }
   const { mode } = config
-  console.log(mode)
   if (mode === 'all') {
     log('Started import of ALL')
     await importer.start(created)
