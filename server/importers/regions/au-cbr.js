@@ -1,6 +1,6 @@
-const MulitImporter = require('../MultiImporter')
+const MultiImporter = require('../MultiImporter')
 
-class TCImporter extends MulitImporter {
+class TCImporter extends MultiImporter {
   constructor() {
     super({
       locations: [

@@ -91,7 +91,7 @@ class Importer {
     } else {
       console.warn('DB already created - skipping download & unzip.')
     }
-    // await this.shapes()
+    await this.shapes()
     await this.fixStopCodes()
     await this.fixRoutes()
     await this.postImport()
