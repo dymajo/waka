@@ -3,6 +3,8 @@ const path = require('path')
 const rimraf = require('rimraf')
 const sql = require('mssql')
 const fetch = require('node-fetch')
+const extract = require('extract-zip')
+const util = require('util')
 
 const colors = require('colors')
 const log = require('../logger.js')
@@ -151,7 +153,6 @@ class MultiImporter {
       const location = locations[index]
       await this.get(location)
       if (index % batchSize === 0) {
-        console.log('here')
         await timeout(downloadInterval)
       }
     }
@@ -161,8 +162,13 @@ class MultiImporter {
     console.log('here this is ')
     const promises = []
     for (const { p } of this.zipLocations) {
-      console.log(p)
-      promises.push(this.importer.unzip(p))
+      const extractor = util.promisify(extract)
+
+      promises.push(
+        extractor(p, {
+          dir: path.resolve(`${p}unarchived`),
+        })
+      )
     }
     try {
       await Promise.all(promises)
