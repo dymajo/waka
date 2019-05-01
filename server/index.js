@@ -37,26 +37,11 @@ const start = async () => {
   }
 
   log('Worker Ready')
-  let importer
-  if (config.prefix === 'au-syd') {
-    importer = new TfNSWImporter({
+  const importer = new Importer({
       keyvalue: config.keyValue,
       keyvalueVersionTable: config.keyValueVersionTable,
       keyvalueRegion: config.keyValueRegion,
     })
-  } else if (config.prefix === 'au-cbr') {
-    importer = new TCImporter({
-      keyvalue: config.keyValue,
-      keyvalueVersionTable: config.keyValueVersionTable,
-      keyvalueRegion: config.keyValueRegion,
-    })
-  } else {
-    importer = new Importer({
-      keyvalue: config.keyValue,
-      keyvalueVersionTable: config.keyValueVersionTable,
-      keyvalueRegion: config.keyValueRegion,
-    })
-  }
   const { mode } = config
   if (mode === 'all') {
     log('Started import of ALL')

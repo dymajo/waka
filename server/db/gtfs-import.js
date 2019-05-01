@@ -1,10 +1,9 @@
 const sql = require('mssql')
-const extract = require('extract-zip')
 const csvparse = require('csv-parse')
 const transform = require('stream-transform')
 const fs = require('fs')
 const path = require('path')
-const util = require('util')
+
 const connection = require('./connection.js')
 const log = require('../logger.js')
 const config = require('../config')
@@ -97,13 +96,6 @@ const schemas = {
 }
 
 class GtfsImport {
-  async unzip(location) {
-    log('Unzipping GTFS Data')
-    const extractor = util.promisify(extract)
-
-    await extractor(location, { dir: path.resolve(`${location}unarchived`) })
-  }
-
   getTable(name, hashName, hash = false) {
     let newName = name
     if (hash) {

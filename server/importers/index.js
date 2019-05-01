@@ -5,7 +5,6 @@ const sql = require('mssql')
 
 const log = require('../logger.js')
 const GtfsImport = require('../db/gtfs-import.js')
-const CreateShapes = require('../db/create-shapes.js')
 const connection = require('../db/connection.js')
 const Storage = require('../db/storage.js')
 const KeyvalueDynamo = require('../db/keyvalue-dynamo.js')
@@ -31,6 +30,8 @@ const regions = {
   'au-mel': PTVImporter,
   'fr-par': RATPImporter,
   'ch-sfr': SBBCFFFFSImporter,
+  'au-syd': TfNSWImporter,
+  'au-cbr': TCImporter,
 }
 
 class Importer {
@@ -114,7 +115,7 @@ class Importer {
   }
 
   async unzip() {
-    await this.importer.unzip(this.current.zipLocation)
+    await this.current.unzip()
   }
 
   async download() {
@@ -122,56 +123,11 @@ class Importer {
   }
 
   async db() {
-    for (const file of this.current.files) {
-      await this.importer.upload(
-        `${this.current.zipLocation}unarchived`,
-        file,
-        config.version,
-        file.versioned
-      )
-    }
+    await this.current.db(this.importer)
   }
 
   async shapes() {
-    if (!fs.existsSync(this.current.zipLocation)) {
-      console.warn('Shapes could not be found!')
-      return
-    }
-
-    const creator = new CreateShapes()
-    const inputDir = path.resolve(
-      `${this.current.zipLocation}unarchived`,
-      'shapes.txt'
-    )
-    const outputDir = path.resolve(
-      `${this.current.zipLocation}unarchived`,
-      'shapes'
-    )
-    const outputDir2 = path.resolve(outputDir, config.version)
-
-    // make sure the old output dir exists
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir)
-    }
-
-    // cleans up old import if exists
-    if (fs.existsSync(outputDir2)) {
-      await new Promise((resolve, reject) => {
-        rimraf(outputDir2, resolve)
-      })
-    }
-    fs.mkdirSync(outputDir2)
-
-    // creates the new datas
-    await creator.create(inputDir, outputDir, [config.version])
-
-    const containerName = `${config.prefix}-${config.version}`
-      .replace('.', '-')
-      .replace('_', '-')
-    await creator.upload(
-      config.shapesContainer,
-      path.resolve(outputDir, config.version)
-    )
+    this.current.shapes()
   }
 
   async fixStopCodes() {
