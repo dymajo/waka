@@ -4,7 +4,7 @@ const Storage = require('../db/storage.js')
 const cityMetadata = require('../../cityMetadata.json')
 const StopsDataAccess = require('../stops/dataAccess.js')
 
-const LinesAUSYD = require('./regions/au-syd.js')
+// const LinesAUSYD = require('./regions/au-syd.js')
 const LinesNZAKL = require('./regions/nz-akl.js')
 const LinesNZCHC = require('./regions/nz-chc.js')
 const LinesNZWLG = require('./regions/nz-wlg.js')
