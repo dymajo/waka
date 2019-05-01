@@ -146,11 +146,11 @@ class GtfsImport {
         nullable: false,
       })
       table.columns.add('route_long_name', sql.VarChar(150), {
-        nullable: false,
+        nullable: true,
       })
       table.columns.add('route_desc', sql.VarChar(150), { nullable: true })
       table.columns.add('route_type', sql.Int, { nullable: false })
-      table.columns.add('route_url', sql.VarChar(100), { nullable: true })
+      table.columns.add('route_url', sql.VarChar(150), { nullable: true })
       table.columns.add('route_color', sql.VarChar(50), { nullable: true })
       table.columns.add('route_text_color', sql.VarChar(50), {
         nullable: true,
@@ -313,7 +313,11 @@ class GtfsImport {
             processRow()
             callback(null)
           } else {
-            log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
+            if (totalTransactions > 1000000) {
+              log(endpoint, logstr, `${totalTransactions / 1000000}m Rows`)
+            } else {
+              log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
+            }
             try {
               await this.commit(table)
               log(endpoint, logstr, 'Transaction Committed.')
@@ -455,6 +459,7 @@ class GtfsImport {
         .request()
         .bulk(table)
     } catch (error) {
+      debugger
       console.error(error)
     }
   }

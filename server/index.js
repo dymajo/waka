@@ -4,6 +4,7 @@ const CreateDb = require('./db/create.js')
 const log = require('./logger.js')
 const Importer = require('./importers/index')
 const TfNSWImporter = require('./importers/regions/au-syd')
+const TCImporter = require('./importers/regions/au-cbr')
 const config = require('./config')
 
 log('Importer Started')
@@ -39,6 +40,12 @@ const start = async () => {
   let importer
   if (config.prefix === 'au-syd') {
     importer = new TfNSWImporter({
+      keyvalue: config.keyValue,
+      keyvalueVersionTable: config.keyValueVersionTable,
+      keyvalueRegion: config.keyValueRegion,
+    })
+  } else if (config.prefix === 'au-cbr') {
+    importer = new TCImporter({
       keyvalue: config.keyValue,
       keyvalueVersionTable: config.keyValueVersionTable,
       keyvalueRegion: config.keyValueRegion,

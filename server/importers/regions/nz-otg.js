@@ -1,6 +1,12 @@
-const defaultConfig = require('../defaultConfig.js')
+const BaseImporter = require('../BaseImporter')
 
-const otago = defaultConfig.get('otago', {
-  url: 'https://www.orc.govt.nz/transit/google_transit.zip',
-})
-module.exports = otago
+class OtagoImporter extends BaseImporter {
+  constructor() {
+    super({
+      url: 'https://www.orc.govt.nz/transit/google_transit.zip',
+      zipname: 'otago',
+    })
+  }
+}
+
+module.exports = OtagoImporter
