@@ -63,9 +63,11 @@ class MultiImporter {
       locations,
       downloadInterval,
       batchSize,
+      authorization,
     } = props
 
     this.locations = locations
+    this.authorization = authorization
     this.importer = new GtfsImport()
     this.storage = new Storage({})
     this.downloadInterval = downloadInterval || 2000
@@ -102,21 +104,23 @@ class MultiImporter {
 
   async get(location) {
     const { endpoint, type, name } = location
-
+    const { authorization } = this
     const zipLocation = {
       p: path.join(__dirname, `../../cache/${name}.zip`),
       type,
       endpoint,
     }
-
     console.log(zipLocation)
     log(config.prefix.magenta, 'Downloading GTFS Data', name)
     try {
-      const res = await fetch(endpoint, {
-        headers: {
-          Authorization: process.env.API_KEY,
-        },
-      })
+      const headers = authorization
+        ? {
+          headers: {
+            Authorization: authorization,
+          },
+        }
+        : null
+      const res = await fetch(endpoint, headers)
       if (res.ok) {
         await new Promise((resolve, reject) => {
           const dest = fs.createWriteStream(zipLocation.p)

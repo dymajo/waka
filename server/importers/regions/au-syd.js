@@ -1,4 +1,5 @@
 const MultiImporter = require('../MultiImporter')
+const config = require('../../config')
 
 const locations = [
   {
@@ -191,7 +192,12 @@ const locations = [
 
 class TfNSWImporter extends MultiImporter {
   constructor() {
-    super({ locations, downloadInterval: 2000, batchSize: 6 })
+    super({
+      locations,
+      downloadInterval: 2000,
+      batchSize: 6,
+      authorization: config.tfnswApiKey,
+    })
   }
 }
 
