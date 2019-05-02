@@ -305,11 +305,7 @@ class GtfsImport {
             processRow()
             callback(null)
           } else {
-            if (totalTransactions > 1000000) {
-              log(endpoint, logstr, `${totalTransactions / 1000000}m Rows`)
-            } else {
-              log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
-            }
+            log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
             try {
               await this.commit(table)
               log(endpoint, logstr, 'Transaction Committed.')
