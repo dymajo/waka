@@ -22,6 +22,7 @@ class EnvMapper {
       // worker only:
       AT_API_KEY: config.api['nz-akl'],
       AGENDA21_API_KEY: config.api['agenda-21'],
+      TFNSW_API_KEY: config.api['au-syd'],
     }
 
     if (subset === 'importer' || subset === 'importer-local') {
@@ -29,6 +30,9 @@ class EnvMapper {
       delete base.AGENDA21_API_KEY
       if (subset === 'importer') {
         delete base.SHAPES_SKIP
+      }
+      if (config.prefix !== 'au-syd') {
+        delete base.TFNSW_API_KEY
       }
     } else {
       delete base.SHAPES_SKIP
@@ -56,6 +60,7 @@ class EnvMapper {
       DB_REQUEST_TIMEOUT,
       AT_API_KEY,
       AGENDA21_API_KEY,
+      TFNSW_API_KEY,
     } = env
     return {
       prefix: PREFIX,
@@ -76,6 +81,7 @@ class EnvMapper {
       api: {
         'nz-akl': AT_API_KEY,
         'agenda-21': AGENDA21_API_KEY,
+        'au-syd': TFNSW_API_KEY,
       },
     }
   }
