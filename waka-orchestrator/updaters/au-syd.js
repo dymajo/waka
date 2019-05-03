@@ -1,4 +1,4 @@
-const fetch = require('node-fetch')
+const axios = require('axios')
 const moment = require('moment-timezone')
 const logger = require('../logger.js')
 
@@ -68,12 +68,23 @@ class TfNSWUpdater {
 
   async check() {
     const { callback, check, interval, checkApi } = this
+    let newest = new Date(0)
     try {
       for (const mode in tfnswmodes) {
         const { endpoint } = tfnswmodes[mode]
         const version = await checkApi(endpoint)
-        console.log(version)
+        if (newest < version) {
+          newest = version
+        }
       }
+      const newVersion = `${newest.getFullYear()}${newest
+        .getMonth()
+        .toString()
+        .padStart(2, 0)}${newest
+        .getDate()
+        .toString()
+        .padStart(2, 0)}`
+      callback('au-syd', newVersion, true)
     } catch (err) {
       logger.error({ err }, 'Could not update.')
     }
@@ -86,15 +97,17 @@ class TfNSWUpdater {
       headers: {
         Authorization: apiKey,
       },
-      method: 'HEAD',
     }
-    const response = await fetch(options.url, {
-      method: options.method,
-      headers: options.headers,
-    })
+    try {
+      const res = await axios.head(options.url, {
+        headers: options.headers,
+      })
 
-    // return response.headers['last-modified']
-    return new Date(response.headers.get('last-modified')).getTime()
+      return new Date(res.headers['last-modified'])
+    } catch (err) {
+      logger.error({ err }, 'Could not reach api')
+      return new Date(0)
+    }
   }
 
   stop() {
