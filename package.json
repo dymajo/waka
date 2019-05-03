@@ -30,6 +30,7 @@
   "dependencies": {
     "apidoc": "^0.17.7",
     "aws-sdk": "^2.313.0",
+    "axios": "^0.18.0",
     "azure-storage": "^2.10.1",
     "body-parser": "^1.18.3",
     "bunyan": "^1.8.12",
@@ -39,6 +40,7 @@
     "express": "^4.16.4",
     "extract-zip": "^1.6.7",
     "gtfs-realtime-bindings": "0.0.4",
+    "iconv": "^2.3.4",
     "moment-timezone": "^0.5.23",
     "mssql": "^4.1.0",
     "node-fetch": "^2.3.0",
