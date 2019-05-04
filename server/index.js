@@ -9,8 +9,18 @@ const config = require('./config')
 
 log('Importer Started')
 
+const sydney = config.prefix === 'au-syd'
 Object.keys(config).forEach(key => {
-  if (config[key] === undefined) {
+  if (config.tfnswApiKey === undefined && sydney) {
+    throw new Error('no api key for sydney')
+  }
+  if (
+    config[key] === undefined &&
+    key !== 'keyValue' &&
+    key !== 'keyValueVersionTable' &&
+    key !== 'keyValueRegion' &&
+    key !== 'tfnswApiKey'
+  ) {
     throw new Error(`Variable ${key} was undefined.`)
   }
   return true
@@ -38,10 +48,10 @@ const start = async () => {
 
   log('Worker Ready')
   const importer = new Importer({
-      keyvalue: config.keyValue,
-      keyvalueVersionTable: config.keyValueVersionTable,
-      keyvalueRegion: config.keyValueRegion,
-    })
+    keyvalue: config.keyValue,
+    keyvalueVersionTable: config.keyValueVersionTable,
+    keyvalueRegion: config.keyValueRegion,
+  })
   const { mode } = config
   if (mode === 'all') {
     log('Started import of ALL')
