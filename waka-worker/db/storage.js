@@ -1,3 +1,4 @@
+const AWSXRay = require('aws-xray-sdk')
 const fs = require('fs')
 const azuretestcreds = [
   'devstoreaccount1',
@@ -13,7 +14,7 @@ class Storage {
       const creds = props.local ? azuretestcreds : []
       this.blobSvc = azure.createBlobService(...creds)
     } else if (this.backing === 'aws') {
-      const AWS = require('aws-sdk')
+      const AWS = AWSXRay.captureAWS(require('aws-sdk'))
       this.s3 = new AWS.S3({
         endpoint: props.endpoint,
         region: props.region,

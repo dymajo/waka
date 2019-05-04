@@ -31,9 +31,17 @@ app.use((req, res, next) => {
 })
 app.use(`/a/${PREFIX}`, worker.router)
 app.use(worker.router)
-app.use(AWSXRay.express.closeSegment())
 
 const listener = app.listen(PORT, () => {
   worker.logger.info({ port: listener.address().port }, 'waka-worker listening')
-  worker.start()
+  AWSXRay.getNamespace().run(() => {
+    const segment = new AWSXRay.Segment(
+      `waka-worker-${PREFIX}-${VERSION}${process.env.XRAY_SUFFIX || ''}`
+    )
+    AWSXRay.setSegment(segment)
+    worker.start()
+    segment.close()
+  })
 })
+
+app.use(AWSXRay.express.closeSegment())

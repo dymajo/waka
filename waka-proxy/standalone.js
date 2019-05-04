@@ -20,12 +20,20 @@ const endpoint = process.env.ENDPOINT || 'https://waka.app/a'
 const proxy = new WakaProxy({ endpoint })
 app.use('/a', proxy.router)
 app.use(proxy.router)
-app.use(AWSXRay.express.closeSegment())
 
 const listener = app.listen(process.env.PORT || 9001, () => {
   logger.info(
     { port: listener.address().port, endpoint },
     'waka-proxy listening'
   )
-  proxy.start()
+  AWSXRay.getNamespace().run(() => {
+    const segment = new AWSXRay.Segment(
+      `waka-proxy${process.env.XRAY_SUFFIX || ''}`
+    )
+    AWSXRay.setSegment(segment)
+    proxy.start()
+    segment.close()
+  })
 })
+
+app.use(AWSXRay.express.closeSegment())

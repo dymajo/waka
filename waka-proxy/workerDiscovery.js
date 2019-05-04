@@ -1,3 +1,4 @@
+const AWSXRay = require('aws-xray-sdk')
 const fetch = require('node-fetch')
 const cityMetadata = require('../cityMetadata.json')
 const logger = require('./logger.js')
@@ -25,17 +26,20 @@ class WorkerDiscovery {
   }
 
   async checkCity(prefix) {
-    const request = await fetch(`${this.endpoint}/${prefix}/info`)
-    let message = null
-    if (request.status === 200) {
-      const data = await request.json()
-      this.responseMap.set(prefix, data)
-      message = `${prefix} is available`
-    } else {
-      this.responseMap.delete(prefix)
-      message = `${prefix} is unavailable`
-    }
-    logger.info({ prefix, status: request.status }, message)
+    AWSXRay.captureAsyncFunc(`check-${prefix}`, async subsegment => {
+      const request = await fetch(`${this.endpoint}/${prefix}/info`)
+      let message = null
+      if (request.status === 200) {
+        const data = await request.json()
+        this.responseMap.set(prefix, data)
+        message = `${prefix} is available`
+      } else {
+        this.responseMap.delete(prefix)
+        message = `${prefix} is unavailable`
+      }
+      logger.info({ prefix, status: request.status }, message)
+      subsegment.close()
+    })
   }
 
   getRegionByBounds(lat, lon) {

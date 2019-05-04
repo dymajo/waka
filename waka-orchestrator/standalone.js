@@ -34,7 +34,14 @@ const start = async () => {
       { port: listener.address().port },
       'waka-orchestrator listening'
     )
-    orchestrator.start()
+    AWSXRay.getNamespace().run(() => {
+      const segment = new AWSXRay.Segment(
+        `waka-orchestrator${process.env.XRAY_SUFFIX || ''}`
+      )
+      AWSXRay.setSegment(segment)
+      orchestrator.start()
+      segment.close()
+    })
   })
 }
 start()
