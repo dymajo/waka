@@ -1,5 +1,5 @@
 const AWSXRay = require('aws-xray-sdk')
-const fetch = require('node-fetch')
+const axios = require('axios')
 const cityMetadata = require('../cityMetadata.json')
 const logger = require('./logger.js')
 
@@ -32,17 +32,18 @@ class WorkerDiscovery {
       )
       AWSXRay.setSegment(segment)
       AWSXRay.captureAsyncFunc(`check-${prefix}`, async subsegment => {
-        const request = await fetch(`${this.endpoint}/${prefix}/info`)
+        let response = null
         let message = null
-        if (request.status === 200) {
-          const data = await request.json()
-          this.responseMap.set(prefix, data)
+        try {
+          response = await axios.get(`${this.endpoint}/${prefix}/info`)
+          this.responseMap.set(prefix, response.data)
           message = `${prefix} is available`
-        } else {
+        } catch (err) {
+          response = err.response
           this.responseMap.delete(prefix)
           message = `${prefix} is unavailable`
         }
-        logger.info({ prefix, status: request.status }, message)
+        logger.info({ prefix, status: response.status }, message)
         subsegment.close()
       })
       segment.close()

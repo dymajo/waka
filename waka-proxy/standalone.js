@@ -5,6 +5,7 @@ const logger = require('./logger.js')
 AWSXRay.setLogger(logger)
 AWSXRay.config([AWSXRay.plugins.ECSPlugin])
 AWSXRay.captureHTTPsGlobal(require('http'))
+AWSXRay.captureHTTPsGlobal(require('https'))
 
 const WakaProxy = require('./index.js')
 
