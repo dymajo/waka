@@ -1,5 +1,5 @@
 import { t } from '../../stores/translationStore.js'
-import { UiStore } from '../../stores/uiStore.js'
+import UiStore from '../../stores/UiStore.js'
 
 export const renderShape = function(lineData, layer, routeColor) {
   return lineData.getShape().then(shape => {

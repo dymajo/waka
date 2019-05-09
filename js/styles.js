@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native'
+
 export const vars = {
   headerHeight: 66,
   backgroundColor: '#f8f8f8',
