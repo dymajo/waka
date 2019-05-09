@@ -370,23 +370,6 @@ class BaseMap extends React.Component {
     }
 
     const positionMap = {}
-    const r = {
-      '100': 0,
-      '106': 0,
-      '204': 0,
-      '400': 0,
-      '401': 0,
-      '700': 0,
-      '712': 0,
-      '714': 0,
-      '900': 0,
-      '1000': 0,
-      '3': 0,
-    }
-    this.state.stops.forEach(stop => {
-      r[stop.route_type] += 1
-    })
-    console.log(r)
 
     let bigCircle
     if (this.state.accuracy < 500) {
@@ -417,7 +400,7 @@ class BaseMap extends React.Component {
         <LeafletMap
           onMoveend={this.moveEnd}
           center={this.state.position}
-          maxZoom={19}
+          maxZoom={17}
           zoom={this.zoom}
           zoomControl={false}
           className="map"
@@ -425,7 +408,9 @@ class BaseMap extends React.Component {
         >
           <ZoomControl position="bottomleft" />
           <TileLayer
-            url={'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png '}
+            url={
+              'https://maps-ap-southeast-2.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'
+            }
             attribution={
               '© <a href="https://openmaptiles.org/">OpenMapTiles</a> | © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }

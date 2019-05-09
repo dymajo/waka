@@ -107,7 +107,6 @@ class StationStore extends Events {
       if (data && data.icon !== 'parkingbuilding') {
         return resolve(data)
       }
-      console.log(local.endpoint, region)
       fetch(`${local.endpoint}/${region}/station/${station}`)
         .then(response => {
           if (response.status === 404) {
@@ -138,7 +137,6 @@ class StationStore extends Events {
     const promises = stopNumber.split('+').map(
       station =>
         new Promise((resolve, reject) => {
-          console.log(local.endpoint, region)
           fetch(`${local.endpoint}/${region}/station/${station}`)
             .then(response => response.json())
             .then(resolve)
@@ -237,7 +235,6 @@ class StationStore extends Events {
     const promises = stations.split('+').map(
       station =>
         new Promise((resolve, reject) => {
-          console.log(local.endpoint, region)
           fetch(`${local.endpoint}/${region}/station/${station}/times`)
             .then(response => {
               response.json().then(data => {
@@ -315,20 +312,20 @@ class StationStore extends Events {
 
     const queryString = {}
     tripData
-      // .filter(trip => {
-      //   const arrival = new Date()
-      //   if (arrival.getHours() < 5) {
-      //     arrival.setDate(arrival.getDate() - 1)
-      //   }
-      //   arrival.setHours(0)
-      //   arrival.setMinutes(0)
-      //   arrival.setSeconds(parseInt(trip.departure_time_seconds))
-      //   // only gets realtime info for things +30mins away
-      //   if (arrival.getTime() < new Date().getTime() + 3600000) {
-      //     return true
-      //   }
-      //   return false
-      // })
+      .filter(trip => {
+        const arrival = new Date()
+        if (arrival.getHours() < 5) {
+          arrival.setDate(arrival.getDate() - 1)
+        }
+        arrival.setHours(0)
+        arrival.setMinutes(0)
+        arrival.setSeconds(parseInt(trip.departure_time_seconds))
+        // only gets realtime info for things +30mins away
+        if (arrival.getTime() < new Date().getTime() + 3600000) {
+          return true
+        }
+        return false
+      })
       .forEach(trip => {
         queryString[trip.trip_id] = {
           departure_time_seconds: trip.departure_time_seconds,
@@ -345,7 +342,6 @@ class StationStore extends Events {
     if (route_type === 2) {
       requestData.train = true
     }
-    console.log(local.endpoint)
     // now we do a request to the realtime API
     fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',
