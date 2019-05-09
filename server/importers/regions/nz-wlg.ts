@@ -1,9 +1,9 @@
-const connection = require('../../db/connection.js')
-const BaseImporter = require('../BaseImporter')
-const log = require('../../logger.js')
-const config = require('../../config')
+import connection from '../../db/connection'
+import log from '../../logger'
+import config from '../../config'
+import SingleImporter from '../SingleImporter'
 
-class MetlinkImporter extends BaseImporter {
+class WellingtonImporter extends SingleImporter {
   constructor() {
     super({
       zipname: 'metlink',
@@ -13,7 +13,7 @@ class MetlinkImporter extends BaseImporter {
   }
 
   async postImport() {
-    const sqlRequest = connection.get().request()
+    const sqlRequest = await connection.get().request()
     await sqlRequest.query(`
       UPDATE trips
       SET trips.trip_headsign = stop_times.stop_headsign
@@ -21,10 +21,10 @@ class MetlinkImporter extends BaseImporter {
       WHERE stop_sequence = 0 and trips.trip_headsign is null
     `)
     log(
-      `${config.prefix} ${config.version}`.magenta,
+      `${config.prefix} ${config.version}`,
       'Post Import: Completed Trip Headsign Override'
     )
   }
 }
 
-module.exports = MetlinkImporter
+export default WellingtonImporter

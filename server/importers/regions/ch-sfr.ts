@@ -1,6 +1,6 @@
-const BaseImporter = require('../BaseImporter')
+import SingleImporter from '../SingleImporter'
 
-class SBBCFFFFSImporter extends BaseImporter {
+class SFRImporter extends SingleImporter {
   constructor() {
     super({
       url:
@@ -10,4 +10,4 @@ class SBBCFFFFSImporter extends BaseImporter {
   }
 }
 
-module.exports = SBBCFFFFSImporter
+export default SFRImporter

@@ -1,5 +1,5 @@
-const MultiImporter = require('../MultiImporter')
-const config = require('../../config')
+import config from '../../config'
+import MultiImporter from '../MultiImporter'
 
 const locations = [
   {
@@ -188,9 +188,14 @@ const locations = [
     type: 'train',
     name: 'tfnswtrains2',
   },
+  {
+    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/metro',
+    type: 'metro',
+    name: 'metro',
+  },
 ]
 
-class TfNSWImporter extends MultiImporter {
+class SydneyImporter extends MultiImporter {
   constructor() {
     super({
       locations,
@@ -201,4 +206,4 @@ class TfNSWImporter extends MultiImporter {
   }
 }
 
-module.exports = TfNSWImporter
+export default SydneyImporter

@@ -1,6 +1,6 @@
-const MultiImporter = require('../MultiImporter')
+import MultiImporter from '../MultiImporter'
 
-class TCImporter extends MultiImporter {
+class CanberraImporter extends MultiImporter {
   constructor() {
     super({
       locations: [
@@ -21,4 +21,4 @@ class TCImporter extends MultiImporter {
   }
 }
 
-module.exports = TCImporter
+export default CanberraImporter

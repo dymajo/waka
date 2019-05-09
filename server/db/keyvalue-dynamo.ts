@@ -1,21 +1,28 @@
 /* eslint-disable promise/prefer-await-to-callbacks */
 
-const AWS = require('aws-sdk')
-const logger = require('../logger.js')
+import { DynamoDB } from 'aws-sdk'
+import logger from '../logger'
+
+interface IKeyvalueDynamo {
+  name: string
+  region: string
+}
 
 class KeyvalueDynamo {
-  constructor(props) {
+  name: string
+  dynamo: DynamoDB
+  constructor(props: IKeyvalueDynamo) {
     const { name, region } = props
     this.name = name
-    this.dynamo = new AWS.DynamoDB({ region })
+    this.dynamo = new DynamoDB({ region })
 
     this.flattenObject = this.flattenObject.bind(this)
     this.fattenObject = this.fattenObject.bind(this)
   }
 
-  flattenObject(obj) {
+  flattenObject(obj: any) {
     const { flattenObject } = this
-    const response = {}
+    const response: any = {}
     Object.keys(obj)
       .filter(key => key !== 'id')
       .forEach(key => {
@@ -28,9 +35,14 @@ class KeyvalueDynamo {
     return response
   }
 
-  fattenObject(obj) {
+  fattenObject(obj: { [key: string]: any }) {
     const { fattenObject } = this
-    const response = {}
+    // type Response = {
+    //   [key: string]: Response | DynamoDB.AttributeValue | DynamoDB.AttributeMap
+    // }
+    // const response: Response = {}
+    const response: any = {}
+
     Object.keys(obj).forEach(key => {
       if (typeof obj[key] === 'number') {
         response[key] = { N: obj[key].toString() }
@@ -43,7 +55,7 @@ class KeyvalueDynamo {
     return response
   }
 
-  async get(key) {
+  async get(key: string) {
     const { name, dynamo, flattenObject } = this
     const params = {
       Key: {
@@ -53,19 +65,17 @@ class KeyvalueDynamo {
       },
       TableName: name,
     }
-    return new Promise(resolve => {
-      dynamo.getItem(params, (err, data) => {
-        if (err) {
-          logger({ err }, 'Could not get DynamoDB Item')
-          return resolve({})
-        }
-        const response = data.Item || {}
-        return resolve(flattenObject(response))
-      })
-    })
+    try {
+      const data = await dynamo.getItem(params).promise()
+      const response = data.Item || {}
+      return flattenObject(response)
+    } catch (err) {
+      logger({ err }, 'Could not get DynamoDB Item')
+      return {}
+    }
   }
 
-  async set(key, value) {
+  async set(key: string, value: any) {
     const { name, dynamo, fattenObject } = this
     const item = fattenObject(value)
     item.id = { S: key }
@@ -84,7 +94,7 @@ class KeyvalueDynamo {
     })
   }
 
-  async delete(key) {
+  async delete(key: string) {
     const { name, dynamo } = this
     const params = {
       Key: {
@@ -116,7 +126,7 @@ class KeyvalueDynamo {
           logger({ err }, 'Could not scan DynamoDB Table')
           return resolve({})
         }
-        const response = {}
+        const response: any = {}
         data.Items.forEach(i => {
           response[i.id.S] = this.flattenObject(i)
         })
@@ -125,4 +135,4 @@ class KeyvalueDynamo {
     })
   }
 }
-module.exports = KeyvalueDynamo
+export default KeyvalueDynamo

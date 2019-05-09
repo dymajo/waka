@@ -1,45 +1,54 @@
-const fs = require('fs')
-const path = require('path')
-const rimraf = require('rimraf')
-const sql = require('mssql')
+import { join } from 'path'
+import { VarChar } from 'mssql'
+import log from '../logger'
+import GtfsImport from '../db/gtfs-import'
+import connection from '../db/connection'
+import Storage from '../db/storage'
+import KeyvalueDynamo from '../db/keyvalue-dynamo'
+import config from '../config'
 
-const log = require('../logger.js')
-const GtfsImport = require('../db/gtfs-import.js')
-const connection = require('../db/connection.js')
-const Storage = require('../db/storage.js')
-const KeyvalueDynamo = require('../db/keyvalue-dynamo.js')
-const config = require('../config')
-
-const ATImporter = require('./regions/nz-akl')
-const ChchImporter = require('./regions/nz-chc')
-const OtagoImporter = require('./regions/nz-otg')
-const TCImporter = require('./regions/au-cbr')
-const TfNSWImporter = require('./regions/au-syd')
-const MetlinkImporter = require('./regions/nz-wlg')
-const PTVImporter = require('./regions/au-mel')
-const RATPImporter = require('./regions/fr-par')
-const SEQImporter = require('./regions/au-seq')
-const SBBCFFFFSImporter = require('./regions/ch-sfr')
+import AucklandImporter from './regions/nz-akl'
+import ChchImporter from './regions/nz-chc'
+import OtagoImporter from './regions/nz-otg'
+import CanberraImporter from './regions/au-cbr'
+import SyndeyImporter from './regions/au-syd'
+import WellingtonImporter from './regions/nz-wlg'
+import MelbourneImporter from './regions/au-mel'
+import ParisImporter from './regions/fr-par'
+import SEQImporter from './regions/au-seq'
+import SFRImporter from './regions/ch-sfr'
+import BaseImporter from './BaseImporter'
+import MultiImporter from './MultiImporter'
 
 const regions = {
-  'nz-akl': ATImporter,
+  'nz-akl': AucklandImporter,
   'nz-chc': ChchImporter,
   'nz-otg': OtagoImporter,
-  'nz-wlg': MetlinkImporter,
+  'nz-wlg': WellingtonImporter,
   'au-seq': SEQImporter,
-  'au-mel': PTVImporter,
-  'fr-par': RATPImporter,
-  'ch-sfr': SBBCFFFFSImporter,
-  'au-syd': TfNSWImporter,
-  'au-cbr': TCImporter,
+  'au-mel': MelbourneImporter,
+  'fr-par': ParisImporter,
+  'ch-sfr': SFRImporter,
+  'au-syd': SyndeyImporter,
+  'au-cbr': CanberraImporter,
+}
+
+interface IImporterProps {
+  keyvalue?: 'dynamo'
+  keyvalueVersionTable?: string
+  keyvalueRegion?: string
 }
 
 class Importer {
-  constructor(props) {
+  importer: GtfsImport
+  storage: Storage
+  versions?: KeyvalueDynamo
+  current: BaseImporter | MultiImporter
+  constructor(props: IImporterProps) {
+    const { keyvalue, keyvalueVersionTable, keyvalueRegion } = props
     this.importer = new GtfsImport()
     this.storage = new Storage({})
 
-    const { keyvalue, keyvalueVersionTable, keyvalueRegion } = props
     this.versions = null
     if (keyvalue === 'dynamo') {
       this.versions = new KeyvalueDynamo({
@@ -54,9 +63,9 @@ class Importer {
       this.current = new Region()
     } catch (err) {
       log(
-        'fatal error'.red,
+        'fatal error',
         'Could not find an importer in ',
-        path.join(__dirname, './regions', `${config.prefix}.js`)
+        join(__dirname, './regions', `${config.prefix}.ts`)
       )
     }
   }
@@ -90,7 +99,7 @@ class Importer {
       await this.unzip()
       await this.db()
     } else {
-      console.warn('DB already created - skipping download & unzip.')
+      log('DB already created - skipping download & unzip.')
     }
     await this.shapes()
     await this.fixStopCodes()
@@ -139,10 +148,7 @@ class Importer {
       WHERE stop_code is null;
     `)
     const rows = res.rowsAffected[0]
-    log(
-      `${config.prefix} ${config.version}`.magenta,
-      `Updated ${rows} null stop codes`
-    )
+    log(`${config.prefix} ${config.version}`, `Updated ${rows} null stop codes`)
   }
 
   async fixRoutes() {
@@ -154,7 +160,7 @@ class Importer {
     `)
     const rows = res.rowsAffected[0]
     log(
-      `${config.prefix} ${config.version}`.magenta,
+      `${config.prefix} ${config.version}`,
       `Updated ${rows} null route codes`
     )
   }
@@ -170,7 +176,7 @@ class Importer {
     const {
       db: { database },
     } = config
-    sqlRequest.input('dbName', sql.VarChar, database)
+    sqlRequest.input('dbName', VarChar, database)
     try {
       await sqlRequest.query(
         `
@@ -183,8 +189,8 @@ class Importer {
         `
       )
     } catch (err) {
-      console.log(err)
+      log(err)
     }
   }
 }
-module.exports = Importer
+export default Importer

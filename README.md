@@ -14,3 +14,29 @@ Set the following environmental variables in a `.env` file, and then run `npm st
 - MODE (all, shapes, etc)
 
 There's also a couple of optional variables, that have sensible defaults - see `server/index.js` for the details.
+
+# dev
+
+## Running type checks
+
+```bash
+$ npm run type-check:watch
+```
+
+## Compiling
+
+```bash
+$ npm run build
+```
+
+## Running
+
+```bash
+$ npm start
+```
+
+## Quick start
+
+```bash
+$ npm run bs
+```

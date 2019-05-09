@@ -1,6 +1,6 @@
-const BaseImporter = require('../BaseImporter')
+import SingleImporter from '../SingleImporter'
 
-class ATImporter extends BaseImporter {
+class AucklandImporter extends SingleImporter {
   constructor() {
     super({
       zipname: 'at',
@@ -15,4 +15,4 @@ class ATImporter extends BaseImporter {
   }
 }
 
-module.exports = ATImporter
+export default AucklandImporter

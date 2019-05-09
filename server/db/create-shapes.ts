@@ -1,13 +1,20 @@
-const fs = require('fs')
-const path = require('path')
-const csvparse = require('csv-parse')
-const transform = require('stream-transform')
-const colors = require('colors')
-const log = require('../logger.js')
-const Storage = require('./storage.js')
-const config = require('../config')
+import {
+  createReadStream,
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+  readdir,
+} from 'fs'
+import { resolve as _resolve } from 'path'
+import csvparse from 'csv-parse'
+import transform from 'stream-transform'
+import log from '../logger'
+import Storage from './storage'
+import config from '../config'
 
 class CreateShapes {
+  storageSvc: Storage
+
   constructor() {
     this.storageSvc = new Storage({
       backing: config.storageService,
@@ -16,15 +23,18 @@ class CreateShapes {
     })
   }
 
-  create(inputFile, outputDirectory, versions) {
+  create(inputFile: string, outputDirectory: string, versions: string[]) {
     return new Promise((resolve, reject) => {
-      const input = fs.createReadStream(inputFile)
+      const input = createReadStream(inputFile)
       const parser = csvparse({ delimiter: ',' })
 
-      const output = {}
-      let headers = null
+      const output: {
+        [shape_id: string]: { type: string; coordinates: number[][] }
+      } = {}
+      let headers: { [key: string]: number } = null
       let total = 0
-      const transformer = transform((row, callback) => {
+
+      const handler: transform.Handler = (row, callback) => {
         // builds the csv headers for easy access later
         if (headers === null) {
           headers = {}
@@ -51,7 +61,8 @@ class CreateShapes {
         }
 
         return callback(null)
-      })
+      }
+      const transformer = transform(handler)
         .on('finish', () => {
           log('Created Shapes. Writing to disk...')
           Object.keys(output).forEach(key => {
@@ -62,12 +73,12 @@ class CreateShapes {
                 subfolder = version
               }
             })
-            const dir = path.resolve(outputDirectory, subfolder)
-            if (!fs.existsSync(dir)) {
-              fs.mkdirSync(dir)
+            const dir = _resolve(outputDirectory, subfolder)
+            if (!existsSync(dir)) {
+              mkdirSync(dir)
             }
-            fs.writeFileSync(
-              path.resolve(dir, `${Buffer.from(key).toString('base64')}.json`),
+            writeFileSync(
+              _resolve(dir, `${Buffer.from(key).toString('base64')}.json`),
               JSON.stringify(output[key])
             )
           })
@@ -83,16 +94,16 @@ class CreateShapes {
     })
   }
 
-  upload(container, directory) {
+  upload(container: string, directory: string) {
     return new Promise((resolve, reject) => {
       if (config.shapesSkip === true) {
         log('Skipping Shapes Upload.')
         return resolve()
       }
       let total = 0
-      const uploadSingle = (files, index, callback) => {
+      const uploadSingle = (files: string[], index: number, callback: any) => {
         if (index === files.length) {
-          log(`${container.magenta}:`, 'Upload Complete!', total, 'Shapes.')
+          log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
           return resolve()
         }
 
@@ -102,31 +113,32 @@ class CreateShapes {
           .slice(-1)[0]
           .replace('_', '-')
           .replace('.', '-')}/${fileName}`
-        const fileLocation = path.resolve(directory, fileName)
-        this.storageSvc.uploadFile(container, key, fileLocation, error => {
-          if (error) {
-            console.error(
-              `${container.magenta}:`,
-              'Could not upload shape.',
-              error
-            )
+        const fileLocation = _resolve(directory, fileName)
+        this.storageSvc.uploadFile(
+          container,
+          key,
+          fileLocation,
+          (error: any) => {
+            if (error) {
+              log(`${container}:`, 'Could not upload shape.', error)
+            }
+            total += 1
+            if (total % 100 === 0) {
+              log(`${container}:`, 'Uploaded', total, 'Shapes.')
+            }
+            callback(files, index + 1, callback)
           }
-          total += 1
-          if (total % 100 === 0) {
-            log(`${container.magenta}:`, 'Uploaded', total, 'Shapes.')
-          }
-          callback(files, index + 1, callback)
-        })
+        )
         return true
       }
 
-      fs.readdir(directory, (err, files) => {
+      readdir(directory, (err, files) => {
         if (err) {
-          console.error(object)
+          log(err)
         }
         uploadSingle(files, 0, uploadSingle)
       })
     })
   }
 }
-module.exports = CreateShapes
+export default CreateShapes

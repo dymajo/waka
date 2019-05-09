@@ -1,6 +1,6 @@
-const BaseImporter = require('../BaseImporter')
+import SingleImporter from '../SingleImporter'
 
-class PTVImporter extends BaseImporter {
+class MelbourneImporter extends SingleImporter {
   constructor() {
     super({
       url: 'http://data.ptv.vic.gov.au/downloads/gtfs.zip',
@@ -9,4 +9,4 @@ class PTVImporter extends BaseImporter {
   }
 }
 
-module.exports = PTVImporter
+export default MelbourneImporter

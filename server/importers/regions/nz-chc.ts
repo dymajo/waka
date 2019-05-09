@@ -1,6 +1,6 @@
-const BaseImporter = require('../BaseImporter')
+import SingleImporter from '../SingleImporter'
 
-class ChchImporter extends BaseImporter {
+class ChchImporter extends SingleImporter {
   constructor() {
     super({
       zipname: 'metro-christchurch',
@@ -8,4 +8,5 @@ class ChchImporter extends BaseImporter {
     })
   }
 }
-module.exports = ChchImporter
+
+export default ChchImporter

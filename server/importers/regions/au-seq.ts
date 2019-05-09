@@ -1,6 +1,6 @@
-const BaseImporter = require('../BaseImporter')
+import SingleImporter from '../SingleImporter'
 
-class SEQImporter extends BaseImporter {
+class SEQImporter extends SingleImporter {
   constructor() {
     super({
       url: 'https://gtfsrt.api.translink.com.au/GTFS/SEQ_GTFS.zip',
@@ -9,4 +9,4 @@ class SEQImporter extends BaseImporter {
   }
 }
 
-module.exports = SEQImporter
+export default SEQImporter

@@ -1,9 +1,16 @@
 {
+  "parser": "@typescript-eslint/parser",
   "env": {
     "es6": true,
     "node": true
   },
-  "extends": ["airbnb-base", "prettier", "plugin:promise/recommended"],
+  "extends": [
+    "airbnb-base",
+    "prettier/@typescript-eslint",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
   "plugins": ["prettier", "promise"],
   "rules": {
     "indent": ["error", 2],

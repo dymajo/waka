@@ -1,6 +1,6 @@
-const BaseImporter = require('../BaseImporter')
+import SingleImporter from '../SingleImporter'
 
-class RATPImporter extends BaseImporter {
+class ParisImporter extends SingleImporter {
   constructor() {
     super({
       url: 'http://dataratp.download.opendatasoft.com/RATP_GTFS_FULL.zip',
@@ -9,4 +9,4 @@ class RATPImporter extends BaseImporter {
   }
 }
 
-module.exports = RATPImporter
+export default ParisImporter
