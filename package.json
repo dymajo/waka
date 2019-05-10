@@ -1,8 +1,8 @@
 {
   "name": "waka-importer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Waka GTFS Importer",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
@@ -23,7 +23,11 @@
     "at",
     "hop",
     "transit",
-    "dymajo"
+    "dymajo",
+    "typescript",
+    "tfnsw",
+    "sydney",
+    "sydneytrains"
   ],
   "author": "Dymajo Ltd.",
   "license": "MIT",
