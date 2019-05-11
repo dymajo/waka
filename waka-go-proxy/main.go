@@ -24,6 +24,7 @@ func init() {
 	flag.IntVar(&interval, "m", 1, "minutes between requests")
 	flag.StringVar(&pathPrefix, "pathprefix", "/", "you can prefix all the routes, if you need")
 	flag.Parse()
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 }
 
 func main() {
@@ -49,6 +50,6 @@ func main() {
 		logrus.Fields{
 			"port":       port,
 			"pathPrefix": pathPrefix,
-		}).Infof("Starting Server")
+		}).Infof("Starting waka-go-proxy")
 	logrus.Fatal(server.ListenAndServe())
 }
