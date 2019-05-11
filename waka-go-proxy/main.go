@@ -10,26 +10,33 @@ import (
 )
 
 var (
-	port     string
-	endpoint string
+	port       string
+	endpoint   string
+	path       string
+	interval   int
+	pathPrefix string
 )
 
 func init() {
 	flag.StringVar(&port, "p", "9001", "port for server to run on")
 	flag.StringVar(&endpoint, "e", "https://waka.app/a", "endpoint to discover on")
+	flag.StringVar(&path, "f", "../cityMetadata.json", "path to city metadata json")
+	flag.IntVar(&interval, "m", 1, "minutes between requests")
+	flag.StringVar(&pathPrefix, "pathprefix", "/", "you can prefix all the routes, if you need")
 	flag.Parse()
 }
 
 func main() {
 	ping := NewPing()
+	regions := NewRegions()
 	workerDiscovery := NewWorkerDiscovery(endpoint)
-	workerDiscovery.GetWorker("nz-akl")
-	workerDiscovery.GetWorker("nz-wlg")
-	workerDiscovery.GetWorker("au-syd")
+	regions.Load(path)
+	go workerDiscovery.Refresh(*regions, interval)
 
 	router := mux.NewRouter()
-	router.HandleFunc("/regions", workerDiscovery.Handler()).Methods("GET", "HEAD")
-	router.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
+	subRouter := router.PathPrefix(pathPrefix).Subrouter()
+	subRouter.HandleFunc("/regions", workerDiscovery.Handler()).Methods("GET", "HEAD")
+	subRouter.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
 
 	server := &http.Server{
 		Addr:         ":" + port,
@@ -37,6 +44,10 @@ func main() {
 		WriteTimeout: 5 * time.Second,
 		ReadTimeout:  5 * time.Second,
 	}
-	logrus.Infof("Starting server on port %q", port)
+	logrus.WithFields(
+		logrus.Fields{
+			"port":       port,
+			"pathPrefix": pathPrefix,
+		}).Infof("Starting Server")
 	logrus.Fatal(server.ListenAndServe())
 }

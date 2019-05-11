@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -48,7 +49,7 @@ func (wd WorkerDiscovery) Handler() func(http.ResponseWriter, *http.Request) {
 }
 
 // GetWorker gets details for a particular worker
-func (wd WorkerDiscovery) GetWorker(prefix string) {
+func (wd WorkerDiscovery) GetWorker(prefix string, initialLocation [2]float32, showInCityList bool) {
 	response, err := http.Get(fmt.Sprintf("%s/%s/info", endpoint, prefix))
 	if err != nil {
 		logrus.Fatal(err)
@@ -61,8 +62,9 @@ func (wd WorkerDiscovery) GetWorker(prefix string) {
 		delete(wd.workerMap, prefix)
 	} else {
 		result := workerInfo{}
-		// todo: what to do about initial location & show in city
 		json.NewDecoder(response.Body).Decode(&result)
+		result.InitialLocation = initialLocation
+		result.ShowInCityList = showInCityList
 		wd.workerMap[prefix] = result
 	}
 	logrus.WithFields(
@@ -70,4 +72,14 @@ func (wd WorkerDiscovery) GetWorker(prefix string) {
 			"prefix": prefix,
 			"status": response.StatusCode,
 		}).Info(fmt.Sprintf(message, prefix))
+}
+
+// Refresh loops through the regions and runs a refresh, infinitely
+func (wd WorkerDiscovery) Refresh(regions Regions, intervalMinutes int) {
+	for true {
+		for prefix, data := range regions.regionMap {
+			go wd.GetWorker(prefix, data.InitialLocation, data.ShowInCityList)
+		}
+		time.Sleep(time.Minute * time.Duration(intervalMinutes))
+	}
 }
