@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./waka-orchestrator/standalone.js | bunyan -L -o short",
     "build:proxy": "go build -o ./waka-go-proxy/waka-go-proxy ./waka-go-proxy/",
-    "document": "apidoc -i waka-orchestrator -i waka-proxy -i waka-worker -o dist/docs"
+    "document": "apidoc -i waka-orchestrator -i waka-go-proxy -i waka-worker -o dist/docs"
   },
   "repository": {
     "type": "git",
