@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./waka-orchestrator/standalone.js | bunyan -L -o short",
+    "install:proxy": "go get -v ./waka-go-proxy",
     "build:proxy": "go build -o ./waka-go-proxy/waka-go-proxy ./waka-go-proxy/",
     "document": "apidoc -i waka-orchestrator -i waka-go-proxy -i waka-worker -o dist/docs"
   },
