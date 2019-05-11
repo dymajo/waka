@@ -35,8 +35,9 @@ func main() {
 
 	router := mux.NewRouter()
 	subRouter := router.PathPrefix(pathPrefix).Subrouter()
-	subRouter.HandleFunc("/regions", workerDiscovery.Handler()).Methods("GET", "HEAD")
 	subRouter.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
+	subRouter.HandleFunc("/regions", workerDiscovery.RegionsHandler()).Methods("GET", "HEAD")
+	subRouter.PathPrefix("/{prefix}").HandlerFunc(workerDiscovery.BoundsHandler(pathPrefix)).Methods("GET", "HEAD")
 
 	server := &http.Server{
 		Addr:         ":" + port,

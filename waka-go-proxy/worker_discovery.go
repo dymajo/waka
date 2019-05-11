@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
+
+	"github.com/gorilla/mux"
 
 	"github.com/sirupsen/logrus"
 )
@@ -15,19 +18,24 @@ type workerInfo struct {
 	Name            string     `json:"name"`
 	SecondaryName   string     `json:"secondaryName"`
 	LongName        string     `json:"longName"`
-	Bounds          bounds     `json:"-"`
+	Bounds          bounds     `json:"bounds"`
 	InitialLocation [2]float32 `json:"initialLocation"`
 	ShowInCityList  bool       `json:"showInCityList"`
 }
 
 type bounds struct {
-	Lat minMax
-	Lon minMax
+	Lat minMax `json:"lat"`
+	Lon minMax `json:"lon"`
 }
 
 type minMax struct {
-	Min float32
-	Max float32
+	Min float32 `json:"min"`
+	Max float32 `json:"max"`
+}
+
+type httpError struct {
+	Message string `json:"message"`
+	URL     string `json:"url"`
 }
 
 // WorkerDiscovery is our base struct
@@ -41,10 +49,52 @@ func NewWorkerDiscovery(endpoint string) *WorkerDiscovery {
 	return &WorkerDiscovery{endpoint, make(map[string]workerInfo)}
 }
 
-// Handler returns the regions
-func (wd WorkerDiscovery) Handler() func(http.ResponseWriter, *http.Request) {
+// RegionsHandler returns the available regions
+func (wd WorkerDiscovery) RegionsHandler() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(wd.workerMap)
+	}
+}
+
+// BoundsHandler looks at the query and returns the correct region
+func (wd WorkerDiscovery) BoundsHandler(pathPrefix string) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// returns a 404 if the prefix isn't auto
+		prefix := mux.Vars(r)["prefix"]
+		if prefix != "auto" {
+			w.WriteHeader(http.StatusNotFound)
+			error := httpError{
+				fmt.Sprintf("prefix %s not found", prefix),
+				r.URL.RequestURI(),
+			}
+			json.NewEncoder(w).Encode(error)
+			return
+		}
+
+		lat, latErr := strconv.ParseFloat(r.FormValue("lat"), 32)
+		lon, lonErr := strconv.ParseFloat(r.FormValue("lon"), 32)
+
+		var region = "nz-akl"
+		if latErr == nil && lonErr == nil {
+			// if there's valid lat and lon, look through the array
+			for _, v := range wd.workerMap {
+				if float32(lat) >= v.Bounds.Lat.Min &&
+					float32(lat) <= v.Bounds.Lat.Max &&
+					float32(lon) >= v.Bounds.Lon.Min &&
+					float32(lon) <= v.Bounds.Lon.Max {
+					region = v.Prefix
+					break
+				}
+			}
+		}
+
+		// Little bit of gross rewrite magic
+		actualPrefix := pathPrefix
+		if pathPrefix == "/" {
+			actualPrefix = ""
+		}
+		newURL := fmt.Sprintf("%s/%s%s", actualPrefix, region, r.URL.RequestURI()[len(actualPrefix)+len(prefix)+1:len(r.URL.RequestURI())])
+		http.Redirect(w, r, newURL, http.StatusFound)
 	}
 }
 
@@ -78,7 +128,8 @@ func (wd WorkerDiscovery) GetWorker(prefix string, initialLocation [2]float32, s
 func (wd WorkerDiscovery) Refresh(regions Regions, intervalMinutes int) {
 	for true {
 		for prefix, data := range regions.regionMap {
-			go wd.GetWorker(prefix, data.InitialLocation, data.ShowInCityList)
+			// bit yuck can't do async, cause can't do concurrent map writes
+			wd.GetWorker(prefix, data.InitialLocation, data.ShowInCityList)
 		}
 		time.Sleep(time.Minute * time.Duration(intervalMinutes))
 	}
