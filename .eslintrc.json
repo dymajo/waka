@@ -11,12 +11,17 @@
     "plugin:prettier/recommended"
   ],
   "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
-  "plugins": ["prettier", "promise"],
+  "plugins": ["prettier", "promise", "@typescript-eslint"],
   "rules": {
-    "indent": ["error", 2],
+    "@typescript-eslint/indent": ["error", 2],
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/no-magic-numbers": ["error"],
+    "@typescript-eslint/camelcase": "warning",
+    "semi": "off",
+    "indent": "off",
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
-    "semi": "off",
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
     "no-return-assign": 0,
     "global-require": "off",
@@ -38,5 +43,12 @@
     "no-restricted-syntax": "off",
     "no-await-in-loop": "off",
     "camelcase": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts"]
+      }
+    }
   }
 }
