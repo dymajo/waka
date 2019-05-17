@@ -1,10 +1,11 @@
 import { ConnectionPool } from 'mssql'
 import config from '../config'
 import log from '../logger'
+
 const connectMaster = async () => {
   const masterConfig = {
     ...config.db,
-    database: config.db.master_database,
+    database: config.db.masterDatabase,
   }
   const { database } = config.db
   try {
@@ -23,8 +24,8 @@ const connectMaster = async () => {
   return true
 }
 
-let cresolve: any
-let creject: any
+let cresolve: (value?: {} | PromiseLike<{}>) => void
+let creject: (reason?: any) => void
 let pool1: ConnectionPool
 const ready = new Promise((resolve, reject) => {
   cresolve = resolve

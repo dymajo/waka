@@ -11,7 +11,7 @@ import KeyvalueDynamo from '../db/keyvalue-dynamo'
 import config from '../config'
 import BaseImporter from './BaseImporter'
 
-interface IMultiImporterProps {
+interface MultiImporterProps {
   keyvalue?: string
   keyvalueVersionTable?: string
   keyvalueRegion?: string
@@ -31,7 +31,7 @@ abstract class MultiImporter extends BaseImporter {
   versions: KeyvalueDynamo
   zipLocations: { p: string; type: string; endpoint: string }[]
 
-  constructor(props: IMultiImporterProps) {
+  constructor(props: MultiImporterProps) {
     super()
     const {
       keyvalue,

@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-interface IWakaConfig {
+interface WakaConfig {
   prefix: string
   version: string
   mode: 'all' | 'db' | 'shapes' | 'unzip' | 'download' | 'export'
@@ -19,7 +19,7 @@ interface IWakaConfig {
     password: string
     server: string
     database: string
-    master_database: string
+    masterDatabase: string
     transactionLimit: number
     connectionTimeout: number
     requestTimeout: number
@@ -75,7 +75,7 @@ const {
   TFNSW_API_KEY,
 } = process.env
 
-const config: IWakaConfig = {
+const config: WakaConfig = {
   prefix: PREFIX,
   version: VERSION,
   mode: MODE || 'all',
@@ -94,7 +94,7 @@ const config: IWakaConfig = {
     password: DB_PASSWORD,
     server: DB_SERVER,
     database: DB_DATABASE || `${PREFIX}_${VERSION}`,
-    master_database: DB_MASTER_DATABASE || 'master',
+    masterDatabase: DB_MASTER_DATABASE || 'master',
     transactionLimit: DB_TRANSACTION_LIMIT
       ? parseInt(DB_TRANSACTION_LIMIT, 10)
       : 50000,

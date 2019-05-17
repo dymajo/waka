@@ -36,7 +36,7 @@ const dayOfTheWeek = (column: string) =>
   column === 'sunday'
 
 class GtfsImport {
-  getTable(name: string, hashName?: string, hash = false) {
+  private getTable = (name: string, hashName?: string, hash = false) => {
     let newName = name
     if (hash) {
       newName = `${hashName}`
@@ -72,11 +72,11 @@ class GtfsImport {
     }
   }
 
-  _mapRowToRecord(
+  private mapRowToRecord = (
     row: any[],
     rowSchema: { [key: string]: number },
     tableSchema: string[]
-  ) {
+  ) => {
     let arrival_time_24 = false
     let departure_time_24 = false
     return tableSchema.map(column => {
@@ -159,7 +159,7 @@ class GtfsImport {
     })
   }
 
-  async upload(
+  public upload = async (
     location: string,
     file: {
       table:
@@ -176,7 +176,7 @@ class GtfsImport {
     containsVersion: boolean,
     endpoint?: string,
     merge: boolean = false
-  ) {
+  ) => {
     let table = merge
       ? this.getTable(file.table, `temp_${file.table}`, true)
       : this.getTable(file.table)
@@ -205,7 +205,7 @@ class GtfsImport {
             if (row && row.length > 1) {
               const tableSchema = schemas[file.table]
               if (tableSchema) {
-                const record = this._mapRowToRecord(row, headers, tableSchema)
+                const record = this.mapRowToRecord(row, headers, tableSchema)
 
                 // check if the row is versioned, and whether to upload it
                 if (
@@ -268,7 +268,7 @@ class GtfsImport {
     })
   }
 
-  async commit(table: Table) {
+  private commit = async (table: Table) => {
     try {
       const result = await connection
         .get()
@@ -279,7 +279,7 @@ class GtfsImport {
     }
   }
 
-  async mergeToFinal(
+  private mergeToFinal = async (
     table:
       | 'agency'
       | 'stops'
@@ -288,7 +288,7 @@ class GtfsImport {
       | 'stop_times'
       | 'calendar'
       | 'calendar_dates'
-  ) {
+  ) => {
     const hashTable = `temp_${table}`
     const primaryKey = primaryKeys[table]
     const sqlRequest = connection.get().request()

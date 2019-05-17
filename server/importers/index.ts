@@ -33,7 +33,7 @@ const regions = {
   'au-cbr': CanberraImporter,
 }
 
-interface IImporterProps {
+interface ImporterProps {
   keyvalue?: 'dynamo'
   keyvalueVersionTable?: string
   keyvalueRegion?: string
@@ -44,7 +44,7 @@ class Importer {
   storage: Storage
   versions?: KeyvalueDynamo
   current: BaseImporter | MultiImporter
-  constructor(props: IImporterProps) {
+  constructor(props: ImporterProps) {
     const { keyvalue, keyvalueVersionTable, keyvalueRegion } = props
     this.importer = new GtfsImport()
     this.storage = new Storage({})

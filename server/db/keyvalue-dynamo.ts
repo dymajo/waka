@@ -3,7 +3,7 @@
 import { DynamoDB } from 'aws-sdk'
 import logger from '../logger'
 
-interface IKeyvalueDynamo {
+interface KeyvalueDynamo {
   name: string
   region: string
 }
@@ -11,7 +11,7 @@ interface IKeyvalueDynamo {
 class KeyvalueDynamo {
   name: string
   dynamo: DynamoDB
-  constructor(props: IKeyvalueDynamo) {
+  constructor(props: KeyvalueDynamo) {
     const { name, region } = props
     this.name = name
     this.dynamo = new DynamoDB({ region })
