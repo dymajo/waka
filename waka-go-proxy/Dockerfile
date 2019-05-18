@@ -7,13 +7,13 @@ ENV GOBIN=$GOPATH/bin
 RUN go get -v ./
 RUN go build -o waka-go-proxy
 
-FROM node:latest as docs
+FROM node:12 as docs
 WORKDIR /app
 COPY . ./
 RUN npm install apidoc
 RUN npm run document
 
-FROM alpine
+FROM alpine:3.9
 EXPOSE 80
 ENV ENDPOINT=https://waka.app/a
 ENV PATHPREFIX=/a

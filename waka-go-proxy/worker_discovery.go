@@ -49,7 +49,7 @@ func NewWorkerDiscovery(endpoint string) *WorkerDiscovery {
 	return &WorkerDiscovery{endpoint, make(map[string]workerInfo)}
 }
 
-/**
+/*RegionsHandler returns the available regions
  * @api {get} /regions Get Available Regions
  * @apiName GetRegions
  * @apiGroup Info
@@ -84,7 +84,6 @@ func NewWorkerDiscovery(endpoint string) *WorkerDiscovery {
  *     }
  *
  */
-// RegionsHandler returns the available regions
 func (wd WorkerDiscovery) RegionsHandler() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(wd.workerMap)
