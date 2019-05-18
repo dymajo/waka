@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./waka-orchestrator/standalone.js | bunyan -L -o short",
-    "document": "apidoc -i waka-orchestrator -i waka-proxy -i waka-worker -o dist/docs"
+    "install:proxy": "go get -v ./waka-go-proxy",
+    "build:proxy": "go build -o ./waka-go-proxy/waka-go-proxy ./waka-go-proxy/",
+    "document": "apidoc -i waka-orchestrator -i waka-go-proxy -i waka-worker -o dist/docs"
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,7 @@
     "csv-parse": "^2.5.0",
     "dotenv": "^6.0.0",
     "express": "^4.16.4",
+    "express-http-proxy": "^1.5.1",
     "extract-zip": "^1.6.7",
     "gtfs-realtime-bindings": "0.0.4",
     "iconv": "^2.3.4",

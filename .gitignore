@@ -3,3 +3,4 @@ cache/
 .env
 .DS_STORE
 dist/docs
+waka-go-proxy/waka-go-proxy
