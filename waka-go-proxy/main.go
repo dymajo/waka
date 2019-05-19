@@ -2,9 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"time"
 
+	_ "github.com/aws/aws-xray-sdk-go/plugins/ecs"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -15,7 +18,8 @@ var (
 	path       string
 	interval   int
 	pathPrefix string
-	docsDir		 string
+	docsDir    string
+	xraySuffix string
 )
 
 func init() {
@@ -25,6 +29,7 @@ func init() {
 	flag.IntVar(&interval, "m", 1, "minutes between requests")
 	flag.StringVar(&pathPrefix, "pathprefix", "/", "you can prefix all the routes, if you need")
 	flag.StringVar(&docsDir, "docsdir", "../dist/docs", "the path to the documentatino directory")
+	flag.StringVar(&xraySuffix, "s", "", "xray suffix")
 	flag.Parse()
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 }
@@ -35,14 +40,21 @@ func docsRedirectHandler() func(http.ResponseWriter, *http.Request) {
 	}
 }
 
+func xrayMiddleware(next http.Handler) http.Handler {
+	return xray.Handler(xray.NewFixedSegmentNamer(fmt.Sprintf("waka-proxy%s", xraySuffix)), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	}))
+}
+
 func main() {
 	ping := NewPing()
 	regions := NewRegions()
 	workerDiscovery := NewWorkerDiscovery(endpoint)
 	regions.Load(path)
-	go workerDiscovery.Refresh(*regions, interval)
+	go workerDiscovery.Refresh(*regions, interval, xraySuffix)
 
 	router := mux.NewRouter()
+	router.Use(xrayMiddleware)
 	subRouter := router.PathPrefix(pathPrefix).Subrouter()
 	subRouter.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
 	subRouter.HandleFunc("/regions", workerDiscovery.RegionsHandler()).Methods("GET", "HEAD")
