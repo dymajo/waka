@@ -26,11 +26,11 @@ class CreateShapes {
   public create = (
     inputFile: string,
     outputDirectory: string,
-    versions: string[]
+    versions: string[],
   ) => {
     return new Promise((resolve, reject) => {
       const input = createReadStream(inputFile)
-      const parser = csvparse({ delimiter: ',' })
+      const parser = csvparse({ delimiter: ',', trim: true })
 
       const output: {
         [shape_id: string]: { type: string; coordinates: number[][] }
@@ -83,7 +83,7 @@ class CreateShapes {
             }
             writeFileSync(
               _resolve(dir, `${Buffer.from(key).toString('base64')}.json`),
-              JSON.stringify(output[key])
+              JSON.stringify(output[key]),
             )
           })
           log('Written to disk!')
@@ -97,52 +97,50 @@ class CreateShapes {
       input.pipe(parser).pipe(transformer)
     })
   }
+  public upload = async (container: string, directory: string) => {
+    if (config.shapesSkip === true) {
+      log('Skipping Shapes Upload.')
+      return
+    }
+    let total = 0
 
-  public upload = (container: string, directory: string) => {
-    return new Promise((resolve, reject) => {
-      if (config.shapesSkip === true) {
-        log('Skipping Shapes Upload.')
-        return resolve()
+    const files = await readdirAsync(directory)
+    for (const file of files) {
+      try {
+        await this.uploadSingle(file, directory, container)
+        total += 1
+      } catch (error) {
+        log(error)
       }
-      let total = 0
-      const uploadSingle = (files: string[], index: number, callback: any) => {
-        if (index === files.length) {
-          log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
-          return resolve()
-        }
-
-        const fileName = files[index]
-        const key = `${config.prefix}/${directory
-          .split('/')
-          .slice(-1)[0]
-          .replace('_', '-')
-          .replace('.', '-')}/${fileName}`
-        const fileLocation = _resolve(directory, fileName)
-        this.storageSvc.uploadFile(
-          container,
-          key,
-          fileLocation,
-          (error: any) => {
-            if (error) {
-              log(`${container}:`, 'Could not upload shape.', error)
-            }
-            total += 1
-            if (total % 100 === 0) {
-              log(`${container}:`, 'Uploaded', total, 'Shapes.')
-            }
-            callback(files, index + 1, callback)
-          }
-        )
-        return true
-      }
-
-      readdir(directory, (err, files) => {
-        if (err) {
-          log(err)
-        }
-        uploadSingle(files, 0, uploadSingle)
-      })
-    })
+    }
+    log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
+    return
   }
+
+  private uploadSingle = async (
+    fileName: string,
+    directory: string,
+    container: string,
+  ) => {
+    const key = `${config.prefix}/${directory
+      .split('/')
+      .slice(-1)[0]
+      .replace('_', '-')
+      .replace('.', '-')}/${fileName}`
+    const fileLocation = _resolve(directory, fileName)
+    return this.storageSvc.uploadFile(container, key, fileLocation)
+  }
+}
+
+function readdirAsync(path: string) {
+  return new Promise<string[]>(function(resolve, reject) {
+    readdir(path, function(error, result) {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(result)
+      }
+    })
+  })
 }
 export default CreateShapes
