@@ -198,10 +198,10 @@ const locations = [
 class SydneyImporter extends MultiImporter {
   constructor() {
     super({
-      locations,
-      downloadInterval: 2000,
-      batchSize: 6,
       authorization: config.tfnswApiKey,
+      batchSize: 6,
+      downloadInterval: 2000,
+      locations,
     })
   }
 }

@@ -23,7 +23,11 @@ class CreateShapes {
     })
   }
 
-  create(inputFile: string, outputDirectory: string, versions: string[]) {
+  public create = (
+    inputFile: string,
+    outputDirectory: string,
+    versions: string[]
+  ) => {
     return new Promise((resolve, reject) => {
       const input = createReadStream(inputFile)
       const parser = csvparse({ delimiter: ',' })
@@ -94,7 +98,7 @@ class CreateShapes {
     })
   }
 
-  upload(container: string, directory: string) {
+  public upload = (container: string, directory: string) => {
     return new Promise((resolve, reject) => {
       if (config.shapesSkip === true) {
         log('Skipping Shapes Upload.')

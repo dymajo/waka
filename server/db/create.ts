@@ -44,7 +44,7 @@ const create = async (filenames: string[]) => {
 }
 
 class CreateDB {
-  async start() {
+  public start = async () => {
     log('Creating Tables...')
     await create(tables)
     log('Creating temp tables...')

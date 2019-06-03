@@ -13,7 +13,7 @@ import Importer from '.'
 import GtfsImport from '../db/gtfs-import'
 import axios from 'axios'
 
-interface ISingleImporterProps {
+interface SingleImporterProps {
   zipname: string
   url: string
 }
@@ -24,7 +24,7 @@ abstract class SingleImporter extends BaseImporter {
 
   zipLocation: string
   downloadOptions: { url: any }
-  constructor(props: ISingleImporterProps) {
+  constructor(props: SingleImporterProps) {
     super()
     const { zipname, url } = props
     this.zipname = zipname

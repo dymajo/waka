@@ -44,28 +44,28 @@ abstract class BaseImporter {
 
   postImport?(): void
 
-    abstract download(): void
+  abstract download(): void
 
-    abstract unzip(): void
+  abstract unzip(): void
 
-    abstract db(importer: GtfsImport): void
+  abstract db(importer: GtfsImport): void
 
-    abstract shapes(): void
+  abstract shapes(): void
 
-    files: {
-        name: string;
-        table:
-        | 'agency'
-        | 'stops'
-        | 'routes'
-        | 'trips'
-        | 'stop_times'
-        | 'calendar'
-        | 'calendar_dates';
-        versioned: boolean;
-    }[]
+  files: {
+    name: string
+    table:
+      | 'agency'
+      | 'stops'
+      | 'routes'
+      | 'trips'
+      | 'stop_times'
+      | 'calendar'
+      | 'calendar_dates'
+    versioned: boolean
+  }[]
 
-    shapeFile: string
+  shapeFile: string
 }
 
 export default BaseImporter

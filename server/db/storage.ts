@@ -7,7 +7,7 @@ const azuretestcreds = [
   'http://127.0.0.1:10000/devstoreaccount1',
 ]
 
-interface IStorageProps {
+interface StorageProps {
   backing?: 'azure' | 'aws'
   endpoint?: string
   region?: string
@@ -17,7 +17,7 @@ interface IStorageProps {
 class Storage {
   backing: string
   s3: AWS.S3
-  constructor(props: IStorageProps) {
+  constructor(props: StorageProps) {
     this.backing = props.backing
     if (this.backing === 'azure') {
       throw Error('azure not supported')
