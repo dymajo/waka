@@ -65,7 +65,7 @@ class GtfsImport {
         return calendarCreator(table)
 
       case 'calendar_dates':
-        return calendarDatesCreator(table)
+        return ca<<<<<<< devlendarDatesCreator(table)
 
       default:
         return null

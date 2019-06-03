@@ -104,6 +104,7 @@ class CreateShapes {
     }
     let total = 0
 
+
     const files = await readdirAsync(directory)
     for (const file of files) {
       try {
