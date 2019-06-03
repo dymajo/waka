@@ -3,8 +3,8 @@ import 'dotenv/config'
 interface WakaConfig {
   prefix: string
   version: string
-  mode: 'all' | 'db' | 'shapes' | 'unzip' | 'download' | 'export'
-  storageService: 'aws' | 'azure'
+  mode: 'all' | 'db' | 'shapes' | 'unzip' | 'download' | 'export' | 'fullshapes'
+  storageService: 'aws' | 'azure' | 'local'
   shapesContainer: string
   shapesRegion: string
   shapesSkip: boolean
@@ -25,13 +25,19 @@ interface WakaConfig {
     connectionTimeout: number
     requestTimeout: number
   }
-  [key: string]: string | undefined | boolean | number | object
 }
 
 declare const process: {
   env: {
     PREFIX: string
-    MODE?: 'all' | 'db' | 'shapes' | 'unzip' | 'download' | 'export'
+    MODE?:
+      | 'all'
+      | 'db'
+      | 'shapes'
+      | 'unzip'
+      | 'download'
+      | 'export'
+      | 'fullshapes'
     VERSION: string
     KEYVALUE?: 'dynamo'
     KEYVALUE_VERSION_TABLE?: string
@@ -44,7 +50,7 @@ declare const process: {
     DB_TRANSACTION_LIMIT?: string
     DB_CONNECTION_TIMEOUT?: string
     DB_REQUEST_TIMEOUT?: string
-    STORAGE_SERVICE?: 'aws' | 'azure'
+    STORAGE_SERVICE?: 'aws' | 'azure' | 'local'
     SHAPES_CONTAINER?: string
     SHAPES_REGION?: string
     SHAPES_SKIP?: string

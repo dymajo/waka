@@ -65,7 +65,7 @@ class Importer {
       log(
         'fatal error',
         'Could not find an importer in ',
-        join(__dirname, './regions', `${config.prefix}.ts`)
+        join(__dirname, './regions', `${config.prefix}.ts`),
       )
     }
   }
@@ -139,6 +139,12 @@ class Importer {
     this.current.shapes()
   }
 
+  async fullShapes() {
+    await this.current.download()
+    await this.current.unzip()
+    await this.current.shapes()
+  }
+
   async fixStopCodes() {
     // GTFS says it's optional, but Waka uses stop_code for stop lookups
     const sqlRequest = connection.get().request()
@@ -161,7 +167,7 @@ class Importer {
     const rows = res.rowsAffected[0]
     log(
       `${config.prefix} ${config.version}`,
-      `Updated ${rows} null route codes`
+      `Updated ${rows} null route codes`,
     )
   }
 
@@ -186,7 +192,7 @@ class Importer {
         N'/var/opt/mssql/backup/backup.bak'
         WITH NOFORMAT, NOINIT, NAME = ${database},
         SKIP, NOREWIND, NOUNLOAD, STATS = 10
-        `
+        `,
       )
     } catch (err) {
       log(err)
