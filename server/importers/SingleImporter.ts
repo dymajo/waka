@@ -66,7 +66,7 @@ abstract class SingleImporter extends BaseImporter {
         err => {
           if (err) reject(err)
           resolve()
-        }
+        },
       )
     })
   }
@@ -77,7 +77,7 @@ abstract class SingleImporter extends BaseImporter {
         `${this.zipLocation}unarchived`,
         file,
         config.version,
-        file.versioned
+        file.versioned,
       )
     }
   }
@@ -114,7 +114,7 @@ abstract class SingleImporter extends BaseImporter {
       .replace('_', '-')
     await creator.upload(
       config.shapesContainer,
-      _resolve(outputDir, config.version)
+      _resolve(outputDir, config.version),
     )
   }
 }

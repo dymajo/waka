@@ -65,7 +65,7 @@ class GtfsImport {
         return calendarCreator(table)
 
       case 'calendar_dates':
-        return calendarDatesCreator(table)
+        return ca<<<<<<< devlendarDatesCreator(table)
 
       default:
         return null
@@ -75,41 +75,43 @@ class GtfsImport {
   private mapRowToRecord = (
     row: any[],
     rowSchema: { [key: string]: number },
-    tableSchema: string[]
+    tableSchema: string[],
   ) => {
     let arrival_time_24 = false
     let departure_time_24 = false
     return tableSchema.map(column => {
       // some feeds currently have a mix of standard and extended route types. this unifies waka to be only extended
       // https://developers.google.com/transit/gtfs/reference/extended-route-types
-      if (column === 'route_type') {
-        switch (row[rowSchema[column]]) {
-          // 0: Tram => 900: Tram Service (Sydney/Newcastle Light Rail)
-          case '0':
-            return '900'
-          // 1: Subway or Metro => 401: Metro Service (Sydney Metro)
-          case '1':
-            return '401'
-          // 2: Rail => 400: Urban Railway Service (Sydney Suburban / AT Metro)
-          case '2':
-            return '400'
-          // 3: Bus => 700 Bus Service
-          case '3':
-            return '700'
-          // 4: Ferry => 1000: Water Transport Service (Sydney Ferries / Auckland Ferries)
-          case '4':
-            return '1000'
-          // 5: Cable Car => 907: Cable Tram (Wellington Cable Car)
-          case '5':
-            return '907'
-          // 6: Gondola => 1300: Aerial Lift Service
-          case '6':
-            return '1300'
-          // 7: Funicular => 1400: Funicular Service
-          case '7':
-            return '1400'
-          default:
-            return row[rowSchema[column]]
+      if (config.extended) {
+        if (column === 'route_type') {
+          switch (row[rowSchema[column]]) {
+            // 0: Tram => 900: Tram Service (Sydney/Newcastle Light Rail)
+            case '0':
+              return '900'
+            // 1: Subway or Metro => 401: Metro Service (Sydney Metro)
+            case '1':
+              return '401'
+            // 2: Rail => 400: Urban Railway Service (Sydney Suburban / AT Metro)
+            case '2':
+              return '400'
+            // 3: Bus => 700 Bus Service
+            case '3':
+              return '700'
+            // 4: Ferry => 1000: Water Transport Service (Sydney Ferries / Auckland Ferries)
+            case '4':
+              return '1000'
+            // 5: Cable Car => 907: Cable Tram (Wellington Cable Car)
+            case '5':
+              return '907'
+            // 6: Gondola => 1300: Aerial Lift Service
+            case '6':
+              return '1300'
+            // 7: Funicular => 1400: Funicular Service
+            case '7':
+              return '1400'
+            default:
+              return row[rowSchema[column]]
+          }
         }
       }
       if (
@@ -175,7 +177,7 @@ class GtfsImport {
     version: string,
     containsVersion: boolean,
     endpoint?: string,
-    merge: boolean = false
+    merge: boolean = false,
   ) => {
     let table = merge
       ? this.getTable(file.table, `temp_${file.table}`, true)
@@ -185,7 +187,7 @@ class GtfsImport {
     return new Promise((resolve, reject) => {
       const input = createReadStream(_resolve(location, file.name))
       input.on('error', reject)
-      const parser = csvparse({ delimiter: ',' })
+      const parser = csvparse({ delimiter: ',', trim: true })
       let headers: { [key: string]: number } = null
       let transactions = 0
       let totalTransactions = 0
@@ -242,7 +244,7 @@ class GtfsImport {
             }
           }
         },
-        { parallel: 1 }
+        { parallel: 1 },
       )
       transformer.on('finish', async () => {
         const transactionsStr =
@@ -287,7 +289,7 @@ class GtfsImport {
       | 'trips'
       | 'stop_times'
       | 'calendar'
-      | 'calendar_dates'
+      | 'calendar_dates',
   ) => {
     const hashTable = `temp_${table}`
     const primaryKey = primaryKeys[table]
@@ -307,7 +309,7 @@ class GtfsImport {
 
 
 
-   `
+   `,
     )
     // DROP TABLE ${hashTable};
   }

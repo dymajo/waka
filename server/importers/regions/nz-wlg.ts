@@ -22,7 +22,7 @@ class WellingtonImporter extends SingleImporter {
     `)
     log(
       `${config.prefix} ${config.version}`,
-      'Post Import: Completed Trip Headsign Override'
+      'Post Import: Completed Trip Headsign Override',
     )
   }
 }

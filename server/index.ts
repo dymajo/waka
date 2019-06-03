@@ -32,7 +32,7 @@ const checkCreated = async () => {
   const databaseCreated = await sqlRequest.query<{ dbcreated: number }>(
     `
     select OBJECT_ID('agency', 'U') as 'dbcreated'
-    `
+    `,
   )
   return !(databaseCreated.recordset[0].dbcreated === null)
 }
@@ -80,6 +80,9 @@ const start = async () => {
       log('Started EXPORT')
       await importer.exportDb()
       break
+    case 'fullshapes':
+      log('Started FULL SHAPES')
+      await importer.fullShapes()
     default:
       break
   }
