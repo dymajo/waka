@@ -37,9 +37,9 @@ const create = async (filenames: string[]) => {
         .get()
         .request()
         .batch(
-          readFileSync(resolve(__dirname, './procs/', filename)).toString()
+          readFileSync(resolve(__dirname, './procs/', filename)).toString(),
         )
-    })
+    }),
   )
 }
 

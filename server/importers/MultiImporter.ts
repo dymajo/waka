@@ -117,10 +117,10 @@ abstract class MultiImporter extends BaseImporter {
               err => {
                 if (err) reject(err)
                 resolve()
-              }
+              },
             )
           })
-        })
+        }),
       )
     } catch (error) {
       log('fatal error', error)
@@ -138,7 +138,7 @@ abstract class MultiImporter extends BaseImporter {
             config.version,
             file.versioned,
             endpoint,
-            true
+            true,
           )
         } catch (error) {
           log(error)
@@ -149,12 +149,12 @@ abstract class MultiImporter extends BaseImporter {
 
   async shapes() {
     const { zipLocations } = this
+    const creator = new CreateShapes()
     for (const { p } of zipLocations) {
       if (!existsSync(p)) {
         log('Shapes could not be found!')
         return
       }
-      const creator = new CreateShapes()
       const inputDir = _resolve(`${p}unarchived`, 'shapes.txt')
       const outputDir = _resolve(`${p}unarchived`, 'shapes')
       const outputDir2 = _resolve(outputDir, config.version)
@@ -180,7 +180,7 @@ abstract class MultiImporter extends BaseImporter {
         .replace('_', '-')
       await creator.upload(
         config.shapesContainer,
-        _resolve(outputDir, config.version)
+        _resolve(outputDir, config.version),
       )
     }
   }
