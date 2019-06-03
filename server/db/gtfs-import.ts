@@ -187,7 +187,7 @@ class GtfsImport {
     return new Promise((resolve, reject) => {
       const input = createReadStream(_resolve(location, file.name))
       input.on('error', reject)
-      const parser = csvparse({ delimiter: ',' })
+      const parser = csvparse({ delimiter: ',', trim: true })
       let headers: { [key: string]: number } = null
       let transactions = 0
       let totalTransactions = 0
