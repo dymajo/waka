@@ -82,6 +82,7 @@ class GtfsImport {
     return tableSchema.map(column => {
       // some feeds currently have a mix of standard and extended route types. this unifies waka to be only extended
       // https://developers.google.com/transit/gtfs/reference/extended-route-types
+      if (config.extended) {
       if (column === 'route_type') {
         switch (row[rowSchema[column]]) {
           // 0: Tram => 900: Tram Service (Sydney/Newcastle Light Rail)
@@ -111,6 +112,7 @@ class GtfsImport {
           default:
             return row[rowSchema[column]]
         }
+      }
       }
       if (
         column === 'date' ||

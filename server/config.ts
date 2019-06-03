@@ -14,6 +14,7 @@ interface WakaConfig {
   keyValueVersionTable?: string
   keyValueRegion?: string
   tfnswApiKey?: string
+  extended: boolean
   db: {
     user: string
     password: string
@@ -49,6 +50,7 @@ declare const process: {
     SHAPES_SKIP?: string
     EMULATED_STORAGE?: string
     TFNSW_API_KEY?: string
+    EXTENDED?: boolean
   }
 }
 
@@ -73,6 +75,7 @@ const {
   SHAPES_SKIP,
   EMULATED_STORAGE,
   TFNSW_API_KEY,
+  EXTENDED,
 } = process.env
 
 const config: WakaConfig = {
@@ -88,7 +91,7 @@ const config: WakaConfig = {
   keyValueVersionTable: KEYVALUE_VERSION_TABLE,
   keyValueRegion: KEYVALUE_REGION,
   tfnswApiKey: TFNSW_API_KEY,
-
+  extended: EXTENDED || false,
   db: {
     user: DB_USER,
     password: DB_PASSWORD,
