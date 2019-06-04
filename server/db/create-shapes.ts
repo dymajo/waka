@@ -85,7 +85,7 @@ class CreateShapes {
               JSON.stringify(output[key]),
             )
           })
-          log('Written to disk!')
+          log(`${Object.keys(output).length} shapes written to disk!`)
           resolve()
         })
         .on('error', () => {
@@ -104,10 +104,17 @@ class CreateShapes {
     let total = 0
     let failed = 0
     const files = await readdirAsync(directory)
+
     for (const file of files) {
       try {
         await this.uploadSingle(file, directory, container)
         total += 1
+
+        process.stdout.clearLine()
+        process.stdout.cursorTo(0)
+        process.stdout.write(
+          ((total / files.length) * 100).toFixed(2) + '% Uploaded',
+        )
       } catch (error) {
         failed += 1
         if (error.toJSON) {
@@ -116,6 +123,7 @@ class CreateShapes {
         log(error)
       }
     }
+    process.stdout.write('\n')
     log(`${container}:`, 'failed upload', failed, 'Shapes.')
     log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
     return
