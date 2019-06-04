@@ -78,6 +78,7 @@ abstract class SingleImporter extends BaseImporter {
         file,
         config.version,
         file.versioned,
+        config.prefix,
       )
     }
   }
