@@ -136,7 +136,7 @@ class Importer {
   }
 
   async shapes() {
-    this.current.shapes()
+    await this.current.shapes()
   }
 
   async fullShapes() {
