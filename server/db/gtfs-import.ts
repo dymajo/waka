@@ -65,7 +65,7 @@ class GtfsImport {
         return calendarCreator(table)
 
       case 'calendar_dates':
-        return ca<<<<<<< devlendarDatesCreator(table)
+        return calendarDatesCreator(table)
 
       default:
         return null
@@ -176,7 +176,7 @@ class GtfsImport {
     },
     version: string,
     containsVersion: boolean,
-    endpoint?: string,
+    endpoint: string,
     merge: boolean = false,
   ) => {
     let table = merge
@@ -192,60 +192,54 @@ class GtfsImport {
       let transactions = 0
       let totalTransactions = 0
 
-      const transformer = transform(
-        async (row, callback) => {
-          // builds the csv headers for easy access later
-          if (headers === null) {
-            headers = {}
-            row.forEach((item, index) => {
-              headers[item] = index
-            })
-            return callback(null)
-          }
+      const transformer = transform({ parallel: 1 }, async (row, callback) => {
+        // builds the csv headers for easy access later
+        if (headers === null) {
+          headers = {}
+          row.forEach((item, index) => {
+            headers[item] = index
+          })
+          return callback(null)
+        }
 
-          const processRow = async () => {
-            if (row && row.length > 1) {
-              const tableSchema = schemas[file.table]
-              if (tableSchema) {
-                const record = this.mapRowToRecord(row, headers, tableSchema)
+        const processRow = async () => {
+          if (row && row.length > 1) {
+            const tableSchema = schemas[file.table]
+            if (tableSchema) {
+              const record = this.mapRowToRecord(row, headers, tableSchema)
 
-                // check if the row is versioned, and whether to upload it
-                if (
-                  containsVersion &&
-                  record.join(',').match(version) === null
-                ) {
-                  return
-                }
-
-                table.rows.add(...record)
-
-                transactions += 1
-                totalTransactions += 1
+              // check if the row is versioned, and whether to upload it
+              if (containsVersion && record.join(',').match(version) === null) {
+                return
               }
+
+              table.rows.add(...record)
+
+              transactions += 1
+              totalTransactions += 1
             }
           }
+        }
 
-          // assembles our CSV into JSON
-          if (transactions < config.db.transactionLimit) {
+        // assembles our CSV into JSON
+        if (transactions < config.db.transactionLimit) {
+          processRow()
+          callback(null)
+        } else {
+          log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
+          try {
+            await this.commit(table)
+            log(endpoint, logstr, 'Transaction Committed.')
+            transactions = 0
+
+            table = this.getTable(file.table)
             processRow()
             callback(null)
-          } else {
-            log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
-            try {
-              await this.commit(table)
-              log(endpoint, logstr, 'Transaction Committed.')
-              transactions = 0
-
-              table = this.getTable(file.table)
-              processRow()
-              callback(null)
-            } catch (err) {
-              log(err)
-            }
+          } catch (err) {
+            log(err)
           }
-        },
-        { parallel: 1 },
-      )
+        }
+      })
       transformer.on('finish', async () => {
         const transactionsStr =
           totalTransactions > 1000
