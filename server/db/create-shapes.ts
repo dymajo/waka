@@ -38,7 +38,7 @@ class CreateShapes {
       let headers: { [key: string]: number } = null
       let total = 0
 
-      const handler: transform.Handler = (row, callback) => {
+      const transformer = transform((row, callback) => {
         // builds the csv headers for easy access later
         if (headers === null) {
           headers = {}
@@ -65,8 +65,7 @@ class CreateShapes {
         }
 
         return callback(null)
-      }
-      const transformer = transform(handler)
+      })
         .on('finish', () => {
           log('Created Shapes. Writing to disk...')
           Object.keys(output).forEach(key => {
@@ -103,17 +102,21 @@ class CreateShapes {
       return
     }
     let total = 0
-
-
+    let failed = 0
     const files = await readdirAsync(directory)
     for (const file of files) {
       try {
         await this.uploadSingle(file, directory, container)
         total += 1
       } catch (error) {
+        failed += 1
+        if (error.toJSON) {
+          error = error.toJSON()
+        }
         log(error)
       }
     }
+    log(`${container}:`, 'failed upload', failed, 'Shapes.')
     log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
     return
   }
