@@ -3,10 +3,11 @@ FROM node:alpine
 WORKDIR /usr/src/app
 RUN mkdir cache
 
-COPY package*.json ./
-
-RUN npm ci
-
 COPY . .
 
-CMD ["npm", "run", "bs"]
+RUN npm ci
+RUN npm run build:js
+
+ENV NODE_ENV=production
+
+CMD ["npm", "start"]
