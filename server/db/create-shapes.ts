@@ -110,8 +110,13 @@ class CreateShapes {
         await this.uploadSingle(file, directory, container)
         total += 1
 
-        process.stdout.clearLine()
-        process.stdout.cursorTo(0)
+        // if it's running in a tty, we don't have to log so much
+        if (process.stdout.clearLine !== undefined) {
+            process.stdout.clearLine()
+            process.stdout.cursorTo(0)
+        } else {
+            process.stdout.write('\n')
+        }
         process.stdout.write(
           ((total / files.length) * 100).toFixed(2) + '% Uploaded',
         )
