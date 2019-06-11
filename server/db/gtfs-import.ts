@@ -80,6 +80,9 @@ class GtfsImport {
     let arrival_time_24 = false
     let departure_time_24 = false
     return tableSchema.map(column => {
+      if (column.split('_')[1] === 'id') {
+        return row[rowSchema[column]]
+      }
       // some feeds currently have a mix of standard and extended route types. this unifies waka to be only extended
       // https://developers.google.com/transit/gtfs/reference/extended-route-types
       if (config.extended) {
@@ -237,6 +240,7 @@ class GtfsImport {
             callback(null)
           } catch (err) {
             log(err)
+            process.exit()
           }
         }
       })
