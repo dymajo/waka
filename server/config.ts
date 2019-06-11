@@ -15,8 +15,6 @@ interface WakaConfig {
   keyValueRegion?: string
   tfnswApiKey?: string
   extended: boolean
-  localImport?: boolean
-  zipName?: string
   db: {
     user: string
     password: string
@@ -59,8 +57,6 @@ declare const process: {
     EMULATED_STORAGE?: string
     TFNSW_API_KEY?: string
     EXTENDED?: boolean
-    ZIP_NAME?: string
-    LOCAL_IMPORT?: string
   }
 }
 
@@ -86,13 +82,9 @@ const {
   EMULATED_STORAGE,
   TFNSW_API_KEY,
   EXTENDED,
-  LOCAL_IMPORT,
-  ZIP_NAME,
 } = process.env
 
 const config: WakaConfig = {
-  localImport: LOCAL_IMPORT === 'true' || false,
-  zipName: ZIP_NAME,
   prefix: PREFIX,
   version: VERSION,
   mode: MODE || 'all',
