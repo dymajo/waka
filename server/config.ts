@@ -4,7 +4,7 @@ interface WakaConfig {
   prefix: string
   version: string
   mode: 'all' | 'db' | 'shapes' | 'unzip' | 'download' | 'export' | 'fullshapes'
-  storageService: 'aws' | 'azure' | 'local'
+  storageService: 'aws' | 'local'
   shapesContainer: string
   shapesRegion: string
   shapesSkip: boolean
@@ -15,6 +15,8 @@ interface WakaConfig {
   keyValueRegion?: string
   tfnswApiKey?: string
   extended: boolean
+  localImport?: boolean
+  zipName?: string
   db: {
     user: string
     password: string
@@ -50,13 +52,15 @@ declare const process: {
     DB_TRANSACTION_LIMIT?: string
     DB_CONNECTION_TIMEOUT?: string
     DB_REQUEST_TIMEOUT?: string
-    STORAGE_SERVICE?: 'aws' | 'azure' | 'local'
+    STORAGE_SERVICE?: 'aws' | 'local'
     SHAPES_CONTAINER?: string
     SHAPES_REGION?: string
     SHAPES_SKIP?: string
     EMULATED_STORAGE?: string
     TFNSW_API_KEY?: string
     EXTENDED?: boolean
+    ZIP_NAME?: string
+    LOCAL_IMPORT?: string
   }
 }
 
@@ -82,9 +86,13 @@ const {
   EMULATED_STORAGE,
   TFNSW_API_KEY,
   EXTENDED,
+  LOCAL_IMPORT,
+  ZIP_NAME,
 } = process.env
 
 const config: WakaConfig = {
+  localImport: LOCAL_IMPORT === 'true' || false,
+  zipName: ZIP_NAME,
   prefix: PREFIX,
   version: VERSION,
   mode: MODE || 'all',
