@@ -12,6 +12,9 @@ route_type_map.set(6, 'gondola')
 route_type_map.set(7, 'funicular')
 route_type_map.set(-1, 'parkingbuilding')
 route_type_map.set(-2, 'bike')
+route_type_map.set(400, 'train')
+route_type_map.set(401, 'subway')
+route_type_map.set(714, 'bus')
 
 const style_map = {
   normal: new Map(),
@@ -102,6 +105,9 @@ class Iconhelper {
   }
 
   getRouteType(route_type) {
+    if (route_type_map.get(route_type) === undefined) {
+      console.log(route_type)
+    }
     return route_type_map.get(route_type)
   }
 }

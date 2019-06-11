@@ -63,6 +63,7 @@
   "dependencies": {
     "autotrack": "^2.4.1",
     "aws-sdk": "^2.311.0",
+    "axios": "^0.18.0",
     "babel-preset-stage-2": "^6.24.1",
     "body-parser": "^1.18.3",
     "clipboard": "^1.7.1",

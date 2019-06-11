@@ -69,6 +69,7 @@ class Lines extends React.Component {
   getLines = () => {
     StationStore.getLines(this.props.match.params.region)
       .then(data => {
+        console.log(data)
         const groupShow = {}
         data.groups.forEach(group => {
           groupShow[group.name] = ''
@@ -109,6 +110,62 @@ class Lines extends React.Component {
       this.state.groups.forEach(group => {
         ret.push(<h2 key={group.name}>{group.name}</h2>)
         const innerLineList = group.items.map((item, lineKey) => {
+          if (typeof item === 'object') {
+            // const el = this.state.allLines[item.routeShortName]
+            // console.log(el)
+            // let name = el[0][0].replace(' Train Station', '')
+            // if (el[0].length > 1) {
+            //   name = `${el[0][0].replace(
+            //     ' Train Station',
+            //     ''
+            //   )} to ${el[0][1].replace('Train Station', '')}`
+            // }
+            // name = this.state.friendlyNames[item] || name
+            let linePillInner
+            if (
+              Object.prototype.hasOwnProperty.call(
+                this.state.icons,
+                item.routeShortName
+              )
+            ) {
+              linePillInner = (
+                <img
+                  className="line-pill-icon"
+                  src={`/route_icons/${
+                    this.state.icons[item.routeShortName]
+                  }-color.svg`}
+                />
+              )
+            } else {
+              linePillInner = (
+                <span
+                  className="line-pill"
+                  style={{
+                    backgroundColor:
+                      this.state.colors[item.routeShortName] || '#000',
+                  }}
+                >
+                  {this.state.friendlyNumbers[item.routeShortName] ||
+                    item.routeShortName}
+                </span>
+              )
+            }
+
+            return (
+              <li key={item.routeId}>
+                <TouchableOpacity
+                  iOSHacks
+                  className="line-item"
+                  onClick={this.hijack(
+                    `/l/${this.props.match.params.region}/${item.routeId}`
+                  )}
+                >
+                  <span className="line-pill-wrapper">{linePillInner}</span>
+                  <span className="line-label">{item.routeLongName}</span>
+                </TouchableOpacity>
+              </li>
+            )
+          }
           const key = group.name + lineKey
           const el = this.state.allLines[item]
           let name = el[0][0].replace(' Train Station', '')
@@ -156,21 +213,24 @@ class Lines extends React.Component {
             </li>
           )
         })
-        let label = group.items.length - 3
-        if (this.state.groupShow[group.name] === 'show') {
-          label = `${t('lines.less', { number: label })} ▴`
-        } else {
-          label = `${t('lines.more', { number: label })} ▾`
+        const needsLabel = group.items.length > 3
+        if (needsLabel) {
+          let label = group.items.length - 3
+          if (this.state.groupShow[group.name] === 'show') {
+            label = `${t('lines.less', { number: label })} ▴`
+          } else {
+            label = `${t('lines.more', { number: label })} ▾`
+          }
+          innerLineList.push(
+            <li
+              className="line-item expand"
+              key={`${group.name}expand`}
+              onClick={this.triggerGroup(group.name)}
+            >
+              {label}
+            </li>
+          )
         }
-        innerLineList.push(
-          <li
-            className="line-item expand"
-            key={`${group.name}expand`}
-            onClick={this.triggerGroup(group.name)}
-          >
-            {label}
-          </li>
-        )
         const key = `${group.name}innerLines`
         const className = `inner-lines ${this.state.groupShow[group.name]}`
         ret.push(

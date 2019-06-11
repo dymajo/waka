@@ -198,6 +198,7 @@ class Timetable extends React.Component {
       )
     }
     const offsetTime = new Date().getTime() + StationStore.offsetTime
+
     const currentTime = parseInt(
       new Date(offsetTime).getHours().toString() +
         `0${new Date(offsetTime).getMinutes()}`.slice(-2)

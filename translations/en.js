@@ -118,6 +118,7 @@ export default {
     cablecar: 'Cable Car Station',
     noservices: 'There are no services in the next two hours.',
     error: 'We couldn’t get stop times for this station.',
+    subway: 'Subway Station',
   },
   stationedit: {
     title: 'Edit Station',

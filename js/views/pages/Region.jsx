@@ -22,6 +22,8 @@ class Region extends React.Component {
   }
 
   changeCity(city) {
+    console.log(city)
+    // debugger
     return () => {
       CurrentLocation.setCity(city, this.state.data[city].initialLocation)
       UiStore.goBack('/')
@@ -55,25 +57,30 @@ class Region extends React.Component {
     this.getCities()
   }
 
-  cityIcon = city => (
-    <TouchableOpacity
-      key={city}
-      iOSHacks
-      activeOpacity={75}
-      onClick={this.changeCity(city)}
-      style={[styles.region, { backgroundImage: `url(/photos/${city}.jpg)` }]}
-    >
-      <Text style={[styles.regionText, styles.regionTextHeader]}>
-        {this.state.data[city].name}
-      </Text>
-      <Text style={[styles.regionText, styles.regionTextSubHeader]}>
-        {this.state.data[city].secondaryName}
-      </Text>
-    </TouchableOpacity>
-  )
+  cityIcon = city => {
+    console.log(city)
+    return (
+      <TouchableOpacity
+        key={city}
+        iOSHacks
+        activeOpacity={75}
+        onClick={this.changeCity(city)}
+        style={[styles.region, { backgroundImage: `url(/photos/${city}.jpg)` }]}
+      >
+        <Text style={[styles.regionText, styles.regionTextHeader]}>
+          {this.state.data[city].name}
+        </Text>
+        <Text style={[styles.regionText, styles.regionTextSubHeader]}>
+          {this.state.data[city].secondaryName}
+        </Text>
+      </TouchableOpacity>
+    )
+  }
 
   render() {
+    console.log(this.state.liveCities)
     const cities = this.state.liveCities.map(this.cityIcon)
+    console.log(cities)
     let loading = null
     if (this.state.loading) {
       loading = (

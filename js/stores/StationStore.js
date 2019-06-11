@@ -1,3 +1,4 @@
+import axios from 'axios'
 import Events from './Events'
 import local from '../../local.js'
 import SettingsStore from './SettingsStore.js'
@@ -71,6 +72,7 @@ class StationStore extends Events {
     fetch(`${local.endpoint}/auto/info?lat=${lat}&lon=${lon}`)
       .then(response => response.json())
       .then(data => {
+        console.log(data)
         if (this.currentCity.prefix !== data.prefix) {
           this.currentCity = data
           this.trigger('newcity')
@@ -319,7 +321,7 @@ class StationStore extends Events {
         }
         arrival.setHours(0)
         arrival.setMinutes(0)
-        arrival.setSeconds(parseInt(trip.departure_time_seconds))
+        arrival.setSeconds(parseInt(trip.departure_time_seconds, 10))
         // only gets realtime info for things +30mins away
         if (arrival.getTime() < new Date().getTime() + 3600000) {
           return true
@@ -342,6 +344,7 @@ class StationStore extends Events {
     if (route_type === 2) {
       requestData.train = true
     }
+    console.log('getting realtime')
     // now we do a request to the realtime API
     fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',

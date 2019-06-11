@@ -243,26 +243,31 @@ class BaseMap extends React.Component {
   getData(lat, lon, dist) {
     const { bikeShare } = SettingsStore.state
     this.position = [lat, lon, dist]
+    console.log(StationStore.currentCity)
     fetch(
       `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
         4
       )}&lon=${lon.toFixed(4)}&distance=${dist}`
-    ).then(response => {
-      response.json().then(data => {
-        data.forEach(item => {
-          StationStore.stationCache[item.stop_id] = item
-          if (typeof this.myIcons[item.route_type.toString()] === 'undefined') {
-            this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
-              StationStore.currentCity,
-              item.route_type
-            )
-          }
-        })
-        this.setState({
-          stops: data,
+    )
+      .then(response => {
+        response.json().then(data => {
+          data.forEach(item => {
+            StationStore.stationCache[item.stop_id] = item
+            if (
+              typeof this.myIcons[item.route_type.toString()] === 'undefined'
+            ) {
+              this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
+                StationStore.currentCity.prefix,
+                item.route_type
+              )
+            }
+          })
+          this.setState({
+            stops: data,
+          })
         })
       })
-    })
+      .catch(err => console.log(err))
   }
 
   triggerCurrentLocation = () => {
