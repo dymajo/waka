@@ -423,10 +423,8 @@ class BaseMap extends React.Component {
           {this.state.hideStops
             ? null
             : this.state.stops.map(stop => {
-              let icon
-              let markericon
-              icon = IconHelper.getRouteType(stop.route_type)
-              markericon = this.myIcons[stop.route_type.toString()]
+              const icon  = IconHelper.getRouteType(stop.route_type)
+              let markericon = this.myIcons[stop.route_type.toString()]
               if (icon === 'bus') {
                 const stopSplit = stop.stop_name.split('Stop')
                 const platformSplit = stop.stop_name.split('Platform')

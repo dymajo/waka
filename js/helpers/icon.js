@@ -104,11 +104,12 @@ class Iconhelper {
     return style_map[prefix].get('default')
   }
 
-  getRouteType(route_type) {
-    if (route_type_map.get(route_type) === undefined) {
-      console.log(route_type)
+  getRouteType(routeType) {
+    if (route_type_map.get(routeType) === undefined) {
+      // it's a bus if we don't know the route type
+      return 'bus'
     }
-    return route_type_map.get(route_type)
+    return route_type_map.get(routeType)
   }
 }
 
