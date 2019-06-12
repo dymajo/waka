@@ -4,7 +4,6 @@ import { View, Text, StyleSheet } from 'react-native'
 import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 
-import local from '../../../local.js'
 import { vars } from '../../styles.js'
 import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
@@ -17,27 +16,27 @@ import LineData from '../../data/LineData.js'
 import LineStops from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 
+import IconHelper from '../../helpers/icon.js'
+const iconHelper = new IconHelper()
+
 const Icon = leaflet.icon
-const icons = [
-  null,
-  null,
-  Icon({
-    iconUrl: '/icons/normal/train-fill.svg',
-    iconSize: [24, 24],
-    className: 'vehIcon',
-  }),
-  Icon({
+const icons = {
+  'bus': Icon({
     iconUrl: '/icons/normal/bus-fill.svg',
     iconSize: [24, 24],
     className: 'vehIcon',
   }),
-  Icon({
-    iconUrl: '/icons/normal/ferry-fill.svg',
+  'train': Icon({
+    iconUrl: '/icons/normal/train-fill.svg',
     iconSize: [24, 24],
     className: 'vehIcon',
   }),
-]
-
+  'ferry': Icon({
+    iconUrl: '/icons/normal/ferry-fill.svg',
+    iconSize: [24, 24],
+    className: 'vehIcon',
+  })
+}
 let styles = null
 
 class Line extends React.Component {
@@ -182,7 +181,7 @@ class Line extends React.Component {
       .then(() => {
         const { lineMetadata } = this.state
         this.liveLayer.add('geojson', busPositions, {
-          icon: icons[lineMetadata[0].route_type],
+          icon: icons[iconHelper.getRouteType(lineMetadata[0].route_type)] || icons["bus"],
         })
         if (this.cancelCallbacks === true) return 'cancelled'
         this.liveLayer.show()
