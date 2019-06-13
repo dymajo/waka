@@ -18,25 +18,80 @@ import LineStops from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 
 const Icon = leaflet.icon
-const icons = [
-  null,
-  null,
-  Icon({
-    iconUrl: '/icons/normal/train-fill.svg',
-    iconSize: [24, 24],
-    className: 'vehIcon',
-  }),
-  Icon({
-    iconUrl: '/icons/normal/bus-fill.svg',
-    iconSize: [24, 24],
-    className: 'vehIcon',
-  }),
-  Icon({
-    iconUrl: '/icons/normal/ferry-fill.svg',
-    iconSize: [24, 24],
-    className: 'vehIcon',
-  }),
-]
+const icons = new Map([
+  [
+    2,
+    Icon({
+      iconUrl: '/icons/normal/train-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    3,
+    Icon({
+      iconUrl: '/icons/normal/bus-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    700,
+    Icon({
+      iconUrl: '/icons/normal/bus-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    900,
+    Icon({
+      iconUrl: '/icons/normal/cablecar-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    4,
+    Icon({
+      iconUrl: '/icons/normal/ferry-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    100,
+    Icon({
+      iconUrl: '/icons/normal/train-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    106,
+    Icon({
+      iconUrl: '/icons/normal/train-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    400,
+    Icon({
+      iconUrl: '/icons/normal/train-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    401,
+    Icon({
+      iconUrl: '/icons/normal/train-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+])
 
 let styles = null
 
@@ -181,8 +236,9 @@ class Line extends React.Component {
       })
       .then(() => {
         const { lineMetadata } = this.state
+        const icon = icons.get(lineMetadata[0].route_type)
         this.liveLayer.add('geojson', busPositions, {
-          icon: icons[lineMetadata[0].route_type],
+          icon,
         })
         if (this.cancelCallbacks === true) return 'cancelled'
         this.liveLayer.show()
