@@ -5,6 +5,8 @@ const route_type_map = new Map()
 route_type_map.set(0, 'lightrail')
 route_type_map.set(1, 'subway')
 route_type_map.set(2, 'train')
+route_type_map.set(100, 'train')
+route_type_map.set(106, 'train')
 route_type_map.set(3, 'bus')
 route_type_map.set(4, 'ferry')
 route_type_map.set(5, 'cablecar')
@@ -15,6 +17,7 @@ route_type_map.set(-2, 'bike')
 route_type_map.set(400, 'train')
 route_type_map.set(401, 'subway')
 route_type_map.set(714, 'bus')
+route_type_map.set(900, 'lightrail')
 
 const style_map = {
   normal: new Map(),
