@@ -4,7 +4,6 @@ import { View, Text, StyleSheet } from 'react-native'
 import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 
-import local from '../../../local.js'
 import { vars } from '../../styles.js'
 import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
@@ -16,6 +15,10 @@ import Layer from '../maps/Layer.jsx'
 import LineData from '../../data/LineData.js'
 import LineStops from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
+
+import IconHelper from '../../helpers/icon.js'
+
+const iconHelper = new IconHelper()
 
 const Icon = leaflet.icon
 const icons = new Map([
