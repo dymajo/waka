@@ -157,7 +157,9 @@ class Lines extends React.Component {
                   iOSHacks
                   className="line-item"
                   onClick={this.hijack(
-                    `/l/${this.props.match.params.region}/${item.routeId}`
+                    `/l/${this.props.match.params.region}/${
+                      item.routeShortName
+                    }`
                   )}
                 >
                   <span className="line-pill-wrapper">{linePillInner}</span>
