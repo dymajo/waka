@@ -5,6 +5,8 @@ const route_type_map = new Map()
 route_type_map.set(0, 'lightrail')
 route_type_map.set(1, 'subway')
 route_type_map.set(2, 'train')
+route_type_map.set(100, 'train')
+route_type_map.set(106, 'train')
 route_type_map.set(3, 'bus')
 route_type_map.set(4, 'ferry')
 route_type_map.set(5, 'cablecar')
@@ -12,6 +14,10 @@ route_type_map.set(6, 'gondola')
 route_type_map.set(7, 'funicular')
 route_type_map.set(-1, 'parkingbuilding')
 route_type_map.set(-2, 'bike')
+route_type_map.set(400, 'train')
+route_type_map.set(401, 'subway')
+route_type_map.set(714, 'bus')
+route_type_map.set(900, 'lightrail')
 
 const style_map = {
   normal: new Map(),
@@ -40,7 +46,7 @@ style_map['au-syd'].set('0-selection', [40, 40])
 style_map['au-syd'].set('2-selection', [40, 40])
 style_map['au-syd'].set('4-selection', [40, 40])
 
-class iconhelper {
+class Iconhelper {
   getClassName(variant, prefix) {
     if (variant !== null && prefix === 'normal') {
       return 'currentSelectionIcon larger'
@@ -101,9 +107,13 @@ class iconhelper {
     return style_map[prefix].get('default')
   }
 
-  getRouteType(route_type) {
-    return route_type_map.get(route_type)
+  getRouteType(routeType) {
+    if (route_type_map.get(routeType) === undefined) {
+      // it's a bus if we don't know the route type
+      return 'bus'
+    }
+    return route_type_map.get(routeType)
   }
 }
 
-export default iconhelper
+export default Iconhelper

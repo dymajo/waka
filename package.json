@@ -9,7 +9,8 @@
     "watch": "webpack-dev-server",
     "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server",
     "anal": "webpack --json > report.json",
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"Error: no test specified\"",
+    "watch:local": "cross-env NODE_ENV=local webpack-dev-server"
   },
   "repository": {
     "type": "git",
@@ -62,6 +63,7 @@
   "dependencies": {
     "autotrack": "^2.4.1",
     "aws-sdk": "^2.311.0",
+    "axios": "^0.18.0",
     "babel-preset-stage-2": "^6.24.1",
     "body-parser": "^1.18.3",
     "clipboard": "^1.7.1",

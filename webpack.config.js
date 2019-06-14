@@ -1,15 +1,16 @@
 const webpack = require('webpack')
 const path = require('path')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-  .BundleAnalyzerPlugin
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
+
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+
 const ManifestPlugin = require('webpack-manifest-plugin')
 const OfflinePlugin = require('offline-plugin')
-const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const generate = require('./server-static/generator.js')
+
 generate()
 
 const extractSass = new ExtractTextPlugin({
@@ -32,13 +33,13 @@ ConsoleNotifierPlugin.prototype.apply = function(compiler) {
   compiler.plugin('done', this.compilationDone.bind(this))
 }
 
-let config = {
+const config = {
   entry: {
-    app: ['whatwg-fetch', './js/app.jsx', './scss/style.scss'],
+    app: ['whatwg-fetch', './js/App.jsx', './scss/style.scss'],
     analytics: ['autotrack'],
   },
   output: {
-    path: __dirname + '/dist/',
+    path: `${__dirname}/dist/`,
     publicPath: '/',
     filename: 'generated/[name].bundle.js',
     chunkFilename: 'generated/[id].chunk.js',
@@ -50,7 +51,7 @@ let config = {
         test: /\.(js|jsx)?$/,
         use: 'babel-loader',
         include: [
-          path.resolve(__dirname + '/js'),
+          path.resolve(`${__dirname}/js`),
           path.resolve(__dirname, 'node_modules/autotrack'), // compat with autotrack, as it's published in es6
           path.resolve(__dirname, 'node_modules/dom-utils'), // autotrack
         ],
@@ -110,8 +111,11 @@ let config = {
     index: 'index-generated.html',
     proxy: {
       '/a': {
-        pathRewrite: {'^/a' : ''},
-        target: 'http://localhost:9001',
+        pathRewrite: (path, req) => {
+          console.log(path)
+          return path.replace(/^\/a\//, '/')
+        },
+        target: 'http://localhost:9001/',
       },
     },
   },
@@ -126,7 +130,7 @@ let config = {
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
-      minChunks: function(module) {
+      minChunks(module) {
         // this assumes your vendor imports exist in the node_modules directory
         return (
           module.context &&
@@ -177,6 +181,12 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   config.plugins.push(new ConsoleNotifierPlugin())
   console.log('Not building Service Worker')
+}
+
+if (process.env.NODE_ENV === 'local') {
+  console.log('local server')
+  config.devServer.proxy['/a'].target = 'http://localhost:9001'
+  config.devServer.proxy['/a'].changeOrigin = true
 }
 
 if (process.env.NODE_ENV === 'devlive') {
