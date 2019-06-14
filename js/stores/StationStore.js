@@ -72,7 +72,6 @@ class StationStore extends Events {
     fetch(`${local.endpoint}/auto/info?lat=${lat}&lon=${lon}`)
       .then(response => response.json())
       .then(data => {
-        console.log(data)
         if (this.currentCity.prefix !== data.prefix) {
           this.currentCity = data
           this.trigger('newcity')
@@ -344,7 +343,6 @@ class StationStore extends Events {
     if (route_type === 2) {
       requestData.train = true
     }
-    console.log('getting realtime')
     // now we do a request to the realtime API
     fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',
