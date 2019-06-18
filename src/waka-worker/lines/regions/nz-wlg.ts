@@ -1,5 +1,3 @@
-import DataAccess from '../dataAccess'
-import Connection from '../../db/connection'
 import { BaseLines, BaseLinesProps } from '../../../typings'
 
 const groups = [

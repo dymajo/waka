@@ -1,9 +1,6 @@
-import * as Logger from 'bunyan'
-import DataAccess from '../dataAccess'
 import lineGroups from './nz-akl-groups.json'
 import allLines from './nz-akl-lines.json'
-import { BaseLines, LinesNZAKLProps, BaseLinesProps } from '../../../typings'
-import Connection from '../../db/connection'
+import { BaseLines, BaseLinesProps } from '../../../typings'
 
 const getColor = (agencyId, code) => {
   // First for our fancy services.
@@ -135,9 +132,6 @@ const friendlyNames = {
 }
 
 class LinesNZAKL extends BaseLines {
-  logger: Logger
-  connection: Connection
-  dataAccess: DataAccess
   lineIcons: typeof lineIcons
   lineGroups: typeof lineGroups
   friendlyNames: typeof friendlyNames
