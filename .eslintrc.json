@@ -1,15 +1,28 @@
 {
+  "parser": "@typescript-eslint/parser",
   "env": {
     "es6": true,
     "node": true
   },
-  "extends": ["airbnb-base", "prettier", "plugin:promise/recommended"],
-  "plugins": ["prettier", "promise"],
+  "extends": [
+    "airbnb-base",
+    "prettier/@typescript-eslint",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
+  "plugins": ["prettier", "promise", "@typescript-eslint"],
   "rules": {
-    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "@typescript-eslint/indent": ["error", 2],
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/no-magic-numbers": 0,
+    "@typescript-eslint/explicit-member-accessibility": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/camelcase": 0,
+    "semi": "off",
+    "indent": "off",
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
-    "semi": "off",
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
     "no-return-assign": 0,
     "global-require": "off",
@@ -19,7 +32,8 @@
         "checkLoops": false
       }
     ],
-    "no-underscore-dangle": "off",
+    "no-underscore-dangle": 0,
+    "lines-between-class-members": 0,
     "comma-dangle": ["error", "always-multiline"],
     "no-shadow": "off",
     "no-unused-vars": 1,
@@ -28,7 +42,15 @@
     "promise/prefer-await-to-callbacks": "warn",
     "class-methods-use-this": "off",
     "import/no-dynamic-require": "off",
-    "quote-props": "off",
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    "no-await-in-loop": "off",
+    "camelcase": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts"]
+      }
+    }
   }
 }
