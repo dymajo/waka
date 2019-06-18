@@ -97,7 +97,7 @@ const config: WakaConfig = {
   keyValueVersionTable: KEYVALUE_VERSION_TABLE,
   keyValueRegion: KEYVALUE_REGION,
   tfnswApiKey: TFNSW_API_KEY,
-  extended: EXTENDED || false,
+  extended: EXTENDED === 'true' || false,
   db: {
     user: DB_USER,
     password: DB_PASSWORD,
