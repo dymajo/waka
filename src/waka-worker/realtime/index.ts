@@ -8,7 +8,7 @@ import { BaseRealtime, WakaRequest } from '../../typings'
 
 const regions = {
   'au-syd': RealtimeAUSYD,
-  // 'nz-akl': RealtimeNZAKL,
+  'nz-akl': RealtimeNZAKL,
   'nz-wlg': RealtimeNZWLG,
 }
 
@@ -197,9 +197,9 @@ class Realtime {
 
   healthcheck = (req: WakaRequest<null, null>, res: Response) => {
     if (this.fn) {
-      let { lastUpdate } = this.fn
-      if (lastUpdate === undefined) lastUpdate = null
-      return res.send({ lastUpdate })
+      let { lastTripUpdate } = this.fn
+      if (lastTripUpdate === undefined) lastTripUpdate = null
+      return res.send({ lastTripUpdate })
     }
     return res.status(400).send({
       message: 'realtime not available',
