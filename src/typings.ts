@@ -221,6 +221,7 @@ export interface TripUpdate {
 
 export interface StopTimeUpdate {
   departure: StopTimeEvent
+  arrival: StopTimeEvent
   scheduleRelationship: number
   stopId: string
   stopSequence: number

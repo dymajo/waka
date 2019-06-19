@@ -188,7 +188,7 @@ class RealtimeAUSYD extends BaseRealtime {
 
     this.currentUpdateDataFails = 0
     this.lastTripUpdate = new Date()
-    logger.info('updated au-syd trip updates')
+    logger.info('Pulled TfNSW Trip Updates Data.')
 
     setTimeout(this.scheduleUpdatePull, scheduleUpdatePullTimeout)
   }
@@ -227,7 +227,7 @@ class RealtimeAUSYD extends BaseRealtime {
     ).flatMap(mode => this.updates[mode].vehicle.data)
 
     this.currentVehicleData = currentVehicleData
-    logger.info('updated au-syd location')
+    logger.info('Pulled TfNSW Location Data')
     setTimeout(this.scheduleLocationPull, scheduleLocationPullTimeout)
   }
 
