@@ -2,6 +2,9 @@ import fetch from 'node-fetch'
 import * as sql from 'mssql'
 import * as Logger from 'bunyan'
 import { Response } from 'express'
+import axios from 'axios'
+import protobuf from 'protobufjs'
+import gtfs from 'gtfs-realtime-bindings'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
 import {
@@ -10,17 +13,20 @@ import {
   WakaRequest,
   PositionFeedMessage,
   UpdateFeedMessage,
+  TripUpdate,
+  PositionFeedEntity,
 } from '../../../typings'
-import axios from 'axios'
-import protobuf from 'protobufjs'
-import gtfs from 'gtfs-realtime-bindings'
 
 const scheduleUpdatePullTimeout = 20000
 const scheduleLocationPullTimeout = 15000
 
 class RealtimeNZAKL extends BaseRealtime {
-  currentUpdateData: any
-  currentVehicleData: any
+  apiKey: string
+  lastUpdate: Date
+  lastVehicleUpdate: Date
+
+  currentUpdateData: { [tripId: string]: TripUpdate }
+  currentVehicleData: PositionFeedEntity[]
 
   tripUpdatesOptions: { url: string; headers: { [header: string]: string } }
   vehicleLocationsOptions: {
@@ -40,14 +46,14 @@ class RealtimeNZAKL extends BaseRealtime {
     this.lastVehicleUpdate = null
     this.currentUpdateData = {}
     this.currentUpdateDataFails = 0
-    this.currentVehicleData = {}
+    this.currentVehicleData = []
     this.currentVehicleDataFails = null
 
     this.tripUpdatesOptions = {
       url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
       headers: {
         'Ocp-Apim-Subscription-Key': apiKey,
-        // Accept: 'application/x-protobuf',
+        Accept: 'application/x-protobuf',
       },
     }
     this.vehicleLocationsOptions = {
@@ -85,6 +91,10 @@ class RealtimeNZAKL extends BaseRealtime {
 
   scheduleUpdatePull = async () => {
     const { logger, tripUpdatesOptions } = this
+    const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
+
+    const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
+
     try {
       const res = await axios.get(tripUpdatesOptions.url, {
         headers: tripUpdatesOptions.headers,
@@ -92,10 +102,10 @@ class RealtimeNZAKL extends BaseRealtime {
       })
       const uInt8 = new Uint8Array(res.data)
 
-      const newData = {}
-      const feed = gtfs.transit_realtime.FeedMessage.decode(
-        uInt8
-      ) as UpdateFeedMessage
+      const _feed = FeedMessage.decode(uInt8) as unknown
+
+      const newData: { [tripId: string]: TripUpdate } = {}
+      const feed = _feed as UpdateFeedMessage
       feed.entity.forEach(trip => {
         newData[trip.tripUpdate.trip.tripId] = trip.tripUpdate
       })
@@ -119,15 +129,12 @@ class RealtimeNZAKL extends BaseRealtime {
         headers: vehicleLocationsOptions.headers,
         responseType: 'arraybuffer',
       })
-      console.log(res.data)
       const uInt8 = new Uint8Array(res.data)
       const feed = gtfs.transit_realtime.FeedMessage.decode(
         uInt8
       ) as PositionFeedMessage
 
-      console.log(feed)
-
-      this.currentVehicleData = feed
+      this.currentVehicleData = feed.entity
       this.currentUpdateDataFails = 0
       this.lastVehicleUpdate = new Date()
       logger.info('Pulled AT Location Data.')
@@ -216,9 +223,12 @@ class RealtimeNZAKL extends BaseRealtime {
     } = {}
     trips.forEach(trip => {
       const data = this.currentUpdateData[trip]
+      debugger
       if (typeof data !== 'undefined') {
         const timeUpdate =
-          data.stop_time_update.departure || data.stop_time_update.arrival || {}
+          data.stopTimeUpdate[0].departure ||
+          data.stopTimeUpdate[0].arrival ||
+          {}
         realtimeInfo[trip] = {
           stop_sequence: data.stop_time_update.stop_sequence,
           delay: timeUpdate.delay,
