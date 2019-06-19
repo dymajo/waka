@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { pRateLimit } from 'p-ratelimit'
 import logger from '../logger'
 import { TfNSWUpdaterProps } from '../../typings'
 
@@ -44,6 +45,7 @@ class TfNSWUpdater {
   callback: any
   delay: number
   interval: number
+  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
   constructor(props: TfNSWUpdaterProps) {
     const { apiKey, callback, delay, interval } = props
@@ -52,8 +54,12 @@ class TfNSWUpdater {
     this.delay = delay || 5
     this.interval = interval || 1440
     this.prefix = 'au-syd'
-
     this.timeout = null
+    this.rateLimiter = pRateLimit({
+      interval: 1000,
+      rate: 5,
+      concurrency: 5,
+    })
     this.start = this.start.bind(this)
     this.check = this.check.bind(this)
     this.checkApi = this.checkApi.bind(this)
@@ -80,7 +86,7 @@ class TfNSWUpdater {
       for (const mode in tfnswmodes) {
         if (Object.prototype.hasOwnProperty.call(tfnswmodes, mode)) {
           const { endpoint } = tfnswmodes[mode]
-          const version = await checkApi(endpoint)
+          const version = await this.rateLimiter(() => checkApi(endpoint))
           if (newest < version) {
             newest = version
           }

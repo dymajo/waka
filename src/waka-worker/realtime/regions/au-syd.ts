@@ -4,7 +4,9 @@ import * as protobuf from 'protobufjs'
 import * as Logger from 'bunyan'
 import { Response, Request } from 'express'
 import { VarChar } from 'mssql'
+import { pRateLimit } from 'p-ratelimit'
 import Connection from '../../db/connection'
+
 import {
   PositionFeedMessage,
   UpdateFeedMessage,
@@ -35,11 +37,6 @@ const modes: [
   'metro',
 ]
 
-const delay = (amount: number) =>
-  new Promise<void>(resolve => setTimeout(resolve, amount))
-const sleep = (fn, amount: number) =>
-  new Promise<void>(resolve => setTimeout(() => resolve(fn), amount))
-
 interface RealtimeAUSYDProps {
   apiKey: string
   connection: Connection
@@ -57,6 +54,7 @@ class RealtimeAUSYD extends BaseRealtime {
       tripupdate: { data: { [tripId: string]: TripUpdate }; lastModified: Date }
     }
   }
+  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
   constructor(props: RealtimeAUSYDProps) {
     super()
@@ -64,6 +62,11 @@ class RealtimeAUSYD extends BaseRealtime {
     this.connection = connection
     this.logger = logger
     this.apiKey = apiKey
+    this.rateLimiter = pRateLimit({
+      interval: 1000,
+      rate: 5,
+      concurrency: 5,
+    })
 
     this.lastTripUpdate = null
     this.lastVehicleUpdate = null
@@ -123,7 +126,6 @@ class RealtimeAUSYD extends BaseRealtime {
       logger.warn('No TfNSW API Key, will not show realtime.')
     }
     this.scheduleUpdatePull()
-    await delay(7500)
     this.scheduleLocationPull()
     logger.info('TfNSW Realtime Started.')
   }
@@ -134,18 +136,18 @@ class RealtimeAUSYD extends BaseRealtime {
   }
 
   scheduleUpdatePull = async () => {
-    const m = `trips - ${new Date().toISOString()}`
-    console.time(m)
     const { logger, tripUpdateOptions } = this
     const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
     const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
     for (const mode of modes) {
       const m = `${mode} ${new Date().toISOString()}`
       try {
-        const res = await axios.get(`${tripUpdateOptions.url}/${mode}`, {
-          headers: tripUpdateOptions.headers,
-          responseType: 'arraybuffer',
-        })
+        const res = await this.rateLimiter(() =>
+          axios.get(`${tripUpdateOptions.url}/${mode}`, {
+            headers: tripUpdateOptions.headers,
+            responseType: 'arraybuffer',
+          })
+        )
         if (
           res.headers['last-modified'] ===
           this.updates[mode].tripupdate.lastModified
@@ -173,7 +175,6 @@ class RealtimeAUSYD extends BaseRealtime {
         console.error(JSON.parse(err.response.data))
         logger.error(err.response.data)
       }
-      await delay(1000)
     }
 
     const currentUpdateData: { [tripId: string]: TripUpdate } = {}
@@ -187,23 +188,23 @@ class RealtimeAUSYD extends BaseRealtime {
 
     this.currentUpdateDataFails = 0
     this.lastTripUpdate = new Date()
-    const used = process.memoryUsage()
-    console.timeEnd(m)
-    await sleep(this.scheduleUpdatePull, scheduleUpdatePullTimeout)
+    logger.info('updated au-syd trip updates')
+
+    setTimeout(this.scheduleUpdatePull, scheduleUpdatePullTimeout)
   }
 
   scheduleLocationPull = async () => {
-    const m = `location - ${new Date().toISOString()}`
-    console.time(m)
     const { logger, vehicleLocationOptions } = this
     const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
     const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
     for (const mode of modes) {
       try {
-        const res = await axios.get(`${vehicleLocationOptions.url}/${mode}`, {
-          headers: vehicleLocationOptions.headers,
-          responseType: 'arraybuffer',
-        })
+        const res = await this.rateLimiter(() =>
+          axios.get(`${vehicleLocationOptions.url}/${mode}`, {
+            headers: vehicleLocationOptions.headers,
+            responseType: 'arraybuffer',
+          })
+        )
         if (
           res.headers['last-modified'] ===
           this.updates[mode].vehicle.lastModified
@@ -219,7 +220,6 @@ class RealtimeAUSYD extends BaseRealtime {
       } catch (err) {
         // console.error(err)
       }
-      await delay(1000)
     }
 
     const currentVehicleData: PositionFeedEntity[] = Object.keys(
@@ -227,9 +227,8 @@ class RealtimeAUSYD extends BaseRealtime {
     ).flatMap(mode => this.updates[mode].vehicle.data)
 
     this.currentVehicleData = currentVehicleData
-
-    console.timeEnd(m)
-    await sleep(this.scheduleLocationPull, scheduleLocationPullTimeout)
+    logger.info('updated au-syd location')
+    setTimeout(this.scheduleLocationPull, scheduleLocationPullTimeout)
   }
 
   getTripsEndpoint = async (
@@ -293,7 +292,9 @@ class RealtimeAUSYD extends BaseRealtime {
             )
             realtimeInfo[trip] = info
           }
-        } catch (error) {}
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
     return res.send(realtimeInfo)
@@ -315,7 +316,9 @@ class RealtimeAUSYD extends BaseRealtime {
             latitude: data.vehicle.position.latitude,
             longitude: data.vehicle.position.longitude,
           }
-        } catch (err) {}
+        } catch (err) {
+          console.log(err)
+        }
       }
     }
     return res.send(vehicleInfo)

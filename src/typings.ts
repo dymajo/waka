@@ -111,6 +111,7 @@ export abstract class BaseRealtime {
   lastVehicleUpdate: Date
   currentUpdateDataFails: number
   currentVehicleDataFails: number
+  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
   getTripsCached?(
     trips: string[]
