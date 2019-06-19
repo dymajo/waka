@@ -106,7 +106,12 @@ export abstract class BaseKeyvalue {
 export abstract class BaseRealtime {
   connection: Connection
   logger: Logger
-  lastUpdate: Date
+  apiKey: string
+  lastTripUpdate: Date
+  lastVehicleUpdate: Date
+  currentUpdateDataFails: number
+  currentVehicleDataFails: number
+
   getTripsCached?(
     trips: string[]
   ): {
@@ -120,7 +125,7 @@ export abstract class BaseRealtime {
     }
   }
   scheduleLocationPull?(): Promise<void>
-  schedulePull?(): Promise<void>
+  scheduleUpdatePull?(): Promise<void>
   getAllVehicleLocations?(
     req: WakaRequest<null, null>,
     res: Response
