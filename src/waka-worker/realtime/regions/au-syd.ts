@@ -26,7 +26,7 @@ const modes: [
   'lightrail/newcastle',
   'nswtrains',
   'sydneytrains',
-  'metro',
+  'metro'
 ] = [
   'buses',
   'ferries',
@@ -225,7 +225,7 @@ class RealtimeAUSYD extends BaseRealtime {
     const currentVehicleData: PositionFeedEntity[] = Object.keys(
       this.updates
     ).flatMap(mode => this.updates[mode].vehicle.data)
-
+    this.lastVehicleUpdate = new Date()
     this.currentVehicleData = currentVehicleData
     logger.info('Pulled TfNSW Location Data')
     setTimeout(this.scheduleLocationPull, scheduleLocationPullTimeout)
@@ -350,30 +350,66 @@ class RealtimeAUSYD extends BaseRealtime {
           return routeId === entity.vehicle.trip.routeId
         })
       })
+      // const updates: { [tripId: string]: TripUpdate } = {}
+      // Object.keys(this.currentUpdateData)
+      //   .filter(tripId => {
+      //     const data = this.currentUpdateData[tripId]
+      //     return routeIds.some(routeId => {
+      //       return routeId === data.trip.routeId
+      //     })
+      //   })
+      //   .forEach(tripId => {
+      //     updates[tripId] = this.currentUpdateData[tripId]
+      //   })
       const tripIds = trips.map(entity => entity.vehicle.trip.tripId)
       const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
         direction_id: number
+        trip_headsign: string
+        bikes_allowed: number
+        block_id: string
+        route_id: string
+        service_id: string
+        shape_id: string
+        trip_short_name: string
+        wheelchair_accessible: number
       }>(`
       SELECT *
       FROM trips
       WHERE trip_id IN (${escapedTripIds})
       `)
 
-      const tripIdsMap = {}
-      tripIdRequest.recordset.forEach(
-        record => (tripIdsMap[record.trip_id] = record.direction_id)
-      )
+      const tripIdsMap: {
+        [tripId: string]: {
+          trip_id: string
+          direction_id: number
+          trip_headsign: string
+          bikes_allowed: number
+          block_id: string
+          route_id: string
+          service_id: string
+          shape_id: string
+          trip_short_name: string
+          wheelchair_accessible: number
+        }
+      } = {}
+      tripIdRequest.recordset.forEach(record => {
+        tripIdsMap[record.trip_id] = record
+      })
 
       // now we return the structued data finally
       const result = trips.map(entity => ({
         latitude: entity.vehicle.position.latitude,
         longitude: entity.vehicle.position.longitude,
         bearing: entity.vehicle.position.bearing,
-        direction: tripIdsMap[entity.vehicle.trip.tripId],
+        direction: tripIdsMap[entity.vehicle.trip.tripId].direction_id,
+        stopId: entity.vehicle.stopId,
+        congestionLevel: entity.vehicle.congestionLevel,
         updatedAt: this.lastVehicleUpdate,
+        trip_id: entity.vehicle.trip.tripId,
+        label: entity.vehicle.vehicle.label,
       }))
       return res.send(result)
     } catch (err) {
