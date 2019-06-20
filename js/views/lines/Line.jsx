@@ -19,7 +19,23 @@ import { renderShape, renderStops } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icon.js'
 
 const iconHelper = new IconHelper()
-
+const trains = {
+  A: 'Waratah',
+  B: 'Waratah Series 2',
+  C: 'C Set',
+  G: 'Tangara',
+  H: 'OSCAR',
+  J: 'Hunter',
+  K: 'K Set',
+  M: 'Millennium',
+  N: 'Endeavour',
+  P: 'Xplorer',
+  R: 'Indian Pacific',
+  S: 'S Set',
+  T: 'Tangara',
+  V: 'Intercity',
+  X: 'XPT',
+}
 const Icon = leaflet.icon
 const icons = new Map([
   [
@@ -215,6 +231,8 @@ class Line extends React.Component {
     const { match } = this.props
     const { direction } = this.state
     let busPositions = null
+    const vehicleMap = {}
+
     this.lineData
       .getRealtime()
       .then(data => {
@@ -231,6 +249,7 @@ class Line extends React.Component {
               trip.latitude,
               // TODO: bearing
             ])
+            vehicleMap[[trip.latitude, trip.longitude].join(',')] = trip
           }
         })
 
@@ -243,11 +262,43 @@ class Line extends React.Component {
         this.liveLayer.add('geojson', busPositions, {
           icon,
         })
+        this.liveLayer.add('geojson', busPositions, {
+          typeExtension: 'InvisibleMarker',
+          typeExtensionOptions: {
+            zIndexOffset: 30,
+            popupContent: (lat, lng) => {
+              const data = vehicleMap[[lat, lng].join(',')]
+              const tripSplit = data.trip_id.split('.')
+              const tripId = {
+                tripName: tripSplit[0],
+                timetableId: tripSplit[1],
+                timetableVersionId: tripSplit[2],
+                dopRef: tripSplit[3],
+                setType: tripSplit[4],
+                numberOfCars: tripSplit[5],
+                tripInstance: tripSplit[6],
+              }
+              return (
+                // it's not quite react
+                `
+              <span data-trip="${data.trip_id}">
+                <h2>${data.label}</h2>
+                <span>${trains[tripId.setType]}</span>
+                <span>${tripId.numberOfCars} Cars</span>
+                <span>Run: ${tripId.tripName}</span>
+                <span>Near: ${data.stopId}</span>
+                </span>`
+                // <span>Congestion Level: ${data.congestionLevel}</span>
+              )
+            },
+          },
+        })
         if (this.cancelCallbacks === true) return 'cancelled'
         this.liveLayer.show()
         return 'done'
       })
       .catch(err => {
+        console.log(err)
         // who cares about the error
         console.error('Could not load realtime.')
       })
