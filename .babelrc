@@ -1,13 +1,9 @@
 {
-  "presets": [
-    [
-      "env",
-      {
-        "modules": false
-      }
-    ],
-    "stage-2",
-    "react"
+  "plugins": [
+    "lodash",
+    "react-native-web"
   ],
-  "plugins": ["lodash", "react-native-web"]
+  "presets": [
+    "airbnb"
+  ]
 }
