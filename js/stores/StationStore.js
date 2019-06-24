@@ -344,7 +344,6 @@ class StationStore extends Events {
     if (route_type === 2) {
       requestData.train = true
     }
-    console.log('getting realtime')
     // now we do a request to the realtime API
     fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',

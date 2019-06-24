@@ -19,10 +19,12 @@ import { renderShape, renderStops } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icon.js'
 
 const iconHelper = new IconHelper()
+
+
 const Icon = leaflet.icon
 const icons = new Map([
   [
-    2,
+    'train',
     Icon({
       iconUrl: '/icons/normal/train-fill.svg',
       iconSize: [24, 24],
@@ -30,7 +32,7 @@ const icons = new Map([
     }),
   ],
   [
-    3,
+    'bus',
     Icon({
       iconUrl: '/icons/normal/bus-fill.svg',
       iconSize: [24, 24],
@@ -38,15 +40,7 @@ const icons = new Map([
     }),
   ],
   [
-    700,
-    Icon({
-      iconUrl: '/icons/normal/bus-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    900,
+    'cablecar',
     Icon({
       iconUrl: '/icons/normal/cablecar-fill.svg',
       iconSize: [24, 24],
@@ -55,40 +49,9 @@ const icons = new Map([
   ],
   [
     4,
+    'ferry',
     Icon({
       iconUrl: '/icons/normal/ferry-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    100,
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    106,
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    400,
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    401,
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
       iconSize: [24, 24],
       className: 'vehIcon',
     }),
@@ -241,7 +204,7 @@ class Line extends React.Component {
       })
       .then(() => {
         const { lineMetadata } = this.state
-        const icon = icons.get(lineMetadata[0].route_type)
+        const icon = icons.get(iconHelper.getRouteType(lineMetadata[0].route_type))
         this.liveLayer.add('geojson', busPositions, {
           icon,
         })
