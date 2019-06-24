@@ -13,24 +13,6 @@ import BigIcon from '../../../dist/icons/big.svg'
 import MapIcon from '../../../dist/icons/station.svg'
 import TimetableIcon from '../../../dist/icons/timetable.svg'
 
-const trains = {
-  A: 'Waratah',
-  B: 'Waratah Series 2',
-  C: 'C Set',
-  G: 'Tangara',
-  H: 'OSCAR',
-  J: 'Hunter',
-  K: 'K Set',
-  M: 'Millennium',
-  N: 'Endeavour',
-  P: 'Xplorer',
-  R: 'Indian Pacific',
-  S: 'S Set',
-  T: 'Tangara',
-  V: 'Intercity',
-  X: 'XPT',
-}
-
 // 3 minutes until we'll hide the trip
 const tripDelay = 3 * 6000
 
@@ -84,10 +66,6 @@ class TripItem extends React.Component {
   render() {
     const trip = this.props.collection[0]
     const tripIdSplit = trip.trip_id.split('.')
-    const trainType =
-      trip.route_type === 2
-        ? `${trains[tripIdSplit[4]]} - ${tripIdSplit[5]} Car`
-        : undefined
     const route_code = trip.route_short_name
 
     const dir = trip.direction_id === 1 ? 'in' : ''
@@ -111,12 +89,7 @@ class TripItem extends React.Component {
     const route_class = isNaN(parseInt(route_code.slice(0, 1))) ? 'text' : ''
     const route_icon = trip.route_icon || null
     if (route_icon === null) {
-      route_symbol = (
-        <div>
-          <h1 className={route_class}>{route_code}</h1>
-          <h3>{trainType}</h3>
-        </div>
-      )
+      route_symbol = <h1 className={route_class}>{route_code}</h1>
     } else {
       const filename = route_icon.match('raster')
         ? `${route_icon}-mono.png`
