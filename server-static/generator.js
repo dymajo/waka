@@ -12,7 +12,7 @@ const fn = function() {
     template({
       title: 'Waka',
       description: 'localhost mode',
-      vendorpath: '/generated/vendor.bundle.js',
+      vendorpath: '/generated/vendor.chunk.js',
       apppath: '/generated/app.bundle.js',
       analyticspath: '/generated/analytics.bundle.js',
       csspath: '/generated/app.css',
