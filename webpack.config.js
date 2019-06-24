@@ -99,7 +99,10 @@ const config = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'generated/[name].[contenthash].css',
+      filename:
+        process.env.NODE_ENV === 'production'
+          ? 'generated/[name].[contenthash].css'
+          : 'generated/[name].css',
       chunkFilename: 'generated/[id].[contenthash].css',
     }),
     new webpack.DefinePlugin({
