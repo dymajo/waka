@@ -243,7 +243,6 @@ class BaseMap extends React.Component {
   getData(lat, lon, dist) {
     const { bikeShare } = SettingsStore.state
     this.position = [lat, lon, dist]
-    console.log(StationStore.currentCity)
     fetch(
       `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
         4

@@ -67,7 +67,6 @@ class Station extends React.Component {
   getData(newProps, getTimes = true) {
     const stop = newProps.match.params.station
     const region = newProps.match.params.region
-    console.log(region)
     StationStore.getData(stop, region)
       .then(data => {
         let name = data.stop_name

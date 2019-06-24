@@ -72,7 +72,6 @@ class StationStore extends Events {
     fetch(`${local.endpoint}/auto/info?lat=${lat}&lon=${lon}`)
       .then(response => response.json())
       .then(data => {
-        console.log(data)
         if (this.currentCity.prefix !== data.prefix) {
           this.currentCity = data
           this.trigger('newcity')
