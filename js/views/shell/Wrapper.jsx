@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { View, StyleSheet } from 'react-native'
 import UiStore from '../../stores/UiStore'
 
 class Wrapper extends Component {
@@ -21,28 +20,22 @@ class Wrapper extends Component {
       animation = 'fade-forward'
     }
 
-    const className = `shell-content ${
-      this.props.animationState
-    } direction-${animation} ${UiStore.state.oldCardPosition}-position-${
-      UiStore.state.cardPosition
-    }`
     return (
-      <View className={className} style={styles.wrapper}>
+      <div
+        className={`shell-content ${this.props.animationState} direction-${animation} ${UiStore.state.oldCardPosition}-position-${UiStore.state.cardPosition}`}
+        style={{
+          display: 'flex',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+      >
         {this.props.children}
-      </View>
+      </div>
     )
   }
 }
-
-const styles = StyleSheet.create({
-  rootWrapper: {},
-  wrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-})
 
 export default Wrapper

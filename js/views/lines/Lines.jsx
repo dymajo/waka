@@ -1,15 +1,15 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 import StationStore from '../../stores/StationStore'
-import UiStore from '../../stores/UiStore'
 import { t } from '../../stores/translationStore.js'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 
 import Header from '../reusable/Header.jsx'
-import TouchableOpacity from '../reusable/TouchableOpacity.jsx'
+
+let styles
 
 class Lines extends React.Component {
   static propTypes = {
@@ -54,8 +54,12 @@ class Lines extends React.Component {
   }
 
   newcity = () => {
-    if (StationStore.currentCity.prefix !== 'none') {
-      this.props.history.push(`/l/${StationStore.currentCity.prefix}`)
+    const newPath = `/l/${StationStore.currentCity.prefix}`
+    if (
+      StationStore.currentCity.prefix !== 'none' &&
+      window.location.pathname !== newPath
+    ) {
+      this.props.history.push(newPath)
     }
   }
 
@@ -69,7 +73,6 @@ class Lines extends React.Component {
   getLines = () => {
     StationStore.getLines(this.props.match.params.region)
       .then(data => {
-        console.log(data)
         const groupShow = {}
         data.groups.forEach(group => {
           groupShow[group.name] = ''
@@ -110,64 +113,6 @@ class Lines extends React.Component {
       this.state.groups.forEach(group => {
         ret.push(<h2 key={group.name}>{group.name}</h2>)
         const innerLineList = group.items.map((item, lineKey) => {
-          if (typeof item === 'object') {
-            // const el = this.state.allLines[item.routeShortName]
-            // console.log(el)
-            // let name = el[0][0].replace(' Train Station', '')
-            // if (el[0].length > 1) {
-            //   name = `${el[0][0].replace(
-            //     ' Train Station',
-            //     ''
-            //   )} to ${el[0][1].replace('Train Station', '')}`
-            // }
-            // name = this.state.friendlyNames[item] || name
-            let linePillInner
-            if (
-              Object.prototype.hasOwnProperty.call(
-                this.state.icons,
-                item.routeShortName
-              )
-            ) {
-              linePillInner = (
-                <img
-                  className="line-pill-icon"
-                  src={`/route_icons/${
-                    this.state.icons[item.routeShortName]
-                  }-color.svg`}
-                />
-              )
-            } else {
-              linePillInner = (
-                <span
-                  className="line-pill"
-                  style={{
-                    backgroundColor:
-                      this.state.colors[item.routeShortName] || '#000',
-                  }}
-                >
-                  {this.state.friendlyNumbers[item.routeShortName] ||
-                    item.routeShortName}
-                </span>
-              )
-            }
-
-            return (
-              <li key={item.routeId}>
-                <TouchableOpacity
-                  iOSHacks
-                  className="line-item"
-                  onClick={this.hijack(
-                    `/l/${this.props.match.params.region}/${
-                      item.routeShortName
-                    }`
-                  )}
-                >
-                  <span className="line-pill-wrapper">{linePillInner}</span>
-                  <span className="line-label">{item.routeLongName}</span>
-                </TouchableOpacity>
-              </li>
-            )
-          }
           const key = group.name + lineKey
           const el = this.state.allLines[item]
           let name = el[0][0].replace(' Train Station', '')
@@ -180,7 +125,7 @@ class Lines extends React.Component {
           name = this.state.friendlyNames[item] || name
 
           let linePillInner
-          if (this.state.icons.hasOwnProperty(item)) {
+          if (this.state.icons.item !== undefined) {
             linePillInner = (
               <img
                 className="line-pill-icon"
@@ -203,14 +148,14 @@ class Lines extends React.Component {
           return (
             <li key={key}>
               <TouchableOpacity
-                iOSHacks
-                className="line-item"
                 onClick={this.hijack(
                   `/l/${this.props.match.params.region}/${item}`
                 )}
               >
-                <span className="line-pill-wrapper">{linePillInner}</span>
-                <span className="line-label">{name}</span>
+                <div className="line-item">
+                  <span className="line-pill-wrapper">{linePillInner}</span>
+                  <span className="line-label">{name}</span>
+                </div>
               </TouchableOpacity>
             </li>
           )
@@ -253,16 +198,6 @@ class Lines extends React.Component {
           </button>
         </div>
       )
-    } else if (
-      window.defaultContent[1] &&
-      window.location.pathname === window.defaultContent[0]
-    ) {
-      const domElem = document.createElement('div')
-      domElem.innerHTML = window.defaultContent[1]
-      const dangerous = {
-        __html: domElem.querySelector('.scrollwrap').innerHTML,
-      }
-      ret = <div dangerouslySetInnerHTML={dangerous} />
     } else {
       ret = <div className="spinner" />
     }
@@ -280,7 +215,7 @@ class Lines extends React.Component {
     )
   }
 }
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },

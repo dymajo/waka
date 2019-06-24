@@ -22,6 +22,8 @@ import AllLines from '../lines/AllLines.jsx'
 
 const routingEvents = new Events()
 
+let styles
+
 // this is just a nice alias to use in the render in the switch
 const wrapFn = Child => props => (
   <Wrapper
@@ -39,15 +41,39 @@ class Content extends React.Component {
     location: PropTypes.object,
   }
 
+  state = {
+    desktopLayout: window.innerWidth > 850,
+  }
+
   triggerStateUpdate = state => data => {
-    const action = this.props.history.action
+    const { action } = this.props.history
     routingEvents.trigger('animation', data, state, action)
   }
 
+  triggerLayout = () => {
+    const { desktopLayout } = this.state
+    if (window.innerWidth > 850 && desktopLayout === false) {
+      this.setState({
+        desktopLayout: true,
+      })
+    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+      this.setState({
+        desktopLayout: false,
+      })
+    }
+  }
+
   render() {
-    // keys on the routes save around 10ish ms
+    const { desktopLayout } = this.state
     return (
-      <View style={styles.rootWrapper} className="root-card-wrapper">
+      <View
+        style={
+          desktopLayout
+            ? [styles.rootWrapper, styles.desktop]
+            : styles.rootWrapper
+        }
+        onLayout={this.triggerLayout}
+      >
         <Switch location={this.props.location} key="switch" timeout={400}>
           <Route path="/" exact render={wrapFn(this.props.rootComponent)} />
           <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
@@ -70,14 +96,16 @@ class Content extends React.Component {
     )
   }
 }
-const styles = StyleSheet.create({
-  rootWrapper: {},
-  wrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+styles = StyleSheet.create({
+  rootWrapper: {
+    boxShadow: 'rgba(0,0,0,0.3) 0 0 3px',
+    backgroundColor: '#000',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    height: 'calc(100% - 25px)',
+  },
+  desktop: {
+    height: '100%',
   },
 })
 export default withRouter(Content)

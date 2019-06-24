@@ -1,4 +1,5 @@
 import React from 'react'
+import { View } from 'react-native'
 import PropTypes from 'prop-types'
 import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
@@ -13,6 +14,7 @@ class RootContent extends React.Component {
   state = {
     stations: StationStore.getData(),
     currentCity: StationStore.currentCity,
+    desktopLayout: window.innerWidth > 850,
   }
 
   triggerUpdate = () => {
@@ -47,7 +49,21 @@ class RootContent extends React.Component {
     }
   }
 
+  triggerLayout = () => {
+    const { desktopLayout } = this.state
+    if (window.innerWidth > 850 && desktopLayout === false) {
+      this.setState({
+        desktopLayout: true,
+      })
+    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+      this.setState({
+        desktopLayout: false,
+      })
+    }
+  }
+
   render() {
+    const { desktopLayout, stations } = this.state
     let twitterAcc
     if (this.state.currentCity.prefix === 'nz-akl') {
       twitterAcc = (
@@ -70,8 +86,6 @@ class RootContent extends React.Component {
         />
       )
     }
-
-    const stations = this.state.stations
     const secondTwo = [
       <Sidebar
         key="city"
@@ -88,15 +102,18 @@ class RootContent extends React.Component {
         name={t('onboarding.sponsor.name')}
         description={t('onboarding.sponsor.description')}
       />,
-      <Sidebar
-        className="desktop-hide"
-        key="settings"
-        url="/settings"
-        icon="settings.svg"
-        name={t('onboarding.settings.name')}
-        description={t('onboarding.settings.description')}
-      />,
     ]
+    if (!desktopLayout) {
+      secondTwo.push(
+        <Sidebar
+          key="settings"
+          url="/settings"
+          icon="settings.svg"
+          name={t('onboarding.settings.name')}
+          description={t('onboarding.settings.description')}
+        />
+      )
+    }
     const description2 = (
       <div>
         <h3>Why the name Waka?</h3>
@@ -137,18 +154,19 @@ class RootContent extends React.Component {
             })}
             description2={description2}
           />
-          <Sidebar
-            url={`/l/${
-              this.state.currentCity.prefix === 'none'
-                ? ''
-                : this.state.currentCity.prefix
-            }`}
-            icon="lines.svg"
-            action={this.toggleRegion}
-            className="mobile-hide"
-            name={t('onboarding.lines.name')}
-            description={t('onboarding.lines.description')}
-          />
+          {desktopLayout ? (
+            <Sidebar
+              url={`/l/${
+                this.state.currentCity.prefix === 'none'
+                  ? ''
+                  : this.state.currentCity.prefix
+              }`}
+              icon="lines.svg"
+              action={this.toggleRegion}
+              name={t('onboarding.lines.name')}
+              description={t('onboarding.lines.description')}
+            />
+          ) : null}
           <Sidebar
             type="install"
             action={this.props.togglePin}
@@ -188,48 +206,50 @@ class RootContent extends React.Component {
     // positions the onboarding thing dependent on pwa mode.
     return (
       <div className="root-card-content">
-        {onboarding}
-        <h2>{t('savedStations.title')}</h2>
-        {message}
-        <ul>
-          {StationStore.getOrder().map(station => {
-            const url = station.split('|').slice(-1)
-            return (
-              <Sidebar
-                key={station}
-                url={`/s/${StationStore.StationData[station].region ||
-                  'nz-akl'}/${url}`}
-                name={stations[station].name}
-                icon={`${stations[station].icon}.svg`}
-                description={stations[station].description}
-              />
-            )
-          })}
-        </ul>
-        <h2>{t('serviceAlerts.title')}</h2>
-        <ul>
-          {twitterAcc}
-          <Sidebar
-            type="url"
-            url="https://twitter.com/DYMAJOLtd"
-            icon="dymajo.svg"
-            name="DYMAJO"
-            description={t('serviceAlerts.twitter', { account: 'DYMAJOLtd' })}
-          />
-        </ul>
-        <div className="more-section">
-          <h2>{t('savedStations.more')}</h2>
-          <ul className="blue-fill">{secondTwo}</ul>
-        </div>
-        <a
-          className="label version"
-          href="https://github.com/consindo/dymajo-transit"
-          target="_blank"
-          rel="noopener"
-          onClick={this.reject}
-        >
-          DYMAJO Waka v{localStorage.getItem('AppVersion')}
-        </a>
+        <View onLayout={this.triggerLayout}>
+          {onboarding}
+          <h2>{t('savedStations.title')}</h2>
+          {message}
+          <ul>
+            {StationStore.getOrder().map(station => {
+              const url = station.split('|').slice(-1)
+              return (
+                <Sidebar
+                  key={station}
+                  url={`/s/${StationStore.StationData[station].region ||
+                    'nz-akl'}/${url}`}
+                  name={stations[station].name}
+                  icon={`${stations[station].icon}.svg`}
+                  description={stations[station].description}
+                />
+              )
+            })}
+          </ul>
+          <h2>{t('serviceAlerts.title')}</h2>
+          <ul>
+            {twitterAcc}
+            <Sidebar
+              type="url"
+              url="https://twitter.com/DYMAJOLtd"
+              icon="dymajo.svg"
+              name="DYMAJO"
+              description={t('serviceAlerts.twitter', { account: 'DYMAJOLtd' })}
+            />
+          </ul>
+          <div className="more-section">
+            <h2>{t('savedStations.more')}</h2>
+            <ul className="blue-fill">{secondTwo}</ul>
+          </div>
+          <a
+            className="label version"
+            href="https://github.com/consindo/dymajo-transit"
+            target="_blank"
+            rel="noopener"
+            onClick={this.reject}
+          >
+            DYMAJO Waka v{localStorage.getItem('AppVersion')}
+          </a>
+        </View>
       </div>
     )
   }
