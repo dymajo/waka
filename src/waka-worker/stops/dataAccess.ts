@@ -92,7 +92,7 @@ class StopsDataAccess {
     return data
   }
 
-  async getStopTimes(stopCode, time, date, procedure = 'GetStopTimes') {
+  getStopTimes = async (stopCode, time, date, procedure = 'GetStopTimes') => {
     const { connection } = this
     const sqlRequest = connection
       .get()
@@ -178,7 +178,6 @@ class StopsDataAccess {
       WHERE stop_code = @stop_code
 
       SELECT
-        route_short_name,
         trip_headsign,
         direction_id
       FROM stop_times
@@ -280,6 +279,120 @@ class StopsDataAccess {
     })
 
     return routesContainer
+  }
+
+  getStopTimesV2 = async (
+    current: string,
+    previous?: string,
+    next?: string
+  ) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const escapedTripIds =
+      previous && next
+        ? `'${current}', '${previous}', '${next}'`
+        : previous
+        ? `'${current}', '${previous}'`
+        : next
+        ? `'${current}', '${next}'`
+        : `'${current}'`
+
+    interface StopTime {
+      trip_id: string
+      pickup_type: number
+      drop_off_type: number
+      arrival_time: Date
+      departure_time: Date
+      stop_id: string
+      stop_name: string
+      trip_headsign: string
+      route_short_name: string
+    }
+    const result = await sqlRequest.query<StopTime>(`
+      select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name
+      from stop_times
+      inner join trips
+      on stop_times.trip_id = trips.trip_id
+      inner join stops
+      on stop_times.stop_id = stops.stop_id
+      inner join routes
+on trips.route_id = routes.route_id
+      where trips.trip_id in (${escapedTripIds})
+      order by arrival_time
+        `)
+
+    const trips: {
+      previous: StopTime[]
+      current: StopTime[]
+      next: StopTime[]
+    } = {
+      previous: [],
+      current: [],
+      next: [],
+    }
+    for (const stopTime of result.recordset) {
+      switch (stopTime.trip_id) {
+        case current:
+          trips.current.push(stopTime)
+          break
+        case next:
+          trips.next.push(stopTime)
+          break
+        case previous:
+          trips.previous.push(stopTime)
+          break
+        default:
+          break
+      }
+    }
+    return trips
+  }
+
+  getBlockFromTrip = async (tripId: string) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('tripId', sql.VarChar, tripId)
+    interface TripRow {
+      trip_id: string
+      start_time: Date
+      row_number: number
+      trip_headsign: string
+    }
+    const result = await sqlRequest.query<TripRow>(
+      `
+      SELECT  trips.trip_id,
+              trip_headsign,
+              min(arrival_time) AS start_time,
+              row_number() OVER (
+                                ORDER BY min(arrival_time)) AS row_number
+      FROM trips
+      INNER JOIN stop_times ON trips.trip_id = stop_times.trip_id
+      WHERE block_id =
+          (SELECT CASE
+                WHEN block_id = '' THEN 'there is no block id '
+                ELSE block_id
+          END
+      FROM trips
+      WHERE trip_id = @tripId )
+      GROUP BY  trips.trip_id,
+                trips.trip_headsign
+      `
+    )
+    const numberOfTrips = result.rowsAffected[0]
+    const currentIdx = result.recordset.map(el => el.trip_id).indexOf(tripId)
+    const previous = result.recordset[currentIdx - 1]
+    const next = result.recordset[currentIdx + 1]
+    const current = result.recordset[currentIdx]
+    if (numberOfTrips === 0) {
+      return this.getStopTimesV2(tripId)
+    }
+    if (numberOfTrips === currentIdx + 1) {
+      return this.getStopTimesV2(current.trip_id, previous.trip_id)
+    }
+    if (currentIdx === 0) {
+      return this.getStopTimesV2(current.trip_id, null, next.trip_id)
+    }
+    return this.getStopTimesV2(current.trip_id, previous.trip_id, next.trip_id)
   }
 }
 export default StopsDataAccess

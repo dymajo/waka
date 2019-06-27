@@ -11,6 +11,7 @@
     "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files --source-maps true && git log -1 > v.txt",
     "start": "node lib/waka-orchestrator/standalone.js | bunyan -L -o short",
     "bs": "npm run build:js && npm start",
+    "nbs": "nodemon --exec npm run bs --ignore ./lib",
     "install:proxy": "go get -v ./src/waka-go-proxy",
     "build:proxy": "go build -o ./lib/waka-go-proxy/waka-go-proxy.exe ./src/waka-go-proxy/",
     "document": "apidoc -i src/waka-orchestrator -i src/waka-go-proxy -i src/waka-worker -o dist/docs"

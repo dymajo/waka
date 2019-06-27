@@ -12,6 +12,7 @@ import StopsNZWLG from './stops/regions/nz-wlg'
 import Realtime from './realtime'
 import BaseStops from './stops/regions/BaseStops'
 import { WorkerConfig } from '../typings'
+import Alexa from './alexa'
 
 class WakaWorker {
   config: any
@@ -28,6 +29,7 @@ class WakaWorker {
     lat: { min: number; max: number }
     lon: { min: number; max: number }
   }
+  alexa: Alexa
 
   constructor(config: WorkerConfig) {
     const {
@@ -79,9 +81,10 @@ class WakaWorker {
       realtimeTimes: this.realtime.getCachedTrips,
     })
 
+    this.alexa = new Alexa({ logger, connection, prefix })
+
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
     this.signature = this.signature.bind(this)
-
     this.bindRoutes()
   }
 
@@ -117,7 +120,7 @@ class WakaWorker {
   }
 
   bindRoutes() {
-    const { lines, search, station, realtime, router } = this
+    const { lines, search, station, realtime, router, alexa } = this
 
     /**
      * @api {get} /:region/info Get worker info
@@ -162,13 +165,14 @@ class WakaWorker {
      */
     router.get('/ping', (req, res) => res.send('pong'))
     router.get('/info', (req, res) => res.send(this.signature()))
-
+    router.get('/alexa/search', alexa.listStops)
     router.get('/station', station.stopInfo)
     router.get('/station/search', search.getStopsLatLon)
     router.get('/station/:station', station.stopInfo)
     router.get('/station/:station/times', station.stopTimes)
     router.get('/station/:station/times/:time', station.stopTimes)
     router.get('/station/:station/times/:fast', station.stopTimes)
+    router.get('/stop-times/:tripId', station.stopTimesv2)
     router.get(
       '/station/:station/timetable/:route/:direction',
       station.timetable
@@ -181,6 +185,7 @@ class WakaWorker {
 
     router.get('/lines', lines.getLines)
     router.get('/line/:line', lines.getLine)
+    router.get('/stops/all', lines.getAllStops)
     router.get('/stops/trip/:tripId', lines.getStopsFromTrip)
     router.get('/stops/shape/:shapeId', lines.getStopsFromShape)
     router.get('/shapejson/:shapeId', lines.getShapeJSON)

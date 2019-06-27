@@ -16,14 +16,9 @@ import {
   TripUpdate,
   PositionFeedEntity,
 } from '../../../typings'
+import ProtobufRealtime from '../ProtobufRealtime'
 
-const scheduleUpdatePullTimeout = 20000
-const scheduleLocationPullTimeout = 15000
-
-class RealtimeNZAKL extends BaseRealtime {
-  apiKey: string
-  lastUpdate: Date
-  lastVehicleUpdate: Date
+class RealtimeNZAKL extends ProtobufRealtime {
 
   currentUpdateData: { [tripId: string]: TripUpdate }
   currentVehicleData: PositionFeedEntity[]
@@ -36,7 +31,23 @@ class RealtimeNZAKL extends BaseRealtime {
   connection: Connection
   logger: Logger
   constructor(props: RealtimeNZAKLProps) {
-    super()
+    super({
+      tripUpdateOptions: {
+        url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
+        headers: {
+          'Ocp-Apim-Subscription-Key': props.apiKey,
+          Accept: 'application/x-protobuf',
+        },
+      },
+      vehicleLocationOptions: {
+        url: 'https://api.at.govt.nz/v2/public/realtime/vehiclelocations',
+        headers: {
+          'Ocp-Apim-Subscription-Key': props.apiKey,
+          Accept: 'application/x-protobuf',
+        },
+      },
+      ...props,
+    })
     const { logger, connection, apiKey } = props
     this.connection = connection
     this.logger = logger
@@ -48,21 +59,6 @@ class RealtimeNZAKL extends BaseRealtime {
     this.currentUpdateDataFails = 0
     this.currentVehicleData = []
     this.currentVehicleDataFails = null
-
-    this.tripUpdatesOptions = {
-      url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
-      headers: {
-        'Ocp-Apim-Subscription-Key': apiKey,
-        Accept: 'application/x-protobuf',
-      },
-    }
-    this.vehicleLocationsOptions = {
-      url: 'https://api.at.govt.nz/v2/public/realtime/vehiclelocations',
-      headers: {
-        'Ocp-Apim-Subscription-Key': apiKey,
-        Accept: 'application/x-protobuf',
-      },
-    }
   }
 
   isDoubleDecker(vehicle: string) {
@@ -71,78 +67,6 @@ class RealtimeNZAKL extends BaseRealtime {
 
   isEV(vehicle: string) {
     return ['2840', '2841'].includes(vehicle)
-  }
-
-  start = () => {
-    const { apiKey, logger } = this
-    if (!apiKey) {
-      logger.warn('No Auckland Transport API Key, will not show realtime.')
-      return
-    }
-    this.scheduleUpdatePull()
-    this.scheduleLocationPull()
-    logger.info('Auckland Realtime Started.')
-  }
-
-  stop = () => {
-    // TODO!
-    this.logger.warn('Auckland Realtime Not Stopped! Not Implemented.')
-  }
-
-  scheduleUpdatePull = async () => {
-    const { logger, tripUpdatesOptions } = this
-    const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
-
-    const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
-
-    try {
-      const res = await axios.get(tripUpdatesOptions.url, {
-        headers: tripUpdatesOptions.headers,
-        responseType: 'arraybuffer',
-      })
-      const uInt8 = new Uint8Array(res.data)
-
-      const _feed = FeedMessage.decode(uInt8) as unknown
-
-      const newData: { [tripId: string]: TripUpdate } = {}
-      const feed = _feed as UpdateFeedMessage
-      feed.entity.forEach(trip => {
-        newData[trip.tripUpdate.trip.tripId] = trip.tripUpdate
-      })
-
-      this.currentUpdateData = newData
-      this.currentUpdateDataFails = 0
-      this.lastTripUpdate = new Date()
-      logger.info('Pulled AT Trip Updates Data.')
-      setTimeout(this.scheduleUpdatePull, scheduleUpdatePullTimeout)
-    } catch (err) {
-      this.currentUpdateDataFails += 1
-      logger.warn({ err }, 'Could not get AT Data')
-    }
-    setTimeout(this.scheduleUpdatePull, scheduleUpdatePullTimeout)
-  }
-
-  scheduleLocationPull = async () => {
-    const { logger, vehicleLocationsOptions } = this
-    try {
-      const res = await axios.get(vehicleLocationsOptions.url, {
-        headers: vehicleLocationsOptions.headers,
-        responseType: 'arraybuffer',
-      })
-      const uInt8 = new Uint8Array(res.data)
-      const feed = gtfs.transit_realtime.FeedMessage.decode(
-        uInt8
-      ) as PositionFeedMessage
-
-      this.currentVehicleData = feed.entity
-      this.currentUpdateDataFails = 0
-      this.lastVehicleUpdate = new Date()
-      logger.info('Pulled AT Location Data.')
-    } catch (err) {
-      this.currentVehicleDataFails += 1
-      logger.error({ err }, 'Could not get AT Data')
-    }
-    setTimeout(this.scheduleLocationPull, scheduleLocationPullTimeout)
   }
 
   getTripsEndpoint = async (

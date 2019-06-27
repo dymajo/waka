@@ -25,5 +25,3 @@ const listener = app.listen(PORT, () => {
   )
   worker.start()
 })
-
-app.use(AWSXRay.express.closeSegment())

@@ -5,11 +5,13 @@ import RealtimeNZAKL from './regions/nz-akl'
 import RealtimeNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
 import { BaseRealtime, WakaRequest } from '../../typings'
+import CanberraRealtime from './regions/au-cbr'
 
 const regions = {
-  'au-syd': RealtimeAUSYD,
-  'nz-akl': RealtimeNZAKL,
-  'nz-wlg': RealtimeNZWLG,
+  // 'au-syd': RealtimeAUSYD,
+  // 'nz-akl': RealtimeNZAKL,
+  // 'nz-wlg': RealtimeNZWLG,
+  // 'au-cbr': CanberraRealtime,
 }
 
 class Realtime {

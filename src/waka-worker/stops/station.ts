@@ -1,18 +1,27 @@
 import moment from 'moment-timezone'
+import { Response } from 'express'
+import * as Logger from 'bunyan'
 import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
-import * as Logger from 'bunyan'
 import { WakaRequest } from '../../typings'
+import Lines from '../lines'
 
 class Station {
   logger: Logger
   connection: Connection
   prefix: string
   regionSpecific: any
-  lines: any
+  lines: Lines
   realtimeTimes: any
   dataAccess: StopsDataAccess
-  constructor(props) {
+  constructor(props: {
+    lines: Lines
+    logger
+    connection
+    prefix
+    stopsExtras
+    realtimeTimes
+  }) {
     const {
       logger,
       connection,
@@ -273,7 +282,24 @@ class Station {
       procedure = 'GetMultipleStopTimes'
     }
 
-    let trips = []
+    let trips: {
+      trip_id: string
+      stop_sequence: number
+      departure_time: Date
+      departure_time_24: Date
+      stop_id: string
+      trip_headsign: string
+      shape_id: string
+      direction_id: number
+      start_date: Date
+      end_date: Date
+      route_short_name: string
+      route_long_name: string
+      route_type: number
+      agency_id: string
+      route_color: string
+      stop_name: string
+    }[] = []
     const realtimeTrips = []
     try {
       trips = await dataAccess.getStopTimes(
@@ -288,7 +314,29 @@ class Station {
     }
 
     sending.trips = trips.map(r => {
-      const record = r // clone?
+      const record: {
+        trip_id: string
+        stop_sequence: number
+        departure_time: Date
+        departure_time_24: Date
+        stop_id: string
+        trip_headsign: string
+        shape_id: string
+        direction_id: number
+        start_date: Date
+        end_date: Date
+        route_short_name: string
+        route_long_name: string
+        route_type: number
+        agency_id: string
+        route_color: string
+        stop_name: string
+        departure_time_seconds: number
+        arrival_time_seconds: number
+        route_icon: string
+        arrival_time_24: string
+        arrival_time: string
+      } = r // clone?
       record.departure_time_seconds =
         new Date(record.departure_time).getTime() / 1000
       if (record.departure_time_24) {
@@ -470,6 +518,18 @@ class Station {
     })
     res.send(sending)
     return sending
+  }
+
+  stopTimesv2 = async (
+    req: WakaRequest<null, { tripId: string }>,
+    res: Response
+  ) => {
+    const {
+      params: { tripId },
+    } = req
+    const { dataAccess } = this
+    const data = await dataAccess.getBlockFromTrip(tripId)
+    res.send(data)
   }
 }
 export default Station

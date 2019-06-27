@@ -53,15 +53,9 @@ class Lines {
       regions[prefix] !== undefined
         ? new regions[prefix]({ logger, connection })
         : null
-
-    this.getLines = this.getLines.bind(this)
-    this.getLine = this.getLine.bind(this)
-    this.getShapeJSON = this.getShapeJSON.bind(this)
-    this.getStopsFromTrip = this.getStopsFromTrip.bind(this)
-    this.getStopsFromShape = this.getStopsFromShape.bind(this)
   }
 
-  async start() {
+  start = async () => {
     const { logger, lineDataSource } = this
     try {
       if (lineDataSource === null) {
@@ -91,9 +85,9 @@ class Lines {
     }
   }
 
-  stop() {}
+  stop = () => {}
 
-  getColor(agencyId: string, routeShortName: string) {
+  getColor = (agencyId: string, routeShortName: string) => {
     // If you need to get colors from the DB, please see the Wellington Lines Code.
     // Essentially does a one-time cache of all the colors into the lineData object.
     const { lineData } = this
@@ -106,7 +100,7 @@ class Lines {
     return '#00263A'
   }
 
-  getIcon(agencyId, routeShortName) {
+  getIcon = (agencyId, routeShortName) => {
     // this will probably be revised soon
     const { lineData } = this
     if (lineData.lineIcons) {
@@ -180,7 +174,7 @@ class Lines {
    *     }
    *
    */
-  getLines(req: Request, res: Response) {
+  getLines = (req: Request, res: Response) => {
     res.send(this._getLines())
   }
 
@@ -252,7 +246,7 @@ class Lines {
    *   }
    * ]
    */
-  async getLine(req, res) {
+  getLine = async (req: Request, res: Response) => {
     const lineId = req.params.line.trim()
     try {
       const data = await this._getLine(lineId)
@@ -410,7 +404,7 @@ class Lines {
    *   ]
    * }
    */
-  async getShapeJSON(req: Request, res: Response) {
+  getShapeJSON = async (req: Request, res: Response) => {
     const { prefix, version, config, storageSvc } = this
     const containerName = config.shapesContainer
     const { shapeId } = req.params
@@ -524,7 +518,7 @@ class Lines {
    *   }
    * ]
    */
-  async getStopsFromTrip(req, res) {
+  getStopsFromTrip = async (req: Request, res: Response) => {
     const collator = new Intl.Collator(undefined, {
       numeric: true,
       sensitivity: 'base',
@@ -611,7 +605,7 @@ class Lines {
    *   }
    * ]
    */
-  async getStopsFromShape(req, res) {
+  getStopsFromShape = async (req: Request, res: Response) => {
     const { connection, logger } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shapeId)
@@ -627,6 +621,21 @@ class Lines {
     } catch (err) {
       logger.error({ err }, 'Could not get stops from shape.')
       res.status(500).send({ message: 'Could not get stops from shape.' })
+    }
+  }
+
+  getAllStops = async (req: Request, res: Response) => {
+    const { connection, logger } = this
+    const sqlRequest = connection.get().request()
+    try {
+      const result = await sqlRequest.query<{
+        stop_name: string
+        stop_id: string
+      }>('select stop_name, stop_id from stops order by stop_name;')
+      res.send(result.recordset)
+    } catch (err) {
+      logger.error({ err }, 'Could not get stops.')
+      res.status(500).send({ message: 'Could not get stops' })
     }
   }
 }

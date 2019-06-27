@@ -29,6 +29,8 @@ class ATUpdater {
     this.check = this.check.bind(this)
     this.checkApi = this.checkApi.bind(this)
     this.stop = this.stop.bind(this)
+    console.log('here')
+    console.log()
   }
 
   async start() {
@@ -39,6 +41,7 @@ class ATUpdater {
     }
 
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
+    this.check()
     this.timeout = setTimeout(check, delay * 60000)
   }
 

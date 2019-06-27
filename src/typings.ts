@@ -111,6 +111,16 @@ export abstract class BaseRealtime {
   lastVehicleUpdate: Date
   currentUpdateDataFails: number
   currentVehicleDataFails: number
+  scheduleUpdatePullTimeout: number
+  scheduleLocationPullTimeout: number
+  tripUpdateOptions: {
+    url: string
+    headers?: any
+  }
+  vehicleLocationOptions: {
+    url: string
+    headers?: any
+  }
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
   getTripsCached?(
@@ -125,8 +135,8 @@ export abstract class BaseRealtime {
       ev: boolean
     }
   }
-  scheduleLocationPull?(): Promise<void>
-  scheduleUpdatePull?(): Promise<void>
+  abstract scheduleLocationPull(): Promise<void>
+  abstract scheduleUpdatePull(): Promise<void>
   getAllVehicleLocations?(
     req: WakaRequest<null, null>,
     res: Response
@@ -141,20 +151,10 @@ export abstract class BaseRealtime {
     req: WakaRequest<null, { line: string }>,
     res: Response
   ): Promise<Response>
-  abstract getTripsEndpoint(
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ): Promise<Response>
-  abstract getTripsEndpoint(
-    req: WakaRequest<{ trips: string[]; train: boolean }, null>,
-    res: Response
-  ): Promise<Response>
+
   abstract getTripsEndpoint(
     req: WakaRequest<
-      {
-        trips: string[]
-        stop_id: string
-      },
+      { trips: string[]; train: boolean; stop_id: string },
       null
     >,
     res: Response
@@ -259,6 +259,7 @@ export interface VehiclePosition {
     longitude: number
     bearing?: number
     speed?: number
+    odometer?: number
   }
   stopId: string
   timestamp: Long
