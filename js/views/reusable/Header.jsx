@@ -1,12 +1,17 @@
 import React from 'react'
-import { View, Text, StyleSheet, findNodeHandle } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  findNodeHandle,
+  TouchableOpacity,
+} from 'react-native'
 import PropTypes from 'prop-types'
 
 import { vars } from '../../styles.js'
 import { t } from '../../stores/translationStore.js'
 import UiStore from '../../stores/UiStore'
 import CloseIcon from '../../../dist/icons/close.svg'
-import TouchableOpacity from './TouchableOpacity.jsx'
 
 let styles
 const paddingVertical = 12

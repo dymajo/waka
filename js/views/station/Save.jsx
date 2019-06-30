@@ -142,20 +142,22 @@ class Save extends React.Component {
             {t('stationedit.merge').toUpperCase()}
           </Text>
           <View style={styles.checkboxContainer}>
-            {mergers.filter(i => i !== regionStop).map(item => (
-              <View key={item} style={styles.checkboxRow} className="checkbox">
-                <input
-                  id={`merge-${item}`}
-                  onChange={this.triggerCheckbox(item)}
-                  type="checkbox"
-                  checked={this.state.checked[item] || false}
-                />
-                <label htmlFor={`merge-${item}`}>
-                  {item.split('|').slice(-1)[0]} -{' '}
-                  {(StationStore.StationData[item] || {}).name}
-                </label>
-              </View>
-            ))}
+            {mergers
+              .filter(i => i !== regionStop)
+              .map(item => (
+                <div key={item} className="checkbox">
+                  <input
+                    id={`merge-${item}`}
+                    onChange={this.triggerCheckbox(item)}
+                    type="checkbox"
+                    checked={this.state.checked[item] || false}
+                  />
+                  <label htmlFor={`merge-${item}`}>
+                    {item.split('|').slice(-1)[0]} -{' '}
+                    {(StationStore.StationData[item] || {}).name}
+                  </label>
+                </div>
+              ))}
           </View>
         </React.Fragment>
       )
@@ -218,9 +220,6 @@ const styles = StyleSheet.create({
   },
   checkboxContainer: {
     paddingTop: vars.padding / 2,
-    paddingBottom: vars.padding / 2,
-  },
-  checkboxRow: {
     paddingBottom: vars.padding / 2,
   },
 })

@@ -207,7 +207,7 @@ class Timetable extends React.Component {
       <View style={styles.wrapper}>
         <Header title={t('timetable.title')} subtitle={this.state.stopName} />
         <LinkedScroll onScroll={this.triggerScroll} ref={this.linkedScroll}>
-          <View className="timetable-content">
+          <div className="timetable-content">
             {loading}
             {empty}
             <ul>
@@ -272,7 +272,7 @@ class Timetable extends React.Component {
                 )
               })}
             </ul>
-          </View>
+          </div>
         </LinkedScroll>
       </View>
     )

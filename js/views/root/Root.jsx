@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import PropTypes from 'prop-types'
 
 import { vars } from '../../styles'
@@ -8,7 +8,6 @@ import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
-import TouchableOpacity from '../reusable/TouchableOpacity.jsx'
 import RootContent from './Content.jsx'
 
 import StationIcon from '../../../dist/icons/station.svg'

@@ -1,8 +1,8 @@
 import React from 'react'
+import { TouchableOpacity } from 'react-native'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 
-import TouchableOpacity from '../reusable/TouchableOpacity.jsx'
 import UiStore from '../../stores/UiStore.js'
 import { t } from '../../stores/translationStore'
 
@@ -84,16 +84,13 @@ class Sidebar extends React.Component {
 
   render() {
     const item = (
-      <TouchableOpacity
-        iOSHacks
-        opacity={75}
-        className="touchable ss"
-        onClick={this.triggerTap}
-      >
-        <div className="icon">{this.getIcon(this.props.icon)}</div>
-        <div className="text-wrapper">
-          <h3 className="name">{this.props.name}</h3>
-          <div className="description">{this.props.description}</div>
+      <TouchableOpacity opacity={75} onClick={this.triggerTap}>
+        <div className="touchable ss">
+          <div className="icon">{this.getIcon(this.props.icon)}</div>
+          <div className="text-wrapper">
+            <h3 className="name">{this.props.name}</h3>
+            <div className="description">{this.props.description}</div>
+          </div>
         </div>
       </TouchableOpacity>
     )

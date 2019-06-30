@@ -65,14 +65,14 @@ const config = {
       {
         test: /\.svg$/,
         use: [
+          'babel-loader',
           {
             loader: 'react-svg-loader',
             options: {
-              es5: true,
               svgo: {
                 plugins: [
                   {
-                    removeAttrs: { attrs: 'xmlns.*' },
+                    removeViewBox: false,
                   },
                 ],
               },

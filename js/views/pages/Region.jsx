@@ -1,8 +1,7 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native-web'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import local from '../../../local.js'
 
-import TouchableOpacity from '../reusable/TouchableOpacity.jsx'
 import UiStore from '../../stores/UiStore.js'
 import CurrentLocation from '../../stores/CurrentLocation.js'
 import { t } from '../../stores/translationStore.js'
@@ -14,6 +13,7 @@ import LinkButton from '../reusable/LinkButton.jsx'
 
 // Note! Regions are now dynamically loaded from the server! Yay!
 // However, you will need to add the image, the-preifx.jpg in the /photos directory
+let styles
 class Region extends React.Component {
   state = {
     liveCities: [],
@@ -22,8 +22,6 @@ class Region extends React.Component {
   }
 
   changeCity(city) {
-    console.log(city)
-    // debugger
     return () => {
       CurrentLocation.setCity(city, this.state.data[city].initialLocation)
       UiStore.goBack('/')
@@ -58,7 +56,6 @@ class Region extends React.Component {
   }
 
   cityIcon = city => {
-    console.log(city)
     return (
       <TouchableOpacity
         key={city}
@@ -121,7 +118,7 @@ class Region extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },

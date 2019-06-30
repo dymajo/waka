@@ -6,6 +6,7 @@ import UiStore from '../../stores/UiStore.js'
 import iOS from '../../helpers/ios.js'
 
 // This component links the scroll to the fancy shell.
+let styles
 class LinkedScroll extends React.Component {
   static propTypes = {
     children: PropTypes.node,
@@ -18,6 +19,7 @@ class LinkedScroll extends React.Component {
     this.state = {
       cardPosition: UiStore.state.cardPosition,
       cancelScroll: true,
+      desktopLayout: window.innerWidth > 850,
     }
   }
 
@@ -63,23 +65,40 @@ class LinkedScroll extends React.Component {
     UiStore.state.scrollPosition = pos
   }
 
+  triggerLayout = () => {
+    const { desktopLayout } = this.state
+    if (window.innerWidth > 850 && desktopLayout === false) {
+      this.setState({
+        desktopLayout: true,
+      })
+    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+      this.setState({
+        desktopLayout: false,
+      })
+    }
+  }
+
   render() {
+    const { desktopLayout } = this.state
+    const mobileTouchAction =
+      UiStore.state.cardPosition === 'max'
+        ? this.state.cancelScroll
+          ? iOS.detect()
+            ? 'auto' // one day iOS will get support
+            : 'pan-down'
+          : 'auto'
+        : 'none'
+
+    const touchAction = desktopLayout ? 'manipulation' : mobileTouchAction
     const touchStyles = [
       styles.scroll,
       {
-        touchAction:
-          UiStore.state.cardPosition === 'max'
-            ? this.state.cancelScroll
-              ? iOS.detect()
-                ? 'auto' // one day iOS will get support
-                : 'pan-down'
-              : 'auto'
-            : 'none',
+        touchAction,
       },
     ]
     return (
       <ScrollView
-        className="desktop-allow-touch"
+        onLayout={this.triggerLayout}
         style={touchStyles}
         onScroll={this.setScroll}
         scrollEventThrottle={16}
@@ -90,7 +109,7 @@ class LinkedScroll extends React.Component {
     )
   }
 }
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   scroll: {
     flex: 1,
     // this property doesn't quiite work? maybe it's a bug in android chrome

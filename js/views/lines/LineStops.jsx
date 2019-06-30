@@ -1,12 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Text, View, StyleSheet } from 'react-native'
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { vars } from '../../styles.js'
 import { t } from '../../stores/translationStore.js'
 import UiStore from '../../stores/UiStore.js'
 import LinkButton from '../reusable/LinkButton.jsx'
-import TouchableOpacity from '../reusable/TouchableOpacity.jsx'
 
 let styles = null // defined down below
 
@@ -14,14 +13,16 @@ const Transfers = props => {
   const { transfers, currentLine } = props
   return transfers.length <= 1 ? null : (
     <View style={styles.transfers}>
-      {transfers.filter(t => t[0] !== currentLine).map(transfer => (
-        <Text
-          style={[styles.transfer, { backgroundColor: transfer[1] }]}
-          key={transfer[0]}
-        >
-          {transfer[0]}
-        </Text>
-      ))}
+      {transfers
+        .filter(t => t[0] !== currentLine)
+        .map(transfer => (
+          <Text
+            style={[styles.transfer, { backgroundColor: transfer[1] }]}
+            key={transfer[0]}
+          >
+            {transfer[0]}
+          </Text>
+        ))}
     </View>
   )
 }
@@ -73,7 +74,6 @@ class LineStops extends React.PureComponent {
               }
             >
               <TouchableOpacity
-                iOSHacks
                 style={styles.touchable}
                 onClick={this.triggerClick(stop.stop_id, 'services')}
               >

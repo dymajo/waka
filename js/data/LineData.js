@@ -17,7 +17,6 @@ class LineData {
       fetch(`${local.endpoint}/${this.region}/line/${line}`)
         .then(response => {
           response.json().then(data => {
-            console.log(data)
             resolve(data)
           })
         })
