@@ -1,13 +1,11 @@
 {
-  "presets": [
-    [
-      "env",
-      {
-        "modules": false
-      }
-    ],
-    "stage-2",
-    "react"
+  "plugins": [
+    "@babel/plugin-proposal-class-properties",
+    "react-native-web"
   ],
-  "plugins": ["lodash", "react-native-web"]
+  "presets": [
+    "@babel/env",
+    "@babel/react",
+    "airbnb"
+  ]
 }

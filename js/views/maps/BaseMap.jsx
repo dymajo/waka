@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import leaflet from 'leaflet'
 import * as reactLeaflet from 'react-leaflet'
 
@@ -14,7 +14,6 @@ import StationStore from '../../stores/StationStore.js'
 import SettingsStore from '../../stores/SettingsStore.js'
 import UiStore from '../../stores/UiStore.js'
 import { t } from '../../stores/translationStore.js'
-import TouchableOpacity from '../reusable/TouchableOpacity.jsx'
 
 import LocateIcon from '../../../dist/icons/locate-2.svg'
 
@@ -422,38 +421,38 @@ class BaseMap extends React.Component {
           {this.state.hideStops
             ? null
             : this.state.stops.map(stop => {
-              const icon  = IconHelper.getRouteType(stop.route_type)
-              let markericon = this.myIcons[stop.route_type.toString()]
-              if (icon === 'bus') {
-                const stopSplit = stop.stop_name.split('Stop')
-                const platformSplit = stop.stop_name.split('Platform')
-                if (stopSplit.length > 1) {
-                  markericon = getMarker('bus', stopSplit[1])
-                } else if (platformSplit.length > 1) {
-                  markericon = getMarker('bus', platformSplit[1])
+                const icon = IconHelper.getRouteType(stop.route_type)
+                let markericon = this.myIcons[stop.route_type.toString()]
+                if (icon === 'bus') {
+                  const stopSplit = stop.stop_name.split('Stop')
+                  const platformSplit = stop.stop_name.split('Platform')
+                  if (stopSplit.length > 1) {
+                    markericon = getMarker('bus', stopSplit[1])
+                  } else if (platformSplit.length > 1) {
+                    markericon = getMarker('bus', platformSplit[1])
+                  }
                 }
-              }
 
-              // jono's awesome collison detection
-              // basically checks if something is already there
-              let lng = stop.stop_lon
-              if (typeof positionMap[stop.stop_lat] === 'undefined') {
-                positionMap[stop.stop_lat] = [lng]
-              } else if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
-                lng += 0.0002
-              } else {
-                positionMap[stop.stop_lat].push(lng)
-              }
-              return (
-                <Marker
-                  alt={t(`station.${icon}`)}
-                  icon={markericon}
-                  key={stop.stop_id}
-                  position={[stop.stop_lat, lng]}
-                  onClick={this.viewServices(stop.stop_id, stop.stop_region)}
-                />
-              )
-            })}
+                // jono's awesome collison detection
+                // basically checks if something is already there
+                let lng = stop.stop_lon
+                if (typeof positionMap[stop.stop_lat] === 'undefined') {
+                  positionMap[stop.stop_lat] = [lng]
+                } else if (positionMap[stop.stop_lat].indexOf(lng) !== -1) {
+                  lng += 0.0002
+                } else {
+                  positionMap[stop.stop_lat].push(lng)
+                }
+                return (
+                  <Marker
+                    alt={t(`station.${icon}`)}
+                    icon={markericon}
+                    key={stop.stop_id}
+                    position={[stop.stop_lat, lng]}
+                    onClick={this.viewServices(stop.stop_id, stop.stop_region)}
+                  />
+                )
+              })}
           {bigCircle}
           <CircleMarker
             className="smallCurrentLocationCircle"
@@ -468,7 +467,8 @@ class BaseMap extends React.Component {
     return (
       <div className="search">
         <TouchableOpacity
-          className="hide-maximized"
+          // TODO: Add this back in the refactor
+          // className="hide-maximized"
           activeOpacity={75}
           touchAction="none"
           onClick={this.triggerCurrentLocation}

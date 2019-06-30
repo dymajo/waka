@@ -5,13 +5,14 @@
     "node": true
   },
   "extends": [
-    "airbnb",
+    "airbnb-base",
     "prettier",
     "prettier/react",
-    "plugin:promise/recommended"
+    "plugin:promise/recommended",
+    "plugin:react/recommended"
   ],
   "parser": "babel-eslint",
-  "plugins": ["prettier", "jsx-a11y", "promise"],
+  "plugins": ["prettier", "promise"],
   "rules": {
     "indent": ["error", 2],
     "linebreak-style": ["error", "unix"],

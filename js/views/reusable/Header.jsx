@@ -1,14 +1,21 @@
 import React from 'react'
-import { View, Text, StyleSheet, findNodeHandle } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  findNodeHandle,
+  TouchableOpacity,
+} from 'react-native'
 import PropTypes from 'prop-types'
 
 import { vars } from '../../styles.js'
 import { t } from '../../stores/translationStore.js'
 import UiStore from '../../stores/UiStore'
 import CloseIcon from '../../../dist/icons/close.svg'
-import TouchableOpacity from './TouchableOpacity.jsx'
 
-// not used for all headers yet...
+let styles
+const paddingVertical = 12
+
 class Header extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -19,6 +26,10 @@ class Header extends React.Component {
     actionFn: PropTypes.func,
     hideClose: PropTypes.bool,
     disableTitle: PropTypes.bool,
+  }
+
+  state = {
+    desktopLayout: window.innerWidth > 850,
   }
 
   wrapper = React.createRef()
@@ -40,6 +51,19 @@ class Header extends React.Component {
     UiStore.state.headerEvent = e.target
   }
 
+  triggerLayout = () => {
+    const { desktopLayout } = this.state
+    if (window.innerWidth > 850 && desktopLayout === false) {
+      this.setState({
+        desktopLayout: true,
+      })
+    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+      this.setState({
+        desktopLayout: false,
+      })
+    }
+  }
+
   triggerMax() {
     requestAnimationFrame(() => {
       const pos =
@@ -57,6 +81,12 @@ class Header extends React.Component {
     let subtitleElement
 
     let actionIcon = null
+
+    if (this.props.className) {
+      console.error('ClassName is Deprecated!')
+    }
+
+    const { desktopLayout } = this.state
 
     const title = [t('app.name')]
     if (typeof this.props.subtitle !== 'undefined') {
@@ -96,18 +126,24 @@ class Header extends React.Component {
           </View>
         </TouchableOpacity>
       )
-    const pillWrapperStyles =
-      actionIcon && closeIcon
-        ? [styles.pillWrapper, styles.pillWrapperExtra]
-        : styles.pillWrapper
+    const pillWrapperStyles = desktopLayout
+      ? [styles.pillWrapper, styles.invisible]
+      : actionIcon && closeIcon
+      ? [styles.pillWrapper, styles.pillWrapperExtra]
+      : styles.pillWrapper
     return (
       <View
-        style={styles.wrapper}
+        style={
+          desktopLayout
+            ? [styles.wrapper, styles.wrapperDesktop]
+            : styles.wrapper
+        }
         ref={this.wrapper}
-        className={`${this.props.className || ''} desktop-square`}
+        onResize={this.triggerResize}
+        onLayout={this.triggerLayout}
       >
         <View style={styles.flexWrapper} onClick={this.triggerMax}>
-          <View style={pillWrapperStyles} className="desktop-invisible">
+          <View style={pillWrapperStyles}>
             <View style={styles.pill} />
           </View>
           <View style={styles.bottomWrapper}>
@@ -126,8 +162,7 @@ class Header extends React.Component {
     )
   }
 }
-const paddingVertical = 12
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 10,
@@ -135,6 +170,10 @@ const styles = StyleSheet.create({
     touchAction: 'none',
     boxShadow: '0 -1px 0 rgba(0,0,0,0.1) inset',
     flexDirection: 'row',
+  },
+  wrapperDesktop: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
   },
   flexWrapper: {
     flex: 1,
@@ -147,6 +186,9 @@ const styles = StyleSheet.create({
   },
   pillWrapperExtra: {
     paddingLeft: 88,
+  },
+  invisible: {
+    visibility: 'hidden',
   },
   pill: {
     backgroundColor: '#d8d8d8',

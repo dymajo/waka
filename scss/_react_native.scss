@@ -36,6 +36,8 @@
   }
 }
 .checkbox {
+  padding-bottom: 8px;
+
   input[type='checkbox'] {
     display: none;
 
@@ -112,7 +114,7 @@ $line-pill-margin: 7px;
   font-size: 17px;
 }
 .line-pill-icon {
-  vertical-align: top; 
+  vertical-align: top;
   margin-right: $line-pill-margin;
   margin-left: auto;
   margin-top: auto;

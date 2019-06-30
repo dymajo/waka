@@ -1,11 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
 import iOS from '../../helpers/ios.js'
 import { vars } from '../../styles.js'
-import TouchableOpacity from './TouchableOpacity.jsx'
 
+let styles
 class LinkButton extends React.Component {
   static propTypes = {
     href: PropTypes.string,
@@ -79,7 +79,7 @@ class LinkButton extends React.Component {
     )
   }
 }
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   wrapper: {
     backgroundColor: vars.accentColor,
     paddingTop: vars.padding / 2,

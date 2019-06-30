@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, findNodeHandle } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import PropTypes from 'prop-types'
 
 import { vars } from '../../styles'
@@ -8,12 +8,13 @@ import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
-import TouchableOpacity from '../reusable/TouchableOpacity.jsx'
 import RootContent from './Content.jsx'
 
 import StationIcon from '../../../dist/icons/station.svg'
 import LinesIcon from '../../../dist/icons/lines.svg'
 import SettingsIcon from '../../../dist/icons/settings.svg'
+
+let styles
 
 class Root extends React.Component {
   static propTypes = {
@@ -24,16 +25,14 @@ class Root extends React.Component {
 
   state = {
     currentCity: StationStore.currentCity,
+    desktopLayout: window.innerWidth > 850,
   }
 
   componentDidMount() {
-    this.wrapperNode = findNodeHandle(this.wrapper.current)
-    this.wrapperNode.addEventListener('touchstart', this.triggerTouchStart)
     StationStore.bind('newcity', this.newcity)
   }
 
   componentWillUnmount() {
-    this.wrapperNode.removeEventListener('touchstart', this.triggerTouchStart)
     StationStore.unbind('newcity', this.newcity)
   }
 
@@ -59,43 +58,51 @@ class Root extends React.Component {
     }
   }
 
-  triggerTouchStart = e => {
-    UiStore.state.headerEvent = e.target
-  }
-
   triggerSettings = () => {
     UiStore.safePush('/settings')
   }
 
+  triggerLayout = () => {
+    const { desktopLayout } = this.state
+    if (window.innerWidth > 850 && desktopLayout === false) {
+      this.setState({
+        desktopLayout: true,
+      })
+    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+      this.setState({
+        desktopLayout: false,
+      })
+    }
+  }
+
   render() {
+    const { desktopLayout } = this.state
     return (
-      <View style={styles.wrapper}>
-        <View
-          className="desktop-hide"
-          style={styles.headerWrapper}
-          ref={this.wrapper}
-        >
-          <TouchableOpacity
-            style={[styles.button, styles.rightBorder]}
-            onClick={this.toggleStations}
-          >
-            <StationIcon style={{ margin: 'auto' }} />
-            <Text style={styles.text}>{t('root.stationsLabel')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onClick={this.toggleLines}>
-            <LinesIcon style={{ margin: 'auto' }} />
-            <Text style={styles.text}>{t('root.linesLabel')}</Text>
-          </TouchableOpacity>
-        </View>
-        <Header
-          title={t('app.name')}
-          className="mobile-hide"
-          subtitle={this.state.currentCity.longName}
-          hideClose
-          actionIcon={<SettingsIcon style={{ fill: vars.headerIconColor }} />}
-          actionFn={this.triggerSettings}
-          disableTitle
-        />
+      <View style={styles.wrapper} onLayout={this.triggerLayout}>
+        {desktopLayout ? (
+          <Header
+            title={t('app.name')}
+            subtitle={this.state.currentCity.longName}
+            hideClose
+            actionIcon={<SettingsIcon style={{ fill: vars.headerIconColor }} />}
+            actionFn={this.triggerSettings}
+            disableTitle
+          />
+        ) : (
+          <View style={styles.headerWrapper} ref={this.wrapper}>
+            <TouchableOpacity
+              style={[styles.button, styles.rightBorder]}
+              onClick={this.toggleStations}
+            >
+              <StationIcon style={{ margin: 'auto' }} />
+              <Text style={styles.text}>{t('root.stationsLabel')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onClick={this.toggleLines}>
+              <LinesIcon style={{ margin: 'auto' }} />
+              <Text style={styles.text}>{t('root.linesLabel')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <LinkedScroll>
           <RootContent togglePin={this.props.togglePin} />
         </LinkedScroll>
@@ -104,7 +111,7 @@ class Root extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
+styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },

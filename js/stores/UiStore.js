@@ -1,4 +1,4 @@
-import createHistory from 'history/createBrowserHistory'
+import { createBrowserHistory } from 'history'
 
 import Events from './Events'
 import { iOS } from '../helpers/ios.js'
@@ -36,7 +36,7 @@ class UIStore extends Events {
     }
 
     // allows stuff in the class to use the history - push and pop
-    const customHistory = createHistory()
+    const customHistory = createBrowserHistory()
     const historyTracker = [customHistory.location.key]
 
     // just in case we need access to these objects later

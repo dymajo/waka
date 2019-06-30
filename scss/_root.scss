@@ -39,12 +39,6 @@ $top-offset: 0;
 .search {
   transition: $map-transition;
 }
-.root-card-wrapper {
-  box-shadow: rgba(#000, 0.3) 0 0 3px;
-  background: #000;
-  border-radius: 10px 10px 0 0;
-  height: calc(100% - 25px);
-}
 
 $max-position: 0;
 $default-position: 300px;

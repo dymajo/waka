@@ -1,37 +1,15 @@
 const webpack = require('webpack')
 const path = require('path')
-const LodashModuleReplacementPlugin = require('lodash-webpack-plugin')
 
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 
 const ManifestPlugin = require('webpack-manifest-plugin')
 const OfflinePlugin = require('offline-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const generate = require('./server-static/generator.js')
 
 generate()
-
-const extractSass = new ExtractTextPlugin({
-  filename:
-    process.env.NODE_ENV === 'production'
-      ? 'generated/[name].[contenthash].css'
-      : 'generated/[name].css',
-  allChunks: true,
-})
-const ConsoleNotifierPlugin = function() {}
-
-ConsoleNotifierPlugin.prototype.compilationDone = stats => {
-  const log = error => {
-    console.log(error.error.toString())
-  }
-  stats.compilation.errors.forEach(log)
-}
-
-ConsoleNotifierPlugin.prototype.apply = function(compiler) {
-  compiler.plugin('done', this.compilationDone.bind(this))
-}
 
 const config = {
   entry: {
@@ -44,7 +22,7 @@ const config = {
     filename: 'generated/[name].bundle.js',
     chunkFilename: 'generated/[id].chunk.js',
   },
-  devtool: 'cheap-module-source-map',
+  devtool: 'cheap-module-eval-source-map',
   module: {
     rules: [
       {
@@ -58,40 +36,43 @@ const config = {
       },
       {
         test: /\.scss$/,
-        use: extractSass.extract({
-          use: [
-            {
-              loader: 'css-loader',
-              options: {
-                sourceMap: process.env.NODE_ENV !== 'production',
-              },
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
             },
-            {
-              loader: 'resolve-url-loader',
+          },
+          {
+            loader: 'resolve-url-loader',
+            options: {
+              sourceMap: true,
+              removeCR: true,
             },
-            {
-              loader: 'sass-loader',
-              options: {
-                sourceMap: true,
-                outputStyle: 'compressed',
-              },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+              outputStyle: 'compressed',
             },
-          ],
-          // use style-loader in development
-          fallback: 'style-loader',
-        }),
+          },
+        ],
       },
       {
         test: /\.svg$/,
         use: [
+          'babel-loader',
           {
             loader: 'react-svg-loader',
             options: {
-              es5: true,
               svgo: {
                 plugins: [
                   {
-                    removeAttrs: { attrs: 'xmlns.*' },
+                    removeViewBox: false,
                   },
                 ],
               },
@@ -111,50 +92,50 @@ const config = {
     index: 'index-generated.html',
     proxy: {
       '/a': {
-        pathRewrite: (path, req) => {
-          console.log(path)
-          return path.replace(/^\/a\//, '/')
-        },
+        pathRewrite: path => path.replace(/^\/a\//, '/'),
         target: 'http://localhost:9001/',
       },
     },
   },
   plugins: [
-    extractSass,
-    // not compatible with leaflet
-    // new LodashModuleReplacementPlugin(),
+    new MiniCssExtractPlugin({
+      filename:
+        process.env.NODE_ENV === 'production'
+          ? 'generated/[name].[contenthash].css'
+          : 'generated/[name].css',
+      chunkFilename: 'generated/[id].[contenthash].css',
+    }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
       },
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      minChunks(module) {
-        // this assumes your vendor imports exist in the node_modules directory
-        return (
-          module.context &&
-          module.context.includes('node_modules') &&
-          !module.context.includes('autotrack')
-        )
-      },
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'app',
-      async: true,
-      minChunks: 2,
-    }),
     new ManifestPlugin({
       fileName: 'assets.json',
     }),
   ],
+  optimization: {
+    splitChunks: {
+      chunks: 'async',
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendor',
+          chunks: 'all',
+        },
+        default: {
+          minChunks: 20,
+          name: 'app',
+        },
+      },
+    },
+  },
 }
 if (process.env.NODE_ENV === 'production') {
   config.output.filename = 'generated/[name].[chunkhash].bundle.js'
   config.output.chunkFilename = 'generated/[name].[chunkhash].chunk.js'
-  delete config.devtool
+  config.devtool = 'nosources-source-map'
   config.plugins.push(
-    new UglifyJsPlugin(),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
       openAnalyzer: false,
@@ -179,7 +160,6 @@ if (process.env.NODE_ENV === 'production') {
     })
   )
 } else {
-  config.plugins.push(new ConsoleNotifierPlugin())
   console.log('Not building Service Worker')
 }
 
