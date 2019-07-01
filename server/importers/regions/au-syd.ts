@@ -206,6 +206,18 @@ class SydneyImporter extends MultiImporter {
       locations,
     })
   }
+
+  async postImport() {
+    const sqlRequest = await connection.get().request()
+    await sqlRequest.query(`
+    delete from routes where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
+    delete from trips where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
+    `)
+    log(
+      `${config.prefix} ${config.version}`,
+      'Post Import: deleted non-revenue services',
+    )
+  }
 }
 
 export default SydneyImporter
