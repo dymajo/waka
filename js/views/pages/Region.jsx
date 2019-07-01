@@ -16,7 +16,7 @@ import LinkButton from '../reusable/LinkButton.jsx'
 let styles
 class Region extends React.Component {
   state = {
-    liveCities: [],
+    cities: [],
     data: {},
     loading: true,
   }
@@ -32,22 +32,21 @@ class Region extends React.Component {
     this.getCities()
   }
 
-  getCities = () => {
-    fetch(`${local.endpoint}/regions`)
-      .then(response => response.json())
-      .then(data => {
-        const cities = Object.keys(data)
-          .filter(city => data[city].showInCityList)
-          .sort()
-        this.setState({
-          liveCities: cities,
-          data,
-          loading: false,
-        })
+  getCities = async () => {
+    try {
+      const response = await fetch(`${local.endpoint}/regions`)
+      const data = await response.json()
+      const cities = Object.keys(data)
+        .filter(city => data[city].showInCityList)
+        .sort()
+      this.setState({
+        cities,
+        data,
+        loading: false,
       })
-      .catch(() => {
-        this.setState({ loading: false })
-      })
+    } catch (err) {
+      this.setState({ loading: false })
+    }
   }
 
   triggerRetry = () => {
@@ -75,9 +74,7 @@ class Region extends React.Component {
   }
 
   render() {
-    console.log(this.state.liveCities)
-    const cities = this.state.liveCities.map(this.cityIcon)
-    console.log(cities)
+    const cities = this.state.cities.map(this.cityIcon)
     let loading = null
     if (this.state.loading) {
       loading = (
@@ -87,7 +84,7 @@ class Region extends React.Component {
           <br />
         </View>
       )
-    } else if (this.state.liveCities.length === 0) {
+    } else if (this.state.cities.length === 0) {
       loading = (
         <View style={styles.voteWrapper}>
           <Text style={styles.vote}>{t('regions.error')}</Text>

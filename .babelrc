@@ -4,7 +4,12 @@
     "react-native-web"
   ],
   "presets": [
-    "@babel/env",
+    [
+      "@babel/env",
+      {
+        "targets": ">1% in AU and not IE 11"
+      }
+    ],
     "@babel/react",
     "airbnb"
   ]

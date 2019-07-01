@@ -70,30 +70,29 @@ class Lines extends React.Component {
     this.getLines()
   }
 
-  getLines = () => {
-    StationStore.getLines(this.props.match.params.region)
-      .then(data => {
-        const groupShow = {}
-        data.groups.forEach(group => {
-          groupShow[group.name] = ''
-        })
-        this.setState({
-          meta: data.meta,
-          allLines: data.lines,
-          colors: data.colors,
-          icons: data.icons,
-          groups: data.groups,
-          operators: data.operators,
-          friendlyNames: data.friendlyNames,
-          friendlyNumbers: data.friendlyNumbers,
-          groupShow,
-        })
+  getLines = async () => {
+    try {
+      const data = await StationStore.getLines(this.props.match.params.region)
+      const groupShow = {}
+      data.groups.forEach(group => {
+        groupShow[group.name] = ''
       })
-      .catch(err => {
-        this.setState({
-          error: err,
-        })
+      this.setState({
+        meta: data.meta,
+        allLines: data.lines,
+        colors: data.colors,
+        icons: data.icons,
+        groups: data.groups,
+        operators: data.operators,
+        friendlyNames: data.friendlyNames,
+        friendlyNumbers: data.friendlyNumbers,
+        groupShow,
       })
+    } catch (err) {
+      this.setState({
+        error: err,
+      })
+    }
   }
 
   disable(e) {
