@@ -1,0 +1,96 @@
+// TOGGLE
+.tgl {
+  display: none;
+}
+.tgl,
+.tgl:after,
+.tgl:before,
+.tgl *,
+.tgl *:after,
+.tgl *:before,
+.tgl + .tgl-btn {
+  box-sizing: border-box;
+}
+.tgl::-moz-selection,
+.tgl:after::-moz-selection,
+.tgl:before::-moz-selection,
+.tgl *::-moz-selection,
+.tgl *:after::-moz-selection,
+.tgl *:before::-moz-selection,
+.tgl + .tgl-btn::-moz-selection {
+  background: none;
+}
+.tgl::selection,
+.tgl:after::selection,
+.tgl:before::selection,
+.tgl *::selection,
+.tgl *:after::selection,
+.tgl *:before::selection,
+.tgl + .tgl-btn::selection {
+  background: none;
+}
+.tgl + .tgl-btn {
+  outline: 0;
+  width: 44px;
+  height: 20px;
+  margin-top: 2px;
+  position: relative;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  float: right;
+}
+.tgl + .tgl-btn:after,
+.tgl + .tgl-btn:before {
+  position: relative;
+  display: block;
+  content: '';
+  width: 10px;
+  height: 10px;
+  margin: 1px;
+}
+.tgl + .tgl-btn:before {
+  display: none;
+}
+.tgl-flat + .tgl-btn {
+  padding: 2px;
+  transition: background 0.2s ease, border 0.2s ease;
+  border: 2px solid #000;
+  border-radius: 2em;
+}
+.tgl-flat + .tgl-btn:after {
+  transition: transform 0.2s ease, background 0.2s ease;
+  background: #000;
+  content: '';
+  border-radius: 1em;
+}
+.tgl-flat:checked + .tgl-btn {
+  border: 2px solid $lightblue;
+  background: $lightblue;
+}
+.tgl-flat:checked + .tgl-btn:after {
+  transform: translate(25px);
+  background: #fff;
+}
+// THE ON OFF LABEL AFTER THE TOGGLE. INTERNATIONALIZED.
+.tgl-lbl {
+  vertical-align: top;
+  line-height: 24px;
+  padding-right: 14px;
+  display: inline-block;
+  font-size: 15px;
+}
+.tgl-lbl span:nth-child(2) {
+  display: none;
+}
+.tgl-flat:checked + .tgl-btn + .tgl-lbl span:nth-child(1) {
+  display: none;
+}
+.tgl-flat:checked + .tgl-btn + .tgl-lbl span:nth-child(2) {
+  display: inline;
+}
+
+.http-not-found .settings {
+  height: 100vh;
+  height: var(--real-height);
+}

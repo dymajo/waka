@@ -1,41 +1,40 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import { View, StyleSheet } from 'react-native'
+import { vars } from '../../styles.js'
 import SettingsStore from '../../stores/SettingsStore.js'
 import { t } from '../../stores/translationStore.js'
 
-class Toggle extends React.Component {
-  static propTypes = {
-    children: PropTypes.node,
-    id: PropTypes.string,
-  }
-
-  state = {
-    checked: SettingsStore.getState()[this.props.id],
-  }
-
-  triggerChange = () => {
-    SettingsStore.toggle(this.props.id)
-  }
-
-  render() {
-    return (
-      <div className="settingwrap">
-        <h3>{this.props.children}</h3>
+let styles
+const Toggle = ({ id, children }) => {
+  return (
+    <View style={styles.button}>
+      {children}
+      <div>
         <input
-          onChange={this.triggerChange}
-          defaultChecked={this.state.checked}
-          id={this.props.id}
+          onChange={() => SettingsStore.toggle(id)}
+          defaultChecked={SettingsStore.getState()[id]}
+          id={id}
           type="checkbox"
           className="tgl tgl-flat"
         />
-        <label htmlFor={this.props.id} className="tgl-btn" />
+        <label htmlFor={id} className="tgl-btn" />
         <span className="tgl-lbl">
           <span>{t('settings.preferences.disabled')}</span>
           <span>{t('settings.preferences.enabled')}</span>
         </span>
       </div>
-    )
-  }
+    </View>
+  )
 }
+const { padding } = vars
+styles = StyleSheet.create({
+  button: {
+    flexDirection: 'row',
+    paddingLeft: padding,
+    paddingRight: padding,
+    paddingTop: padding * 0.5,
+    paddingBottom: padding * 0.5,
+  },
+})
 
 export default Toggle
