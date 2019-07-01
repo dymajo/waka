@@ -1,192 +1,194 @@
 import config from '../../config'
 import MultiImporter from '../MultiImporter'
+import connection from '../../db/connection'
+import log from '../../logger'
 
 const locations = [
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC001',
     type: 'bus',
-    name: 'tfnswbuses1',
+    name: 'SMBSC001',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC002',
     type: 'bus',
-    name: 'tfnswbuses2',
+    name: 'SMBSC002',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC003',
     type: 'bus',
-    name: 'tfnswbuses3',
+    name: 'SMBSC003',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC004',
     type: 'bus',
-    name: 'tfnswbuses4',
+    name: 'SMBSC004',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC005',
     type: 'bus',
-    name: 'tfnswbuses5',
+    name: 'SMBSC005',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SBSC006',
     type: 'bus',
-    name: 'tfnswbuses6',
+    name: 'SBSC006',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC007',
     type: 'bus',
-    name: 'tfnswbuses7',
+    name: 'SMBSC007',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC008',
     type: 'bus',
-    name: 'tfnswbuses8',
+    name: 'SMBSC008',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC009',
     type: 'bus',
-    name: 'tfnswbuses9',
+    name: 'SMBSC009',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC010',
     type: 'bus',
-    name: 'tfnswbuses10',
+    name: 'SMBSC010',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC012',
     type: 'bus',
-    name: 'tfnswbuses11',
+    name: 'SMBSC012',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC013',
     type: 'bus',
-    name: 'tfnswbuses12',
+    name: 'SMBSC013',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC014',
     type: 'bus',
-    name: 'tfnswbuses13',
+    name: 'SMBSC014',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC015',
     type: 'bus',
-    name: 'tfnswbuses14',
+    name: 'SMBSC015',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC001',
     type: 'bus',
-    name: 'tfnswbuses15',
+    name: 'OSMBSC001',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC002',
     type: 'bus',
-    name: 'tfnswbuses16',
+    name: 'OSMBSC002',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC003',
     type: 'bus',
-    name: 'tfnswbuses17',
+    name: 'OSMBSC003',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC004',
     type: 'bus',
-    name: 'tfnswbuses18',
+    name: 'OSMBSC004',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC006',
     type: 'bus',
-    name: 'tfnswbuses19',
+    name: 'OSMBSC006',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC007',
     type: 'bus',
-    name: 'tfnswbuses20',
+    name: 'OSMBSC007',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC008',
     type: 'bus',
-    name: 'tfnswbuses21',
+    name: 'OSMBSC008',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC009',
     type: 'bus',
-    name: 'tfnswbuses22',
+    name: 'OSMBSC009',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC010',
     type: 'bus',
-    name: 'tfnswbuses23',
+    name: 'OSMBSC010',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC011',
     type: 'bus',
-    name: 'tfnswbuses24',
+    name: 'OSMBSC011',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC012',
     type: 'bus',
-    name: 'tfnswbuses25',
+    name: 'OSMBSC012',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/NISC001',
     type: 'bus',
-    name: 'tfnswbuses26',
+    name: 'NISC001',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/ECR109',
     type: 'bus',
-    name: 'tfnswbuses27',
+    name: 'ECR109',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/ferries',
     type: 'ferry',
-    name: 'tfnswferries',
+    name: 'ferries',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/lightrail/innerwest',
     type: 'lightrail',
-    name: 'tfnswlightrail1',
+    name: 'innerwestlr',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/lightrail/newcastle',
     type: 'lightrail',
-    name: 'tfnswlightrail2',
+    name: 'newcastlelr',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/nswtrains',
     type: 'train',
-    name: 'tfnswtrains1',
+    name: 'nswtrains',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/sydneytrains',
     type: 'train',
-    name: 'tfnswtrains2',
+    name: 'sydneytrains',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/metro',
