@@ -1,20 +1,13 @@
 import FormData from 'form-data'
 import { createReadStream } from 'fs'
-import logger from '../logger'
 import axios from 'axios'
 import { PutObjectRequest } from 'aws-sdk/clients/s3'
 import AWS from 'aws-sdk'
 import { ServerResponse } from 'http'
 import * as Logger from 'bunyan'
+import { StorageProps } from '../../typings'
 
 // import { PutObjectRequest } from 'aws-sdk/clients/s3'
-
-interface StorageProps {
-  backing?: 'aws' | 'local'
-  endpoint?: string
-  region?: string
-  logger: Logger
-}
 
 class Storage {
   backing: string

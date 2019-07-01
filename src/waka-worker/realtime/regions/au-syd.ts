@@ -14,6 +14,7 @@ import {
   BaseRealtime,
   WakaRequest,
   PositionFeedEntity,
+  RealtimeAUSYDProps,
 } from '../../../typings'
 
 const scheduleUpdatePullTimeout = 15000
@@ -36,12 +37,6 @@ const modes: [
   'sydneytrains',
   'metro',
 ]
-
-interface RealtimeAUSYDProps {
-  apiKey: string
-  connection: Connection
-  logger: Logger
-}
 
 class RealtimeAUSYD extends BaseRealtime {
   currentUpdateData: { [tripId: string]: TripUpdate }
@@ -237,66 +232,64 @@ class RealtimeAUSYD extends BaseRealtime {
   ) => {
     const { trips, stop_id } = req.body
     const realtimeInfo = {}
-    for (const trip in trips) {
-      if (Object.prototype.hasOwnProperty.call(trips, trip)) {
+    for (const trip of trips) {
         try {
           const data = this.currentUpdateData[trip]
-          if (data !== undefined) {
-            const targetStop = data.stopTimeUpdate.find(
-              stopUpdate => stopUpdate.stopId === stop_id
-            )
-            let currentStop = {
-              stopSequence: -100, // starts off as "indeterminate"
-            }
+        // if (data !== undefined) {
+        //   const targetStop = data.stopTimeUpdate.find(
+        //     stopUpdate => stopUpdate.stopId === stop_id
+        //   )
+        //   let currentStop = {
+        //     stopSequence: -100, // starts off as "indeterminate"
+        //   }
 
-            // this array is ordered in the order of stops
-            const currentTime = new Date()
-            for (let i = 0; i < data.stopTimeUpdate.length; i++) {
-              const stopUpdate = data.stopTimeUpdate[i]
-              if (stopUpdate.departure) {
-                // filters out stops that have already passed
-                if (
-                  new Date(
-                    (stopUpdate.departure.time.toNumber() +
-                      stopUpdate.departure.delay) *
-                      1000
-                  ) > currentTime
-                ) {
-                  if (
-                    currentStop.stopSequence === -100 &&
-                    stopUpdate.stopSequence !== 0
-                  ) {
-                    currentStop = stopUpdate
-                  }
-                  break
-                }
-                // keeps setting it until it finds the right one
-                if (stopUpdate.stopSequence) {
-                  currentStop = stopUpdate
-                }
-              }
-            }
+        //   // this array is ordered in the order of stops
+        //   const currentTime = new Date()
+        //   for (let i = 0; i < data.stopTimeUpdate.length; i++) {
+        //     const stopUpdate = data.stopTimeUpdate[i]
+        //     if (stopUpdate.departure) {
+        //       // filters out stops that have already passed
+        //       if (
+        //         new Date(
+        //           (stopUpdate.departure.time.toNumber() +
+        //             stopUpdate.departure.delay) *
+        //             1000
+        //         ) > currentTime
+        //       ) {
+        //         if (
+        //           currentStop.stopSequence === -100 &&
+        //           stopUpdate.stopSequence !== 0
+        //         ) {
+        //           currentStop = stopUpdate
+        //         }
+        //         break
+        //       }
+        //       // keeps setting it until it finds the right one
+        //       if (stopUpdate.stopSequence) {
+        //         currentStop = stopUpdate
+        //       }
+        //     }
+        //   }
 
-            // return values:
-            // delay is added to the scheduled time to figure out the actual stop time
-            // timestamp is epoch scheduled time (according to the GTFS-R API)
-            // stop_sequence is the stop that the vechicle is currently at
-            const info = {}
-            Object.assign(
-              info,
-              { stop_sequence: currentStop.stopSequence },
-              targetStop.departure && {
-                delay: targetStop.departure.delay,
-                timestamp: targetStop.departure.time.toNumber(),
-              }
-            )
-            realtimeInfo[trip] = info
-          }
+        //   // return values:
+        //   // delay is added to the scheduled time to figure out the actual stop time
+        //   // timestamp is epoch scheduled time (according to the GTFS-R API)
+        //   // stop_sequence is the stop that the vechicle is currently at
+        //   const info = {}
+        //   Object.assign(
+        //     info,
+        //     { stop_sequence: currentStop.stopSequence },
+        //     targetStop.departure && {
+        //       delay: targetStop.departure.delay,
+        //       timestamp: targetStop.departure.time.toNumber(),
+        //     }
+        //   )
+        realtimeInfo[trip] = data
+        // }
         } catch (error) {
           console.log(error)
         }
       }
-    }
     return res.send(realtimeInfo)
   }
 

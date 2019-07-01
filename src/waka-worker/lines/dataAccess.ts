@@ -1,14 +1,18 @@
 import * as sql from 'mssql'
 import Connection from '../db/connection'
 
+interface DataAccessProps {
+  connection: Connection
+}
+
 class DataAccess {
   connection: Connection
-  constructor(props) {
+  constructor(props: DataAccessProps) {
     const { connection } = props
     this.connection = connection
   }
 
-  async getRoutes() {
+  getRoutes = async () => {
     const { connection } = this
     const sqlRequest = connection.get().request()
     const data = await sqlRequest.query<{
@@ -28,7 +32,7 @@ class DataAccess {
     return data
   }
 
-  async getOperator(route) {
+  getOperator = async (route: string) => {
     const { connection } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('route_short_name', sql.VarChar(50), route)

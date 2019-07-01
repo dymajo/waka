@@ -2,7 +2,6 @@ import protobuf from 'protobufjs'
 import axios from 'axios'
 import { Response, Request } from 'express'
 
-import * as Logger from 'bunyan'
 import {
   BaseRealtime,
   TripUpdate,
@@ -10,15 +9,8 @@ import {
   PositionFeedMessage,
   PositionFeedEntity,
   WakaRequest,
+  ProtobufRealtimeProps,
 } from '../../typings'
-import Connection from '../db/connection'
-
-interface ProtobufRealtimeProps {
-  logger: Logger
-  connection: Connection
-  tripUpdateOptions: { url: string; headers?: any }
-  vehicleLocationOptions: { url: string; headers?: any }
-}
 
 abstract class ProtobufRealtime extends BaseRealtime {
   currentUpdateData: { [tripId: string]: TripUpdate }

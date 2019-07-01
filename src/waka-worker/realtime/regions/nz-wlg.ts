@@ -4,7 +4,15 @@ import momenttz from 'moment-timezone'
 import moment from 'moment'
 import * as Logger from 'bunyan'
 import { Response } from 'express'
-import { BaseRealtime, RealtimeNZWLGProps, WakaRequest } from '../../../typings'
+import {
+  BaseRealtime,
+  RealtimeNZWLGProps,
+  WakaRequest,
+  MetlinkService,
+  MetlinkUpdate,
+  MetlinkStop,
+  MetlinkNotice,
+} from '../../../typings'
 import Connection from '../../db/connection'
 
 const tripsUrl = 'https://www.metlink.org.nz/api/v1/StopDepartures/'
@@ -29,7 +37,7 @@ class RealtimeNZWLG extends BaseRealtime {
   }
 
   async getTripsEndpoint(
-    req: WakaRequest<{ stop_id: string }, null>,
+    req: WakaRequest<{ stop_id: string; trips: string[] }, null>,
     res: Response
   ) {
     if (!req.body.stop_id) {
@@ -38,46 +46,9 @@ class RealtimeNZWLG extends BaseRealtime {
     try {
       const bodies = await Promise.all<{
         LastModified: string
-        Stop: {
-          Name: string
-          Sms: string
-          Farezone: string
-          Lat: number
-          Long: number
-          LastModified: string
-        }
-        Notices: {
-          RecordedAtTime: string
-          MonitoringRef: string
-          LineRef: string
-          DirectionRef: string
-          LineNote: string
-        }[]
-        Services: {
-          ServiceID: string
-          IsRealtime: boolean
-          VehicleRef: string
-          Direction: string
-          OperatorRef: string
-          OriginStopID: string
-          OriginStopName: string
-          DestinationStopID: string
-          DestinationStopName: string
-          AimedArrival: string
-          AimedDeparture: string
-          VehicleFeature: string
-          DepartureStatus: string
-          ExpectedDeparture: string
-          DisplayDeparture: string
-          DisplayDepartureSeconds: number
-          Service: {
-            Code: string
-            TrimmedCode: string
-            Name: string
-            Mode: string
-            Link: string
-          }
-        }[]
+        Stop: MetlinkStop
+        Notices: MetlinkNotice[]
+        Services: MetlinkUpdate[]
         station: string
       }>(
         req.body.stop_id
@@ -87,92 +58,18 @@ class RealtimeNZWLG extends BaseRealtime {
             (stop: string) =>
               new Promise<{
                 LastModified: string
-                Stop: {
-                  Name: string
-                  Sms: string
-                  Farezone: string
-                  Lat: number
-                  Long: number
-                  LastModified: string
-                }
-                Notices: {
-                  RecordedAtTime: string
-                  MonitoringRef: string
-                  LineRef: string
-                  DirectionRef: string
-                  LineNote: string
-                }[]
-                Services: {
-                  ServiceID: string
-                  IsRealtime: boolean
-                  VehicleRef: string
-                  Direction: string
-                  OperatorRef: string
-                  OriginStopID: string
-                  OriginStopName: string
-                  DestinationStopID: string
-                  DestinationStopName: string
-                  AimedArrival: string
-                  AimedDeparture: string
-                  VehicleFeature: string
-                  DepartureStatus: string
-                  ExpectedDeparture: string
-                  DisplayDeparture: string
-                  DisplayDepartureSeconds: number
-                  Service: {
-                    Code: string
-                    TrimmedCode: string
-                    Name: string
-                    Mode: string
-                    Link: string
-                  }
-                }[]
+                Stop: MetlinkStop
+                Notices: MetlinkNotice[]
+                Services: MetlinkUpdate[]
                 station: string
               }>(async (resolve, reject) => {
                 try {
                   const request = await fetch(tripsUrl + stop)
                   const data: {
                     LastModified: string
-                    Stop: {
-                      Name: string
-                      Sms: string
-                      Farezone: string
-                      Lat: number
-                      Long: number
-                      LastModified: string
-                    }
-                    Notices: {
-                      RecordedAtTime: string
-                      MonitoringRef: string
-                      LineRef: string
-                      DirectionRef: string
-                      LineNote: string
-                    }[]
-                    Services: {
-                      ServiceID: string
-                      IsRealtime: boolean
-                      VehicleRef: string
-                      Direction: string
-                      OperatorRef: string
-                      OriginStopID: string
-                      OriginStopName: string
-                      DestinationStopID: string
-                      DestinationStopName: string
-                      AimedArrival: string
-                      AimedDeparture: string
-                      VehicleFeature: string
-                      DepartureStatus: string
-                      ExpectedDeparture: string
-                      DisplayDeparture: string
-                      DisplayDepartureSeconds: number
-                      Service: {
-                        Code: string
-                        TrimmedCode: string
-                        Name: string
-                        Mode: string
-                        Link: string
-                      }
-                    }[]
+                    Stop: MetlinkStop
+                    Notices: MetlinkNotice[]
+                    Services: MetlinkUpdate[]
                     station: string
                   } = await request.json()
                   data.station = stop
@@ -183,12 +80,12 @@ class RealtimeNZWLG extends BaseRealtime {
               })
           )
       )
-      const responseData = {
+      const responseData: {} = {
         extraServices: {},
       }
       bodies.forEach(body => {
         const stop = body.station
-        const realtimeServices = {}
+        const realtimeServices: { [serviceId: string]: MetlinkUpdate[] } = {}
         body.Services.filter(item => item.IsRealtime).forEach(item => {
           const serviceId = item.Service.TrimmedCode
           if (!(serviceId in realtimeServices)) {
@@ -266,8 +163,7 @@ class RealtimeNZWLG extends BaseRealtime {
         })
         responseData.extraServices[stop] = realtimeServices
       })
-      res.send(responseData)
-      return responseData
+      return res.send(responseData)
     } catch (err) {
       return res.status(400).send({ message: 'stop_id not found' })
     }
@@ -303,9 +199,18 @@ class RealtimeNZWLG extends BaseRealtime {
         routeName = parseInt(routeName, 10).toString()
       }
 
-      const responseData = {}
+      const responseData: {
+        [VehicleRef: string]: {
+          latitude: number
+          longitude: number
+          bearing: string
+        }
+      } = {}
       const request = await fetch(`${serviceLocation}${routeName}`)
-      const data = await request.json()
+      const data = (await request.json()) as {
+        LastModified: string
+        Services: MetlinkService[]
+      }
       data.Services.filter(service => {
         const dbdir = result.recordset[0].direction_id
         const rtdir = service.Direction
@@ -336,9 +241,12 @@ class RealtimeNZWLG extends BaseRealtime {
     const { logger } = this
     const { line } = req.params
     try {
-      const metlinkData = await fetch(`${serviceLocation}${line}`).then(r =>
+      const metlinkData = (await fetch(`${serviceLocation}${line}`).then(r =>
         r.json()
-      )
+      )) as {
+        LastModified: string
+        Services: MetlinkService[]
+      }
       const responseData = metlinkData.Services.map(service => ({
         latitude: parseFloat(service.Lat),
         longitude: parseFloat(service.Long),
@@ -346,10 +254,10 @@ class RealtimeNZWLG extends BaseRealtime {
         direction: service.Direction === 'Inbound' ? 1 : 0,
         updatedAt: moment(service.RecordedAtTime),
       }))
-      res.send(responseData)
+      return res.send(responseData)
     } catch (err) {
       logger.error(err)
-      res.status(500).send({ message: 'Bad Request' })
+      return res.status(500).send({ message: 'Bad Request' })
     }
   }
 }

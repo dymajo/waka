@@ -11,12 +11,22 @@ import LinesNZCHC from './regions/nz-chc'
 import LinesNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
 import Search from '../stops/search'
+import { isKeyof } from '../../utils'
 
 const regions = {
   'au-syd': LinesAUSYD,
   'nz-akl': LinesNZAKL,
   'nz-chc': LinesNZCHC,
   'nz-wlg': LinesNZWLG,
+}
+
+interface LinesProps {
+  logger: Logger
+  connection: Connection
+  prefix: string
+  version: string
+  config: { storageService: 'aws' | 'local'; shapesRegion: string }
+  search: Search
 }
 
 class Lines {
@@ -29,8 +39,8 @@ class Lines {
   storageSvc: Storage
   lineData: any
   lineDataSource: any
-  config: any
-  constructor(props) {
+  config: {}
+  constructor(props: LinesProps) {
     const { logger, connection, prefix, version, config, search } = props
     this.logger = logger
     this.connection = connection
@@ -45,14 +55,13 @@ class Lines {
     this.storageSvc = new Storage({
       backing: config.storageService,
       region: config.shapesRegion,
-      logger: logger,
+      logger,
     })
 
     this.lineData = {}
-    this.lineDataSource =
-      regions[prefix] !== undefined
-        ? new regions[prefix]({ logger, connection })
-        : null
+    this.lineDataSource = isKeyof(regions, prefix)
+      ? new regions[prefix]({ logger, connection })
+      : null
   }
 
   start = async () => {
@@ -64,7 +73,7 @@ class Lines {
       await lineDataSource.start()
 
       // the second element in the array is default, if it is not exported from the source
-      const requiredProps: Array<[string, {} | []]> = [
+      const requiredProps: [string, {} | []][] = [
         ['lineColors', {}],
         ['lineIcons', {}],
         ['friendlyNames', {}],
@@ -100,7 +109,7 @@ class Lines {
     return '#00263A'
   }
 
-  getIcon = (agencyId, routeShortName) => {
+  getIcon = (agencyId: string, routeShortName: string) => {
     // this will probably be revised soon
     const { lineData } = this
     if (lineData.lineIcons) {

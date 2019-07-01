@@ -4,7 +4,6 @@ import * as Logger from 'bunyan'
 import { Response } from 'express'
 import axios from 'axios'
 import protobuf from 'protobufjs'
-import gtfs from 'gtfs-realtime-bindings'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
 import {
@@ -19,7 +18,6 @@ import {
 import ProtobufRealtime from '../ProtobufRealtime'
 
 class RealtimeNZAKL extends ProtobufRealtime {
-
   currentUpdateData: { [tripId: string]: TripUpdate }
   currentVehicleData: PositionFeedEntity[]
 
@@ -70,7 +68,10 @@ class RealtimeNZAKL extends ProtobufRealtime {
   }
 
   getTripsEndpoint = async (
-    req: WakaRequest<{ trips: string[]; train: boolean }, null>,
+    req: WakaRequest<
+      { trips: string[]; train: boolean; stop_id: string },
+      null
+    >,
     res: Response
   ) => {
     // compat with old version of api
@@ -89,7 +90,7 @@ class RealtimeNZAKL extends ProtobufRealtime {
 
   async getTripsAuckland(trips: string[], train = false) {
     const { logger, vehicleLocationsOptions, tripUpdatesOptions } = this
-    const realtimeInfo = {}
+    const realtimeInfo: { [tripId: string]: {} } = {}
     trips.forEach(trip => {
       realtimeInfo[trip] = {}
     })
@@ -207,7 +208,7 @@ class RealtimeNZAKL extends ProtobufRealtime {
   ) => {
     const { logger, connection } = this
     const { line } = req.params
-    if (this.currentVehicleData.entity === undefined) {
+    if (this.currentVehicleData.length === 0) {
       return res.send([])
     }
 
@@ -222,11 +223,12 @@ class RealtimeNZAKL extends ProtobufRealtime {
         `
       )
       const routeIds = routeIdResult.recordset.map(r => r.route_id)
-      const trips = this.currentVehicleData.entity.filter(entity =>
-        routeIds.includes(entity.vehicle.trip.route_id)
+      const trips = this.currentVehicleData.filter(entity =>
+        routeIds.includes(entity.vehicle.trip.routeId)
       )
       // this is good enough because data comes from auckland transport
-      const tripIds = trips.map(entity => entity.vehicle.trip.trip_id)
+      const tripIds = trips.map(entity => entity.vehicle.trip.tripId)
+      // eslint-disable-next-line quotes
       const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
@@ -238,7 +240,7 @@ class RealtimeNZAKL extends ProtobufRealtime {
         WHERE trip_id IN (${escapedTripIds})
         `)
 
-      const tripIdsMap = {}
+      const tripIdsMap: { [tripId: string]: number } = {}
       tripIdRequest.recordset.forEach(
         record => (tripIdsMap[record.trip_id] = record.direction_id)
       )

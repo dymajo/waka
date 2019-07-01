@@ -1,9 +1,8 @@
 import { BaseStops } from '../../../typings'
 
 class StopsNZWLG extends BaseStops {
-  badStops: string[]
-  constructor(props) {
-    super()
+  constructor() {
+    super({})
     this.badStops = [
       'WATE',
       'WOBU',
@@ -22,15 +21,15 @@ class StopsNZWLG extends BaseStops {
     ]
   }
 
-  start() {}
+  start = () => {}
 
-  stop() {}
+  stop = () => {}
 
-  extraSources() {
+  extraSources = () => {
     return Promise.resolve([])
   }
 
-  filter(recordset: { stop_id: string }[], mode = 'nothing') {
+  filter = (recordset: { stop_id: string }[], mode = 'nothing') => {
     const { badStops } = this
     return recordset
       .filter(item => {

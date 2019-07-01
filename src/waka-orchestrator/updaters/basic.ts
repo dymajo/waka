@@ -7,14 +7,7 @@ import csvparse from 'csv-parse'
 import transform from 'stream-transform'
 import moment from 'moment-timezone'
 import logger from '../logger'
-
-interface BasicUpdaterProps {
-  prefix: string
-  callback: any
-  interval: number
-  delay: number
-  url: string
-}
+import { BasicUpdaterProps } from '../../typings'
 
 class BasicUpdater {
   prefix: any
@@ -31,16 +24,10 @@ class BasicUpdater {
     this.interval = interval || 1440
     this.url = url
 
-    this.timeout = 0
-    this.start = this.start.bind(this)
-    this.check = this.check.bind(this)
-    this.download = this.download.bind(this)
-    this.unzip = this.unzip.bind(this)
-    this.findVersion = this.findVersion.bind(this)
-    this.stop = this.stop.bind(this)
+    this.timeout = null
   }
 
-  async start() {
+  start = async () => {
     const { prefix, check, delay, url } = this
     if (!url) {
       logger.error({ prefix }, 'URL must be supplied!')
@@ -51,7 +38,7 @@ class BasicUpdater {
     this.timeout = setTimeout(check, delay * 60000)
   }
 
-  async check() {
+  check = async () => {
     const {
       prefix,
       callback,
@@ -95,7 +82,7 @@ class BasicUpdater {
     this.timeout = setTimeout(check, interval * 60000)
   }
 
-  async download() {
+  download = async () => {
     const { prefix, url } = this
     return new Promise<string>(async (resolve, reject) => {
       const response = await fetch(url)
@@ -107,7 +94,7 @@ class BasicUpdater {
     })
   }
 
-  async unzip(zipLocation) {
+  unzip = async (zipLocation: string) => {
     const { prefix } = this
     return new Promise<string>((resolve, reject) => {
       const dir = path.join(os.tmpdir(), prefix)
@@ -121,7 +108,7 @@ class BasicUpdater {
     })
   }
 
-  async findVersion(gtfsLocation) {
+  findVersion = async (gtfsLocation: string) => {
     return new Promise<{
       version: string
       startDate: string
@@ -169,7 +156,7 @@ class BasicUpdater {
     })
   }
 
-  stop() {
+  stop = () => {
     const { prefix } = this
     logger.info({ prefix }, 'Stopped updater.')
     clearTimeout(this.timeout)

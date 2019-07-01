@@ -1,6 +1,11 @@
 import * as sql from 'mssql'
 import Connection from '../db/connection'
-import { StopsDataAccessProps } from '../../typings'
+import {
+  StopsDataAccessProps,
+  RouteInfo,
+  StopTime,
+  TripRow,
+} from '../../typings'
 
 class StopsDataAccess {
   connection: Connection
@@ -11,7 +16,7 @@ class StopsDataAccess {
       route_short_name: string
       trip_headsign: string
       direction_id: number
-    }
+    }[]
   >
   constructor(props: StopsDataAccessProps) {
     const { connection, prefix } = props
@@ -92,7 +97,12 @@ class StopsDataAccess {
     return data
   }
 
-  getStopTimes = async (stopCode, time, date, procedure = 'GetStopTimes') => {
+  getStopTimes = async (
+    stopCode: string,
+    time: Date,
+    date: Date,
+    procedure = 'GetStopTimes'
+  ) => {
     const { connection } = this
     const sqlRequest = connection
       .get()
@@ -123,10 +133,10 @@ class StopsDataAccess {
   }
 
   async getTimetable(
-    stopCode,
-    routeId,
-    date,
-    direction,
+    stopCode: string,
+    routeId: string,
+    date: Date,
+    direction: string,
     procedure = 'GetTimetable'
   ) {
     const { connection } = this
@@ -352,12 +362,7 @@ on trips.route_id = routes.route_id
     const { connection } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('tripId', sql.VarChar, tripId)
-    interface TripRow {
-      trip_id: string
-      start_time: Date
-      row_number: number
-      trip_headsign: string
-    }
+
     const result = await sqlRequest.query<TripRow>(
       `
       SELECT  trips.trip_id,

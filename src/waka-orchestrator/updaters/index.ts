@@ -4,16 +4,12 @@ import ATUpdater from './nz-akl'
 import TfNSWUpdater from './au-syd'
 import VersionManager from '../versionManager'
 import Fargate from './fargate'
-
-interface UpdateManagerProps {
-  config: any
-  versionManager: VersionManager
-}
+import { UpdateManagerProps, WakaConfig } from '../../typings'
 
 class UpdateManager {
-  config: any
+  config: WakaConfig
   versionManager: VersionManager
-  updaters: {}
+  updaters: { [prefix: string]: {} }
   interval: NodeJS.Timeout
   fargate: Fargate
   constructor(props: UpdateManagerProps) {
@@ -28,11 +24,9 @@ class UpdateManager {
     }
 
     this.updaters = {}
-    this.callback = this.callback.bind(this)
-    this.checkVersions = this.checkVersions.bind(this)
   }
 
-  start() {
+  start = () => {
     const { callback, config, versionManager } = this
     const { updaters } = config
     const regions = Object.keys(updaters).filter(k => updaters[k] !== false)
@@ -79,11 +73,15 @@ class UpdateManager {
     this.interval = setInterval(this.checkVersions, 10 * 60 * 1000) // then every 10 mins
   }
 
-  stop() {
+  stop = () => {
     setInterval(this.checkVersions)
   }
 
-  async callback(prefix, version, adjustMapping) {
+  callback = async (
+    prefix: string,
+    version: string,
+    adjustMapping: boolean
+  ) => {
     const { config, versionManager } = this
     // don't understand this
     const { shapesContainer, shapesRegion, dbconfig } = config.updaters[prefix]
@@ -143,7 +141,7 @@ class UpdateManager {
     }
   }
 
-  async checkVersions() {
+  checkVersions = async () => {
     const { versionManager, fargate } = this
     const allVersions = await versionManager.allVersions()
     Object.keys(allVersions).forEach(async id => {

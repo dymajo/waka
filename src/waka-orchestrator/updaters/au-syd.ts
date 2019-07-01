@@ -60,13 +60,9 @@ class TfNSWUpdater {
       rate: 5,
       concurrency: 5,
     })
-    this.start = this.start.bind(this)
-    this.check = this.check.bind(this)
-    this.checkApi = this.checkApi.bind(this)
-    this.stop = this.stop.bind(this)
   }
 
-  async start() {
+  start = () => {
     const { apiKey, check, delay, prefix } = this
     if (!apiKey) {
       logger.error({ prefix }, 'API Key must be supplied!')
@@ -79,19 +75,19 @@ class TfNSWUpdater {
     this.timeout = setTimeout(check, delay * 60000)
   }
 
-  async check() {
+  check = async () => {
     const { callback, check, interval, checkApi, prefix } = this
     let newest = new Date(0)
     try {
       for (const mode in tfnswmodes) {
         if (Object.prototype.hasOwnProperty.call(tfnswmodes, mode)) {
           const { endpoint } = tfnswmodes[mode]
-          const version = await this.rateLimiter(() => checkApi(endpoint))
-          if (newest < version) {
-            newest = version
+            const version = await this.rateLimiter(() => checkApi(endpoint))
+            if (newest < version) {
+              newest = version
+            }
           }
         }
-      }
       const year = newest.getUTCFullYear()
       const month = newest.getUTCMonth() + 1
       const date = newest.getUTCDate()
@@ -105,7 +101,7 @@ class TfNSWUpdater {
     }
   }
 
-  async checkApi(endpoint: string) {
+  checkApi = async (endpoint: string) => {
     const { apiKey } = this
     const options = {
       url: `https://api.transport.nsw.gov.au/v1/gtfs/schedule/${endpoint}`,
@@ -125,7 +121,7 @@ class TfNSWUpdater {
     }
   }
 
-  stop() {
+  stop = () => {
     const { prefix } = this
     logger.info({ prefix }, 'Stopped updater.')
     clearTimeout(this.timeout)

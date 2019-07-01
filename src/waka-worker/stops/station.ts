@@ -6,22 +6,46 @@ import Connection from '../db/connection'
 import { WakaRequest, BaseStops } from '../../typings'
 import Lines from '../lines'
 
+interface StationProps {
+  logger: Logger
+  connection: Connection
+  prefix: string
+  stopsExtras?: BaseStops
+  lines: Lines
+  realtimeTimes: (
+    trips: string[]
+  ) => {
+    [tripId: string]: {
+      stop_sequence: number
+      delay: number
+      timestamp: number
+      v_id: number
+      double_decker: boolean
+      ev: boolean
+    }
+  }
+}
+
 class Station {
   logger: Logger
   connection: Connection
   prefix: string
-  regionSpecific: any
+  regionSpecific: BaseStops
   lines: Lines
-  realtimeTimes: any
+  realtimeTimes: (
+    trips: string[]
+  ) => {
+    [tripId: string]: {
+      stop_sequence: number
+      delay: number
+      timestamp: number
+      v_id: number
+      double_decker: boolean
+      ev: boolean
+    }
+  }
   dataAccess: StopsDataAccess
-  constructor(props: {
-    lines: Lines
-    logger
-    connection
-    prefix
-    stopsExtras
-    realtimeTimes
-  }) {
+  constructor(props: StationProps) {
     const {
       logger,
       connection,
@@ -38,13 +62,9 @@ class Station {
     this.realtimeTimes = realtimeTimes
 
     this.dataAccess = new StopsDataAccess({ connection, prefix })
-
-    this.stopInfo = this.stopInfo.bind(this)
-    this.stopTimes = this.stopTimes.bind(this)
-    this.timetable = this.timetable.bind(this)
   }
 
-  async getBounds() {
+  getBounds = async () => {
     const { dataAccess } = this
     const bounds = await dataAccess.getBounds()
     return {
@@ -93,7 +113,10 @@ class Station {
    *    }
    *
    */
-  async stopInfo(req, res) {
+  stopInfo = async (
+    req: WakaRequest<null, { station: string }>,
+    res: Response
+  ) => {
     const { prefix, dataAccess, regionSpecific } = this
     if (!req.params.station) {
       return res.status(404).send({
@@ -193,10 +216,10 @@ class Station {
    *       }
    *     }
    */
-  async stopTimes(
+  stopTimes = async (
     req: WakaRequest<{}, { time: string; station: string }>,
-    res
-  ) {
+    res: Response
+  ) => {
     const {
       prefix,
       dataAccess,
@@ -227,6 +250,7 @@ class Station {
       currentTime?: number
       trips?: any[]
       realtime?: any
+      allRoutes?: any
     } = {
       provider: 'sql-server',
     }
@@ -300,7 +324,7 @@ class Station {
       route_color: string
       stop_name: string
     }[] = []
-    const realtimeTrips = []
+    const realtimeTrips: string[] = []
     try {
       trips = await dataAccess.getStopTimes(
         station,
@@ -315,27 +339,27 @@ class Station {
 
     sending.trips = trips.map(r => {
       const record: {
-        trip_id: string
-        stop_sequence: number
-        departure_time: Date
-        departure_time_24: Date
-        stop_id: string
-        trip_headsign: string
-        shape_id: string
-        direction_id: number
-        start_date: Date
-        end_date: Date
-        route_short_name: string
-        route_long_name: string
-        route_type: number
-        agency_id: string
-        route_color: string
-        stop_name: string
-        departure_time_seconds: number
-        arrival_time_seconds: number
-        route_icon: string
-        arrival_time_24: string
-        arrival_time: string
+        trip_id?: string
+        stop_sequence?: number
+        departure_time?: Date
+        departure_time_24?: Date
+        stop_id?: string
+        trip_headsign?: string
+        shape_id?: string
+        direction_id?: number
+        start_date?: Date
+        end_date?: Date
+        route_short_name?: string
+        route_long_name?: string
+        route_type?: number
+        agency_id?: string
+        route_color?: string
+        stop_name?: string
+        departure_time_seconds?: number
+        arrival_time_seconds?: number
+        route_icon?: string
+        arrival_time_24?: string
+        arrival_time?: string
       } = r // clone?
       record.departure_time_seconds =
         new Date(record.departure_time).getTime() / 1000
@@ -437,7 +461,13 @@ class Station {
    *      }
    *    ]
    */
-  async timetable(req, res) {
+  timetable = async (
+    req: WakaRequest<
+      null,
+      { station: string; route: string; direction: string; offset: string }
+    >,
+    res: Response
+  ) => {
     const { prefix, dataAccess, logger, regionSpecific, lines } = this
     const { station, route, direction, offset } = req.params
 

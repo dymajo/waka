@@ -6,12 +6,20 @@ import RealtimeNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
 import { BaseRealtime, WakaRequest } from '../../typings'
 import CanberraRealtime from './regions/au-cbr'
+import { isKeyof } from '../../utils'
 
 const regions = {
-  // 'au-syd': RealtimeAUSYD,
+  'au-syd': RealtimeAUSYD,
   // 'nz-akl': RealtimeNZAKL,
   // 'nz-wlg': RealtimeNZWLG,
   // 'au-cbr': CanberraRealtime,
+}
+
+interface RealtimeProps {
+  connection: Connection
+  logger: Logger
+  prefix: string
+  api: { [api: string]: string }
 }
 
 class Realtime {
@@ -19,7 +27,7 @@ class Realtime {
   logger: Logger
   prefix: string
   fn: BaseRealtime
-  constructor(props) {
+  constructor(props: RealtimeProps) {
     const { connection, logger, prefix, api } = props
     this.connection = connection
     this.logger = logger
@@ -98,7 +106,13 @@ class Realtime {
    *   }
    * }
    */
-  stopInfo = (req: WakaRequest<{ trips: string[] }, null>, res: Response) => {
+  stopInfo = (
+    req: WakaRequest<
+      { trips: string[]; train: boolean; stop_id: string },
+      null
+    >,
+    res: Response
+  ) => {
     if (!req.body.trips) {
       return res.status(400).send({
         message: 'please send trips',
@@ -208,7 +222,7 @@ class Realtime {
     })
   }
 
-  all = (req, res) => {
+  all = (req: WakaRequest<null, null>, res: Response) => {
     if (this.fn) {
       return this.fn.getAllVehicleLocations(req, res)
     }

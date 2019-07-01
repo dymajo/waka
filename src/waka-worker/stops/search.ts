@@ -1,14 +1,23 @@
 import * as sql from 'mssql'
+import * as Logger from 'bunyan'
+import { Response } from 'express'
 import Connection from '../db/connection'
 import { WakaRequest, StopRouteType, BaseStops } from '../../typings'
 
+interface SearchProps {
+  logger: Logger
+  connection: Connection
+  prefix: string
+  stopsExtras: BaseStops
+}
+
 class Search {
-  logger: any
+  logger: Logger
   connection: Connection
   prefix: string
   regionSpecific: BaseStops
-  stopsRouteType: {}
-  constructor(props) {
+  stopsRouteType: StopRouteType
+  constructor(props: SearchProps) {
     const { logger, connection, prefix, stopsExtras } = props
     this.logger = logger
     this.connection = connection
@@ -16,22 +25,15 @@ class Search {
     this.regionSpecific = stopsExtras
 
     this.stopsRouteType = {}
-
-    this._stopsFilter = this._stopsFilter.bind(this)
-    this.all = this.all.bind(this)
-    this._allStops = this._allStops.bind(this)
-    this.getStopsRouteType = this.getStopsRouteType.bind(this)
-    this.getStopsLatLon = this.getStopsLatLon.bind(this)
-    this._stopsFromDb = this._stopsFromDb.bind(this)
   }
 
-  start() {
+  start = () => {
     this.getStopsRouteType()
   }
 
-  stop() {}
+  stop = () => {}
 
-  _stopsFilter(recordset: { stop_id: string }[], mode?: string) {
+  private stopsFilter = (recordset: { stop_id: string }[], mode?: string) => {
     const { prefix, regionSpecific } = this
     if (prefix === 'nz-wlg') {
       return regionSpecific.filter(recordset, mode)
@@ -67,10 +69,10 @@ class Search {
    *     }
    *
    */
-  async all(req, res) {
-    const { logger, _allStops } = this
+  all = async (req: WakaRequest<null, null>, res: Response) => {
+    const { logger, allStops } = this
     try {
-      const data = await _allStops()
+      const data = await allStops()
       res.send(data)
       return data
     } catch (err) {
@@ -80,8 +82,8 @@ class Search {
     }
   }
 
-  async _allStops() {
-    const { logger, connection, stopsRouteType, _stopsFilter } = this
+  private allStops = async () => {
+    const { logger, connection, stopsRouteType, stopsFilter } = this
     try {
       const sqlRequest = connection.get().request()
       const result = await sqlRequest.query<{
@@ -104,7 +106,7 @@ class Search {
 
       return {
         route_types: stopsRouteType,
-        items: _stopsFilter(result.recordset, 'delete'),
+        items: stopsFilter(result.recordset, 'delete'),
       }
     } catch (err) {
       logger.error({ err }, 'Could not get all stops from database.')
@@ -112,7 +114,7 @@ class Search {
     }
   }
 
-  async getStopsRouteType() {
+  getStopsRouteType = async () => {
     const { logger, connection } = this
     const sqlRequest = connection.get().request()
     try {
@@ -130,7 +132,7 @@ class Search {
         ORDER BY stop_code`
       )
 
-      const routeTypes = {}
+      const routeTypes: { [stop_id: string]: string } = {}
 
       result.recordset.forEach(stop => {
         routeTypes[stop.stop_id] = stop.route_type
@@ -174,9 +176,9 @@ class Search {
    *     ]
    *
    */
-  async getStopsLatLon(req, res) {
+  getStopsLatLon = async (req: WakaRequest<null, null>, res: Response) => {
     // no caching here, maybe we need it?
-    const { logger, prefix, regionSpecific, _stopsFromDb } = this
+    const { logger, prefix, regionSpecific, stopsFromDb } = this
     if (
       req.query.lat &&
       (req.query.lng || req.query.lon) &&
@@ -193,7 +195,7 @@ class Search {
       const dist = req.query.distance
 
       // the database is the default source
-      let sources = [_stopsFromDb(lat, lon, dist)]
+      let sources = [stopsFromDb(lat, lon, dist)]
       if (prefix === 'nz-wlg') {
         sources = sources.concat(regionSpecific.extraSources(lat, lon, dist))
       } else if (prefix === 'nz-akl') {
@@ -220,8 +222,8 @@ class Search {
     }
   }
 
-  async _stopsFromDb(lat, lon, distance) {
-    const { connection, prefix, _stopsFilter } = this
+  private stopsFromDb = async (lat: number, lon: number, distance: number) => {
+    const { connection, prefix, stopsFilter } = this
     const latDist = distance / 100000
     const lonDist = distance / 65000
     const stopLatGt = lat - latDist
@@ -265,7 +267,7 @@ class Search {
         AND stop_lat > @stop_lat_gt AND stop_lat < @stop_lat_lt
         AND stop_lon > @stop_lon_gt AND stop_lon < @stop_lon_lt`
     )
-    const stops = _stopsFilter(
+    const stops = stopsFilter(
       result.recordset.map(item => {
         const newItem = JSON.parse(JSON.stringify(item))
         newItem.stop_region = prefix
