@@ -34,10 +34,9 @@ class Realtime {
     this.prefix = prefix
 
     const apiKey = api[prefix]
-    this.fn =
-      regions[prefix] !== undefined
-        ? new regions[prefix]({ logger, connection, apiKey })
-        : null
+    this.fn = isKeyof(regions, prefix)
+      ? new regions[prefix]({ logger, connection, apiKey })
+      : null
   }
 
   start = () => {

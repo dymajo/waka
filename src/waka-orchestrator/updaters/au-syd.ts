@@ -2,6 +2,7 @@ import axios from 'axios'
 import { pRateLimit } from 'p-ratelimit'
 import logger from '../logger'
 import { TfNSWUpdaterProps } from '../../typings'
+import { isKeyof } from '../../utils'
 
 const tfnswmodes = {
   buses1: { endpoint: 'buses/SMBSC001' },
@@ -81,13 +82,18 @@ class TfNSWUpdater {
     try {
       for (const mode in tfnswmodes) {
         if (Object.prototype.hasOwnProperty.call(tfnswmodes, mode)) {
-          const { endpoint } = tfnswmodes[mode]
+          const tfnswmode = isKeyof(tfnswmodes, mode)
+            ? tfnswmodes[mode]
+            : undefined
+          if (tfnswmode) {
+            const { endpoint } = tfnswmode
             const version = await this.rateLimiter(() => checkApi(endpoint))
             if (newest < version) {
               newest = version
             }
           }
         }
+      }
       const year = newest.getUTCFullYear()
       const month = newest.getUTCMonth() + 1
       const date = newest.getUTCDate()
