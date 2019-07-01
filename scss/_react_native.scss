@@ -1,40 +1,4 @@
 // this is dodgy code that should be css-in-js, but it's not for reasons...
-// please be descriptive with your reason
-
-// touchable-opacity
-// reason: active psuedo element is better than js with like, state.
-.touchable-opacity {
-  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.5);
-  -webkit-touch-callout: none;
-  -webkit-text-size-adjust: none;
-  -webkit-user-select: none;
-
-  // why css in js is better
-  &.opacity-25 {
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.75);
-  }
-  &.opacity-75 {
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.25);
-  }
-  &.opacity-90 {
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
-  }
-}
-.touchable-opacity-active {
-  -webkit-tap-highlight-color: transparent;
-  &:active {
-    opacity: 0.5;
-  }
-  &.opacity-25:active {
-    opacity: 0.25;
-  }
-  &.opacity-75:active {
-    opacity: 0.75;
-  }
-  &.opacity-90:active {
-    opacity: 0.9;
-  }
-}
 .checkbox {
   padding-bottom: 8px;
 
