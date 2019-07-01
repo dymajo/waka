@@ -5,6 +5,7 @@ import { config as SqlConfig } from 'mssql'
 import Connection from './waka-worker/db/connection'
 import GatewayLocal from './waka-orchestrator/adaptors/gatewayLocal'
 import DataAccess from './waka-worker/lines/dataAccess'
+import VersionManager from './waka-orchestrator/versionManager'
 
 export interface WakaConfig {
   port: number
@@ -44,7 +45,7 @@ export interface WorkerConfig {
   prefix: string
   version: string
   db: DBConfig
-  api: string
+  api: { [api: string]: string }
   storageService: string
   shapesContainer: string
   shapesRegion: string
@@ -224,12 +225,12 @@ export interface StopTimeUpdate {
   arrival: StopTimeEvent
   scheduleRelationship: number
   stopId: string
-  stopSequence: number
+  stopSequence?: number
 }
 
 export interface StopTimeEvent {
-  delay: number
-  time: Long
+  delay?: number
+  time?: Long
 }
 
 export interface TripDescriptor {
@@ -318,6 +319,231 @@ export type WakaBody<T> = T
 export interface WakaRequest<WakaBody, WakaParams> extends Request {
   body: WakaBody
   params: WakaParams
+}
+export interface BasicUpdaterProps {
+  prefix: string
+  callback: any
+  interval: number
+  delay: number
+  url: string
+}
+
+export interface UpdateManagerProps {
+  config: any
+  versionManager: VersionManager
+}
+
+export interface ATUpdaterProps {
+  apiKey: string
+  callback: any
+  delay: number
+  interval: number
+}
+
+export interface StorageProps {
+  backing?: 'aws' | 'local'
+  endpoint?: string
+  region?: string
+  logger: Logger
+}
+
+export interface ProtobufRealtimeProps {
+  logger: Logger
+  connection: Connection
+  tripUpdateOptions: { url: string; headers?: any }
+  vehicleLocationOptions: { url: string; headers?: any }
+}
+
+export interface CanberraRealtimeProps {
+  logger: Logger
+  connection: Connection
+}
+
+export interface RealtimeAUSYDProps {
+  apiKey: string
+  connection: Connection
+  logger: Logger
+}
+
+export interface StopTime {
+  trip_id: string
+  pickup_type: number
+  drop_off_type: number
+  arrival_time: Date
+  departure_time: Date
+  stop_id: string
+  stop_name: string
+  trip_headsign: string
+  route_short_name: string
+  stop_sequence: number
+}
+
+export interface TripRow {
+  trip_id: string
+  start_time: Date
+  row_number: number
+  trip_headsign: string
+}
+
+export interface RouteInfo {
+  route_short_name: string
+  route_long_name: string
+  route_desc: string
+  route_type: number
+  route_color: string
+  route_text_color: string
+}
+
+export interface BaseStopsProps {
+  logger?: Logger
+  apiKey?: string
+}
+
+export abstract class BaseStops {
+  logger?: Logger
+  apiKey?: string
+  constructor(props: BaseStopsProps) {
+    this.logger = props.logger
+    this.apiKey = props.apiKey
+  }
+  badStops?: string[]
+  abstract start(): void
+  abstract stop(): void
+  getSingle?(
+    code: string
+  ): {
+    stop_id: string
+    stop_lat: number
+    stop_lon: number
+    stop_lng: number
+    stop_region: string
+    route_type: number
+    stop_name: string
+    description: string
+    timestamp: Date
+    availableSpaces: number
+    maxSpaces: number
+  }
+  filter?(recordset: any[], mode: string): void
+  extraSources?(
+    lat: number,
+    lon: number,
+    dist: number
+  ): Promise<
+    {
+      stop_id: string
+      stop_lat: number
+      stop_lon: number
+      stop_lng: number
+      stop_region: string
+      route_type: number
+      stop_name: string
+      description: string
+      timestamp: Date
+      availableSpaces: number
+      maxSpaces: number
+    }[]
+  >
+  getTimes?: (code: string) => AklTimes
+}
+
+export interface StopRouteType {
+  [stop_id: string]: string
+}
+
+export interface Onzo {
+  battery: number
+  chargeVoltage: number
+  createTime: number
+  direction: number
+  height: number
+  iccid: string
+  id: number
+  isLock: number
+  isScooter: number
+  latitude: number
+  locationMode: number
+  lockType: number
+  longitude: number
+  lstatus: number
+  mac: string
+  modelNum: string
+  producid: string
+  psignal: number
+  pstatus: number
+  speed: number
+  unlockedTimes: number
+  updateTime: number
+  voltage: number
+}
+
+export interface MetlinkService {
+  RecordedAtTime: string
+  VehicleRef: string
+  ServiceID: string
+  HasStarted: boolean
+  DepartureTime: string
+  OriginStopID: string
+  OriginStopName: string
+  DestinationStopID: string
+  DestinationStopName: string
+  Direction: string
+  Bearing: string
+  BehindSchedule: true
+  VehicleFeature: string
+  DelaySeconds: number
+  Lat: string
+  Long: string
+  Service: {
+    Code: string
+    TrimmedCode: string
+    Name: string
+    Mode: string
+    Link: string
+  }
+}
+
+export interface MetlinkStop {
+  Name: string
+  Sms: string
+  Farezone: string
+  Lat: number
+  Long: number
+  LastModified: string
+}
+
+export interface MetlinkNotice {
+  RecordedAtTime: string
+  MonitoringRef: string
+  LineRef: string
+  DirectionRef: string
+  LineNote: string
+}
+
+export interface MetlinkUpdate {
+  ServiceID: string
+  IsRealtime: boolean
+  VehicleRef: string
+  Direction: string
+  OperatorRef: string
+  OriginStopID: string
+  OriginStopName: string
+  DestinationStopID: string
+  DestinationStopName: string
+  AimedArrival: string
+  AimedDeparture: string
+  VehicleFeature: string
+  DepartureStatus: string
+  ExpectedDeparture: string
+  DisplayDeparture: string
+  DisplayDepartureSeconds: number
+  Service: {
+    Code: string
+    TrimmedCode: string
+    Name: string
+    Mode: string
+    Link: string
+  }
 }
 
 declare const process: {

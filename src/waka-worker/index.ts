@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import * as morgan from 'morgan'
 import * as Logger from 'bunyan'
 import createLogger from './logger'
 import cityMetadata from '../cityMetadata.json'
@@ -10,12 +9,11 @@ import Station from './stops/station'
 import StopsNZAKL from './stops/regions/nz-akl'
 import StopsNZWLG from './stops/regions/nz-wlg'
 import Realtime from './realtime'
-import BaseStops from './stops/regions/BaseStops'
-import { WorkerConfig } from '../typings'
+import { WorkerConfig, BaseStops } from '../typings'
 import Alexa from './alexa'
 
 class WakaWorker {
-  config: any
+  config: { prefix: string; version: string }
   logger: Logger
   connection: Connection
   router: Router
@@ -55,7 +53,7 @@ class WakaWorker {
     if (prefix === 'nz-akl') {
       this.stopsExtras = new StopsNZAKL({ logger, apiKey: api['agenda-21'] })
     } else if (prefix === 'nz-wlg') {
-      this.stopsExtras = new StopsNZWLG({ logger })
+      this.stopsExtras = new StopsNZWLG()
     }
     const { stopsExtras } = this
 
@@ -84,11 +82,10 @@ class WakaWorker {
     this.alexa = new Alexa({ logger, connection, prefix })
 
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
-    this.signature = this.signature.bind(this)
     this.bindRoutes()
   }
 
-  async start() {
+  start = async () => {
     await this.connection.open()
     this.logger.info('Connected to the Database')
     this.lines.start()
@@ -99,14 +96,14 @@ class WakaWorker {
     this.bounds = await this.station.getBounds()
   }
 
-  async stop() {
+  stop = async () => {
     this.lines.stop()
     this.search.stop()
     if (this.stopsExtras) this.stopsExtras.stop()
     this.realtime.stop()
   }
 
-  signature() {
+  signature = () => {
     const { bounds, config } = this
     const { prefix, version } = config
 
@@ -119,7 +116,7 @@ class WakaWorker {
     return { prefix, version, bounds, name, secondaryName, longName }
   }
 
-  bindRoutes() {
+  bindRoutes = () => {
     const { lines, search, station, realtime, router, alexa } = this
 
     /**

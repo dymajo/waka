@@ -3,7 +3,7 @@ import { Response } from 'express'
 import * as Logger from 'bunyan'
 import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
-import { WakaRequest } from '../../typings'
+import { WakaRequest, BaseStops } from '../../typings'
 import Lines from '../lines'
 
 class Station {

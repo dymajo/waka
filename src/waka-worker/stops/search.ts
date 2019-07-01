@@ -1,6 +1,6 @@
 import * as sql from 'mssql'
 import Connection from '../db/connection'
-import BaseStops from './regions/BaseStops'
+import { WakaRequest, StopRouteType, BaseStops } from '../../typings'
 
 class Search {
   logger: any

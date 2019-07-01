@@ -1,4 +1,4 @@
-import BaseStops from './BaseStops'
+import { BaseStops } from '../../../typings'
 
 class StopsNZWLG extends BaseStops {
   badStops: string[]
