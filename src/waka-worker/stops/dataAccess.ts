@@ -291,6 +291,20 @@ class StopsDataAccess {
     return routesContainer
   }
 
+  getRouteInfo = async (tripId: string) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('tripId', sql.VarChar, tripId)
+
+    const result = await sqlRequest.query<RouteInfo>(
+      `  select route_short_name, route_long_name, route_desc, route_type, route_color, route_text_color from routes
+
+    inner join trips on routes.route_id = trips.route_id
+    where trip_id = @tripId`
+    )
+    return result.recordset[0]
+  }
+
   getStopTimesV2 = async (
     current: string,
     previous?: string,
@@ -307,19 +321,8 @@ class StopsDataAccess {
         ? `'${current}', '${next}'`
         : `'${current}'`
 
-    interface StopTime {
-      trip_id: string
-      pickup_type: number
-      drop_off_type: number
-      arrival_time: Date
-      departure_time: Date
-      stop_id: string
-      stop_name: string
-      trip_headsign: string
-      route_short_name: string
-    }
     const result = await sqlRequest.query<StopTime>(`
-      select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name
+      select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name, stop_sequence
       from stop_times
       inner join trips
       on stop_times.trip_id = trips.trip_id
@@ -328,17 +331,21 @@ class StopsDataAccess {
       inner join routes
 on trips.route_id = routes.route_id
       where trips.trip_id in (${escapedTripIds})
-      order by arrival_time
+      order by  trip_id, stop_sequence
         `)
+
+    const routeInfo = await this.getRouteInfo(current)
 
     const trips: {
       previous: StopTime[]
       current: StopTime[]
       next: StopTime[]
+      routeInfo: RouteInfo
     } = {
       previous: [],
       current: [],
       next: [],
+      routeInfo,
     }
     for (const stopTime of result.recordset) {
       switch (stopTime.trip_id) {
