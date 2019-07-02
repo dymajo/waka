@@ -9,7 +9,7 @@ import Events from '../../stores/Events'
 import Station from '../station/Station.jsx'
 import Save from '../station/Save.jsx'
 import Timetable from '../pages/Timetable.jsx'
-import Lines from '../lines/Lines.jsx'
+import LineList from '../lines/LineList.jsx'
 import Line from '../lines/Line.jsx'
 import Sponsor from '../pages/Sponsor.jsx'
 import Region from '../pages/Region.jsx'
@@ -83,7 +83,7 @@ class Content extends React.Component {
             exact
             render={wrapFn(Timetable)}
           />
-          <Route path="/l/:region" exact render={wrapFn(Lines)} />
+          <Route path="/l/:region" exact render={wrapFn(LineList)} />
           <Route path="/l/:region/all" exact render={wrapFn(AllLines)} />
           <Route path="/l/:region/:line_id" exact render={wrapFn(Line)} />
           <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
