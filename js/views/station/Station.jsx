@@ -64,55 +64,54 @@ class Station extends React.Component {
     this.getData(this.props, false)
   }
 
-  getData(newProps, getTimes = true) {
+  async getData(newProps, getTimes = true) {
     const stop = newProps.match.params.station
-    const region = newProps.match.params.region
-    StationStore.getData(stop, region)
-      .then(data => {
-        let name = data.stop_name
-        let description = data.stop_name
-        if (data.description) {
-          name = data.name || name
-          description = data.description
-        }
+    const { region } = newProps.match.params
+    try {
+      const data = await StationStore.getData(stop, region)
+      let name = data.stop_name
+      let description = data.stop_name
+      if (data.description) {
+        name = data.name || name
+        description = data.description
+      }
 
-        let route_type = data.route_type
-        if (data.icon === 'train') {
-          route_type = 2
-        } else if (data.icon === 'bus') {
-          route_type = 3
-        } else if (data.icon === 'ferry') {
-          route_type = 4
-        } else if (data.icon === 'cablecar') {
-          route_type = 5
-        } else if (data.icon === 'parkingbuilding') {
-          route_type = -1
-        }
+      let { route_type } = data
+      if (data.icon === 'train') {
+        route_type = 2
+      } else if (data.icon === 'bus') {
+        route_type = 3
+      } else if (data.icon === 'ferry') {
+        route_type = 4
+      } else if (data.icon === 'cablecar') {
+        route_type = 5
+      } else if (data.icon === 'parkingbuilding') {
+        route_type = -1
+      }
 
-        if (route_type === 3) {
-          description = `${t('station.bus')} ${stop}`
-        }
-        if (stop.split('+').length > 1) {
-          description = t('savedStations.stops', {
-            number: stop.split('+').join(', '),
-          })
-        }
-
-        this.setState({
-          name: this.getName(name),
-          description,
-          route_type,
-          stop_lat: data.stop_lat,
-          stop_lon: data.stop_lon,
-          updated: data.updated || null,
+      if (route_type === 3) {
+        description = `${t('station.bus')} ${stop}`
+      }
+      if (stop.split('+').length > 1) {
+        description = t('savedStations.stops', {
+          number: stop.split('+').join(', '),
         })
-        CurrentLocation.setInitialPosition(data.stop_lat, data.stop_lon)
-        SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon]
-        SettingsStore.saveState()
+      }
+
+      this.setState({
+        name: this.getName(name),
+        description,
+        route_type,
+        stop_lat: data.stop_lat,
+        stop_lon: data.stop_lon,
+        updated: data.updated || null,
       })
-      .catch(err => {
-        console.log(err)
-      })
+      CurrentLocation.setInitialPosition(data.stop_lat, data.stop_lon)
+      SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon]
+      SettingsStore.saveState()
+    } catch (err) {
+      throw new Error(err)
+    }
 
     if (getTimes) {
       StationStore.getTimes(
@@ -123,7 +122,7 @@ class Station extends React.Component {
   }
 
   tripsCb = () => {
-    const tripData = StationStore.tripData
+    const { tripData } = StationStore
     const rtData = StationStore.realtimeData
     if (tripData.length === 0) {
       return this.setState({
@@ -150,7 +149,7 @@ class Station extends React.Component {
   }
 
   realtimeCb = () => {
-    const tripData = StationStore.tripData
+    const { tripData } = StationStore
     const rtData = StationStore.realtimeData
 
     this.setState({
@@ -451,7 +450,7 @@ class Station extends React.Component {
       ))
     }
 
-    const region = this.props.match.params.region
+    const { region } = this.props.match.params
     const stop = this.props.match.params.station
     const regionStop = `${region}|${stop}`
 

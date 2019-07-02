@@ -1,5 +1,6 @@
 // this class is copied, because eventually the other stuff will be moved out of this repo
 const fs = require('fs')
+
 const azuretestcreds = [
   'devstoreaccount1',
   'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
@@ -21,6 +22,7 @@ class Storage {
       })
     }
   }
+
   createContainer(container, cb) {
     const createCb = function(error) {
       if (error) {
@@ -38,10 +40,12 @@ class Storage {
       this.s3.createBucket(params, createCb)
     }
   }
+
   downloadStream(container, file, stream, callback) {
     if (this.backing === 'azure') {
       return this.blobSvc.getBlobToStream(container, file, stream, callback)
-    } else if (this.backing === 'aws') {
+    }
+    if (this.backing === 'aws') {
       const params = {
         Bucket: container,
         Key: file,
@@ -72,6 +76,7 @@ class Storage {
 
     return contentType
   }
+
   uploadFile(container, file, sourcePath, callback) {
     if (this.backing === 'azure') {
       return this.blobSvc.createBlockBlobFromLocalFile(
@@ -80,7 +85,8 @@ class Storage {
         sourcePath,
         callback
       )
-    } else if (this.backing === 'aws') {
+    }
+    if (this.backing === 'aws') {
       const params = {
         Body: fs.createReadStream(sourcePath),
         Bucket: container,

@@ -44,7 +44,7 @@ class UIStore extends Events {
     this.historyTracker = historyTracker
 
     // this ensures we always have the right animations
-    const state = this.state
+    const { state } = this
     customHistory.listen((event, action) => {
       state.currentUrl = event.pathname
       this.state.totalNavigations++

@@ -10,7 +10,7 @@ let manifest = null
 if (fs.existsSync(path.join(__dirname, '../dist/assets.json'))) {
   manifest = require('../dist/assets.json')
 } else {
-  const pid = ('      ' + process.pid.toString(16)).slice(-6).green
+  const pid = `      ${process.pid.toString(16)}`.slice(-6).green
   console.error(
     pid,
     'Static Server Terminating - dist/assets.json not found!'.red
@@ -29,10 +29,10 @@ const ddescription =
 const dcanonical = 'https://waka.app'
 
 const defaults = {
-  vendorpath: '/' + manifest['vendor.js'],
-  apppath: '/' + manifest['app.js'],
-  analyticspath: '/' + manifest['analytics.js'],
-  csspath: '/' + manifest['app.css'],
+  vendorpath: `/${manifest['vendor.js']}`,
+  apppath: `/${manifest['app.js']}`,
+  analyticspath: `/${manifest['analytics.js']}`,
+  csspath: `/${manifest['app.css']}`,
 }
 
 const uploadFiles = async () => {
@@ -46,11 +46,11 @@ const uploadFiles = async () => {
   // we need this so we know what file maps to what key
   // it's 1-1 relationship, so it's okay
   const reverseDefaults = {}
-  for (let key in defaults) {
+  for (const key in defaults) {
     reverseDefaults[defaults[key]] = key
   }
 
-  for (let file in manifest) {
+  for (const file in manifest) {
     await new Promise((resolve, reject) => {
       client.uploadFile(
         container,
@@ -86,10 +86,11 @@ class Defaults {
     this.canonical = dcanonical
     this.index = this.index.bind(this)
   }
+
   success(templateName, title, description, canonical, data = null, region) {
     let splash = '/photos/splash.jpg'
     if (typeof region !== 'undefined') {
-      splash = '/photos/' + region + '.jpg'
+      splash = `/photos/${region}.jpg`
     } else {
       region = 'nz-akl'
     }
@@ -98,12 +99,13 @@ class Defaults {
       title: title || dtitle,
       description: description || ddescription,
       canonical: dcanonical + canonical,
-      data: data,
-      region: region,
+      data,
+      region,
       splash: dcanonical + splash,
     })
     return template[templateName](content)
   }
+
   notFound(res) {
     const content = Object.assign(defaults, {
       title: 'Not Found - Waka',
@@ -112,6 +114,7 @@ class Defaults {
     })
     res.status(404).send(template.layout(content))
   }
+
   index(req, res) {
     res.send(this.success('layout', undefined, undefined, req.path))
   }

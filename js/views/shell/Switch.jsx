@@ -79,10 +79,10 @@ class Switch extends React.Component {
           const key = location.key || 'key'
           const currentRoute = match
             ? React.cloneElement(element, {
-                location,
-                computedMatch: match,
-                key,
-              })
+              location,
+              computedMatch: match,
+              key,
+            })
             : null
           const ret = this.timeout(this.currentRoute, currentRoute)
           if (ret || this.currentRoute.key === this.lastRoute.key) {
