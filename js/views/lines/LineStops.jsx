@@ -12,7 +12,7 @@ let styles = null // defined down below
 const Transfers = props => {
   const { transfers, currentLine } = props
   return transfers.length <= 1 ? null : (
-    <View style={styles.transfers}>
+    <Text style={styles.transfers}>
       {transfers
         .filter(t => t[0] !== currentLine)
         .map(transfer => (
@@ -23,7 +23,7 @@ const Transfers = props => {
             {transfer[0]}
           </Text>
         ))}
-    </View>
+    </Text>
   )
 }
 
@@ -96,6 +96,7 @@ class LineStops extends React.PureComponent {
   }
 }
 
+const { fontFamily } = vars
 styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#fff',
@@ -154,22 +155,24 @@ styles = StyleSheet.create({
   stopText: {
     flex: 1,
     fontSize: vars.defaultFontSize - 1,
-    fontFamily: vars.defaultFontFamily,
+    fontFamily,
     paddingTop: vars.padding * 0.75,
     paddingBottom: vars.padding * 0.25,
   },
   transfers: {
     display: 'block',
     overflow: 'hidden',
-    height: 24,
+    fontSize: 0,
     marginBottom: vars.padding * 0.25,
+    whiteSpace: 'pre',
+    textOverflow: 'ellipsis',
   },
   transfer: {
     backgroundColor: '#222',
     color: '#fff',
     marginRight: 3,
     fontSize: vars.defaultFontSize - 2,
-    fontFamily: vars.defaultFontFamily,
+    fontFamily,
     fontWeight: '600',
     paddingLeft: 3,
     paddingRight: 3,

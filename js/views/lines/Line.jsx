@@ -345,7 +345,7 @@ styles = StyleSheet.create({
     paddingBottom: vars.padding * 0.5,
     fontWeight: '600',
     fontSize: vars.defaultFontSize,
-    fontFamily: vars.defaultFontFamily,
+    fontFamily: vars.fontFamily,
   },
   linkWrapper: {
     padding: vars.padding,
@@ -355,7 +355,7 @@ styles = StyleSheet.create({
   },
   errorMessage: {
     fontSize: vars.defaultFontSize,
-    fontFamily: vars.defaultFontFamily,
+    fontFamily: vars.fontFamily,
   },
 })
 export default withRouter(Line)
