@@ -8,6 +8,7 @@ class Onzo extends React.Component {
   constructor(props) {
     super(props)
   }
+
   render() {
     const updatedgmt = moment.tz(this.props.updated, 'Etc/GMT')
     const updated = updatedgmt.format('hh:mm a [-] DD/MM/YYYY')

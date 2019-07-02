@@ -239,33 +239,31 @@ class BaseMap extends React.Component {
     })
   }
 
-  getData(lat, lon, dist) {
+  async getData(lat, lon, dist) {
     const { bikeShare } = SettingsStore.state
     this.position = [lat, lon, dist]
-    fetch(
-      `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
-        4
-      )}&lon=${lon.toFixed(4)}&distance=${dist}`
-    )
-      .then(response => {
-        response.json().then(data => {
-          data.forEach(item => {
-            StationStore.stationCache[item.stop_id] = item
-            if (
-              typeof this.myIcons[item.route_type.toString()] === 'undefined'
-            ) {
-              this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
-                StationStore.currentCity.prefix,
-                item.route_type
-              )
-            }
-          })
-          this.setState({
-            stops: data,
-          })
-        })
+    try {
+      const res = await fetch(
+        `${local.endpoint}/auto/station/search?lat=${lat.toFixed(
+          4
+        )}&lon=${lon.toFixed(4)}&distance=${dist}`
+      )
+      const data = await res.json()
+      data.forEach(item => {
+        StationStore.stationCache[item.stop_id] = item
+        if (typeof this.myIcons[item.route_type.toString()] === 'undefined') {
+          this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
+            StationStore.currentCity.prefix,
+            item.route_type
+          )
+        }
       })
-      .catch(err => console.log(err))
+      this.setState({
+        stops: data,
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   triggerCurrentLocation = () => {
@@ -411,6 +409,7 @@ class BaseMap extends React.Component {
         >
           <ZoomControl position="bottomleft" />
           <TileLayer
+            errorTileUrl={'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'}
             url={
               'https://maps-ap-southeast-2.dymajo.com/osm_tiles/{z}/{x}/{y}@2x.png'
             }

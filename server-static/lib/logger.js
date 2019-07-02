@@ -1,4 +1,4 @@
-let pid = ('      ' + process.pid.toString(16)).slice(-6)
+let pid = `      ${process.pid.toString(16)}`.slice(-6)
 if (process.send === undefined) {
   pid = 'master'
 }

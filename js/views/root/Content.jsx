@@ -12,22 +12,13 @@ class RootContent extends React.Component {
   }
 
   state = {
-    stations: StationStore.getData(),
+    stations: null,
     currentCity: StationStore.currentCity,
     desktopLayout: window.innerWidth > 850,
   }
 
-  triggerUpdate = () => {
-    this.setState({
-      stations: StationStore.getData(),
-    })
-  }
-
-  toggleRegion() {
-    UiStore.safePush('/region')
-  }
-
-  componentDidMount() {
+  async componentDidMount() {
+    await this.triggerUpdate()
     StationStore.bind('change', this.triggerUpdate)
     StationStore.bind('newcity', this.newcity)
   }
@@ -37,16 +28,17 @@ class RootContent extends React.Component {
     StationStore.unbind('newcity', this.newcity)
   }
 
+  triggerUpdate = async () => {
+    const stations = await StationStore.getData()
+    this.setState({
+      stations,
+    })
+  }
+
   newcity = () => {
     this.setState({
       currentCity: StationStore.currentCity,
     })
-  }
-
-  reject(e) {
-    if (UiStore.state.mapView) {
-      e.preventDefault()
-    }
   }
 
   triggerLayout = () => {
@@ -60,6 +52,16 @@ class RootContent extends React.Component {
         desktopLayout: false,
       })
     }
+  }
+
+  reject(e) {
+    if (UiStore.state.mapView) {
+      e.preventDefault()
+    }
+  }
+
+  toggleRegion() {
+    UiStore.safePush('/region')
   }
 
   render() {
@@ -204,54 +206,60 @@ class RootContent extends React.Component {
     }
 
     // positions the onboarding thing dependent on pwa mode.
-    return (
-      <div className="root-card-content">
-        <View onLayout={this.triggerLayout}>
-          {onboarding}
-          <h2>{t('savedStations.title')}</h2>
-          {message}
-          <ul>
-            {StationStore.getOrder().map(station => {
-              const url = station.split('|').slice(-1)
-              return (
-                <Sidebar
-                  key={station}
-                  url={`/s/${StationStore.StationData[station].region ||
-                    'nz-akl'}/${url}`}
-                  name={stations[station].name}
-                  icon={`${stations[station].icon}.svg`}
-                  description={stations[station].description}
-                />
-              )
-            })}
-          </ul>
-          <h2>{t('serviceAlerts.title')}</h2>
-          <ul>
-            {twitterAcc}
-            <Sidebar
-              type="url"
-              url="https://twitter.com/DYMAJOLtd"
-              icon="dymajo.svg"
-              name="DYMAJO"
-              description={t('serviceAlerts.twitter', { account: 'DYMAJOLtd' })}
-            />
-          </ul>
-          <div className="more-section">
-            <h2>{t('savedStations.more')}</h2>
-            <ul className="blue-fill">{secondTwo}</ul>
-          </div>
-          <a
-            className="label version"
-            href="https://github.com/consindo/dymajo-transit"
-            target="_blank"
-            rel="noopener"
-            onClick={this.reject}
-          >
-            DYMAJO Waka v{localStorage.getItem('AppVersion')}
-          </a>
-        </View>
-      </div>
-    )
+    if (stations !== null) {
+      return (
+        <div className="root-card-content">
+          <View onLayout={this.triggerLayout}>
+            {onboarding}
+            <h2>{t('savedStations.title')}</h2>
+            {message}
+            <ul>
+              {StationStore.getOrder().map(station => {
+                const url = station.split('|').slice(-1)
+                console.log(station)
+                return (
+                  <Sidebar
+                    key={station}
+                    url={`/s/${StationStore.StationData[station].region ||
+                      'nz-akl'}/${url}`}
+                    name={stations[station].name}
+                    icon={`${stations[station].icon}.svg`}
+                    description={stations[station].description}
+                  />
+                )
+              })}
+            </ul>
+            <h2>{t('serviceAlerts.title')}</h2>
+            <ul>
+              {twitterAcc}
+              <Sidebar
+                type="url"
+                url="https://twitter.com/DYMAJOLtd"
+                icon="dymajo.svg"
+                name="DYMAJO"
+                description={t('serviceAlerts.twitter', {
+                  account: 'DYMAJOLtd',
+                })}
+              />
+            </ul>
+            <div className="more-section">
+              <h2>{t('savedStations.more')}</h2>
+              <ul className="blue-fill">{secondTwo}</ul>
+            </div>
+            <a
+              className="label version"
+              href="https://github.com/consindo/dymajo-transit"
+              target="_blank"
+              rel="noopener"
+              onClick={this.reject}
+            >
+              DYMAJO Waka v{localStorage.getItem('AppVersion')}
+            </a>
+          </View>
+        </div>
+      )
+    }
+    return null
   }
 }
 

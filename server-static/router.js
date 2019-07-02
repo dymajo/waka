@@ -34,8 +34,8 @@ router.get('/l/:region/*', (req, res) => defaults.notFound(res))
 router.get('/docs', (req, res) => {
   res.redirect(301, '/a/docs/')
 })
-router.use('/scss', express.static(path.resolve(__dirname + '/../scss')))
-router.use('/', express.static(path.resolve(__dirname + '/../dist')))
+router.use('/scss', express.static(path.resolve(`${__dirname}/../scss`)))
+router.use('/', express.static(path.resolve(`${__dirname}/../dist`)))
 
 const proxyHandle = (req, res) => {
   proxy.web(req, res, { target: 'https://waka.app/' })

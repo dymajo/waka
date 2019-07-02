@@ -1,10 +1,10 @@
 const colors = require('colors')
-const log = require('./lib/logger.js')
-var helper = require('sendgrid').mail
-var from_email = new helper.Email('hello@dymajo.com', 'Waka')
-var subject = 'Your requested link to Waka'
+const helper = require('sendgrid').mail
 
-var emailBody = `
+const from_email = new helper.Email('hello@dymajo.com', 'Waka')
+const subject = 'Your requested link to Waka'
+
+const emailBody = `
 <!doctype html>
 <html>
   <head>
@@ -344,8 +344,9 @@ var emailBody = `
     </table>
   </body>
 </html>`
-var content = new helper.Content('text/html', emailBody)
-var sg = require('sendgrid')(process.env.SENDGRID_API_KEY)
+const content = new helper.Content('text/html', emailBody)
+const sg = require('sendgrid')(process.env.SENDGRID_API_KEY)
+const log = require('./lib/logger.js')
 
 if (typeof process.env.SENDGRID_API_KEY === 'undefined') {
   log('SendGrid API Key not found.'.red)
@@ -354,11 +355,11 @@ if (typeof process.env.SENDGRID_API_KEY === 'undefined') {
 const cb = function(req, res) {
   res.send('Success')
   console.log(req.body.email)
-  //console.log(emailBody)
-  var to_email = new helper.Email(req.body.email)
-  var mail = new helper.Mail(from_email, subject, to_email, content)
-  //console.log(mail.toJSON())
-  var request = sg.emptyRequest({
+  // console.log(emailBody)
+  const to_email = new helper.Email(req.body.email)
+  const mail = new helper.Mail(from_email, subject, to_email, content)
+  // console.log(mail.toJSON())
+  const request = sg.emptyRequest({
     method: 'POST',
     path: '/v3/mail/send',
     body: mail.toJSON(),
@@ -367,11 +368,11 @@ const cb = function(req, res) {
     if (error) {
       console.log('Error response received')
     }
-  }) //send grid request
+  }) // send grid request
 }
 
-var email = {
-  sendEmail: function(req, res) {
+const email = {
+  sendEmail(req, res) {
     if (typeof process.env.SENDGRID_API_KEY === 'undefined') {
       return res.status(500).send('SendGrid not configured!')
     }

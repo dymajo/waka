@@ -68,17 +68,15 @@ class StationStore extends Events {
     return direction_id === 0 ? 'Outbound' : 'Inbound'
   }
 
-  getCity(lat, lon) {
-    fetch(`${local.endpoint}/auto/info?lat=${lat}&lon=${lon}`)
-      .then(response => response.json())
-      .then(data => {
-        if (this.currentCity.prefix !== data.prefix) {
-          this.currentCity = data
-          this.trigger('newcity')
-          SettingsStore.state.lastLocation = [lat, lon]
-          SettingsStore.saveState()
-        }
-      })
+  async getCity(lat, lon) {
+    const res = await fetch(`${local.endpoint}/auto/info?lat=${lat}&lon=${lon}`)
+    const data = await res.json()
+    if (this.currentCity.prefix !== data.prefix) {
+      this.currentCity = data
+      this.trigger('newcity')
+      SettingsStore.state.lastLocation = [lat, lon]
+      SettingsStore.saveState()
+    }
   }
 
   // persists data to localStorage
@@ -87,37 +85,34 @@ class StationStore extends Events {
     localStorage.setItem('StationOrder', JSON.stringify(this.StationOrder))
   }
 
-  getData(station, region) {
+  async getData(station, region) {
     if (typeof station === 'undefined') {
       return this.StationData
     }
-    return new Promise((resolve, reject) => {
-      let data = null
-      if (typeof this.StationData[`${region}|${station}`] !== 'undefined') {
-        data = this.StationData[`${region}|${station}`]
-      } else if (typeof this.stationCache[station] !== 'undefined') {
-        data = this.stationCache[station]
+    let data = null
+    if (typeof this.StationData[`${region}|${station}`] !== 'undefined') {
+      data = this.StationData[`${region}|${station}`]
+    } else if (typeof this.stationCache[station] !== 'undefined') {
+      data = this.stationCache[station]
+    }
+    if (station.split('+').length > 1) {
+      data = {
+        stop_lat: 0,
+        stop_lon: 0,
+        stop_name: t('savedStations.multi'),
       }
-      if (station.split('+').length > 1) {
-        data = {
-          stop_lat: 0,
-          stop_lon: 0,
-          stop_name: t('savedStations.multi'),
-        }
-      }
-      if (data && data.icon !== 'parkingbuilding') {
-        return resolve(data)
-      }
-      fetch(`${local.endpoint}/${region}/station/${station}`)
-        .then(response => {
-          if (response.status === 404) {
-            throw new Error(response.status)
-          } else {
-            response.json().then(resolve)
-          }
-        })
-        .catch(err => reject(err))
-    })
+    }
+    if (data && data.icon !== 'parkingbuilding') {
+      return data
+    }
+    const res = await fetch(`${local.endpoint}/${region}/station/${station}`)
+
+    if (res.status === 404) {
+      throw new Error(res.status)
+    } else {
+      const data = await res.json()
+      return data
+    }
   }
 
   getOrder(region = null) {
@@ -131,64 +126,65 @@ class StationStore extends Events {
     return this.StationOrder
   }
 
-  addStop(stopNumber, stopName, region) {
+  async addStop(stopNumber, stopName, region) {
     if (stopNumber.trim() === '') {
       return
     }
-    const promises = stopNumber.split('+').map(
-      station =>
-        new Promise((resolve, reject) => {
-          fetch(`${local.endpoint}/${region}/station/${station}`)
-            .then(response => response.json())
-            .then(resolve)
-            .catch(reject)
-        })
-    )
-    Promise.all(promises).then(dataCollection => {
-      dataCollection.forEach((data, key) => {
-        const no = stopNumber.split('+')[key]
-        const icon = IconHelper.getRouteType(data.route_type)
-        let description = t('savedStations.stop', {
-          number: `${no} / ${data.stop_name}`,
-        })
-        if (icon === 'parkingbuilding') {
-          description = data.stop_name
-        }
-
-        let zName = stopName
-        if (stopNumber.split('+').length > 1) {
-          zName = data.stop_name
-        }
-        this.StationData[`${region}|${no}`] = {
-          name: zName || data.stop_name,
-          stop_lat: data.stop_lat,
-          stop_lon: data.stop_lon,
-          description,
-          icon,
-          region,
-        }
-      })
-
-      if (stopNumber.split('+').length > 1) {
-        this.StationData[`${region}|${stopNumber}`] = {
-          name: stopName || t('savedStations.multi'),
-          stop_lat: dataCollection[0].stop_lat,
-          stop_lon: dataCollection[0].stop_lon,
-          description: t('savedStations.stops', {
-            number: stopNumber.split('+').join(', '),
-          }),
-          icon: 'multi',
-          region,
-        }
+    const promises = stopNumber.split('+').map(async station => {
+      try {
+        const res = await fetch(
+          `${local.endpoint}/${region}/station/${station}`
+        )
+        const data = await res.json()
+        return data
+      } catch (error) {
+        throw new Error(error)
       }
-
-      // so we don't have duplicates
-      if (this.StationOrder.indexOf(`${region}|${stopNumber}`) === -1) {
-        this.StationOrder.push(`${region}|${stopNumber}`)
-      }
-      this.trigger('change')
-      this.saveData()
     })
+    const dataCollection = await Promise.all(promises)
+    dataCollection.forEach((data, key) => {
+      const no = stopNumber.split('+')[key]
+      const icon = IconHelper.getRouteType(data.route_type)
+      let description = t('savedStations.stop', {
+        number: `${no} / ${data.stop_name}`,
+      })
+      if (icon === 'parkingbuilding') {
+        description = data.stop_name
+      }
+
+      let zName = stopName
+      if (stopNumber.split('+').length > 1) {
+        zName = data.stop_name
+      }
+      this.StationData[`${region}|${no}`] = {
+        name: zName || data.stop_name,
+        stop_lat: data.stop_lat,
+        stop_lon: data.stop_lon,
+        description,
+        icon,
+        region,
+      }
+    })
+
+    if (stopNumber.split('+').length > 1) {
+      this.StationData[`${region}|${stopNumber}`] = {
+        name: stopName || t('savedStations.multi'),
+        stop_lat: dataCollection[0].stop_lat,
+        stop_lon: dataCollection[0].stop_lon,
+        description: t('savedStations.stops', {
+          number: stopNumber.split('+').join(', '),
+        }),
+        icon: 'multi',
+        region,
+      }
+    }
+
+    // so we don't have duplicates
+    if (this.StationOrder.indexOf(`${region}|${stopNumber}`) === -1) {
+      this.StationOrder.push(`${region}|${stopNumber}`)
+    }
+    this.trigger('change')
+    this.saveData()
   }
 
   removeStop(stopNumber) {
@@ -201,89 +197,78 @@ class StationStore extends Events {
     }
   }
 
-  getLines(prefix = 'nz-akl') {
-    return new Promise((resolve, reject) => {
-      if (
-        Object.keys(this.lineCache).length === 0 ||
-        this.lineCacheRegion !== prefix
-      ) {
-        if (!navigator.onLine) {
-          reject(t('app.nointernet'))
-          return
-        }
-        fetch(`${local.endpoint}/${prefix}/lines`)
-          .then(response => {
-            response.json().then(data => {
-              this.lineCache = data
-              this.lineCacheRegion = prefix
-              resolve(data)
-            })
-          })
-          .catch(() => {
-            reject(t('lines.error'))
-          })
-      } else {
-        resolve(this.lineCache)
+  async getLines(prefix = 'nz-akl') {
+    if (
+      Object.keys(this.lineCache).length === 0 ||
+      this.lineCacheRegion !== prefix
+    ) {
+      if (!navigator.onLine) {
+        throw new Error(t('app.nointernet'))
       }
-    })
+      try {
+        const res = await fetch(`${local.endpoint}/${prefix}/lines`)
+        const data = await res.json()
+        this.lineCache = data
+        this.lineCacheRegion = prefix
+        return data
+      } catch (error) {
+        throw new Error(t('lines.error'))
+      }
+    } else {
+      return this.lineCache
+    }
   }
 
-  getTimes = (stations, region) => {
+  getTimes = async (stations, region) => {
     if (!navigator.onLine) {
       this.trigger('error', t('app.nointernet'))
       return
     }
-    const promises = stations.split('+').map(
-      station =>
-        new Promise((resolve, reject) => {
-          fetch(`${local.endpoint}/${region}/station/${station}/times`)
-            .then(response => {
-              response.json().then(data => {
-                data.trips = data.trips.map(trip => {
-                  trip.station = station
-                  return trip
-                })
-                resolve(data)
-              })
-            })
-            .catch(err => {
-              reject(err)
-            })
+    const promises = stations.split('+').map(async station => {
+      try {
+        const res = await fetch(
+          `${local.endpoint}/${region}/station/${station}/times`
+        )
+        const data = await res.json()
+        data.trips = data.trips.map(trip => {
+          trip.station = station
+          return trip
         })
-    )
-    return Promise.all(promises)
-      .then(allData => {
-        this.setOffset(allData[0].currentTime)
-        if (allData.length > 0) {
-          if ('html' in allData[0]) {
-            this.trigger('html', allData[0])
-            return
-          }
+        return data
+      } catch (error) {
+        throw new Error(error)
+      }
+    })
+    try {
+      const allData = await Promise.all(promises)
+      this.setOffset(allData[0].currentTime)
+      if (allData.length > 0) {
+        if ('html' in allData[0]) {
+          this.trigger('html', allData[0])
+          return
         }
+      }
 
-        let trips = []
-        let realtime = {}
-        allData.forEach(data => {
-          trips = trips.concat(data.trips)
-          realtime = Object.assign(realtime, data.realtime)
-        })
-        trips.sort(
-          (a, b) => a.departure_time_seconds - b.departure_time_seconds
-        )
-        this.timesFor = [stations, new Date()]
-        this.tripData = trips
-        this.realtimeData = this.realtimeModifier(
-          trips,
-          realtime,
-          stations,
-          region
-        )
-        this.trigger('times', stations)
+      let trips = []
+      let realtime = {}
+      allData.forEach(data => {
+        trips = trips.concat(data.trips)
+        realtime = Object.assign(realtime, data.realtime)
       })
-      .catch(err => {
-        console.error(err)
-        this.trigger('error', t('station.error'))
-      })
+      trips.sort((a, b) => a.departure_time_seconds - b.departure_time_seconds)
+      this.timesFor = [stations, new Date()]
+      this.tripData = trips
+      this.realtimeData = this.realtimeModifier(
+        trips,
+        realtime,
+        stations,
+        region
+      )
+      this.trigger('times', stations)
+    } catch (err) {
+      console.error(err)
+      this.trigger('error', t('station.error'))
+    }
   }
 
   setOffset(time) {
@@ -295,7 +280,7 @@ class StationStore extends Events {
     this.offsetTime = offsetTime.getTime() - new Date().getTime()
   }
 
-  getRealtime(tripData, stop_id = null, region) {
+  async getRealtime(tripData, stop_id = null, region) {
     if (tripData.length === 0) {
       return
     }
@@ -344,28 +329,21 @@ class StationStore extends Events {
       requestData.train = true
     }
     // now we do a request to the realtime API
-    fetch(`${local.endpoint}/${region}/realtime`, {
+    const res = await fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestData),
-    }).then(response => {
-      response.json().then(data => {
-        this.realtimeData = this.realtimeModifier(
-          tripData,
-          data,
-          stop_id,
-          region
-        )
-        this.trigger('realtime')
-      })
     })
+    const data = await res.json()
+    this.realtimeData = this.realtimeModifier(tripData, data, stop_id, region)
+    this.trigger('realtime')
   }
 
   // from https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
   getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    const deg2rad = function(deg) {
+    const deg2rad = deg => {
       return deg * (Math.PI / 180)
     }
     const R = 6371 // Radius of the earth in km
@@ -407,27 +385,23 @@ class StationStore extends Events {
     return rtData
   }
 
-  getTimetable(station, route, direction, region, offset = 0) {
-    const sortfn = function(a, b) {
+  async getTimetable(station, route, direction, region, offset = 0) {
+    const sortfn = (a, b) => {
       return a.departure_time_seconds - b.departure_time_seconds
     }
-    return new Promise((resolve, reject) => {
-      fetch(
-        `${
-          local.endpoint
-        }/${region}/station/${station}/timetable/${route}/${direction}/${offset}`
+    try {
+      const res = await fetch(
+        `${local.endpoint}/${region}/station/${station}/timetable/${route}/${direction}/${offset}`
       )
-        .then(request => {
-          request.json().then(data => {
-            if (data.length > 0) {
-              this.setOffset(data[0].currentTime)
-              data.sort(sortfn)
-            }
-            resolve(data)
-          })
-        })
-        .catch(reject)
-    })
+      const data = await res.json()
+      if (data.length > 0) {
+        this.setOffset(data[0].currentTime)
+        data.sort(sortfn)
+      }
+      return data
+    } catch (error) {
+      throw new Error(error)
+    }
   }
 }
 export default new StationStore()

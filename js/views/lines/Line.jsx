@@ -20,7 +20,6 @@ import IconHelper from '../../helpers/icon.js'
 
 const iconHelper = new IconHelper()
 
-
 const Icon = leaflet.icon
 const icons = new Map([
   [
@@ -128,126 +127,118 @@ class Line extends React.Component {
     this.cancelCallbacks = true
   }
 
-  getData() {
-    return this.lineData
-      .getMeta()
+  async getData() {
+    try {
+      const metadata = await this.lineData.getMeta()
 
-      .then(metadata => {
-        if (metadata.length === 0) {
-          throw new Error('The line was not found.')
-        } else if (metadata[0].shape_id === null) {
-          throw new Error('The line had missing data.')
-        }
-        const { match } = this.props
-        const { direction } = this.state
-        const routeColor = metadata.find(i => i.direction_id === direction)
-          .route_color
-        this.setState({
-          color: routeColor,
-          lineMetadata: metadata,
-        })
-        this.lineData.shape_id = metadata.find(
-          i => i.direction_id === direction
-        ).shape_id
-        renderShape(this.lineData, this.layer, routeColor)
+      if (metadata.length === 0) {
+        throw new Error('The line was not found.')
+      } else if (metadata[0].shape_id === null) {
+        throw new Error('The line had missing data.')
+      }
+      const { match } = this.props
+      const { direction } = this.state
+      const routeColor = metadata.find(i => i.direction_id === direction)
+        .route_color
+      this.setState({
+        color: routeColor,
+        lineMetadata: metadata,
+      })
+      this.lineData.shape_id = metadata.find(
+        i => i.direction_id === direction
+      ).shape_id
+      renderShape(this.lineData, this.layer, routeColor)
 
-        return renderStops(
-          this.lineData,
-          this.pointsLayer,
-          routeColor,
-          match.params.region,
-          match.params.line_id
-        )
+      const stops = await renderStops(
+        this.lineData,
+        this.pointsLayer,
+        routeColor,
+        match.params.region,
+        match.params.line_id
+      )
+      this.setState({ stops, loading: false })
+    } catch (err) {
+      clearInterval(this.liveRefresh)
+      console.error(err)
+      this.setState({
+        error: true,
+        errorMessage: err.message,
       })
-      .then(stops => {
-        this.setState({ stops, loading: false })
-        return stops
-      })
-      .catch(err => {
-        clearInterval(this.liveRefresh)
-        console.error(err)
-        this.setState({
-          error: true,
-          errorMessage: err.message,
-        })
-      })
+    }
   }
 
-  getPositionData = () => {
+  getPositionData = async () => {
     const { match } = this.props
     const { direction } = this.state
     let busPositions = null
     // const vehicleMap = {}
-
-    this.lineData
-      .getRealtime()
-      .then(data => {
-        this.liveLayer.hide()
-        this.liveLayer = new Layer()
-        busPositions = {
-          type: 'MultiPoint',
-          coordinates: [],
+    try {
+      const data = await this.lineData.getRealtime()
+      this.liveLayer.hide()
+      this.liveLayer = new Layer()
+      busPositions = {
+        type: 'MultiPoint',
+        coordinates: [],
+      }
+      data.forEach(trip => {
+        if (trip.latitude !== undefined && trip.direction === direction) {
+          busPositions.coordinates.push([
+            trip.longitude,
+            trip.latitude,
+            // TODO: bearing
+          ])
+          // vehicleMap[[trip.latitude, trip.longitude].join(',')] = trip
         }
-        data.forEach(trip => {
-          if (trip.latitude !== undefined && trip.direction === direction) {
-            busPositions.coordinates.push([
-              trip.longitude,
-              trip.latitude,
-              // TODO: bearing
-            ])
-            // vehicleMap[[trip.latitude, trip.longitude].join(',')] = trip
-          }
-        })
+      })
 
-        // this makes sure the route data has been loaded.
-        return this.dataResolved
+      // this makes sure the route data has been loaded.
+      await this.dataResolved
+      const { lineMetadata } = this.state
+      const icon = icons.get(
+        iconHelper.getRouteType(lineMetadata[0].route_type)
+      )
+      this.liveLayer.add('geojson', busPositions, {
+        icon,
       })
-      .then(() => {
-        const { lineMetadata } = this.state
-        const icon = icons.get(iconHelper.getRouteType(lineMetadata[0].route_type))
-        this.liveLayer.add('geojson', busPositions, {
-          icon,
-        })
-        // this.liveLayer.add('geojson', busPositions, {
-        //   typeExtension: 'InvisibleMarker',
-        //   typeExtensionOptions: {
-        //     zIndexOffset: 30,
-        //     popupContent: (lat, lng) => {
-        //       const data = vehicleMap[[lat, lng].join(',')]
-        //       const tripSplit = data.trip_id.split('.')
-        //       const tripId = {
-        //         tripName: tripSplit[0],
-        //         timetableId: tripSplit[1],
-        //         timetableVersionId: tripSplit[2],
-        //         dopRef: tripSplit[3],
-        //         setType: tripSplit[4],
-        //         numberOfCars: tripSplit[5],
-        //         tripInstance: tripSplit[6],
-        //       }
-        //       return (
-        //         // it's not quite react
-        //         `
-        //       <span data-trip="${data.trip_id}">
-        //         <h2>${data.label}</h2>
-        //         <span>${trains[tripId.setType]}</span>
-        //         <span>${tripId.numberOfCars} Cars</span>
-        //         <span>Run: ${tripId.tripName}</span>
-        //         <span>Near: ${data.stopId}</span>
-        //         </span>`
-        //         // <span>Congestion Level: ${data.congestionLevel}</span>
-        //       )
-        //     },
-        //   },
-        // })
-        if (this.cancelCallbacks === true) return 'cancelled'
-        this.liveLayer.show()
-        return 'done'
-      })
-      .catch(err => {
-        console.log(err)
-        // who cares about the error
-        console.error('Could not load realtime.')
-      })
+      // this.liveLayer.add('geojson', busPositions, {
+      //   typeExtension: 'InvisibleMarker',
+      //   typeExtensionOptions: {
+      //     zIndexOffset: 30,
+      //     popupContent: (lat, lng) => {
+      //       const data = vehicleMap[[lat, lng].join(',')]
+      //       const tripSplit = data.trip_id.split('.')
+      //       const tripId = {
+      //         tripName: tripSplit[0],
+      //         timetableId: tripSplit[1],
+      //         timetableVersionId: tripSplit[2],
+      //         dopRef: tripSplit[3],
+      //         setType: tripSplit[4],
+      //         numberOfCars: tripSplit[5],
+      //         tripInstance: tripSplit[6],
+      //       }
+      //       return (
+      //         // it's not quite react
+      //         `
+      //       <span data-trip="${data.trip_id}">
+      //         <h2>${data.label}</h2>
+      //         <span>${trains[tripId.setType]}</span>
+      //         <span>${tripId.numberOfCars} Cars</span>
+      //         <span>Run: ${tripId.tripName}</span>
+      //         <span>Near: ${data.stopId}</span>
+      //         </span>`
+      //         // <span>Congestion Level: ${data.congestionLevel}</span>
+      //       )
+      //     },
+      //   },
+      // })
+      if (this.cancelCallbacks === true) return 'cancelled'
+      this.liveLayer.show()
+      return 'done'
+    } catch (err) {
+      console.log(err)
+      // who cares about the error
+      console.error('Could not load realtime.')
+    }
   }
 
   triggerSwitchDirection = () => {

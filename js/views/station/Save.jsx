@@ -13,26 +13,6 @@ import LinkedScroll from '../reusable/LinkedScroll.jsx'
 import LinkButton from '../reusable/LinkButton.jsx'
 
 class Save extends React.Component {
-  constructor(props) {
-    super(props)
-    if (
-      UiStore.state.lastTransition !== 'backward' &&
-      UiStore.state.cardPosition === 'map'
-    ) {
-      requestAnimationFrame(() => {
-        UiStore.setCardPosition('default')
-      })
-    }
-    StationStore.getData(
-      this.props.match.params.station,
-      this.props.match.params.region
-    ).then(data => {
-      this.setState({
-        name: data.name || data.stop_name || '',
-      })
-    })
-  }
-
   state = {
     name: '',
     checked: this.props.match.params.station
@@ -46,6 +26,24 @@ class Save extends React.Component {
   static propTypes = {
     history: PropTypes.object,
     match: PropTypes.object,
+  }
+
+  async componentDidMount() {
+    if (
+      UiStore.state.lastTransition !== 'backward' &&
+      UiStore.state.cardPosition === 'map'
+    ) {
+      requestAnimationFrame(() => {
+        UiStore.setCardPosition('default')
+      })
+    }
+    const data = await StationStore.getData(
+      this.props.match.params.station,
+      this.props.match.params.region
+    )
+    this.setState({
+      name: data.name || data.stop_name || '',
+    })
   }
 
   triggerCheckbox = item => e => {
@@ -81,7 +79,7 @@ class Save extends React.Component {
       const url = `/s/${this.props.match.params.region}/${newId}`
 
       // needs to be on a timeout
-      const history = this.props.history
+      const { history } = this.props
       setTimeout(() => {
         history.replace(url)
       }, 50)
@@ -102,7 +100,7 @@ class Save extends React.Component {
   }
 
   render() {
-    const region = this.props.match.params.region
+    const { region } = this.props.match.params
     const stop = this.props.match.params.station
     const regionStop = `${region}|${stop}`
 

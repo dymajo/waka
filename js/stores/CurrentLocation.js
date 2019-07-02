@@ -16,14 +16,16 @@ class CurrentLocation extends Events {
       hasGranted: false,
       initialSet: window.location.pathname.split('/')[1] !== 's',
     }
+  }
+
+  async componentDidMount() {
     // this only works in chrome & firefox not safari whoops.
     // also, don't do it on desktop
     if ('permissions' in navigator && window.innerWidth < 851) {
-      navigator.permissions.query({ name: 'geolocation' }).then(e => {
-        if (e.state === 'granted') {
-          this.state.hasGranted = true
-        }
-      })
+      const e = await navigator.permissions.query({ name: 'geolocation' })
+      if (e.state === 'granted') {
+        this.state.hasGranted = true
+      }
     }
   }
 
