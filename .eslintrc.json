@@ -1,18 +1,23 @@
 {
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": { "jsx": true }
+  },
   "env": {
     "browser": true,
-    "es6": true,
-    "node": true
+    "es6": true
   },
+  "plugins": ["prettier", "promise", "react", "import"],
   "extends": [
-    "airbnb-base",
+    "airbnb",
     "prettier",
     "prettier/react",
     "plugin:promise/recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:prettier/recommended"
   ],
-  "parser": "babel-eslint",
-  "plugins": ["prettier", "promise"],
   "rules": {
     "indent": ["error", 2],
     "linebreak-style": ["error", "unix"],
@@ -45,5 +50,10 @@
     "no-nested-ternary": 0,
     "promise/prefer-await-to-then": "warn",
     "promise/prefer-await-to-callbacks": "warn"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
   }
 }
