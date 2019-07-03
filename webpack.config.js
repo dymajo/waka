@@ -6,6 +6,8 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const ManifestPlugin = require('webpack-manifest-plugin')
 const OfflinePlugin = require('offline-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const GitRevisionPlugin = require('git-revision-webpack-plugin')
+const gitRevisionPlugin = new GitRevisionPlugin()
 
 const generate = require('./server-static/generator.js')
 
@@ -108,6 +110,9 @@ const config = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        VERSION: JSON.stringify(gitRevisionPlugin.version()),
+        COMMITHASH: JSON.stringify(gitRevisionPlugin.commithash()),
+        BRANCH: JSON.stringify(gitRevisionPlugin.branch()),
       },
     }),
     new ManifestPlugin({

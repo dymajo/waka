@@ -41,9 +41,22 @@ const Settings = () => {
         <Text
           accessibilityRole="link"
           href="https://dymajo.com"
-          style={[paragraphStyles.p, { fontSize: vars.smallFontSize }]}
+          style={[
+            paragraphStyles.p,
+            { fontSize: vars.smallFontSize, marginBottom: 0 },
+          ]}
         >
           &copy; 2016 - 2019 DYMAJO LTD
+        </Text>
+        <Text
+          accessibilityRole="link"
+          href={`https://github.com/dymajo/waka/commit/${process.env.COMMITHASH}`}
+          style={[
+            paragraphStyles.p,
+            { fontSize: vars.smallFontSize, marginTop: 0 },
+          ]}
+        >
+          Build {process.env.VERSION}-{process.env.BRANCH}
         </Text>
         <Text style={paragraphStyles.p}>
           {t('settings.license')} {t('settings.contributions')}
