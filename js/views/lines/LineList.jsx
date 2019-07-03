@@ -160,7 +160,7 @@ class LineList extends React.Component {
                   return (
                     <TouchableOpacity
                       key={group.name + lineKey}
-                      onPress={this.hijack(item)}
+                      onClick={this.hijack(item)}
                       style={styles.row}
                     >
                       <Text style={styles.label}>{name}</Text>
@@ -188,7 +188,7 @@ class LineList extends React.Component {
                   )
                 })}
                 {group.items.length > 3 ? (
-                  <TouchableOpacity onPress={this.triggerGroup(group.name)}>
+                  <TouchableOpacity onClick={this.triggerGroup(group.name)}>
                     <Text style={[styles.label, styles.expandText]}>
                       {groupShow[group.name] === 'show'
                         ? `${t('lines.less', {

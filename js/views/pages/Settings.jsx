@@ -21,7 +21,7 @@ const renderLinks = items =>
       <Text accessibilityRole="link" href={item[0]} style={styles.link}>
         {item[1]}
       </Text>
-      <Text>{item[2]}</Text>
+      <Text style={styles.linkDescription}>{item[2]}</Text>
     </View>
   ))
 
@@ -99,7 +99,7 @@ const Settings = () => {
             </Text>
           </View>
         ) : (
-          <TouchableOpacity onPress={() => setCredits(true)}>
+          <TouchableOpacity onClick={() => setCredits(true)}>
             <View style={styles.button}>
               <CreditsIcon />
               <Text style={styles.buttonText}>
@@ -166,9 +166,11 @@ styles = StyleSheet.create({
     paddingBottom: padding / 4,
   },
   link: {
+    fontFamily,
     color: accentColor,
     fontWeight: 600,
   },
+  linkDescription: { fontFamily },
   love: {
     fontWeight: 600,
     fontSize: smallFontSize,

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, Text } from 'react-native'
 import PropTypes from 'prop-types'
 import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
@@ -174,20 +174,14 @@ class RootContent extends React.Component {
             action={this.props.togglePin}
             icon="pin.svg"
             name={t('onboarding.install.name')}
-            description={
-              <div>
-                <span>
-                  {t('onboarding.install.description', {
-                    appname: t('app.name'),
-                  })}
-                </span>
-                <span>
-                  {t('onboarding.install.description2', {
-                    appname: t('app.name'),
-                  })}
-                </span>
-              </div>
-            }
+            description={t(
+              desktopLayout
+                ? 'onboarding.install.description2'
+                : 'onboarding.install.description',
+              {
+                appname: t('app.name'),
+              }
+            )}
           />
           {secondTwo}
         </ul>
