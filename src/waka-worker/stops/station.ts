@@ -269,10 +269,6 @@ class Station {
 
     // combines train stations platforms together
     let procedure = 'GetStopTimes'
-    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(station) > -1) {
-      procedure = 'GetMultipleStopTimes'
-    }
-
     let trips = []
     const realtimeTrips = []
     try {
@@ -428,10 +424,6 @@ class Station {
 
     // combines train stations platforms together
     let procedure = 'GetTimetable'
-    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(station) > -1) {
-      procedure = 'GetMultipleTimetable'
-    }
-
     let trips = []
     try {
       trips = await dataAccess.getTimetable(
