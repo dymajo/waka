@@ -164,7 +164,7 @@ styles = StyleSheet.create({
     overflow: 'hidden',
     fontSize: 0,
     marginBottom: vars.padding * 0.25,
-    whiteSpace: 'pre',
+    whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   },
   transfer: {

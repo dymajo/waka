@@ -272,7 +272,7 @@ styles = StyleSheet.create({
   label: {
     flex: 1,
     overflow: 'hidden',
-    whiteSpace: 'pre',
+    whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     fontSize: defaultFontSize,
     fontFamily,
