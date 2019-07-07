@@ -294,8 +294,7 @@ class Lines {
           LEFT JOIN trips on
           trips.route_id = routes.route_id
       WHERE
-          (routes.route_short_name = @route_short_name OR
-          routes.route_id = @route_short_name)
+          routes.route_short_name = @route_short_name
           and shape_id is not null
           ${agency}
       GROUP BY
