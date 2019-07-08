@@ -2,6 +2,7 @@ FROM node:latest as build
 WORKDIR /app
 COPY . ./
 RUN npm ci
+RUN npm test
 RUN npm run build:js
 
 FROM node:alpine as runtime

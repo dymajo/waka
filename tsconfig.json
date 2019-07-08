@@ -2,7 +2,7 @@
   "compilerOptions": {
     // Target latest version of ECMAScript.
     "target": "esnext",
-    "module": "esnext",
+    "module": "commonjs",
     // Search under node_modules for non-relative imports.
     "moduleResolution": "node",
     // Process & infer types from .js files.
@@ -16,7 +16,8 @@
     // "isolatedModules": true,
     // Import non-ES modules as default imports.
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "sourceMap": true
   },
   "include": ["./src/waka-*/**/*", "*.d.ts"]
 }
