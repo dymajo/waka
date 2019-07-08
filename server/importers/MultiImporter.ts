@@ -3,6 +3,7 @@ import { resolve as _resolve, join } from 'path'
 import rimraf from 'rimraf'
 import axios from 'axios'
 import extract from 'extract-zip'
+import { pRateLimit } from 'p-ratelimit'
 import log from '../logger'
 import GtfsImport from '../db/gtfs-import'
 import CreateShapes from '../db/create-shapes'
@@ -29,7 +30,7 @@ abstract class MultiImporter extends BaseImporter {
   downloadInterval: number
   batchSize: number
   versions: KeyvalueDynamo
-  zipLocations: { p: string; type: string; endpoint: string }[]
+  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
   constructor(props: MultiImporterProps) {
     super()
@@ -51,6 +52,11 @@ abstract class MultiImporter extends BaseImporter {
     this.batchSize = batchSize || 2
     this.versions = null
     this.zipLocations = []
+    this.rateLimiter = pRateLimit({
+      interval: 1000,
+      rate: 5,
+      concurrency: 5,
+    })
 
     if (keyvalue === 'dynamo') {
       this.versions = new KeyvalueDynamo({
@@ -91,16 +97,11 @@ abstract class MultiImporter extends BaseImporter {
 
   async download() {
     const { downloadInterval, locations, batchSize } = this
-    function timeout(ms: number) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
+
     log(batchSize, downloadInterval)
     for (let index = 0; index < locations.length; index++) {
       const location = locations[index]
-      await this.get(location)
-      if (index % batchSize === 0) {
-        await timeout(downloadInterval)
-      }
+      await this.rateLimiter(() => this.get(location))
     }
   }
 
