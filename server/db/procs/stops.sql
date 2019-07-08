@@ -1,4 +1,5 @@
-CREATE TABLE stops (
+CREATE TABLE stops
+(
   id int NOT NULL IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
   stop_id nvarchar(100) NOT NULL,
   stop_code nvarchar(100),
@@ -12,6 +13,7 @@ CREATE TABLE stops (
   parent_station nvarchar(100),
   stop_timezone nvarchar(100),
   wheelchair_boarding int,
+  geo_location GEOGRAPHY,
   CONSTRAINT uc_Stops UNIQUE (stop_id)
 );
 

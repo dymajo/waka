@@ -104,6 +104,7 @@ class Importer {
     await this.shapes()
     await this.fixStopCodes()
     await this.fixRoutes()
+    await this.addGeoLocation()
     await this.postImport()
     // await this.exportDb()
 
@@ -143,6 +144,10 @@ class Importer {
     await this.current.download()
     await this.current.unzip()
     await this.current.shapes()
+    await this.fixStopCodes()
+    await this.fixRoutes()
+    await this.addGeoLocation()
+    await this.postImport()
   }
 
   async fixStopCodes() {
@@ -169,6 +174,16 @@ class Importer {
       `${config.prefix} ${config.version}`,
       `Updated ${rows} null route codes`,
     )
+  }
+
+  async addGeoLocation() {
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE stops
+      SET geo_location = GEOGRAPHY ::STPointFromText('POINT(' + CAST([stop_lon] AS varchar(20)) + ' ' + CAST([stop_lat] AS varchar(20)) + ')', 4326);
+    `)
+    const rows = res.rowsAffected[0]
+    log(`${config.prefix} ${config.version}`, `Updated ${rows} geo locations`)
   }
 
   async postImport() {
