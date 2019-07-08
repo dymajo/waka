@@ -97,6 +97,7 @@ class WakaOrchestrator {
 
   bindRoutes() {
     const { gateway, router, privateApi, config } = this
+    router.get('/', (req: Request, res: Response) => res.redirect('/private'))
     router.get('/ping', (req: Request, res: Response) => res.send('pong'))
     router.use('/private', privateApi.router)
 

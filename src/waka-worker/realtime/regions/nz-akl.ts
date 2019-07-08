@@ -20,6 +20,9 @@ class RealtimeNZAKL extends BaseRealtime {
   currentDataFails: number
   currentVehicleDataFails: number
 
+  tripUpdateTimeout: NodeJS.Timer
+  locationTimeout: NodeJS.Timer
+
   tripUpdatesOptions: { url: string; headers: { [header: string]: string } }
   vehicleLocationsOptions: {
     url: string
@@ -40,6 +43,8 @@ class RealtimeNZAKL extends BaseRealtime {
     this.currentDataFails = 0
     this.currentVehicleData = {}
     this.currentVehicleDataFails = null
+    this.tripUpdateTimeout = 0
+    this.locationTimeout = 0
 
     this.tripUpdatesOptions = {
       url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
@@ -78,8 +83,9 @@ class RealtimeNZAKL extends BaseRealtime {
   }
 
   stop() {
-    // TODO!
-    this.logger.warn('Auckland Realtime Not Stopped! Not Implemented.')
+    clearTimeout(this.tripUpdateTimeout)
+    clearTimeout(this.locationTimeout)
+    this.logger.info('Auckland Realtime stopped.')
   }
 
   async schedulePull() {
@@ -104,7 +110,7 @@ class RealtimeNZAKL extends BaseRealtime {
       this.currentDataFails += 1
       logger.warn({ err }, 'Could not get AT Data')
     }
-    setTimeout(this.schedulePull, schedulePullTimeout)
+    this.tripUpdateTimeout = setTimeout(this.schedulePull, schedulePullTimeout)
   }
 
   async scheduleLocationPull() {
@@ -121,7 +127,10 @@ class RealtimeNZAKL extends BaseRealtime {
       this.currentVehicleDataFails += 1
       logger.error({ err }, 'Could not get AT Data')
     }
-    setTimeout(this.scheduleLocationPull, scheduleLocationPullTimeout)
+    this.locationTimeout = setTimeout(
+      this.scheduleLocationPull,
+      scheduleLocationPullTimeout
+    )
   }
 
   async getTripsEndpoint(

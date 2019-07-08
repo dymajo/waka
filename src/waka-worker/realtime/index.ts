@@ -8,7 +8,7 @@ import { BaseRealtime, WakaRequest } from '../../typings'
 
 const regions = {
   'au-syd': RealtimeAUSYD,
-  // 'nz-akl': RealtimeNZAKL,
+  'nz-akl': RealtimeNZAKL,
   'nz-wlg': RealtimeNZWLG,
 }
 
