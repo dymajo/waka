@@ -1,7 +1,7 @@
 import * as path from 'path'
 import fs from 'fs'
 import logger from '../logger'
-import { BaseKeyvalue } from '../../typings'
+import BaseKeyvalue from '../../types/BaseKeyvalue'
 
 // this is designed to be slow af to emulate the dynamoDB lag
 const filePath = path.join(__dirname, '../../cache/keyvalue-')

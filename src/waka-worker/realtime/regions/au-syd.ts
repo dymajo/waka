@@ -9,10 +9,10 @@ import {
   PositionFeedMessage,
   UpdateFeedMessage,
   TripUpdate,
-  BaseRealtime,
   WakaRequest,
   PositionFeedEntity,
 } from '../../../typings'
+import BaseRealtime from '../../../types/BaseRealtime';
 
 const schedulePullTimeout = 20000
 
@@ -183,7 +183,7 @@ class RealtimeAUSYD extends BaseRealtime {
                   new Date(
                     (stopUpdate.departure.time.toNumber() +
                       stopUpdate.departure.delay) *
-                      1000
+                    1000
                   ) > currentTime
                 ) {
                   if (
@@ -216,7 +216,7 @@ class RealtimeAUSYD extends BaseRealtime {
             )
             realtimeInfo[trip] = info
           }
-        } catch (error) {}
+        } catch (error) { }
       }
     }
     return res.send(realtimeInfo)
@@ -238,7 +238,7 @@ class RealtimeAUSYD extends BaseRealtime {
             latitude: data.vehicle.position.latitude,
             longitude: data.vehicle.position.longitude,
           }
-        } catch (err) {}
+        } catch (err) { }
       }
     }
     return res.send(vehicleInfo)

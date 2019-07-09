@@ -1,6 +1,6 @@
 import lineGroups from './nz-akl-groups.json'
 import allLines from './nz-akl-lines.json'
-import { BaseLines, BaseLinesProps } from '../../../typings'
+import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
 const getColor = (agencyId, code) => {
   // First for our fancy services.

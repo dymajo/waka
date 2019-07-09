@@ -1,7 +1,6 @@
 import * as sql from 'mssql'
 import Connection from '../db/connection'
-import BaseStops from './regions/BaseStops'
-
+import BaseStops from '../../types/BaseStops'
 class Search {
   logger: any
   connection: Connection
@@ -29,13 +28,14 @@ class Search {
     this.getStopsRouteType()
   }
 
-  stop() {}
+  stop() { }
 
   _stopsFilter(recordset: { stop_id: string }[], mode?: string) {
     const { prefix, regionSpecific } = this
     if (prefix === 'nz-wlg') {
       return regionSpecific.filter(recordset, mode)
     }
+
     return recordset
   }
 
