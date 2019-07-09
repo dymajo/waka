@@ -83,7 +83,10 @@ abstract class ProtobufRealtime extends BaseRealtime {
       this.currentUpdateDataFails += 1
       logger.warn({ err }, 'Could not get AT Data')
     }
-    setTimeout(this.scheduleUpdatePull, this.scheduleUpdatePullTimeout)
+    this.tripUpdateTimeout = setTimeout(
+      this.scheduleUpdatePull,
+      this.scheduleUpdatePullTimeout
+    )
   }
 
   scheduleLocationPull = async () => {
@@ -107,10 +110,11 @@ abstract class ProtobufRealtime extends BaseRealtime {
       this.currentVehicleDataFails += 1
       logger.error({ err }, 'Could not get AT Data')
     }
-    setTimeout(this.scheduleLocationPull, this.scheduleLocationPullTimeout)
+    this.vehicleTimeout = setTimeout(
+      this.scheduleLocationPull,
+      this.scheduleLocationPullTimeout
+    )
   }
-
-  getLocationsForLine
 
   getTripsEndpoint = async (
     req: WakaRequest<{ trips: string[]; stop_id: string }, null>,

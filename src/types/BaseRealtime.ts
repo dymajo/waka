@@ -6,12 +6,19 @@ export default abstract class BaseRealtime {
   connection: Connection
   logger: Logger
   apiKey: string
+
   lastTripUpdate: Date
   lastVehicleUpdate: Date
+
   currentUpdateDataFails: number
   currentVehicleDataFails: number
+
   scheduleUpdatePullTimeout: number
   scheduleLocationPullTimeout: number
+
+  tripUpdateTimeout: NodeJS.Timer
+  vehicleTimeout: NodeJS.Timer
+
   tripUpdateOptions: {
     url: string
     headers?: any
