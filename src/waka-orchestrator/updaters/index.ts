@@ -4,7 +4,12 @@ import ATUpdater from './nz-akl'
 import TfNSWUpdater from './au-syd'
 import VersionManager from '../versionManager'
 import Fargate from './fargate'
-import { UpdateManagerProps, WakaConfig } from '../../typings'
+import { WakaConfig } from '../../typings'
+
+interface UpdateManagerProps {
+  config: any
+  versionManager: VersionManager
+}
 
 class UpdateManager {
   config: WakaConfig

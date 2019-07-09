@@ -1,5 +1,5 @@
 import DataAccess from '../dataAccess'
-import { BaseLines } from '../../../typings'
+import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
 const friendlyNames = {
   Orbiter: 'The Orbiter',

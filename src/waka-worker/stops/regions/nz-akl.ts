@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
-import { AklTimes, BaseStopsProps, BaseStops } from '../../../typings'
+import { AklTimes } from '../../../typings'
+import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
 const pricingHtml = `
 <ul class="trip-content" style="padding: 0; min-height: 0;">
@@ -71,7 +72,7 @@ const additionalData: {
   },
 }
 
-const agenda21mapper = {
+const agenda21mapper: { [carpark: string]: string } = {
   Downtown: 'downtown-carpark',
   Civic: 'civic-carpark',
   'Victoria St': 'victoria-st-carpark',
@@ -182,12 +183,18 @@ class StopsNZAKL extends BaseStops {
         `http://whatthecatbroughtin.com:55533/api/parking/latest-availability?key=${apiKey}`
       )
       const data = await response.json()
-      data.forEach(carpark => {
-        const cacheObj = this.carparks[agenda21mapper[carpark.name]]
-        cacheObj.availableSpaces = carpark.availableSpaces
-        cacheObj.timestamp = carpark.timestamp
-        cacheObj.description = `${carpark.availableSpaces} spaces currently available`
-      })
+      data.forEach(
+        (carpark: {
+          name: string
+          timestamp: string
+          availableSpaces: number
+        }) => {
+          const cacheObj = this.carparks[agenda21mapper[carpark.name]]
+          cacheObj.availableSpaces = carpark.availableSpaces
+          cacheObj.timestamp = new Date(carpark.timestamp)
+          cacheObj.description = `${carpark.availableSpaces} spaces currently available`
+        }
+      )
     } catch (err) {
       // api is offline or whatever. just retries in 5 mins
       logger.warn({ err }, 'Could not get carpark information.')

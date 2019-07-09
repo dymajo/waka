@@ -1,16 +1,23 @@
 import protobuf from 'protobufjs'
 import axios from 'axios'
 import { Response, Request } from 'express'
-
+import BaseRealtime from '../../types/BaseRealtime'
 import {
-  BaseRealtime,
   TripUpdate,
   UpdateFeedMessage,
   PositionFeedMessage,
   PositionFeedEntity,
   WakaRequest,
-  ProtobufRealtimeProps,
+  Logger,
 } from '../../typings'
+import Connection from '../db/connection'
+
+interface ProtobufRealtimeProps {
+  logger: Logger
+  connection: Connection
+  tripUpdateOptions: { url: string; headers?: any }
+  vehicleLocationOptions: { url: string; headers?: any }
+}
 
 abstract class ProtobufRealtime extends BaseRealtime {
   currentUpdateData: { [tripId: string]: TripUpdate }

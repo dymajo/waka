@@ -1,6 +1,12 @@
 import ProtobufRealtime from '../ProtobufRealtime'
 
-import { CanberraRealtimeProps } from '../../../typings'
+import { Logger } from '../../../typings'
+import Connection from '../../db/connection'
+
+interface CanberraRealtimeProps {
+  logger: Logger
+  connection: Connection
+}
 
 class CanberraRealtime extends ProtobufRealtime {
   constructor(props: CanberraRealtimeProps) {

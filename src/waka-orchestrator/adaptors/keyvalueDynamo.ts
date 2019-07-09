@@ -1,7 +1,7 @@
 /* eslint-disable promise/prefer-await-to-callbacks */
 import AWS from 'aws-sdk'
 import logger from '../logger'
-import { BaseKeyvalue } from '../../typings'
+import BaseKeyvalue from '../../types/BaseKeyvalue'
 
 interface KeyvalueDynamoProps {
   name: string

@@ -1,7 +1,7 @@
 import * as path from 'path'
 import { promises as fs } from 'fs'
 import logger from '../logger'
-import { BaseKeyvalue } from '../../typings'
+import BaseKeyvalue from '../../types/BaseKeyvalue'
 
 interface KeyValueLocalProps {
   name: string

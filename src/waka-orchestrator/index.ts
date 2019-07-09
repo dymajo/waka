@@ -11,7 +11,8 @@ import GatewayEcs from './adaptors/gatewayEcs'
 import UpdateManager from './updaters'
 import VersionManager from './versionManager'
 import PrivateApi from './api'
-import { WakaConfig, BaseGateway } from '../typings'
+import { WakaConfig } from '../typings'
+import BaseGateway from '../types/BaseGateway'
 
 const proxyPort = '9002'
 

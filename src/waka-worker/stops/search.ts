@@ -2,7 +2,8 @@ import * as sql from 'mssql'
 import * as Logger from 'bunyan'
 import { Response } from 'express'
 import Connection from '../db/connection'
-import { WakaRequest, StopRouteType, BaseStops } from '../../typings'
+import { WakaRequest, StopRouteType } from '../../typings'
+import BaseStops from '../../types/BaseStops'
 
 interface SearchProps {
   logger: Logger
@@ -31,7 +32,7 @@ class Search {
     this.getStopsRouteType()
   }
 
-  stop = () => {}
+  stop = () => { }
 
   private stopsFilter = (recordset: { stop_id: string }[], mode?: string) => {
     const { prefix, regionSpecific } = this

@@ -6,16 +6,14 @@ import axios from 'axios'
 import protobuf from 'protobufjs'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
-import {
-  BaseRealtime,
-  RealtimeNZAKLProps,
-  WakaRequest,
-  PositionFeedMessage,
-  UpdateFeedMessage,
-  TripUpdate,
-  PositionFeedEntity,
-} from '../../../typings'
+import { WakaRequest, TripUpdate, PositionFeedEntity } from '../../../typings'
 import ProtobufRealtime from '../ProtobufRealtime'
+
+interface RealtimeNZAKLProps {
+  connection: Connection
+  logger: Logger
+  apiKey: string
+}
 
 class RealtimeNZAKL extends ProtobufRealtime {
   currentUpdateData: { [tripId: string]: TripUpdate }

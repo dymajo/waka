@@ -1,11 +1,7 @@
 import Long from 'long'
 import * as Logger from 'bunyan'
-import { Request, Response, Router } from 'express'
+import { Request } from 'express'
 import { config as SqlConfig } from 'mssql'
-import Connection from './waka-worker/db/connection'
-import GatewayLocal from './waka-orchestrator/adaptors/gatewayLocal'
-import DataAccess from './waka-worker/lines/dataAccess'
-import VersionManager from './waka-orchestrator/versionManager'
 
 export interface WakaConfig {
   port: number
@@ -90,107 +86,6 @@ export interface EnvironmentImporterConfig extends EnvironmentConfig {
 export interface EnvironmentWorkerConfig extends EnvironmentConfig {
   AT_API_KEY: string
   AGENDA21_API_KEY: string
-}
-
-export abstract class BaseKeyvalue {
-  public name: string
-
-  abstract get(key: string): Promise<any>
-
-  abstract set(key: string, value: any): Promise<boolean>
-
-  abstract scan(): Promise<any>
-
-  abstract delete(key: string): Promise<any>
-}
-
-export abstract class BaseRealtime {
-  connection: Connection
-  logger: Logger
-  apiKey: string
-  lastTripUpdate: Date
-  lastVehicleUpdate: Date
-  currentUpdateDataFails: number
-  currentVehicleDataFails: number
-  scheduleUpdatePullTimeout: number
-  scheduleLocationPullTimeout: number
-  tripUpdateOptions: {
-    url: string
-    headers?: any
-  }
-  vehicleLocationOptions: {
-    url: string
-    headers?: any
-  }
-  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
-
-  getTripsCached?(
-    trips: string[]
-  ): {
-    [tripId: string]: {
-      stop_sequence: number
-      delay: number
-      timestamp: number
-      v_id: number
-      double_decker: boolean
-      ev: boolean
-    }
-  }
-  abstract scheduleLocationPull(): Promise<void>
-  abstract scheduleUpdatePull(): Promise<void>
-  getAllVehicleLocations?(
-    req: WakaRequest<null, null>,
-    res: Response
-  ): Promise<Response>
-  abstract start(): void
-  abstract stop(): void
-  abstract getVehicleLocationEndpoint(
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ): Promise<Response>
-  abstract getLocationsForLine(
-    req: WakaRequest<null, { line: string }>,
-    res: Response
-  ): Promise<Response>
-
-  abstract getTripsEndpoint(
-    req: WakaRequest<
-      { trips: string[]; train: boolean; stop_id: string },
-      null
-    >,
-    res: Response
-  ): Promise<Response>
-}
-
-export interface BaseLinesProps {
-  logger: Logger
-  connection: Connection
-}
-
-export abstract class BaseLines {
-  getColors: any
-  abstract start(): void
-  logger: Logger
-  connection: Connection
-  dataAccess: any
-  lineIcons: any
-  lineColors: any
-  allLines: any
-  lineGroups: any
-  lineOperators: any
-  friendlyNames: any
-  constructor(props: BaseLinesProps) {
-    const { logger, connection } = props
-    this.logger = logger
-    this.connection = connection
-    this.dataAccess = new DataAccess({ connection })
-  }
-}
-
-export abstract class BaseGateway {
-  abstract start(prefix: string, config: WorkerConfig): Promise<void>
-  abstract recycle(prefix: string, config: WorkerConfig): Promise<void>
-  abstract stop(prefix: string): Promise<void>
 }
 
 export interface UpdateFeedMessage {
@@ -283,26 +178,6 @@ export interface AklTimes {
   html?: string
 }
 
-export interface StopsDataAccessProps {
-  connection: Connection
-  prefix: string
-}
-
-export interface RealtimeNZWLGProps {
-  connection: Connection
-  logger: Logger
-}
-export interface RealtimeNZAKLProps {
-  connection: Connection
-  logger: Logger
-  apiKey: string
-}
-
-export interface VersionManagerProps {
-  gateway: GatewayLocal
-  config: WakaConfig
-}
-
 export interface Version {
   db: { database: string; password: string; server: string; user: string }
   id: string
@@ -328,11 +203,6 @@ export interface BasicUpdaterProps {
   url: string
 }
 
-export interface UpdateManagerProps {
-  config: any
-  versionManager: VersionManager
-}
-
 export interface ATUpdaterProps {
   apiKey: string
   callback: any
@@ -344,24 +214,6 @@ export interface StorageProps {
   backing?: 'aws' | 'local'
   endpoint?: string
   region?: string
-  logger: Logger
-}
-
-export interface ProtobufRealtimeProps {
-  logger: Logger
-  connection: Connection
-  tripUpdateOptions: { url: string; headers?: any }
-  vehicleLocationOptions: { url: string; headers?: any }
-}
-
-export interface CanberraRealtimeProps {
-  logger: Logger
-  connection: Connection
-}
-
-export interface RealtimeAUSYDProps {
-  apiKey: string
-  connection: Connection
   logger: Logger
 }
 
@@ -392,59 +244,6 @@ export interface RouteInfo {
   route_type: number
   route_color: string
   route_text_color: string
-}
-
-export interface BaseStopsProps {
-  logger?: Logger
-  apiKey?: string
-}
-
-export abstract class BaseStops {
-  logger?: Logger
-  apiKey?: string
-  constructor(props: BaseStopsProps) {
-    this.logger = props.logger
-    this.apiKey = props.apiKey
-  }
-  badStops?: string[]
-  abstract start(): void
-  abstract stop(): void
-  getSingle?(
-    code: string
-  ): {
-    stop_id: string
-    stop_lat: number
-    stop_lon: number
-    stop_lng: number
-    stop_region: string
-    route_type: number
-    stop_name: string
-    description: string
-    timestamp: Date
-    availableSpaces: number
-    maxSpaces: number
-  }
-  filter?(recordset: any[], mode: string): void
-  extraSources?(
-    lat: number,
-    lon: number,
-    dist: number
-  ): Promise<
-    {
-      stop_id: string
-      stop_lat: number
-      stop_lon: number
-      stop_lng: number
-      stop_region: string
-      route_type: number
-      stop_name: string
-      description: string
-      timestamp: Date
-      availableSpaces: number
-      maxSpaces: number
-    }[]
-  >
-  getTimes?: (code: string) => AklTimes
 }
 
 export interface StopRouteType {
@@ -545,6 +344,8 @@ export interface MetlinkUpdate {
     Link: string
   }
 }
+
+export { Logger }
 
 declare const process: {
   env: {

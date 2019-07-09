@@ -3,7 +3,8 @@
 import AWS from 'aws-sdk'
 import logger from '../logger'
 import EnvMapper from '../../envMapper'
-import { EcsGatewayConfig, BaseGateway, WorkerConfig } from '../../typings'
+import { EcsGatewayConfig, WorkerConfig } from '../../typings'
+import BaseGateway from '../../types/BaseGateway'
 // import a from 'aws-sdk'
 
 const envConvert = env =>

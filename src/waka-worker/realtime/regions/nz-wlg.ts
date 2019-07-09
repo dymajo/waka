@@ -5,8 +5,6 @@ import moment from 'moment'
 import * as Logger from 'bunyan'
 import { Response } from 'express'
 import {
-  BaseRealtime,
-  RealtimeNZWLGProps,
   WakaRequest,
   MetlinkService,
   MetlinkUpdate,
@@ -14,9 +12,15 @@ import {
   MetlinkNotice,
 } from '../../../typings'
 import Connection from '../../db/connection'
+import BaseRealtime from '../../../types/BaseRealtime'
 
 const tripsUrl = 'https://www.metlink.org.nz/api/v1/StopDepartures/'
 const serviceLocation = 'https://www.metlink.org.nz/api/v1/ServiceLocation/'
+
+interface RealtimeNZWLGProps {
+  connection: Connection
+  logger: Logger
+}
 
 class RealtimeNZWLG extends BaseRealtime {
   connection: Connection

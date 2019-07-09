@@ -1,4 +1,4 @@
-import { BaseStops } from '../../../typings'
+import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
 class StopsNZWLG extends BaseStops {
   constructor() {

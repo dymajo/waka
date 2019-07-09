@@ -1,11 +1,12 @@
 import { Router } from 'express'
 import logger from '../logger'
 import WakaWorker from '../../waka-worker'
-import { BaseGateway, WorkerConfig } from '../../typings'
+import { WorkerConfig } from '../../typings'
+import BaseGateway from '../../types/BaseGateway'
 
 class GatewayLocal extends BaseGateway {
   router: Router
-  workers: {}
+  workers: { [prefix: string]: WakaWorker }
   constructor() {
     super()
     this.router = Router()

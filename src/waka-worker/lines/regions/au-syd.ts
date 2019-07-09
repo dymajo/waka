@@ -1,6 +1,6 @@
 import DataAccess from '../dataAccess'
 import Connection from '../../db/connection'
-import { BaseLines, BaseLinesProps } from '../../../typings'
+import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
 class LinesAUSYD extends BaseLines {
   constructor(props: BaseLinesProps) {

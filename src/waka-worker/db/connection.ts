@@ -1,6 +1,10 @@
-import * as Logger from 'bunyan'
 import { ConnectionPool } from 'mssql'
-import { DBConfig } from '../../typings'
+import { DBConfig, Logger } from '../../typings'
+
+interface ConnectionProps {
+  logger: Logger
+  db: DBConfig
+}
 
 class Connection {
   db: DBConfig
@@ -9,7 +13,7 @@ class Connection {
   ready: Promise<{}>
   readyResolve: (value?: {} | PromiseLike<{}>) => void
   readyReject: (reason?: any) => void
-  constructor(props) {
+  constructor(props: ConnectionProps) {
     const { logger, db } = props
     this.db = db
     this.logger = logger
