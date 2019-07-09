@@ -105,8 +105,6 @@ class StopsNZAKL extends BaseStops {
     this.apiKey = apiKey
     this.interval = null
 
-    this.pullCarparkData = this.pullCarparkData.bind(this)
-
     this.carparks = {
       'downtown-carpark': {
         stop_id: 'downtown-carpark',
@@ -163,7 +161,7 @@ class StopsNZAKL extends BaseStops {
     }
   }
 
-  start() {
+  start = () => {
     const { logger, apiKey } = this
     if (!apiKey) {
       logger.warn(
@@ -176,13 +174,13 @@ class StopsNZAKL extends BaseStops {
     }
   }
 
-  stop() {
+  stop = () => {
     const { logger } = this
     clearInterval(this.interval)
     logger.info('Agenda 21 Deactivated')
   }
 
-  async pullCarparkData() {
+  pullCarparkData = async () => {
     const { logger, apiKey } = this
     try {
       const response = await fetch(
@@ -201,7 +199,7 @@ class StopsNZAKL extends BaseStops {
     }
   }
 
-  extraSources(lat, lng, distance) {
+  extraSources = (lat, lng, distance) => {
     const latDist = distance / 100000
     const lonDist = distance / 65000
 
@@ -216,14 +214,14 @@ class StopsNZAKL extends BaseStops {
     )
   }
 
-  getSingle(code) {
+  getSingle = code => {
     if (code in this.carparks) {
       return this.carparks[code]
     }
     throw Error('Carpark Not Found!')
   }
 
-  getTimes(code: string) {
+  getTimes = (code: string) => {
     if (code in this.carparks) {
       const carpark = this.carparks[code]
 

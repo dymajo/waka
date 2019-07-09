@@ -45,7 +45,7 @@ class Lines {
     this.storageSvc = new Storage({
       backing: config.storageService,
       region: config.shapesRegion,
-      logger: logger,
+      logger,
     })
 
     this.lineData = {}
@@ -53,15 +53,9 @@ class Lines {
       regions[prefix] !== undefined
         ? new regions[prefix]({ logger, connection })
         : null
-
-    this.getLines = this.getLines.bind(this)
-    this.getLine = this.getLine.bind(this)
-    this.getShapeJSON = this.getShapeJSON.bind(this)
-    this.getStopsFromTrip = this.getStopsFromTrip.bind(this)
-    this.getStopsFromShape = this.getStopsFromShape.bind(this)
   }
 
-  async start() {
+  start = async () => {
     const { logger, lineDataSource } = this
     try {
       if (lineDataSource === null) {
@@ -70,7 +64,7 @@ class Lines {
       await lineDataSource.start()
 
       // the second element in the array is default, if it is not exported from the source
-      const requiredProps: Array<[string, {} | []]> = [
+      const requiredProps: [string, {} | []][] = [
         ['lineColors', {}],
         ['lineIcons', {}],
         ['friendlyNames', {}],
@@ -91,9 +85,9 @@ class Lines {
     }
   }
 
-  stop() {}
+  stop = () => {}
 
-  getColor(agencyId: string, routeShortName: string) {
+  getColor = (agencyId: string, routeShortName: string) => {
     // If you need to get colors from the DB, please see the Wellington Lines Code.
     // Essentially does a one-time cache of all the colors into the lineData object.
     const { lineData } = this
@@ -106,7 +100,7 @@ class Lines {
     return '#00263A'
   }
 
-  getIcon(agencyId, routeShortName) {
+  getIcon = (agencyId, routeShortName) => {
     // this will probably be revised soon
     const { lineData } = this
     if (lineData.lineIcons) {
@@ -180,11 +174,11 @@ class Lines {
    *     }
    *
    */
-  getLines(req: Request, res: Response) {
+  getLines = (req: Request, res: Response) => {
     res.send(this._getLines())
   }
 
-  _getLines() {
+  _getLines = () => {
     const { prefix, lineData } = this
     // if the region has multiple cities
     let city = cityMetadata[prefix]
@@ -252,7 +246,7 @@ class Lines {
    *   }
    * ]
    */
-  async getLine(req, res) {
+  getLine = async (req, res) => {
     const lineId = req.params.line.trim()
     try {
       const data = await this._getLine(lineId)
@@ -262,7 +256,7 @@ class Lines {
     }
   }
 
-  async _getLine(id) {
+  _getLine = async id => {
     const { connection, lineData } = this
     const sqlRequest = connection.get().request()
     let lineId = id
@@ -409,7 +403,7 @@ class Lines {
    *   ]
    * }
    */
-  async getShapeJSON(req: Request, res: Response) {
+  getShapeJSON = async (req: Request, res: Response) => {
     const { prefix, version, config, storageSvc } = this
     const containerName = config.shapesContainer
     const { shapeId } = req.params
@@ -431,7 +425,7 @@ class Lines {
   }
 
   // TODO: Probably move these to the Auckland & Wellington Specific Files
-  exceptionCheck(route, bestMatchMode = false) {
+  exceptionCheck = (route, bestMatchMode = false) => {
     const { prefix, lineData } = this
     if (prefix !== 'nz-akl' && prefix !== 'nz-wlg') {
       return true
@@ -523,7 +517,7 @@ class Lines {
    *   }
    * ]
    */
-  async getStopsFromTrip(req, res) {
+  getStopsFromTrip = async (req, res) => {
     const collator = new Intl.Collator(undefined, {
       numeric: true,
       sensitivity: 'base',
@@ -610,7 +604,7 @@ class Lines {
    *   }
    * ]
    */
-  async getStopsFromShape(req, res) {
+  getStopsFromShape = async (req, res) => {
     const { connection, logger } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shapeId)

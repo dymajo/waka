@@ -80,12 +80,11 @@ class WakaWorker {
     })
 
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
-    this.signature = this.signature.bind(this)
 
     this.bindRoutes()
   }
 
-  async start() {
+  start = async () => {
     await this.connection.open()
     this.logger.info('Connected to the Database')
     this.lines.start()
@@ -96,14 +95,14 @@ class WakaWorker {
     this.bounds = await this.station.getBounds()
   }
 
-  async stop() {
+  stop = () => {
     this.lines.stop()
     this.search.stop()
     if (this.stopsExtras) this.stopsExtras.stop()
     this.realtime.stop()
   }
 
-  signature() {
+  signature = () => {
     const { bounds, config } = this
     const { prefix, version } = config
 
@@ -116,7 +115,7 @@ class WakaWorker {
     return { prefix, version, bounds, name, secondaryName, longName }
   }
 
-  bindRoutes() {
+  bindRoutes = () => {
     const { lines, search, station, realtime, router } = this
 
     /**

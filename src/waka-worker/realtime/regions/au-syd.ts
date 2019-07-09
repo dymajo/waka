@@ -4,8 +4,8 @@ import * as protobuf from 'protobufjs'
 import * as Logger from 'bunyan'
 import { Response, Request } from 'express'
 import { VarChar } from 'mssql'
-import Connection from '../../db/connection'
 import { pRateLimit } from 'p-ratelimit'
+import Connection from '../../db/connection'
 import {
   PositionFeedMessage,
   UpdateFeedMessage,
@@ -45,7 +45,7 @@ class RealtimeAUSYD extends BaseRealtime {
   currentVehicleDataFails: number
   tripUpdateOptions: { url: string; headers: { Authorization: any } }
   vehicleLocationOptions: { url: string; headers: { Authorization: any } }
-  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>;
+  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
   constructor(props: RealtimeAUSYDProps) {
     super()
     const { apiKey, connection, logger } = props
@@ -78,12 +78,9 @@ class RealtimeAUSYD extends BaseRealtime {
         Authorization: apiKey,
       },
     }
-
-    this.schedulePull = this.schedulePull.bind(this)
-    this.scheduleLocationPull = this.scheduleLocationPull.bind(this)
   }
 
-  start() {
+  start = () => {
     const { apiKey, logger } = this
     if (!apiKey) {
       logger.warn('No TfNSW API Key, will not show realtime.')
@@ -93,12 +90,12 @@ class RealtimeAUSYD extends BaseRealtime {
     logger.info('TfNSW Realtime Started.')
   }
 
-  stop() {
+  stop = () => {
     // TODO!
     this.logger.warn('Sydney Realtime Not Stopped! Not Implemented.')
   }
 
-  async schedulePull() {
+  schedulePull = async () => {
     const { logger, tripUpdateOptions } = this
     const newData: { [tripId: string]: TripUpdate } = {}
     const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
@@ -106,10 +103,12 @@ class RealtimeAUSYD extends BaseRealtime {
     const results = await Promise.all(
       modes.map(async mode => {
         try {
-          const res = await this.rateLimiter(() => axios.get(`${tripUpdateOptions.url}/${mode}`, {
-            headers: tripUpdateOptions.headers,
-            responseType: 'arraybuffer',
-          }))
+          const res = await this.rateLimiter(() =>
+            axios.get(`${tripUpdateOptions.url}/${mode}`, {
+              headers: tripUpdateOptions.headers,
+              responseType: 'arraybuffer',
+            })
+          )
           const uInt8 = new Uint8Array(res.data)
           const _feed = FeedMessage.decode(uInt8) as unknown
           // const _feed = GtfsRealtimeBindings.FeedMessage.decode(res)
@@ -135,7 +134,7 @@ class RealtimeAUSYD extends BaseRealtime {
     setTimeout(this.schedulePull, schedulePullTimeout)
   }
 
-  async scheduleLocationPull() {
+  scheduleLocationPull = async () => {
     const { logger, vehicleLocationOptions } = this
     const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
     const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
@@ -143,10 +142,12 @@ class RealtimeAUSYD extends BaseRealtime {
     const results = await Promise.all(
       modes.map(async mode => {
         try {
-          const res = await this.rateLimiter(() => axios.get(`${vehicleLocationOptions.url}/${mode}`, {
-            headers: vehicleLocationOptions.headers,
-            responseType: 'arraybuffer',
-          }))
+          const res = await this.rateLimiter(() =>
+            axios.get(`${vehicleLocationOptions.url}/${mode}`, {
+              headers: vehicleLocationOptions.headers,
+              responseType: 'arraybuffer',
+            })
+          )
           const uInt8 = new Uint8Array(res.data)
           const _feed = FeedMessage.decode(uInt8) as unknown
           // const _feed = GtfsRealtimeBindings.FeedMessage.decode(res)
@@ -162,10 +163,10 @@ class RealtimeAUSYD extends BaseRealtime {
     this.lastVehicleUpdate = new Date()
   }
 
-  async getTripsEndpoint(
+  getTripsEndpoint = async (
     req: WakaRequest<{ trips: string[]; stop_id: string }, null>,
     res: Response
-  ) {
+  ) => {
     const { trips, stop_id } = req.body
     const realtimeInfo = {}
     for (const trip in trips) {
@@ -190,7 +191,7 @@ class RealtimeAUSYD extends BaseRealtime {
                   new Date(
                     (stopUpdate.departure.time.toNumber() +
                       stopUpdate.departure.delay) *
-                    1000
+                      1000
                   ) > currentTime
                 ) {
                   if (
@@ -223,16 +224,16 @@ class RealtimeAUSYD extends BaseRealtime {
             )
             realtimeInfo[trip] = info
           }
-        } catch (error) { }
+        } catch (error) {}
       }
     }
     return res.send(realtimeInfo)
   }
 
-  async getVehicleLocationEndpoint(
+  getVehicleLocationEndpoint = async (
     req: WakaRequest<{ trips: string[] }, null>,
     res: Response
-  ) {
+  ) => {
     const { logger, currentVehicleData } = this
     const { trips } = req.body
     const vehicleInfo = {}
@@ -245,16 +246,16 @@ class RealtimeAUSYD extends BaseRealtime {
             latitude: data.vehicle.position.latitude,
             longitude: data.vehicle.position.longitude,
           }
-        } catch (err) { }
+        } catch (err) {}
       }
     }
     return res.send(vehicleInfo)
   }
 
-  async getLocationsForLine(
+  getLocationsForLine = async (
     req: WakaRequest<null, { line: string }>,
     res: Response
-  ) {
+  ) => {
     const { logger, connection } = this
     const { line } = req.params
     if (this.currentVehicleData.length === 0) {
@@ -309,7 +310,10 @@ class RealtimeAUSYD extends BaseRealtime {
     }
   }
 
-  async getAllVehicleLocations(req: WakaRequest<null, null>, res: Response) {
+  getAllVehicleLocations = async (
+    req: WakaRequest<null, null>,
+    res: Response
+  ) => {
     const { buses, trains, lightrail, ferries } = req.query
     const { currentVehicleData, connection } = this
     if (currentVehicleData.length !== 0) {

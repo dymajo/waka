@@ -25,13 +25,10 @@ class ATUpdater {
     this.prefix = 'nz-akl'
 
     this.timeout = null
-    this.start = this.start.bind(this)
-    this.check = this.check.bind(this)
-    this.checkApi = this.checkApi.bind(this)
-    this.stop = this.stop.bind(this)
+
   }
 
-  async start() {
+  start = async () => {
     const { check, delay, apiKey, prefix } = this
     if (!apiKey) {
       logger.error({ prefix }, 'API Key must be supplied!')
@@ -42,7 +39,7 @@ class ATUpdater {
     this.timeout = setTimeout(check, delay * 60000)
   }
 
-  async check() {
+  check = async () => {
     const { callback, check, interval, checkApi, prefix } = this
 
     try {
@@ -69,7 +66,7 @@ class ATUpdater {
     this.timeout = setTimeout(check, interval * 60000)
   }
 
-  async checkApi() {
+  checkApi = async () => {
     const { apiKey } = this
     const options = {
       url: 'https://api.at.govt.nz/v2/gtfs/versions',
@@ -84,7 +81,7 @@ class ATUpdater {
     return data.response
   }
 
-  stop() {
+  stop = () => {
     const { prefix } = this
     logger.info({ prefix }, 'Stopped updater.')
     clearTimeout(this.timeout)

@@ -15,22 +15,17 @@ class Search {
     this.regionSpecific = stopsExtras
 
     this.stopsRouteType = {}
-
-    this._stopsFilter = this._stopsFilter.bind(this)
-    this.all = this.all.bind(this)
-    this._allStops = this._allStops.bind(this)
-    this.getStopsRouteType = this.getStopsRouteType.bind(this)
-    this.getStopsLatLon = this.getStopsLatLon.bind(this)
-    this._stopsFromDb = this._stopsFromDb.bind(this)
   }
 
-  start() {
+  start = () => {
     this.getStopsRouteType()
   }
 
-  stop() { }
 
-  _stopsFilter(recordset: { stop_id: string }[], mode?: string) {
+  stop = () => {}
+
+
+  _stopsFilter = (recordset: { stop_id: string }[], mode?: string) => {
     const { prefix, regionSpecific } = this
     if (prefix === 'nz-wlg') {
       return regionSpecific.filter(recordset, mode)
@@ -67,7 +62,7 @@ class Search {
    *     }
    *
    */
-  async all(req, res) {
+  all = async (req, res) => {
     const { logger, _allStops } = this
     try {
       const data = await _allStops()
@@ -80,7 +75,7 @@ class Search {
     }
   }
 
-  async _allStops() {
+  _allStops = async () => {
     const { logger, connection, stopsRouteType, _stopsFilter } = this
     try {
       const sqlRequest = connection.get().request()
@@ -112,7 +107,7 @@ class Search {
     }
   }
 
-  async getStopsRouteType() {
+  getStopsRouteType = async () => {
     const { logger, connection } = this
     const sqlRequest = connection.get().request()
     try {
@@ -174,7 +169,7 @@ class Search {
    *     ]
    *
    */
-  async getStopsLatLon(req, res) {
+  getStopsLatLon = async (req, res) => {
     // no caching here, maybe we need it?
     const { logger, prefix, regionSpecific, _stopsFromDb } = this
     if (
@@ -220,7 +215,7 @@ class Search {
     }
   }
 
-  async _stopsFromDb(lat, lon, distance) {
+  _stopsFromDb = async (lat, lon, distance) => {
     const { connection, prefix, _stopsFilter } = this
     const latDist = distance / 100000
     const lonDist = distance / 65000
