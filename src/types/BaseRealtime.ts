@@ -1,10 +1,27 @@
 import { Response } from 'express'
 import Connection from '../waka-worker/db/connection'
 import { WakaRequest, Logger } from '../typings'
+
 export default abstract class BaseRealtime {
   connection: Connection
   logger: Logger
-  lastUpdate: Date
+  apiKey: string
+  lastTripUpdate: Date
+  lastVehicleUpdate: Date
+  currentUpdateDataFails: number
+  currentVehicleDataFails: number
+  scheduleUpdatePullTimeout: number
+  scheduleLocationPullTimeout: number
+  tripUpdateOptions: {
+    url: string
+    headers?: any
+  }
+  vehicleLocationOptions: {
+    url: string
+    headers?: any
+  }
+  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
+
   getTripsCached?(
     trips: string[]
   ): {
@@ -17,8 +34,8 @@ export default abstract class BaseRealtime {
       ev: boolean
     }
   }
-  scheduleLocationPull?(): Promise<void>
-  schedulePull?(): Promise<void>
+  abstract scheduleLocationPull(): Promise<void>
+  abstract scheduleUpdatePull(): Promise<void>
   getAllVehicleLocations?(
     req: WakaRequest<null, null>,
     res: Response
@@ -33,20 +50,10 @@ export default abstract class BaseRealtime {
     req: WakaRequest<null, { line: string }>,
     res: Response
   ): Promise<Response>
-  abstract getTripsEndpoint(
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ): Promise<Response>
-  abstract getTripsEndpoint(
-    req: WakaRequest<{ trips: string[]; train: boolean }, null>,
-    res: Response
-  ): Promise<Response>
+
   abstract getTripsEndpoint(
     req: WakaRequest<
-      {
-        trips: string[]
-        stop_id: string
-      },
+      { trips: string[]; train: boolean; stop_id: string },
       null
     >,
     res: Response
