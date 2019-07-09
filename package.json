@@ -83,6 +83,7 @@
     "morgan": "^1.9.1",
     "mssql": "^5.1.0",
     "node-fetch": "^2.6.0",
+    "p-ratelimit": "^0.10.1",
     "protobufjs": "^6.8.8",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",

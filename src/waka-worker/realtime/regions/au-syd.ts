@@ -5,6 +5,7 @@ import * as Logger from 'bunyan'
 import { Response, Request } from 'express'
 import { VarChar } from 'mssql'
 import Connection from '../../db/connection'
+import { pRateLimit } from 'p-ratelimit'
 import {
   PositionFeedMessage,
   UpdateFeedMessage,
@@ -44,12 +45,18 @@ class RealtimeAUSYD extends BaseRealtime {
   currentVehicleDataFails: number
   tripUpdateOptions: { url: string; headers: { Authorization: any } }
   vehicleLocationOptions: { url: string; headers: { Authorization: any } }
+  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>;
   constructor(props: RealtimeAUSYDProps) {
     super()
     const { apiKey, connection, logger } = props
     this.connection = connection
     this.logger = logger
     this.apiKey = apiKey
+    this.rateLimiter = pRateLimit({
+      interval: 1000,
+      rate: 5,
+      concurrency: 5,
+    })
 
     this.lastUpdate = null
     this.lastVehicleUpdate = null
@@ -99,10 +106,10 @@ class RealtimeAUSYD extends BaseRealtime {
     const results = await Promise.all(
       modes.map(async mode => {
         try {
-          const res = await axios.get(`${tripUpdateOptions.url}/${mode}`, {
+          const res = await this.rateLimiter(() => axios.get(`${tripUpdateOptions.url}/${mode}`, {
             headers: tripUpdateOptions.headers,
             responseType: 'arraybuffer',
-          })
+          }))
           const uInt8 = new Uint8Array(res.data)
           const _feed = FeedMessage.decode(uInt8) as unknown
           // const _feed = GtfsRealtimeBindings.FeedMessage.decode(res)
@@ -136,10 +143,10 @@ class RealtimeAUSYD extends BaseRealtime {
     const results = await Promise.all(
       modes.map(async mode => {
         try {
-          const res = await axios.get(`${vehicleLocationOptions.url}/${mode}`, {
+          const res = await this.rateLimiter(() => axios.get(`${vehicleLocationOptions.url}/${mode}`, {
             headers: vehicleLocationOptions.headers,
             responseType: 'arraybuffer',
-          })
+          }))
           const uInt8 = new Uint8Array(res.data)
           const _feed = FeedMessage.decode(uInt8) as unknown
           // const _feed = GtfsRealtimeBindings.FeedMessage.decode(res)
@@ -183,7 +190,7 @@ class RealtimeAUSYD extends BaseRealtime {
                   new Date(
                     (stopUpdate.departure.time.toNumber() +
                       stopUpdate.departure.delay) *
-                      1000
+                    1000
                   ) > currentTime
                 ) {
                   if (
@@ -216,7 +223,7 @@ class RealtimeAUSYD extends BaseRealtime {
             )
             realtimeInfo[trip] = info
           }
-        } catch (error) {}
+        } catch (error) { }
       }
     }
     return res.send(realtimeInfo)
@@ -238,7 +245,7 @@ class RealtimeAUSYD extends BaseRealtime {
             latitude: data.vehicle.position.latitude,
             longitude: data.vehicle.position.longitude,
           }
-        } catch (err) {}
+        } catch (err) { }
       }
     }
     return res.send(vehicleInfo)
