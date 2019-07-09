@@ -2,7 +2,6 @@
 import AWS from 'aws-sdk'
 import logger from '../logger'
 import { BaseKeyvalue } from '../../typings'
-
 class KeyvalueDynamo extends BaseKeyvalue {
   name: string
   dynamo: AWS.DynamoDB
@@ -12,11 +11,9 @@ class KeyvalueDynamo extends BaseKeyvalue {
     this.name = name
     this.dynamo = new AWS.DynamoDB({ region })
 
-    this.flattenObject = this.flattenObject.bind(this)
-    this.fattenObject = this.fattenObject.bind(this)
   }
 
-  flattenObject(obj: AWS.DynamoDB.AttributeMap) {
+  flattenObject = (obj: AWS.DynamoDB.AttributeMap) => {
     const { flattenObject } = this
     const response = {}
     Object.keys(obj)
@@ -34,7 +31,7 @@ class KeyvalueDynamo extends BaseKeyvalue {
     return response
   }
 
-  fattenObject(obj) {
+  fattenObject = (obj) => {
     const { fattenObject } = this
     const response = {}
     Object.keys(obj).forEach(key => {
@@ -54,7 +51,7 @@ class KeyvalueDynamo extends BaseKeyvalue {
     return response
   }
 
-  async get(key: string) {
+  get = async (key: string) => {
     const { name, dynamo, flattenObject } = this
     const params = {
       Key: {
@@ -75,7 +72,7 @@ class KeyvalueDynamo extends BaseKeyvalue {
     }
   }
 
-  async set(key, value) {
+  set = async (key, value) => {
     const { name, dynamo, fattenObject } = this
     const item = fattenObject(value)
     item.id = { S: key }
@@ -95,7 +92,7 @@ class KeyvalueDynamo extends BaseKeyvalue {
     })
   }
 
-  async delete(key) {
+  delete = async (key) => {
     const { name, dynamo } = this
     const params = {
       Key: {
@@ -117,7 +114,7 @@ class KeyvalueDynamo extends BaseKeyvalue {
     })
   }
 
-  async scan() {
+  scan = async () => {
     const { name, dynamo } = this
     const params = {
       TableName: name,

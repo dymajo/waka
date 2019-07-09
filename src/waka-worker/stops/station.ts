@@ -30,12 +30,10 @@ class Station {
 
     this.dataAccess = new StopsDataAccess({ connection, prefix })
 
-    this.stopInfo = this.stopInfo.bind(this)
-    this.stopTimes = this.stopTimes.bind(this)
-    this.timetable = this.timetable.bind(this)
+
   }
 
-  async getBounds() {
+  getBounds = async () => {
     const { dataAccess } = this
     const bounds = await dataAccess.getBounds()
     return {
@@ -84,7 +82,7 @@ class Station {
    *    }
    *
    */
-  async stopInfo(req, res) {
+  stopInfo = async (req, res) => {
     const { prefix, dataAccess, regionSpecific } = this
     if (!req.params.station) {
       return res.status(404).send({
@@ -184,10 +182,10 @@ class Station {
    *       }
    *     }
    */
-  async stopTimes(
+  stopTimes = async (
     req: WakaRequest<{}, { time: string; station: string }>,
     res
-  ) {
+  ) => {
     const {
       prefix,
       dataAccess,
@@ -385,7 +383,7 @@ class Station {
    *      }
    *    ]
    */
-  async timetable(req, res) {
+  timetable = async (req, res) => {
     const { prefix, dataAccess, logger, regionSpecific, lines } = this
     const { station, route, direction, offset } = req.params
 

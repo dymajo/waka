@@ -58,20 +58,17 @@ class RealtimeNZAKL extends BaseRealtime {
         'Ocp-Apim-Subscription-Key': apiKey,
       },
     }
-
-    this.schedulePull = this.schedulePull.bind(this)
-    this.scheduleLocationPull = this.scheduleLocationPull.bind(this)
   }
 
-  isDoubleDecker(vehicle: string) {
+  isDoubleDecker = (vehicle: string) => {
     return doubleDeckers.includes(vehicle)
   }
 
-  isEV(vehicle: string) {
+  isEV = (vehicle: string) => {
     return ['2840', '2841'].includes(vehicle)
   }
 
-  start() {
+  start = () => {
     const { apiKey, logger } = this
     if (!apiKey) {
       logger.warn('No Auckland Transport API Key, will not show realtime.')
@@ -82,13 +79,13 @@ class RealtimeNZAKL extends BaseRealtime {
     logger.info('Auckland Realtime Started.')
   }
 
-  stop() {
+  stop = () => {
     clearTimeout(this.tripUpdateTimeout)
     clearTimeout(this.locationTimeout)
     this.logger.info('Auckland Realtime stopped.')
   }
 
-  async schedulePull() {
+  schedulePull = async () => {
     const { logger, tripUpdatesOptions } = this
     try {
       const data = await fetch(tripUpdatesOptions.url, {
@@ -113,7 +110,7 @@ class RealtimeNZAKL extends BaseRealtime {
     this.tripUpdateTimeout = setTimeout(this.schedulePull, schedulePullTimeout)
   }
 
-  async scheduleLocationPull() {
+  scheduleLocationPull = async () => {
     const { logger, vehicleLocationsOptions } = this
     try {
       const data = await fetch(vehicleLocationsOptions.url, {
@@ -133,10 +130,10 @@ class RealtimeNZAKL extends BaseRealtime {
     )
   }
 
-  async getTripsEndpoint(
+  getTripsEndpoint = async (
     req: WakaRequest<{ trips: string[]; train: boolean }, null>,
     res: Response
-  ) {
+  ) => {
     // compat with old version of api
     if (req.body.trips.constructor !== Array) {
       req.body.trips = Object.keys(req.body.trips)
@@ -151,7 +148,7 @@ class RealtimeNZAKL extends BaseRealtime {
     return res.send(data)
   }
 
-  async getTripsAuckland(trips: string[], train = false) {
+  getTripsAuckland = (trips: string[], train = false) => {
     const { logger, vehicleLocationsOptions, tripUpdatesOptions } = this
     const realtimeInfo = {}
     trips.forEach(trip => {
@@ -197,7 +194,7 @@ class RealtimeNZAKL extends BaseRealtime {
     return realtimeInfo
   }
 
-  getTripsCached(trips: string[]) {
+  getTripsCached = (trips: string[]) => {
     // this is essentially the same function as above, but just pulls from cache
     const realtimeInfo: {
       [tripId: string]: {
@@ -228,10 +225,10 @@ class RealtimeNZAKL extends BaseRealtime {
     return realtimeInfo
   }
 
-  async getVehicleLocationEndpoint(
+  getVehicleLocationEndpoint = async (
     req: WakaRequest<{ trips: string[] }, null>,
     res: Response
-  ) {
+  ) => {
     const { logger, vehicleLocationsOptions } = this
     const { trips } = req.body
 
@@ -262,10 +259,10 @@ class RealtimeNZAKL extends BaseRealtime {
     }
   }
 
-  async getLocationsForLine(
+  getLocationsForLine = async (
     req: WakaRequest<null, { line: string }>,
     res: Response
-  ) {
+  ) => {
     const { logger, connection } = this
     const { line } = req.params
     if (this.currentVehicleData.entity === undefined) {
@@ -288,7 +285,7 @@ class RealtimeNZAKL extends BaseRealtime {
       )
       // this is good enough because data comes from auckland transport
       const tripIds = trips.map(entity => entity.vehicle.trip.trip_id)
-      const escapedTripIds = `'${tripIds.join("', '")}'`
+      const escapedTripIds = `'${tripIds.join('\', \'')}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
