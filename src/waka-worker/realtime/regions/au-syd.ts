@@ -11,11 +11,10 @@ import {
   PositionFeedMessage,
   UpdateFeedMessage,
   TripUpdate,
-  BaseRealtime,
   WakaRequest,
   PositionFeedEntity,
-  RealtimeAUSYDProps,
 } from '../../../typings'
+import BaseRealtime from '../../../types/BaseRealtime';
 
 const scheduleUpdatePullTimeout = 15000
 const scheduleLocationPullTimeout = 15000
@@ -29,14 +28,20 @@ const modes: [
   'sydneytrains',
   'metro'
 ] = [
-  'buses',
-  'ferries',
-  'lightrail/innerwest',
-  'lightrail/newcastle',
-  'nswtrains',
-  'sydneytrains',
-  'metro',
-]
+    'buses',
+    'ferries',
+    'lightrail/innerwest',
+    'lightrail/newcastle',
+    'nswtrains',
+    'sydneytrains',
+    'metro',
+  ]
+
+interface RealtimeAUSYDProps {
+  apiKey: string
+  connection: Connection
+  logger: Logger
+}
 
 class RealtimeAUSYD extends BaseRealtime {
   currentUpdateData: { [tripId: string]: TripUpdate }
@@ -233,8 +238,8 @@ class RealtimeAUSYD extends BaseRealtime {
     const { trips, stop_id } = req.body
     const realtimeInfo = {}
     for (const trip of trips) {
-        try {
-          const data = this.currentUpdateData[trip]
+      try {
+        const data = this.currentUpdateData[trip]
         // if (data !== undefined) {
         //   const targetStop = data.stopTimeUpdate.find(
         //     stopUpdate => stopUpdate.stopId === stop_id
@@ -286,10 +291,10 @@ class RealtimeAUSYD extends BaseRealtime {
         //   )
         realtimeInfo[trip] = data
         // }
-        } catch (error) {
-          console.log(error)
-        }
+      } catch (error) {
+        console.log(error)
       }
+    }
     return res.send(realtimeInfo)
   }
 
