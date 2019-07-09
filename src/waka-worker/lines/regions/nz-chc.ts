@@ -48,7 +48,7 @@ const lineColors = {
 
 class LinesNZCHC extends BaseLines {
   constructor(props) {
-    super()
+    super({})
     const { logger, connection } = props
     this.logger = logger
     this.connection = connection

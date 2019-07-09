@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { promises as fs } from 'fs'
+import fs from 'fs'
 import logger from '../logger'
 import BaseKeyvalue from '../../types/BaseKeyvalue'
 
@@ -19,7 +19,7 @@ class KeyvalueLocal extends BaseKeyvalue {
   read = async () => {
     const { name } = this
     try {
-      const content = await fs.readFile(`${filePath}${name}.json`)
+      const content = fs.readFileSync(`${filePath}${name}.json`)
       const jsonstring = content.toString()
       const data = JSON.parse(jsonstring)
       return data
@@ -30,7 +30,7 @@ class KeyvalueLocal extends BaseKeyvalue {
 
   write = async (data: any) => {
     const { name } = this
-    await fs.writeFile(`${filePath}${name}.json`, JSON.stringify(data, ' ', 2))
+    fs.writeFileSync(`${filePath}${name}.json`, JSON.stringify(data, null, 2))
   }
 
   get = async (key: string) => {

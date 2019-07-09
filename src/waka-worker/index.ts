@@ -9,8 +9,9 @@ import Station from './stops/station'
 import StopsNZAKL from './stops/regions/nz-akl'
 import StopsNZWLG from './stops/regions/nz-wlg'
 import Realtime from './realtime'
-import { WorkerConfig, BaseStops } from '../typings'
+import { WorkerConfig } from '../typings'
 import Alexa from './alexa'
+import BaseStops from '../types/BaseStops';
 
 class WakaWorker {
   config: { prefix: string; version: string }
@@ -96,7 +97,7 @@ class WakaWorker {
     this.bounds = await this.station.getBounds()
   }
 
-  stop = async () => {
+  stop = () => {
     this.lines.stop()
     this.search.stop()
     if (this.stopsExtras) this.stopsExtras.stop()

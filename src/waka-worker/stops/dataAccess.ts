@@ -316,10 +316,10 @@ class StopsDataAccess {
       previous && next
         ? `'${current}', '${previous}', '${next}'`
         : previous
-        ? `'${current}', '${previous}'`
-        : next
-        ? `'${current}', '${next}'`
-        : `'${current}'`
+          ? `'${current}', '${previous}'`
+          : next
+            ? `'${current}', '${next}'`
+            : `'${current}'`
 
     const result = await sqlRequest.query<StopTime>(`
       select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name, stop_sequence

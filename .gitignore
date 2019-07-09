@@ -7,3 +7,5 @@ built/
 dist/docs
 /lib
 v.txt
+coverage/
+.nyc_output/

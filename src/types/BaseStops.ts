@@ -36,19 +36,19 @@ export default abstract class BaseStops {
     lon: number,
     dist: number
   ): Promise<
-  {
-    stop_id: string
-    stop_lat: number
-    stop_lon: number
-    stop_lng: number
-    stop_region: string
-    route_type: number
-    stop_name: string
-    description: string
-    timestamp: Date
-    availableSpaces: number
-    maxSpaces: number
-  }[]
+    {
+      stop_id: string
+      stop_lat: number
+      stop_lon: number
+      stop_lng: number
+      stop_region: string
+      route_type: number
+      stop_name: string
+      description: string
+      timestamp: Date
+      availableSpaces: number
+      maxSpaces: number
+    }[]
   >
   getTimes?: (code: string) => AklTimes
 }

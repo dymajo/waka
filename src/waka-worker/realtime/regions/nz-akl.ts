@@ -19,6 +19,9 @@ class RealtimeNZAKL extends ProtobufRealtime {
   currentUpdateData: { [tripId: string]: TripUpdate }
   currentVehicleData: PositionFeedEntity[]
 
+  tripUpdateTimeout: NodeJS.Timer
+  locationTimeout: NodeJS.Timer
+
   tripUpdatesOptions: { url: string; headers: { [header: string]: string } }
   vehicleLocationsOptions: {
     url: string
@@ -57,11 +60,11 @@ class RealtimeNZAKL extends ProtobufRealtime {
     this.currentVehicleDataFails = null
   }
 
-  isDoubleDecker(vehicle: string) {
+  isDoubleDecker = (vehicle: string) => {
     return doubleDeckers.includes(vehicle)
   }
 
-  isEV(vehicle: string) {
+  isEV = (vehicle: string) => {
     return ['2840', '2841'].includes(vehicle)
   }
 
@@ -86,7 +89,7 @@ class RealtimeNZAKL extends ProtobufRealtime {
     return res.send(data)
   }
 
-  async getTripsAuckland(trips: string[], train = false) {
+  getTripsAuckland = (trips: string[], train = false) => {
     const { logger, vehicleLocationsOptions, tripUpdatesOptions } = this
     const realtimeInfo: { [tripId: string]: {} } = {}
     trips.forEach(trip => {

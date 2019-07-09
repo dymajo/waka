@@ -53,8 +53,8 @@ export default abstract class BaseRealtime {
 
   abstract getTripsEndpoint(
     req: WakaRequest<
-    { trips: string[]; train: boolean; stop_id: string },
-    null
+      { trips: string[]; train: boolean; stop_id: string },
+      null
     >,
     res: Response
   ): Promise<Response>

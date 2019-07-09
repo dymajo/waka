@@ -39,6 +39,7 @@ class Search {
     if (prefix === 'nz-wlg') {
       return regionSpecific.filter(recordset, mode)
     }
+
     return recordset
   }
 

@@ -94,7 +94,7 @@ class Lines {
     }
   }
 
-  stop = () => {}
+  stop = () => { }
 
   getColor = (agencyId: string, routeShortName: string) => {
     // If you need to get colors from the DB, please see the Wellington Lines Code.
@@ -187,7 +187,7 @@ class Lines {
     res.send(this._getLines())
   }
 
-  _getLines() {
+  _getLines = () => {
     const { prefix, lineData } = this
     // if the region has multiple cities
     let city = cityMetadata[prefix]
@@ -265,7 +265,7 @@ class Lines {
     }
   }
 
-  async _getLine(id) {
+  _getLine = async id => {
     const { connection, lineData } = this
     const sqlRequest = connection.get().request()
     let lineId = id
@@ -297,8 +297,7 @@ class Lines {
           LEFT JOIN trips on
           trips.route_id = routes.route_id
       WHERE
-          (routes.route_short_name = @route_short_name OR
-          routes.route_id = @route_short_name)
+          routes.route_short_name = @route_short_name
           and shape_id is not null
           ${agency}
       GROUP BY
@@ -435,7 +434,7 @@ class Lines {
   }
 
   // TODO: Probably move these to the Auckland & Wellington Specific Files
-  exceptionCheck(route, bestMatchMode = false) {
+  exceptionCheck = (route, bestMatchMode = false) => {
     const { prefix, lineData } = this
     if (prefix !== 'nz-akl' && prefix !== 'nz-wlg') {
       return true
@@ -564,7 +563,7 @@ class Lines {
         result.recordset.map(i => i.stop_id)
       )
       res.send(
-        search._stopsFilter(
+        search.stopsFilter(
           result.recordset.map(i => {
             const transfers = stopRoutes[i.stop_id]
               .filter(j => j.trip_headsign !== 'Schools')

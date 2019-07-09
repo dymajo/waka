@@ -129,7 +129,7 @@ class RealtimeNZWLG extends BaseRealtime {
             const closest = realtimeServices[trip.route_short_name].reduce(
               (prev, curr) =>
                 Math.abs(moment(curr.AimedDeparture).unix() - goal.unix()) <
-                Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
+                  Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
                   ? curr
                   : prev
             )

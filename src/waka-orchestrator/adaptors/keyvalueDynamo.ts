@@ -17,8 +17,6 @@ class KeyvalueDynamo extends BaseKeyvalue {
     this.name = name
     this.dynamo = new AWS.DynamoDB({ region })
 
-    this.flattenObject = this.flattenObject.bind(this)
-    this.fattenObject = this.fattenObject.bind(this)
   }
 
   flattenObject = (obj: AWS.DynamoDB.AttributeMap) => {

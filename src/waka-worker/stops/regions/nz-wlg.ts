@@ -21,9 +21,9 @@ class StopsNZWLG extends BaseStops {
     ]
   }
 
-  start = () => {}
+  start = () => { }
 
-  stop = () => {}
+  stop = () => { }
 
   extraSources = () => {
     return Promise.resolve([])

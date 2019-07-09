@@ -3,8 +3,9 @@ import { Response } from 'express'
 import * as Logger from 'bunyan'
 import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
-import { WakaRequest, BaseStops } from '../../typings'
+import { WakaRequest } from '../../typings'
 import Lines from '../lines'
+import BaseStops from '../../types/BaseStops';
 
 interface StationProps {
   logger: Logger
@@ -302,29 +303,8 @@ class Station {
 
     // combines train stations platforms together
     let procedure = 'GetStopTimes'
-    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(station) > -1) {
-      procedure = 'GetMultipleStopTimes'
-    }
-
-    let trips: {
-      trip_id: string
-      stop_sequence: number
-      departure_time: Date
-      departure_time_24: Date
-      stop_id: string
-      trip_headsign: string
-      shape_id: string
-      direction_id: number
-      start_date: Date
-      end_date: Date
-      route_short_name: string
-      route_long_name: string
-      route_type: number
-      agency_id: string
-      route_color: string
-      stop_name: string
-    }[] = []
-    const realtimeTrips: string[] = []
+    let trips = []
+    const realtimeTrips = []
     try {
       trips = await dataAccess.getStopTimes(
         station,
@@ -506,10 +486,6 @@ class Station {
 
     // combines train stations platforms together
     let procedure = 'GetTimetable'
-    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(station) > -1) {
-      procedure = 'GetMultipleTimetable'
-    }
-
     let trips = []
     try {
       trips = await dataAccess.getTimetable(
