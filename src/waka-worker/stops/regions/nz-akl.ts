@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
-import BaseStops from './BaseStops'
 import { AklTimes } from '../../../typings'
+import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
 const pricingHtml = `
 <ul class="trip-content" style="padding: 0; min-height: 0;">

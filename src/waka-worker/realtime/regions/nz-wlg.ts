@@ -4,11 +4,17 @@ import momenttz from 'moment-timezone'
 import moment from 'moment'
 import * as Logger from 'bunyan'
 import { Response } from 'express'
-import { BaseRealtime, RealtimeNZWLGProps, WakaRequest } from '../../../typings'
+import BaseRealtime from '../../../types/BaseRealtime'
 import Connection from '../../db/connection'
+import { WakaRequest } from '../../../typings';
 
 const tripsUrl = 'https://www.metlink.org.nz/api/v1/StopDepartures/'
 const serviceLocation = 'https://www.metlink.org.nz/api/v1/ServiceLocation/'
+
+interface RealtimeNZWLGProps {
+  connection: Connection
+  logger: Logger
+}
 
 class RealtimeNZWLG extends BaseRealtime {
   connection: Connection
@@ -228,7 +234,7 @@ class RealtimeNZWLG extends BaseRealtime {
             const closest = realtimeServices[trip.route_short_name].reduce(
               (prev, curr) =>
                 Math.abs(moment(curr.AimedDeparture).unix() - goal.unix()) <
-                Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
+                  Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
                   ? curr
                   : prev
             )

@@ -4,10 +4,18 @@ import * as Logger from 'bunyan'
 import { Response } from 'express'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
-import { BaseRealtime, RealtimeNZAKLProps, WakaRequest } from '../../../typings'
+import BaseRealtime from '../../../types/BaseRealtime'
+import { WakaRequest } from '../../../typings.js';
+
 
 const schedulePullTimeout = 20000
 const scheduleLocationPullTimeout = 15000
+
+interface RealtimeNZAKLProps {
+  connection: Connection
+  logger: Logger
+  apiKey: string
+}
 
 class RealtimeNZAKL extends BaseRealtime {
   apiKey: string

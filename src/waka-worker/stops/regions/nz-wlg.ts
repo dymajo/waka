@@ -1,9 +1,9 @@
-import BaseStops from './BaseStops'
+import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
 class StopsNZWLG extends BaseStops {
   badStops: string[]
   constructor(props) {
-    super()
+    super({})
     this.badStops = [
       'WATE',
       'WOBU',
@@ -22,9 +22,9 @@ class StopsNZWLG extends BaseStops {
     ]
   }
 
-  start() {}
+  start() { }
 
-  stop() {}
+  stop() { }
 
   extraSources() {
     return Promise.resolve([])

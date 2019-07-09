@@ -1,5 +1,5 @@
 import DataAccess from '../dataAccess'
-import { BaseLines } from '../../../typings'
+import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
 const friendlyNames = {
   Orbiter: 'The Orbiter',
@@ -48,7 +48,7 @@ const lineColors = {
 
 class LinesNZCHC extends BaseLines {
   constructor(props) {
-    super()
+    super({})
     const { logger, connection } = props
     this.logger = logger
     this.connection = connection

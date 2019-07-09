@@ -4,7 +4,8 @@ import RealtimeAUSYD from './regions/au-syd'
 import RealtimeNZAKL from './regions/nz-akl'
 import RealtimeNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
-import { BaseRealtime, WakaRequest } from '../../typings'
+import { WakaRequest } from '../../typings'
+import BaseRealtime from '../../types/BaseRealtime';
 
 const regions = {
   'au-syd': RealtimeAUSYD,

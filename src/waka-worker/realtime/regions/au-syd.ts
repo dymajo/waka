@@ -10,10 +10,10 @@ import {
   PositionFeedMessage,
   UpdateFeedMessage,
   TripUpdate,
-  BaseRealtime,
   WakaRequest,
   PositionFeedEntity,
 } from '../../../typings'
+import BaseRealtime from '../../../types/BaseRealtime';
 
 const schedulePullTimeout = 20000
 
