@@ -1,4 +1,4 @@
-import { BaseLines, BaseLinesProps } from '../../../typings'
+import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
 const groups = [
   {

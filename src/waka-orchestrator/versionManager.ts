@@ -5,13 +5,13 @@ import KeyvalueDynamo from './adaptors/keyvalueDynamo'
 import EnvMapper from '../envMapper'
 import GatewayLocal from './adaptors/gatewayLocal'
 import GatewayEcs from './adaptors/gatewayEcs'
-import {
-  DBConfig,
-  WakaConfig,
-  VersionManagerProps,
-  BaseKeyvalue,
-  Version,
-} from '../typings'
+import { DBConfig, WakaConfig, Version } from '../typings'
+import BaseKeyvalue from '../types/BaseKeyvalue';
+
+interface VersionManagerProps {
+  gateway: GatewayLocal,
+  config: WakaConfig
+}
 
 class VersionManager {
   config: WakaConfig

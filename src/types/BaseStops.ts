@@ -1,4 +1,11 @@
-abstract class BaseStops {
+import { AklTimes, Logger } from '../typings'
+
+export interface BaseStopsProps {
+  logger?: Logger
+  apiKey?: string
+}
+
+export default abstract class BaseStops {
   abstract start(): void
   abstract stop(): void
   filter?(recordset: any[], mode: string): void
@@ -22,5 +29,3 @@ abstract class BaseStops {
     }[]
   >
 }
-
-export default BaseStops

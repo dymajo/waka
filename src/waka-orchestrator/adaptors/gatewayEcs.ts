@@ -3,8 +3,8 @@
 import AWS from 'aws-sdk'
 import logger from '../logger'
 import EnvMapper from '../../envMapper'
-import { EcsGatewayConfig, BaseGateway, WorkerConfig } from '../../typings'
-// import a from 'aws-sdk'
+import { EcsGatewayConfig, WorkerConfig } from '../../typings'
+import BaseGateway from '../../types/BaseGateway'
 
 const envConvert = env =>
   JSON.stringify(env.map(e => `${e.name}|${e.value}`).sort())

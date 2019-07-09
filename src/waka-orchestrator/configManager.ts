@@ -1,7 +1,8 @@
 import logger from './logger'
 import KeyvalueLocal from './adaptors/keyvalueLocal'
 import KeyvalueDynamo from './adaptors/keyvalueDynamo'
-import { BaseKeyvalue, WakaConfig } from '../typings'
+import { WakaConfig } from '../typings'
+import BaseKeyvalue from '../types/BaseKeyvalue'
 
 class ConfigManager {
   config: WakaConfig
