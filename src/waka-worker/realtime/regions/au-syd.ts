@@ -13,7 +13,7 @@ import {
   WakaRequest,
   PositionFeedEntity,
 } from '../../../typings'
-import BaseRealtime from '../../../types/BaseRealtime';
+import BaseRealtime from '../../../types/BaseRealtime'
 
 const schedulePullTimeout = 20000
 
@@ -95,7 +95,7 @@ class RealtimeAUSYD extends BaseRealtime {
     this.logger.warn('Sydney Realtime Not Stopped! Not Implemented.')
   }
 
-  schedulePull = async () => {
+  scheduleUpdatePull = async () => {
     const { logger, tripUpdateOptions } = this
     const newData: { [tripId: string]: TripUpdate } = {}
     const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
@@ -279,7 +279,7 @@ class RealtimeAUSYD extends BaseRealtime {
         })
       })
       const tripIds = trips.map(entity => entity.vehicle.trip.tripId)
-      const escapedTripIds = `'${tripIds.join("', '")}'`
+      const escapedTripIds = `'${tripIds.join('\', \'')}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
@@ -320,7 +320,7 @@ class RealtimeAUSYD extends BaseRealtime {
       const tripIds = currentVehicleData.map(
         entity => entity.vehicle.trip.tripId
       )
-      const escapedTripIds = `'${tripIds.join("', '")}'`
+      const escapedTripIds = `'${tripIds.join('\', \'')}'`
       try {
         const sqlTripIdRequest = connection.get().request()
         const tripIdRequest = await sqlTripIdRequest.query<{

@@ -5,8 +5,7 @@ import { Response } from 'express'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
 import BaseRealtime from '../../../types/BaseRealtime'
-import { WakaRequest } from '../../../typings.js';
-
+import { WakaRequest } from '../../../typings'
 
 const schedulePullTimeout = 20000
 const scheduleLocationPullTimeout = 15000
@@ -82,7 +81,7 @@ class RealtimeNZAKL extends BaseRealtime {
       logger.warn('No Auckland Transport API Key, will not show realtime.')
       return
     }
-    this.schedulePull()
+    this.scheduleUpdatePull()
     this.scheduleLocationPull()
     logger.info('Auckland Realtime Started.')
   }
@@ -93,7 +92,7 @@ class RealtimeNZAKL extends BaseRealtime {
     this.logger.info('Auckland Realtime stopped.')
   }
 
-  schedulePull = async () => {
+  scheduleUpdatePull = async () => {
     const { logger, tripUpdatesOptions } = this
     try {
       const data = await fetch(tripUpdatesOptions.url, {
@@ -115,7 +114,10 @@ class RealtimeNZAKL extends BaseRealtime {
       this.currentDataFails += 1
       logger.warn({ err }, 'Could not get AT Data')
     }
-    this.tripUpdateTimeout = setTimeout(this.schedulePull, schedulePullTimeout)
+    this.tripUpdateTimeout = setTimeout(
+      this.scheduleUpdatePull,
+      schedulePullTimeout
+    )
   }
 
   scheduleLocationPull = async () => {
@@ -156,7 +158,7 @@ class RealtimeNZAKL extends BaseRealtime {
     return res.send(data)
   }
 
-  getTripsAuckland = (trips: string[], train = false) => {
+  getTripsAuckland = async (trips: string[], train = false) => {
     const { logger, vehicleLocationsOptions, tripUpdatesOptions } = this
     const realtimeInfo = {}
     trips.forEach(trip => {
@@ -293,7 +295,7 @@ class RealtimeNZAKL extends BaseRealtime {
       )
       // this is good enough because data comes from auckland transport
       const tripIds = trips.map(entity => entity.vehicle.trip.trip_id)
-      const escapedTripIds = `'${tripIds.join('\', \'')}'`
+      const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
