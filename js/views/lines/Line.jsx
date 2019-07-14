@@ -94,6 +94,7 @@ class Line extends React.Component {
     this.lineData = new LineData({
       region: match.params.region,
       line_id: match.params.line_id,
+      agency_id: match.params.agency_id,
     })
 
     if (

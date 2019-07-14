@@ -160,7 +160,7 @@ class RootContent extends React.Component {
             <Sidebar
               url={`/l/${
                 this.state.currentCity.prefix === 'none'
-                  ? ''
+                  ? 'nz-akl' // just go... somewhere
                   : this.state.currentCity.prefix
               }`}
               icon="lines.svg"

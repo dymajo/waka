@@ -64,9 +64,10 @@ class Switch extends React.Component {
           let match
           React.Children.forEach(this.props.children, child => {
             if (match == null && React.isValidElement(child)) {
-              const path = child.props.path || child.path.from
-
               element = child
+
+              const path = child.props.path || child.props.from
+
               match = path
                 ? matchPath(location.pathname, { ...child.props, path })
                 : context.match
@@ -79,10 +80,10 @@ class Switch extends React.Component {
           const key = location.key || 'key'
           const currentRoute = match
             ? React.cloneElement(element, {
-              location,
-              computedMatch: match,
-              key,
-            })
+                location,
+                computedMatch: match,
+                key,
+              })
             : null
           const ret = this.timeout(this.currentRoute, currentRoute)
           if (ret || this.currentRoute.key === this.lastRoute.key) {

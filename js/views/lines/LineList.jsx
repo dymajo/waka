@@ -28,14 +28,11 @@ class LineList extends React.Component {
 
   componentDidMount() {
     window.addEventListener('online', this.triggerGetLines)
-    StationStore.bind('newcity', this.newcity)
-
     this.getLines()
   }
 
   componentWillUnmount() {
     window.removeEventListener('online', this.triggerGetLines)
-    StationStore.unbind('newcity', this.newcity)
   }
 
   triggerGroup = group => e => {
@@ -49,17 +46,6 @@ class LineList extends React.Component {
     this.setState({
       groupShow,
     })
-  }
-
-  newcity = () => {
-    const { history } = this.props
-    const newPath = `/l/${StationStore.currentCity.prefix}`
-    if (
-      StationStore.currentCity.prefix !== 'none' &&
-      window.location.pathname !== newPath
-    ) {
-      history.push(newPath)
-    }
   }
 
   triggerGetLines = () => {
@@ -112,8 +98,10 @@ class LineList extends React.Component {
 
   hijack = link => e => {
     const { history, match } = this.props
+    const { operators } = this.state
     e.preventDefault()
-    history.push(`/l/${match.params.region}/${link}`)
+    const url = ['', 'l', match.params.region, operators[link], link].join('/')
+    history.push(url)
   }
 
   render() {

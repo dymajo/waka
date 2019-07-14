@@ -14,7 +14,6 @@ import Line from '../lines/Line.jsx'
 import Sponsor from '../pages/Sponsor.jsx'
 import Region from '../pages/Region.jsx'
 import Settings from '../pages/Settings.jsx'
-import Blank from '../pages/Blank.jsx'
 import NoMatch from '../pages/NoMatch.jsx'
 
 import Wrapper from './Wrapper.jsx'
@@ -46,7 +45,8 @@ class Content extends React.Component {
   }
 
   triggerStateUpdate = state => data => {
-    const { action } = this.props.history
+    const { history } = this.props
+    const { action } = history
     routingEvents.trigger('animation', data, state, action)
   }
 
@@ -85,11 +85,14 @@ class Content extends React.Component {
           />
           <Route path="/l/:region" exact render={wrapFn(LineList)} />
           <Route path="/l/:region/all" exact render={wrapFn(AllLines)} />
-          <Route path="/l/:region/:line_id" exact render={wrapFn(Line)} />
+          <Route
+            path="/l/:region/:agency_id/:line_id"
+            exact
+            render={wrapFn(Line)}
+          />
           <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
           <Route path="/region" exact render={wrapFn(Region)} />
           <Route path="/settings" exact render={wrapFn(Settings)} />
-          <Route path="/blank" exact render={wrapFn(Blank)} />
           <Route render={wrapFn(NoMatch)} />
         </Switch>
       </View>

@@ -90,6 +90,7 @@ export default {
   notFound: {
     header: 'Not Found',
     body: 'Sorry, but the page you were trying to view does not exist.',
+    home: 'Return to Home Page',
   },
   sponsor: {
     title: 'Contribute',

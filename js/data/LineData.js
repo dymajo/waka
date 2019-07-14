@@ -4,17 +4,25 @@ class LineData {
   constructor(props) {
     this.region = props.region || null
     this.line_id = props.line_id || null
+    this.agency_id = props.agency_id || null
     this.shape_id = props.shape_id || null
     this.trip_id = props.trip_id || null
   }
 
   async getMeta() {
-    if (this.region === null || this.line_id === null) {
-      return 'Requires both region and line_id to be set.'
+    if (
+      this.region === null ||
+      this.line_id === null ||
+      this.agency_id === null
+    ) {
+      return 'Requires both region, line_id, and agency_id to be set.'
     }
     const line = encodeURIComponent(this.line_id)
+    const agency = encodeURIComponent(this.agency_id)
     try {
-      const res = await fetch(`${local.endpoint}/${this.region}/line/${line}`)
+      const res = await fetch(
+        `${local.endpoint}/${this.region}/line/${line}?agency_id=${agency}`
+      )
       const data = await res.json()
       return data
     } catch (error) {
@@ -85,8 +93,10 @@ class LineData {
   }
 
   async getRealtime() {
+    const line = encodeURIComponent(this.line_id)
+    const agency = encodeURIComponent(this.agency_id)
     const res = await fetch(
-      `${local.endpoint}/${this.region}/realtime/${this.line_id}`
+      `${local.endpoint}/${this.region}/realtime/${line}?agency_id=${agency}`
     )
     const data = await res.json()
     if (res.status >= 400) {
