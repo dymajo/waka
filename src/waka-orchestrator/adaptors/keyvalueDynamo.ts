@@ -3,7 +3,6 @@ import AWS from 'aws-sdk'
 import logger from '../logger'
 import BaseKeyvalue from '../../types/BaseKeyvalue'
 
-
 class KeyvalueDynamo extends BaseKeyvalue {
   name: string
   dynamo: AWS.DynamoDB
@@ -12,7 +11,6 @@ class KeyvalueDynamo extends BaseKeyvalue {
     const { name, region } = props
     this.name = name
     this.dynamo = new AWS.DynamoDB({ region })
-
   }
 
   flattenObject = (obj: AWS.DynamoDB.AttributeMap) => {
@@ -33,7 +31,7 @@ class KeyvalueDynamo extends BaseKeyvalue {
     return response
   }
 
-  fattenObject = (obj) => {
+  fattenObject = obj => {
     const { fattenObject } = this
     const response = {}
     Object.keys(obj).forEach(key => {
@@ -94,7 +92,7 @@ class KeyvalueDynamo extends BaseKeyvalue {
     })
   }
 
-  delete = async (key) => {
+  delete = async key => {
     const { name, dynamo } = this
     const params = {
       Key: {

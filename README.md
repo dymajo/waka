@@ -70,12 +70,43 @@ First, start Microsoft SQL Server. It's recommended that you run it with Docker:
 docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Str0ngPassword" -p 1433:1433 -d --name="waka-db" microsoft/mssql-server-linux:latest
 ```
 
+We also recommend you run redis, as it's used for the realtime.
+
+```bash
+docker run -p 6379:6379 -d --name="waka-redis" redis:latest
+```
+
 Then, start the orchestrator. The Web UI will be available at <http://localhost:9001/private>. The orchestrator handles the starting of the workers, and proxy when running locally.
 
 ```bash
 npm ci
 npm start
 ```
+
+### waka-realtime
+
+open with the same config as a waka-worker except add the `newRealtime: true` flag
+
+uses protobuf and redis
+
+keeps all parsed trip/route/stop realtime information in redis for 60s
+
+need to create a new class that extends either `MultiEndpoint` / `SingleEndpoint` / `CombinedFeed` depending on what your region requires
+
+#### MultiEndpoint
+
+- has a Trip Update / Vehicle Position / Service Alert endpoint for each mode of transport
+- eg Transport for New South Wales
+
+#### SingleEndpoint
+
+- has a single Trip Update / Vehicle Position / Service Alert endpoint for all modes of transport
+- eg Auckland Transport
+
+#### CombinedFeed
+
+- has a combined feed for all endpoints and all modes of transport
+- eg ACT Transport
 
 ## DYMAJO Specific Implementation Notes
 

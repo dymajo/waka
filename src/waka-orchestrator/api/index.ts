@@ -50,6 +50,7 @@ class PrivateApi {
             status: versionData.status,
             version: versionData.version,
             dbname: versionData.db.database,
+            newRealtime: versionData.newRealtime,
           }
         })
         res.send(response)
@@ -66,6 +67,7 @@ class PrivateApi {
         shapesContainer: string
         shapesRegion: string
         dbconfig: string
+        newRealtime: boolean
       }
       try {
         await versionManager.addVersion(workerConfig)

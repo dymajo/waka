@@ -10,6 +10,13 @@
       "name": "Launch Program",
       "program": "${workspaceFolder}/lib/waka-orchestrator/standalone.js",
       "outFiles": ["${workspaceFolder}/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Realtime",
+      "program": "${workspaceFolder}/lib/waka-realtime/standalone.js",
+      "outFiles": ["${workspaceFolder}/**/*.js"]
     }
   ]
 }

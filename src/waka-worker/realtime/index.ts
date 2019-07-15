@@ -1,11 +1,10 @@
-import * as Logger from 'bunyan'
 import { Response } from 'express'
 import RealtimeAUSYD from './regions/au-syd'
 import RealtimeNZAKL from './regions/nz-akl'
 import RealtimeNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
-import { WakaRequest } from '../../typings'
-import BaseRealtime from '../../types/BaseRealtime';
+import { WakaRequest, Logger, RedisConfig } from '../../typings'
+import BaseRealtime from '../../types/BaseRealtime'
 
 const regions = {
   'au-syd': RealtimeAUSYD,
@@ -13,21 +12,37 @@ const regions = {
   'nz-wlg': RealtimeNZWLG,
 }
 
+interface RealtimeProps {
+  connection: Connection
+  logger: Logger
+  prefix: string
+  api: { [prefix: string]: string }
+  newRealtime: boolean
+  redisConfig: RedisConfig
+}
+
 class Realtime {
   connection: Connection
   logger: Logger
   prefix: string
   fn: BaseRealtime
-  constructor(props) {
-    const { connection, logger, prefix, api } = props
+  newRealtime: boolean
+  constructor(props: RealtimeProps) {
+    const { connection, logger, prefix, api, newRealtime, redisConfig } = props
     this.connection = connection
     this.logger = logger
     this.prefix = prefix
-
+    this.newRealtime = newRealtime
     const apiKey = api[prefix]
     this.fn =
       regions[prefix] !== undefined
-        ? new regions[prefix]({ logger, connection, apiKey })
+        ? new regions[prefix]({
+            logger,
+            connection,
+            apiKey,
+            newRealtime,
+            redisConfig,
+          })
         : null
   }
 
@@ -207,13 +222,26 @@ class Realtime {
     })
   }
 
-  all = (req, res) => {
+  serviceAlerts = (
+    req: WakaRequest<
+      { routeId?: string; stopId?: string; tripId?: string },
+      null
+    >,
+    res: Response
+  ) => {
     if (this.fn) {
-      return this.fn.getAllVehicleLocations(req, res)
+      if (this.fn.getServiceAlertsEndpoint)
+        return this.fn.getServiceAlertsEndpoint(req, res)
     }
-    return res.status(400).send({
-      message: 'realtime not available',
-    })
   }
+
+  // all = (req, res) => {
+  //   if (this.fn) {
+  //     return this.fn.getAllVehicleLocations(req, res)
+  //   }
+  //   return res.status(400).send({
+  //     message: 'realtime not available',
+  //   })
+  // }
 }
 export default Realtime

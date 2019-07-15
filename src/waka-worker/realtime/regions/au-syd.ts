@@ -1,93 +1,42 @@
-// import GtfsRealtimeBindings from 'gtfs-realtime-bindings'
-import axios from 'axios'
-import * as protobuf from 'protobufjs'
-import * as Logger from 'bunyan'
-import { Response, Request } from 'express'
+import { Response } from 'express'
 import { VarChar } from 'mssql'
-import { pRateLimit } from 'p-ratelimit'
+
 import Connection from '../../db/connection'
-import {
-  PositionFeedMessage,
-  UpdateFeedMessage,
-  TripUpdate,
-  WakaRequest,
-  PositionFeedEntity,
-} from '../../../typings'
+import { WakaRequest, Logger, RedisConfig } from '../../../typings'
+
 import BaseRealtime from '../../../types/BaseRealtime'
-
-const schedulePullTimeout = 20000
-
-const modes = [
-  'buses',
-  'ferries',
-  'lightrail/innerwest',
-  'lightrail/newcastle',
-  'nswtrains',
-  'sydneytrains',
-  'metro',
-]
+import Redis from '../../../waka-realtime/Redis'
+import { TripUpdate } from '../../../gtfs'
 
 interface RealtimeAUSYDProps {
-  apiKey: string
   connection: Connection
   logger: Logger
+  newRealtime: boolean
+  redisConfig: RedisConfig
 }
 
 class RealtimeAUSYD extends BaseRealtime {
-  connection: Connection
-  logger: Logger
-  apiKey: string
-  lastUpdate: Date
-  lastVehicleUpdate: Date
-  currentData: { [tripId: string]: TripUpdate }
-  currentDataFails: number
-  currentVehicleData: PositionFeedEntity[]
-  currentVehicleDataFails: number
-  tripUpdateOptions: { url: string; headers: { Authorization: any } }
-  vehicleLocationOptions: { url: string; headers: { Authorization: any } }
-  rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
+  redis: Redis
+  newRealtime: boolean
+
   constructor(props: RealtimeAUSYDProps) {
     super()
-    const { apiKey, connection, logger } = props
+    const { connection, logger, newRealtime, redisConfig } = props
+    this.redis = new Redis({ prefix: 'au-syd', logger, config: redisConfig })
+    this.newRealtime = newRealtime
     this.connection = connection
     this.logger = logger
-    this.apiKey = apiKey
-    this.rateLimiter = pRateLimit({
-      interval: 1000,
-      rate: 5,
-      concurrency: 5,
-    })
-
-    this.lastUpdate = null
-    this.lastVehicleUpdate = null
-    this.currentData = {}
-    this.currentDataFails = 0
-    this.currentVehicleData = []
-    this.currentVehicleDataFails = null
-
-    this.tripUpdateOptions = {
-      url: 'https://api.transport.nsw.gov.au/v1/gtfs/realtime',
-      headers: {
-        Authorization: apiKey,
-      },
-    }
-
-    this.vehicleLocationOptions = {
-      url: 'https://api.transport.nsw.gov.au/v1/gtfs/vehiclepos',
-      headers: {
-        Authorization: apiKey,
-      },
-    }
   }
 
-  start = () => {
-    const { apiKey, logger } = this
-    if (!apiKey) {
-      logger.warn('No TfNSW API Key, will not show realtime.')
+  start = async () => {
+    const { logger, newRealtime } = this
+
+    if (!newRealtime) {
+      logger.error('Must be new realtime')
+    } else {
+      this.redis.start()
+      logger.info('Realtime Gateway started')
     }
-    this.schedulePull()
-    this.scheduleLocationPull()
-    logger.info('TfNSW Realtime Started.')
   }
 
   stop = () => {
@@ -95,136 +44,19 @@ class RealtimeAUSYD extends BaseRealtime {
     this.logger.warn('Sydney Realtime Not Stopped! Not Implemented.')
   }
 
-  scheduleUpdatePull = async () => {
-    const { logger, tripUpdateOptions } = this
-    const newData: { [tripId: string]: TripUpdate } = {}
-    const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
-    const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
-    const results = await Promise.all(
-      modes.map(async mode => {
-        try {
-          const res = await this.rateLimiter(() =>
-            axios.get(`${tripUpdateOptions.url}/${mode}`, {
-              headers: tripUpdateOptions.headers,
-              responseType: 'arraybuffer',
-            })
-          )
-          const uInt8 = new Uint8Array(res.data)
-          const _feed = FeedMessage.decode(uInt8) as unknown
-          // const _feed = GtfsRealtimeBindings.FeedMessage.decode(res)
-          const feed = _feed as UpdateFeedMessage
-
-          // const feed = GtfsRealtimeBindings.TripUpdate.decode(buffer)
-
-          feed.entity.forEach(trip => {
-            if (trip.tripUpdate) {
-              newData[trip.tripUpdate.trip.tripId] = trip.tripUpdate
-            }
-          })
-        } catch (err) {
-          // console.error(err)
-          // logger.error(err)
-        }
-      })
-    )
-
-    this.currentData = newData
-    this.currentDataFails = 0
-    this.lastUpdate = new Date()
-    setTimeout(this.schedulePull, schedulePullTimeout)
-  }
-
-  scheduleLocationPull = async () => {
-    const { logger, vehicleLocationOptions } = this
-    const root = await protobuf.load('tfnsw-gtfs-realtime.proto')
-    const FeedMessage = root.lookupType('transit_realtime.FeedMessage')
-    let newVehicleData: PositionFeedEntity[] = []
-    const results = await Promise.all(
-      modes.map(async mode => {
-        try {
-          const res = await this.rateLimiter(() =>
-            axios.get(`${vehicleLocationOptions.url}/${mode}`, {
-              headers: vehicleLocationOptions.headers,
-              responseType: 'arraybuffer',
-            })
-          )
-          const uInt8 = new Uint8Array(res.data)
-          const _feed = FeedMessage.decode(uInt8) as unknown
-          // const _feed = GtfsRealtimeBindings.FeedMessage.decode(res)
-          const feed = _feed as PositionFeedMessage
-          newVehicleData = newVehicleData.concat(feed.entity)
-        } catch (err) {
-          // console.error(err)
-        }
-      })
-    )
-    this.currentVehicleData = newVehicleData
-    this.currentDataFails = 0
-    this.lastVehicleUpdate = new Date()
-  }
-
   getTripsEndpoint = async (
     req: WakaRequest<{ trips: string[]; stop_id: string }, null>,
     res: Response
   ) => {
     const { trips, stop_id } = req.body
-    const realtimeInfo = {}
-    for (const trip in trips) {
-      if (Object.prototype.hasOwnProperty.call(trips, trip)) {
-        try {
-          const data = this.currentData[trip]
-          if (data !== undefined) {
-            const targetStop = data.stopTimeUpdate.find(
-              stopUpdate => stopUpdate.stopId === stop_id
-            )
-            let currentStop = {
-              stopSequence: -100, // starts off as "indeterminate"
-            }
+    const realtimeInfo: { [tripId: string]: TripUpdate } = {}
+    for (const tripId of trips) {
+      try {
+        const data = await this.redis.getTripUpdate(tripId)
 
-            // this array is ordered in the order of stops
-            const currentTime = new Date()
-            for (let i = 0; i < data.stopTimeUpdate.length; i++) {
-              const stopUpdate = data.stopTimeUpdate[i]
-              if (stopUpdate.departure) {
-                // filters out stops that have already passed
-                if (
-                  new Date(
-                    (stopUpdate.departure.time.toNumber() +
-                      stopUpdate.departure.delay) *
-                      1000
-                  ) > currentTime
-                ) {
-                  if (
-                    currentStop.stopSequence === -100 &&
-                    stopUpdate.stopSequence !== 0
-                  ) {
-                    currentStop = stopUpdate
-                  }
-                  break
-                }
-                // keeps setting it until it finds the right one
-                if (stopUpdate.stopSequence) {
-                  currentStop = stopUpdate
-                }
-              }
-            }
-
-            // return values:
-            // delay is added to the scheduled time to figure out the actual stop time
-            // timestamp is epoch scheduled time (according to the GTFS-R API)
-            // stop_sequence is the stop that the vechicle is currently at
-            const info = {}
-            Object.assign(
-              info,
-              { stop_sequence: currentStop.stopSequence },
-              targetStop.departure && {
-                delay: targetStop.departure.delay,
-                timestamp: targetStop.departure.time.toNumber(),
-              }
-            )
-            realtimeInfo[trip] = info
-          }
-        } catch (error) {}
+        realtimeInfo[tripId] = data
+      } catch (error) {
+        console.log(error)
       }
     }
     return res.send(realtimeInfo)
@@ -234,19 +66,23 @@ class RealtimeAUSYD extends BaseRealtime {
     req: WakaRequest<{ trips: string[] }, null>,
     res: Response
   ) => {
-    const { logger, currentVehicleData } = this
+    const { logger } = this
     const { trips } = req.body
-    const vehicleInfo = {}
-    for (const trip in trips) {
-      if (Object.prototype.hasOwnProperty.call(trips, trip)) {
-        const element = trips[trip]
+    const vehicleInfo: {
+      [tripId: string]: { latitude: number; longitude: number }
+    } = {}
+    for (const tripId in trips) {
+      if (Object.prototype.hasOwnProperty.call(trips, tripId)) {
+        const element = trips[tripId]
         try {
-          const data = currentVehicleData[trip]
-          vehicleInfo[trip] = {
-            latitude: data.vehicle.position.latitude,
-            longitude: data.vehicle.position.longitude,
+          const data = await this.redis.getVehiclePosition(tripId)
+          vehicleInfo[tripId] = {
+            latitude: data.position.latitude,
+            longitude: data.position.longitude,
           }
-        } catch (err) {}
+        } catch (err) {
+          console.log(err)
+        }
       }
     }
     return res.send(vehicleInfo)
@@ -258,9 +94,6 @@ class RealtimeAUSYD extends BaseRealtime {
   ) => {
     const { logger, connection } = this
     const { line } = req.params
-    if (this.currentVehicleData.length === 0) {
-      return res.send([])
-    }
 
     try {
       const sqlRouteIdRequest = connection.get().request()
@@ -273,36 +106,72 @@ class RealtimeAUSYD extends BaseRealtime {
       `
       )
       const routeIds = routeIdResult.recordset.map(r => r.route_id)
-      const trips = this.currentVehicleData.filter(entity => {
-        return routeIds.some(routeId => {
-          return routeId === entity.vehicle.trip.routeId
-        })
-      })
-      const tripIds = trips.map(entity => entity.vehicle.trip.tripId)
+      let tripIds: string[] = []
+      for (const routeId of routeIds) {
+        const t = await this.redis.getArrayKey(
+          routeId,
+          'vehicle-position-route'
+        )
+        tripIds = [...tripIds, ...t]
+      }
+
+      const trips = await Promise.all(
+        tripIds.map(tripId => this.redis.getVehiclePosition(tripId))
+      )
       const escapedTripIds = `'${tripIds.join('\', \'')}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
         direction_id: number
+        trip_headsign: string
+        bikes_allowed: number
+        block_id: string
+        route_id: string
+        service_id: string
+        shape_id: string
+        trip_short_name: string
+        wheelchair_accessible: number
       }>(`
-      SELECT *
-      FROM trips
-      WHERE trip_id IN (${escapedTripIds})
+        SELECT *
+        FROM trips
+        WHERE trip_id IN (${escapedTripIds})
       `)
+      console.log(tripIdRequest.recordset)
 
-      const tripIdsMap = {}
-      tripIdRequest.recordset.forEach(
-        record => (tripIdsMap[record.trip_id] = record.direction_id)
-      )
+      const tripIdsMap: {
+        [tripId: string]: {
+          trip_id: string
+          direction_id: number
+          trip_headsign: string
+          bikes_allowed: number
+          block_id: string
+          route_id: string
+          service_id: string
+          shape_id: string
+          trip_short_name: string
+          wheelchair_accessible: number
+        }
+      } = {}
+      tripIdRequest.recordset.forEach(record => {
+        tripIdsMap[record.trip_id] = record
+      })
 
       // now we return the structued data finally
-      const result = trips.map(entity => ({
-        latitude: entity.vehicle.position.latitude,
-        longitude: entity.vehicle.position.longitude,
-        bearing: entity.vehicle.position.bearing,
-        direction: tripIdsMap[entity.vehicle.trip.tripId],
-        updatedAt: this.lastVehicleUpdate,
-      }))
+      const result = trips.map(vehicle => {
+        console.log(vehicle)
+        console.log(tripIdsMap[vehicle.trip.tripId])
+        return {
+          latitude: vehicle.position.latitude,
+          longitude: vehicle.position.longitude,
+          bearing: vehicle.position.bearing,
+          direction: tripIdsMap[vehicle.trip.tripId].direction_id,
+          stopId: vehicle.stopId,
+          congestionLevel: vehicle.congestionLevel,
+          updatedAt: this.lastVehicleUpdate,
+          trip_id: vehicle.trip.tripId,
+          label: vehicle.vehicle.label,
+        }
+      })
       return res.send(result)
     } catch (err) {
       logger.error({ err }, 'Could not get locations from line.')
@@ -310,84 +179,113 @@ class RealtimeAUSYD extends BaseRealtime {
     }
   }
 
-  getAllVehicleLocations = async (
-    req: WakaRequest<null, null>,
+  getServiceAlertsEndpoint = async (
+    req: WakaRequest<
+      { routeId?: string; stopId?: string; tripId?: string },
+      null
+    >,
     res: Response
   ) => {
-    const { buses, trains, lightrail, ferries } = req.query
-    const { currentVehicleData, connection } = this
-    if (currentVehicleData.length !== 0) {
-      const tripIds = currentVehicleData.map(
-        entity => entity.vehicle.trip.tripId
-      )
-      const escapedTripIds = `'${tripIds.join('\', \'')}'`
-      try {
-        const sqlTripIdRequest = connection.get().request()
-        const tripIdRequest = await sqlTripIdRequest.query<{
-          trip_id: string
-          route_type: number
-        }>(`
-  select routes.route_type, trips.trip_id from trips join routes on trips.route_id = routes.route_id where trip_id in (${escapedTripIds})
-  `)
-        const routeTypes = tripIdRequest.recordset.map(res => ({
-          trip_id: res.trip_id,
-          route_type: res.route_type,
-        }))
-        const vehicleData = currentVehicleData
-          .filter(entity => entity.vehicle.position)
-          .map(entity => ({
-            latitude: entity.vehicle.position.latitude,
-            longitude: entity.vehicle.position.longitude,
-            bearing: entity.vehicle.position.bearing,
-            updatedAt: this.lastVehicleUpdate,
-            trip_id: entity.vehicle.trip.tripId,
-          }))
-        const result: {
-          route_type: number
-          latitude: number
-          longitude: number
-          bearing: number
-          updatedAt: Date
-          trip_id: string
-        }[] = []
-        for (let i = 0; i < routeTypes.length; i++) {
-          result.push({
-            ...routeTypes[i],
-            ...vehicleData.find(
-              itmInner => itmInner.trip_id === routeTypes[i].trip_id
-            ),
-          })
-        }
-
-        result.filter(res => {
-          switch (res.route_type) {
-            case 1000:
-              return ferries === 'true'
-            case 400:
-            case 401:
-            case 2:
-            case 100:
-            case 106:
-              return trains === 'true'
-            case 900:
-              return lightrail === 'true'
-            case 700:
-            case 712:
-            case 714:
-            case 3:
-              return buses === 'true'
-            default:
-              return false
-          }
-        })
-        return res.send(result)
-      } catch (error) {
-        //
-      }
-    } else {
-      return res.sendStatus(400)
+    const {
+      body: { routeId, stopId, tripId },
+    } = req
+    // const alerts = []
+    if (routeId) {
+      const alid = await this.redis.getArrayKey(routeId, 'alert-route')
+      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      return res.send(alerts)
     }
+    if (tripId) {
+      const alid = await this.redis.getArrayKey(tripId, 'alert-trip')
+      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      return res.send(alerts)
+    }
+    if (stopId) {
+      const alid = await this.redis.getArrayKey(stopId, 'alert-stop')
+      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      return res.send(alerts)
+    }
+    return res.send([])
   }
+
+  // getAllVehicleLocations = async (
+  //   req: WakaRequest<null, null>,
+  //   res: Response
+  // ) => {
+  //   const { buses, trains, lightrail, ferries } = req.query
+  //   const { connection } = this
+  //   if (currentVehicleData.length !== 0) {
+  //     const tripIds = currentVehicleData.map(
+  //       entity => entity.vehicle.trip.tripId
+  //     )
+  //     const escapedTripIds = `'${tripIds.join('\', \'')}'`
+  //     try {
+  //       const sqlTripIdRequest = connection.get().request()
+  //       const tripIdRequest = await sqlTripIdRequest.query<{
+  //         trip_id: string
+  //         route_type: number
+  //       }>(`
+  // select routes.route_type, trips.trip_id from trips join routes on trips.route_id = routes.route_id where trip_id in (${escapedTripIds})
+  // `)
+  //       const routeTypes = tripIdRequest.recordset.map(res => ({
+  //         trip_id: res.trip_id,
+  //         route_type: res.route_type,
+  //       }))
+  //       const vehicleData = currentVehicleData
+  //         .filter(entity => entity.vehicle.position)
+  //         .map(entity => ({
+  //           latitude: entity.vehicle.position.latitude,
+  //           longitude: entity.vehicle.position.longitude,
+  //           bearing: entity.vehicle.position.bearing,
+  //           updatedAt: this.lastVehicleUpdate,
+  //           trip_id: entity.vehicle.trip.tripId,
+  //         }))
+  //       const result: {
+  //         route_type: number
+  //         latitude: number
+  //         longitude: number
+  //         bearing: number
+  //         updatedAt: Date
+  //         trip_id: string
+  //       }[] = []
+  //       for (let i = 0; i < routeTypes.length; i++) {
+  //         result.push({
+  //           ...routeTypes[i],
+  //           ...vehicleData.find(
+  //             itmInner => itmInner.trip_id === routeTypes[i].trip_id
+  //           ),
+  //         })
+  //       }
+
+  //       result.filter(res => {
+  //         switch (res.route_type) {
+  //           case 1000:
+  //             return ferries === 'true'
+  //           case 400:
+  //           case 401:
+  //           case 2:
+  //           case 100:
+  //           case 106:
+  //             return trains === 'true'
+  //           case 900:
+  //             return lightrail === 'true'
+  //           case 700:
+  //           case 712:
+  //           case 714:
+  //           case 3:
+  //             return buses === 'true'
+  //           default:
+  //             return false
+  //         }
+  //       })
+  //       return res.send(result)
+  //     } catch (error) {
+  //       //
+  //     }
+  //   } else {
+  //     return res.sendStatus(400)
+  //   }
+  // }
 }
 
 export default RealtimeAUSYD

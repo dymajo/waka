@@ -14,6 +14,7 @@ interface RealtimeNZAKLProps {
   connection: Connection
   logger: Logger
   apiKey: string
+  newRealtime: boolean
 }
 
 class RealtimeNZAKL extends BaseRealtime {
@@ -39,7 +40,10 @@ class RealtimeNZAKL extends BaseRealtime {
   logger: Logger
   constructor(props: RealtimeNZAKLProps) {
     super()
-    const { logger, connection, apiKey } = props
+    const { logger, connection, apiKey, newRealtime } = props
+    if (newRealtime) {
+      throw Error('New realtime not implemented')
+    }
     this.connection = connection
     this.logger = logger
     this.apiKey = apiKey

@@ -4,14 +4,15 @@ import ATUpdater from './nz-akl'
 import TfNSWUpdater from './au-syd'
 import VersionManager from '../versionManager'
 import Fargate from './fargate'
+import { WakaConfig } from '../../typings'
 
 interface UpdateManagerProps {
-  config: any
+  config: WakaConfig
   versionManager: VersionManager
 }
 
 class UpdateManager {
-  config: any
+  config: WakaConfig
   versionManager: VersionManager
   updaters: {}
   interval: NodeJS.Timeout
@@ -28,7 +29,6 @@ class UpdateManager {
     }
 
     this.updaters = {}
-
   }
 
   start = () => {

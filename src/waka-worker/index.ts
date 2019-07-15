@@ -38,6 +38,7 @@ class WakaWorker {
       storageService,
       shapesContainer,
       shapesRegion,
+      newRealtime,
     } = config
 
     this.config = config
@@ -47,7 +48,13 @@ class WakaWorker {
     this.connection = connection
 
     this.router = Router()
-    this.realtime = new Realtime({ logger, connection, prefix, api })
+    this.realtime = new Realtime({
+      logger,
+      connection,
+      prefix,
+      api,
+      newRealtime,
+    })
 
     this.stopsExtras = null
     if (prefix === 'nz-akl') {
@@ -185,10 +192,11 @@ class WakaWorker {
     router.get('/shapejson/:shapeId', lines.getShapeJSON)
 
     router.get('/realtime-healthcheck', realtime.healthcheck)
-    router.get('/realtime/all', realtime.all)
+    // router.get('/realtime/all', realtime.all)
     router.get('/realtime/:line', realtime.vehicleLocationV2)
     router.post('/realtime', realtime.stopInfo)
     router.post('/vehicle_location', realtime.vehicleLocation)
+    router.post('/service-alerts', realtime.serviceAlerts)
   }
 }
 export default WakaWorker

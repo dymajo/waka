@@ -6,10 +6,10 @@ import EnvMapper from '../envMapper'
 import GatewayLocal from './adaptors/gatewayLocal'
 import GatewayEcs from './adaptors/gatewayEcs'
 import { DBConfig, WakaConfig, Version } from '../typings'
-import BaseKeyvalue from '../types/BaseKeyvalue';
+import BaseKeyvalue from '../types/BaseKeyvalue'
 
 interface VersionManagerProps {
-  gateway: GatewayLocal,
+  gateway: GatewayLocal
   config: WakaConfig
 }
 
@@ -108,12 +108,12 @@ class VersionManager {
     const _data = (await versions.get(id)) as unknown
     const data = _data as Version
 
-    const dbConfig = {
+    const dbConfig: DBConfig = {
       server: data.db.server,
       user: data.db.user,
       password: data.db.password,
       database: 'master',
-    } as DBConfig
+    }
 
     return new Promise((resolve, reject) => {
       logger.info(
@@ -122,7 +122,7 @@ class VersionManager {
       )
       const connection = new ConnectionPool(dbConfig, async err => {
         if (err) {
-          return reject(err)
+          reject(err)
         }
         try {
           const selectRequest = connection.request()
@@ -150,7 +150,7 @@ class VersionManager {
           await this.versions.delete(id)
           resolve()
         } catch (dbError) {
-          return reject(dbError)
+          reject(dbError)
         }
       })
     })
@@ -176,6 +176,7 @@ class VersionManager {
     shapesContainer: string
     shapesRegion: string
     dbconfig: string
+    newRealtime: boolean
   }) {
     const { config, versions } = this
     const {
@@ -184,6 +185,7 @@ class VersionManager {
       shapesContainer,
       shapesRegion,
       dbconfig,
+      newRealtime,
     } = workerConfig
 
     // sanitizes the names
@@ -207,14 +209,13 @@ class VersionManager {
       shapesRegion,
       status: 'empty',
       db,
+      newRealtime,
     }
     await versions.set(id, newConfig)
-    return id
   }
 
   async getVersionConfig(versionId) {
     const { config, versions } = this
-
     // the gateway needs some settings from the orchestrator,
     // but also some settings from the worker config
     const _workerConfig = (await versions.get(versionId)) as unknown
@@ -227,6 +228,8 @@ class VersionManager {
       shapesRegion: workerConfig.shapesRegion,
       status: workerConfig.status,
       api: config.api,
+      newRealtime: workerConfig.newRealtime,
+      redis: config.redis,
       db: {
         user: workerConfig.db.user,
         password: workerConfig.db.password,

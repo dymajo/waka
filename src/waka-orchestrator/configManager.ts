@@ -9,7 +9,7 @@ class ConfigManager {
   meta: BaseKeyvalue
 
   constructor() {
-    const config = {
+    const config: WakaConfig = {
       port: Number.parseInt(process.env.PORT, 10) || 9001,
       gateway: process.env.GATEWAY || 'local',
       keyvalue: process.env.KEYVALUE || 'local',
@@ -30,20 +30,17 @@ class ConfigManager {
           server: 'localhost',
           user: 'SA',
           password: 'Str0ngPassword',
+          database: null,
         },
       },
       updaters: {},
       importer: {},
-      gatewayConfig: {
-        // local doesn't need config
-        ecs: {},
-        kubernetes: {},
+      redis: {
+        host: 'localhost',
       },
-      importer: {},
       gatewayConfig: {
         // local doesn't need config
-        ecs: {},
-        kubernetes: {},
+        ecs: null,
       },
     }
     this.config = config

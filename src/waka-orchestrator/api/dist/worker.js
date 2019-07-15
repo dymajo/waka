@@ -46,6 +46,7 @@ class WorkerDomController {
     const shapesContainer = document.getElementById('workerShapesContainer')
     const shapesRegion = document.getElementById('workerShapesRegion')
     const dbconfig = document.getElementById('workerDbconfig')
+    const newRealtime = document.getElementById('workerNewRealtime')
 
     // none are allowed to be blank
     if (
@@ -68,6 +69,7 @@ class WorkerDomController {
         shapesContainer: shapesContainer.value,
         shapesRegion: shapesRegion.value,
         dbconfig: dbconfig.value,
+        newRealtime: newRealtime.checked,
       })
     )
 
@@ -76,6 +78,7 @@ class WorkerDomController {
     shapesContainer.value = ''
     shapesRegion.value = ''
     dbconfig.value = ''
+    newRealtime.checked = false
 
     $('#createWorkerModal').modal('hide')
   }
@@ -139,6 +142,7 @@ class WorkerController {
           <th>DB Name</th>
           <th>Import Status</th>
           <th>Status</th>
+          <th>New Realtime?</th>
           <th>Control</th>
         </thead>
     `
@@ -203,6 +207,7 @@ class WorkerController {
           <td class="td-truncate" title="${item.dbname}">${item.dbname}</td>
           <td>${item.status}</td>
           <td>${ctrl}</td>
+          <td>${item.newRealtime}</td>
           <td>${btns}${dropdown}</td>
         </tr>
       `

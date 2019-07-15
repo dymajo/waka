@@ -1,4 +1,3 @@
-import Long from 'long'
 import * as Logger from 'bunyan'
 import { Request } from 'express'
 import { config as SqlConfig } from 'mssql'
@@ -19,6 +18,8 @@ export interface WakaConfig {
   db: {
     [dbConfig: string]: DBConfig
   }
+  redis: RedisConfig
+
   updaters: {
     [updater: string]: {
       delay: number
@@ -32,9 +33,18 @@ export interface WakaConfig {
       extended: boolean
     }
   }
+  importer: any
   gatewayConfig?: {
-    ecs: EcsGatewayConfig
+    ecs?: EcsGatewayConfig
   }
+}
+
+export interface RedisConfig {
+  port?: number
+  host?: string
+  family?: 4 | 6
+  password?: string
+  db?: number
 }
 
 export interface WorkerConfig {
@@ -45,6 +55,8 @@ export interface WorkerConfig {
   storageService: string
   shapesContainer: string
   shapesRegion: string
+  newRealtime: boolean
+  redis: RedisConfig
 }
 
 export interface EcsGatewayConfig {
@@ -88,81 +100,6 @@ export interface EnvironmentWorkerConfig extends EnvironmentConfig {
   AGENDA21_API_KEY: string
 }
 
-export interface UpdateFeedMessage {
-  entity: UpdateFeedEntity[]
-  header: FeedHeader
-}
-
-export interface PositionFeedMessage {
-  entity: PositionFeedEntity[]
-  header: FeedHeader
-}
-
-export interface PositionFeedEntity {
-  id: string
-  vehicle: VehiclePosition
-}
-
-export interface UpdateFeedEntity {
-  id: string
-  tripUpdate: TripUpdate
-}
-
-export interface TripUpdate {
-  stopTimeUpdate: StopTimeUpdate[]
-  timestamp: Long
-  trip: TripDescriptor
-  vehicle: VehicleDescriptor
-}
-
-export interface StopTimeUpdate {
-  departure: StopTimeEvent
-  arrival: StopTimeEvent
-  scheduleRelationship: number
-  stopId: string
-  stopSequence?: number
-}
-
-export interface StopTimeEvent {
-  delay?: number
-  time?: Long
-}
-
-export interface TripDescriptor {
-  routeId: string
-  scheduleRelationship: number
-  startDate: string
-  startTime: string
-  tripId: string
-}
-
-export interface VehicleDescriptor {
-  id: string
-  label: string
-  licensePlate: string
-}
-
-export interface FeedHeader {
-  gtfsRealtimeversion: string
-  incrementality: number
-  timestamp: Long
-}
-
-export interface VehiclePosition {
-  congestionLevel: number
-  position: {
-    latitude: number
-    longitude: number
-    bearing?: number
-    speed?: number
-    odometer?: number
-  }
-  stopId: string
-  timestamp: Long
-  trip: TripDescriptor
-  vehicle: VehicleDescriptor
-}
-
 export interface TfNSWUpdaterProps {
   apiKey: string
   callback: any
@@ -186,6 +123,7 @@ export interface Version {
   shapesRegion: string
   status: string
   version: string
+  newRealtime: boolean
 }
 
 export type WakaParams<T> = T
