@@ -18,7 +18,6 @@ class CreateShapes {
   constructor() {
     this.storageSvc = new Storage({
       backing: config.storageService,
-      local: config.emulatedStorage,
       region: config.shapesRegion,
     })
   }
@@ -111,15 +110,15 @@ class CreateShapes {
         total += 1
 
         // if it's running in a tty, we don't have to log so much
-        if (process.stdout.clearLine !== undefined) {
-            process.stdout.clearLine()
-            process.stdout.cursorTo(0)
-        } else {
-            process.stdout.write('\n')
-        }
-        process.stdout.write(
-          ((total / files.length) * 100).toFixed(2) + '% Uploaded',
-        )
+        // if (process.stdout.clearLine !== undefined) {
+        //   process.stdout.clearLine()
+        //   process.stdout.cursorTo(0)
+        // } else {
+        //   process.stdout.write('\n')
+        // }
+        // process.stdout.write(
+        //   ((total / files.length) * 100).toFixed(2) + '% Uploaded',
+        // )
       } catch (error) {
         failed += 1
         if (error.toJSON) {
@@ -128,7 +127,7 @@ class CreateShapes {
         log(error)
       }
     }
-    process.stdout.write('\n')
+    // process.stdout.write('\n')
     log(`${container}:`, 'failed upload', failed, 'Shapes.')
     log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
     return
