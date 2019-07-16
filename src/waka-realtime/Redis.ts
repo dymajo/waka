@@ -28,7 +28,6 @@ class WakaRedis {
         ...config,
         retryStrategy: () => 30000,
       })
-    console.log(this.client)
     this.client.on('error', err => {})
   }
 

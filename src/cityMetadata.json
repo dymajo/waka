@@ -71,5 +71,12 @@
     "longName": "Paris",
     "initialLocation": [48.8567, 2.3508],
     "showInCityList": true
+  },
+  "us-nyc": {
+    "name": "NYC",
+    "secondaryName": "New York",
+    "longName": "New York City, NY",
+    "initialLocation": [40.661, -73.944],
+    "showInCityList": true
   }
 }
