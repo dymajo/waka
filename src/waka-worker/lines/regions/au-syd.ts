@@ -1,5 +1,3 @@
-import DataAccess from '../dataAccess'
-import Connection from '../../db/connection'
 import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
 class LinesAUSYD extends BaseLines {
@@ -9,20 +7,25 @@ class LinesAUSYD extends BaseLines {
     this.lineIcons = {}
     this.lineColors = {}
     this.allLines = {}
-    this.lineGroups = {}
+    this.lineGroups = []
     this.lineOperators = {}
     this.friendlyNames = {}
   }
 
-  async start() {
-    await this.getLines()
-  }
-
   async getLines() {
     const { logger, dataAccess } = this
-    const allLines = {}
-    const lineOperators = {}
-    const lineGroups = [
+    const allLines: {
+      [routeShortName: string]: string[][]
+    } = {}
+    const lineOperators: { [routeShortName: string]: string } = {}
+    const trainLineGroups: {
+      name: string
+      items: {
+        routeId: string
+        routeShortName: string
+        routeLongName: string
+      }[]
+    }[] = [
       { name: 'T1 North Shore & Western', items: [] },
       { name: 'T2 Inner West & Leppington', items: [] },
       { name: 'T3 Bankstown', items: [] },
@@ -38,6 +41,11 @@ class LinesAUSYD extends BaseLines {
       { name: 'South Coast', items: [] },
       { name: 'Southern Highlands', items: [] },
       { name: 'Other', items: [] },
+    ]
+    const lineGroups: {
+      name: string
+      items: string[]
+    }[] = [
       { name: 'Buses', items: [] },
       { name: 'Ferries', items: [] },
       { name: 'Light Rail', items: [] },
@@ -65,8 +73,6 @@ class LinesAUSYD extends BaseLines {
         route_long_name: routeLongName,
         route_color: routeColor,
       } = record
-      if (routeShortName === 'HUN') {
-      }
 
       if (Object.prototype.hasOwnProperty.call(allLines, routeShortName)) {
         allLines[routeShortName].push(lineEntry)
@@ -90,11 +96,8 @@ class LinesAUSYD extends BaseLines {
         SCO,
         SHL,
         OTH,
-        BUS,
-        FER,
-        LRT,
-        NTL,
-      ] = lineGroups
+      ] = trainLineGroups
+      const [BUS, FER, LRT, NTL] = lineGroups
       if (routeType === 400) {
         if (routeShortName === 'T1') {
           T1.items.push({ routeId, routeShortName, routeLongName })
@@ -159,7 +162,7 @@ class LinesAUSYD extends BaseLines {
     })
     this.allLines = allLines
     this.lineOperators = lineOperators
-    this.lineGroups = lineGroups
+    this.lineGroups = [...trainLineGroups, ...lineGroups]
   }
 }
 
