@@ -98,9 +98,15 @@ class LineList extends React.Component {
 
   hijack = link => e => {
     const { history, match } = this.props
-    const { operators } = this.state
+    const { operators, friendlyNumbers } = this.state
     e.preventDefault()
-    const url = ['', 'l', match.params.region, operators[link], link].join('/')
+    const url = [
+      '',
+      'l',
+      match.params.region,
+      operators[link],
+      friendlyNumbers[link] || link,
+    ].join('/')
     history.push(url)
   }
 
