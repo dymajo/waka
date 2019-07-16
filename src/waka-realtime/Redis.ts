@@ -32,6 +32,9 @@ class WakaRedis {
   }
 
   stop = () => {
+    if (this.client) {
+      this.client.disconnect()
+    }
     this.client = null
   }
 

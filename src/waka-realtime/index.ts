@@ -41,7 +41,7 @@ class Realtime {
     const logger = createLogger(config.prefix, config.version)
     this.logger = logger
     this.prefix = config.prefix
-    this.redis = new Redis({ prefix: this.prefix, logger })
+    this.redis = new Redis({ prefix: this.prefix, logger, config: config.redis })
 
     const apiKey = config.api[this.prefix]
     this.region = isKeyof(Regions, this.prefix)
@@ -62,8 +62,9 @@ class Realtime {
         rate: 5,
         concurrency: 5,
       }
+      // type hacks
       this.quotaManager = this.redis.client
-        ? new RedisQuotaManager(quota, this.prefix, this.redis.client)
+        ? new RedisQuotaManager(quota, this.prefix, this.redis.client as any)
         : quota
       this.rateLimiter = pRateLimit(this.quotaManager)
       await this.region.start(this.rateLimiter)
