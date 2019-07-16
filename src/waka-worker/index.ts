@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import * as morgan from 'morgan'
-import * as Logger from 'bunyan'
 import createLogger from './logger'
 import cityMetadata from '../cityMetadata.json'
 import Connection from './db/connection'
@@ -10,11 +9,11 @@ import Station from './stops/station'
 import StopsNZAKL from './stops/regions/nz-akl'
 import StopsNZWLG from './stops/regions/nz-wlg'
 import Realtime from './realtime'
-import BaseStops from './stops/regions/BaseStops'
-import { WorkerConfig } from '../typings'
+import { WorkerConfig, Logger } from '../typings'
+import BaseStops from '../types/BaseStops'
 
 class WakaWorker {
-  config: any
+  config: WorkerConfig
   logger: Logger
   connection: Connection
   router: Router
@@ -54,6 +53,7 @@ class WakaWorker {
       prefix,
       api,
       newRealtime,
+      redisConfig: config.redis,
     })
 
     this.stopsExtras = null
@@ -92,7 +92,9 @@ class WakaWorker {
   }
 
   start = async () => {
-    await this.connection.open()
+    await this.connection.open().catch(err => {
+      this.logger.error(err)
+    })
     this.logger.info('Connected to the Database')
     this.lines.start()
     this.search.start()

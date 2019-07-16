@@ -1,18 +1,29 @@
 import moment from 'moment-timezone'
+import { Response } from 'express'
 import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
-import * as Logger from 'bunyan'
-import { WakaRequest } from '../../typings'
+import { WakaRequest, Logger } from '../../typings'
+import Lines from '../lines'
+import BaseStops from '../../types/BaseStops'
+
+interface StationProps {
+  lines: Lines
+  regionSpecific: BaseStops
+  logger: Logger
+  connection: Connection
+  prefix: string
+  stopsExtras: BaseStops
+}
 
 class Station {
   logger: Logger
   connection: Connection
   prefix: string
-  regionSpecific: any
-  lines: any
+  regionSpecific: BaseStops
+  lines: Lines
   realtimeTimes: any
   dataAccess: StopsDataAccess
-  constructor(props) {
+  constructor(props: StationProps) {
     const {
       logger,
       connection,
@@ -383,7 +394,13 @@ class Station {
    *      }
    *    ]
    */
-  timetable = async (req, res) => {
+  timetable = async (
+    req: WakaRequest<
+      null,
+      { station: string; route: string; direction: string; offset: string }
+    >,
+    res: Response
+  ) => {
     const { prefix, dataAccess, logger, regionSpecific, lines } = this
     const { station, route, direction, offset } = req.params
 
