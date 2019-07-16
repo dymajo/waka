@@ -5,7 +5,6 @@ import logger from '../logger'
 import KeyvalueLocal from '../adaptors/keyvalueLocal'
 import KeyvalueDynamo from '../adaptors/keyvalueDynamo'
 import VersionManager from '../versionManager'
-import Connection from '../../waka-worker/db/connection'
 
 class PrivateApi {
   versionManager: VersionManager

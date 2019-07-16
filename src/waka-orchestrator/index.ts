@@ -45,10 +45,10 @@ class WakaOrchestrator {
     this.bindRoutes()
   }
 
-  start(port) {
+  start = async (port: number) => {
     const { config } = this
     this.versionManager.start()
-    this.updateManager.start()
+    await this.updateManager.start()
 
     if (config.gateway === 'local') {
       const binaryPath = path.join(

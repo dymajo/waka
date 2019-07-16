@@ -19,12 +19,18 @@ const start = async () => {
   const orchestrator = new WakaOrchestrator(config)
   app.use(orchestrator.router)
 
-  const listener = app.listen(config.port, () => {
+  const listener = app.listen(config.port, async () => {
     logger.info(
       { port: listener.address().port },
       'waka-orchestrator listening'
     )
-    orchestrator.start(listener.address().port)
+    await orchestrator.start(listener.address().port)
   })
 }
 start()
+
+// process.on('unhandledRejection', error => {
+//   console.log(error)
+//   debugger
+//   // process.exit(1)
+// })
