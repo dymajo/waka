@@ -16,11 +16,9 @@ class KeyvalueDynamo {
     this.name = name
     this.dynamo = new DynamoDB({ region })
 
-    this.flattenObject = this.flattenObject.bind(this)
-    this.fattenObject = this.fattenObject.bind(this)
   }
 
-  flattenObject(obj: any) {
+  flattenObject = (obj: any) => {
     const { flattenObject } = this
     const response: any = {}
     Object.keys(obj)
@@ -35,7 +33,7 @@ class KeyvalueDynamo {
     return response
   }
 
-  fattenObject(obj: { [key: string]: any }) {
+  fattenObject = (obj: { [key: string]: any }) => {
     const { fattenObject } = this
     // type Response = {
     //   [key: string]: Response | DynamoDB.AttributeValue | DynamoDB.AttributeMap
@@ -55,7 +53,7 @@ class KeyvalueDynamo {
     return response
   }
 
-  async get(key: string) {
+  get = async (key: string) => {
     const { name, dynamo, flattenObject } = this
     const params = {
       Key: {
@@ -75,7 +73,7 @@ class KeyvalueDynamo {
     }
   }
 
-  async set(key: string, value: any) {
+  set = async (key: string, value: any) => {
     const { name, dynamo, fattenObject } = this
     const item = fattenObject(value)
     item.id = { S: key }
@@ -94,7 +92,7 @@ class KeyvalueDynamo {
     })
   }
 
-  async delete(key: string) {
+  delete = async (key: string) => {
     const { name, dynamo } = this
     const params = {
       Key: {
@@ -115,7 +113,7 @@ class KeyvalueDynamo {
     })
   }
 
-  async scan() {
+  scan = async () => {
     const { name, dynamo } = this
     const params = {
       TableName: name,

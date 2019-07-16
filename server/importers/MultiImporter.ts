@@ -30,6 +30,7 @@ abstract class MultiImporter extends BaseImporter {
   downloadInterval: number
   batchSize: number
   versions: KeyvalueDynamo
+  zipLocations: { path: string; type: string; name: string }[]
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
   constructor(props: MultiImporterProps) {
@@ -70,18 +71,19 @@ abstract class MultiImporter extends BaseImporter {
     const { endpoint, type, name } = location
     const { authorization } = this
     const zipLocation = {
-      p: join(__dirname, `../../cache/${name}.zip`),
+      path: join(__dirname, `../../cache/${name}.zip`),
       type,
-      endpoint,
+      name,
     }
     log(config.prefix, 'Downloading GTFS Data', name)
     try {
+      const headers = authorization ? { Authorization: authorization } : {}
       const res = await axios.get(endpoint, {
-        headers: { Authorization: authorization },
+        headers,
         responseType: 'stream',
       })
       this.zipLocations.push(zipLocation)
-      const dest = createWriteStream(zipLocation.p)
+      const dest = createWriteStream(zipLocation.path)
       res.data.pipe(dest)
       return new Promise((resolve, reject) => {
         dest.on('finish', () => {
@@ -108,12 +110,12 @@ abstract class MultiImporter extends BaseImporter {
   async unzip() {
     try {
       await Promise.all(
-        this.zipLocations.map(({ p }) => {
+        this.zipLocations.map(({ path }) => {
           return new Promise((resolve, reject) => {
             extract(
-              p,
+              path,
               {
-                dir: _resolve(`${p}unarchived`),
+                dir: _resolve(`${path}unarchived`),
               },
               err => {
                 if (err) reject(err)
@@ -130,16 +132,20 @@ abstract class MultiImporter extends BaseImporter {
 
   async db() {
     const { zipLocations, files } = this
-    for (const { p, type, endpoint } of zipLocations) {
+    for (const { path, type, name } of zipLocations) {
       for (const file of files) {
+        let merge = true
+        if (file.table === 'transfers') {
+          merge = false
+        }
         try {
           await this.importer.upload(
-            `${p}unarchived`,
+            `${path}unarchived`,
             file,
             config.version,
             file.versioned,
-            endpoint,
-            true,
+            name,
+            merge,
           )
         } catch (error) {
           log(error)
@@ -151,13 +157,13 @@ abstract class MultiImporter extends BaseImporter {
   async shapes() {
     const { zipLocations } = this
     const creator = new CreateShapes()
-    for (const { p } of zipLocations) {
-      if (!existsSync(p)) {
+    for (const { path } of zipLocations) {
+      if (!existsSync(path)) {
         log('Shapes could not be found!')
         return
       }
-      const inputDir = _resolve(`${p}unarchived`, 'shapes.txt')
-      const outputDir = _resolve(`${p}unarchived`, 'shapes')
+      const inputDir = _resolve(`${path}unarchived`, 'shapes.txt')
+      const outputDir = _resolve(`${path}unarchived`, 'shapes')
       const outputDir2 = _resolve(outputDir, config.version)
 
       // make sure the old output dir exists

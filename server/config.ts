@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-interface WakaConfig {
+export interface WakaConfig {
   prefix: string
   version: string
   mode: 'all' | 'db' | 'shapes' | 'unzip' | 'download' | 'export' | 'fullshapes'
@@ -15,6 +15,8 @@ interface WakaConfig {
   keyValueRegion?: string
   tfnswApiKey?: string
   extended: boolean
+  localImport?: boolean
+  localFile?: string
   db: {
     user: string
     password: string
@@ -56,7 +58,9 @@ declare const process: {
     SHAPES_SKIP?: string
     EMULATED_STORAGE?: string
     TFNSW_API_KEY?: string
-    EXTENDED?: boolean
+    EXTENDED?: string
+    LOCAL_IMPORT?: string
+    LOCAL_FILE?: string
   }
 }
 
@@ -82,6 +86,8 @@ const {
   EMULATED_STORAGE,
   TFNSW_API_KEY,
   EXTENDED,
+  LOCAL_FILE,
+  LOCAL_IMPORT,
 } = process.env
 
 const config: WakaConfig = {
@@ -98,6 +104,8 @@ const config: WakaConfig = {
   keyValueRegion: KEYVALUE_REGION,
   tfnswApiKey: TFNSW_API_KEY,
   extended: EXTENDED === 'true' || false,
+  localFile: LOCAL_FILE || null,
+  localImport: LOCAL_IMPORT === 'true' || false,
   db: {
     user: DB_USER,
     password: DB_PASSWORD,
