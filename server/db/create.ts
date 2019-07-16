@@ -23,12 +23,7 @@ const tempTables = [
   'temp_trips.sql',
 ]
 
-const procs = [
-  'GetStopTimes.sql',
-  'GetMultipleStopTimes.sql',
-  'GetTimetable.sql',
-  'GetMultipleTimetable.sql',
-]
+const procs = ['GetStopTimes.sql', 'GetTimetable.sql']
 
 const create = async (filenames: string[]) => {
   await Promise.all(

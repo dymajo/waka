@@ -38,7 +38,7 @@ BEGIN
 		on trips.service_id = calendar_dates.service_id and
 		calendar_dates.date = @date
 	WHERE
-		stops.stop_code = @stop_id and
+		(stops.parent_station = @stop_id or stops.stop_code = @stop_id) and
 		routes.route_short_name = @route_short_name and
 		@date >= calendar.start_date and
 		@date <= calendar.end_date and
