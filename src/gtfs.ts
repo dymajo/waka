@@ -113,6 +113,11 @@ export interface StopTimeUpdate {
   scheduleRelationship?: ScheduleRelationship
   stopId?: string
   stopSequence?: number
+  '.transit_realtime.nyctStopTimeUpdate'?: NyctStopTimeUpdate
+}
+export interface NyctStopTimeUpdate {
+  actualTrack: string
+  scheduledTrack: string
 }
 
 export interface StopTimeEvent {
@@ -128,6 +133,13 @@ export interface TripDescriptor {
   scheduleRelationship?: ScheduleRelationship
   startDate: string
   startTime: string
+  '.transit_realtime.nyctTripDescriptor'?: NyctTripDescriptor
+}
+
+export interface NyctTripDescriptor {
+  direction: number
+  isAssigned: boolean
+  trainId: string
 }
 
 export enum ScheduleRelationship {
