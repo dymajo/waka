@@ -17,8 +17,11 @@ import MelbourneImporter from './regions/au-mel'
 import ParisImporter from './regions/fr-par'
 import SEQImporter from './regions/au-seq'
 import SFRImporter from './regions/ch-sfr'
+import NYCImporter from './regions/us-nyc'
 import BaseImporter from './BaseImporter'
 import MultiImporter from './MultiImporter'
+import SingleImporter from './SingleImporter'
+import LocalImporter from './LocalImporter'
 
 const regions = {
   'nz-akl': AucklandImporter,
@@ -31,6 +34,7 @@ const regions = {
   'ch-sfr': SFRImporter,
   'au-syd': SyndeyImporter,
   'au-cbr': CanberraImporter,
+  'us-nyc': NYCImporter,
 }
 
 interface ImporterProps {
@@ -39,16 +43,23 @@ interface ImporterProps {
   keyvalueRegion?: string
 }
 
+export function isKeyof<T extends object>(
+  obj: T,
+  possibleKey: keyof any,
+): possibleKey is keyof T {
+  return possibleKey in obj;
+}
+
+
 class Importer {
   importer: GtfsImport
   storage: Storage
   versions?: KeyvalueDynamo
-  current: BaseImporter | MultiImporter
+  current: BaseImporter
   constructor(props: ImporterProps) {
     const { keyvalue, keyvalueVersionTable, keyvalueRegion } = props
     this.importer = new GtfsImport()
     this.storage = new Storage({})
-
     this.versions = null
     if (keyvalue === 'dynamo') {
       this.versions = new KeyvalueDynamo({
@@ -58,15 +69,25 @@ class Importer {
     }
 
     this.current = null
-    try {
-      const Region = regions[config.prefix]
-      this.current = new Region()
-    } catch (err) {
-      log(
-        'fatal error',
-        'Could not find an importer in ',
-        join(__dirname, './regions', `${config.prefix}.ts`),
-      )
+    if (config.localImport) {
+      this.current = new LocalImporter({
+        zipname: config.localFile,
+      })
+    } else {
+      try {
+
+        if (isKeyof(regions, config.prefix)) {
+
+          const Region = regions[config.prefix]
+          this.current = new Region()
+        }
+      } catch (err) {
+        log(
+          'fatal error',
+          'Could not find an importer in ',
+          join(__dirname, './regions', `${config.prefix}.ts`),
+        )
+      }
     }
   }
 
@@ -101,11 +122,11 @@ class Importer {
     } else {
       log('DB already created - skipping download & unzip.')
     }
-    await this.shapes()
     await this.fixStopCodes()
     await this.fixRoutes()
     await this.addGeoLocation()
     await this.postImport()
+    await this.shapes()
     // await this.exportDb()
 
     if (versions) {
