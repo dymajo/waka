@@ -1,9 +1,10 @@
-CREATE TABLE temp_stops (
+CREATE TABLE temp_stops
+(
   id int NOT NULL IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
   stop_id nvarchar(100) NOT NULL,
   stop_code nvarchar(100),
   stop_name nvarchar(100) NOT NULL,
-  stop_desc nvarchar(150),
+  stop_desc nvarchar(1000),
   stop_lat decimal(10,6) NOT NULL,
   stop_lon decimal(10,6) NOT NULL,
   zone_id nvarchar(50),

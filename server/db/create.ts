@@ -11,19 +11,20 @@ const tables = [
   'stop_times.sql',
   'calendar.sql',
   'calendar_dates.sql',
+  'transfers.sql'
 ]
 
 const tempTables = [
-  'temp_calendar.sql',
-  'temp_stop_times.sql',
-  'temp_calendar_dates.sql',
-  'temp_agency.sql',
-  'temp_stops.sql',
-  'temp_routes.sql',
-  'temp_trips.sql',
+  'calendar_temp.sql',
+  'stop_times_temp.sql',
+  'calendar_dates_temp.sql',
+  'agency_temp.sql',
+  'stops_temp.sql',
+  'routes_temp.sql',
+  'trips_temp.sql',
 ]
 
-const procs = ['GetStopTimes.sql', 'GetTimetable.sql']
+const procs = ['GetStopTimes.sql', 'GetTimetable.sql', 'alphasort.sql']
 
 const create = async (filenames: string[]) => {
   await Promise.all(

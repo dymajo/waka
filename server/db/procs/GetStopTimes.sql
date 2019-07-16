@@ -10,7 +10,7 @@ CREATE PROCEDURE [dbo].[GetStopTimes]
 	@date date
 AS
 BEGIN
-SET NOCOUNT ON;
+	SET NOCOUNT ON;
 
 
 	DECLARE @DepatureDelay INT = -30;
@@ -25,6 +25,8 @@ SET NOCOUNT ON;
 		stop_times.departure_time,
 		stop_times.departure_time_24,
 		stop_times.stop_id,
+		stop_times.pickup_type,
+		stop_times.drop_off_type,
 		trips.trip_headsign,
 		trips.shape_id,
 		trips.direction_id,
@@ -37,24 +39,24 @@ SET NOCOUNT ON;
 		routes.route_color,
 		stops.stop_name
 	FROM stop_times
-	LEFT JOIN stops
+		LEFT JOIN stops
 		on stop_times.stop_id = stops.stop_id
-	LEFT JOIN trips
+		LEFT JOIN trips
 		on stop_times.trip_id = trips.trip_id
-	LEFT JOIN routes
+		LEFT JOIN routes
 		on trips.route_id = routes.route_id
-	LEFT JOIN calendar
+		LEFT JOIN calendar
 		on trips.service_id = calendar.service_id
-	LEFT JOIN calendar_dates
+		LEFT JOIN calendar_dates
 		on trips.service_id = calendar_dates.service_id and
-		calendar_dates.date = @date
+			calendar_dates.date = @date
 	WHERE
 		(trip_headsign <> 'Empty Train' or trip_headsign <> 'Out Of Service') and
 		(stops.parent_station = @stop_id or stops.stop_code = @stop_id) and
 		(
 			departure_time > DATEADD(MINUTE, @DepatureDelay, @departure_time) and
-			departure_time < CASE WHEN @DateDifference > 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '23:59:59' END or
-			departure_time < CASE WHEN @DateDifference <= 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '00:00:00' END
+		departure_time < CASE WHEN @DateDifference > 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '23:59:59' END or
+		departure_time < CASE WHEN @DateDifference <= 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '00:00:00' END
 		)
 		and (exception_type is null or exception_type != 2) and
 		@date >= calendar.start_date and
