@@ -16,6 +16,7 @@ import {
   calendarCreator,
   calendarDatesCreator,
 } from './tableCreator'
+import { badTfnsw } from './bad'
 const primaryKeys = {
   agency: 'agency_id',
   stops: 'stop_id',
@@ -85,38 +86,38 @@ class GtfsImport {
       }
       // some feeds currently have a mix of standard and extended route types. this unifies waka to be only extended
       // https://developers.google.com/transit/gtfs/reference/extended-route-types
-      if (config.extended) {
-        if (column === 'route_type') {
-          switch (row[rowSchema[column]]) {
-            // 0: Tram => 900: Tram Service (Sydney/Newcastle Light Rail)
-            case '0':
-              return '900'
-            // 1: Subway or Metro => 401: Metro Service (Sydney Metro)
-            case '1':
-              return '401'
-            // 2: Rail => 400: Urban Railway Service (Sydney Suburban / AT Metro)
-            case '2':
-              return '400'
-            // 3: Bus => 700 Bus Service
-            case '3':
-              return '700'
-            // 4: Ferry => 1000: Water Transport Service (Sydney Ferries / Auckland Ferries)
-            case '4':
-              return '1000'
-            // 5: Cable Car => 907: Cable Tram (Wellington Cable Car)
-            case '5':
-              return '907'
-            // 6: Gondola => 1300: Aerial Lift Service
-            case '6':
-              return '1300'
-            // 7: Funicular => 1400: Funicular Service
-            case '7':
-              return '1400'
-            default:
-              return row[rowSchema[column]]
-          }
-        }
-      }
+      // if (config.extended) {
+      //   if (column === 'route_type') {
+      //     switch (row[rowSchema[column]]) {
+      //       // 0: Tram => 900: Tram Service (Sydney/Newcastle Light Rail)
+      //       case '0':
+      //         return '900'
+      //       // 1: Subway or Metro => 401: Metro Service (Sydney Metro)
+      //       case '1':
+      //         return '401'
+      //       // 2: Rail => 400: Urban Railway Service (Sydney Suburban / AT Metro)
+      //       case '2':
+      //         return '400'
+      //       // 3: Bus => 700 Bus Service
+      //       case '3':
+      //         return '700'
+      //       // 4: Ferry => 1000: Water Transport Service (Sydney Ferries / Auckland Ferries)
+      //       case '4':
+      //         return '1000'
+      //       // 5: Cable Car => 907: Cable Tram (Wellington Cable Car)
+      //       case '5':
+      //         return '907'
+      //       // 6: Gondola => 1300: Aerial Lift Service
+      //       case '6':
+      //         return '1300'
+      //       // 7: Funicular => 1400: Funicular Service
+      //       case '7':
+      //         return '1400'
+      //       default:
+      //         return row[rowSchema[column]]
+      //     }
+      //   }
+      // }
       if (
         column === 'date' ||
         column === 'start_date' ||
@@ -215,8 +216,34 @@ class GtfsImport {
           if (row && row.length > 1) {
             const tableSchema = schemas[file.table]
             if (tableSchema) {
-              const record = this.mapRowToRecord(row, headers, tableSchema)
+              if (
+                file.table === 'trips' &&
+                config.prefix === 'au-syd' &&
+                endpoint === 'sydneytrains'
+              ) {
+                const split = record[2].split('.')
 
+                if (split.length === 7) {
+                  const tripId = {
+                    tripName: split[0],
+                    timetableId: split[1],
+                    timetableVersionId: split[2],
+                    dopRef: split[3],
+                    setType: split[4],
+                    numberOfCars: split[5],
+                    tripInstance: split[6],
+                  }
+                  if (
+                    badTfnsw.some(e => {
+                      return e.trip === tripId.tripName
+                    })
+                  ) {
+                    return
+                  }
+                } else {
+                  console.log(split)
+                }
+              }
               // check if the row is versioned, and whether to upload it
               if (containsVersion && record.join(',').match(version) === null) {
                 return
