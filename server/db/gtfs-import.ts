@@ -15,8 +15,12 @@ import {
   stopTimesCreator,
   calendarCreator,
   calendarDatesCreator,
+  transfersCreator
 } from './tableCreator'
+
 import { badTfnsw } from './bad'
+import { isKeyof } from '../importers';
+
 const primaryKeys = {
   agency: 'agency_id',
   stops: 'stop_id',
@@ -68,8 +72,11 @@ class GtfsImport {
       case 'calendar_dates':
         return calendarDatesCreator(table)
 
+      case 'transfers':
+        return transfersCreator(table)
+
       default:
-        return null
+        throw new Error('table name not found')
     }
   }
 
@@ -77,6 +84,7 @@ class GtfsImport {
     row: any[],
     rowSchema: { [key: string]: number },
     tableSchema: string[],
+    endpoint?: string,
   ) => {
     let arrival_time_24 = false
     let departure_time_24 = false
@@ -169,13 +177,14 @@ class GtfsImport {
     location: string,
     file: {
       table:
-        | 'agency'
-        | 'stops'
-        | 'routes'
-        | 'trips'
-        | 'stop_times'
-        | 'calendar'
-        | 'calendar_dates'
+      | 'agency'
+      | 'stops'
+      | 'routes'
+      | 'trips'
+      | 'stop_times'
+      | 'calendar'
+      | 'calendar_dates'
+      | 'transfers'
       name: string
     },
     version: string,
@@ -214,8 +223,17 @@ class GtfsImport {
 
         const processRow = async () => {
           if (row && row.length > 1) {
-            const tableSchema = schemas[file.table]
+            const tableSchema = isKeyof(schemas, file.table) ? schemas[file.table] : null
+            if (!tableSchema) {
+              throw new Error()
+            }
             if (tableSchema) {
+              const record = this.mapRowToRecord(
+                row,
+                headers,
+                tableSchema,
+                endpoint,
+              )
               if (
                 file.table === 'trips' &&
                 config.prefix === 'au-syd' &&
@@ -287,7 +305,7 @@ class GtfsImport {
           await this.commit(table)
 
           log(endpoint, logstr, 'Transaction Committed.')
-          if (merge) {
+          if (merge && file.table !== 'transfers') {
             await this.mergeToFinal(file.table)
             log(endpoint, logstr, 'Merge Committed.')
           }

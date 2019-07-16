@@ -38,6 +38,11 @@ abstract class BaseImporter {
         table: 'calendar_dates',
         versioned: false,
       },
+      {
+        name: 'transfers.txt',
+        table: 'transfers',
+        versioned: false,
+      },
     ]
     this.shapeFile = 'shapes.txt'
   }
@@ -55,13 +60,14 @@ abstract class BaseImporter {
   files: {
     name: string
     table:
-      | 'agency'
-      | 'stops'
-      | 'routes'
-      | 'trips'
-      | 'stop_times'
-      | 'calendar'
-      | 'calendar_dates'
+    | 'agency'
+    | 'stops'
+    | 'routes'
+    | 'trips'
+    | 'stop_times'
+    | 'calendar'
+    | 'calendar_dates'
+    | 'transfers'
     versioned: boolean
   }[]
 
