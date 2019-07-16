@@ -5,6 +5,8 @@ import RealtimeNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
 import { WakaRequest, Logger, RedisConfig } from '../../typings'
 import BaseRealtime from '../../types/BaseRealtime'
+import GenericRealtime from './regions/generic'
+import { isKeyof } from '../../utils'
 
 const regions = {
   'au-syd': RealtimeAUSYD,
@@ -34,16 +36,21 @@ class Realtime {
     this.prefix = prefix
     this.newRealtime = newRealtime
     const apiKey = api[prefix]
-    this.fn =
-      regions[prefix] !== undefined
-        ? new regions[prefix]({
-            logger,
-            connection,
-            apiKey,
-            newRealtime,
-            redisConfig,
-          })
-        : null
+    this.fn = isKeyof(regions, prefix)
+      ? new regions[prefix]({
+          logger,
+          connection,
+          apiKey,
+          newRealtime,
+          redisConfig,
+        })
+      : new GenericRealtime({
+          connection,
+          logger,
+          newRealtime,
+          redisConfig,
+          prefix,
+        })
   }
 
   start = () => {
