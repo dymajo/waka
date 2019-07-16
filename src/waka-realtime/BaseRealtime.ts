@@ -10,7 +10,7 @@ import {
 } from '../gtfs'
 import { check } from '../utils'
 
-export const PROTOBUF_PATH = path.join(__dirname, 'tfnsw-gtfs-realtime.proto')
+export const PROTOBUF_PATH = path.join(__dirname, 'gtfs-realtime.proto')
 
 export interface BaseRealtimeProps {
   apiKey?: string
