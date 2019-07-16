@@ -67,7 +67,7 @@ class Timetable extends React.Component {
     return tripsArr
   }
 
-  getData() {
+  async getData() {
     if (!navigator.onLine) {
       this.setState({
         error: t('app.nointernet'),
@@ -77,45 +77,42 @@ class Timetable extends React.Component {
     }
     const route = this.props.match.params.route_name.split('-')[0]
     const tripNodeMatches = item => item.route_short_name === route
-    StationStore.getData(
+    const data = await StationStore.getData(
       this.props.match.params.station,
       this.props.match.params.region
-    ).then(data => {
-      this.setState({
-        tripInfo:
-          StationStore.tripData.find(tripNodeMatches) || this.state.tripInfo,
-        stopName: data.name || data.stop_name,
-      })
+    )
+    this.setState({
+      tripInfo:
+        StationStore.tripData.find(tripNodeMatches) || this.state.tripInfo,
+      stopName: data.name || data.stop_name,
     })
-
-    this.getTimetable()
-      .then(() => {
-        requestAnimationFrame(() => {
-          let time = new Date(
-            new Date().getTime() + StationStore.offsetTime
-          ).getHours()
-          let found = false
-          while (found === false && time > 0) {
-            if (`time${time}` in this.times) {
-              found = true
-            } else {
-              time -= 1
-            }
+    try {
+      await this.getTimetable()
+      requestAnimationFrame(() => {
+        let time = new Date(
+          new Date().getTime() + StationStore.offsetTime
+        ).getHours()
+        let found = false
+        while (found === false && time > 0) {
+          if (`time${time}` in this.times) {
+            found = true
+          } else {
+            time -= 1
           }
-          // sets scroll height
-          if (found) {
-            // adds height of header to it
-            const scrollView = this.linkedScroll.current.scrollView.current
-            const pos =
-              this.times[`time${time}`].getBoundingClientRect().top -
-              scrollView.getInnerViewNode().getBoundingClientRect().top
-            scrollView.scrollTo({ y: pos, animated: false })
-          }
-        })
+        }
+        // sets scroll height
+        if (found) {
+          // adds height of header to it
+          const scrollView = this.linkedScroll.current.scrollView.current
+          const pos =
+            this.times[`time${time}`].getBoundingClientRect().top -
+            scrollView.getInnerViewNode().getBoundingClientRect().top
+          scrollView.scrollTo({ y: pos, animated: false })
+        }
       })
-      .catch(() => {
-        this.setState({ error: t('timetable.error') })
-      })
+    } catch (error) {
+      this.setState({ error: t('timetable.error') })
+    }
   }
 
   triggerRetry = () => {
@@ -126,41 +123,40 @@ class Timetable extends React.Component {
     this.getData(this.props)
   }
 
-  getTimetable = () => {
+  getTimetable = async () => {
     if (this.state.loadingMore === true) {
       return
     }
     this.setState({
       loadingMore: true,
     })
-    const params = this.props.match.params
+    const { params } = this.props.match
     const route_name = params.route_name.split('-')
-    return StationStore.getTimetable(
-      params.station,
-      route_name[0],
-      route_name[1],
-      params.region,
-      this.state.offset
-    )
-      .then(data => {
-        this.setState({
-          trips: this.state.trips.concat(this._tripsMap(data)),
-          loading: false,
-          loadingMore: false,
-          offset: this.state.offset + 1,
-        })
+    try {
+      const data = await StationStore.getTimetable(
+        params.station,
+        route_name[0],
+        route_name[1],
+        params.region,
+        this.state.offset
+      )
+      this.setState({
+        trips: this.state.trips.concat(this._tripsMap(data)),
+        loading: false,
+        loadingMore: false,
+        offset: this.state.offset + 1,
+      })
 
-        if (data.length === 0 && this.failures < 7) {
-          this.failures++
-          this.getTimetable() // recursive woo
-        }
+      if (data.length === 0 && this.failures < 7) {
+        this.failures++
+        this.getTimetable() // recursive woo
+      }
+    } catch (error) {
+      this.setState({
+        loading: false,
+        loadingMore: false,
       })
-      .catch(() => {
-        this.setState({
-          loading: false,
-          loadingMore: false,
-        })
-      })
+    }
   }
 
   triggerScroll = e => {

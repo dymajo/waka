@@ -10,6 +10,7 @@ import { vars } from '../../styles.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 import LinkButton from '../reusable/LinkButton.jsx'
+import Spinner from '../reusable/Spinner.jsx'
 
 // Note! Regions are now dynamically loaded from the server! Yay!
 // However, you will need to add the image, the-preifx.jpg in the /photos directory
@@ -75,30 +76,24 @@ class Region extends React.Component {
 
   render() {
     const cities = this.state.cities.map(this.cityIcon)
-    let loading = null
-    if (this.state.loading) {
-      loading = (
-        <View>
-          <div className="spinner" />
-          <br />
-          <br />
-        </View>
-      )
-    } else if (this.state.cities.length === 0) {
-      loading = (
-        <View style={styles.voteWrapper}>
-          <Text style={styles.vote}>{t('regions.error')}</Text>
-          <LinkButton onClick={this.triggerRetry} label={t('app.errorRetry')} />
-        </View>
-      )
-    }
+    const { loading } = this.state
     return (
       <View style={styles.wrapper}>
         <Header title={t('regions.pick')} />
         <LinkedScroll>
           <View style={styles.content}>
             {cities}
-            {loading}
+            {loading ? (
+              <Spinner />
+            ) : cities.length === 0 ? (
+              <View style={styles.voteWrapper}>
+                <Text style={styles.vote}>{t('regions.error')}</Text>
+                <LinkButton
+                  onClick={this.triggerRetry}
+                  label={t('app.errorRetry')}
+                />
+              </View>
+            ) : null}
             <View style={styles.voteWrapper}>
               <Text style={styles.vote}>
                 {t('regions.vote', { appname: t('app.name') })}

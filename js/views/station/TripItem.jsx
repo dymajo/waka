@@ -40,7 +40,13 @@ class TripItem extends React.Component {
   triggerMap = () => {
     const { collection, history, match } = this.props
     const i = collection[0]
-    const url = ['/l', match.params.region, i.route_short_name].join('/')
+    console.log(i)
+    const url = [
+      '/l',
+      match.params.region,
+      i.agency_id,
+      i.route_short_name,
+    ].join('/')
     history.push(`${url}?direction=${i.direction_id}`)
   }
 

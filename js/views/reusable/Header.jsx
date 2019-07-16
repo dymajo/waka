@@ -129,8 +129,8 @@ class Header extends React.Component {
     const pillWrapperStyles = desktopLayout
       ? [styles.pillWrapper, styles.invisible]
       : actionIcon && closeIcon
-      ? [styles.pillWrapper, styles.pillWrapperExtra]
-      : styles.pillWrapper
+        ? [styles.pillWrapper, styles.pillWrapperExtra]
+        : styles.pillWrapper
     return (
       <View
         style={

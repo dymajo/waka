@@ -50,7 +50,9 @@ class Root extends React.Component {
   }
 
   toggleLines = () => {
-    UiStore.safePush(`/l/${this.state.currentCity.prefix}`)
+    const { currentCity } = this.state
+    const prefix = currentCity.prefix === 'none' ? 'nz-akl' : currentCity.prefix
+    UiStore.safePush(`/l/${prefix}`)
     if (UiStore.state.cardPosition === 'map') {
       setTimeout(() => {
         UiStore.setCardPosition('default')

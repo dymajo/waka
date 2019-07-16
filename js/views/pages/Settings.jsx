@@ -21,7 +21,7 @@ const renderLinks = items =>
       <Text accessibilityRole="link" href={item[0]} style={styles.link}>
         {item[1]}
       </Text>
-      <Text>{item[2]}</Text>
+      <Text style={styles.linkDescription}>{item[2]}</Text>
     </View>
   ))
 
@@ -41,9 +41,22 @@ const Settings = () => {
         <Text
           accessibilityRole="link"
           href="https://dymajo.com"
-          style={[paragraphStyles.p, { fontSize: vars.smallFontSize }]}
+          style={[
+            paragraphStyles.p,
+            { fontSize: vars.smallFontSize, marginBottom: 0 },
+          ]}
         >
           &copy; 2016 - 2019 DYMAJO LTD
+        </Text>
+        <Text
+          accessibilityRole="link"
+          href={`https://github.com/dymajo/waka/commit/${process.env.COMMITHASH}`}
+          style={[
+            paragraphStyles.p,
+            { fontSize: vars.smallFontSize, marginTop: 0 },
+          ]}
+        >
+          Build {process.env.VERSION}-{process.env.BRANCH}
         </Text>
         <Text style={paragraphStyles.p}>
           {t('settings.license')} {t('settings.contributions')}
@@ -99,7 +112,7 @@ const Settings = () => {
             </Text>
           </View>
         ) : (
-          <TouchableOpacity onPress={() => setCredits(true)}>
+          <TouchableOpacity onClick={() => setCredits(true)}>
             <View style={styles.button}>
               <CreditsIcon />
               <Text style={styles.buttonText}>
@@ -166,9 +179,11 @@ styles = StyleSheet.create({
     paddingBottom: padding / 4,
   },
   link: {
+    fontFamily,
     color: accentColor,
     fontWeight: 600,
   },
+  linkDescription: { fontFamily },
   love: {
     fontWeight: 600,
     fontSize: smallFontSize,

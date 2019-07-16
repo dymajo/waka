@@ -147,56 +147,51 @@ class AllLines extends React.Component {
     this.cancelCallbacks = true
   }
 
-  getRealtime() {
+  async getRealtime() {
     const { buses, ferries, trains, lightrail } = this.state
     console.log(this.state)
-    return fetch(
-      `${local.endpoint}/${
-        this.props.match.params.region
-      }/realtime/all?ferries=${ferries}&buses=${buses}&trains=${trains}&lightrail=${lightrail}`
+    const res = await fetch(
+      `${local.endpoint}/${this.props.match.params.region}/realtime/all?ferries=${ferries}&buses=${buses}&trains=${trains}&lightrail=${lightrail}`
     )
-      .then(r => {
-        if (r.status >= 400) {
-          return r.json().then(data => {
-            const error = new Error(data.message)
-            error.response = data
-            throw error
-          })
-        }
-        return r
-      })
-      .then(r => r.json())
+
+    const data = await res.json()
+    if (res.status >= 400) {
+      const error = new Error(data.message)
+      error.response = data
+      throw error
+    }
+    return data
   }
 
-  getPositionData = () => {
+  getPositionData = async () => {
     console.log(this.state)
     let busPositions = null
     let trainPositions = null
     let lightRailPositions = null
     let ferryPostitions = null
-    this.getRealtime()
-      .then(data => {
-        this.liveLayer.hide()
-        this.liveLayer = new Layer()
-        busPositions = {
-          type: 'MultiPoint',
-          coordinates: [],
-        }
-        trainPositions = {
-          type: 'MultiPoint',
-          coordinates: [],
-        }
-        lightRailPositions = {
-          type: 'MultiPoint',
-          coordinates: [],
-        }
-        ferryPostitions = {
-          type: 'MultiPoint',
-          coordinates: [],
-        }
-        data.forEach(trip => {
-          if (trip.latitude !== undefined) {
-            switch (trip.route_type) {
+    try {
+      const data = await this.getRealtime()
+      this.liveLayer.hide()
+      this.liveLayer = new Layer()
+      busPositions = {
+        type: 'MultiPoint',
+        coordinates: [],
+      }
+      trainPositions = {
+        type: 'MultiPoint',
+        coordinates: [],
+      }
+      lightRailPositions = {
+        type: 'MultiPoint',
+        coordinates: [],
+      }
+      ferryPostitions = {
+        type: 'MultiPoint',
+        coordinates: [],
+      }
+      data.forEach(trip => {
+        if (trip.latitude !== undefined) {
+          switch (trip.route_type) {
             case 3:
             case 700:
             case 712:
@@ -219,53 +214,47 @@ class AllLines extends React.Component {
               break
             case 4:
             case 1000:
-              ferryPostitions.coordinates.push([
-                trip.longitude,
-                trip.latitude,
-              ])
+              ferryPostitions.coordinates.push([trip.longitude, trip.latitude])
               break
             default:
               break
-            }
           }
+        }
+      })
+      const busIcon = icons.get(3)
+      const trainIcon = icons.get(2)
+      const lightRailIcon = icons.get(900)
+      const ferryIcon = icons.get(4)
+      const { buses, ferries, trains, lightrail } = this.state
+      if (buses) {
+        this.liveLayer.add('geojson', busPositions, {
+          icon: busIcon,
         })
-      })
-      .then(() => {
-        const busIcon = icons.get(3)
-        const trainIcon = icons.get(2)
-        const lightRailIcon = icons.get(900)
-        const ferryIcon = icons.get(4)
-        const { buses, ferries, trains, lightrail } = this.state
-        if (buses) {
-          this.liveLayer.add('geojson', busPositions, {
-            icon: busIcon,
-          })
-        }
-        if (trains) {
-          this.liveLayer.add('geojson', trainPositions, {
-            icon: trainIcon,
-          })
-        }
-        if (lightrail) {
-          this.liveLayer.add('geojson', lightRailPositions, {
-            icon: lightRailIcon,
-          })
-        }
-        if (ferries) {
-          this.liveLayer.add('geojson', ferryPostitions, {
-            icon: ferryIcon,
-          })
-        }
+      }
+      if (trains) {
+        this.liveLayer.add('geojson', trainPositions, {
+          icon: trainIcon,
+        })
+      }
+      if (lightrail) {
+        this.liveLayer.add('geojson', lightRailPositions, {
+          icon: lightRailIcon,
+        })
+      }
+      if (ferries) {
+        this.liveLayer.add('geojson', ferryPostitions, {
+          icon: ferryIcon,
+        })
+      }
 
-        if (this.cancelCallbacks === true) return 'cancelled'
-        this.liveLayer.show()
-        return 'done'
-      })
-      .catch(err => {
-        console.log(err)
-        // who cares about the error
-        console.error('Could not load realtime.')
-      })
+      if (this.cancelCallbacks === true) return 'cancelled'
+      this.liveLayer.show()
+      return 'done'
+    } catch (err) {
+      console.log(err)
+      // who cares about the error
+      console.error('Could not load realtime.')
+    }
   }
 
   trainsOn = () => {
