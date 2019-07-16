@@ -1,4 +1,4 @@
-import { WorkerConfig } from '../typings';
+import { WorkerConfig } from '../typings'
 
 export default abstract class BaseGateway {
   abstract start(prefix: string, config: WorkerConfig): Promise<void>

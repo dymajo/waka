@@ -43,8 +43,8 @@ export default abstract class BaseRealtime {
   }
   getServiceAlertsEndpoint?(
     req: WakaRequest<
-    { routeId?: string; stopId?: string; tripId?: string },
-    null
+      { routeId?: string; stopId?: string; tripId?: string },
+      null
     >,
     res: Response
   ): Promise<Response>
@@ -68,8 +68,8 @@ export default abstract class BaseRealtime {
 
   abstract getTripsEndpoint(
     req: WakaRequest<
-    { trips: string[]; train: boolean; stop_id: string },
-    null
+      { trips: string[]; train: boolean; stop_id: string },
+      null
     >,
     res: Response
   ): Promise<Response>

@@ -1,4 +1,4 @@
-import { AklTimes, Logger } from '../typings'
+import { Logger } from '../typings'
 
 export interface BaseStopsProps {
   logger?: Logger
