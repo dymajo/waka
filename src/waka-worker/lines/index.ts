@@ -19,7 +19,7 @@ const regions = {
   'au-syd': SydneyLines,
   'nz-akl': AucklandLines,
   'nz-chc': ChristchurchLines,
-  // 'nz-wlg': WellingtonLines,
+  'nz-wlg': WellingtonLines,
 }
 interface LinesProps {
   logger: Logger
@@ -109,13 +109,6 @@ class Lines {
         ['allLines', {}],
         ['lineOperators', {}],
       ]
-      // requiredProps.forEach(prop => {
-      //   if (lineDataSource[prop[0]] !== undefined) {
-      //     this.lineData[prop[0]] = lineDataSource[prop[0]]
-      //   } else {
-      //     this.lineData[prop[0]] = prop[1]
-      //   }
-      // })
     } catch (err) {
       logger.error({ err }, 'Could not load line data.')
     }
@@ -284,28 +277,26 @@ class Lines {
    */
   getLine = async (req, res) => {
     const lineId = req.params.line.trim()
+    const agencyId = (req.query.agency_id || '').trim()
+
     try {
-      const data = await this._getLine(lineId)
+      const data = await this._getLine(lineId, agencyId)
       res.send(data)
     } catch (err) {
-      res.status(500).send(err)
+      this.logger.error(err)
+      res.status(500).send({ message: 'Internal Server Error' })
     }
   }
 
-  _getLine = async (id: string) => {
+  _getLine = async (lineId: string, agencyId: string) => {
     const { connection, lineDataSource } = this
     const sqlRequest = connection.get().request()
-    let lineId = id
 
     // filter by agency if a filter exists
     let agency = ''
-    if (lineDataSource.agencyFilter) {
-      const agencyId = lineDataSource.agencyFilter(lineId)
-      if (agencyId !== null) {
-        lineId = lineId.replace(agencyId, '')
-        agency = 'and routes.agency_id = @agency_id'
-        sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
-      }
+    if (agencyId !== '') {
+      agency = 'and routes.agency_id = @agency_id'
+      sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
     }
     sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
 
@@ -353,6 +344,7 @@ class Lines {
     const versions = {}
     const results: {
       route_id: string
+      agency_id: string
       route_long_name: string
       route_short_name: string
       route_color: any
@@ -378,6 +370,7 @@ class Lines {
 
       const result = {
         route_id: route.route_id,
+        agency_id: route.agency_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
         route_color: this.getColor(route.agency_id, route.route_short_name),
@@ -471,12 +464,12 @@ class Lines {
 
   // TODO: Probably move these to the Auckland & Wellington Specific Files
   exceptionCheck = (route, bestMatchMode = false) => {
-    const { prefix, lineData } = this
+    const { prefix, lineDataSource } = this
     if (prefix !== 'nz-akl' && prefix !== 'nz-wlg') {
       return true
     }
 
-    const { allLines } = lineData
+    const { allLines } = lineDataSource
 
     // blanket thing for no schools
     if (route.trip_headsign === 'Schools') {
