@@ -4,6 +4,11 @@ abstract class BaseImporter {
   constructor() {
     this.files = [
       {
+        name: 'transfers.txt',
+        table: 'transfers',
+        versioned: false,
+      },
+      {
         name: 'agency.txt',
         table: 'agency',
         versioned: false,
@@ -36,11 +41,6 @@ abstract class BaseImporter {
       {
         name: 'calendar_dates.txt',
         table: 'calendar_dates',
-        versioned: false,
-      },
-      {
-        name: 'transfers.txt',
-        table: 'transfers',
         versioned: false,
       },
     ]

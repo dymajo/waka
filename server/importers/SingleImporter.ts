@@ -73,13 +73,17 @@ abstract class SingleImporter extends BaseImporter {
 
   async db(importer: GtfsImport) {
     for (const file of this.files) {
-      await importer.upload(
-        `${this.zipLocation}unarchived`,
-        file,
-        config.version,
-        file.versioned,
-        config.prefix,
-      )
+      try {
+        await importer.upload(
+          `${this.zipLocation}unarchived`,
+          file,
+          config.version,
+          file.versioned,
+          config.prefix,
+        )
+      } catch (error) {
+        log(error)
+      }
     }
   }
 

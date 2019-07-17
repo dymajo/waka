@@ -1,7 +1,8 @@
 import { Table, VarChar, Bit, Int, Date as _Date, Time, Decimal } from 'mssql'
 import csvparse from 'csv-parse'
 import transform from 'stream-transform'
-import { createReadStream } from 'fs'
+import { createReadStream, existsSync } from 'fs'
+
 import { resolve as _resolve } from 'path'
 import connection from './connection'
 import log from '../logger'
@@ -192,11 +193,17 @@ class GtfsImport {
     endpoint: string,
     merge: boolean = false,
   ) => {
+    if (file.table === 'stops') debugger
+    if (!existsSync(_resolve(location, file.name))) {
+      throw new Error(`file ${file.name} does not exist`)
+    }
+
     let table = merge
       ? this.getTable(file.table, `temp_${file.table}`, true)
       : this.getTable(file.table)
     if (table === null) return null
     const logstr = file.table.toString()
+
     return new Promise((resolve, reject) => {
       const input = createReadStream(_resolve(location, file.name))
       input.on('error', reject)
@@ -295,6 +302,10 @@ class GtfsImport {
           }
         }
       })
+      transformer.on('error', (err) => {
+        debugger
+        log(err)
+      })
       transformer.on('finish', async () => {
         const transactionsStr =
           totalTransactions > 1000
@@ -321,6 +332,7 @@ class GtfsImport {
 
   private commit = async (table: Table) => {
     try {
+
       const result = await connection
         .get()
         .request()

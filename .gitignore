@@ -3,4 +3,4 @@ cache/
 .env
 # for now let's not upload the build files
 lib/
-**/*.d.ts
+# **/*.d.ts
