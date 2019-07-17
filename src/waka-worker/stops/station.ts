@@ -263,6 +263,9 @@ class Station {
       case 'au-mel':
         timezone = 'Australia/Melbourne'
         break
+      case 'us-nyc':
+        timezone = 'America/New_York'
+        break
       case 'nz-wlg':
       case 'nz-akl':
       default:
@@ -466,6 +469,9 @@ class Station {
         break
       case 'au-mel':
         timezone = 'Australia/Melbourne'
+        break
+      case 'us-nyc':
+        timezone = 'America/New_York'
         break
       case 'nz-wlg':
       case 'nz-akl':
