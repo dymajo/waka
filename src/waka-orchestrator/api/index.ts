@@ -5,7 +5,6 @@ import logger from '../logger'
 import KeyvalueLocal from '../adaptors/keyvalueLocal'
 import KeyvalueDynamo from '../adaptors/keyvalueDynamo'
 import VersionManager from '../versionManager'
-import Connection from '../../waka-worker/db/connection'
 import { WakaConfig } from '../../typings'
 
 interface PrivateApiProps {
@@ -56,6 +55,7 @@ class PrivateApi {
             status: versionData.status,
             version: versionData.version,
             dbname: versionData.db.database,
+            newRealtime: versionData.newRealtime,
           }
         })
         res.send(response)
@@ -72,6 +72,7 @@ class PrivateApi {
         shapesContainer: string
         shapesRegion: string
         dbconfig: string
+        newRealtime: boolean
       }
       try {
         await versionManager.addVersion(workerConfig)

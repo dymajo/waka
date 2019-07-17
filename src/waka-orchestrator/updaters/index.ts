@@ -7,7 +7,7 @@ import Fargate from './fargate'
 import { WakaConfig } from '../../typings'
 
 interface UpdateManagerProps {
-  config: any
+  config: WakaConfig
   versionManager: VersionManager
 }
 
@@ -61,6 +61,7 @@ class UpdateManager {
             callback,
             versionManager,
             extended,
+            config,
           }
           updater = new TfNSWUpdater(params)
         } else {

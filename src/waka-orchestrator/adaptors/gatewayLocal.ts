@@ -3,20 +3,22 @@ import logger from '../logger'
 import WakaWorker from '../../waka-worker'
 import { WorkerConfig } from '../../typings'
 import BaseGateway from '../../types/BaseGateway'
+import Realtime from '../../waka-realtime'
 
 class GatewayLocal extends BaseGateway {
   router: Router
   workers: { [prefix: string]: WakaWorker }
+  realtimes: { [prefix: string]: Realtime }
   constructor() {
     super()
     this.router = Router()
     this.workers = {}
+    this.realtimes = {}
   }
 
   async start(prefix: string, config: WorkerConfig) {
     // This is a bit magic - it simply instantiates the WakaWorker class
-
-    const { router, workers } = this
+    const { router, workers, realtimes } = this
     const oldWorker = workers[prefix]
     const newWorker = new WakaWorker(config)
 
@@ -29,8 +31,20 @@ class GatewayLocal extends BaseGateway {
       )
       oldWorker.stop()
     }
+
     workers[prefix] = newWorker
     newWorker.start()
+    if (config.newRealtime) {
+      const oldRealtime = realtimes[prefix]
+      const newRealtime = new Realtime(config)
+      if (oldRealtime !== undefined) {
+        logger.info({ prefix }, 'Route already has realtime - stopping')
+        oldRealtime.stop()
+        newRealtime.start()
+      }
+      newRealtime.start()
+      realtimes[prefix] = newRealtime
+    }
     logger.info({ prefix }, 'Local Gateway Started.')
 
     // If there's no route, we simply add it to the router
@@ -54,7 +68,11 @@ class GatewayLocal extends BaseGateway {
   }
 
   async stop(prefix: string) {
-    const { workers } = this
+    const { workers, realtimes } = this
+    if (realtimes[prefix] !== undefined) {
+      realtimes[prefix].stop()
+      delete realtimes[prefix]
+    }
     if (workers[prefix] !== undefined) {
       workers[prefix].stop()
       delete workers[prefix]

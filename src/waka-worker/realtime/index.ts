@@ -1,13 +1,13 @@
-import * as Logger from 'bunyan'
 import { Response } from 'express'
 import RealtimeAUSYD from './regions/au-syd'
 import RealtimeNZAKL from './regions/nz-akl'
 import RealtimeNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
 import CanberraRealtime from './regions/au-cbr'
+import { WakaRequest, Logger, RedisConfig } from '../../typings'
+import BaseRealtime from '../../types/BaseRealtime'
+import GenericRealtime from './regions/generic'
 import { isKeyof } from '../../utils'
-import BaseRealtime from '../../types/BaseRealtime';
-import { WakaRequest } from '../../typings';
 
 const regions = {
   'au-syd': RealtimeAUSYD,
@@ -23,21 +23,43 @@ interface RealtimeProps {
   api: { [api: string]: string }
 }
 
+interface RealtimeProps {
+  connection: Connection
+  logger: Logger
+  prefix: string
+  api: { [prefix: string]: string }
+  newRealtime: boolean
+  redisConfig: RedisConfig
+}
+
 class Realtime {
   connection: Connection
   logger: Logger
   prefix: string
   fn: BaseRealtime
+  newRealtime: boolean
   constructor(props: RealtimeProps) {
-    const { connection, logger, prefix, api } = props
+    const { connection, logger, prefix, api, newRealtime, redisConfig } = props
     this.connection = connection
     this.logger = logger
     this.prefix = prefix
-
+    this.newRealtime = newRealtime
     const apiKey = api[prefix]
     this.fn = isKeyof(regions, prefix)
-      ? new regions[prefix]({ logger, connection, apiKey })
-      : null
+      ? new regions[prefix]({
+          logger,
+          connection,
+          apiKey,
+          newRealtime,
+          redisConfig,
+        })
+      : new GenericRealtime({
+          connection,
+          logger,
+          newRealtime,
+          redisConfig,
+          prefix,
+        })
   }
 
   start = () => {
@@ -222,13 +244,26 @@ class Realtime {
     })
   }
 
-  all = (req: WakaRequest<null, null>, res: Response) => {
+  serviceAlerts = (
+    req: WakaRequest<
+      { routeId?: string; stopId?: string; tripId?: string },
+      null
+    >,
+    res: Response
+  ) => {
     if (this.fn) {
-      return this.fn.getAllVehicleLocations(req, res)
+      if (this.fn.getServiceAlertsEndpoint)
+        return this.fn.getServiceAlertsEndpoint(req, res)
     }
-    return res.status(400).send({
-      message: 'realtime not available',
-    })
   }
+
+  // all = (req, res) => {
+  //   if (this.fn) {
+  //     return this.fn.getAllVehicleLocations(req, res)
+  //   }
+  //   return res.status(400).send({
+  //     message: 'realtime not available',
+  //   })
+  // }
 }
 export default Realtime

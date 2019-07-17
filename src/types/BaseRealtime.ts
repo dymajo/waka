@@ -6,12 +6,19 @@ export default abstract class BaseRealtime {
   connection: Connection
   logger: Logger
   apiKey: string
+
   lastTripUpdate: Date
   lastVehicleUpdate: Date
+
   currentUpdateDataFails: number
   currentVehicleDataFails: number
+
   scheduleUpdatePullTimeout: number
   scheduleLocationPullTimeout: number
+
+  tripUpdateTimeout: NodeJS.Timer
+  vehicleTimeout: NodeJS.Timer
+
   tripUpdateOptions: {
     url: string
     headers?: any
@@ -34,8 +41,16 @@ export default abstract class BaseRealtime {
       ev: boolean
     }
   }
-  abstract scheduleLocationPull(): Promise<void>
-  abstract scheduleUpdatePull(): Promise<void>
+  getServiceAlertsEndpoint?(
+    req: WakaRequest<
+      { routeId?: string; stopId?: string; tripId?: string },
+      null
+    >,
+    res: Response
+  ): Promise<Response>
+
+  scheduleLocationPull?(): Promise<void>
+  scheduleUpdatePull?(): Promise<void>
   getAllVehicleLocations?(
     req: WakaRequest<null, null>,
     res: Response

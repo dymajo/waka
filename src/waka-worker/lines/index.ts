@@ -1,23 +1,37 @@
 import * as sql from 'mssql'
-import * as Logger from 'bunyan'
 import { Request, Response } from 'express'
-import cityMetadata from '../../cityMetadata.json'
+import cityMetadataJSON from '../../cityMetadata.json'
 import StopsDataAccess from '../stops/dataAccess'
 import Storage from '../db/storage'
 
-import LinesAUSYD from './regions/au-syd'
-import LinesNZAKL from './regions/nz-akl'
-import LinesNZCHC from './regions/nz-chc'
-import LinesNZWLG from './regions/nz-wlg'
+import SydneyLines from './regions/au-syd'
+import AucklandLines from './regions/nz-akl'
+import ChristchurchLines from './regions/nz-chc'
+import WellingtonLines from './regions/nz-wlg'
+import GenericLines from './regions/generic'
 import Connection from '../db/connection'
 import Search from '../stops/search'
+import { Logger, WakaRequest } from '../../typings'
 import { isKeyof } from '../../utils'
+import BaseLines from '../../types/BaseLines'
 
 const regions = {
-  'au-syd': LinesAUSYD,
-  'nz-akl': LinesNZAKL,
-  'nz-chc': LinesNZCHC,
-  'nz-wlg': LinesNZWLG,
+  'au-syd': SydneyLines,
+  'nz-akl': AucklandLines,
+  'nz-chc': ChristchurchLines,
+  'nz-wlg': WellingtonLines,
+}
+interface LinesProps {
+  logger: Logger
+  connection: Connection
+  prefix: string
+  version: string
+  search: Search
+  config: {
+    storageService: 'aws' | 'local'
+    shapesContainer: string
+    shapesRegion: string
+  }
 }
 
 interface LinesProps {
@@ -37,9 +51,31 @@ class Lines {
   search: Search
   stopsDataAccess: StopsDataAccess
   storageSvc: Storage
-  lineData: any
-  lineDataSource: any
-  config: {}
+  lineDataSource: BaseLines
+  config: {
+    storageService: 'aws' | 'local'
+    shapesContainer: string
+    shapesRegion: string
+  }
+  cityMetadata: {
+    [prefix: string]: {
+      name: string
+      secondaryName: string
+      longName: string
+      initialLocation: number[]
+      showInCityList: boolean
+      bounds?: {
+        lat: {
+          min: number
+          max: number
+        }
+        lon: {
+          min: number
+          max: number
+        }
+      }
+    }
+  }
   constructor(props: LinesProps) {
     const { logger, connection, prefix, version, config, search } = props
     this.logger = logger
@@ -48,6 +84,7 @@ class Lines {
     this.version = version
     this.search = search
     this.config = config
+    this.cityMetadata = cityMetadataJSON
 
     // not too happy about this
     this.stopsDataAccess = new StopsDataAccess({ connection, prefix })
@@ -58,10 +95,9 @@ class Lines {
       logger,
     })
 
-    this.lineData = {}
     this.lineDataSource = isKeyof(regions, prefix)
       ? new regions[prefix]({ logger, connection })
-      : null
+      : new GenericLines({ logger, connection })
   }
 
   start = async () => {
@@ -82,38 +118,31 @@ class Lines {
         ['allLines', {}],
         ['lineOperators', {}],
       ]
-      requiredProps.forEach(prop => {
-        if (lineDataSource[prop[0]] !== undefined) {
-          this.lineData[prop[0]] = lineDataSource[prop[0]]
-        } else {
-          this.lineData[prop[0]] = prop[1]
-        }
-      })
     } catch (err) {
       logger.error({ err }, 'Could not load line data.')
     }
   }
 
-  stop = () => { }
+  stop = () => {}
 
   getColor = (agencyId: string, routeShortName: string) => {
     // If you need to get colors from the DB, please see the Wellington Lines Code.
     // Essentially does a one-time cache of all the colors into the lineData object.
-    const { lineData } = this
-    if (lineData.getColor) {
-      return lineData.getColor(agencyId, routeShortName)
+    const { lineDataSource } = this
+    if (lineDataSource.getColor) {
+      return lineDataSource.getColor(agencyId, routeShortName)
     }
-    if (lineData.lineColors) {
-      return lineData.lineColors[routeShortName] || '#00263A'
+    if (lineDataSource.lineColors) {
+      return lineDataSource.lineColors[routeShortName] || '#00263A'
     }
     return '#00263A'
   }
 
   getIcon = (agencyId: string, routeShortName: string) => {
     // this will probably be revised soon
-    const { lineData } = this
-    if (lineData.lineIcons) {
-      return lineData.lineIcons[routeShortName] || null
+    const { lineDataSource } = this
+    if (lineDataSource.lineIcons) {
+      return lineDataSource.lineIcons[routeShortName] || null
     }
     return null
   }
@@ -183,12 +212,12 @@ class Lines {
    *     }
    *
    */
-  getLines = (req: Request, res: Response) => {
+  getLines = (req: WakaRequest<null, null>, res: Response) => {
     res.send(this._getLines())
   }
 
   _getLines = () => {
-    const { prefix, lineData } = this
+    const { prefix, lineDataSource, cityMetadata } = this
     // if the region has multiple cities
     let city = cityMetadata[prefix]
     if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
@@ -202,13 +231,13 @@ class Lines {
         secondaryName: cityMetadata[prefix].secondaryName,
         longName: cityMetadata[prefix].longName,
       },
-      colors: lineData.lineColors,
-      icons: lineData.lineIcons,
-      friendlyNames: lineData.friendlyNames,
-      friendlyNumbers: lineData.friendlyNumbers,
-      groups: lineData.lineGroups,
-      lines: lineData.allLines,
-      operators: lineData.lineOperators,
+      colors: lineDataSource.lineColors,
+      icons: lineDataSource.lineIcons,
+      friendlyNames: lineDataSource.friendlyNames,
+      friendlyNumbers: lineDataSource.friendlyNumbers,
+      groups: lineDataSource.lineGroups,
+      lines: lineDataSource.allLines,
+      operators: lineDataSource.lineOperators,
     }
   }
 
@@ -257,28 +286,26 @@ class Lines {
    */
   getLine = async (req: Request, res: Response) => {
     const lineId = req.params.line.trim()
+    const agencyId = (req.query.agency_id || '').trim()
+
     try {
-      const data = await this._getLine(lineId)
+      const data = await this._getLine(lineId, agencyId)
       res.send(data)
     } catch (err) {
-      res.status(500).send(err)
+      this.logger.error(err)
+      res.status(500).send({ message: 'Internal Server Error' })
     }
   }
 
-  _getLine = async id => {
-    const { connection, lineData } = this
+  _getLine = async (lineId: string, agencyId: string) => {
+    const { connection, lineDataSource } = this
     const sqlRequest = connection.get().request()
-    let lineId = id
 
     // filter by agency if a filter exists
     let agency = ''
-    if (lineData.agencyFilter) {
-      const agencyId = lineData.agencyFilter(lineId)
-      if (agencyId !== null) {
-        lineId = lineId.replace(agencyId, '')
-        agency = 'and routes.agency_id = @agency_id'
-        sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
-      }
+    if (agencyId !== '') {
+      agency = 'and routes.agency_id = @agency_id'
+      sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
     }
     sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
 
@@ -324,7 +351,17 @@ class Lines {
       shape_score: number
     }>(query)
     const versions = {}
-    const results = []
+    const results: {
+      route_id: string
+      agency_id: string
+      route_long_name: string
+      route_short_name: string
+      route_color: any
+      route_icon: any
+      direction_id: string
+      shape_id: string
+      route_type: number
+    }[] = []
     result.recordset.forEach(route => {
       // checks to make it's the right route (the whole exception thing)
       if (this.exceptionCheck(route) === false) {
@@ -342,6 +379,7 @@ class Lines {
 
       const result = {
         route_id: route.route_id,
+        agency_id: route.agency_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
         route_color: this.getColor(route.agency_id, route.route_short_name),
@@ -435,12 +473,12 @@ class Lines {
 
   // TODO: Probably move these to the Auckland & Wellington Specific Files
   exceptionCheck = (route, bestMatchMode = false) => {
-    const { prefix, lineData } = this
+    const { prefix, lineDataSource } = this
     if (prefix !== 'nz-akl' && prefix !== 'nz-wlg') {
       return true
     }
 
-    const { allLines } = lineData
+    const { allLines } = lineDataSource
 
     // blanket thing for no schools
     if (route.trip_headsign === 'Schools') {
@@ -526,7 +564,7 @@ class Lines {
    *   }
    * ]
    */
-  getStopsFromTrip = async (req: Request, res: Response) => {
+  getStopsFromTrip = async (req: WakaRequest<null, null>, res: Response) => {
     const collator = new Intl.Collator(undefined, {
       numeric: true,
       sensitivity: 'base',

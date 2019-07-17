@@ -8,21 +8,22 @@ import BaseRealtime from '../../../types/BaseRealtime'
 import Redis from '../../../waka-realtime/Redis'
 import { TripUpdate } from '../../../gtfs'
 
-interface RealtimeAUSYDProps {
+interface GenericRealtimeProps {
   connection: Connection
   logger: Logger
   newRealtime: boolean
   redisConfig: RedisConfig
+  prefix: string
 }
 
-class RealtimeAUSYD extends BaseRealtime {
+class GenericRealtime extends BaseRealtime {
   redis: Redis
   newRealtime: boolean
 
-  constructor(props: RealtimeAUSYDProps) {
+  constructor(props: GenericRealtimeProps) {
     super()
-    const { connection, logger, newRealtime, redisConfig } = props
-    this.redis = new Redis({ prefix: 'au-syd', logger, config: redisConfig })
+    const { connection, logger, newRealtime, redisConfig, prefix } = props
+    this.redis = new Redis({ prefix, logger, config: redisConfig })
     this.newRealtime = newRealtime
     this.connection = connection
     this.logger = logger
@@ -41,7 +42,7 @@ class RealtimeAUSYD extends BaseRealtime {
 
   stop = () => {
     // TODO!
-    this.logger.warn('Sydney Realtime Not Stopped! Not Implemented.')
+    this.logger.warn('Realtime Not Stopped! Not Implemented.')
   }
 
   getTripsEndpoint = async (
@@ -92,6 +93,7 @@ class RealtimeAUSYD extends BaseRealtime {
     req: WakaRequest<null, { line: string }>,
     res: Response
   ) => {
+    debugger
     const { logger, connection } = this
     const { line } = req.params
 
@@ -118,7 +120,7 @@ class RealtimeAUSYD extends BaseRealtime {
       const trips = await Promise.all(
         tripIds.map(tripId => this.redis.getVehiclePosition(tripId))
       )
-      const escapedTripIds = `'${tripIds.join("', '")}'`
+      const escapedTripIds = `'${tripIds.join('\', \'')}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
@@ -136,7 +138,6 @@ class RealtimeAUSYD extends BaseRealtime {
         FROM trips
         WHERE trip_id IN (${escapedTripIds})
       `)
-      console.log(tripIdRequest.recordset)
 
       const tripIdsMap: {
         [tripId: string]: {
@@ -159,7 +160,6 @@ class RealtimeAUSYD extends BaseRealtime {
       // now we return the structued data finally
       const result = trips.map(vehicle => {
         console.log(vehicle)
-        console.log(tripIdsMap[vehicle.trip.tripId])
         return {
           latitude: vehicle.position.latitude,
           longitude: vehicle.position.longitude,
@@ -288,4 +288,4 @@ class RealtimeAUSYD extends BaseRealtime {
   // }
 }
 
-export default RealtimeAUSYD
+export default GenericRealtime

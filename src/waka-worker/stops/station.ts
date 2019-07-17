@@ -5,7 +5,7 @@ import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
 import { WakaRequest } from '../../typings'
 import Lines from '../lines'
-import BaseStops from '../../types/BaseStops';
+import BaseStops from '../../types/BaseStops'
 
 interface StationProps {
   logger: Logger
@@ -302,7 +302,7 @@ class Station {
     }
 
     // combines train stations platforms together
-    let procedure = 'GetStopTimes'
+    const procedure = 'GetStopTimes'
     let trips = []
     const realtimeTrips = []
     try {
@@ -485,7 +485,7 @@ class Station {
     today.setUTCDate(time.date() + dateOffset)
 
     // combines train stations platforms together
-    let procedure = 'GetTimetable'
+    const procedure = 'GetTimetable'
     let trips = []
     try {
       trips = await dataAccess.getTimetable(

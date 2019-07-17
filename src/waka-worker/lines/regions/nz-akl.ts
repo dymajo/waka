@@ -2,7 +2,7 @@ import lineGroups from './nz-akl-groups.json'
 import allLines from './nz-akl-lines.json'
 import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
-const getColor = (agencyId, code) => {
+const getColor = (agencyId: string, code: string) => {
   // First for our fancy services.
   switch (code) {
     case 'CTY': // City Link
@@ -132,13 +132,7 @@ const friendlyNames = {
 }
 
 class LinesNZAKL extends BaseLines {
-  lineIcons: typeof lineIcons
-  lineGroups: typeof lineGroups
-  friendlyNames: typeof friendlyNames
-  allLines: typeof allLines
   getColor: (agencyId: string, code: string) => string
-  lineOperators: {}
-  lineColors: {}
   constructor(props: BaseLinesProps) {
     super(props)
 
@@ -151,15 +145,11 @@ class LinesNZAKL extends BaseLines {
     this.lineColors = {}
   }
 
-  async start() {
-    await this.cacheOperatorsAndShapes()
-  }
-
-  async cacheOperatorsAndShapes() {
+  async getLines() {
     const { logger, dataAccess, allLines } = this
     const routes = Object.keys(allLines)
-    const lineOperators = {}
-    const lineColors = {}
+    const lineOperators: { [routeShortName: string]: string } = {}
+    const lineColors: { [routeShortName: string]: string } = {}
 
     await Promise.all(
       routes.map(

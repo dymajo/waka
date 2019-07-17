@@ -6,13 +6,17 @@ import axios from 'axios'
 import protobuf from 'protobufjs'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
-import { WakaRequest, TripUpdate, PositionFeedEntity } from '../../../typings'
 import ProtobufRealtime from '../ProtobufRealtime'
+import { WakaRequest } from '../../../typings'
+
+const schedulePullTimeout = 20000
+const scheduleLocationPullTimeout = 15000
 
 interface RealtimeNZAKLProps {
   connection: Connection
   logger: Logger
   apiKey: string
+  newRealtime: boolean
 }
 
 class RealtimeNZAKL extends ProtobufRealtime {
@@ -47,7 +51,10 @@ class RealtimeNZAKL extends ProtobufRealtime {
       },
       ...props,
     })
-    const { logger, connection, apiKey } = props
+    const { logger, connection, apiKey, newRealtime } = props
+    if (newRealtime) {
+      throw Error('New realtime not implemented')
+    }
     this.connection = connection
     this.logger = logger
     this.apiKey = apiKey
@@ -66,6 +73,23 @@ class RealtimeNZAKL extends ProtobufRealtime {
 
   isEV = (vehicle: string) => {
     return ['2840', '2841'].includes(vehicle)
+  }
+
+  start = () => {
+    const { apiKey, logger } = this
+    if (!apiKey) {
+      logger.warn('No Auckland Transport API Key, will not show realtime.')
+      return
+    }
+    this.scheduleUpdatePull()
+    this.scheduleLocationPull()
+    logger.info('Auckland Realtime Started.')
+  }
+
+  stop = () => {
+    clearTimeout(this.tripUpdateTimeout)
+    clearTimeout(this.locationTimeout)
+    this.logger.info('Auckland Realtime stopped.')
   }
 
   getTripsEndpoint = async (
@@ -89,7 +113,7 @@ class RealtimeNZAKL extends ProtobufRealtime {
     return res.send(data)
   }
 
-  getTripsAuckland = (trips: string[], train = false) => {
+  getTripsAuckland = async (trips: string[], train = false) => {
     const { logger, vehicleLocationsOptions, tripUpdatesOptions } = this
     const realtimeInfo: { [tripId: string]: {} } = {}
     trips.forEach(trip => {
@@ -149,7 +173,6 @@ class RealtimeNZAKL extends ProtobufRealtime {
     } = {}
     trips.forEach(trip => {
       const data = this.currentUpdateData[trip]
-      debugger
       if (typeof data !== 'undefined') {
         const timeUpdate =
           data.stopTimeUpdate[0].departure ||
@@ -228,8 +251,7 @@ class RealtimeNZAKL extends ProtobufRealtime {
         routeIds.includes(entity.vehicle.trip.routeId)
       )
       // this is good enough because data comes from auckland transport
-      const tripIds = trips.map(entity => entity.vehicle.trip.tripId)
-      // eslint-disable-next-line quotes
+      const tripIds = trips.map(entity => entity.vehicle.trip.trip_id)
       const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{

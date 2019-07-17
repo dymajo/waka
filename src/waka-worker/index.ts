@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import * as Logger from 'bunyan'
+import * as morgan from 'morgan'
 import createLogger from './logger'
 import cityMetadata from '../cityMetadata.json'
 import Connection from './db/connection'
@@ -9,12 +9,12 @@ import Station from './stops/station'
 import StopsNZAKL from './stops/regions/nz-akl'
 import StopsNZWLG from './stops/regions/nz-wlg'
 import Realtime from './realtime'
-import { WorkerConfig } from '../typings'
+import { WorkerConfig, Logger } from '../typings'
+import BaseStops from '../types/BaseStops'
 import Alexa from './alexa'
-import BaseStops from '../types/BaseStops';
 
 class WakaWorker {
-  config: { prefix: string; version: string }
+  config: WorkerConfig
   logger: Logger
   connection: Connection
   router: Router
@@ -39,6 +39,7 @@ class WakaWorker {
       storageService,
       shapesContainer,
       shapesRegion,
+      newRealtime,
     } = config
 
     this.config = config
@@ -48,7 +49,14 @@ class WakaWorker {
     this.connection = connection
 
     this.router = Router()
-    this.realtime = new Realtime({ logger, connection, prefix, api })
+    this.realtime = new Realtime({
+      logger,
+      connection,
+      prefix,
+      api,
+      newRealtime,
+      redisConfig: config.redis,
+    })
 
     this.stopsExtras = null
     if (prefix === 'nz-akl') {
@@ -87,7 +95,9 @@ class WakaWorker {
   }
 
   start = async () => {
-    await this.connection.open()
+    await this.connection.open().catch(err => {
+      this.logger.error(err)
+    })
     this.logger.info('Connected to the Database')
     this.lines.start()
     this.search.start()
@@ -189,10 +199,11 @@ class WakaWorker {
     router.get('/shapejson/:shapeId', lines.getShapeJSON)
 
     router.get('/realtime-healthcheck', realtime.healthcheck)
-    router.get('/realtime/all', realtime.all)
+    // router.get('/realtime/all', realtime.all)
     router.get('/realtime/:line', realtime.vehicleLocationV2)
     router.post('/realtime', realtime.stopInfo)
     router.post('/vehicle_location', realtime.vehicleLocation)
+    router.post('/service-alerts', realtime.serviceAlerts)
   }
 }
 export default WakaWorker

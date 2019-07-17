@@ -6,14 +6,13 @@
   },
   "extends": [
     "airbnb-base",
-    "prettier/@typescript-eslint",
     "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
   ],
   "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
-  "plugins": ["prettier", "promise", "@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "promise"],
   "rules": {
-    "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/member-delimiter-style": "off",
     "@typescript-eslint/no-magic-numbers": 0,
     "@typescript-eslint/explicit-member-accessibility": 0,

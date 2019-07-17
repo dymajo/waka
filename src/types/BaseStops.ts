@@ -1,4 +1,4 @@
-import { AklTimes, Logger } from '../typings'
+import { Logger } from '../typings'
 
 export interface BaseStopsProps {
   logger?: Logger
@@ -28,7 +28,7 @@ export default abstract class BaseStops {
     description: string
     timestamp: Date
     availableSpaces: number
-    maxSpaces: number
+    maxSpaces: numberF
   }
   filter?(recordset: any[], mode: string): void
   extraSources?(

@@ -41,7 +41,7 @@ class LinesNZWLG extends BaseLines {
     super(props)
 
     this.lineColors = {}
-    this.lineGroups = {}
+    this.lineGroups = []
     this.allLines = {}
     this.lineOperators = {}
   }
@@ -52,9 +52,9 @@ class LinesNZWLG extends BaseLines {
 
   async getLines() {
     const { logger, dataAccess } = this
-    const allLines = {}
-    const lineOperators = {}
-    const lineColors = {}
+    const allLines: { [routeShortName: string]: string[][] } = {}
+    const lineOperators: { [routeShortName: string]: string } = {}
+    const lineColors: { [routeShortName: string]: string } = {}
     const lineGroups = groups.map(item => ({
       name: item.name,
       items: [],
@@ -110,12 +110,12 @@ class LinesNZWLG extends BaseLines {
     logger.info('Cached Lines')
   }
 
-  lineColorizer(agency, routeShortName, dbColor) {
-    const agMapper = {
+  lineColorizer(agency: string, routeShortName: string, dbColor: string) {
+    const agMapper: { [routeShortName: string]: string } = {
       WCCL: 'e43e42',
       EBYW: '41bada',
     }
-    const rtMapper = {
+    const rtMapper: { [routeShortName: string]: string } = {
       HVL: 'e52f2b',
       JVL: '4f9734',
       KPL: 'f39c12',
