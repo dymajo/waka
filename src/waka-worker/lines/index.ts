@@ -12,8 +12,9 @@ import GenericLines from './regions/generic'
 import Connection from '../db/connection'
 import Search from '../stops/search'
 import { Logger, WakaRequest } from '../../typings'
-import { isKeyof } from '../../utils'
+import { isKeyof, sortFn } from '../../utils'
 import BaseLines from '../../types/BaseLines'
+import WakaRedis from '../../waka-realtime/Redis'
 
 const regions = {
   'au-syd': SydneyLines,
@@ -32,15 +33,7 @@ interface LinesProps {
     shapesContainer: string
     shapesRegion: string
   }
-}
-
-interface LinesProps {
-  logger: Logger
-  connection: Connection
-  prefix: string
-  version: string
-  config: { storageService: 'aws' | 'local'; shapesRegion: string }
-  search: Search
+  redis: WakaRedis
 }
 
 class Lines {
@@ -76,8 +69,9 @@ class Lines {
       }
     }
   }
+  redis: WakaRedis
   constructor(props: LinesProps) {
-    const { logger, connection, prefix, version, config, search } = props
+    const { logger, connection, prefix, version, config, search, redis } = props
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
@@ -85,7 +79,7 @@ class Lines {
     this.search = search
     this.config = config
     this.cityMetadata = cityMetadataJSON
-
+    this.redis = redis
     // not too happy about this
     this.stopsDataAccess = new StopsDataAccess({ connection, prefix })
 
@@ -564,12 +558,11 @@ class Lines {
    *   }
    * ]
    */
-  getStopsFromTrip = async (req: WakaRequest<null, null>, res: Response) => {
-    const collator = new Intl.Collator(undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    })
-    const { connection, logger, stopsDataAccess, search } = this
+  getStopsFromTrip = async (
+    req: WakaRequest<null, { tripId: string }>,
+    res: Response
+  ) => {
+    const { connection, logger, stopsDataAccess, search, redis, prefix } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.tripId)
     try {
@@ -597,30 +590,29 @@ class Lines {
           stop_times.trip_id = @trip_id
         ORDER BY stop_sequence`)
 
-      const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(
-        result.recordset.map(i => i.stop_id)
+      // const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(
+      //   result.recordset.map(i => i.stop_id)
+      // )
+      const promises = result.recordset.map(async i => {
+        const redisresult = await redis.client.get(
+          `waka-worker:${prefix}:stop-transfers:${i.stop_id}`
       )
-      res.send(
-        search.stopsFilter(
-          result.recordset.map(i => {
-            const transfers = stopRoutes[i.stop_id]
-              .filter(j => j.trip_headsign !== 'Schools')
-              .map(j => j.route_short_name)
-            const deduplicatedTransfers = Array.from(
-              new Set(transfers).values()
-            )
-            const transfersWithColors = deduplicatedTransfers.map(j => [
+        let transfers: string[] = []
+        if (redisresult) {
+          transfers = redisresult.split(',')
+        }
+
+        const transfersWithColors = transfers.map(j => [
               j,
               this.getColor(null, j),
             ])
-            transfersWithColors.sort(collator.compare)
-            const result = JSON.parse(JSON.stringify(i))
-            result.transfers = transfersWithColors
-            return result
-          }),
-          'keep'
-        )
-      )
+        transfersWithColors.sort(sortFn)
+
+        return { ...i, transfers: transfersWithColors }
+      })
+      const results = await Promise.all(promises)
+      const sending = search.stopsFilter(results, 'keep')
+      return res.send(sending)
     } catch (err) {
       logger.error({ err }, 'Could not get stops from trip.')
       res.status(500).send(err)

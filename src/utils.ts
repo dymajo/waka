@@ -16,3 +16,32 @@ export const check = <T>(
     object[key] = [item]
   }
 }
+
+export const sortFn = (a: string[], b: string[]) => {
+  const first = a[0][0]
+  const second = b[0][0]
+  // put night buses last
+  if (first === 'N' && second !== 'N') {
+    return -1
+  }
+  if (first !== 'N' && second === 'N') {
+    return 1
+  }
+  // put lettered services first
+  if (
+    Number.isNaN(parseInt(first, 10)) &&
+    !Number.isNaN(parseInt(second, 10))
+  ) {
+    return -1
+  }
+  if (
+    !Number.isNaN(parseInt(first, 10)) &&
+    Number.isNaN(parseInt(second, 10))
+  ) {
+    return 1
+  }
+  return a[0].localeCompare(b[0], undefined, {
+    sensitivity: 'base',
+    numeric: true,
+  })
+}

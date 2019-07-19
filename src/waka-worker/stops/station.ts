@@ -6,6 +6,7 @@ import Connection from '../db/connection'
 import { WakaRequest } from '../../typings'
 import Lines from '../lines'
 import BaseStops from '../../types/BaseStops'
+import WakaRedis from '../../waka-realtime/Redis'
 
 interface StationProps {
   logger: Logger
@@ -13,6 +14,7 @@ interface StationProps {
   prefix: string
   stopsExtras?: BaseStops
   lines: Lines
+  redis: WakaRedis
   realtimeTimes: (
     trips: string[]
   ) => {
@@ -33,6 +35,7 @@ class Station {
   prefix: string
   regionSpecific: BaseStops
   lines: Lines
+  redis: WakaRedis
   realtimeTimes: (
     trips: string[]
   ) => {
@@ -54,7 +57,9 @@ class Station {
       stopsExtras,
       lines,
       realtimeTimes,
+      redis,
     } = props
+    this.redis = redis
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
@@ -63,6 +68,24 @@ class Station {
     this.realtimeTimes = realtimeTimes
 
     this.dataAccess = new StopsDataAccess({ connection, prefix })
+  }
+
+  transfers = async () => {
+    const transfers = await this.dataAccess.getTransfers()
+    for (const stopId in transfers) {
+      if (Object.prototype.hasOwnProperty.call(transfers, stopId)) {
+        try {
+          const foo = transfers[stopId]
+          this.redis.client.set(
+            `waka-worker:${this.prefix}:stop-transfers:${stopId}`,
+            foo.toString()
+          )
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+    this.logger.info('got transfers')
   }
 
   getBounds = async () => {

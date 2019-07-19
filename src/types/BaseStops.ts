@@ -28,9 +28,16 @@ export default abstract class BaseStops {
     description: string
     timestamp: Date
     availableSpaces: number
-    maxSpaces: numberF
+    maxSpaces: number
   }
-  filter?(recordset: any[], mode: string): void
+  filter?(
+    recordset: {
+      stop_id: string
+    }[],
+    mode?: string
+  ): {
+    stop_id: string
+  }[]
   extraSources?(
     lat: number,
     lon: number,

@@ -12,6 +12,7 @@ import Realtime from './realtime'
 import { WorkerConfig, Logger } from '../typings'
 import BaseStops from '../types/BaseStops'
 import Alexa from './alexa'
+import WakaRedis from '../waka-realtime/Redis'
 
 class WakaWorker {
   config: WorkerConfig
@@ -23,7 +24,7 @@ class WakaWorker {
   search: Search
   lines: Lines
   station: Station
-
+  redis: WakaRedis
   bounds: {
     lat: { min: number; max: number }
     lon: { min: number; max: number }
@@ -47,6 +48,11 @@ class WakaWorker {
     this.logger = logger
     const connection = new Connection({ logger, db })
     this.connection = connection
+    this.redis = new WakaRedis({
+      prefix: this.config.prefix,
+      logger: this.logger,
+      config: this.config.redis,
+    })
 
     this.router = Router()
     this.realtime = new Realtime({
@@ -68,6 +74,7 @@ class WakaWorker {
 
     this.search = new Search({ logger, connection, prefix, stopsExtras })
     this.lines = new Lines({
+      redis: this.redis,
       logger,
       connection,
       prefix,
@@ -86,6 +93,7 @@ class WakaWorker {
       stopsExtras,
       lines: this.lines,
       realtimeTimes: this.realtime.getCachedTrips,
+      redis: this.redis,
     })
 
     this.alexa = new Alexa({ logger, connection, prefix })
@@ -103,8 +111,9 @@ class WakaWorker {
     this.search.start()
     if (this.stopsExtras) this.stopsExtras.start()
     this.realtime.start()
-
+    this.redis.start()
     this.bounds = await this.station.getBounds()
+    await this.station.transfers()
   }
 
   stop = () => {

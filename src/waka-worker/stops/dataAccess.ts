@@ -210,6 +210,94 @@ class StopsDataAccess {
     return routes
   }
 
+  getNullParentStationRouteStops = async () => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query<{
+      stop_id: string
+      route_short_name: string
+    }>(`
+      select distinct stops.stop_id,  route_short_name
+      from trips
+      inner join stop_times
+      on stop_times.trip_id = trips.trip_id
+      inner join stops
+      on stops.stop_id = stop_times.stop_id
+      inner join routes
+      on routes.route_id = trips.route_id
+      where (pickup_type = 0 or drop_off_type = 0 )and route_type <> 712 and parent_station is null
+      group by stops.stop_id,route_short_name;
+    `)
+    const stops: { [stop_id: string]: string[] } = {}
+    for (const { stop_id, route_short_name } of result.recordset) {
+      if (Object.prototype.hasOwnProperty.call(stops, stop_id)) {
+        stops[stop_id].push(route_short_name)
+      } else {
+        stops[stop_id] = [route_short_name]
+      }
+    }
+    return stops
+  }
+
+  getParentStationRouteStops = async () => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query<{
+      parent_station: string
+      route_short_name: string
+    }>(`
+      select distinct parent_station, route_short_name
+      from trips
+      inner join stop_times
+      on stop_times.trip_id = trips.trip_id
+      inner join stops
+      on stops.stop_id = stop_times.stop_id
+      inner join routes
+      on routes.route_id = trips.route_id
+      where (pickup_type = 0 or drop_off_type = 0 ) and parent_station is not null
+      group by parent_station,route_short_name
+      order by parent_station;
+    `)
+    const parents: { [parent_station: string]: string[] } = {}
+    const parentsMap = await this.getParentStops()
+    const stops: { [stop_id: string]: string[] } = {}
+
+    for (const { parent_station, route_short_name } of result.recordset) {
+      if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
+        parents[parent_station].push(route_short_name)
+      } else {
+        parents[parent_station] = [route_short_name]
+      }
+    }
+
+    for (const { stop_id, parent_station } of parentsMap) {
+      if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
+        stops[stop_id] = parents[parent_station]
+      }
+    }
+
+    return stops
+  }
+
+  getParentStops = async () => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query<{
+      stop_id: string
+      parent_station: string
+    }>(`
+      select stop_id, parent_station from stops where parent_station is not null;
+    `)
+    return result.recordset
+  }
+
+  getTransfers = async () => {
+    const parents = await this.getParentStationRouteStops()
+    const stops = await this.getNullParentStationRouteStops()
+    const transfers = { ...parents, ...stops }
+    return transfers
+  }
+
   async getRoutesForMultipleStops(stopCodes: string[]) {
     const { connection } = this
     const routesContainer: {
