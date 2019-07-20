@@ -301,3 +301,102 @@ export const badTfnsw: { rideId?: number; trip: string; consist?: string }[] = [
   { rideId: 10680, trip: 'V974', consist: '2J' },
   { rideId: 10681, trip: 'V974', consist: '2J' },
 ]
+
+
+export const nzAklRouteColor = (agencyId: string, code: string) => {
+  // First for our fancy services.
+  switch (code) {
+    case 'CTY': // City Link
+      return {routeColor:'#ef3c34',textColor:'#000000'}
+    case 'INN': // Inner Link
+      return {routeColor:'#41b649',textColor:'#ffffff'}
+    case 'OUT': // Outer Link
+      return {routeColor:'#f7991c',textColor:'#000000'}
+    case 'TMK':
+      return {routeColor:'#038fcc',textColor:'#ffffff'}
+    case 'WEST': // Western Line
+      return {routeColor:'#84bd00',textColor:'#000000'}
+    case 'STH': // South Line
+      return {routeColor:'#da291c',textColor:'#000000'}
+    case 'EAST': // East Line
+      return {routeColor:'#ed8b00',textColor:'#000000'}
+    case 'PUK': // South Line
+      return {routeColor:'#da291c',textColor:'#000000'}
+    case 'ONE': // ONE Line
+      return {routeColor:'#00a6d6',textColor:'#ffffff'}
+    case 'NX1': // Northern Express 1
+      return {routeColor:'#123f90',textColor:'#ffffff'}
+    case 'NX2': // Northern Express 2
+      return {routeColor:'#008540',textColor:'#ffffff'}
+    default:
+    // do nothing
+  }
+  switch (agencyId) {
+    case 'AM': // Auckland Metro
+      return {routeColor:'#00254b',textColor:'#ffffff'}
+
+    case 'FGL': // Fullers
+      return {routeColor:'#2756a4',textColor:'#ffffff'}
+
+    case 'HE': // Howick and Eastern
+      return {routeColor:'#2196F3',textColor:'#ffffff'}
+
+    case 'NZBGW': // NZ Bus - Go West
+      return {routeColor:'#4CAF50',textColor:'#ffffff'}
+
+    case 'NZB': // NZ Bus - metrolink
+      return {routeColor:'#0759b0',textColor:'#ffffff'}
+
+    case 'NZBML': // NZ Bus - metrolink
+      return {routeColor:'#0759b0',textColor:'#ffffff'}
+
+    case 'NZBNS': // NZ Bus - North Star
+      return {routeColor:'#f39c12',textColor:'#000000'}
+
+    case 'NZBWP': // NZ Bus - Waka Pacific
+      return {routeColor:'#0f91ab',textColor:'#ffffff'}
+
+    case 'UE': // Urban Express / Same as Pavolich
+      return {routeColor:'#776242',textColor:'#ffffff'}
+
+    case 'BTL': // Birkenhead Transport
+      return {routeColor:'#b2975b',textColor:'#000000'}
+
+    case 'RTH': // Ritchies
+      return {routeColor:'#ff6f2c',textColor:'#000000'}
+
+    case 'TZG': // Tranzit
+      return {routeColor:'#008540',textColor:'#ffffff'}
+
+    case 'WBC': // Waiheke Bus Company
+      return {routeColor:'#2196F3',textColor:'#ffffff'}
+
+    case 'EXPNZ': // Explore Waiheke - supposed to be closed?
+      return {routeColor:'#ffe81c',textColor:'#000000'}
+
+    case 'BFL': // Belaire Ferries
+      return {routeColor:'#ffd503',textColor:'#000000'}
+
+    case 'ATAPT': // AT Airporter
+      return {routeColor:'#f7931d',textColor:'#000000'}
+
+    case 'SLPH': // Pine Harbour / Sealink
+      return {routeColor:'#d92732',textColor:'#000000'}
+
+    case 'GBT': // Go Bus
+      return {routeColor:'#58aa17',textColor:'#ffffff'}
+
+    case '360D': // 360 Discovery
+      return {routeColor:'#2756a4',textColor:'#ffffff'}
+
+    case 'ABEXP': // Skybus
+      return {routeColor:'#F44336',textColor:'#000000'}
+
+    case 'PC': // Pavolich
+      return {routeColor:'#776242',textColor:'#ffffff'}
+
+    default:
+      // MSB, PBC, BAYES - Schools
+      return {routeColor:'#17232f',textColor:'#ffffff'}
+  }
+}

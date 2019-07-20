@@ -19,7 +19,7 @@ import {
   transfersCreator
 } from './tableCreator'
 
-import { badTfnsw } from './bad'
+import { badTfnsw, nzAklRouteColor } from './bad'
 import { isKeyof } from '../importers';
 
 const primaryKeys = {
@@ -81,18 +81,19 @@ class GtfsImport {
     }
   }
 
-  private mapRowToRecord = (
+  private mapRowToRecord= (
     row: any[],
     rowSchema: { [key: string]: number },
     tableSchema: string[],
     endpoint?: string,
-  ) => {
+  ) : string[] => {
     let arrival_time_24 = false
     let departure_time_24 = false
     return tableSchema.map(column => {
       if (column.split('_')[1] === 'id') {
         return row[rowSchema[column]]
       }
+
       // some feeds currently have a mix of standard and extended route types. this unifies waka to be only extended
       // https://developers.google.com/transit/gtfs/reference/extended-route-types
       // if (config.extended) {
@@ -241,6 +242,13 @@ class GtfsImport {
                 tableSchema,
                 endpoint,
               )
+              if (file.table === 'routes' && config.prefix === 'nz-akl'){
+                if (!record[7]){
+                const  {routeColor,textColor} = nzAklRouteColor(record[1],record[2])
+                record[7] =routeColor
+                record[8] = textColor
+                }
+              }
               if (
                 file.table === 'trips' &&
                 config.prefix === 'au-syd' &&
