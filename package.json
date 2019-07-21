@@ -10,7 +10,9 @@
     "watch:live": "cross-env NODE_ENV=devlive webpack-dev-server  --mode development",
     "anal": "webpack --json > report.json",
     "test": "echo \"Error: no test specified\"",
-    "watch:local": "cross-env NODE_ENV=local webpack-dev-server"
+    "watch:local": "cross-env NODE_ENV=local webpack-dev-server",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "repository": {
     "type": "git",
@@ -34,6 +36,10 @@
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
     "@babel/preset-env": "^7.4.5",
+    "@storybook/addon-actions": "^5.1.9",
+    "@storybook/addon-links": "^5.1.9",
+    "@storybook/addons": "^5.1.9",
+    "@storybook/react": "^5.1.9",
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.6",
     "babel-plugin-react-native-web": "^0.11.4",

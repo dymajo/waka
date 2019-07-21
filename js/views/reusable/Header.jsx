@@ -21,7 +21,6 @@ class Header extends React.Component {
     className: PropTypes.string,
     title: PropTypes.string,
     subtitle: PropTypes.string,
-    backFn: PropTypes.func,
     actionIcon: PropTypes.node,
     actionFn: PropTypes.func,
     hideClose: PropTypes.bool,
@@ -117,10 +116,7 @@ class Header extends React.Component {
     }
     const closeIcon =
       this.props.hideClose === true ? null : (
-        <TouchableOpacity
-          style={styles.close}
-          onClick={this.props.backFn || this.triggerBack}
-        >
+        <TouchableOpacity style={styles.close} onClick={this.triggerBack}>
           <View style={styles.iconInner}>
             <CloseIcon style={{ fill: vars.headerIconColor }} />
           </View>
@@ -129,8 +125,8 @@ class Header extends React.Component {
     const pillWrapperStyles = desktopLayout
       ? [styles.pillWrapper, styles.invisible]
       : actionIcon && closeIcon
-        ? [styles.pillWrapper, styles.pillWrapperExtra]
-        : styles.pillWrapper
+      ? [styles.pillWrapper, styles.pillWrapperExtra]
+      : styles.pillWrapper
     return (
       <View
         style={
