@@ -16,7 +16,7 @@ import TimetableIcon from '../../../dist/icons/timetable.svg'
 // 3 minutes until we'll hide the trip
 const tripDelay = 3 * 6000
 
-class TripItem extends React.Component {
+export class TripItem extends React.Component {
   constructor(props) {
     super(props)
     UiStore.bind('expandChange', this.expandChange)
