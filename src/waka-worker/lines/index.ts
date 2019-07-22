@@ -117,7 +117,7 @@ class Lines {
     }
   }
 
-  stop = () => {}
+  stop = () => { }
 
   getColor = (agencyId: string, routeShortName: string) => {
     // If you need to get colors from the DB, please see the Wellington Lines Code.
@@ -596,16 +596,16 @@ class Lines {
       const promises = result.recordset.map(async i => {
         const redisresult = await redis.client.get(
           `waka-worker:${prefix}:stop-transfers:${i.stop_id}`
-      )
+        )
         let transfers: string[] = []
         if (redisresult) {
           transfers = redisresult.split(',')
         }
 
         const transfersWithColors = transfers.map(j => [
-              j,
-              this.getColor(null, j),
-            ])
+          j,
+          this.getColor(null, j),
+        ])
         transfersWithColors.sort(sortFn)
 
         return { ...i, transfers: transfersWithColors }
@@ -675,6 +675,35 @@ class Lines {
       logger.error({ err }, 'Could not get stops.')
       res.status(500).send({ message: 'Could not get stops' })
     }
+  }
+
+  stopTimesv2 = async (
+    req: WakaRequest<null, { tripId: string }>,
+    res: Response
+  ) => {
+    const {
+      params: { tripId },
+    } = req
+    const { stopsDataAccess } = this
+    const data = await stopsDataAccess.getBlockFromTrip(tripId)
+    const promises = data.current.map(async i => {
+      const redisresult = await this.redis.client.get(
+        `waka-worker:${this.prefix}:stop-transfers:${i.stop_id}`
+      )
+      let transfers: string[] = []
+      if (redisresult) {
+        transfers = redisresult.split(',')
+      }
+      const transfersWithColors = transfers.map(j => [
+        j,
+        this.getColor(null, j),
+      ])
+      transfersWithColors.sort(sortFn)
+
+      return { ...i, transfers: transfersWithColors }
+    })
+    const current = await Promise.all(promises)
+    res.send({ ...data, current })
   }
 }
 

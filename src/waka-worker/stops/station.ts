@@ -554,17 +554,5 @@ class Station {
     res.send(sending)
     return sending
   }
-
-  stopTimesv2 = async (
-    req: WakaRequest<null, { tripId: string }>,
-    res: Response
-  ) => {
-    const {
-      params: { tripId },
-    } = req
-    const { dataAccess } = this
-    const data = await dataAccess.getBlockFromTrip(tripId)
-    res.send(data)
-  }
 }
 export default Station
