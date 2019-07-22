@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { View, Text, StyleSheet } from 'react-native-web'
 import { vars } from '../../styles.js'
 
@@ -8,6 +8,35 @@ const { padding, headerColor, fontFamily } = vars
 
 let styles
 
+const getTime = date => {
+  const now = new Date()
+  if (date <= now) {
+    return {
+      text: 'Due',
+    }
+  }
+  const minutes = Math.ceil((date.getTime() - now.getTime()) / 60000)
+  if (minutes >= 180) {
+    const dateText = date.toLocaleTimeString('default', {
+      hour: 'numeric',
+      minute: 'numeric',
+    })
+    return {
+      text: dateText.replace(/ (AM|PM)/, ''),
+      subtext: dateText.match(/ (AM|PM)/)[0],
+    }
+  }
+  if (minutes >= 60) {
+    return {
+      hours: Math.floor(minutes / 60),
+      minutes: minutes % 60,
+    }
+  }
+  return {
+    minutes,
+  }
+}
+
 export const TripItem = ({
   routeShortName,
   color = headerColor,
@@ -16,9 +45,18 @@ export const TripItem = ({
   trips = [],
 }) => {
   if (trips.length === 0) return null
+  const textColorStyles = {
+    color: textColor,
+    opacity: trips[0].isRealtime ? 1 : 0.8,
+  }
+
+  const mainDepartureTime = getTime(trips[0].departureTime)
+  const secondaryDepartureTime = trips
+    .slice(1, 2)
+    .map(i => getTime(i.departureTime))
   return (
     <View style={[styles.wrapper, { backgroundColor: color }]}>
-      <View>
+      <View style={styles.left}>
         <Text style={[styles.routeShortName, { color: textColor }]}>
           {routeShortName}
         </Text>
@@ -33,6 +71,41 @@ export const TripItem = ({
           </Text>
         </View>
       </View>
+      <View style={styles.right}>
+        <Text style={[styles.departureTime, textColorStyles]}>
+          {mainDepartureTime.text ? (
+            <Text style={styles.departureTimeText}>
+              {mainDepartureTime.text}
+            </Text>
+          ) : null}
+          {mainDepartureTime.subtext ? (
+            <Text style={styles.departureTimeUnit}>
+              {mainDepartureTime.subtext}
+            </Text>
+          ) : null}
+          {mainDepartureTime.hours ? (
+            <Fragment>
+              <Text style={styles.departureTimeLarge}>
+                {mainDepartureTime.hours}
+              </Text>
+              <Text style={styles.departureTimeUnit}>hr</Text>
+            </Fragment>
+          ) : null}
+          {mainDepartureTime.minutes ? (
+            <Fragment>
+              <Text style={styles.departureTimeLarge}>
+                &nbsp;{mainDepartureTime.minutes}
+              </Text>
+              <Text style={styles.departureTimeUnit}>m</Text>
+            </Fragment>
+          ) : null}
+        </Text>
+        {trips.length === 1 ? (
+          <Text style={styles.last}>Last</Text>
+        ) : (
+          <Text>and in ???</Text>
+        )}
+      </View>
     </View>
   )
 }
@@ -45,6 +118,16 @@ styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
     borderBottomColor: 'rgba(0,0,0,0.25)',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  left: {
+    flex: 1,
+  },
+  right: {
+    paddingRight: padding * 0.75,
+    display: 'block',
+    textAlign: 'right',
   },
   routeShortName: {
     fontSize: 28,
@@ -66,6 +149,39 @@ styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     letterSpacing: -0.5,
+    fontFamily,
+  },
+  departureTime: {
+    display: 'block',
+    fontWeight: 'bold',
+    fontSize: 18,
+    paddingRight: 1,
+    fontFamily,
+  },
+  departureTimeText: {
+    lineHeight: 28,
+  },
+  departureTimeLarge: {
+    fontSize: 24,
+  },
+  departureTimeUnit: {
+    fontSize: 14,
+  },
+  last: {
+    display: 'inline-block',
+    textTransform: 'uppercase',
+    paddingTop: 1,
+    paddingBottom: 1,
+    paddingLeft: padding * 0.25,
+    paddingRight: padding * 0.25,
+    fontSize: 10,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: 'rgba(255,255,255,0.5)',
+    marginTop: 1,
+    letterSpacing: 0.5,
+    color: '#fff',
     fontFamily,
   },
 })
