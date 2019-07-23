@@ -3,7 +3,6 @@ import { View, Text, StyleSheet } from 'react-native-web'
 import { vars } from '../../styles.js'
 
 import DirectionIcon from '../../../dist/icons/direction.svg'
-import SettingsStore from '../../stores/SettingsStore.js'
 
 const { padding, headerColor, fontFamily } = vars
 
@@ -18,7 +17,7 @@ const getTime = (date, isTwentyFourHour, showDue) => {
       }
     }
     return {
-      minutes: '0', // hack - using a string changes the evaluation
+      minutes: '0', // hack - using a string is != false
     }
   }
   const minutes = Math.ceil((date.getTime() - now.getTime()) / 60000)
@@ -27,13 +26,13 @@ const getTime = (date, isTwentyFourHour, showDue) => {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleTimeString#Using_locales
     const dateText = date.toLocaleTimeString('default', {
       // get 24h time from settings
-      hour12: isTwentyFourHour,
+      hour12: !isTwentyFourHour,
       hour: 'numeric',
       minute: 'numeric',
     })
     // if us -> AM/PM, if au/nz -> am/pm, if gb -> 24h
     return {
-      text: dateText.replace(/ (AM|PM|am|pm)/, '').toLowerCase(),
+      text: dateText.replace(/ (AM|PM|am|pm)/, ''),
       subtext: dateText.match(/ (AM|PM|am|pm)/)
         ? dateText.match(/ (AM|PM|am|pm)/)[0].toLowerCase()
         : null,
@@ -48,6 +47,61 @@ const getTime = (date, isTwentyFourHour, showDue) => {
   return {
     minutes,
   }
+}
+
+// this is called recursively, with options to make it look good
+const getNextText = (times, hideVerb = false, amphersand = 'also') => {
+  const time = times[0]
+  const time2 = times[1]
+
+  let combinedMinutes = false
+  if (times.length > 1) {
+    combinedMinutes =
+      times[0].minutes !== undefined &&
+      times[1].minutes !== undefined &&
+      times[0].hours === undefined &&
+      times[1].hours === undefined
+  }
+  return (
+    <>
+      {amphersand ? ` ${amphersand}` : null}
+      {hideVerb ? null : time.text ? ' at' : ' in'}
+      {time.text ? (
+        <>
+          &nbsp;
+          <Text style={styles.strong}>{time.text}</Text>
+          {time.subtext}
+        </>
+      ) : null}
+      {time.hours ? (
+        <>
+          &nbsp;
+          <Text style={styles.strong}>{time.hours}</Text>
+          &nbsp;hr
+        </>
+      ) : null}
+      {time.minutes ? (
+        <>
+          &nbsp;
+          <Text style={styles.strong}>
+            {time.minutes}
+            {combinedMinutes ? `, ${time2.minutes}` : null}
+          </Text>
+          &nbsp;{time.minutes === 1 ? 'min' : 'mins'}
+        </>
+      ) : null}
+      {!combinedMinutes && time2 !== undefined ? (
+        <>
+          ,
+          {getNextText(
+            [time2],
+            time2.text === undefined || time.text !== undefined,
+            time2.text === undefined || time.text !== undefined ? false : 'and'
+          )}
+        </>
+      ) : null}
+    </>
+  )
 }
 
 export const TripItem = ({
@@ -70,7 +124,7 @@ export const TripItem = ({
     true
   )
   const secondaryDepartureTime = trips
-    .slice(1, 2)
+    .slice(1, 3)
     .map(i => getTime(i.departureTime, isTwentyFourHour, false))
   return (
     <View style={[styles.wrapper, { backgroundColor: color }]}>
@@ -122,31 +176,7 @@ export const TripItem = ({
           <Text style={styles.last}>Last</Text>
         ) : (
           <Text style={[styles.and, { color: textColor }]}>
-            and {secondaryDepartureTime[0].text ? 'at ' : 'in '}
-            {secondaryDepartureTime[0].text ? (
-              <>
-                <Text style={styles.strong}>
-                  {secondaryDepartureTime[0].text}
-                </Text>
-                {secondaryDepartureTime[0].subtext}
-              </>
-            ) : null}
-            {secondaryDepartureTime[0].hours ? (
-              <>
-                <Text style={styles.strong}>
-                  {secondaryDepartureTime[0].hours}
-                </Text>
-                &nbsp;hr&nbsp;
-              </>
-            ) : null}
-            {secondaryDepartureTime[0].minutes ? (
-              <>
-                <Text style={styles.strong}>
-                  {secondaryDepartureTime[0].minutes}
-                </Text>
-                &nbsp;{secondaryDepartureTime[0].minutes === 1 ? 'min' : 'mins'}
-              </>
-            ) : null}
+            {getNextText(secondaryDepartureTime)}
           </Text>
         )}
       </View>
