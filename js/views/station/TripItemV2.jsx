@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native-web'
 import { vars } from '../../styles.js'
 
 import DirectionIcon from '../../../dist/icons/direction.svg'
+import SettingsStore from '../../stores/SettingsStore.js'
 
 const { padding, headerColor, fontFamily } = vars
 
@@ -20,6 +21,8 @@ const getTime = date => {
     // be careful using 'default' as it will use browser default time formatting
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleTimeString#Using_locales
     const dateText = date.toLocaleTimeString('default', {
+      // get 24h time from settings
+      hour12: SettingsStore.getState().clock,
       hour: 'numeric',
       minute: 'numeric',
     })
