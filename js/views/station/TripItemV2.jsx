@@ -9,11 +9,16 @@ const { padding, headerColor, fontFamily } = vars
 
 let styles
 
-const getTime = date => {
+const getTime = (date, isTwentyFourHour, showDue) => {
   const now = new Date()
   if (date <= now) {
+    if (showDue === true) {
+      return {
+        text: 'Due',
+      }
+    }
     return {
-      text: 'Due',
+      minutes: '0', // hack - using a string changes the evaluation
     }
   }
   const minutes = Math.ceil((date.getTime() - now.getTime()) / 60000)
@@ -22,15 +27,15 @@ const getTime = date => {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleTimeString#Using_locales
     const dateText = date.toLocaleTimeString('default', {
       // get 24h time from settings
-      hour12: SettingsStore.getState().clock,
+      hour12: isTwentyFourHour,
       hour: 'numeric',
       minute: 'numeric',
     })
     // if us -> AM/PM, if au/nz -> am/pm, if gb -> 24h
     return {
-      text: dateText.replace(/ (AM|PM|am|pm)/, ''),
+      text: dateText.replace(/ (AM|PM|am|pm)/, '').toLowerCase(),
       subtext: dateText.match(/ (AM|PM|am|pm)/)
-        ? dateText.match(/ (AM|PM|am|pm)/)[0]
+        ? dateText.match(/ (AM|PM|am|pm)/)[0].toLowerCase()
         : null,
     }
   }
@@ -50,6 +55,7 @@ export const TripItem = ({
   color = headerColor,
   textColor = '#fff',
   direction,
+  isTwentyFourHour = false,
   trips = [],
 }) => {
   if (trips.length === 0) return null
@@ -58,10 +64,14 @@ export const TripItem = ({
     opacity: trips[0].isRealtime ? 1 : 0.8,
   }
 
-  const mainDepartureTime = getTime(trips[0].departureTime)
+  const mainDepartureTime = getTime(
+    trips[0].departureTime,
+    isTwentyFourHour,
+    true
+  )
   const secondaryDepartureTime = trips
     .slice(1, 2)
-    .map(i => getTime(i.departureTime))
+    .map(i => getTime(i.departureTime, isTwentyFourHour, false))
   return (
     <View style={[styles.wrapper, { backgroundColor: color }]}>
       <View style={styles.left}>
@@ -111,7 +121,33 @@ export const TripItem = ({
         {trips.length === 1 ? (
           <Text style={styles.last}>Last</Text>
         ) : (
-          <Text>and in ???</Text>
+          <Text style={[styles.and, { color: textColor }]}>
+            and {secondaryDepartureTime[0].text ? 'at ' : 'in '}
+            {secondaryDepartureTime[0].text ? (
+              <>
+                <Text style={styles.strong}>
+                  {secondaryDepartureTime[0].text}
+                </Text>
+                {secondaryDepartureTime[0].subtext}
+              </>
+            ) : null}
+            {secondaryDepartureTime[0].hours ? (
+              <>
+                <Text style={styles.strong}>
+                  {secondaryDepartureTime[0].hours}
+                </Text>
+                &nbsp;hr&nbsp;
+              </>
+            ) : null}
+            {secondaryDepartureTime[0].minutes ? (
+              <>
+                <Text style={styles.strong}>
+                  {secondaryDepartureTime[0].minutes}
+                </Text>
+                &nbsp;{secondaryDepartureTime[0].minutes === 1 ? 'min' : 'mins'}
+              </>
+            ) : null}
+          </Text>
         )}
       </View>
     </View>
@@ -191,5 +227,8 @@ styles = StyleSheet.create({
     letterSpacing: 0.5,
     color: '#fff',
     fontFamily,
+  },
+  strong: {
+    fontWeight: 'bold',
   },
 })
