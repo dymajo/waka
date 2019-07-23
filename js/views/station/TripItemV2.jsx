@@ -115,7 +115,6 @@ export const TripItem = ({
   if (trips.length === 0) return null
   const textColorStyles = {
     color: textColor,
-    opacity: trips[0].isRealtime ? 1 : 0.8,
   }
 
   const mainDepartureTime = getTime(
@@ -129,22 +128,27 @@ export const TripItem = ({
   return (
     <View style={[styles.wrapper, { backgroundColor: color }]}>
       <View style={styles.left}>
-        <Text style={[styles.routeShortName, { color: textColor }]}>
+        <Text style={[styles.routeShortName, textColorStyles]}>
           {routeShortName}
         </Text>
         <View style={styles.destinations}>
           <View
             style={direction === 1 ? styles.direction : styles.directionRotated}
           >
-            <DirectionIcon style={{ verticalAlign: 'top' }} />
+            <DirectionIcon style={{ verticalAlign: 'top', fill: textColor }} />
           </View>
-          <Text style={[styles.destination, { color: textColor }]}>
+          <Text style={[styles.destination, textColorStyles]}>
             {trips[0].destination}
           </Text>
         </View>
       </View>
       <View style={styles.right}>
-        <Text style={[styles.departureTime, textColorStyles]}>
+        <Text
+          style={[
+            styles.departureTime,
+            { color: textColor, opacity: trips[0].isRealtime ? 1 : 0.8 },
+          ]}
+        >
           {mainDepartureTime.text ? (
             <Text style={styles.departureTimeText}>
               {mainDepartureTime.text}
@@ -173,9 +177,16 @@ export const TripItem = ({
           ) : null}
         </Text>
         {trips.length === 1 ? (
-          <Text style={styles.last}>Last</Text>
+          <Text
+            style={[
+              styles.last,
+              { ...textColorStyles, borderColor: textColor },
+            ]}
+          >
+            Last
+          </Text>
         ) : (
-          <Text style={[styles.and, { color: textColor }]}>
+          <Text style={[styles.and, textColorStyles]}>
             {getNextText(secondaryDepartureTime)}
           </Text>
         )}

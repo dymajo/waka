@@ -421,3 +421,62 @@ storiesOf('TripItem', module)
       />
     </React.Fragment>
   ))
+  .add('background colors', () => (
+    <React.Fragment>
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        color="rgb(7, 89, 176)"
+        trips={[
+          {
+            destination: 'Botany',
+            departureTime: new Date(),
+            isRealtime: false,
+          },
+        ]}
+      />
+      <TripItem
+        routeShortName="NX2"
+        direction={0}
+        color="rgb(0, 133, 64)"
+        trips={[
+          {
+            destination: 'Britomart',
+            departureTime: new Date(),
+            isRealtime: false,
+          },
+        ]}
+      />
+    </React.Fragment>
+  ))
+  .add('foreground colors', () => (
+    <React.Fragment>
+      <TripItem
+        routeShortName="EAST"
+        direction={0}
+        color="#f9ca24"
+        textColor="rgba(0,0,0,0.85)"
+        trips={[
+          {
+            destination: 'Botany',
+            departureTime: new Date(),
+            isRealtime: false,
+          },
+        ]}
+      />
+      <TripItem
+        routeShortName="EAST"
+        direction={1}
+        color="#f9ca24"
+        textColor="rgba(0,0,0,0.85)"
+        trips={[
+          {
+            destination: 'Britomart',
+            departureTime: new Date(),
+            isRealtime: false,
+          },
+          singleTrip,
+        ]}
+      />
+    </React.Fragment>
+  ))
