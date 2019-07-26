@@ -32,18 +32,18 @@ class RealtimeNZWLG extends BaseRealtime {
     this.logger = logger
   }
 
-  start() {
+  start = async () => {
     this.logger.info('Wellington Realtime Started.')
   }
 
-  stop() {
+  stop = () => {
     this.logger.info('Wellington Realtime Stopped.')
   }
 
-  async getTripsEndpoint(
+  getTripsEndpoint = async (
     req: WakaRequest<{ stop_id: string; trips: string[] }, null>,
     res: Response
-  ) {
+  ) => {
     if (!req.body.stop_id) {
       return res.status(400).send({ message: 'stop_id required' })
     }
@@ -129,7 +129,7 @@ class RealtimeNZWLG extends BaseRealtime {
             const closest = realtimeServices[trip.route_short_name].reduce(
               (prev, curr) =>
                 Math.abs(moment(curr.AimedDeparture).unix() - goal.unix()) <
-                  Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
+                Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
                   ? curr
                   : prev
             )
@@ -173,10 +173,10 @@ class RealtimeNZWLG extends BaseRealtime {
     }
   }
 
-  async getVehicleLocationEndpoint(
+  getVehicleLocationEndpoint = async (
     req: WakaRequest<{ trips: string[] }, null>,
     res: Response
-  ) {
+  ) => {
     const { logger, connection } = this
     const tripId = req.body.trips[0]
 
@@ -229,19 +229,17 @@ class RealtimeNZWLG extends BaseRealtime {
           bearing: service.Bearing,
         }
       })
-      res.send(responseData)
-      return responseData
+      return res.send(responseData)
     } catch (err) {
       logger.error(err)
-      res.status(500).send({ message: 'error' })
-      return err
+      return res.status(500).send({ message: 'error' })
     }
   }
 
-  async getLocationsForLine(
+  getLocationsForLine = async (
     req: WakaRequest<null, { line: string }>,
     res: Response
-  ) {
+  ) => {
     const { logger } = this
     const { line } = req.params
     try {

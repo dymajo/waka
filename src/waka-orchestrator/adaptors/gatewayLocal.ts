@@ -3,12 +3,12 @@ import logger from '../logger'
 import WakaWorker from '../../waka-worker'
 import { WorkerConfig } from '../../typings'
 import BaseGateway from '../../types/BaseGateway'
-import Realtime from '../../waka-realtime'
+import WakaRealtime from '../../waka-realtime'
 
 class GatewayLocal extends BaseGateway {
   router: Router
   workers: { [prefix: string]: WakaWorker }
-  realtimes: { [prefix: string]: Realtime }
+  realtimes: { [prefix: string]: WakaRealtime }
   constructor() {
     super()
     this.router = Router()
@@ -33,16 +33,16 @@ class GatewayLocal extends BaseGateway {
     }
 
     workers[prefix] = newWorker
-    newWorker.start()
+    logger.info({ prefix }, 'starting new route')
+    await newWorker.start()
     if (config.newRealtime) {
       const oldRealtime = realtimes[prefix]
-      const newRealtime = new Realtime(config)
+      const newRealtime = new WakaRealtime(config)
       if (oldRealtime !== undefined) {
         logger.info({ prefix }, 'Route already has realtime - stopping')
         oldRealtime.stop()
-        newRealtime.start()
       }
-      newRealtime.start()
+      await newRealtime.start()
       realtimes[prefix] = newRealtime
     }
     logger.info({ prefix }, 'Local Gateway Started.')

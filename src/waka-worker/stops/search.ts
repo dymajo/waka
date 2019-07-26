@@ -28,13 +28,13 @@ class Search {
     this.stopsRouteType = {}
   }
 
-  start = () => {
-    this.getStopsRouteType()
+  start = async () => {
+    await this.getStopsRouteType()
   }
 
   stop = () => { }
 
-  private stopsFilter = (recordset: { stop_id: string }[], mode?: string) => {
+  stopsFilter = (recordset: { stop_id: string }[], mode?: string) => {
     const { prefix, regionSpecific } = this
     if (prefix === 'nz-wlg') {
       return regionSpecific.filter(recordset, mode)

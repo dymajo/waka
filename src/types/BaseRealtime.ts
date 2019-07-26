@@ -55,7 +55,7 @@ export default abstract class BaseRealtime {
     req: WakaRequest<null, null>,
     res: Response
   ): Promise<Response>
-  abstract start(): void
+  abstract start(): Promise<void>
   abstract stop(): void
   abstract getVehicleLocationEndpoint(
     req: WakaRequest<{ trips: string[] }, null>,
