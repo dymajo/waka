@@ -117,15 +117,10 @@ class Lines {
     }
   }
 
-  stop = () => { }
+  stop = () => {}
 
   getColor = (agencyId: string, routeShortName: string) => {
-    // If you need to get colors from the DB, please see the Wellington Lines Code.
-    // Essentially does a one-time cache of all the colors into the lineData object.
     const { lineDataSource } = this
-    if (lineDataSource.getColor) {
-      return lineDataSource.getColor(agencyId, routeShortName)
-    }
     if (lineDataSource.lineColors) {
       return lineDataSource.lineColors[routeShortName] || '#00263A'
     }
@@ -302,7 +297,6 @@ class Lines {
       sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
     }
     sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
-
     const query = `
       SELECT
         routes.route_id,
@@ -310,6 +304,7 @@ class Lines {
         routes.route_short_name,
         routes.route_long_name,
         routes.route_type,
+        routes.route_color,
         trips.shape_id,
         trips.trip_headsign,
         trips.direction_id,
@@ -327,11 +322,13 @@ class Lines {
         routes.route_short_name,
         routes.route_long_name,
         routes.route_type,
+        routes.route_color,
         trips.shape_id,
         trips.trip_headsign,
         trips.direction_id
       ORDER BY
-        shape_score desc`
+        shape_score desc
+    `
 
     const result = await sqlRequest.query<{
       route_id: string
@@ -339,6 +336,7 @@ class Lines {
       route_short_name: string
       route_long_name: string
       route_type: number
+      route_color: string
       shape_id: string
       trip_headsign: string
       direction_id: string
@@ -376,7 +374,7 @@ class Lines {
         agency_id: route.agency_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
-        route_color: this.getColor(route.agency_id, route.route_short_name),
+        route_color: route.route_color,
         route_icon: this.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
