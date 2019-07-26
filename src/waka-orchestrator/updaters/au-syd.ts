@@ -44,7 +44,11 @@ class TfNSWUpdater {
   prefix: string
   timeout: NodeJS.Timeout
   apiKey: string
-  callback: any
+  callback: (
+    prefix: string,
+    version: string,
+    adjustMapping: boolean
+  ) => Promise<void>
   delay: number
   interval: number
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
@@ -67,21 +71,24 @@ class TfNSWUpdater {
     const { redis: redisConfig } = config
     this.redis = new WakaRedis({ prefix, logger, config: redisConfig })
     await this.redis.start()
-
     const quota = {
       interval: 1000,
       rate: 5,
       concurrency: 5,
     }
-    this.rateLimiter = this.redis
-      ? pRateLimit(new RedisQuotaManager(quota, this.prefix, this.redis.client))
-      : pRateLimit(quota)
+    try {
+      this.rateLimiter = this.redis
+        ? pRateLimit(
+            new RedisQuotaManager(quota, this.prefix, this.redis.client)
+          )
+        : pRateLimit(quota)
+    } catch (error) {
+      logger.error(error)
+    }
     if (!apiKey) {
       logger.error({ prefix }, 'API Key must be supplied!')
     }
-
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
-
     // begin check
     this.check()
     this.timeout = setTimeout(check, delay * 60000)
@@ -133,7 +140,7 @@ class TfNSWUpdater {
 
       return new Date(res.headers['last-modified'])
     } catch (err) {
-      logger.error({ err }, 'Could not reach api')
+      logger.error({ err }, `Could not reach ${endpoint} api`)
       return new Date(0)
     }
   }

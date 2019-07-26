@@ -1,8 +1,8 @@
 import * as Logger from 'bunyan'
-import Connection from '../db/connection'
-import { Geography, Float } from 'mssql'
-import { WakaRequest } from '../../typings'
+import { Float } from 'mssql'
 import { Response } from 'express'
+import Connection from '../db/connection'
+import { WakaRequest } from '../../typings'
 
 class Alexa {
   logger: Logger
@@ -20,7 +20,6 @@ class Alexa {
 
   listStops = async (req: WakaRequest<null, null>, res: Response) => {
     const sqlRequest = this.connection.get().request()
-    debugger
     sqlRequest.input('lat', Float, req.query.lat)
     sqlRequest.input('lon', Float, req.query.lon)
     sqlRequest.input('distance', Float, req.query.distance)
