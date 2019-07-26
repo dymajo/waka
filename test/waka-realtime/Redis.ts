@@ -14,7 +14,13 @@ const testConfig = {
 class FakeRedisClient {
   connected = true
   store = new Map()
-  set = async (key, value, expiryMode?, time?, setMode?) => {
+  set = async (
+    key: string,
+    value: string,
+    expiryMode?: string,
+    time?: string,
+    setMode?: string
+  ) => {
     this.store.set(key, {
       value,
       expiryMode,
@@ -23,7 +29,7 @@ class FakeRedisClient {
     })
     return 'done'
   }
-  get = async key => {
+  get = async (key: string) => {
     return (this.store.get(key) || '').value || ''
   }
   disconnect = () => {
