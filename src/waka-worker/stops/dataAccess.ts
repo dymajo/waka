@@ -1,6 +1,6 @@
 import * as sql from 'mssql'
 import Connection from '../db/connection'
-import { RouteInfo, StopTime, TripRow } from '../../typings'
+import { RouteInfo, StopTime, TripRow, TripInfo } from '../../typings'
 
 interface StopsDataAccessProps {
   connection: Connection
@@ -319,7 +319,7 @@ class StopsDataAccess {
     if (filteredStopCodes.length > 0) {
       // TODO: This isn't SQL Injection Proof, but it shouldn't be hit from there anyway.
       // This should also be a stored procedure.
-      const stopCodesQuery = `('${filteredStopCodes.join("','")}')`
+      const stopCodesQuery = `('${filteredStopCodes.join('\',\'')}')`
 
       const sqlRequest = connection.get().request()
       const result = await sqlRequest.query<{
@@ -402,12 +402,12 @@ class StopsDataAccess {
     const sqlRequest = connection.get().request()
     const escapedTripIds =
       previous && next
-        ? `'${current}', '${previous}', '${next}'`
+        ? ` '${previous}', '${next}'`
         : previous
-          ? `'${current}', '${previous}'`
+          ? ` '${previous}'`
           : next
-            ? `'${current}', '${next}'`
-            : `'${current}'`
+            ? ` '${next}'`
+            : ''
 
     const result = await sqlRequest.query<StopTime>(`
       select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name, stop_sequence
@@ -418,38 +418,41 @@ class StopsDataAccess {
       on stop_times.stop_id = stops.stop_id
       inner join routes
 on trips.route_id = routes.route_id
-      where trips.trip_id in (${escapedTripIds})
-      order by  trip_id, stop_sequence
-        `)
-
+      where trips.trip_id = '${current}'
+      order by stop_sequence
+      `)
+    const sqlRequest2 = connection.get().request()
+    let result2
     const routeInfo = await this.getRouteInfo(current)
 
     const trips: {
-      previous: StopTime[]
       current: StopTime[]
-      next: StopTime[]
+      previous?: TripInfo
+      next?: TripInfo
       routeInfo: RouteInfo
     } = {
-      previous: [],
-      current: [],
-      next: [],
+      current: result.recordset,
       routeInfo,
     }
-    for (const stopTime of result.recordset) {
-      switch (stopTime.trip_id) {
-        case current:
-          trips.current.push(stopTime)
-          break
-        case next:
-          trips.next.push(stopTime)
-          break
-        case previous:
-          trips.previous.push(stopTime)
-          break
-        default:
-          break
+    if (escapedTripIds) {
+      result2 = await sqlRequest2.query<TripInfo>(`
+        select trip.trip_id, route.route_long_name,  route.route_short_name,route.route_color, stop_time.departure_time  from trips trip
+        inner join routes route
+        on route.route_id = trip.route_id
+        inner join stop_times stop_time
+        on stop_time.trip_id = trip.trip_id
+        where trip.trip_id in (${escapedTripIds}) and stop_time.stop_sequence = (SELECT MIN(stop_sequence) from stop_times where trip_id = trip.trip_id)
+      `)
+      for (const trip of result2.recordset) {
+        if (trip.trip_id === previous) {
+          trips.previous = trip
+        }
+        if (trip.trip_id === next) {
+          trips.next = trip
+        }
       }
     }
+
     return trips
   }
 
@@ -483,6 +486,7 @@ on trips.route_id = routes.route_id
     const previous = result.recordset[currentIdx - 1]
     const next = result.recordset[currentIdx + 1]
     const current = result.recordset[currentIdx]
+
     if (numberOfTrips === 0) {
       return this.getStopTimesV2(tripId)
     }
