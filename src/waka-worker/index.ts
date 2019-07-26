@@ -61,7 +61,7 @@ class WakaWorker {
       prefix,
       api,
       newRealtime,
-      redisConfig: config.redis,
+      wakaRedis: this.redis,
     })
 
     this.stopsExtras = null
@@ -107,16 +107,17 @@ class WakaWorker {
       this.logger.error(err)
     })
     this.logger.info('Connected to the Database')
-    this.lines.start()
-    this.search.start()
+    await this.redis.start()
+    await this.realtime.start()
+    await this.search.start()
     if (this.stopsExtras) this.stopsExtras.start()
-    this.realtime.start()
-    this.redis.start()
+    await this.lines.start()
     this.bounds = await this.station.getBounds()
     await this.station.transfers()
   }
 
   stop = () => {
+    this.logger.warn('worker stopped')
     this.lines.stop()
     this.search.stop()
     if (this.stopsExtras) this.stopsExtras.stop()

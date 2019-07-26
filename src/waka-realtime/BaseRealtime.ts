@@ -1,6 +1,6 @@
 import path from 'path'
 import { AxiosInstance } from 'axios'
-import Redis from './Redis'
+import WakaRedis from './Redis'
 import { Logger } from '../typings'
 import {
   VehiclePosition,
@@ -16,7 +16,7 @@ export interface BaseRealtimeProps {
   apiKey?: string
   apiKeyRequired?: boolean
 
-  redis: Redis
+  wakaRedis: WakaRedis
   logger: Logger
   axios: AxiosInstance
   scheduleUpdatePullTimeout?: number
@@ -47,7 +47,7 @@ export default abstract class BaseRealtime {
 
   logger: Logger
   axios: AxiosInstance
-  redis: Redis
+  wakaRedis: WakaRedis
   protobuf: protobuf.Type
 
   apiKey?: string
@@ -60,7 +60,7 @@ export default abstract class BaseRealtime {
     if (apiKeyRequired && !apiKey) {
       throw Error('api key required')
     }
-    this.redis = props.redis
+    this.wakaRedis = props.wakaRedis
     this.apiKey = props.apiKey
     this.logger = props.logger
     this.axios = props.axios
@@ -85,7 +85,7 @@ export default abstract class BaseRealtime {
   ) => {
     for (const key in object) {
       if (Object.prototype.hasOwnProperty.call(object, key)) {
-        await this.redis.setKey(key, object[key].toString(), type)
+        await this.wakaRedis.setKey(key, object[key].toString(), type)
       }
     }
   }
@@ -94,7 +94,7 @@ export default abstract class BaseRealtime {
     tripId: string,
     vehiclePosition: VehiclePosition
   ) => {
-    await this.redis.setKey(
+    await this.wakaRedis.setKey(
       tripId,
       JSON.stringify(vehiclePosition),
       'vehicle-position'
@@ -121,7 +121,7 @@ export default abstract class BaseRealtime {
 
   processTripUpdates = async (updateFeedEntities: UpdateFeedEntity[]) => {
     for (const trip of updateFeedEntities) {
-      await this.redis.setKey(
+      await this.wakaRedis.setKey(
         trip.tripUpdate.trip.tripId,
         JSON.stringify(trip.tripUpdate),
         'trip-update'
@@ -137,7 +137,11 @@ export default abstract class BaseRealtime {
     const stops: { [stopId: string]: string[] } = {}
 
     for (const entity of alertFeedEntities) {
-      await this.redis.setKey(entity.id, JSON.stringify(entity.alert), 'alert')
+      await this.wakaRedis.setKey(
+        entity.id,
+        JSON.stringify(entity.alert),
+        'alert'
+      )
 
       entity.alert.informedEntity.forEach(informed => {
         const { id: alertId } = entity

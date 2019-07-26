@@ -5,24 +5,24 @@ import Connection from '../../db/connection'
 import { WakaRequest, Logger, RedisConfig } from '../../../typings'
 
 import BaseRealtime from '../../../types/BaseRealtime'
-import Redis from '../../../waka-realtime/Redis'
 import { TripUpdate } from '../../../gtfs'
+import WakaRedis from '../../../waka-realtime/Redis'
 
 interface RealtimeAUSYDProps {
   connection: Connection
   logger: Logger
   newRealtime: boolean
-  redisConfig: RedisConfig
+  wakaRedis: WakaRedis
 }
 
 class RealtimeAUSYD extends BaseRealtime {
-  redis: Redis
+  wakaRedis: WakaRedis
   newRealtime: boolean
 
   constructor(props: RealtimeAUSYDProps) {
     super()
-    const { connection, logger, newRealtime, redisConfig } = props
-    this.redis = new Redis({ prefix: 'au-syd', logger, config: redisConfig })
+    const { connection, logger, newRealtime, wakaRedis } = props
+    this.wakaRedis = wakaRedis
     this.newRealtime = newRealtime
     this.connection = connection
     this.logger = logger
@@ -34,7 +34,7 @@ class RealtimeAUSYD extends BaseRealtime {
     if (!newRealtime) {
       logger.error('Must be new realtime')
     } else {
-      this.redis.start()
+      // await this.wakaRedis.start()
       logger.info('Realtime Gateway started')
     }
   }
@@ -52,7 +52,7 @@ class RealtimeAUSYD extends BaseRealtime {
     const realtimeInfo: { [tripId: string]: TripUpdate } = {}
     for (const tripId of trips) {
       try {
-        const data = await this.redis.getTripUpdate(tripId)
+        const data = await this.wakaRedis.getTripUpdate(tripId)
 
         realtimeInfo[tripId] = data
       } catch (error) {
@@ -75,7 +75,7 @@ class RealtimeAUSYD extends BaseRealtime {
       if (Object.prototype.hasOwnProperty.call(trips, tripId)) {
         const element = trips[tripId]
         try {
-          const data = await this.redis.getVehiclePosition(tripId)
+          const data = await this.wakaRedis.getVehiclePosition(tripId)
           vehicleInfo[tripId] = {
             latitude: data.position.latitude,
             longitude: data.position.longitude,
@@ -95,6 +95,11 @@ class RealtimeAUSYD extends BaseRealtime {
     const { logger, connection } = this
     const { line } = req.params
 
+    // const keys = await this.wakaRedis.client.keys('*au-syd:vehicle-position*')
+    // if (keys.length === 0) {
+    //   return res.send([])
+    // }
+
     try {
       const sqlRouteIdRequest = connection.get().request()
       sqlRouteIdRequest.input('route_short_name', VarChar(50), line)
@@ -108,7 +113,7 @@ class RealtimeAUSYD extends BaseRealtime {
       const routeIds = routeIdResult.recordset.map(r => r.route_id)
       let tripIds: string[] = []
       for (const routeId of routeIds) {
-        const t = await this.redis.getArrayKey(
+        const t = await this.wakaRedis.getArrayKey(
           routeId,
           'vehicle-position-route'
         )
@@ -116,7 +121,7 @@ class RealtimeAUSYD extends BaseRealtime {
       }
 
       const trips = await Promise.all(
-        tripIds.map(tripId => this.redis.getVehiclePosition(tripId))
+        tripIds.map(tripId => this.wakaRedis.getVehiclePosition(tripId))
       )
       const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
@@ -136,7 +141,7 @@ class RealtimeAUSYD extends BaseRealtime {
         FROM trips
         WHERE trip_id IN (${escapedTripIds})
       `)
-      console.log(tripIdRequest.recordset)
+      // console.log(tripIdRequest.recordset)
 
       const tripIdsMap: {
         [tripId: string]: {
@@ -158,13 +163,11 @@ class RealtimeAUSYD extends BaseRealtime {
 
       // now we return the structued data finally
       const result = trips.map(vehicle => {
-        console.log(vehicle)
-        console.log(tripIdsMap[vehicle.trip.tripId])
         return {
           latitude: vehicle.position.latitude,
           longitude: vehicle.position.longitude,
           bearing: vehicle.position.bearing,
-          direction: tripIdsMap[vehicle.trip.tripId].direction_id,
+          // direction: tripIdsMap[vehicle.trip.tripId].direction_id,
           stopId: vehicle.stopId,
           congestionLevel: vehicle.congestionLevel,
           updatedAt: this.lastVehicleUpdate,
@@ -191,18 +194,24 @@ class RealtimeAUSYD extends BaseRealtime {
     } = req
     // const alerts = []
     if (routeId) {
-      const alid = await this.redis.getArrayKey(routeId, 'alert-route')
-      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      const alid = await this.wakaRedis.getArrayKey(routeId, 'alert-route')
+      const alerts = await Promise.all(
+        alid.map(id => this.wakaRedis.getAlert(id))
+      )
       return res.send(alerts)
     }
     if (tripId) {
-      const alid = await this.redis.getArrayKey(tripId, 'alert-trip')
-      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      const alid = await this.wakaRedis.getArrayKey(tripId, 'alert-trip')
+      const alerts = await Promise.all(
+        alid.map(id => this.wakaRedis.getAlert(id))
+      )
       return res.send(alerts)
     }
     if (stopId) {
-      const alid = await this.redis.getArrayKey(stopId, 'alert-stop')
-      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      const alid = await this.wakaRedis.getArrayKey(stopId, 'alert-stop')
+      const alerts = await Promise.all(
+        alid.map(id => this.wakaRedis.getAlert(id))
+      )
       return res.send(alerts)
     }
     return res.send([])

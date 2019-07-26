@@ -4,7 +4,7 @@ import Redis from '../Redis'
 import MultiCombinedFeed from '../MultiCombinedFeed'
 
 interface NYCRealtimeProps {
-  redis: Redis
+  wakaRedis: Redis
   apiKey: string
   logger: Logger
   scheduleUpdatePullTimeout?: number

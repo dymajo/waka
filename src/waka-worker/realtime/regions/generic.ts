@@ -5,28 +5,28 @@ import Connection from '../../db/connection'
 import { WakaRequest, Logger, RedisConfig } from '../../../typings'
 
 import BaseRealtime from '../../../types/BaseRealtime'
-import Redis from '../../../waka-realtime/Redis'
 import { TripUpdate } from '../../../gtfs'
+import WakaRedis from '../../../waka-realtime/Redis'
 
 interface GenericRealtimeProps {
   connection: Connection
   logger: Logger
   newRealtime: boolean
-  redisConfig: RedisConfig
+  wakaRedis: WakaRedis
   prefix: string
 }
 
 class GenericRealtime extends BaseRealtime {
-  redis: Redis
+  wakaRedis: WakaRedis
   newRealtime: boolean
 
   constructor(props: GenericRealtimeProps) {
     super()
-    const { connection, logger, newRealtime, redisConfig, prefix } = props
-    this.redis = new Redis({ prefix, logger, config: redisConfig })
+    const { connection, logger, newRealtime, wakaRedis } = props
     this.newRealtime = newRealtime
     this.connection = connection
     this.logger = logger
+    this.wakaRedis = wakaRedis
   }
 
   start = async () => {
@@ -35,7 +35,7 @@ class GenericRealtime extends BaseRealtime {
     if (!newRealtime) {
       logger.error('Must be new realtime')
     } else {
-      this.redis.start()
+      // await this.redis.start()
       logger.info('Realtime Gateway started')
     }
   }
@@ -53,7 +53,7 @@ class GenericRealtime extends BaseRealtime {
     const realtimeInfo: { [tripId: string]: TripUpdate } = {}
     for (const tripId of trips) {
       try {
-        const data = await this.redis.getTripUpdate(tripId)
+        const data = await this.wakaRedis.getTripUpdate(tripId)
 
         realtimeInfo[tripId] = data
       } catch (error) {
@@ -76,7 +76,7 @@ class GenericRealtime extends BaseRealtime {
       if (Object.prototype.hasOwnProperty.call(trips, tripId)) {
         const element = trips[tripId]
         try {
-          const data = await this.redis.getVehiclePosition(tripId)
+          const data = await this.wakaRedis.getVehiclePosition(tripId)
           vehicleInfo[tripId] = {
             latitude: data.position.latitude,
             longitude: data.position.longitude,
@@ -93,7 +93,6 @@ class GenericRealtime extends BaseRealtime {
     req: WakaRequest<null, { line: string }>,
     res: Response
   ) => {
-    debugger
     const { logger, connection } = this
     const { line } = req.params
 
@@ -110,7 +109,7 @@ class GenericRealtime extends BaseRealtime {
       const routeIds = routeIdResult.recordset.map(r => r.route_id)
       let tripIds: string[] = []
       for (const routeId of routeIds) {
-        const t = await this.redis.getArrayKey(
+        const t = await this.wakaRedis.getArrayKey(
           routeId,
           'vehicle-position-route'
         )
@@ -118,9 +117,9 @@ class GenericRealtime extends BaseRealtime {
       }
 
       const trips = await Promise.all(
-        tripIds.map(tripId => this.redis.getVehiclePosition(tripId))
+        tripIds.map(tripId => this.wakaRedis.getVehiclePosition(tripId))
       )
-      const escapedTripIds = `'${tripIds.join('\', \'')}'`
+      const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
@@ -159,7 +158,7 @@ class GenericRealtime extends BaseRealtime {
 
       // now we return the structued data finally
       const result = trips.map(vehicle => {
-        console.log(vehicle)
+        // console.log(vehicle)
         return {
           latitude: vehicle.position.latitude,
           longitude: vehicle.position.longitude,
@@ -191,18 +190,24 @@ class GenericRealtime extends BaseRealtime {
     } = req
     // const alerts = []
     if (routeId) {
-      const alid = await this.redis.getArrayKey(routeId, 'alert-route')
-      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      const alid = await this.wakaRedis.getArrayKey(routeId, 'alert-route')
+      const alerts = await Promise.all(
+        alid.map(id => this.wakaRedis.getAlert(id))
+      )
       return res.send(alerts)
     }
     if (tripId) {
-      const alid = await this.redis.getArrayKey(tripId, 'alert-trip')
-      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      const alid = await this.wakaRedis.getArrayKey(tripId, 'alert-trip')
+      const alerts = await Promise.all(
+        alid.map(id => this.wakaRedis.getAlert(id))
+      )
       return res.send(alerts)
     }
     if (stopId) {
-      const alid = await this.redis.getArrayKey(stopId, 'alert-stop')
-      const alerts = await Promise.all(alid.map(id => this.redis.getAlert(id)))
+      const alid = await this.wakaRedis.getArrayKey(stopId, 'alert-stop')
+      const alerts = await Promise.all(
+        alid.map(id => this.wakaRedis.getAlert(id))
+      )
       return res.send(alerts)
     }
     return res.send([])

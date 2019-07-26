@@ -8,12 +8,13 @@ import { WakaRequest, Logger, RedisConfig } from '../../typings'
 import BaseRealtime from '../../types/BaseRealtime'
 import GenericRealtime from './regions/generic'
 import { isKeyof } from '../../utils'
+import WakaRedis from '../../waka-realtime/Redis'
 
 const regions = {
   'au-syd': RealtimeAUSYD,
   'nz-akl': RealtimeNZAKL,
   'nz-wlg': RealtimeNZWLG,
-  'au-cbr': CanberraRealtime,
+  // 'au-cbr': CanberraRealtime,
 }
 
 interface RealtimeProps {
@@ -29,7 +30,7 @@ interface RealtimeProps {
   prefix: string
   api: { [prefix: string]: string }
   newRealtime: boolean
-  redisConfig: RedisConfig
+  wakaRedis: WakaRedis
 }
 
 class Realtime {
@@ -39,7 +40,7 @@ class Realtime {
   fn: BaseRealtime
   newRealtime: boolean
   constructor(props: RealtimeProps) {
-    const { connection, logger, prefix, api, newRealtime, redisConfig } = props
+    const { connection, logger, prefix, api, newRealtime, wakaRedis } = props
     this.connection = connection
     this.logger = logger
     this.prefix = prefix
@@ -51,21 +52,21 @@ class Realtime {
           connection,
           apiKey,
           newRealtime,
-          redisConfig,
+          wakaRedis,
         })
       : new GenericRealtime({
           connection,
           logger,
           newRealtime,
-          redisConfig,
+          wakaRedis,
           prefix,
         })
   }
 
-  start = () => {
+  start = async () => {
     const { fn, logger } = this
     if (fn) {
-      fn.start()
+      await fn.start()
     } else {
       logger.warn('Realtime not implemented!')
     }

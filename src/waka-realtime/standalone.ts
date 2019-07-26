@@ -28,5 +28,5 @@ const config = {
   // }
 ;(async () => {
   const realtime = new WakaRealtime(config)
-  realtime.start()
+  await realtime.start()
 })()

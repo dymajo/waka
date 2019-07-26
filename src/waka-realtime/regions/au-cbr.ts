@@ -4,7 +4,7 @@ import Redis from '../Redis'
 import { Logger } from '../../typings'
 
 interface CanberraRealtimeProps {
-  redis: Redis
+  wakaRedis: Redis
   scheduleUpdatePullTimeout?: number
   logger: Logger
 }
