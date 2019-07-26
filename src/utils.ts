@@ -45,3 +45,20 @@ export const sortFn = (a: string[], b: string[]) => {
     numeric: true,
   })
 }
+
+export const prefixToTimezone = (prefix: string) => {
+  switch (prefix) {
+    case 'au-syd':
+      return 'Australia/Sydney'
+    case 'au-mel':
+      return 'Australia/Melbourne'
+    case 'au-per':
+      return 'Australia/Perth'
+    case 'us-nyc':
+      return 'America/New_York'
+    case 'nz-wlg':
+    case 'nz-akl':
+    default:
+      return 'Pacific/Auckland'
+  }
+}
