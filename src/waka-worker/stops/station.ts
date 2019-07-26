@@ -7,6 +7,7 @@ import { WakaRequest } from '../../typings'
 import Lines from '../lines'
 import BaseStops from '../../types/BaseStops'
 import WakaRedis from '../../waka-realtime/Redis'
+import { prefixToTimezone } from '../../utils'
 
 interface StationProps {
   logger: Logger
@@ -278,23 +279,7 @@ class Station {
     } = {
       provider: 'sql-server',
     }
-    let timezone: string
-    switch (prefix) {
-      case 'au-syd':
-        timezone = 'Australia/Sydney'
-        break
-      case 'au-mel':
-        timezone = 'Australia/Melbourne'
-        break
-      case 'us-nyc':
-        timezone = 'America/New_York'
-        break
-      case 'nz-wlg':
-      case 'nz-akl':
-      default:
-        timezone = 'Pacific/Auckland'
-        break
-    }
+    const timezone = prefixToTimezone(prefix)
 
     const time = moment().tz(timezone)
     let currentTime = new Date(Date.UTC(1970, 0, 1, time.hour(), time.minute()))
@@ -485,24 +470,7 @@ class Station {
       dateOffset = parseInt(offset, 10)
     }
 
-    let timezone: string
-    switch (prefix) {
-      case 'au-syd':
-        timezone = 'Australia/Sydney'
-        break
-      case 'au-mel':
-        timezone = 'Australia/Melbourne'
-        break
-      case 'us-nyc':
-        timezone = 'America/New_York'
-        break
-      case 'nz-wlg':
-      case 'nz-akl':
-      default:
-        timezone = 'Pacific/Auckland'
-        break
-    }
-
+    const timezone = prefixToTimezone(prefix)
     const time = moment().tz(timezone)
     const currentTime = new Date(
       Date.UTC(1970, 0, 1, time.hour(), time.minute())
