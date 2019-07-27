@@ -15,7 +15,7 @@ import CurrentLocation from '../../stores/CurrentLocation.js'
 import SavedIcon from '../../../dist/icons/saved.svg'
 import UnsavedIcon from '../../../dist/icons/unsaved.svg'
 
-import TripItem from './TripItem.jsx'
+import { TripItem } from './TripItemV2.jsx'
 import Onzo from './Onzo.jsx'
 
 class Station extends React.Component {
@@ -36,15 +36,13 @@ class Station extends React.Component {
     name: '',
     description: '',
     trips: [],
-    realtime: {},
+    reducedTrips: [],
     loading: true,
     error: null,
     html: null,
     route_type: undefined,
     stop_lat: undefined,
     stop_lon: undefined,
-    currentTrips: [],
-    definedOrder: [],
     updated: undefined,
   }
 
@@ -156,122 +154,104 @@ class Station extends React.Component {
       html: null,
       trips: tripData,
       loading: false,
-      realtime: rtData,
     })
     this.reduceTrips(tripData, rtData)
   }
 
-  reduceTrips = (data, rtData = {}) => {
+  reduceTrips = (data, realtimeData = {}) => {
     const reducer = new Map()
     data.forEach(trip => {
-      if (typeof trip.stop_sequence === 'undefined') {
+      if (trip.stop_sequence === undefined) return
+
+      // this is so the route_numbers group together
+      const uniqueKey = [trip.route_short_name, trip.agency_id].join('-')
+      if (!reducer.has(uniqueKey)) {
+        reducer.set(uniqueKey, new Map())
+      }
+
+      // this is so all the same routes group together
+      const via = trip.route_long_name.split('via')[1] || ''
+      const uniqueTripKey = [
+        trip.route_short_name,
+        trip.trip_headsign,
+        trip.agency_id,
+        via,
+        trip.direction_id,
+      ].join('-')
+      if (!reducer.get(uniqueKey).has(uniqueTripKey)) {
+        reducer.get(uniqueKey).set(uniqueTripKey, [])
+      }
+
+      // This allows buses to be two minutes late, and still show on the app.
+      let tolerance = 1000 * 60 * 2
+      if (realtimeData[trip.trip_id] !== undefined) {
+        const realtimeTrip = realtimeData[trip.trip_id]
+        trip.departure_time_seconds += realtimeTrip.delay
+        trip.isRealtime = true
+
+        // it's still realtime if it's a random stop sequence, so tighten the tolerance up a bit
+        if (
+          realtimeTrip.stop_sequence === -100 ||
+          trip.stop_sequence - realtimeTrip.stop_sequence === 0
+        ) {
+          tolerance = 1000 * 60
+          // maybe need to ensure it's due?
+        } else if (trip.stop_sequence - realtimeTrip.stop_sequence < 0) {
+          // departed
+          return
+        }
+      } else {
+        trip.isRealtime = false
+      }
+      // console.log(realtimeData[trip.trip_id])
+      const offsetTime = new Date().getTime() + StationStore.offsetTime
+      const departure = new Date(offsetTime)
+      departure.setHours(0)
+      departure.setMinutes(0)
+      departure.setSeconds(parseInt(trip.departure_time_seconds, 10))
+      if (departure < new Date(offsetTime - tolerance)) {
         return
       }
-      if (trip.route_short_name === 'OUT') {
-        if (trip.direction_id === 0) {
-          trip.trip_headsign = 'Anticlockwise Outer Link'
-        } else {
-          trip.trip_headsign = 'Clockwise Outer Link'
-        }
-      } else if (trip.route_short_name === 'INN') {
-        if (trip.direction_id === 0) {
-          trip.trip_headsign = 'Anticlockwise Inner Link'
-        } else {
-          trip.trip_headsign = 'Clockwise Inner Link'
-        }
-      } else if (trip.route_short_name === 'CTY') {
-        trip.trip_headsign = 'City Link'
-      }
-      if (rtData[trip.trip_id] && rtData[trip.trip_id].delay) {
-        if (trip.stop_sequence - rtData[trip.trip_id].stop_sequence < 0) {
-          return
-        }
-        // } else if (false) {
-        // do something with the trains?
-      } else {
-        const offsetTime = new Date().getTime() + StationStore.offsetTime
-        const arrival = new Date(offsetTime)
-        arrival.setHours(0)
-        arrival.setMinutes(0)
-        arrival.setSeconds(parseInt(trip.departure_time_seconds) % 86400)
-        // Let buses be 2 mins late, and don't show stuff more than 5 hours away
-        const minsAway = Math.round((arrival - new Date(offsetTime)) / 60000)
-        if (minsAway < -2 || minsAway > 300) {
-          return
-        }
-      }
-      // this is a GROUP BY basically
-      if (!reducer.has(trip.route_short_name)) {
-        reducer.set(trip.route_short_name, new Map())
-      }
-      // removes platforms and weirdness
-      // this line doesn't group as well
-      // let lname = trip.route_long_name.replace(/ \d/g, '').toLowerCase()
-      const lname = `${trip.route_short_name +
-        trip.trip_headsign +
-        trip.direction_id} via${trip.route_long_name
-        .toLowerCase()
-        .split('via')[1] || ''}`
-      if (!reducer.get(trip.route_short_name).has(lname)) {
-        reducer.get(trip.route_short_name).set(lname, [])
-      }
+
+      // adds the trip to the group
       reducer
-        .get(trip.route_short_name)
-        .get(lname)
+        .get(uniqueKey)
+        .get(uniqueTripKey)
         .push(trip)
     })
-    const all = []
-    let same = true
-    reducer.forEach((value, key) => {
-      if (this.state.definedOrder.indexOf(key) === -1) {
-        same = false
-      }
-    })
-    const sortFn = function(a, b) {
-      return a[1][0].stop_sequence - b[1][0].stop_sequence
-    }
-    if (this.state.definedOrder.length === 0 || same === false) {
-      const newOrder = []
-      reducer.forEach((value, key) => {
-        // looks for duplicated headsigns, and adds vias.
-        const duplicates = [...value.keys()]
-          .map(i => i.split(' via')[0])
-          .reduce((result, item) => {
-            if (item in result) {
-              result[item] = 1
-            } else {
-              result[item] = 0
-            }
-            return result
-          }, {})
-        ;[...value.entries()].sort(sortFn).forEach(tripCollection => {
-          tripCollection.push(false)
-          if (duplicates[tripCollection[0].split(' via')[0]] > 0) {
-            tripCollection[2] = true
-          }
-          all.push(tripCollection)
-        })
-        if (Object.keys(this.state.realtime).length > 0) {
-          newOrder.push(key)
-        }
-      })
-      this.setState({
-        currentTrips: all,
-        definedOrder: newOrder,
-      })
-    } else {
-      this.state.definedOrder.forEach(key => {
-        const data = reducer.get(key)
-        if (typeof data !== 'undefined') {
-          ;[...data.entries()].sort(sortFn).forEach(tripCollection => {
-            all.push(tripCollection)
+
+    const tripGroups = []
+    reducer.forEach(tripGroup => {
+      const sortedGroup = []
+      tripGroup.forEach(tripVariant => {
+        if (tripVariant.length === 0) return
+        sortedGroup.push(
+          tripVariant.sort((a, b) => {
+            return a.departure_time_seconds - b.departure_time_seconds
           })
-        }
+        )
       })
-      this.setState({
-        currentTrips: all,
+      // sorts each group by the one that is probably not finishing up
+      // then, by departure time
+      if (sortedGroup.length === 0) return
+      sortedGroup.sort((a, b) => {
+        const stopSequenceDifference = a[0].stop_sequence - b[0].stop_sequence
+        if (stopSequenceDifference !== 0) return stopSequenceDifference
+        return a[0].departure_time_seconds - b[0].departure_time_seconds
       })
-    }
+      tripGroups.push(sortedGroup)
+    })
+
+    // sorts each of the groups by time, then flattens
+    const trips = tripGroups
+      .sort((a, b) => {
+        return a[0][0].departure_time_seconds - b[0][0].departure_time_seconds
+      })
+      .reduce((acc, val) => acc.concat(val), [])
+
+    // console.log(trips)
+    // console.log(data, realtimeData)
+    this.setState({ reducedTrips: trips })
   }
 
   componentDidMount() {
@@ -280,7 +260,6 @@ class Station extends React.Component {
     StationStore.bind('realtime', this.realtimeCb)
     StationStore.bind('error', this.handleError)
     StationStore.bind('html', this.handleHtml)
-    UiStore.bind('expandChange', this.expandChange)
     window.addEventListener('online', this.triggerRetry)
 
     // uses cached data if it's still fresh
@@ -303,15 +282,9 @@ class Station extends React.Component {
     // realtime: every 20 seconds
     const timeout = this.props.match.params.region === 'nz-akl' ? 20000 : 30000
     this.liveRefresh = setInterval(() => {
-      if (window.innerWidth > 850) {
-        this.setState({ definedOrder: [] })
-      }
       this.getData(this.props)
     }, 180000)
     this.realtimeRefresh = setInterval(() => {
-      if (window.innerWidth > 850) {
-        this.setState({ definedOrder: [] })
-      }
       StationStore.getRealtime(
         this.state.trips,
         this.props.match.params.station,
@@ -326,32 +299,10 @@ class Station extends React.Component {
     StationStore.unbind('realtime', this.realtimeCb)
     StationStore.unbind('error', this.handleError)
     StationStore.unbind('html', this.handleHtml)
-    UiStore.unbind('expandChange', this.expandChange)
     window.removeEventListener('online', this.triggerRetry)
 
     clearInterval(this.liveRefresh)
     clearInterval(this.realtimeRefresh)
-  }
-
-  expandChange = item => {
-    setTimeout(() => {
-      const itemPos = this.swipeContent.current.children[
-        item[1]
-      ].getBoundingClientRect()
-      if (
-        itemPos.height > 72 &&
-        itemPos.top + itemPos.height > document.documentElement.clientHeight
-      ) {
-        // calculates how much it overflows and adds it
-        const scrollView = this.scrollContent.current.scrollView.current
-        const overflowAmount =
-          itemPos.top +
-          itemPos.height -
-          document.documentElement.clientHeight +
-          scrollView.getScrollableNode().scrollTop
-        scrollView.scrollTo({ y: overflowAmount, behavior: 'smooth' })
-      }
-    }, 250)
   }
 
   handleError = error => {
@@ -380,6 +331,12 @@ class Station extends React.Component {
 
   triggerSave = () => {
     UiStore.safePush('./save')
+  }
+
+  triggerMap = (agencyId, routeShortName, directionId) => {
+    const { history, match } = this.props
+    const url = ['/l', match.params.region, agencyId, routeShortName].join('/')
+    history.push(`${url}?direction=${directionId}`)
   }
 
   getName(name) {
@@ -432,22 +389,48 @@ class Station extends React.Component {
           </button>
         </div>
       )
-    } else if (this.state.currentTrips.length === 0) {
+    } else if (this.state.reducedTrips.length === 0) {
       loading = (
         <div className="error">
           <p>{t('station.noservices')}</p>
         </div>
       )
     } else {
-      content = this.state.currentTrips.map((item, key) => (
-        <TripItem
-          key={item[0]}
-          collection={item[1]}
-          realtime={this.state.realtime}
-          index={key}
-          vias={item[2]}
-        />
-      ))
+      content = (
+        <View style={styles.tripWrapper}>
+          {this.state.reducedTrips.map((item, key) => {
+            const tripId = item[0].trip_id
+            const agencyId = item[0].agency_id
+            const routeShortName = item[0].route_short_name
+            const directionId = item[0].direction_id
+            const routeColor = item[0].route_color
+            return (
+              <TripItem
+                key={tripId}
+                routeShortName={routeShortName}
+                direction={directionId}
+                color={routeColor}
+                trips={item.map(i => {
+                  const departure = new Date(
+                    new Date().getTime() + StationStore.offsetTime
+                  )
+                  departure.setHours(0)
+                  departure.setMinutes(0)
+                  departure.setSeconds(parseInt(i.departure_time_seconds, 10))
+                  return {
+                    destination: i.trip_headsign,
+                    departureTime: departure,
+                    isRealtime: i.isRealtime,
+                  }
+                })}
+                onClick={() =>
+                  this.triggerMap(agencyId, routeShortName, directionId)
+                }
+              />
+            )
+          })}
+        </View>
+      )
     }
 
     const { region } = this.props.match.params
@@ -484,6 +467,9 @@ export default withRouter(Station)
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+  },
+  tripWrapper: {
+    backgroundColor: '#000',
   },
 })
 const saveStyle = { fill: vars.headerIconColor }

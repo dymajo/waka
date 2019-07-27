@@ -21,7 +21,7 @@ const getTime = (date, isTwentyFourHour, showDue) => {
     }
   }
   const minutes = Math.ceil((date.getTime() - now.getTime()) / 60000)
-  if (minutes >= 180) {
+  if (minutes > 90) {
     // be careful using 'default' as it will use browser default time formatting
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleTimeString#Using_locales
     const dateText = date.toLocaleTimeString('default', {
@@ -38,12 +38,13 @@ const getTime = (date, isTwentyFourHour, showDue) => {
         : null,
     }
   }
-  if (minutes >= 60) {
-    return {
-      hours: Math.floor(minutes / 60),
-      minutes: minutes % 60,
-    }
-  }
+  // This enables hours, but we don't want that
+  // if (minutes >= 60) {
+  //   return {
+  //     hours: Math.floor(minutes / 60),
+  //     minutes: minutes % 60,
+  //   }
+  // }
   return {
     minutes,
   }
@@ -87,16 +88,17 @@ const getNextText = (times, hideVerb = false, amphersand = 'also') => {
             {time.minutes}
             {combinedMinutes ? `, ${time2.minutes}` : null}
           </Text>
-          &nbsp;{time.minutes === 1 ? 'min' : 'mins'}
+          &nbsp;{time.minutes === 1 ? 'min' : 'min'}
         </>
       ) : null}
       {!combinedMinutes && time2 !== undefined ? (
         <>
-          ,
+          {time2.text === undefined || time.text !== undefined ? ',' : ''}
           {getNextText(
             [time2],
-            time2.text === undefined || time.text !== undefined,
-            time2.text === undefined || time.text !== undefined ? false : 'and'
+            // time2.text === undefined || time.text !== undefined,
+            true,
+            time2.text === undefined || time.text !== undefined ? false : '&'
           )}
         </>
       ) : null}
@@ -111,6 +113,7 @@ export const TripItem = ({
   direction,
   isTwentyFourHour = false,
   trips = [],
+  onClick,
 }) => {
   if (trips.length === 0) return null
   const textColorStyles = {
@@ -126,7 +129,7 @@ export const TripItem = ({
     .slice(1, 3)
     .map(i => getTime(i.departureTime, isTwentyFourHour, false))
   return (
-    <TouchableOpacity activeOpacity={0.75}>
+    <TouchableOpacity activeOpacity={0.85} onClick={onClick}>
       <View style={[styles.wrapper, { backgroundColor: color }]}>
         <View style={styles.left}>
           <Text style={[styles.routeShortName, textColorStyles]}>
@@ -135,7 +138,7 @@ export const TripItem = ({
           <View style={styles.destinations}>
             <View
               style={
-                direction === 1 ? styles.direction : styles.directionRotated
+                direction === 0 ? styles.direction : styles.directionRotated
               }
             >
               <DirectionIcon
@@ -249,7 +252,7 @@ styles = StyleSheet.create({
     paddingTop: 4,
   },
   directionRotated: {
-    transform: 'rotate(180deg)',
+    transform: [{ rotate: '180deg' }],
     paddingTop: 2,
   },
   destination: {
@@ -262,13 +265,15 @@ styles = StyleSheet.create({
     display: 'block',
     fontWeight: 'bold',
     fontSize: 18,
+    paddingTop: 2,
     paddingRight: 1,
     fontFamily,
   },
   departureTimeText: {
-    lineHeight: 28,
+    lineHeight: 30,
   },
   departureTimeLarge: {
+    lineHeight: 30,
     fontSize: 24,
   },
   departureTimeUnit: {
