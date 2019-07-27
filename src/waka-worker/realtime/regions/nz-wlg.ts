@@ -241,9 +241,7 @@ class RealtimeNZWLG extends BaseRealtime {
               responseData[key] = {
                 goal,
                 found: moment(closest.AimedDeparture),
-                delay:
-                  (moment(closest.ExpectedDeparture).unix() - goal.unix()) /
-                  1000,
+                delay: moment(closest.ExpectedDeparture).unix() - goal.unix(),
                 v_id: closest.VehicleRef,
                 stop_sequence: -100,
                 time: 0,
