@@ -1,8 +1,8 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
+import { View } from 'react-native'
 
 import { TripItem } from '../js/views/station/TripItemV2.jsx'
-import SettingsStore from '../js/stores/SettingsStore.js'
 
 const singleTrip = {
   destination: 'Botany',
@@ -20,7 +20,7 @@ const hoursTrip = {
 
 storiesOf('TripItem', module)
   .add('single trip', () => (
-    <>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -77,10 +77,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </>
+    </View>
   ))
   .add('two trips', () => (
-    <>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -153,10 +153,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </>
+    </View>
   ))
   .add('three+ trips - mins + variants', () => (
-    <>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -235,10 +235,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </>
+    </View>
   ))
   .add('three+ trips - hour + variants', () => (
-    <>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -281,10 +281,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </>
+    </View>
   ))
   .add('three+ trips - hours & mins + variants', () => (
-    <>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -327,10 +327,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </>
+    </View>
   ))
   .add('three+ trips - text + variants', () => (
-    <>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -393,10 +393,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </>
+    </View>
   ))
   .add('multiple directions', () => (
-    <React.Fragment>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -419,10 +419,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </React.Fragment>
+    </View>
   ))
   .add('background colors', () => (
-    <React.Fragment>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="70"
         direction={0}
@@ -447,10 +447,10 @@ storiesOf('TripItem', module)
           },
         ]}
       />
-    </React.Fragment>
+    </View>
   ))
   .add('foreground colors', () => (
-    <React.Fragment>
+    <View style={{ backgroundColor: '#000' }}>
       <TripItem
         routeShortName="EAST"
         direction={0}
@@ -478,5 +478,52 @@ storiesOf('TripItem', module)
           singleTrip,
         ]}
       />
-    </React.Fragment>
+    </View>
+  ))
+  .add('realtime', () => (
+    <View style={{ backgroundColor: '#000' }}>
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        trips={[{ ...singleTrip, departureTime: new Date(), isRealtime: true }]}
+      />
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        trips={[{ ...singleTrip, isRealtime: true }]}
+      />
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        trips={[
+          { ...singleTrip, isRealtime: true },
+          { ...houredTrip, isRealtime: true },
+        ]}
+      />
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        trips={[
+          { ...singleTrip, isRealtime: true },
+          { ...houredTrip, isRealtime: true },
+          { ...hoursTrip, isRealtime: true },
+        ]}
+      />
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        trips={[{ ...hoursTrip, isRealtime: true }]}
+      />
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        trips={[
+          {
+            ...singleTrip,
+            departureTime: new Date(new Date().getTime() + 1000 * 60 * 320),
+            isRealtime: true,
+          },
+        ]}
+      />
+    </View>
   ))

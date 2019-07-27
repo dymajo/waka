@@ -11,7 +11,7 @@
     "anal": "webpack --json > report.json",
     "test": "echo \"Error: no test specified\"",
     "watch:local": "cross-env NODE_ENV=local webpack-dev-server",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "start-storybook -s ./dist -p 6006",
     "build-storybook": "build-storybook"
   },
   "repository": {
