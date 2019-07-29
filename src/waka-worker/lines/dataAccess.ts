@@ -56,5 +56,25 @@ class DataAccess {
     `)
     return data
   }
+
+  getRouteInfo = async (route: string) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('route_short_name', sql.VarChar(50), route)
+    const data = await sqlRequest.query<{
+      route_short_name: string
+      route_long_name: string
+      agency_id: string
+      route_id: string
+      route_color: string
+    }>(`
+    select top(1)
+    route_short_name, route_long_name, agency_id, route_id, route_color
+    from routes
+    where
+    route_short_name = @route_short_name
+    `)
+    return data
+  }
 }
 export default DataAccess

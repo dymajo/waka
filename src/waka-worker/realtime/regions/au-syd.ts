@@ -123,7 +123,7 @@ class RealtimeAUSYD extends BaseRealtime {
       const trips = await Promise.all(
         tripIds.map(tripId => this.wakaRedis.getVehiclePosition(tripId))
       )
-      const escapedTripIds = `'${tripIds.join("', '")}'`
+      const escapedTripIds = `'${tripIds.join('\', \'')}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
@@ -163,6 +163,7 @@ class RealtimeAUSYD extends BaseRealtime {
 
       // now we return the structued data finally
       const result = trips.map(vehicle => {
+        // console.log(tripIdsMap[vehicle.trip.tripId])
         return {
           latitude: vehicle.position.latitude,
           longitude: vehicle.position.longitude,

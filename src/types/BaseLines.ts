@@ -17,7 +17,16 @@ export default abstract class BaseLines {
   lineIcons: { [routeShortName: string]: string }
   lineColors: { [routeShortName: string]: string }
   allLines: { [routeShortName: string]: string[][] | string[] }
-  lineGroups: { name: string; items: any[] }[]
+  lineGroups: { name: string; items: string[] }[]
+  lineGroupsV2: {
+    name: string
+    items: {
+      routeId: string
+      agencyId: string
+      routeLongName: string
+      routeShortName: string
+    }[]
+  }[]
   lineOperators: { [routeShortName: string]: string }
   friendlyNames: { [routeShortName: string]: string }
   friendlyNumbers?: { [routeShortName: string]: string }

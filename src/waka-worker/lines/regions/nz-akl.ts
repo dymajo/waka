@@ -51,17 +51,38 @@ class LinesNZAKL extends BaseLines {
     const routes = Object.keys(allLines)
     const lineOperators: { [routeShortName: string]: string } = {}
     const lineColors: { [routeShortName: string]: string } = {}
-
+    const lines: {
+      [routeShortName: string]: {
+        routeLongName: string
+        routeId: string
+        routeColor: string
+        routeShortName: string
+        agencyId: string
+      }
+    } = {}
     await Promise.all(
       routes.map(
         route =>
           new Promise(async resolve => {
-            const result = await dataAccess.getOperator(route)
-            const color = await dataAccess.getColors(route)
+            const result = await dataAccess.getRouteInfo(route)
+
             if (result.recordset.length > 0) {
-              const agencyId = result.recordset[0].agency_id
-              lineColors[route] = color.recordset[0].route_color || '#00263A'
+              const {
+                agency_id: agencyId,
+                route_color: routeColor,
+                route_id: routeId,
+                route_long_name: routeLongName,
+                route_short_name: routeShortName,
+              } = result.recordset[0]
+              lineColors[route] = routeColor
               lineOperators[route] = agencyId
+              lines[route] = {
+                agencyId,
+                routeColor,
+                routeId,
+                routeLongName,
+                routeShortName,
+              }
               resolve(route)
             } else {
               logger.warn({ route }, 'Could not find agency for route.')
@@ -71,7 +92,15 @@ class LinesNZAKL extends BaseLines {
           })
       )
     )
-
+    const groups = lineGroupsJSON.map(group => {
+      return {
+        name: group.name,
+        items: group.items.map(item => {
+          return lines[item]
+        }),
+      }
+    })
+    this.lineGroupsV2 = groups
     this.lineOperators = lineOperators
     this.lineColors = lineColors
     logger.info('Completed Lookup of Agencies.')

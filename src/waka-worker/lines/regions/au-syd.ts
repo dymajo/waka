@@ -24,6 +24,8 @@ class LinesAUSYD extends BaseLines {
         routeId: string
         routeShortName: string
         routeLongName: string
+        agencyId: string
+        routeColor: string
       }[]
     }[] = [
       { name: 'T1 North Shore & Western', items: [] },
@@ -44,12 +46,50 @@ class LinesAUSYD extends BaseLines {
     ]
     const lineGroups: {
       name: string
-      items: string[]
+      items: {
+        routeId: string
+        routeShortName: string
+        routeLongName: string
+        agencyId: string
+        routeColor: string
+      }[]
     }[] = [
-      { name: 'Buses', items: [] },
       { name: 'Ferries', items: [] },
       { name: 'Light Rail', items: [] },
       { name: 'NSW TrainLink', items: [] },
+      { name: 'Other', items: [] },
+    ]
+    const busLineGroups: {
+      name: string
+      items: {
+        routeId: string
+        routeShortName: string
+        routeLongName: string
+        agencyId: string
+        routeColor: string
+      }[]
+    }[] = [
+      { name: '100 series - Northern Beaches', items: [] },
+      { name: '200 series - Northern Districts and North Shore', items: [] },
+      { name: '300 series - East', items: [] },
+      { name: '400 series - Inner West and South', items: [] },
+      { name: '500 series - North West', items: [] },
+      { name: '600 series - West and Hills District', items: [] },
+      { name: '700 series - Outer West and Hills District', items: [] },
+      { name: '800 series - Outer South-West', items: [] },
+      { name: '900 series - St George/Sutherland and South West', items: [] },
+      { name: 'Bus Rapid Transit', items: [] },
+      { name: 'Metrobus', items: [] },
+      { name: 'Express Buses', items: [] },
+      { name: 'Limited Stop Buses', items: [] },
+      { name: 'Shopper Buses', items: [] },
+      { name: 'Night Buses', items: [] },
+      { name: 'Other Sydney Buses', items: [] },
+      { name: 'Blue Mountains Buses', items: [] },
+      { name: 'Central Coast Buses', items: [] },
+      { name: 'Hunter Buses', items: [] },
+      { name: 'Illawarra Buses', items: [] },
+      { name: 'Other Buses', items: [] },
     ]
     const result = await dataAccess.getRoutes()
     result.recordset.forEach(record => {
@@ -72,6 +112,7 @@ class LinesAUSYD extends BaseLines {
         route_id: routeId,
         route_long_name: routeLongName,
         route_color: routeColor,
+        agency_id: agencyId,
       } = record
 
       if (Object.prototype.hasOwnProperty.call(allLines, routeShortName)) {
@@ -95,55 +136,358 @@ class LinesAUSYD extends BaseLines {
         HUN,
         SCO,
         SHL,
-        OTH,
+        OTHTR,
       ] = trainLineGroups
-      const [BUS, FER, LRT, NTL] = lineGroups
-      if (routeType === 400) {
+      const [FER, LRT, NTL, OTH] = lineGroups
+      if (routeType === 2) {
         if (routeShortName === 'T1') {
-          T1.items.push({ routeId, routeShortName, routeLongName })
+          T1.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T2') {
-          T2.items.push({ routeId, routeShortName, routeLongName })
+          T2.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T3') {
-          T3.items.push({ routeId, routeShortName, routeLongName })
+          T3.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T4') {
-          T4.items.push({ routeId, routeShortName, routeLongName })
+          T4.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T5') {
-          T5.items.push({ routeId, routeShortName, routeLongName })
+          T5.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T6') {
-          T6.items.push({ routeId, routeShortName, routeLongName })
+          T6.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T7') {
-          T7.items.push({ routeId, routeShortName, routeLongName })
+          T7.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T8') {
-          T8.items.push({ routeId, routeShortName, routeLongName })
+          T8.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'T9') {
-          T9.items.push({ routeId, routeShortName, routeLongName })
+          T9.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'BMT') {
-          BMT.items.push({ routeId, routeShortName, routeLongName })
+          BMT.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'CCN') {
-          CCN.items.push({ routeId, routeShortName, routeLongName })
+          CCN.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'HUN') {
-          HUN.items.push({ routeId, routeShortName, routeLongName })
+          HUN.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'SCO') {
-          SCO.items.push({ routeId, routeShortName, routeLongName })
+          SCO.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else if (routeShortName === 'SHL') {
-          SHL.items.push({ routeId, routeShortName, routeLongName })
+          SHL.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         } else {
-          OTH.items.push({ routeId, routeShortName, routeLongName })
+          OTHTR.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
         }
-      }
-
-      if (routeType === 700 && routeDesc !== 'School Buses') {
-        BUS.items.push(routeShortName)
-      }
-      if (routeType === 1000) {
-        FER.items.push(routeShortName)
-      }
-
-      if (routeType === 900) {
-        LRT.items.push(routeShortName)
-      }
-      if (routeType === 106 || routeType === 204) {
-        NTL.items.push(routeShortName)
+      } else if (routeType === 700) {
+        const isNumber = Number(routeShortName)
+        const numRSN = parseInt(routeShortName.replace(/\D/g, ''), 10)
+        const letterRSN = routeShortName.replace(/\d/g, '')
+        if (routeDesc === 'Sydney Buses Network') {
+          if (isNumber) {
+            if (numRSN >= 100 && numRSN <= 199) {
+              busLineGroups[0].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 200 && numRSN <= 299) {
+              busLineGroups[1].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 300 && numRSN <= 399) {
+              busLineGroups[2].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 400 && numRSN <= 499) {
+              busLineGroups[3].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 500 && numRSN <= 599) {
+              busLineGroups[4].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 600 && numRSN <= 699) {
+              busLineGroups[5].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 700 && numRSN <= 799) {
+              busLineGroups[6].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 800 && numRSN <= 899) {
+              busLineGroups[7].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (numRSN >= 900 && numRSN <= 999) {
+              busLineGroups[8].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else {
+              busLineGroups[15].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            }
+          } else if (letterRSN.length === 1) {
+            if (letterRSN[0] === 'B') {
+              busLineGroups[9].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (letterRSN[0] === 'M') {
+              busLineGroups[10].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (letterRSN[0] === 'X' || letterRSN[0] === 'E') {
+              busLineGroups[11].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (letterRSN[0] === 'L') {
+              busLineGroups[12].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (letterRSN[0] === 'S') {
+              busLineGroups[13].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else if (letterRSN[0] === 'N') {
+              busLineGroups[14].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            } else {
+              busLineGroups[15].items.push({
+                routeColor,
+                routeId,
+                routeShortName,
+                routeLongName,
+                agencyId,
+              })
+            }
+          } else {
+            busLineGroups[15].items.push({
+              routeColor,
+              routeId,
+              routeShortName,
+              routeLongName,
+              agencyId,
+            })
+          }
+        } else if (routeDesc === 'Blue Mountains Buses Network') {
+          busLineGroups[16].items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
+        } else if (routeDesc === 'Central Coast Buses Network') {
+          busLineGroups[17].items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
+        } else if (routeDesc === 'Hunter Buses Network') {
+          busLineGroups[18].items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
+        } else if (routeDesc === 'Illawarra Buses Network') {
+          busLineGroups[19].items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
+        } else {
+          busLineGroups[20].items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+          })
+        }
+      } else if (routeType === 4) {
+        FER.items.push({
+          routeColor,
+          routeId,
+          routeShortName,
+          routeLongName,
+          agencyId,
+        })
+      } else if (routeType === 0) {
+        LRT.items.push({
+          routeColor,
+          routeId,
+          routeShortName,
+          routeLongName,
+          agencyId,
+        })
+      } else if (routeType === 106 || routeType === 204) {
+        NTL.items.push({
+          routeColor,
+          routeId,
+          routeShortName,
+          routeLongName,
+          agencyId,
+        })
+      } else {
+        OTH.items.push({
+          routeColor,
+          routeId,
+          routeShortName,
+          routeLongName,
+          agencyId,
+        })
       }
 
       const numericLine = parseInt(routeShortName, 10)
@@ -162,7 +506,7 @@ class LinesAUSYD extends BaseLines {
     })
     this.allLines = allLines
     this.lineOperators = lineOperators
-    this.lineGroups = [...trainLineGroups, ...lineGroups]
+    this.lineGroupsV2 = [...trainLineGroups, ...lineGroups, ...busLineGroups]
   }
 }
 

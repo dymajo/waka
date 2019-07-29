@@ -117,7 +117,7 @@ class Lines {
     }
   }
 
-  stop = () => {}
+  stop = () => { }
 
   getColor = (agencyId: string, routeShortName: string) => {
     const { lineDataSource } = this
@@ -205,6 +205,30 @@ class Lines {
     res.send(this._getLines())
   }
 
+  getLinesV2 = (req: WakaRequest<null, null>, res: Response) => {
+    res.send(this._getLinesV2())
+  }
+
+  _getLinesV2 = () => {
+    const { prefix, lineDataSource, cityMetadata } = this
+    // if the region has multiple cities
+    let city = cityMetadata[prefix]
+    if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
+      city = city[prefix]
+    }
+    return {
+      meta: {
+        prefix,
+        name: cityMetadata[prefix].name,
+        secondaryName: cityMetadata[prefix].secondaryName,
+        longName: cityMetadata[prefix].longName,
+      },
+      colors: lineDataSource.lineColors,
+      icons: lineDataSource.lineIcons,
+      groups: lineDataSource.lineGroupsV2,
+    }
+  }
+
   _getLines = () => {
     const { prefix, lineDataSource, cityMetadata } = this
     // if the region has multiple cities
@@ -273,12 +297,13 @@ class Lines {
    *   }
    * ]
    */
-  getLine = async (req: Request, res: Response) => {
+  getLine = async (req: WakaRequest<null, { line: string }>, res: Response) => {
     const lineId = req.params.line.trim()
+    const routeId = (req.query.route_id || '').trim()
     const agencyId = (req.query.agency_id || '').trim()
 
     try {
-      const data = await this._getLine(lineId, agencyId)
+      const data = await this._getLine(lineId, agencyId, routeId)
       res.send(data)
     } catch (err) {
       this.logger.error(err)
@@ -286,10 +311,14 @@ class Lines {
     }
   }
 
-  _getLine = async (lineId: string, agencyId: string) => {
+  _getLine = async (lineId: string, agencyId: string, routeId: string) => {
     const { connection, lineDataSource } = this
     const sqlRequest = connection.get().request()
-
+    let route
+    if (routeId !== '') {
+      route = 'and routes.route_id = @route_id'
+      sqlRequest.input('route_id', sql.VarChar(50), routeId)
+    }
     // filter by agency if a filter exists
     let agency = ''
     if (agencyId !== '') {
@@ -314,6 +343,7 @@ class Lines {
           trips.route_id = routes.route_id
       WHERE
           routes.route_short_name = @route_short_name
+          ${route}
           and shape_id is not null
           ${agency}
       GROUP BY
@@ -348,8 +378,8 @@ class Lines {
       agency_id: string
       route_long_name: string
       route_short_name: string
-      route_color: any
-      route_icon: any
+      route_color: string
+      route_icon: string
       direction_id: string
       shape_id: string
       route_type: number
@@ -374,7 +404,7 @@ class Lines {
         agency_id: route.agency_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
-        route_color: route.route_color,
+        route_color: `#${route.route_color}`,
         route_icon: this.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,

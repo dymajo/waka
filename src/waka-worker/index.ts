@@ -202,6 +202,7 @@ class WakaWorker {
     router.get('/stations', search.all)
 
     router.get('/lines', lines.getLines)
+    router.get('/all-lines', lines.getLinesV2)
     router.get('/line/:line', lines.getLine)
     router.get('/stops/all', lines.getAllStops)
     router.get('/stops/trip/:tripId', lines.getStopsFromTrip)
