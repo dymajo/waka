@@ -1,6 +1,6 @@
 import { pRateLimit, QuotaManager, RedisQuotaManager, Quota } from 'p-ratelimit'
 
-import Redis from './Redis'
+import WakaRedis from './Redis'
 import createLogger from './logger'
 
 import { isKeyof } from '../utils'
@@ -29,7 +29,7 @@ interface RealtimeConfig {
 }
 
 class Realtime {
-  redis: Redis
+  wakaRedis: WakaRedis
   prefix: string
   quotaManager: QuotaManager | Quota
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
@@ -41,12 +41,16 @@ class Realtime {
     const logger = createLogger(config.prefix, config.version)
     this.logger = logger
     this.prefix = config.prefix
-    this.redis = new Redis({ prefix: this.prefix, logger, config: config.redis })
+    this.wakaRedis = new WakaRedis({
+      prefix: this.prefix,
+      logger,
+      config: config.redis,
+    })
 
     const apiKey = config.api[this.prefix]
     this.region = isKeyof(Regions, this.prefix)
       ? new Regions[this.prefix]({
-          redis: this.redis,
+          wakaRedis: this.wakaRedis,
           rateLimiter: this.rateLimiter,
           logger: this.logger,
           apiKey,
@@ -56,24 +60,31 @@ class Realtime {
 
   start = async () => {
     if (this.region) {
-      await this.redis.start()
-      const quota: Quota = this.config.quota || {
-        interval: 1000,
-        rate: 5,
-        concurrency: 5,
+      try {
+        await this.wakaRedis.start()
+        if (this.prefix === 'au-syd') {
+          console.log('redis connected:', this.wakaRedis.connected)
+          const quota: Quota = this.config.quota || {
+            interval: 1000,
+            rate: 5,
+            concurrency: 5,
+          }
+          this.quotaManager = this.wakaRedis.client
+            ? new RedisQuotaManager(quota, this.prefix, this.wakaRedis.client)
+            : quota
+          this.quotaManager = quota
+          this.rateLimiter = pRateLimit(this.quotaManager)
+        }
+        await this.region.start(this.rateLimiter)
+      } catch (error) {
+        this.logger.error(error)
       }
-      // type hacks
-      this.quotaManager = this.redis.client
-        ? new RedisQuotaManager(quota, this.prefix, this.redis.client as any)
-        : quota
-      this.rateLimiter = pRateLimit(this.quotaManager)
-      await this.region.start(this.rateLimiter)
     }
   }
 
   stop = () => {
     if (this.region) {
-      this.redis.stop()
+      this.wakaRedis.stop()
       this.region.stop()
     }
   }

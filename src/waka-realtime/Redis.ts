@@ -1,6 +1,6 @@
 /* eslint-disable promise/prefer-await-to-callbacks */
 import Redis from 'ioredis'
-import { TripUpdate, VehiclePosition, Alert, CongestionLevel } from '../gtfs'
+import { TripUpdate, VehiclePosition, Alert } from '../gtfs'
 import { Logger, RedisConfig } from '../typings'
 
 interface WakaRedisProps {
@@ -14,21 +14,38 @@ class WakaRedis {
   prefix: string
   logger: Logger
   config: RedisConfig
+  connected: boolean
   constructor(props: WakaRedisProps) {
     this.prefix = props.prefix
     this.logger = props.logger
     this.config = props.config
   }
 
-  start = async (client?: Redis.Redis) => {
-    const { logger, config } = this
-    this.client =
+  tryClient = (client: Redis.Redis, config: RedisConfig) => {
+    return (
       client ||
       new Redis({
         ...config,
         retryStrategy: () => 30000,
+        showFriendlyErrorStack: true,
       })
-    this.client.on('error', err => {})
+    )
+  }
+
+  start = async (client?: Redis.Redis) => {
+    if (this.client && this.connected) {
+      return
+    }
+    const { logger, config } = this
+    const Client = this.tryClient(client, config)
+
+    try {
+      const res = await Client.ping()
+      this.client = Client
+      this.connected = true
+    } catch (error) {
+      setTimeout(() => this.tryClient(client, config), 20000)
+    }
   }
 
   stop = () => {
@@ -36,6 +53,12 @@ class WakaRedis {
       this.client.disconnect()
     }
     this.client = null
+  }
+
+  checkRedis = () => {
+    if (this.client === null) {
+      throw Error('redis not started')
+    }
   }
 
   setKey = (
@@ -55,6 +78,7 @@ class WakaRedis {
       | 'last-vehicle-position-update'
       | 'last-alert-update'
   ): Promise<string> => {
+    this.checkRedis()
     const { prefix } = this
     const fullKey = `waka-rt:${prefix}:${type}:${key}`
 
@@ -62,6 +86,8 @@ class WakaRedis {
   }
 
   getTripUpdate = async (tripId: string): Promise<TripUpdate> => {
+    this.checkRedis()
+
     const { prefix } = this
     const fullKey = `waka-rt:${prefix}:trip-update:${tripId}`
     const res = await this.client.get(fullKey)
@@ -69,6 +95,8 @@ class WakaRedis {
   }
 
   getVehiclePosition = async (tripId: string): Promise<VehiclePosition> => {
+    this.checkRedis()
+
     const { prefix } = this
     const fullKey = `waka-rt:${prefix}:vehicle-position:${tripId}`
     const res = await this.client.get(fullKey)
@@ -76,6 +104,8 @@ class WakaRedis {
   }
 
   getAlert = async (alertId: string): Promise<Alert> => {
+    this.checkRedis()
+
     const { prefix } = this
     const fullKey = `waka-rt:${prefix}:alert:${alertId}`
     const res = await this.client.get(fullKey)
@@ -91,6 +121,8 @@ class WakaRedis {
       | 'alert-stop'
       | 'vehicle-position-route'
   ): Promise<string[]> => {
+    this.checkRedis()
+
     const { prefix } = this
     switch (type) {
       case 'vehicle-position-route':
@@ -117,6 +149,8 @@ class WakaRedis {
       | 'last-vehicle-position-update'
       | 'last-alert-update'
   ): Promise<string> => {
+    this.checkRedis()
+
     const { prefix } = this
     switch (type) {
       case 'last-trip-update':

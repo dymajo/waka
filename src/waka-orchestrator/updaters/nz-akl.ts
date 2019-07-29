@@ -1,13 +1,8 @@
 import fetch from 'node-fetch'
 import moment from 'moment-timezone'
+import axios from 'axios'
 import logger from '../logger'
-
-interface ATUpdaterProps {
-  apiKey: string
-  callback: any
-  delay: number
-  interval: number
-}
+import { ATUpdaterProps } from '../../typings'
 
 class ATUpdater {
   apiKey: string
@@ -25,10 +20,9 @@ class ATUpdater {
     this.prefix = 'nz-akl'
 
     this.timeout = null
-
   }
 
-  start = async () => {
+  start = () => {
     const { check, delay, apiKey, prefix } = this
     if (!apiKey) {
       logger.error({ prefix }, 'API Key must be supplied!')
@@ -36,6 +30,7 @@ class ATUpdater {
     }
 
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
+    this.check()
     this.timeout = setTimeout(check, delay * 60000)
   }
 
@@ -74,11 +69,14 @@ class ATUpdater {
         'Ocp-Apim-Subscription-Key': apiKey,
       },
     }
-    const response = await fetch(options.url, {
+    const response = await axios.get(options.url, {
       headers: options.headers,
     })
-    const data = await response.json()
-    return data.response
+    return response.data.response as {
+      version: string
+      startdate: string
+      enddate: string
+    }[]
   }
 
   stop = () => {

@@ -14,7 +14,7 @@ interface UpdateManagerProps {
 class UpdateManager {
   config: WakaConfig
   versionManager: VersionManager
-  updaters: {}
+  updaters: { [prefix: string]: {} }
   interval: NodeJS.Timeout
   fargate: Fargate
   constructor(props: UpdateManagerProps) {
@@ -61,6 +61,7 @@ class UpdateManager {
             callback,
             versionManager,
             extended,
+            config,
           }
           updater = new TfNSWUpdater(params)
         } else {
@@ -82,7 +83,11 @@ class UpdateManager {
     setInterval(this.checkVersions)
   }
 
-  callback = async (prefix, version, adjustMapping) => {
+  callback = async (
+    prefix: string,
+    version: string,
+    adjustMapping: boolean
+  ) => {
     const { config, versionManager } = this
     // don't understand this
     const { shapesContainer, shapesRegion, dbconfig } = config.updaters[prefix]
@@ -102,6 +107,8 @@ class UpdateManager {
         shapesContainer,
         shapesRegion,
         dbconfig,
+        // this is shit
+        newRealtime: prefix !== 'nz-wlg',
       })
       logger.info({ prefix, version, status: 'empty' }, 'Created empty worker.')
     }

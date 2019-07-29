@@ -1,18 +1,33 @@
 import moment from 'moment-timezone'
 import { Response } from 'express'
+import * as Logger from 'bunyan'
 import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
-import { WakaRequest, Logger } from '../../typings'
+import { WakaRequest } from '../../typings'
 import Lines from '../lines'
 import BaseStops from '../../types/BaseStops'
+import WakaRedis from '../../waka-realtime/Redis'
+import { prefixToTimezone } from '../../utils'
 
 interface StationProps {
-  lines: Lines
-  regionSpecific: BaseStops
   logger: Logger
   connection: Connection
   prefix: string
-  stopsExtras: BaseStops
+  stopsExtras?: BaseStops
+  lines: Lines
+  redis: WakaRedis
+  realtimeTimes: (
+    trips: string[]
+  ) => {
+    [tripId: string]: {
+      stop_sequence: number
+      delay: number
+      timestamp: number
+      v_id: number
+      double_decker: boolean
+      ev: boolean
+    }
+  }
 }
 
 class Station {
@@ -21,7 +36,19 @@ class Station {
   prefix: string
   regionSpecific: BaseStops
   lines: Lines
-  realtimeTimes: any
+  redis: WakaRedis
+  realtimeTimes: (
+    trips: string[]
+  ) => {
+    [tripId: string]: {
+      stop_sequence: number
+      delay: number
+      timestamp: number
+      v_id: number
+      double_decker: boolean
+      ev: boolean
+    }
+  }
   dataAccess: StopsDataAccess
   constructor(props: StationProps) {
     const {
@@ -31,7 +58,9 @@ class Station {
       stopsExtras,
       lines,
       realtimeTimes,
+      redis,
     } = props
+    this.redis = redis
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
@@ -40,8 +69,24 @@ class Station {
     this.realtimeTimes = realtimeTimes
 
     this.dataAccess = new StopsDataAccess({ connection, prefix })
+  }
 
-
+  transfers = async () => {
+    const transfers = await this.dataAccess.getTransfers()
+    for (const stopId in transfers) {
+      if (Object.prototype.hasOwnProperty.call(transfers, stopId)) {
+        try {
+          const foo = transfers[stopId]
+          this.redis.client.set(
+            `waka-worker:${this.prefix}:stop-transfers:${stopId}`,
+            foo.toString()
+          )
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+    this.logger.info('got transfers')
   }
 
   getBounds = async () => {
@@ -93,7 +138,10 @@ class Station {
    *    }
    *
    */
-  stopInfo = async (req, res) => {
+  stopInfo = async (
+    req: WakaRequest<null, { station: string }>,
+    res: Response
+  ) => {
     const { prefix, dataAccess, regionSpecific } = this
     if (!req.params.station) {
       return res.status(404).send({
@@ -195,7 +243,7 @@ class Station {
    */
   stopTimes = async (
     req: WakaRequest<{}, { time: string; station: string }>,
-    res
+    res: Response
   ) => {
     const {
       prefix,
@@ -227,23 +275,11 @@ class Station {
       currentTime?: number
       trips?: any[]
       realtime?: any
+      allRoutes?: any
     } = {
       provider: 'sql-server',
     }
-    let timezone: string
-    switch (prefix) {
-      case 'au-syd':
-        timezone = 'Australia/Sydney'
-        break
-      case 'au-mel':
-        timezone = 'Australia/Melbourne'
-        break
-      case 'nz-wlg':
-      case 'nz-akl':
-      default:
-        timezone = 'Pacific/Auckland'
-        break
-    }
+    const timezone = prefixToTimezone(prefix)
 
     const time = moment().tz(timezone)
     let currentTime = new Date(Date.UTC(1970, 0, 1, time.hour(), time.minute()))
@@ -277,7 +313,7 @@ class Station {
     }
 
     // combines train stations platforms together
-    let procedure = 'GetStopTimes'
+    const procedure = 'GetStopTimes'
     let trips = []
     const realtimeTrips = []
     try {
@@ -293,7 +329,29 @@ class Station {
     }
 
     sending.trips = trips.map(r => {
-      const record = r // clone?
+      const record: {
+        trip_id?: string
+        stop_sequence?: number
+        departure_time?: Date
+        departure_time_24?: Date
+        stop_id?: string
+        trip_headsign?: string
+        shape_id?: string
+        direction_id?: number
+        start_date?: Date
+        end_date?: Date
+        route_short_name?: string
+        route_long_name?: string
+        route_type?: number
+        agency_id?: string
+        route_color?: string
+        stop_name?: string
+        departure_time_seconds?: number
+        arrival_time_seconds?: number
+        route_icon?: string
+        arrival_time_24?: string
+        arrival_time?: string
+      } = r // clone?
       record.departure_time_seconds =
         new Date(record.departure_time).getTime() / 1000
       if (record.departure_time_24) {
@@ -412,21 +470,7 @@ class Station {
       dateOffset = parseInt(offset, 10)
     }
 
-    let timezone: string
-    switch (prefix) {
-      case 'au-syd':
-        timezone = 'Australia/Sydney'
-        break
-      case 'au-mel':
-        timezone = 'Australia/Melbourne'
-        break
-      case 'nz-wlg':
-      case 'nz-akl':
-      default:
-        timezone = 'Pacific/Auckland'
-        break
-    }
-
+    const timezone = prefixToTimezone(prefix)
     const time = moment().tz(timezone)
     const currentTime = new Date(
       Date.UTC(1970, 0, 1, time.hour(), time.minute())
@@ -438,7 +482,7 @@ class Station {
     today.setUTCDate(time.date() + dateOffset)
 
     // combines train stations platforms together
-    let procedure = 'GetTimetable'
+    const procedure = 'GetTimetable'
     let trips = []
     try {
       trips = await dataAccess.getTimetable(

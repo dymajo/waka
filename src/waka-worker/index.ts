@@ -11,6 +11,7 @@ import StopsNZWLG from './stops/regions/nz-wlg'
 import Realtime from './realtime'
 import { WorkerConfig, Logger } from '../typings'
 import BaseStops from '../types/BaseStops'
+import WakaRedis from '../waka-realtime/Redis'
 
 class WakaWorker {
   config: WorkerConfig
@@ -22,7 +23,7 @@ class WakaWorker {
   search: Search
   lines: Lines
   station: Station
-
+  redis: WakaRedis
   bounds: {
     lat: { min: number; max: number }
     lon: { min: number; max: number }
@@ -45,6 +46,11 @@ class WakaWorker {
     this.logger = logger
     const connection = new Connection({ logger, db })
     this.connection = connection
+    this.redis = new WakaRedis({
+      prefix: this.config.prefix,
+      logger: this.logger,
+      config: this.config.redis,
+    })
 
     this.router = Router()
     this.realtime = new Realtime({
@@ -53,19 +59,20 @@ class WakaWorker {
       prefix,
       api,
       newRealtime,
-      redisConfig: config.redis,
+      wakaRedis: this.redis,
     })
 
     this.stopsExtras = null
     if (prefix === 'nz-akl') {
       this.stopsExtras = new StopsNZAKL({ logger, apiKey: api['agenda-21'] })
     } else if (prefix === 'nz-wlg') {
-      this.stopsExtras = new StopsNZWLG({ logger })
+      this.stopsExtras = new StopsNZWLG()
     }
     const { stopsExtras } = this
 
     this.search = new Search({ logger, connection, prefix, stopsExtras })
     this.lines = new Lines({
+      redis: this.redis,
       logger,
       connection,
       prefix,
@@ -84,10 +91,10 @@ class WakaWorker {
       stopsExtras,
       lines: this.lines,
       realtimeTimes: this.realtime.getCachedTrips,
+      redis: this.redis,
     })
 
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
-
     this.bindRoutes()
   }
 
@@ -96,15 +103,17 @@ class WakaWorker {
       this.logger.error(err)
     })
     this.logger.info('Connected to the Database')
-    this.lines.start()
-    this.search.start()
+    await this.redis.start()
+    await this.realtime.start()
+    await this.search.start()
     if (this.stopsExtras) this.stopsExtras.start()
-    this.realtime.start()
-
+    await this.lines.start()
     this.bounds = await this.station.getBounds()
+    await this.station.transfers()
   }
 
   stop = () => {
+    this.logger.warn('worker stopped')
     this.lines.stop()
     this.search.stop()
     if (this.stopsExtras) this.stopsExtras.stop()
@@ -170,13 +179,13 @@ class WakaWorker {
      */
     router.get('/ping', (req, res) => res.send('pong'))
     router.get('/info', (req, res) => res.send(this.signature()))
-
     router.get('/station', station.stopInfo)
     router.get('/station/search', search.getStopsLatLon)
     router.get('/station/:station', station.stopInfo)
     router.get('/station/:station/times', station.stopTimes)
     router.get('/station/:station/times/:time', station.stopTimes)
     router.get('/station/:station/times/:fast', station.stopTimes)
+    router.get('/trip/:tripId/stops', lines.stopTimesv2)
     router.get(
       '/station/:station/timetable/:route/:direction',
       station.timetable
@@ -188,7 +197,9 @@ class WakaWorker {
     router.get('/stations', search.all)
 
     router.get('/lines', lines.getLines)
+    router.get('/all-lines', lines.getLinesV2)
     router.get('/line/:line', lines.getLine)
+    router.get('/stops/all', lines.getAllStops)
     router.get('/stops/trip/:tripId', lines.getStopsFromTrip)
     router.get('/stops/shape/:shapeId', lines.getStopsFromShape)
     router.get('/shapejson/:shapeId', lines.getShapeJSON)

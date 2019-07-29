@@ -1,276 +1,138 @@
-import fetch from 'node-fetch'
-import * as sql from 'mssql'
 import * as Logger from 'bunyan'
 import { Response } from 'express'
+import { VarChar } from 'mssql'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
+import { WakaRequest, RedisConfig } from '../../../typings'
 import BaseRealtime from '../../../types/BaseRealtime'
-import { WakaRequest } from '../../../typings'
-
-const schedulePullTimeout = 20000
-const scheduleLocationPullTimeout = 15000
+import WakaRedis from '../../../waka-realtime/Redis'
+import { TripUpdate } from '../../../gtfs'
 
 interface RealtimeNZAKLProps {
   connection: Connection
   logger: Logger
   apiKey: string
   newRealtime: boolean
+  wakaRedis: WakaRedis
 }
 
 class RealtimeNZAKL extends BaseRealtime {
-  apiKey: string
-  lastUpdate: Date
-  lastVehicleUpdate: Date
-
-  currentData: any
-  currentVehicleData: any
-
-  currentDataFails: number
-  currentVehicleDataFails: number
-
-  tripUpdateTimeout: NodeJS.Timer
-  locationTimeout: NodeJS.Timer
-
-  tripUpdatesOptions: { url: string; headers: { [header: string]: string } }
-  vehicleLocationsOptions: {
-    url: string
-    headers: { [header: string]: string }
-  }
   connection: Connection
   logger: Logger
+  newRealtime: boolean
+  redisConfig: RedisConfig
+  wakaRedis: WakaRedis
   constructor(props: RealtimeNZAKLProps) {
     super()
-    const { logger, connection, apiKey, newRealtime } = props
-    if (newRealtime) {
-      throw Error('New realtime not implemented')
-    }
+    const { logger, connection, apiKey, newRealtime, wakaRedis } = props
+    this.wakaRedis = wakaRedis
+    this.newRealtime = newRealtime
     this.connection = connection
     this.logger = logger
     this.apiKey = apiKey
-
-    this.lastUpdate = null
-    this.lastVehicleUpdate = null
-    this.currentData = {}
-    this.currentDataFails = 0
-    this.currentVehicleData = {}
-    this.currentVehicleDataFails = null
-    this.tripUpdateTimeout = 0
-    this.locationTimeout = 0
-
-    this.tripUpdatesOptions = {
-      url: 'https://api.at.govt.nz/v2/public/realtime/tripupdates',
-      headers: {
-        'Ocp-Apim-Subscription-Key': apiKey,
-      },
-    }
-    this.vehicleLocationsOptions = {
-      url: 'https://api.at.govt.nz/v2/public/realtime/vehiclelocations',
-      headers: {
-        'Ocp-Apim-Subscription-Key': apiKey,
-      },
-    }
   }
 
-  isDoubleDecker = (vehicle: string) => {
-    return doubleDeckers.includes(vehicle)
-  }
-
-  isEV = (vehicle: string) => {
-    return ['2840', '2841'].includes(vehicle)
-  }
-
-  start = () => {
-    const { apiKey, logger } = this
-    if (!apiKey) {
-      logger.warn('No Auckland Transport API Key, will not show realtime.')
-      return
+  isSpecialVehicle = (vehicle: string) => {
+    const sv = {
+      ev: false,
+      dd: false,
     }
-    this.scheduleUpdatePull()
-    this.scheduleLocationPull()
-    logger.info('Auckland Realtime Started.')
+    if (['2840', '2841'].includes(vehicle)) {
+      sv.ev = true
+    }
+    if (doubleDeckers.includes(vehicle)) {
+      sv.dd = true
+    }
+    return sv
+  }
+
+  start = async () => {
+    const { logger, newRealtime } = this
+
+    if (!newRealtime) {
+      logger.error('Must be new realtime')
+    } else {
+      // await this.redis.start()
+      logger.info('Realtime Gateway started')
+    }
   }
 
   stop = () => {
-    clearTimeout(this.tripUpdateTimeout)
-    clearTimeout(this.locationTimeout)
     this.logger.info('Auckland Realtime stopped.')
   }
 
-  scheduleUpdatePull = async () => {
-    const { logger, tripUpdatesOptions } = this
-    try {
-      const data = await fetch(tripUpdatesOptions.url, {
-        headers: tripUpdatesOptions.headers,
-      }).then(r => r.json())
-      if (data.response && data.response.entity) {
-        const newData = {}
-        data.response.entity.forEach(trip => {
-          newData[trip.trip_update.trip.trip_id] = trip.trip_update
-        })
-        this.currentData = newData
-        this.currentDataFails = 0
-        this.lastUpdate = new Date()
-        logger.info('Pulled AT Trip Updates Data.')
-      } else {
-        logger.warn({ response: data }, 'Could not get AT Data')
-      }
-    } catch (err) {
-      this.currentDataFails += 1
-      logger.warn({ err }, 'Could not get AT Data')
-    }
-    this.tripUpdateTimeout = setTimeout(
-      this.scheduleUpdatePull,
-      schedulePullTimeout
-    )
-  }
-
-  scheduleLocationPull = async () => {
-    const { logger, vehicleLocationsOptions } = this
-    try {
-      const data = await fetch(vehicleLocationsOptions.url, {
-        headers: vehicleLocationsOptions.headers,
-      }).then(r => r.json())
-      this.currentVehicleData = data.response
-      this.currentDataFails = 0
-      this.lastVehicleUpdate = new Date()
-      logger.info('Pulled AT Location Data.')
-    } catch (err) {
-      this.currentVehicleDataFails += 1
-      logger.error({ err }, 'Could not get AT Data')
-    }
-    this.locationTimeout = setTimeout(
-      this.scheduleLocationPull,
-      scheduleLocationPullTimeout
-    )
-  }
-
   getTripsEndpoint = async (
-    req: WakaRequest<{ trips: string[]; train: boolean }, null>,
+    req: WakaRequest<
+      { trips: string[]; train: boolean; stop_id: string },
+      null
+    >,
     res: Response
   ) => {
-    // compat with old version of api
-    if (req.body.trips.constructor !== Array) {
-      req.body.trips = Object.keys(req.body.trips)
+    interface ExTripUpdate extends TripUpdate {
+      specialVehicle: { ev: boolean; dd: boolean }
+    }
+    interface TrainTripUpdate {
+      v_id: string
+      latitude: number
+      longitude: number
     }
     const { trips, train } = req.body
-
-    // falls back to API if we're out of date
-    const data =
-      train || this.currentDataFails > 3
-        ? await this.getTripsAuckland(trips, train)
-        : this.getTripsCached(trips)
-    return res.send(data)
-  }
-
-  getTripsAuckland = async (trips: string[], train = false) => {
-    const { logger, vehicleLocationsOptions, tripUpdatesOptions } = this
-    const realtimeInfo = {}
-    trips.forEach(trip => {
-      realtimeInfo[trip] = {}
-    })
-
-    const opts = train ? vehicleLocationsOptions : tripUpdatesOptions
-
-    try {
-      const data = await fetch(`${opts.url}?tripid=${trips.join(',')}`, {
-        headers: opts.headers,
-      }).then(r => r.json())
-      if (data.response && data.response.entity) {
-        if (train) {
-          data.response.entity.forEach(trip => {
-            realtimeInfo[trip.vehicle.trip.trip_id] = {
-              v_id: trip.vehicle.vehicle.id,
-              latitude: trip.vehicle.position.latitude,
-              longitude: trip.vehicle.position.longitude,
-              bearing: trip.vehicle.position.bearing,
-            }
-          })
-        } else {
-          data.response.entity.forEach(trip => {
-            const timeUpdate =
-              trip.trip_update.stop_time_update.departure ||
-              trip.trip_update.stop_time_update.arrival ||
-              {}
-            realtimeInfo[trip.trip_update.trip.trip_id] = {
-              stop_sequence: trip.trip_update.stop_time_update.stop_sequence,
-              delay: timeUpdate.delay,
-              timestamp: timeUpdate.time,
-              v_id: trip.trip_update.vehicle.id,
-              double_decker: this.isDoubleDecker(trip.trip_update.vehicle.id),
-              ev: this.isEV(trip.trip_update.vehicle.id),
-            }
-          })
-        }
-      }
-    } catch (err) {
-      logger.error({ err }, 'Could not get data from AT.')
-    }
-    return realtimeInfo
-  }
-
-  getTripsCached = (trips: string[]) => {
-    // this is essentially the same function as above, but just pulls from cache
     const realtimeInfo: {
-      [tripId: string]: {
-        stop_sequence: number
-        delay: number
-        timestamp: number
-        v_id: number
-        double_decker: boolean
-        ev: boolean
-      }
+      [tripId: string]: ExTripUpdate | TrainTripUpdate
     } = {}
-    trips.forEach(trip => {
-      const data = this.currentData[trip]
-      if (typeof data !== 'undefined') {
-        const timeUpdate =
-          data.stop_time_update.departure || data.stop_time_update.arrival || {}
-        realtimeInfo[trip] = {
-          stop_sequence: data.stop_time_update.stop_sequence,
-          delay: timeUpdate.delay,
-          timestamp: timeUpdate.time,
-          v_id: data.vehicle.id,
-          double_decker: this.isDoubleDecker(data.vehicle.id),
-          ev: this.isEV(data.vehicle.id),
+    if (train) {
+      for (const tripId of trips) {
+        try {
+          const data = await this.wakaRedis.getVehiclePosition(tripId)
+          realtimeInfo[data.trip.tripId] = {
+            v_id: data.vehicle.id,
+            latitude: data.position.latitude,
+            longitude: data.position.longitude,
+          }
+        } catch (err) {
+          console.log(err)
         }
       }
-    })
+    } else {
+      for (const tripId of trips) {
+        try {
+          const data = await this.wakaRedis.getTripUpdate(tripId)
 
-    return realtimeInfo
+          realtimeInfo[tripId] = {
+            ...data,
+            specialVehicle: this.isSpecialVehicle(data.vehicle.id),
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+    return res.send(realtimeInfo)
   }
 
   getVehicleLocationEndpoint = async (
     req: WakaRequest<{ trips: string[] }, null>,
     res: Response
   ) => {
-    const { logger, vehicleLocationsOptions } = this
+    const { logger } = this
     const { trips } = req.body
-
-    const vehicleInfo = {}
-    req.body.trips.forEach(trip => {
-      vehicleInfo[trip] = {}
-    })
-    try {
-      const data = await fetch(
-        `${vehicleLocationsOptions.url}?tripid=${trips.join(',')}`,
-        {
-          headers: vehicleLocationsOptions.headers,
-        }
-      ).then(r => r.json())
-      if (data.response.entity) {
-        data.response.entity.forEach(trip => {
-          vehicleInfo[trip.vehicle.trip.trip_id] = {
-            latitude: trip.vehicle.position.latitude,
-            longitude: trip.vehicle.position.longitude,
-            bearing: trip.vehicle.position.bearing,
+    const vehicleInfo: {
+      [tripId: string]: { latitude: number; longitude: number }
+    } = {}
+    for (const tripId of trips) {
+      try {
+        const data = await this.wakaRedis.getVehiclePosition(tripId)
+        if (data) {
+          vehicleInfo[tripId] = {
+            latitude: data.position.latitude,
+            longitude: data.position.longitude,
           }
-        })
+        }
+      } catch (err) {
+        console.log(err)
       }
-      return res.send(vehicleInfo)
-    } catch (err) {
-      logger.error({ err }, 'Could not get vehicle location from AT.')
-      return res.send({ error: err })
     }
+    return res.send(vehicleInfo)
   }
 
   getLocationsForLine = async (
@@ -279,52 +141,89 @@ class RealtimeNZAKL extends BaseRealtime {
   ) => {
     const { logger, connection } = this
     const { line } = req.params
-    if (this.currentVehicleData.entity === undefined) {
-      return res.send([])
-    }
+    // const keys = await this.wakaRedis.client.keys('*nz-akl:vehicle-position*')
+    // if (keys.length === 0) {
+    //   return res.send([])
+    // }
 
     try {
       const sqlRouteIdRequest = connection.get().request()
-      sqlRouteIdRequest.input('route_short_name', sql.VarChar(50), line)
+      sqlRouteIdRequest.input('route_short_name', VarChar(50), line)
       const routeIdResult = await sqlRouteIdRequest.query<{ route_id: string }>(
         `
-        SELECT route_id
-        FROM routes
-        WHERE route_short_name = @route_short_name
-        `
+      SELECT route_id
+      FROM routes
+      WHERE route_short_name = @route_short_name or route_id = @route_short_name
+      `
       )
       const routeIds = routeIdResult.recordset.map(r => r.route_id)
-      const trips = this.currentVehicleData.entity.filter(entity =>
-        routeIds.includes(entity.vehicle.trip.route_id)
+      let tripIds: string[] = []
+      for (const routeId of routeIds) {
+        const t = await this.wakaRedis.getArrayKey(
+          routeId,
+          'vehicle-position-route'
+        )
+        tripIds = [...tripIds, ...t]
+      }
+
+      const trips = await Promise.all(
+        tripIds.map(tripId => this.wakaRedis.getVehiclePosition(tripId))
       )
-      // this is good enough because data comes from auckland transport
-      const tripIds = trips.map(entity => entity.vehicle.trip.trip_id)
-      const escapedTripIds = `'${tripIds.join("', '")}'`
+      const escapedTripIds = `'${tripIds.join('\', \'')}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
         direction_id: number
+        trip_headsign: string
+        bikes_allowed: number
+        block_id: string
+        route_id: string
+        service_id: string
+        shape_id: string
+        trip_short_name: string
+        wheelchair_accessible: number
       }>(`
         SELECT *
         FROM trips
         WHERE trip_id IN (${escapedTripIds})
-        `)
+      `)
+      // console.log(tripIdRequest.recordset)
 
-      const tripIdsMap = {}
-      tripIdRequest.recordset.forEach(
-        record => (tripIdsMap[record.trip_id] = record.direction_id)
-      )
-
+      const tripIdsMap: {
+        [tripId: string]: {
+          trip_id: string
+          direction_id: number
+          trip_headsign: string
+          bikes_allowed: number
+          block_id: string
+          route_id: string
+          service_id: string
+          shape_id: string
+          trip_short_name: string
+          wheelchair_accessible: number
+        }
+      } = {}
+      tripIdRequest.recordset.forEach(record => {
+        tripIdsMap[record.trip_id] = record
+      })
+      debugger
       // now we return the structued data finally
-      const result = trips.map(entity => ({
-        latitude: entity.vehicle.position.latitude,
-        longitude: entity.vehicle.position.longitude,
-        bearing: entity.vehicle.position.bearing
-          ? parseInt(entity.vehicle.position.bearing, 10)
-          : null,
-        direction: tripIdsMap[entity.vehicle.trip.trip_id],
-        updatedAt: this.lastVehicleUpdate,
-      }))
+      const result = trips.map(vehicle => {
+        // console.log(vehicle)
+        // console.log(tripIdsMap[vehicle.trip.tripId])
+        return {
+          latitude: vehicle.position.latitude,
+          longitude: vehicle.position.longitude,
+          bearing: vehicle.position.bearing,
+          direction: tripIdsMap[vehicle.trip.tripId].direction_id,
+          stopId: vehicle.stopId,
+          congestionLevel: vehicle.congestionLevel,
+          updatedAt: this.lastVehicleUpdate,
+          trip_id: vehicle.trip.tripId,
+          label: vehicle.vehicle.label,
+          occupancyStatus: vehicle.occupancyStatus,
+        }
+      })
       return res.send(result)
     } catch (err) {
       logger.error({ err }, 'Could not get locations from line.')

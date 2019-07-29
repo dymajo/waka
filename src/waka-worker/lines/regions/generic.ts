@@ -11,7 +11,13 @@ class GenericLines extends BaseLines {
     const lineColors: { [routeShortName: string]: string } = {}
     const lineGroups: {
       name: string
-      items: string[]
+      items: {
+        routeId: string
+        routeShortName: string
+        routeLongName: string
+        agencyId: string
+        routeColor: string
+      }[]
     }[] = [
       { name: 'Tram', items: [] },
       { name: 'Subway / Metro', items: [] },
@@ -37,7 +43,6 @@ class GenericLines extends BaseLines {
     ] = lineGroups
     const result = await dataAccess.getRoutes()
     result.recordset.forEach(record => {
-      const agencyId = record.agency_id
       const splitName = record.route_long_name
         .replace(/^\d+\W+/, '')
         .split(' - ')
@@ -52,31 +57,43 @@ class GenericLines extends BaseLines {
       const {
         route_type: routeType,
         route_short_name: routeShortName,
-        route_desc: routeDesc,
         route_id: routeId,
         route_long_name: routeLongName,
-        route_color: routeColor,
+        agency_id: agencyId,
       } = record
+      const routeColor = `#${record.route_color}`
 
       // this assumes there's a unique key over these records!
-      const uniqueId = [agencyId, routeShortName].join('/')
-      lineOperators[uniqueId] = agencyId
-      friendlyNumbers[uniqueId] = routeShortName
+      // const uniqueId = [agencyId, routeShortName].join('/')
+      lineOperators[routeShortName] = agencyId
+      friendlyNumbers[routeShortName] = routeShortName
 
-      if (Object.prototype.hasOwnProperty.call(allLines, uniqueId)) {
-        allLines[uniqueId].push(lineEntry)
+      if (Object.prototype.hasOwnProperty.call(allLines, routeShortName)) {
+        allLines[routeShortName].push(lineEntry)
       } else {
-        allLines[uniqueId] = [lineEntry]
-        lineColors[uniqueId] = `#${routeColor}`
+        allLines[routeShortName] = [lineEntry]
+        lineColors[routeShortName] = `#${routeColor}`
       }
 
       // tram
       if (routeType === 0 || (routeType >= 900 && routeType < 1000)) {
-        tram.items.push(uniqueId)
+        tram.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // subway
       else if (routeType === 1 || routeType === 401 || routeType === 402) {
-        subway.items.push(uniqueId)
+        subway.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // rail
       else if (
@@ -85,7 +102,13 @@ class GenericLines extends BaseLines {
         routeType === 400 ||
         (routeType >= 404 && routeType <= 405)
       ) {
-        rail.items.push(uniqueId)
+        rail.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // bus
       else if (
@@ -93,30 +116,66 @@ class GenericLines extends BaseLines {
         (routeType >= 700 && routeType < 712) ||
         (routeType > 712 && routeType <= 717)
       ) {
-        bus.items.push(uniqueId)
+        bus.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // ferry
       else if (routeType === 4 || routeType === 1000 || routeType === 1200) {
-        ferry.items.push(uniqueId)
+        ferry.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // cable car
       else if (routeType === 5 || routeType === 907) {
-        cableCar.items.push(uniqueId)
+        cableCar.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // gondola
       else if (routeType === 6 || routeType === 1100 || routeType === 1300) {
-        gondola.items.push(uniqueId)
+        gondola.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // funicular
       else if (routeType === 7 || routeType === 1400) {
-        funicular.items.push(uniqueId)
+        funicular.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
       // undefined other????
       else {
-        other.items.push(uniqueId)
+        other.items.push({
+          agencyId,
+          routeColor,
+          routeShortName,
+          routeLongName,
+          routeId,
+        })
       }
     })
-    this.lineGroups = lineGroups.filter(group => group.items.length !== 0)
+    this.lineGroupsV2 = lineGroups.filter(group => group.items.length !== 0)
     this.lineOperators = lineOperators
     this.friendlyNumbers = friendlyNumbers
     this.allLines = allLines

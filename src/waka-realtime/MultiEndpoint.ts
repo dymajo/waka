@@ -77,7 +77,7 @@ abstract class MultiEndpoint extends BaseRealtime {
       modes,
       axios,
       tripUpdateEndpoint,
-      redis,
+      wakaRedis,
       rateLimiter,
       scheduleUpdatePull,
       scheduleUpdatePullTimeout,
@@ -94,7 +94,7 @@ abstract class MultiEndpoint extends BaseRealtime {
         const res = await rateLimiter(() =>
           axios.get(`${tripUpdateEndpoint}/${mode}`)
         )
-        const oldModified = await redis.getKey(mode, 'last-trip-update')
+        const oldModified = await wakaRedis.getKey(mode, 'last-trip-update')
         if (res.headers['last-modified'] !== oldModified) {
           const uInt8 = new Uint8Array(res.data)
           const _feed = protobuf.decode(uInt8) as unknown
@@ -102,7 +102,7 @@ abstract class MultiEndpoint extends BaseRealtime {
           await this.processTripUpdates(feed.entity)
 
           if (res.headers['last-modified']) {
-            await redis.setKey(
+            await wakaRedis.setKey(
               mode,
               res.headers['last-modified'],
               'last-trip-update'
@@ -114,7 +114,11 @@ abstract class MultiEndpoint extends BaseRealtime {
       }
     }
 
-    await redis.setKey('default', new Date().toISOString(), 'last-trip-update')
+    await wakaRedis.setKey(
+      'default',
+      new Date().toISOString(),
+      'last-trip-update'
+    )
     logger.info('Pulled Trip Updates.')
 
     this.tripUpdateTimeout = setTimeout(
@@ -129,7 +133,7 @@ abstract class MultiEndpoint extends BaseRealtime {
       modes,
       axios,
       rateLimiter,
-      redis,
+      wakaRedis,
       scheduleVehiclePositionPull,
       scheduleVehiclePositionPullTimeout,
       vehiclePositionEndpoint,
@@ -145,7 +149,7 @@ abstract class MultiEndpoint extends BaseRealtime {
         const res = await rateLimiter(() =>
           axios.get(`${vehiclePositionEndpoint}/${mode}`)
         )
-        const oldModified = await redis.getKey(
+        const oldModified = await wakaRedis.getKey(
           mode,
           'last-vehicle-position-update'
         )
@@ -155,7 +159,7 @@ abstract class MultiEndpoint extends BaseRealtime {
           const feed = _feed as PositionFeedMessage
           await this.processVehiclePositions(feed.entity)
           if (res.headers['last-modified']) {
-            await redis.setKey(
+            await wakaRedis.setKey(
               mode,
               res.headers['last-modified'],
               'last-vehicle-position-update'
@@ -166,7 +170,7 @@ abstract class MultiEndpoint extends BaseRealtime {
         logger.error({ err }, 'Failed to pull vehicle positions')
       }
     }
-    await redis.setKey(
+    await wakaRedis.setKey(
       'default',
       new Date().toISOString(),
       'last-vehicle-position-update'
@@ -184,7 +188,7 @@ abstract class MultiEndpoint extends BaseRealtime {
       modes,
       axios,
       serviceAlertEndpoint,
-      redis,
+      wakaRedis,
       rateLimiter,
       scheduleAlertPull,
       scheduleAlertPullTimeout,
@@ -201,7 +205,7 @@ abstract class MultiEndpoint extends BaseRealtime {
         const res = await rateLimiter(() =>
           axios.get(`${serviceAlertEndpoint}/${mode}`)
         )
-        const oldModified = await redis.getKey(mode, 'last-alert-update')
+        const oldModified = await wakaRedis.getKey(mode, 'last-alert-update')
         if (res.headers['last-modified'] !== oldModified) {
           const uInt8 = new Uint8Array(res.data)
           const _feed = protobuf.decode(uInt8) as unknown
@@ -209,7 +213,7 @@ abstract class MultiEndpoint extends BaseRealtime {
           await this.processAlerts(feed.entity)
 
           if (res.headers['last-modified']) {
-            await redis.setKey(
+            await wakaRedis.setKey(
               mode,
               res.headers['last-modified'],
               'last-alert-update'
@@ -221,7 +225,11 @@ abstract class MultiEndpoint extends BaseRealtime {
       }
     }
 
-    await redis.setKey('default', new Date().toISOString(), 'last-trip-update')
+    await wakaRedis.setKey(
+      'default',
+      new Date().toISOString(),
+      'last-trip-update'
+    )
     logger.info('Pulled Service Alert Updates.')
 
     this.tripUpdateTimeout = setTimeout(

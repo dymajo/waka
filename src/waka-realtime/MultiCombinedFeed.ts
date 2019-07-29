@@ -75,7 +75,6 @@ abstract class MultiCombinedFeed extends BaseRealtime {
     }
     logger.info('Starting Trip Update Pull')
     for (const mode of modes) {
-      debugger
       try {
         const res = await rateLimiter(() => axios.get(mode))
         const oldModified = await redis.getKey('default', 'last-trip-update')

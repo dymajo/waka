@@ -1,9 +1,9 @@
 import * as sql from 'mssql'
 import Connection from '../db/connection'
-import { RouteInfo, StopTime, TripRow } from '../../typings'
+import { RouteInfo, StopTime, TripRow, TripInfo } from '../../typings'
 
 interface StopsDataAccessProps {
-  connection: Connection,
+  connection: Connection
   prefix: string
 }
 
@@ -16,7 +16,7 @@ class StopsDataAccess {
       route_short_name: string
       trip_headsign: string
       direction_id: number
-    }
+    }[]
   >
   constructor(props: StopsDataAccessProps) {
     const { connection, prefix } = props
@@ -97,7 +97,12 @@ class StopsDataAccess {
     return data
   }
 
-  async getStopTimes(stopCode, time, date, procedure = 'GetStopTimes') {
+  getStopTimes = async (
+    stopCode: string,
+    time: Date,
+    date: Date,
+    procedure = 'GetStopTimes'
+  ) => {
     const { connection } = this
     const sqlRequest = connection
       .get()
@@ -128,10 +133,10 @@ class StopsDataAccess {
   }
 
   async getTimetable(
-    stopCode,
-    routeId,
-    date,
-    direction,
+    stopCode: string,
+    routeId: string,
+    date: Date,
+    direction: string,
     procedure = 'GetTimetable'
   ) {
     const { connection } = this
@@ -183,7 +188,6 @@ class StopsDataAccess {
       WHERE stop_code = @stop_code
 
       SELECT
-        route_short_name,
         trip_headsign,
         direction_id
       FROM stop_times
@@ -204,6 +208,94 @@ class StopsDataAccess {
     const routes = result.recordset
     this.stopRouteCache.set(stopCode, routes)
     return routes
+  }
+
+  getNullParentStationRouteStops = async () => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query<{
+      stop_id: string
+      route_short_name: string
+    }>(`
+      select distinct stops.stop_id,  route_short_name
+      from trips
+      inner join stop_times
+      on stop_times.trip_id = trips.trip_id
+      inner join stops
+      on stops.stop_id = stop_times.stop_id
+      inner join routes
+      on routes.route_id = trips.route_id
+      where (pickup_type = 0 or drop_off_type = 0 )and route_type <> 712 and parent_station is null
+      group by stops.stop_id,route_short_name;
+    `)
+    const stops: { [stop_id: string]: string[] } = {}
+    for (const { stop_id, route_short_name } of result.recordset) {
+      if (Object.prototype.hasOwnProperty.call(stops, stop_id)) {
+        stops[stop_id].push(route_short_name)
+      } else {
+        stops[stop_id] = [route_short_name]
+      }
+    }
+    return stops
+  }
+
+  getParentStationRouteStops = async () => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query<{
+      parent_station: string
+      route_short_name: string
+    }>(`
+      select distinct parent_station, route_short_name
+      from trips
+      inner join stop_times
+      on stop_times.trip_id = trips.trip_id
+      inner join stops
+      on stops.stop_id = stop_times.stop_id
+      inner join routes
+      on routes.route_id = trips.route_id
+      where (pickup_type = 0 or drop_off_type = 0 ) and parent_station is not null
+      group by parent_station,route_short_name
+      order by parent_station;
+    `)
+    const parents: { [parent_station: string]: string[] } = {}
+    const parentsMap = await this.getParentStops()
+    const stops: { [stop_id: string]: string[] } = {}
+
+    for (const { parent_station, route_short_name } of result.recordset) {
+      if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
+        parents[parent_station].push(route_short_name)
+      } else {
+        parents[parent_station] = [route_short_name]
+      }
+    }
+
+    for (const { stop_id, parent_station } of parentsMap) {
+      if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
+        stops[stop_id] = parents[parent_station]
+      }
+    }
+
+    return stops
+  }
+
+  getParentStops = async () => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const result = await sqlRequest.query<{
+      stop_id: string
+      parent_station: string
+    }>(`
+      select stop_id, parent_station from stops where parent_station is not null;
+    `)
+    return result.recordset
+  }
+
+  getTransfers = async () => {
+    const parents = await this.getParentStationRouteStops()
+    const stops = await this.getNullParentStationRouteStops()
+    const transfers = { ...parents, ...stops }
+    return transfers
   }
 
   async getRoutesForMultipleStops(stopCodes: string[]) {
@@ -227,7 +319,7 @@ class StopsDataAccess {
     if (filteredStopCodes.length > 0) {
       // TODO: This isn't SQL Injection Proof, but it shouldn't be hit from there anyway.
       // This should also be a stored procedure.
-      const stopCodesQuery = `('${filteredStopCodes.join("','")}')`
+      const stopCodesQuery = `('${filteredStopCodes.join('\',\'')}')`
 
       const sqlRequest = connection.get().request()
       const result = await sqlRequest.query<{
@@ -285,6 +377,126 @@ class StopsDataAccess {
     })
 
     return routesContainer
+  }
+
+  getRouteInfo = async (tripId: string) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('tripId', sql.VarChar, tripId)
+
+    const result = await sqlRequest.query<RouteInfo>(
+      `  select route_short_name, route_long_name, route_desc, route_type, route_color, route_text_color from routes
+
+    inner join trips on routes.route_id = trips.route_id
+    where trip_id = @tripId`
+    )
+    return result.recordset[0]
+  }
+
+  getStopTimesV2 = async (
+    current: string,
+    previous?: string,
+    next?: string
+  ) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    const escapedTripIds =
+      previous && next
+        ? ` '${previous}', '${next}'`
+        : previous
+          ? ` '${previous}'`
+          : next
+            ? ` '${next}'`
+            : ''
+
+    const result = await sqlRequest.query<StopTime>(`
+      select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name, stop_sequence
+      from stop_times
+      inner join trips
+      on stop_times.trip_id = trips.trip_id
+      inner join stops
+      on stop_times.stop_id = stops.stop_id
+      inner join routes
+on trips.route_id = routes.route_id
+      where trips.trip_id = '${current}'
+      order by stop_sequence
+      `)
+    const sqlRequest2 = connection.get().request()
+    let result2
+    const routeInfo = await this.getRouteInfo(current)
+
+    const trips: {
+      current: StopTime[]
+      previous?: TripInfo
+      next?: TripInfo
+      routeInfo: RouteInfo
+    } = {
+      current: result.recordset,
+      routeInfo,
+    }
+    if (escapedTripIds) {
+      result2 = await sqlRequest2.query<TripInfo>(`
+        select trip.trip_id, route.route_long_name,  route.route_short_name,route.route_color, stop_time.departure_time  from trips trip
+        inner join routes route
+        on route.route_id = trip.route_id
+        inner join stop_times stop_time
+        on stop_time.trip_id = trip.trip_id
+        where trip.trip_id in (${escapedTripIds}) and stop_time.stop_sequence = (SELECT MIN(stop_sequence) from stop_times where trip_id = trip.trip_id)
+      `)
+      for (const trip of result2.recordset) {
+        if (trip.trip_id === previous) {
+          trips.previous = trip
+        }
+        if (trip.trip_id === next) {
+          trips.next = trip
+        }
+      }
+    }
+
+    return trips
+  }
+
+  getBlockFromTrip = async (tripId: string) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('tripId', sql.VarChar, tripId)
+
+    const result = await sqlRequest.query<TripRow>(
+      `
+      SELECT  trips.trip_id,
+              trip_headsign,
+              min(arrival_time) AS start_time,
+              row_number() OVER (
+                                ORDER BY min(arrival_time)) AS row_number
+      FROM trips
+      INNER JOIN stop_times ON trips.trip_id = stop_times.trip_id
+      WHERE block_id =
+          (SELECT CASE
+                WHEN block_id = '' THEN 'there is no block id '
+                ELSE block_id
+          END
+      FROM trips
+      WHERE trip_id = @tripId )
+      GROUP BY  trips.trip_id,
+                trips.trip_headsign
+      `
+    )
+    const numberOfTrips = result.rowsAffected[0]
+    const currentIdx = result.recordset.map(el => el.trip_id).indexOf(tripId)
+    const previous = result.recordset[currentIdx - 1]
+    const next = result.recordset[currentIdx + 1]
+    const current = result.recordset[currentIdx]
+
+    if (numberOfTrips === 0) {
+      return this.getStopTimesV2(tripId)
+    }
+    if (numberOfTrips === currentIdx + 1) {
+      return this.getStopTimesV2(current.trip_id, previous.trip_id)
+    }
+    if (currentIdx === 0) {
+      return this.getStopTimesV2(current.trip_id, null, next.trip_id)
+    }
+    return this.getStopTimesV2(current.trip_id, previous.trip_id, next.trip_id)
   }
 }
 export default StopsDataAccess

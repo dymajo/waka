@@ -5,13 +5,19 @@ import logger from '../logger'
 import KeyvalueLocal from '../adaptors/keyvalueLocal'
 import KeyvalueDynamo from '../adaptors/keyvalueDynamo'
 import VersionManager from '../versionManager'
+import { WakaConfig } from '../../typings'
+
+interface PrivateApiProps {
+  config: WakaConfig
+  versionManager: VersionManager
+}
 
 class PrivateApi {
   versionManager: VersionManager
   router: Router
   meta: KeyvalueDynamo | KeyvalueLocal
 
-  constructor(props) {
+  constructor(props: PrivateApiProps) {
     const { config, versionManager } = props
     this.versionManager = versionManager
 

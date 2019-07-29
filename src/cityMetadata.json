@@ -72,6 +72,12 @@
     "initialLocation": [48.8567, 2.3508],
     "showInCityList": true
   },
+  "de-ber": {
+    "name": "Berlin",
+    "secondaryName": " Berlin-Brandenburg",
+    "longName": " Berlin-Brandenburg",
+    "initialLocation": [52.516667, 13.388889]
+  },
   "us-nyc": {
     "name": "NYC",
     "secondaryName": "New York",

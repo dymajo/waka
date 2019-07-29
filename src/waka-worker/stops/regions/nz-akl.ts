@@ -72,7 +72,7 @@ const additionalData: {
   },
 }
 
-const agenda21mapper = {
+const agenda21mapper: { [carpark: string]: string } = {
   Downtown: 'downtown-carpark',
   Civic: 'civic-carpark',
   'Victoria St': 'victoria-st-carpark',
@@ -80,8 +80,6 @@ const agenda21mapper = {
 }
 
 class StopsNZAKL extends BaseStops {
-  logger: any
-  apiKey: string
   interval: NodeJS.Timeout
   carparks: {
     [carpark: string]: {
@@ -98,11 +96,9 @@ class StopsNZAKL extends BaseStops {
       maxSpaces: number
     }
   }
-  constructor(props: { logger: any; apiKey: string }) {
-    super()
-    const { logger, apiKey } = props
-    this.logger = logger
-    this.apiKey = apiKey
+  constructor(props: BaseStopsProps) {
+    super(props)
+
     this.interval = null
 
     this.carparks = {
@@ -187,19 +183,25 @@ class StopsNZAKL extends BaseStops {
         `http://whatthecatbroughtin.com:55533/api/parking/latest-availability?key=${apiKey}`
       )
       const data = await response.json()
-      data.forEach(carpark => {
-        const cacheObj = this.carparks[agenda21mapper[carpark.name]]
-        cacheObj.availableSpaces = carpark.availableSpaces
-        cacheObj.timestamp = carpark.timestamp
-        cacheObj.description = `${carpark.availableSpaces} spaces currently available`
-      })
+      data.forEach(
+        (carpark: {
+          name: string
+          timestamp: string
+          availableSpaces: number
+        }) => {
+          const cacheObj = this.carparks[agenda21mapper[carpark.name]]
+          cacheObj.availableSpaces = carpark.availableSpaces
+          cacheObj.timestamp = new Date(carpark.timestamp)
+          cacheObj.description = `${carpark.availableSpaces} spaces currently available`
+        }
+      )
     } catch (err) {
       // api is offline or whatever. just retries in 5 mins
       logger.warn({ err }, 'Could not get carpark information.')
     }
   }
 
-  extraSources = (lat, lng, distance) => {
+  extraSources = (lat: number, lng: number, distance: number) => {
     const latDist = distance / 100000
     const lonDist = distance / 65000
 
@@ -214,7 +216,7 @@ class StopsNZAKL extends BaseStops {
     )
   }
 
-  getSingle = code => {
+  getSingle = (code: string) => {
     if (code in this.carparks) {
       return this.carparks[code]
     }

@@ -1,104 +1,7 @@
-import lineGroups from './nz-akl-groups.json'
-import allLines from './nz-akl-lines.json'
+import lineGroupsJSON from './nz-akl-groups.json'
+import allLinesJSON from './nz-akl-lines.json'
 import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
-const getColor = (agencyId: string, code: string) => {
-  // First for our fancy services.
-  switch (code) {
-    case 'CTY': // City Link
-      return '#ef3c34'
-    case 'INN': // Inner Link
-      return '#41b649'
-    case 'OUT': // Outer Link
-      return '#f7991c'
-    case 'TMK':
-      return '#038fcc'
-    case 'WEST': // Western Line
-      return '#84bd00'
-    case 'STH': // South Line
-      return '#da291c'
-    case 'EAST': // East Line
-      return '#ed8b00'
-    case 'PUK': // South Line
-      return '#da291c'
-    case 'ONE': // ONE Line
-      return '#00a6d6'
-    case 'NX1': // Northern Express 1
-      return '#123f90'
-    case 'NX2': // Northern Express 2
-      return '#008540'
-    default:
-    // do nothing
-  }
-  switch (agencyId) {
-    case 'AM': // Auckland Metro
-      return '#00254b'
-
-    case 'FGL': // Fullers
-      return '#2756a4'
-
-    case 'HE': // Howick and Eastern
-      return '#2196F3'
-
-    case 'NZBGW': // NZ Bus - Go West
-      return '#4CAF50'
-
-    case 'NZB': // NZ Bus - metrolink
-      return '#0759b0'
-
-    case 'NZBML': // NZ Bus - metrolink
-      return '#0759b0'
-
-    case 'NZBNS': // NZ Bus - North Star
-      return '#f39c12'
-
-    case 'NZBWP': // NZ Bus - Waka Pacific
-      return '#0f91ab'
-
-    case 'UE': // Urban Express / Same as Pavolich
-      return '#776242'
-
-    case 'BTL': // Birkenhead Transport
-      return '#b2975b'
-
-    case 'RTH': // Ritchies
-      return '#ff6f2c'
-
-    case 'TZG': // Tranzit
-      return '#008540'
-
-    case 'WBC': // Waiheke Bus Company
-      return '#2196F3'
-
-    case 'EXPNZ': // Explore Waiheke - supposed to be closed?
-      return '#ffe81c'
-
-    case 'BFL': // Belaire Ferries
-      return '#ffd503'
-
-    case 'ATAPT': // AT Airporter
-      return '#f7931d'
-
-    case 'SLPH': // Pine Harbour / Sealink
-      return '#d92732'
-
-    case 'GBT': // Go Bus
-      return '#58aa17'
-
-    case '360D': // 360 Discovery
-      return '#2756a4'
-
-    case 'ABEXP': // Skybus
-      return '#F44336'
-
-    case 'PC': // Pavolich
-      return '#776242'
-
-    default:
-      // MSB, PBC, BAYES - Schools
-      return '#17232f'
-  }
-}
 const lineIcons = {
   EAST: 'nz/at-metro-eastern',
   ONE: 'nz/at-metro-onehunga',
@@ -132,15 +35,13 @@ const friendlyNames = {
 }
 
 class LinesNZAKL extends BaseLines {
-  getColor: (agencyId: string, code: string) => string
   constructor(props: BaseLinesProps) {
     super(props)
 
     this.lineIcons = lineIcons
-    this.lineGroups = lineGroups
+    this.lineGroups = lineGroupsJSON
     this.friendlyNames = friendlyNames
-    this.allLines = allLines
-    this.getColor = getColor
+    this.allLines = allLinesJSON
     this.lineOperators = {}
     this.lineColors = {}
   }
@@ -150,16 +51,39 @@ class LinesNZAKL extends BaseLines {
     const routes = Object.keys(allLines)
     const lineOperators: { [routeShortName: string]: string } = {}
     const lineColors: { [routeShortName: string]: string } = {}
-
+    const lines: {
+      [routeShortName: string]: {
+        routeLongName: string
+        routeId: string
+        routeColor: string
+        routeShortName: string
+        agencyId: string
+      }
+    } = {}
     await Promise.all(
       routes.map(
         route =>
           new Promise(async resolve => {
-            const result = await dataAccess.getOperator(route)
+            const result = await dataAccess.getRouteInfo(route)
+
             if (result.recordset.length > 0) {
-              const agencyId = result.recordset[0].agency_id
-              lineColors[route] = getColor(agencyId, route)
+              const {
+                agency_id: agencyId,
+                route_id: routeId,
+                route_long_name: routeLongName,
+                route_short_name: routeShortName,
+              } = result.recordset[0]
+              const routeColor = `#${result.recordset[0].route_color}`
+
+              lineColors[route] = routeColor
               lineOperators[route] = agencyId
+              lines[route] = {
+                agencyId,
+                routeColor,
+                routeId,
+                routeLongName,
+                routeShortName,
+              }
               resolve(route)
             } else {
               logger.warn({ route }, 'Could not find agency for route.')
@@ -169,7 +93,15 @@ class LinesNZAKL extends BaseLines {
           })
       )
     )
-
+    const groups = lineGroupsJSON.map(group => {
+      return {
+        name: group.name,
+        items: group.items.map(item => {
+          return lines[item]
+        }),
+      }
+    })
+    this.lineGroupsV2 = groups
     this.lineOperators = lineOperators
     this.lineColors = lineColors
     logger.info('Completed Lookup of Agencies.')

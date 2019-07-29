@@ -52,7 +52,7 @@ export interface WorkerConfig {
   version: string
   db: DBConfig
   api: { [api: string]: string }
-  storageService: string
+  storageService: 'aws' | 'local'
   shapesContainer: string
   shapesRegion: string
   newRealtime: boolean
@@ -102,9 +102,14 @@ export interface EnvironmentWorkerConfig extends EnvironmentConfig {
 
 export interface TfNSWUpdaterProps {
   apiKey: string
-  callback: any
+  callback: (
+    prefix: string,
+    version: string,
+    adjustMapping: boolean
+  ) => Promise<void>
   delay: number
   interval: number
+  config: WakaConfig
 }
 
 export interface AklTimes {
@@ -153,6 +158,14 @@ export interface StorageProps {
   endpoint?: string
   region?: string
   logger: Logger
+}
+
+export interface TripInfo {
+  trip_id: string
+  route_long_name: string
+  route_short_name: string
+  route_color: string
+  departure_time: Date
 }
 
 export interface StopTime {

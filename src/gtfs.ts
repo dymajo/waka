@@ -56,31 +56,30 @@ export interface TimeRange {
   end?: Long
 }
 
-export enum Cause {
-  'UNKNOWN_CAUSE',
-  'OTHER_CAUSE',
-  'TECHNICAL_PROBLEM',
-  'STRIKE',
-  'DEMONSTRATION',
-  'ACCIDENT',
-  'HOLIDAY',
-  'WEATHER',
-  'MAINTENANCE',
-  'CONSTRUCTION',
-  'POLICE_ACTIVITY',
-  'MEDICAL_EMERGENCY',
-}
-export enum Effect {
-  'NO_SERVICE',
-  'REDUCED_SERVICE',
-  'SIGNIFICANT_DELAYS',
-  'DETOUR',
-  'ADDITIONAL_SERVICE',
-  'MODIFIED_SERVICE',
-  'OTHER_EFFECT',
-  'UNKNOWN_EFFECT',
-  'STOP_MOVED',
-}
+export type Cause =
+  | 'UNKNOWN_CAUSE'
+  | 'OTHER_CAUSE'
+  | 'TECHNICAL_PROBLEM'
+  | 'STRIKE'
+  | 'DEMONSTRATION'
+  | 'ACCIDENT'
+  | 'HOLIDAY'
+  | 'WEATHER'
+  | 'MAINTENANCE'
+  | 'CONSTRUCTION'
+  | 'POLICE_ACTIVITY'
+  | 'MEDICAL_EMERGENCY'
+
+export type Effect =
+  | 'NO_SERVICE'
+  | 'REDUCED_SERVICE'
+  | 'SIGNIFICANT_DELAYS'
+  | 'DETOUR'
+  | 'ADDITIONAL_SERVICE'
+  | 'MODIFIED_SERVICE'
+  | 'OTHER_EFFECT'
+  | 'UNKNOWN_EFFECT'
+  | 'STOP_MOVED'
 
 export interface TranslatedString {
   translation: Translation
@@ -142,12 +141,11 @@ export interface NyctTripDescriptor {
   trainId: string
 }
 
-export enum ScheduleRelationship {
-  'SCHEDULED',
-  'ADDED',
-  'UNSCHEDULED',
-  'CANCELED',
-}
+export type ScheduleRelationship =
+  | 'SCHEDULED'
+  | 'ADDED'
+  | 'UNSCHEDULED'
+  | 'CANCELED'
 
 export interface VehicleDescriptor {
   id?: string
@@ -169,22 +167,27 @@ export interface VehiclePosition {
   stopId?: string
   currentStatus?: VehicleStopStatus
   timestamp?: Long
-  congestionLevel: CongestionLevel
+  congestionLevel?: CongestionLevel
+  occupancyStatus?: OccupancyStatus
 }
 
-export enum CongestionLevel {
-  'UNKNOWN_CONGESTION_LEVEL',
-  'RUNNING_SMOOTHLY',
-  'STOP_AND_GO',
-  'CONGESTION',
-  'SEVERE_CONGESTION',
-}
+export type OccupancyStatus =
+  | 'EMPTY'
+  | '_MANY_SEATS_AVAILABLE_'
+  | '_FEW_SEATS_AVAILABLE_'
+  | '_STANDING_ROOM_ONLY_'
+  | '_CRUSHED_STANDING_ROOM_ONLY_'
+  | 'FULL'
+  | '_NOT_ACCEPTING_PASSENGERS_'
 
-export enum VehicleStopStatus {
-  'INCOMING_AT',
-  'STOPPED_AT',
-  'IN_TRANSIT_TO',
-}
+export type CongestionLevel =
+  | 'UNKNOWN_CONGESTION_LEVEL'
+  | 'RUNNING_SMOOTHLY'
+  | 'STOP_AND_GO'
+  | 'CONGESTION'
+  | 'SEVERE_CONGESTION'
+
+export type VehicleStopStatus = 'INCOMING_AT' | 'STOPPED_AT' | 'IN_TRANSIT_TO'
 
 export interface Position {
   latitude: number

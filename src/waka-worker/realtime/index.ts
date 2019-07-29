@@ -3,15 +3,25 @@ import RealtimeAUSYD from './regions/au-syd'
 import RealtimeNZAKL from './regions/nz-akl'
 import RealtimeNZWLG from './regions/nz-wlg'
 import Connection from '../db/connection'
+import CanberraRealtime from './regions/au-cbr'
 import { WakaRequest, Logger, RedisConfig } from '../../typings'
 import BaseRealtime from '../../types/BaseRealtime'
 import GenericRealtime from './regions/generic'
 import { isKeyof } from '../../utils'
+import WakaRedis from '../../waka-realtime/Redis'
 
 const regions = {
   'au-syd': RealtimeAUSYD,
   'nz-akl': RealtimeNZAKL,
   'nz-wlg': RealtimeNZWLG,
+  // 'au-cbr': CanberraRealtime,
+}
+
+interface RealtimeProps {
+  connection: Connection
+  logger: Logger
+  prefix: string
+  api: { [api: string]: string }
 }
 
 interface RealtimeProps {
@@ -20,7 +30,7 @@ interface RealtimeProps {
   prefix: string
   api: { [prefix: string]: string }
   newRealtime: boolean
-  redisConfig: RedisConfig
+  wakaRedis: WakaRedis
 }
 
 class Realtime {
@@ -30,7 +40,7 @@ class Realtime {
   fn: BaseRealtime
   newRealtime: boolean
   constructor(props: RealtimeProps) {
-    const { connection, logger, prefix, api, newRealtime, redisConfig } = props
+    const { connection, logger, prefix, api, newRealtime, wakaRedis } = props
     this.connection = connection
     this.logger = logger
     this.prefix = prefix
@@ -42,21 +52,21 @@ class Realtime {
           connection,
           apiKey,
           newRealtime,
-          redisConfig,
+          wakaRedis,
         })
       : new GenericRealtime({
           connection,
           logger,
           newRealtime,
-          redisConfig,
+          wakaRedis,
           prefix,
         })
   }
 
-  start = () => {
+  start = async () => {
     const { fn, logger } = this
     if (fn) {
-      fn.start()
+      await fn.start()
     } else {
       logger.warn('Realtime not implemented!')
     }
@@ -119,7 +129,13 @@ class Realtime {
    *   }
    * }
    */
-  stopInfo = (req: WakaRequest<{ trips: string[] }, null>, res: Response) => {
+  stopInfo = (
+    req: WakaRequest<
+      { trips: string[]; train: boolean; stop_id: string },
+      null
+    >,
+    res: Response
+  ) => {
     if (!req.body.trips) {
       return res.status(400).send({
         message: 'please send trips',
@@ -220,9 +236,9 @@ class Realtime {
 
   healthcheck = (req: WakaRequest<null, null>, res: Response) => {
     if (this.fn) {
-      let { lastUpdate } = this.fn
-      if (lastUpdate === undefined) lastUpdate = null
-      return res.send({ lastUpdate })
+      let { lastTripUpdate } = this.fn
+      if (lastTripUpdate === undefined) lastTripUpdate = null
+      return res.send({ lastTripUpdate })
     }
     return res.status(400).send({
       message: 'realtime not available',

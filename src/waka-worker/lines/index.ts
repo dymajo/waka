@@ -12,8 +12,9 @@ import GenericLines from './regions/generic'
 import Connection from '../db/connection'
 import Search from '../stops/search'
 import { Logger, WakaRequest } from '../../typings'
-import { isKeyof } from '../../utils'
+import { isKeyof, sortFn } from '../../utils'
 import BaseLines from '../../types/BaseLines'
+import WakaRedis from '../../waka-realtime/Redis'
 
 const regions = {
   'au-syd': SydneyLines,
@@ -32,6 +33,7 @@ interface LinesProps {
     shapesContainer: string
     shapesRegion: string
   }
+  redis: WakaRedis
 }
 
 class Lines {
@@ -67,8 +69,9 @@ class Lines {
       }
     }
   }
+  redis: WakaRedis
   constructor(props: LinesProps) {
-    const { logger, connection, prefix, version, config, search } = props
+    const { logger, connection, prefix, version, config, search, redis } = props
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
@@ -76,7 +79,7 @@ class Lines {
     this.search = search
     this.config = config
     this.cityMetadata = cityMetadataJSON
-
+    this.redis = redis
     // not too happy about this
     this.stopsDataAccess = new StopsDataAccess({ connection, prefix })
 
@@ -114,15 +117,10 @@ class Lines {
     }
   }
 
-  stop = () => {}
+  stop = () => { }
 
   getColor = (agencyId: string, routeShortName: string) => {
-    // If you need to get colors from the DB, please see the Wellington Lines Code.
-    // Essentially does a one-time cache of all the colors into the lineData object.
     const { lineDataSource } = this
-    if (lineDataSource.getColor) {
-      return lineDataSource.getColor(agencyId, routeShortName)
-    }
     if (lineDataSource.lineColors) {
       return lineDataSource.lineColors[routeShortName] || '#00263A'
     }
@@ -207,6 +205,30 @@ class Lines {
     res.send(this._getLines())
   }
 
+  getLinesV2 = (req: WakaRequest<null, null>, res: Response) => {
+    res.send(this._getLinesV2())
+  }
+
+  _getLinesV2 = () => {
+    const { prefix, lineDataSource, cityMetadata } = this
+    // if the region has multiple cities
+    let city = cityMetadata[prefix]
+    if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
+      city = city[prefix]
+    }
+    return {
+      meta: {
+        prefix,
+        name: cityMetadata[prefix].name,
+        secondaryName: cityMetadata[prefix].secondaryName,
+        longName: cityMetadata[prefix].longName,
+      },
+      colors: lineDataSource.lineColors,
+      icons: lineDataSource.lineIcons,
+      groups: lineDataSource.lineGroupsV2,
+    }
+  }
+
   _getLines = () => {
     const { prefix, lineDataSource, cityMetadata } = this
     // if the region has multiple cities
@@ -275,12 +297,13 @@ class Lines {
    *   }
    * ]
    */
-  getLine = async (req, res) => {
+  getLine = async (req: WakaRequest<null, { line: string }>, res: Response) => {
     const lineId = req.params.line.trim()
+    const routeId = (req.query.route_id || '').trim()
     const agencyId = (req.query.agency_id || '').trim()
 
     try {
-      const data = await this._getLine(lineId, agencyId)
+      const data = await this._getLine(lineId, agencyId, routeId)
       res.send(data)
     } catch (err) {
       this.logger.error(err)
@@ -288,10 +311,14 @@ class Lines {
     }
   }
 
-  _getLine = async (lineId: string, agencyId: string) => {
+  _getLine = async (lineId: string, agencyId: string, routeId: string) => {
     const { connection, lineDataSource } = this
     const sqlRequest = connection.get().request()
-
+    let route
+    if (routeId !== '') {
+      route = 'and routes.route_id = @route_id'
+      sqlRequest.input('route_id', sql.VarChar(50), routeId)
+    }
     // filter by agency if a filter exists
     let agency = ''
     if (agencyId !== '') {
@@ -299,7 +326,6 @@ class Lines {
       sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
     }
     sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
-
     const query = `
       SELECT
         routes.route_id,
@@ -307,6 +333,7 @@ class Lines {
         routes.route_short_name,
         routes.route_long_name,
         routes.route_type,
+        routes.route_color,
         trips.shape_id,
         trips.trip_headsign,
         trips.direction_id,
@@ -316,6 +343,7 @@ class Lines {
           trips.route_id = routes.route_id
       WHERE
           routes.route_short_name = @route_short_name
+          ${route}
           and shape_id is not null
           ${agency}
       GROUP BY
@@ -324,11 +352,13 @@ class Lines {
         routes.route_short_name,
         routes.route_long_name,
         routes.route_type,
+        routes.route_color,
         trips.shape_id,
         trips.trip_headsign,
         trips.direction_id
       ORDER BY
-        shape_score desc`
+        shape_score desc
+    `
 
     const result = await sqlRequest.query<{
       route_id: string
@@ -336,6 +366,7 @@ class Lines {
       route_short_name: string
       route_long_name: string
       route_type: number
+      route_color: string
       shape_id: string
       trip_headsign: string
       direction_id: string
@@ -347,8 +378,8 @@ class Lines {
       agency_id: string
       route_long_name: string
       route_short_name: string
-      route_color: any
-      route_icon: any
+      route_color: string
+      route_icon: string
       direction_id: string
       shape_id: string
       route_type: number
@@ -373,7 +404,7 @@ class Lines {
         agency_id: route.agency_id,
         route_long_name: route.route_long_name,
         route_short_name: route.route_short_name,
-        route_color: this.getColor(route.agency_id, route.route_short_name),
+        route_color: `#${route.route_color}`,
         route_icon: this.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
@@ -555,12 +586,11 @@ class Lines {
    *   }
    * ]
    */
-  getStopsFromTrip = async (req: WakaRequest<null, null>, res: Response) => {
-    const collator = new Intl.Collator(undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    })
-    const { connection, logger, stopsDataAccess, search } = this
+  getStopsFromTrip = async (
+    req: WakaRequest<null, { tripId: string }>,
+    res: Response
+  ) => {
+    const { connection, logger, stopsDataAccess, search, redis, prefix } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('trip_id', sql.VarChar(100), req.params.tripId)
     try {
@@ -588,30 +618,29 @@ class Lines {
           stop_times.trip_id = @trip_id
         ORDER BY stop_sequence`)
 
-      const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(
-        result.recordset.map(i => i.stop_id)
-      )
-      res.send(
-        search._stopsFilter(
-          result.recordset.map(i => {
-            const transfers = stopRoutes[i.stop_id]
-              .filter(j => j.trip_headsign !== 'Schools')
-              .map(j => j.route_short_name)
-            const deduplicatedTransfers = Array.from(
-              new Set(transfers).values()
-            )
-            const transfersWithColors = deduplicatedTransfers.map(j => [
-              j,
-              this.getColor(null, j),
-            ])
-            transfersWithColors.sort(collator.compare)
-            const result = JSON.parse(JSON.stringify(i))
-            result.transfers = transfersWithColors
-            return result
-          }),
-          'keep'
+      // const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(
+      //   result.recordset.map(i => i.stop_id)
+      // )
+      const promises = result.recordset.map(async i => {
+        const redisresult = await redis.client.get(
+          `waka-worker:${prefix}:stop-transfers:${i.stop_id}`
         )
-      )
+        let transfers: string[] = []
+        if (redisresult) {
+          transfers = redisresult.split(',')
+        }
+
+        const transfersWithColors = transfers.map(j => [
+          j,
+          this.getColor(null, j),
+        ])
+        transfersWithColors.sort(sortFn)
+
+        return { ...i, transfers: transfersWithColors }
+      })
+      const results = await Promise.all(promises)
+      const sending = search.stopsFilter(results, 'keep')
+      return res.send(sending)
     } catch (err) {
       logger.error({ err }, 'Could not get stops from trip.')
       res.status(500).send(err)
@@ -642,7 +671,7 @@ class Lines {
    *   }
    * ]
    */
-  getStopsFromShape = async (req, res) => {
+  getStopsFromShape = async (req: Request, res: Response) => {
     const { connection, logger } = this
     const sqlRequest = connection.get().request()
     sqlRequest.input('shape_id', sql.VarChar(100), req.params.shapeId)
@@ -659,6 +688,50 @@ class Lines {
       logger.error({ err }, 'Could not get stops from shape.')
       res.status(500).send({ message: 'Could not get stops from shape.' })
     }
+  }
+
+  getAllStops = async (req: Request, res: Response) => {
+    const { connection, logger } = this
+    const sqlRequest = connection.get().request()
+    try {
+      const result = await sqlRequest.query<{
+        stop_name: string
+        stop_id: string
+      }>('select stop_name, stop_id from stops order by stop_name;')
+      res.send(result.recordset)
+    } catch (err) {
+      logger.error({ err }, 'Could not get stops.')
+      res.status(500).send({ message: 'Could not get stops' })
+    }
+  }
+
+  stopTimesv2 = async (
+    req: WakaRequest<null, { tripId: string }>,
+    res: Response
+  ) => {
+    const {
+      params: { tripId },
+    } = req
+    const { stopsDataAccess } = this
+    const data = await stopsDataAccess.getBlockFromTrip(tripId)
+    const promises = data.current.map(async i => {
+      const redisresult = await this.redis.client.get(
+        `waka-worker:${this.prefix}:stop-transfers:${i.stop_id}`
+      )
+      let transfers: string[] = []
+      if (redisresult) {
+        transfers = redisresult.split(',')
+      }
+      const transfersWithColors = transfers.map(j => [
+        j,
+        this.getColor(null, j),
+      ])
+      transfersWithColors.sort(sortFn)
+
+      return { ...i, transfers: transfersWithColors }
+    })
+    const current = await Promise.all(promises)
+    res.send({ ...data, current })
   }
 }
 

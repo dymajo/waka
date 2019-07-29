@@ -14,7 +14,7 @@ const modes = [
 ]
 
 interface SydneyRealtimeProps {
-  redis: Redis
+  wakaRedis: Redis
   apiKey: string
   logger: Logger
   scheduleUpdatePullTimeout?: number

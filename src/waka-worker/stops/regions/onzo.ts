@@ -1,10 +1,11 @@
 // TODO: this is not implemented.
 import Request from 'request'
+import { Onzo } from '../../../typings'
 
 const onzos = [{ onzo: { bike: 1 } }]
 
 const onzo = {
-  getBikes(lat, lon, dis) {
+  getBikes(lat: number, lon: number, dis: number) {
     return new Promise((resolve, reject) => {
       const options = {
         url: `https://app.onzo.co.nz/nearby/${lat}/${lon}/${dis}`,
@@ -15,7 +16,7 @@ const onzo = {
           return
         }
         resolve(
-          body.data.map(onzo => ({
+          body.data.map((onzo: Onzo) => ({
             stop_id: onzo.iccid,
             stop_lat: onzo.latitude,
             stop_lon: onzo.longitude,

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { pRateLimit, RedisQuotaManager } from 'p-ratelimit'
 import logger from '../logger'
-import { TfNSWUpdaterProps } from '../../typings'
+import { TfNSWUpdaterProps, WakaConfig } from '../../typings'
 import { isKeyof } from '../../utils'
 import WakaRedis from '../../waka-realtime/Redis'
 
@@ -44,41 +44,51 @@ class TfNSWUpdater {
   prefix: string
   timeout: NodeJS.Timeout
   apiKey: string
-  callback: any
+  callback: (
+    prefix: string,
+    version: string,
+    adjustMapping: boolean
+  ) => Promise<void>
   delay: number
   interval: number
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
   redis: WakaRedis
+  config: WakaConfig
 
   constructor(props: TfNSWUpdaterProps) {
-    const { apiKey, callback, delay, interval } = props
+    const { apiKey, callback, delay, interval, config } = props
     this.apiKey = apiKey
     this.callback = callback
     this.delay = delay || 5
     this.interval = interval || 1440
     this.prefix = 'au-syd'
     this.timeout = null
+    this.config = config
   }
 
   start = async () => {
-    const { apiKey, check, delay, prefix } = this
-    this.redis = new WakaRedis({ prefix, logger })
+    const { apiKey, check, delay, prefix, config } = this
+    const { redis: redisConfig } = config
+    this.redis = new WakaRedis({ prefix, logger, config: redisConfig })
     await this.redis.start()
-
     const quota = {
       interval: 1000,
       rate: 5,
       concurrency: 5,
     }
-    this.rateLimiter = this.redis
-      ? pRateLimit(new RedisQuotaManager(quota, this.prefix, this.redis.client))
-      : pRateLimit(quota)
+    try {
+      this.rateLimiter = this.redis
+        ? pRateLimit(
+            new RedisQuotaManager(quota, this.prefix, this.redis.client)
+          )
+        : pRateLimit(quota)
+    } catch (error) {
+      logger.error(error)
+    }
     if (!apiKey) {
       logger.error({ prefix }, 'API Key must be supplied!')
     }
-
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
-
     // begin check
     this.check()
     this.timeout = setTimeout(check, delay * 60000)
@@ -130,7 +140,7 @@ class TfNSWUpdater {
 
       return new Date(res.headers['last-modified'])
     } catch (err) {
-      logger.error({ err }, 'Could not reach api')
+      logger.error({ err }, `Could not reach ${endpoint} api`)
       return new Date(0)
     }
   }

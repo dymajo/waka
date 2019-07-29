@@ -4,7 +4,7 @@ import Redis from '../Redis'
 import { Logger } from '../../typings'
 
 interface AucklandRealtimeProps {
-  redis: Redis
+  wakaRedis: Redis
   apiKey: string
   logger: Logger
   scheduleUpdatePullTimeout?: number

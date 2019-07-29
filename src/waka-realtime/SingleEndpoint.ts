@@ -62,7 +62,7 @@ abstract class SingleEndpoint extends BaseRealtime {
       logger,
       axios,
       tripUpdateEndpoint,
-      redis,
+      wakaRedis,
       scheduleUpdatePull,
       scheduleUpdatePullTimeout,
       protobuf,
@@ -75,7 +75,8 @@ abstract class SingleEndpoint extends BaseRealtime {
 
     try {
       const res = await axios.get(`${tripUpdateEndpoint}`)
-      const oldModified = await redis.getKey('default', 'last-trip-update')
+      console.log(wakaRedis.connected)
+      const oldModified = await wakaRedis.getKey('default', 'last-trip-update')
       if (
         res.headers['last-modified'] !== oldModified ||
         new Date().toISOString() !== oldModified
@@ -86,13 +87,13 @@ abstract class SingleEndpoint extends BaseRealtime {
         await this.processTripUpdates(feed.entity)
 
         if (res.headers['last-modified']) {
-          await redis.setKey(
+          await wakaRedis.setKey(
             'default',
             res.headers['last-modified'],
             'last-trip-update'
           )
         } else {
-          await redis.setKey(
+          await wakaRedis.setKey(
             'default',
             new Date().toISOString(),
             'last-trip-update'
@@ -114,7 +115,7 @@ abstract class SingleEndpoint extends BaseRealtime {
     const {
       logger,
       axios,
-      redis,
+      wakaRedis,
       scheduleVehiclePositionPull,
       scheduleVehiclePositionPullTimeout,
       vehiclePositionEndpoint,
@@ -128,7 +129,7 @@ abstract class SingleEndpoint extends BaseRealtime {
     try {
       const res = await axios.get(`${vehiclePositionEndpoint}`)
 
-      const oldModified = await redis.getKey(
+      const oldModified = await wakaRedis.getKey(
         'default',
         'last-vehicle-position-update'
       )
@@ -142,13 +143,13 @@ abstract class SingleEndpoint extends BaseRealtime {
         this.processVehiclePositions(feed.entity)
 
         if (res.headers['last-modified']) {
-          await redis.setKey(
+          await wakaRedis.setKey(
             'default',
             res.headers['last-modified'],
             'last-vehicle-position-update'
           )
         } else {
-          await redis.setKey(
+          await wakaRedis.setKey(
             'default',
             new Date().toISOString(),
             'last-vehicle-position-update'
@@ -170,7 +171,7 @@ abstract class SingleEndpoint extends BaseRealtime {
       logger,
       axios,
       serviceAlertEndpoint,
-      redis,
+      wakaRedis,
       scheduleAlertPull,
       scheduleAlertPullTimeout,
       protobuf,
@@ -184,14 +185,14 @@ abstract class SingleEndpoint extends BaseRealtime {
     try {
       const res = await axios.get(`${serviceAlertEndpoint}`)
 
-      const oldModified = await redis.getKey('default', 'last-alert-update')
+      const oldModified = await wakaRedis.getKey('default', 'last-alert-update')
       if (res.headers['last-modified'] !== oldModified) {
         const uInt8 = new Uint8Array(res.data)
         const _feed = protobuf.decode(uInt8) as unknown
         const feed = _feed as AlertFeedMessage
         await this.processAlerts(feed.entity)
         if (res.headers['last-modified']) {
-          await redis.setKey(
+          await wakaRedis.setKey(
             'default',
             res.headers['last-modified'],
             'last-alert-update'
@@ -202,7 +203,11 @@ abstract class SingleEndpoint extends BaseRealtime {
       logger.error({ err }, 'Failed to pull  service alert')
     }
 
-    await redis.setKey('default', new Date().toISOString(), 'last-trip-update')
+    await wakaRedis.setKey(
+      'default',
+      new Date().toISOString(),
+      'last-trip-update'
+    )
     logger.info('Pulled Service Alert Updates.')
 
     this.tripUpdateTimeout = setTimeout(
