@@ -185,7 +185,7 @@ class WakaWorker {
     router.get('/station/:station/times', station.stopTimes)
     router.get('/station/:station/times/:time', station.stopTimes)
     router.get('/station/:station/times/:fast', station.stopTimes)
-    router.get('/stop-times/:tripId', lines.stopTimesv2)
+    router.get('/trip/:tripId/stops', lines.stopTimesv2)
     router.get(
       '/station/:station/timetable/:route/:direction',
       station.timetable
