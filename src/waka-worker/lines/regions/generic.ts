@@ -19,16 +19,16 @@ class GenericLines extends BaseLines {
         routeColor: string
       }[]
     }[] = [
-        { name: 'Tram', items: [] },
-        { name: 'Subway / Metro', items: [] },
-        { name: 'Rail', items: [] },
-        { name: 'Bus', items: [] },
-        { name: 'Ferry', items: [] },
-        { name: 'Cable Car', items: [] },
-        { name: 'Gondola', items: [] },
-        { name: 'Funicular', items: [] },
-        { name: 'Other', items: [] },
-      ]
+      { name: 'Tram', items: [] },
+      { name: 'Subway / Metro', items: [] },
+      { name: 'Rail', items: [] },
+      { name: 'Bus', items: [] },
+      { name: 'Ferry', items: [] },
+      { name: 'Cable Car', items: [] },
+      { name: 'Gondola', items: [] },
+      { name: 'Funicular', items: [] },
+      { name: 'Other', items: [] },
+    ]
 
     const [
       tram,
@@ -57,12 +57,11 @@ class GenericLines extends BaseLines {
       const {
         route_type: routeType,
         route_short_name: routeShortName,
-        route_desc: routeDesc,
         route_id: routeId,
         route_long_name: routeLongName,
-        route_color: routeColor,
         agency_id: agencyId,
       } = record
+      const routeColor = `#${record.route_color}`
 
       // this assumes there's a unique key over these records!
       // const uniqueId = [agencyId, routeShortName].join('/')

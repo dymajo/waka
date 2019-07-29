@@ -69,11 +69,12 @@ class LinesNZAKL extends BaseLines {
             if (result.recordset.length > 0) {
               const {
                 agency_id: agencyId,
-                route_color: routeColor,
                 route_id: routeId,
                 route_long_name: routeLongName,
                 route_short_name: routeShortName,
               } = result.recordset[0]
+              const routeColor = `#${result.recordset[0].route_color}`
+
               lineColors[route] = routeColor
               lineOperators[route] = agencyId
               lines[route] = {

@@ -28,22 +28,22 @@ class LinesAUSYD extends BaseLines {
         routeColor: string
       }[]
     }[] = [
-      { name: 'T1 North Shore & Western', items: [] },
-      { name: 'T2 Inner West & Leppington', items: [] },
-      { name: 'T3 Bankstown', items: [] },
-      { name: 'T4 Eastern Suburbs & Illawarra', items: [] },
-      { name: 'T5 Cumberland', items: [] },
-      { name: 'T6 Carlingford', items: [] },
-      { name: 'T7 Olympic Park', items: [] },
-      { name: 'T8 Airport & South', items: [] },
-      { name: 'T9 Northern', items: [] },
-      { name: 'Blue Mountains', items: [] },
-      { name: 'Central Coast & Newcastle', items: [] },
-      { name: 'Hunter', items: [] },
-      { name: 'South Coast', items: [] },
-      { name: 'Southern Highlands', items: [] },
-      { name: 'Other', items: [] },
-    ]
+        { name: 'T1 North Shore & Western', items: [] },
+        { name: 'T2 Inner West & Leppington', items: [] },
+        { name: 'T3 Bankstown', items: [] },
+        { name: 'T4 Eastern Suburbs & Illawarra', items: [] },
+        { name: 'T5 Cumberland', items: [] },
+        { name: 'T6 Carlingford', items: [] },
+        { name: 'T7 Olympic Park', items: [] },
+        { name: 'T8 Airport & South', items: [] },
+        { name: 'T9 Northern', items: [] },
+        { name: 'Blue Mountains', items: [] },
+        { name: 'Central Coast & Newcastle', items: [] },
+        { name: 'Hunter', items: [] },
+        { name: 'South Coast', items: [] },
+        { name: 'Southern Highlands', items: [] },
+        { name: 'Other', items: [] },
+      ]
     const lineGroups: {
       name: string
       items: {
@@ -54,11 +54,11 @@ class LinesAUSYD extends BaseLines {
         routeColor: string
       }[]
     }[] = [
-      { name: 'Ferries', items: [] },
-      { name: 'Light Rail', items: [] },
-      { name: 'NSW TrainLink', items: [] },
-      { name: 'Other', items: [] },
-    ]
+        { name: 'Ferries', items: [] },
+        { name: 'Light Rail', items: [] },
+        { name: 'NSW TrainLink', items: [] },
+        { name: 'Other', items: [] },
+      ]
     const busLineGroups: {
       name: string
       items: {
@@ -69,28 +69,28 @@ class LinesAUSYD extends BaseLines {
         routeColor: string
       }[]
     }[] = [
-      { name: '100 series - Northern Beaches', items: [] },
-      { name: '200 series - Northern Districts and North Shore', items: [] },
-      { name: '300 series - East', items: [] },
-      { name: '400 series - Inner West and South', items: [] },
-      { name: '500 series - North West', items: [] },
-      { name: '600 series - West and Hills District', items: [] },
-      { name: '700 series - Outer West and Hills District', items: [] },
-      { name: '800 series - Outer South-West', items: [] },
-      { name: '900 series - St George/Sutherland and South West', items: [] },
-      { name: 'Bus Rapid Transit', items: [] },
-      { name: 'Metrobus', items: [] },
-      { name: 'Express Buses', items: [] },
-      { name: 'Limited Stop Buses', items: [] },
-      { name: 'Shopper Buses', items: [] },
-      { name: 'Night Buses', items: [] },
-      { name: 'Other Sydney Buses', items: [] },
-      { name: 'Blue Mountains Buses', items: [] },
-      { name: 'Central Coast Buses', items: [] },
-      { name: 'Hunter Buses', items: [] },
-      { name: 'Illawarra Buses', items: [] },
-      { name: 'Other Buses', items: [] },
-    ]
+        { name: '100 series - Northern Beaches', items: [] },
+        { name: '200 series - Northern Districts and North Shore', items: [] },
+        { name: '300 series - East', items: [] },
+        { name: '400 series - Inner West and South', items: [] },
+        { name: '500 series - North West', items: [] },
+        { name: '600 series - West and Hills District', items: [] },
+        { name: '700 series - Outer West and Hills District', items: [] },
+        { name: '800 series - Outer South-West', items: [] },
+        { name: '900 series - St George/Sutherland and South West', items: [] },
+        { name: 'Bus Rapid Transit', items: [] },
+        { name: 'Metrobus', items: [] },
+        { name: 'Express Buses', items: [] },
+        { name: 'Limited Stop Buses', items: [] },
+        { name: 'Shopper Buses', items: [] },
+        { name: 'Night Buses', items: [] },
+        { name: 'Other Sydney Buses', items: [] },
+        { name: 'Blue Mountains Buses', items: [] },
+        { name: 'Central Coast Buses', items: [] },
+        { name: 'Hunter Buses', items: [] },
+        { name: 'Illawarra Buses', items: [] },
+        { name: 'Other Buses', items: [] },
+      ]
     const result = await dataAccess.getRoutes()
     result.recordset.forEach(record => {
       lineOperators[record.route_short_name] = record.agency_id
@@ -111,10 +111,10 @@ class LinesAUSYD extends BaseLines {
         route_desc: routeDesc,
         route_id: routeId,
         route_long_name: routeLongName,
-        route_color: routeColor,
         agency_id: agencyId,
       } = record
 
+      const routeColor = `#${record.route_color}`
       if (Object.prototype.hasOwnProperty.call(allLines, routeShortName)) {
         allLines[routeShortName].push(lineEntry)
       } else {
