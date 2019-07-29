@@ -11,7 +11,6 @@ import StopsNZWLG from './stops/regions/nz-wlg'
 import Realtime from './realtime'
 import { WorkerConfig, Logger } from '../typings'
 import BaseStops from '../types/BaseStops'
-import Alexa from './alexa'
 import WakaRedis from '../waka-realtime/Redis'
 
 class WakaWorker {
@@ -29,7 +28,6 @@ class WakaWorker {
     lat: { min: number; max: number }
     lon: { min: number; max: number }
   }
-  alexa: Alexa
 
   constructor(config: WorkerConfig) {
     const {
@@ -96,8 +94,6 @@ class WakaWorker {
       redis: this.redis,
     })
 
-    this.alexa = new Alexa({ logger, connection, prefix })
-
     this.bounds = { lat: { min: 0, max: 0 }, lon: { min: 0, max: 0 } }
     this.bindRoutes()
   }
@@ -138,7 +134,7 @@ class WakaWorker {
   }
 
   bindRoutes = () => {
-    const { lines, search, station, realtime, router, alexa } = this
+    const { lines, search, station, realtime, router } = this
 
     /**
      * @api {get} /:region/info Get worker info
@@ -183,7 +179,6 @@ class WakaWorker {
      */
     router.get('/ping', (req, res) => res.send('pong'))
     router.get('/info', (req, res) => res.send(this.signature()))
-    router.get('/alexa/search', alexa.listStops)
     router.get('/station', station.stopInfo)
     router.get('/station/search', search.getStopsLatLon)
     router.get('/station/:station', station.stopInfo)
