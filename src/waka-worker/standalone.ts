@@ -1,6 +1,7 @@
 import Express from 'express'
 import 'dotenv'
 import * as bodyParser from 'body-parser'
+import 'source-map-support/register'
 import EnvMapper from '../envMapper'
 import WakaWorker from '.'
 const { PREFIX, VERSION, PORT } = process.env

@@ -37,18 +37,23 @@ class WakaRedis {
       return
     }
     const { logger, config } = this
+    logger.info("Connecting to Redis")
     const Client = this.tryClient(client, config)
 
     try {
       const res = await Client.ping()
+      logger.info("Connected to Redis")
       this.client = Client
       this.connected = true
     } catch (error) {
+      logger.info("Could not connect to Redis, retrying in 20s")
       setTimeout(() => this.tryClient(client, config), 20000)
     }
   }
 
   stop = () => {
+    const { logger } = this
+    logger.info("Disconnected from Redis")
     if (this.client) {
       this.client.disconnect()
     }

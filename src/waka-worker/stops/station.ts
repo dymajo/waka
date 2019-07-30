@@ -55,6 +55,7 @@ class Station {
       logger,
       connection,
       prefix,
+      version,
       stopsExtras,
       lines,
       realtimeTimes,
@@ -64,6 +65,7 @@ class Station {
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
+    this.version = version
     this.regionSpecific = stopsExtras
     this.lines = lines
     this.realtimeTimes = realtimeTimes
@@ -86,7 +88,8 @@ class Station {
         }
       }
     }
-    this.logger.info('got transfers')
+    const { logger, prefix, version } = this
+    logger.info({ prefix, version }, 'Got Transfers')
   }
 
   getBounds = async () => {

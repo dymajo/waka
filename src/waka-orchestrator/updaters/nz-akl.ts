@@ -30,7 +30,6 @@ class ATUpdater {
     }
 
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
-    this.check()
     this.timeout = setTimeout(check, delay * 60000)
   }
 

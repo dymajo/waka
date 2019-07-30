@@ -1,6 +1,7 @@
 import Express from 'express'
 import * as bodyParser from 'body-parser'
 import * as morgan from 'morgan'
+import 'source-map-support/register'
 
 import ConfigManager from './configManager'
 import WakaOrchestrator from '.'

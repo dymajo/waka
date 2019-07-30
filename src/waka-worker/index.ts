@@ -88,6 +88,7 @@ class WakaWorker {
       logger,
       connection,
       prefix,
+      version,
       stopsExtras,
       lines: this.lines,
       realtimeTimes: this.realtime.getCachedTrips,

@@ -89,8 +89,6 @@ class TfNSWUpdater {
       logger.error({ prefix }, 'API Key must be supplied!')
     }
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
-    // begin check
-    this.check()
     this.timeout = setTimeout(check, delay * 60000)
   }
 

@@ -75,7 +75,6 @@ abstract class SingleEndpoint extends BaseRealtime {
 
     try {
       const res = await axios.get(`${tripUpdateEndpoint}`)
-      console.log(wakaRedis.connected)
       const oldModified = await wakaRedis.getKey('default', 'last-trip-update')
       if (
         res.headers['last-modified'] !== oldModified ||
@@ -200,7 +199,7 @@ abstract class SingleEndpoint extends BaseRealtime {
         }
       }
     } catch (err) {
-      logger.error({ err }, 'Failed to pull  service alert')
+      logger.error({ err }, 'Failed to pull service alert')
     }
 
     await wakaRedis.setKey(

@@ -34,7 +34,6 @@ class BasicUpdater {
 
   start = async () => {
     const { prefix, check, delay, url } = this
-    await check()
     if (!url) {
       logger.error({ prefix }, 'URL must be supplied!')
       return
