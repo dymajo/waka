@@ -51,7 +51,7 @@ class ATUpdater {
         callback(prefix, version.version, adjustMapping)
       })
     } catch (err) {
-      logger.error({ err }, 'Could not update.')
+      logger.error({ prefix, err }, 'Could not update.')
     }
 
     logger.info(

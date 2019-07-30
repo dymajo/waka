@@ -121,7 +121,7 @@ class TfNSWUpdater {
 
       callback(prefix, newVersion, true)
     } catch (err) {
-      logger.error({ err }, 'Could not update.')
+      logger.error({ prefix, err }, 'Could not update.')
     }
   }
 

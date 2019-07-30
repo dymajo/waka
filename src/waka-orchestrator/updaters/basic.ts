@@ -81,7 +81,7 @@ class BasicUpdater {
         callback(prefix, version.version, true)
       }
     } catch (err) {
-      logger.error({ err }, 'Could not update.')
+      logger.error({ prefix, err }, 'Could not update.')
     }
 
     logger.info(
