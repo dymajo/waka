@@ -34,7 +34,6 @@ class BasicUpdater {
 
   start = async () => {
     const { prefix, check, delay, url } = this
-    await check()
     if (!url) {
       logger.error({ prefix }, 'URL must be supplied!')
       return
@@ -81,7 +80,7 @@ class BasicUpdater {
         callback(prefix, version.version, true)
       }
     } catch (err) {
-      logger.error({ err }, 'Could not update.')
+      logger.error({ prefix, err }, 'Could not update.')
     }
 
     logger.info(

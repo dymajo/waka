@@ -1,4 +1,5 @@
 import 'dotenv'
+import 'source-map-support/register'
 
 import WakaRealtime from './index'
 import EnvMapper from '../envMapper'

@@ -30,7 +30,6 @@ class ATUpdater {
     }
 
     logger.info({ prefix, mins: delay }, 'Waiting to download.')
-    this.check()
     this.timeout = setTimeout(check, delay * 60000)
   }
 
@@ -51,7 +50,7 @@ class ATUpdater {
         callback(prefix, version.version, adjustMapping)
       })
     } catch (err) {
-      logger.error({ err }, 'Could not update.')
+      logger.error({ prefix, err }, 'Could not update.')
     }
 
     logger.info(

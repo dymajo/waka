@@ -38,15 +38,6 @@ class FakeRedisClient {
 }
 
 describe('waka-realtime/Redis', () => {
-  it('should create a new client on start', () => {
-    const client = new WakaRedis(testConfig)
-    client.start()
-    expect(client.client).to.be.instanceOf(Redis)
-
-    // cleanup
-    client.client.disconnect()
-  })
-
   it('should disconnect and remove the client on close', () => {
     const client = new WakaRedis(testConfig)
 

@@ -33,13 +33,13 @@ class GatewayLocal extends BaseGateway {
     }
 
     workers[prefix] = newWorker
-    logger.info({ prefix }, 'starting new route')
+    logger.info({ prefix }, 'Starting New route')
     await newWorker.start()
     if (config.newRealtime) {
       const oldRealtime = realtimes[prefix]
       const newRealtime = new WakaRealtime(config)
       if (oldRealtime !== undefined) {
-        logger.info({ prefix }, 'Route already has realtime - stopping')
+        logger.info({ prefix }, 'Route already has Realtime - stopping')
         oldRealtime.stop()
       }
       await newRealtime.start()

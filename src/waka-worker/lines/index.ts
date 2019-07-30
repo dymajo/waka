@@ -314,7 +314,7 @@ class Lines {
   _getLine = async (lineId: string, agencyId: string, routeId: string) => {
     const { connection, lineDataSource } = this
     const sqlRequest = connection.get().request()
-    let route
+    let route = ''
     if (routeId !== '') {
       route = 'and routes.route_id = @route_id'
       sqlRequest.input('route_id', sql.VarChar(50), routeId)
