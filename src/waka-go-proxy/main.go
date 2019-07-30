@@ -48,9 +48,8 @@ func main() {
 	subRouter.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
 	subRouter.HandleFunc("/regions", workerDiscovery.RegionsHandler()).Methods("GET", "HEAD")
 	subRouter.HandleFunc("/docs", docsRedirectHandler())
-	subRouter.PathPrefix("/docs/").Handler(http.StripPrefix("/docs", http.FileServer(http.Dir(docsDir))))
+	subRouter.PathPrefix("/docs/").Handler(http.StripPrefix(fmt.Sprintf("%s/docs", pathPrefix), http.FileServer(http.Dir(docsDir))))
 	subRouter.PathPrefix("/{prefix}").HandlerFunc(workerDiscovery.BoundsHandler(pathPrefix)).Methods("GET", "HEAD")
-	fmt.Printf(port)
 	server := &http.Server{
 		Addr:         ":" + port,
 		Handler:      router,
