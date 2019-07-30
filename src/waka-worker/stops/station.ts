@@ -16,6 +16,7 @@ interface StationProps {
   stopsExtras?: BaseStops
   lines: Lines
   redis: WakaRedis
+  version: string
   realtimeTimes: (
     trips: string[]
   ) => {
@@ -50,6 +51,7 @@ class Station {
     }
   }
   dataAccess: StopsDataAccess
+  version: string
   constructor(props: StationProps) {
     const {
       logger,
