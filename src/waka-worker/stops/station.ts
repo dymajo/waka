@@ -320,7 +320,7 @@ class Station {
     // combines train stations platforms together
     const procedure = 'GetStopTimes'
     let trips = []
-    const realtimeTrips = []
+    const realtimeTrips: string[] = []
     try {
       trips = await dataAccess.getStopTimes(
         station,
@@ -334,62 +334,98 @@ class Station {
     }
 
     sending.trips = trips.map(r => {
-      const record: {
-        trip_id?: string
-        stop_sequence?: number
-        departure_time?: Date
-        departure_time_24?: Date
-        stop_id?: string
-        trip_headsign?: string
-        shape_id?: string
-        direction_id?: number
-        start_date?: Date
-        end_date?: Date
-        route_short_name?: string
-        route_long_name?: string
-        route_type?: number
-        agency_id?: string
-        route_color?: string
-        stop_name?: string
-        departure_time_seconds?: number
-        arrival_time_seconds?: number
-        route_icon?: string
-        arrival_time_24?: string
-        arrival_time?: string
-      } = r // clone?
-      record.departure_time_seconds =
-        new Date(record.departure_time).getTime() / 1000
-      if (record.departure_time_24) {
-        record.departure_time_seconds += 86400
-      }
-      record.arrival_time_seconds = record.departure_time_seconds
-      record.route_color = lines.getColor(
-        record.agency_id,
-        record.route_short_name
-      )
+      // const record: {
+      //   trip_id: string
+      //   stop_sequence: number
+      //   stop_id: string
+      //   trip_headsign: string
+      //   shape_id: string
+      //   direction_id: number
+      //   start_date: Date
+      //   end_date: Date
+      //   route_short_name: string
+      //   route_long_name: string
+      //   route_type: number
+      //   agency_id: string
+      //   route_color: string
+      //   stop_name: string
+      //   arrival_time_24: boolean
+      //   arrival_time: Date
+      //   arrival_time_seconds?: number
+      //   arrivalTime?: Moment
+      //   departure_time: Date
+      //   departure_time_24: boolean
+      //   departure_time_seconds?: number
+      //   departureTime?: Moment
+      //   route_icon?: string
+      // } = {...r} // clone?
+      const now = moment().tz(timezone)
+      now.seconds(0)
+      now.hours(0)
+      now.minutes(0)
 
-      record.route_icon = lines.getIcon(
-        record.agency_id,
-        record.route_short_name
-      )
+      // const arrivalSeconds = r.arrival_time_24
+      //   ? moment(r.arrival_time)
+      //     .tz(timezone)
+      //     .unix() + 86400
+      //   : moment(r.arrival_time)
+      //     .tz(timezone)
+      //     .unix()
+      // const departureSeconds = r.departure_time_24
+      //   ? moment(r.departure_time)
+      //     .tz(timezone)
+      //     .unix() + 86400
+      //   : moment(r.departure_time)
+      //     .tz(timezone)
+      //     .unix()
+
+      // const arrivalTime = moment.unix(now.unix() + arrivalSeconds)
+      // const departureTime = moment.unix(now.unix() + departureSeconds)
+      const arrivalTime = moment.unix(now.unix() + r.new_arrival_time)
+      const departureTime = moment.unix(now.unix() + r.new_departure_time)
+
+      // const dwell = departureSeconds - arrivalSeconds
+      const dwell = r.new_departure_time - r.new_arrival_time
+      let departure_time_seconds = new Date(r.departure_time).getTime() / 1000
+      if (r.departure_time_24) {
+        departure_time_seconds += 86400
+      }
+      let arrival_time_seconds = new Date(r.arrival_time).getTime() / 1000
+      if (r.arrival_time_24) {
+        arrival_time_seconds += 86400
+      }
+
+      const route_icon = lines.getIcon(r.agency_id, r.route_short_name)
 
       // 30mins of realtime
       if (
-        record.departure_time_seconds < sending.currentTime + 1800 ||
-        record.departure_time_24
+        departure_time_seconds < sending.currentTime + 1800 ||
+        r.departure_time_24
       ) {
-        realtimeTrips.push(record.trip_id)
+        realtimeTrips.push(r.trip_id)
       }
 
-      if (record.trip_headsign === null) {
+      if (r.trip_headsign === null) {
         logger.warn('This dataset has a null trip_headsign.')
-        record.trip_headsign = record.route_long_name
+        r.trip_headsign = r.route_long_name
       }
-
-      delete record.arrival_time
-      delete record.arrival_time_24
-      delete record.departure_time
-      delete record.departure_time_24
+      const {
+        arrival_time,
+        arrival_time_24,
+        departure_time,
+        departure_time_24,
+        ...trip
+      } = r
+      const record = {
+        ...trip,
+        trip_headsign: trip.trip_headsign || trip.route_long_name,
+        arrival_time_seconds,
+        departure_time_seconds,
+        arrivalTime,
+        departureTime,
+        route_icon,
+        dwell,
+      }
       return record
     })
 
@@ -504,11 +540,12 @@ class Station {
 
     const sending = trips.map(oldRecord => {
       const record = JSON.parse(JSON.stringify(oldRecord))
-      record.departure_time_seconds =
-        new Date(record.departure_time || record.arrival_time).getTime() / 1000
-      if (record.departure_time_24 || record.arrival_time_24) {
-        record.arrival_time_seconds += 86400
-      }
+      // const departure =
+      //   record.departure_time_seconds = moment(new Date().getTime() +
+      //     new Date(record.departure_time || record.arrival_time).getTime() / 1000
+      // if (record.departure_time_24 || record.arrival_time_24) {
+      //   record.arrival_time_seconds += 86400
+      // }
       record.arrival_time_seconds = record.departure_time_seconds
       record.route_color = lines.getColor(record.agency_id, req.params.route)
       record.route_icon = lines.getIcon(record.agency_id, req.params.route)

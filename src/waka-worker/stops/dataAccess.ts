@@ -111,11 +111,14 @@ class StopsDataAccess {
       .input('departure_time', sql.Time, time)
       .input('date', sql.Date, date)
 
+
     const result = await sqlRequest.execute<{
       trip_id: string
       stop_sequence: number
+      arrival_time: Date
+      arrival_time_24: boolean
       departure_time: Date
-      departure_time_24: Date
+      departure_time_24: boolean
       stop_id: string
       trip_headsign: string
       shape_id: string
@@ -128,6 +131,8 @@ class StopsDataAccess {
       agency_id: string
       route_color: string
       stop_name: string
+      new_arrival_time: number
+      new_departure_time: number
     }>(procedure)
     return result.recordset
   }
