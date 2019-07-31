@@ -20,8 +20,18 @@ BEGIN
 	DECLARE @DateDifference INT = DATEDIFF(MINUTE, DATEADD(MINUTE, @DepatureDelay, @departure_time), DATEADD(MINUTE, @DepatureFuture, @departure_time));
 
 	SELECT
+		CASE
+			WHEN stop_times.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time) + 86400
+			ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time)
+		END AS new_arrival_time,
+		CASE
+			WHEN stop_times.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time) + 86400
+			ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time)
+		END AS new_departure_time,
 		stop_times.trip_id,
 		stop_times.stop_sequence,
+		stop_times.arrival_time,
+		stop_times.arrival_time_24,
 		stop_times.departure_time,
 		stop_times.departure_time_24,
 		stop_times.stop_id,
@@ -35,6 +45,7 @@ BEGIN
 		routes.route_short_name,
 		routes.route_long_name,
 		routes.route_type,
+		routes.route_id,
 		routes.agency_id,
 		routes.route_color,
 		stops.stop_name
@@ -71,7 +82,5 @@ BEGIN
 			WHEN @Day = 7 THEN calendar.saturday
             ELSE 0
         END = 1 or exception_type = 1)
-
-	ORDER BY departure_time asc
-
+	ORDER BY new_departure_time asc
 END
