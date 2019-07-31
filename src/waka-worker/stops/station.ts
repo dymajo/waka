@@ -414,6 +414,8 @@ class Station {
         arrival_time_24,
         departure_time,
         departure_time_24,
+        new_arrival_time,
+        new_departure_time,
         ...trip
       } = r
       const record = {
