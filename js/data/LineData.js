@@ -7,6 +7,7 @@ class LineData {
     this.agency_id = props.agency_id || null
     this.shape_id = props.shape_id || null
     this.trip_id = props.trip_id || null
+    this.route_id = props.route_id || null
   }
 
   async getMeta() {
@@ -19,9 +20,10 @@ class LineData {
     }
     const line = encodeURIComponent(this.line_id)
     const agency = encodeURIComponent(this.agency_id)
+    const route = encodeURIComponent(this.route_id)
     try {
       const res = await fetch(
-        `${local.endpoint}/${this.region}/line/${line}?agency_id=${agency}`
+        `${local.endpoint}/${this.region}/line/${line}?agency_id=${agency}&route_id=${route}`
       )
       const data = await res.json()
       return data

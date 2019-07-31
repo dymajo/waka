@@ -95,6 +95,7 @@ class Line extends React.Component {
       region: match.params.region,
       line_id: match.params.line_id,
       agency_id: match.params.agency_id,
+      route_id: match.params.route_id,
     })
 
     if (
@@ -139,15 +140,19 @@ class Line extends React.Component {
       }
       const { match } = this.props
       const { direction } = this.state
-      const routeColor = metadata.find(i => i.direction_id === direction)
-        .route_color
+      const routeColor =
+        metadata.length === 1
+          ? metadata[0].route_color
+          : metadata.find(i => i.direction_id === direction).route_color
+
       this.setState({
         color: routeColor,
         lineMetadata: metadata,
       })
-      this.lineData.shape_id = metadata.find(
-        i => i.direction_id === direction
-      ).shape_id
+      this.lineData.shape_id =
+        metadata.length === 1
+          ? metadata[0].shape_id
+          : metadata.find(i => i.direction_id === direction).shape_id
       renderShape(this.lineData, this.layer, routeColor)
 
       const stops = await renderStops(
@@ -275,7 +280,9 @@ class Line extends React.Component {
 
     const currentLine =
       lineMetadata.length > 0
-        ? lineMetadata.find(i => i.direction_id === direction)
+        ? lineMetadata.length === 1
+          ? lineMetadata[0]
+          : lineMetadata.find(i => i.direction_id === direction)
         : {}
     let lineLabel = null
     if (lineMetadata.length <= 1) {
@@ -327,7 +334,7 @@ class Line extends React.Component {
     return (
       <View style={styles.wrapper}>
         <Header
-          title={match.params.line_id}
+          title={match.params.route_short_name}
           subtitle={currentLine.route_long_name || ''}
         />
         <LinkedScroll>{inner}</LinkedScroll>
