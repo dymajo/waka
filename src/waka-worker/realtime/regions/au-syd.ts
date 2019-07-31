@@ -53,8 +53,9 @@ class RealtimeAUSYD extends BaseRealtime {
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getTripUpdate(tripId)
-
-        realtimeInfo[tripId] = data
+        if (data) {
+          realtimeInfo[tripId] = data
+        }
       } catch (error) {
         console.log(error)
       }
@@ -71,9 +72,7 @@ class RealtimeAUSYD extends BaseRealtime {
     const vehicleInfo: {
       [tripId: string]: { latitude: number; longitude: number }
     } = {}
-    for (const tripId in trips) {
-      if (Object.prototype.hasOwnProperty.call(trips, tripId)) {
-        const element = trips[tripId]
+    for (const tripId of trips) {
         try {
           const data = await this.wakaRedis.getVehiclePosition(tripId)
           vehicleInfo[tripId] = {
@@ -84,7 +83,6 @@ class RealtimeAUSYD extends BaseRealtime {
           console.log(err)
         }
       }
-    }
     return res.send(vehicleInfo)
   }
 
@@ -123,7 +121,7 @@ class RealtimeAUSYD extends BaseRealtime {
       const trips = await Promise.all(
         tripIds.map(tripId => this.wakaRedis.getVehiclePosition(tripId))
       )
-      const escapedTripIds = `'${tripIds.join('\', \'')}'`
+      const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string

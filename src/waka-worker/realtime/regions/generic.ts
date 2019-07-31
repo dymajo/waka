@@ -54,8 +54,9 @@ class GenericRealtime extends BaseRealtime {
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getTripUpdate(tripId)
-
-        realtimeInfo[tripId] = data
+        if (data) {
+          realtimeInfo[tripId] = data
+        }
       } catch (error) {
         console.log(error)
       }
@@ -72,18 +73,15 @@ class GenericRealtime extends BaseRealtime {
     const vehicleInfo: {
       [tripId: string]: { latitude: number; longitude: number }
     } = {}
-    for (const tripId in trips) {
-      if (Object.prototype.hasOwnProperty.call(trips, tripId)) {
-        const element = trips[tripId]
-        try {
-          const data = await this.wakaRedis.getVehiclePosition(tripId)
-          vehicleInfo[tripId] = {
-            latitude: data.position.latitude,
-            longitude: data.position.longitude,
-          }
-        } catch (err) {
-          console.log(err)
+    for (const tripId of trips) {
+      try {
+        const data = await this.wakaRedis.getVehiclePosition(tripId)
+        vehicleInfo[tripId] = {
+          latitude: data.position.latitude,
+          longitude: data.position.longitude,
         }
+      } catch (err) {
+        console.log(err)
       }
     }
     return res.send(vehicleInfo)

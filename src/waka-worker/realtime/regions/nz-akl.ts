@@ -84,10 +84,12 @@ class RealtimeNZAKL extends BaseRealtime {
       for (const tripId of trips) {
         try {
           const data = await this.wakaRedis.getVehiclePosition(tripId)
-          realtimeInfo[data.trip.tripId] = {
-            v_id: data.vehicle.id,
-            latitude: data.position.latitude,
-            longitude: data.position.longitude,
+          if (data) {
+            realtimeInfo[data.trip.tripId] = {
+              v_id: data.vehicle.id,
+              latitude: data.position.latitude,
+              longitude: data.position.longitude,
+            }
           }
         } catch (err) {
           console.log(err)
@@ -97,10 +99,11 @@ class RealtimeNZAKL extends BaseRealtime {
       for (const tripId of trips) {
         try {
           const data = await this.wakaRedis.getTripUpdate(tripId)
-
-          realtimeInfo[tripId] = {
-            ...data,
-            specialVehicle: this.isSpecialVehicle(data.vehicle.id),
+          if (data) {
+            realtimeInfo[tripId] = {
+              ...data,
+              specialVehicle: this.isSpecialVehicle(data.vehicle.id),
+            }
           }
         } catch (error) {
           console.log(error)
