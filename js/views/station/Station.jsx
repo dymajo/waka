@@ -190,7 +190,10 @@ class Station extends React.Component {
       let tolerance = 1000 * 60 * 2
       if (realtimeData[trip.trip_id] !== undefined) {
         const realtimeTrip = realtimeData[trip.trip_id]
-        trip.departure_time_seconds += realtimeTrip.delay
+        trip.departure_time = new Date(
+          new Date(trip.departure_time).getTime() +
+            (realtimeTrip.delay || 0) * 1000
+        ).toISOString()
         trip.isRealtime = true
 
         // it's still realtime if it's a random stop sequence, so tighten the tolerance up a bit
@@ -207,13 +210,9 @@ class Station extends React.Component {
       } else {
         trip.isRealtime = false
       }
-      // console.log(realtimeData[trip.trip_id])
+
       const offsetTime = new Date().getTime() + StationStore.offsetTime
-      const departure = new Date(offsetTime)
-      departure.setHours(0)
-      departure.setMinutes(0)
-      departure.setSeconds(parseInt(trip.departure_time_seconds, 10))
-      if (departure < new Date(offsetTime - tolerance)) {
+      if (new Date(trip.departure_time) < new Date(offsetTime - tolerance)) {
         return
       }
 
@@ -231,7 +230,7 @@ class Station extends React.Component {
         if (tripVariant.length === 0) return
         sortedGroup.push(
           tripVariant.sort((a, b) => {
-            return a.departure_time_seconds - b.departure_time_seconds
+            return new Date(a.departure_time) - new Date(b.departure_time)
           })
         )
       })
@@ -241,7 +240,7 @@ class Station extends React.Component {
       sortedGroup.sort((a, b) => {
         const stopSequenceDifference = a[0].stop_sequence - b[0].stop_sequence
         if (stopSequenceDifference !== 0) return stopSequenceDifference
-        return a[0].departure_time_seconds - b[0].departure_time_seconds
+        return new Date(a[0].departure_time) - new Date(b[0].departure_time)
       })
       tripGroups.push(sortedGroup)
     })
@@ -249,7 +248,9 @@ class Station extends React.Component {
     // sorts each of the groups by time, then flattens
     const trips = tripGroups
       .sort((a, b) => {
-        return a[0][0].departure_time_seconds - b[0][0].departure_time_seconds
+        return (
+          new Date(a[0][0].departure_time) - new Date(b[0][0].departure_time)
+        )
       })
       .reduce((acc, val) => acc.concat(val), [])
 
@@ -428,7 +429,7 @@ class Station extends React.Component {
                 color={routeColor}
                 trips={item.map(i => ({
                   destination: i.trip_headsign,
-                  departureTime: new Date(i.departureTime),
+                  departureTime: new Date(i.departure_time),
                   isRealtime: i.isRealtime,
                 }))}
                 onClick={() =>
