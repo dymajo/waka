@@ -11,7 +11,8 @@ const tables = [
   'stop_times.sql',
   'calendar.sql',
   'calendar_dates.sql',
-  'transfers.sql'
+  'transfers.sql',
+  'frequencies.sql'
 ]
 
 const tempTables = [
@@ -22,6 +23,7 @@ const tempTables = [
   'stops_temp.sql',
   'routes_temp.sql',
   'trips_temp.sql',
+  'frequencies_temp.sql'
 ]
 
 const procs = ['GetStopTimes.sql', 'GetTimetable.sql', 'alphasort.sql', 'GetRoutes.sql']

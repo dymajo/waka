@@ -185,3 +185,11 @@ export const transfersCreator = (table: Table) => {
   table.columns.add('min_transfer_time', Int, { nullable: true })
   return table
 }
+
+export const frequenciesCreator = (table: Table) => {
+  table.columns.add('trip_id', VarChar(varCharLength.medium), { nullable: false })
+  table.columns.add('start_time', Time(0), { nullable: false })
+  table.columns.add('end_time', Time(0), { nullable: false })
+  table.columns.add('headway_sec', Int, { nullable: false })
+  table.columns.add('exact_times', Int, { nullable: true })
+}

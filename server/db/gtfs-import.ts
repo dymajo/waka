@@ -16,7 +16,8 @@ import {
   stopTimesCreator,
   calendarCreator,
   calendarDatesCreator,
-  transfersCreator
+  transfersCreator,
+  frequenciesCreator
 } from './tableCreator'
 
 import { badTfnsw, nzAklRouteColor } from './bad'
@@ -30,6 +31,7 @@ const primaryKeys = {
   stop_times: 'trip_id',
   calendar: 'service_id',
   calendar_dates: 'service_id',
+  frequencies: 'trip_id'
 }
 
 const dayOfTheWeek = (column: string) =>
@@ -75,18 +77,19 @@ class GtfsImport {
 
       case 'transfers':
         return transfersCreator(table)
-
+      case 'frequencies':
+        return frequenciesCreator(table)
       default:
         throw new Error('table name not found')
     }
   }
 
-  private mapRowToRecord= (
+  private mapRowToRecord = (
     row: any[],
     rowSchema: { [key: string]: number },
     tableSchema: string[],
     endpoint?: string,
-  ) : string[] => {
+  ): string[] => {
     let arrival_time_24 = false
     let departure_time_24 = false
     return tableSchema.map(column => {

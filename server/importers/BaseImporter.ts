@@ -43,6 +43,11 @@ abstract class BaseImporter {
         table: 'calendar_dates',
         versioned: false,
       },
+      {
+        name: 'frequencies.txt',
+        table: 'frequencies',
+        versioned: false,
+      },
     ]
     this.shapeFile = 'shapes.txt'
   }
@@ -68,6 +73,7 @@ abstract class BaseImporter {
     | 'calendar'
     | 'calendar_dates'
     | 'transfers'
+    | 'frequencies'
     versioned: boolean
   }[]
 
