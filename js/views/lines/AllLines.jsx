@@ -6,16 +6,11 @@ import { withRouter } from 'react-router'
 
 import local from '../../../local.js'
 import { vars } from '../../styles.js'
-import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
-import LinkButton from '../reusable/LinkButton.jsx'
 
 import Layer from '../maps/Layer.jsx'
-import LineData from '../../data/LineData.js'
-import LineStops from './LineStops.jsx'
-import { renderShape, renderStops } from './lineCommon.jsx'
 
 const Icon = leaflet.icon
 const icons = new Map([
@@ -192,32 +187,32 @@ class AllLines extends React.Component {
       data.forEach(trip => {
         if (trip.latitude !== undefined) {
           switch (trip.route_type) {
-          case 3:
-          case 700:
-          case 712:
-            busPositions.coordinates.push([trip.longitude, trip.latitude])
+            case 3:
+            case 700:
+            case 712:
+              busPositions.coordinates.push([trip.longitude, trip.latitude])
 
-            break
-          case 2:
-          case 400:
-          case 401:
-          case 100:
-          case 106:
-            trainPositions.coordinates.push([trip.longitude, trip.latitude])
-            break
-          case 0:
-          case 900:
-            lightRailPositions.coordinates.push([
-              trip.longitude,
-              trip.latitude,
-            ])
-            break
-          case 4:
-          case 1000:
-            ferryPostitions.coordinates.push([trip.longitude, trip.latitude])
-            break
-          default:
-            break
+              break
+            case 2:
+            case 400:
+            case 401:
+            case 100:
+            case 106:
+              trainPositions.coordinates.push([trip.longitude, trip.latitude])
+              break
+            case 0:
+            case 900:
+              lightRailPositions.coordinates.push([
+                trip.longitude,
+                trip.latitude,
+              ])
+              break
+            case 4:
+            case 1000:
+              ferryPostitions.coordinates.push([trip.longitude, trip.latitude])
+              break
+            default:
+              break
           }
         }
       })

@@ -1,8 +1,7 @@
 import { t } from '../../stores/translationStore.js'
 import UiStore from '../../stores/UiStore.js'
 
-export const renderShape = async (lineData, layer, routeColor) => {
-  const shape = await lineData.getShape()
+export const renderShape = async (shape, layer, routeColor) => {
   layer.add('geojson', shape, {
     color: routeColor,
     className: 'metro-line',
@@ -12,14 +11,13 @@ export const renderShape = async (lineData, layer, routeColor) => {
   return shape
 }
 
-export const renderStops = async (
-  lineData,
+export const renderStops = (
+  stops,
   pointsLayer,
   routeColor,
   region,
-  route_short_name
+  routeShortName
 ) => {
-  const stops = await lineData.getStops()
   const geojson = {
     type: 'MultiPoint',
     coordinates: [],
@@ -63,7 +61,7 @@ export const renderStops = async (
         const elem = e.popup.getElement()
         const { station } = elem.querySelector('[data-station]').dataset
         const baseUrl = `/s/${region}/${station}`
-        const extendedUrl = `${baseUrl}/timetable/${route_short_name}-2`
+        const extendedUrl = `${baseUrl}/timetable/${routeShortName}-2`
 
         elem
           .querySelector('.leaflet-service-button')

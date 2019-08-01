@@ -8,6 +8,8 @@ class LineData {
     this.shape_id = props.shape_id || null
     this.trip_id = props.trip_id || null
     this.route_id = props.route_id || null
+    this.stop_id = props.stop_id || null
+    this.direction_id = props.direction_id || 0
   }
 
   async getMeta() {
@@ -72,9 +74,29 @@ class LineData {
     }
   }
 
+  async getTimetable() {
+    if (this.stop_id === null) {
+      throw new Error('Requires stop_id to be set')
+    }
+    const res = await fetch(
+      [
+        local.endpoint,
+        this.region,
+        'station',
+        this.stop_id,
+        'timetable',
+        this.route_short_name,
+        `${this.direction_id}?agency_id=${this.agency_id}`,
+      ].join('/')
+    )
+    const data = await res.json()
+    return data
+  }
+
   async getStops() {
+    // console.log('getting stops')
     if (this.region === null) {
-      return reject(new Error('Requires region to be set.'))
+      throw new Error('Requires region to be set.')
     }
 
     let url = `${local.endpoint}/${this.region}/stops/`

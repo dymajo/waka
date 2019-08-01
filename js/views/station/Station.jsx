@@ -341,8 +341,11 @@ class Station extends React.Component {
   triggerMap = (agencyId, routeId, routeShortName, directionId) => {
     const { history, match } = this.props
     const url = ['/l', match.params.region, agencyId, routeShortName].join('/')
+    const stopId = match.params.station
 
-    history.push(`${url}?route_id=${routeId}&direction=${directionId}`)
+    history.push(
+      `${url}?route_id=${routeId}&direction=${directionId}&stop_id=${stopId}`
+    )
   }
 
   getName(name) {

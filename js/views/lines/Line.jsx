@@ -9,7 +9,6 @@ import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
-import LinkButton from '../reusable/LinkButton.jsx'
 
 import Layer from '../maps/Layer.jsx'
 import LineData from '../../data/LineData.js'
@@ -73,7 +72,6 @@ class Line extends React.Component {
   state = {
     color: '#666',
     stops: [],
-    direction: 0,
     lineMetadata: [],
     loading: true,
   }
@@ -84,19 +82,13 @@ class Line extends React.Component {
     const { match, location } = this.props
 
     const parsed = queryString.parse(location.search)
-    // sets the direction
-    if (location.search !== '') {
-      const direction = location.search.split('?direction=')[1]
-      if (direction === '1') {
-        this.state.direction = 1
-      }
-    }
-
     this.lineData = new LineData({
       region: match.params.region,
       route_short_name: match.params.route_short_name,
       agency_id: match.params.agency_id,
-      route_id: parsed.route_id,
+      route_id: parsed.route_id || null,
+      stop_id: parsed.stop_id || null,
+      direction_id: parsed.direction === '1' ? 1 : 0,
     })
 
     if (
@@ -111,6 +103,7 @@ class Line extends React.Component {
 
   componentDidMount() {
     this.dataResolved = this.getData()
+    this.getTimetable()
     this.getPositionData()
 
     this.liveRefresh = setInterval(() => {
@@ -139,31 +132,41 @@ class Line extends React.Component {
       } else if (metadata[0].shape_id === null) {
         throw new Error('The line had missing data.')
       }
+
       const { match } = this.props
-      const { direction } = this.state
-      const routeColor =
-        metadata.length === 1
-          ? metadata[0].route_color
-          : metadata.find(i => i.direction_id === direction).route_color
+      const route = metadata.find(
+        i => i.direction_id === this.lineData.direction_id
+      )
 
       this.setState({
-        color: routeColor,
+        color: route.route_color,
         lineMetadata: metadata,
       })
-      this.lineData.shape_id =
-        metadata.length === 1
-          ? metadata[0].shape_id
-          : metadata.find(i => i.direction_id === direction).shape_id
-      renderShape(this.lineData, this.layer, routeColor)
 
-      const stops = await renderStops(
-        this.lineData,
+      // Render the shape
+      this.lineData.shape_id = route.shape_id
+
+      // we don't want to await this, so the data loads async
+      this.lineData
+        .getShape()
+        .then(shape => renderShape(shape, this.layer, route.route_color)) // eslint-disable-line promise/prefer-await-to-then
+        .catch(err => console.err)
+
+      const stops = await this.lineData.getStops()
+      const renderedStops = renderStops(
+        stops,
         this.pointsLayer,
-        routeColor,
+        route.route_color,
         match.params.region,
         match.params.route_short_name
       )
-      this.setState({ stops, loading: false })
+      this.setState({ stops: renderedStops, loading: false })
+
+      // if the stop wasn't specified in the URL
+      if (this.lineData.stop_id === null && stops.length > 0) {
+        this.lineData.stop_id = stops[0].stop_id
+        this.getTimetable()
+      }
     } catch (err) {
       clearInterval(this.liveRefresh)
       console.error(err)
@@ -174,11 +177,17 @@ class Line extends React.Component {
     }
   }
 
+  getTimetable = async () => {
+    try {
+      const timetableData = await this.lineData.getTimetable()
+      console.log('timetable data', timetableData)
+    } catch (err) {
+      // cannot get timetable, usually because the stop_id is undefined
+    }
+  }
+
   getPositionData = async () => {
-    const { match } = this.props
-    const { direction } = this.state
     let busPositions = null
-    // const vehicleMap = {}
     try {
       const data = await this.lineData.getRealtime()
       this.liveLayer.hide()
@@ -188,13 +197,15 @@ class Line extends React.Component {
         coordinates: [],
       }
       data.forEach(trip => {
-        if (trip.latitude !== undefined && trip.direction === direction) {
+        if (
+          trip.latitude !== undefined &&
+          trip.direction === this.lineData.direction_id
+        ) {
           busPositions.coordinates.push([
             trip.longitude,
             trip.latitude,
             // TODO: bearing
           ])
-          // vehicleMap[[trip.latitude, trip.longitude].join(',')] = trip
         }
       })
 
@@ -207,71 +218,18 @@ class Line extends React.Component {
       this.liveLayer.add('geojson', busPositions, {
         icon,
       })
-      // this.liveLayer.add('geojson', busPositions, {
-      //   typeExtension: 'InvisibleMarker',
-      //   typeExtensionOptions: {
-      //     zIndexOffset: 30,
-      //     popupContent: (lat, lng) => {
-      //       const data = vehicleMap[[lat, lng].join(',')]
-      //       const tripSplit = data.trip_id.split('.')
-      //       const tripId = {
-      //         tripName: tripSplit[0],
-      //         timetableId: tripSplit[1],
-      //         timetableVersionId: tripSplit[2],
-      //         dopRef: tripSplit[3],
-      //         setType: tripSplit[4],
-      //         numberOfCars: tripSplit[5],
-      //         tripInstance: tripSplit[6],
-      //       }
-      //       return (
-      //         // it's not quite react
-      //         `
-      //       <span data-trip="${data.trip_id}">
-      //         <h2>${data.label}</h2>
-      //         <span>${trains[tripId.setType]}</span>
-      //         <span>${tripId.numberOfCars} Cars</span>
-      //         <span>Run: ${tripId.tripName}</span>
-      //         <span>Near: ${data.stopId}</span>
-      //         </span>`
-      //         // <span>Congestion Level: ${data.congestionLevel}</span>
-      //       )
-      //     },
-      //   },
-      // })
       if (this.cancelCallbacks === true) return 'cancelled'
       this.liveLayer.show()
       return 'done'
     } catch (err) {
-      console.log(err)
-      // who cares about the error
-      console.error('Could not load realtime.')
+      console.error(err)
     }
-  }
-
-  triggerSwitchDirection = () => {
-    const { direction } = this.state
-    this.layer.hide(true, true)
-    this.pointsLayer.hide()
-    this.liveLayer.hide()
-    this.layer = new Layer()
-    this.pointsLayer = new Layer()
-    this.setState(
-      {
-        direction: !direction ? 1 : 0,
-        loading: true,
-      },
-      () => {
-        this.getPositionData()
-      }
-    )
-    this.getData()
   }
 
   render() {
     const { match } = this.props
     const {
       color,
-      direction,
       error,
       errorMessage,
       lineMetadata,
@@ -283,7 +241,9 @@ class Line extends React.Component {
       lineMetadata.length > 0
         ? lineMetadata.length === 1
           ? lineMetadata[0]
-          : lineMetadata.find(i => i.direction_id === direction)
+          : lineMetadata.find(
+              i => i.direction_id === this.lineData.direction_id
+            )
         : {}
     let lineLabel = null
     if (lineMetadata.length <= 1) {
@@ -320,15 +280,6 @@ class Line extends React.Component {
           line={match.params.route_short_name}
           region={match.params.region}
         />
-        <View style={styles.linkWrapper}>
-          {lineMetadata.length <= 1 ? null : (
-            <LinkButton
-              label="Change Direction"
-              color="secondary"
-              onClick={this.triggerSwitchDirection}
-            />
-          )}
-        </View>
       </React.Fragment>
     )
 
@@ -355,9 +306,6 @@ styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: vars.defaultFontSize,
     fontFamily: vars.fontFamily,
-  },
-  linkWrapper: {
-    padding: vars.padding,
   },
   error: {
     padding: vars.padding,
