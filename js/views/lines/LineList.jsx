@@ -100,14 +100,15 @@ class LineList extends React.Component {
   hijack = link => e => {
     const { history, match } = this.props
     e.preventDefault()
-    const url = [
+    const joined = [
       '',
       'l',
       match.params.region,
       link.agencyId,
-      link.routeId,
       link.routeShortName,
     ].join('/')
+    const url = link.routeId ? `${joined}?route_id=${link.routeId}` : joined
+
     history.push(url)
   }
 

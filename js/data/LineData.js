@@ -20,11 +20,11 @@ class LineData {
     }
     const line = encodeURIComponent(this.line_id)
     const agency = encodeURIComponent(this.agency_id)
-    const route = encodeURIComponent(this.route_id)
+    const route = this.route_id ? encodeURIComponent(this.route_id) : null
     try {
-      const res = await fetch(
-        `${local.endpoint}/${this.region}/line/${line}?agency_id=${agency}&route_id=${route}`
-      )
+      const base = `${local.endpoint}/${this.region}/line/${line}?agency_id=${agency}`
+      const url = route ? `${base}&route_id=${route}` : base
+      const res = await fetch(url)
       const data = await res.json()
       return data
     } catch (error) {

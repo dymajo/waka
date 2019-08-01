@@ -164,7 +164,11 @@ class Station extends React.Component {
       if (trip.stop_sequence === undefined) return
 
       // this is so the route_numbers group together
-      const uniqueKey = [trip.route_short_name, trip.agency_id].join('-')
+      const uniqueKey = [
+        trip.route_short_name,
+        trip.route_id,
+        trip.agency_id,
+      ].join('-')
       if (!reducer.has(uniqueKey)) {
         reducer.set(uniqueKey, new Map())
       }
@@ -335,14 +339,9 @@ class Station extends React.Component {
 
   triggerMap = (agencyId, routeId, routeShortName, directionId) => {
     const { history, match } = this.props
-    const url = [
-      '/l',
-      match.params.region,
-      agencyId,
-      routeId,
-      routeShortName,
-    ].join('/')
-    history.push(`${url}?direction=${directionId}`)
+    const url = ['/l', match.params.region, agencyId, routeShortName].join('/')
+
+    history.push(`${url}?route_id=${routeId}&direction=${directionId}`)
   }
 
   getName(name) {
@@ -394,7 +393,11 @@ class Station extends React.Component {
       loading = (
         <div className="error">
           <p>{this.state.error}</p>
-          <button className="nice-button primary" onClick={this.triggerRetry}>
+          <button
+            type="button"
+            className="nice-button primary"
+            onClick={this.triggerRetry}
+          >
             {t('app.errorRetry')}
           </button>
         </div>
@@ -408,7 +411,7 @@ class Station extends React.Component {
     } else {
       content = (
         <View style={styles.tripWrapper}>
-          {this.state.reducedTrips.map((item, key) => {
+          {this.state.reducedTrips.map(item => {
             const {
               trip_id: tripId,
               agency_id: agencyId,

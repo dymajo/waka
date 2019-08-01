@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { View, Text, StyleSheet } from 'react-native'
 import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
-
+import queryString from 'query-string'
 import { vars } from '../../styles.js'
 import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
@@ -83,6 +83,7 @@ class Line extends React.Component {
 
     const { match, location } = this.props
 
+    const parsed = queryString.parse(location.search)
     // sets the direction
     if (location.search !== '') {
       const direction = location.search.split('?direction=')[1]
@@ -95,7 +96,7 @@ class Line extends React.Component {
       region: match.params.region,
       line_id: match.params.line_id,
       agency_id: match.params.agency_id,
-      route_id: match.params.route_id,
+      route_id: parsed.route_id,
     })
 
     if (
@@ -334,7 +335,7 @@ class Line extends React.Component {
     return (
       <View style={styles.wrapper}>
         <Header
-          title={match.params.route_short_name}
+          title={match.params.line_id}
           subtitle={currentLine.route_long_name || ''}
         />
         <LinkedScroll>{inner}</LinkedScroll>
