@@ -115,7 +115,7 @@ class StopsDataAccess {
       .request()
       .input('stop_id', sql.VarChar(100), stopCode)
       .input('departure_time', sql.Time, time)
-      .input('date', sql.Date, date)
+      .input('departure_date', sql.Date, date)
 
     const result = await sqlRequest.execute<DBStopTime>(procedure)
     return result.recordset
@@ -393,10 +393,10 @@ class StopsDataAccess {
       previous && next
         ? ` '${previous}', '${next}'`
         : previous
-        ? ` '${previous}'`
-        : next
-        ? ` '${next}'`
-        : ''
+          ? ` '${previous}'`
+          : next
+            ? ` '${next}'`
+            : ''
 
     const result = await sqlRequest.query<StopTime>(`
       select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name, stop_sequence
