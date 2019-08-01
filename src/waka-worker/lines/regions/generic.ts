@@ -72,7 +72,7 @@ class GenericLines extends BaseLines {
         allLines[routeShortName].push(lineEntry)
       } else {
         allLines[routeShortName] = [lineEntry]
-        lineColors[routeShortName] = `#${routeColor}`
+        lineColors[routeShortName] = routeColor
       }
 
       // tram
