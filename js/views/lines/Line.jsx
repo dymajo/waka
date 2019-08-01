@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { View, Text, StyleSheet } from 'react-native'
 import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
-
+import queryString from 'query-string'
 import { vars } from '../../styles.js'
 import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
@@ -83,6 +83,7 @@ class Line extends React.Component {
 
     const { match, location } = this.props
 
+    const parsed = queryString.parse(location.search)
     // sets the direction
     if (location.search !== '') {
       const direction = location.search.split('?direction=')[1]
@@ -93,8 +94,9 @@ class Line extends React.Component {
 
     this.lineData = new LineData({
       region: match.params.region,
-      line_id: match.params.line_id,
+      route_short_name: match.params.route_short_name,
       agency_id: match.params.agency_id,
+      route_id: parsed.route_id,
     })
 
     if (
@@ -139,15 +141,19 @@ class Line extends React.Component {
       }
       const { match } = this.props
       const { direction } = this.state
-      const routeColor = metadata.find(i => i.direction_id === direction)
-        .route_color
+      const routeColor =
+        metadata.length === 1
+          ? metadata[0].route_color
+          : metadata.find(i => i.direction_id === direction).route_color
+
       this.setState({
         color: routeColor,
         lineMetadata: metadata,
       })
-      this.lineData.shape_id = metadata.find(
-        i => i.direction_id === direction
-      ).shape_id
+      this.lineData.shape_id =
+        metadata.length === 1
+          ? metadata[0].shape_id
+          : metadata.find(i => i.direction_id === direction).shape_id
       renderShape(this.lineData, this.layer, routeColor)
 
       const stops = await renderStops(
@@ -155,7 +161,7 @@ class Line extends React.Component {
         this.pointsLayer,
         routeColor,
         match.params.region,
-        match.params.line_id
+        match.params.route_short_name
       )
       this.setState({ stops, loading: false })
     } catch (err) {
@@ -275,7 +281,9 @@ class Line extends React.Component {
 
     const currentLine =
       lineMetadata.length > 0
-        ? lineMetadata.find(i => i.direction_id === direction)
+        ? lineMetadata.length === 1
+          ? lineMetadata[0]
+          : lineMetadata.find(i => i.direction_id === direction)
         : {}
     let lineLabel = null
     if (lineMetadata.length <= 1) {
@@ -292,7 +300,7 @@ class Line extends React.Component {
           <Header title="Line Error" />
           <View style={styles.error}>
             <Text style={styles.errorMessage}>
-              We couldn&apos;t load the {match.params.line_id} line in{' '}
+              We couldn&apos;t load the {match.params.route_short_name} line in{' '}
               {match.params.region}.
             </Text>
             <Text style={styles.errorMessage}>{errorMessage}</Text>
@@ -309,7 +317,7 @@ class Line extends React.Component {
         <LineStops
           color={color}
           stops={stops}
-          line={match.params.line_id}
+          line={match.params.route_short_name}
           region={match.params.region}
         />
         <View style={styles.linkWrapper}>
@@ -327,7 +335,7 @@ class Line extends React.Component {
     return (
       <View style={styles.wrapper}>
         <Header
-          title={match.params.line_id}
+          title={match.params.route_short_name}
           subtitle={currentLine.route_long_name || ''}
         />
         <LinkedScroll>{inner}</LinkedScroll>

@@ -206,7 +206,7 @@ class StationStore extends Events {
         throw new Error(t('app.nointernet'))
       }
       try {
-        const res = await fetch(`${local.endpoint}/${prefix}/lines`)
+        const res = await fetch(`${local.endpoint}/${prefix}/all-lines`)
         const data = await res.json()
         this.lineCache = data
         this.lineCacheRegion = prefix
@@ -296,7 +296,7 @@ class StationStore extends Events {
       return
     }
 
-    const queryString = {}
+    const queryString = []
     tripData
       .filter(trip => {
         const arrival = new Date()
@@ -313,11 +313,7 @@ class StationStore extends Events {
         return false
       })
       .forEach(trip => {
-        queryString[trip.trip_id] = {
-          departure_time_seconds: trip.departure_time_seconds,
-          route_short_name: trip.route_short_name,
-          station: trip.station,
-        }
+        queryString.push(trip.trip_id)
       })
 
     // we need to pass an extra param for train trips
@@ -325,7 +321,7 @@ class StationStore extends Events {
       stop_id,
       trips: queryString,
     }
-    if (route_type === 2) {
+    if (route_type === 2 && region === 'nz-akl') {
       requestData.train = true
     }
     // now we do a request to the realtime API

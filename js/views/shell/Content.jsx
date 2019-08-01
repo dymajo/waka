@@ -86,7 +86,7 @@ class Content extends React.Component {
           <Route path="/l/:region" exact render={wrapFn(LineList)} />
           <Route path="/l/:region/all" exact render={wrapFn(AllLines)} />
           <Route
-            path="/l/:region/:agency_id/:line_id"
+            path="/l/:region/:agency_id/:route_short_name"
             exact
             render={wrapFn(Line)}
           />

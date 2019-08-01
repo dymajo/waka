@@ -37,7 +37,8 @@ class LineList extends React.Component {
 
   triggerGroup = group => e => {
     e.preventDefault()
-    const groupShow = JSON.parse(JSON.stringify(this.state.groupShow))
+    let { groupShow } = this.state
+    groupShow = JSON.parse(JSON.stringify(groupShow))
     if (groupShow[group] === 'show') {
       groupShow[group] = ''
     } else {
@@ -98,31 +99,21 @@ class LineList extends React.Component {
 
   hijack = link => e => {
     const { history, match } = this.props
-    const { operators, friendlyNumbers } = this.state
     e.preventDefault()
-    const url = [
+    const joined = [
       '',
       'l',
       match.params.region,
-      operators[link],
-      friendlyNumbers[link] || link,
+      link.agencyId,
+      link.routeShortName,
     ].join('/')
+    const url = link.routeId ? `${joined}?route_id=${link.routeId}` : joined
+
     history.push(url)
   }
 
   render() {
-    const {
-      loading,
-      error,
-      groups,
-      icons,
-      meta,
-      lines,
-      friendlyNames,
-      friendlyNumbers,
-      colors,
-      groupShow,
-    } = this.state
+    const { loading, error, groups, icons, meta, groupShow } = this.state
     return (
       <View style={styles.wrapper}>
         <Header title={t('lines.title')} subtitle={meta.longName || ''} />
@@ -143,54 +134,45 @@ class LineList extends React.Component {
                 {(groupShow[group.name] === 'show'
                   ? group.items
                   : group.items.slice(0, 3)
-                ).map((item, lineKey) => {
-                  const el = lines[item]
-                  const name =
-                    friendlyNames[item] ||
-                    (el[0].length === 1
-                      ? el[0]
-                      : [el[0][0], el[0][1]].join(' to '))
-
-                  return (
-                    <TouchableOpacity
-                      key={group.name + lineKey}
-                      onClick={this.hijack(item)}
-                      style={styles.row}
-                    >
-                      <Text style={styles.label}>{name}</Text>
-                      <View>
-                        {icons[item] === undefined ? (
-                          <Text
-                            style={[
-                              styles.pill,
-                              {
-                                backgroundColor: colors[item] || '#000',
-                              },
-                            ]}
-                          >
-                            {friendlyNumbers[item] || item}
-                          </Text>
-                        ) : (
-                          <img
-                            alt={friendlyNumbers[item] || item}
-                            style={{ maxHeight: '28px', width: 'auto' }}
-                            src={`/route_icons/${icons[item]}-color.svg`}
-                          />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-                  )
-                })}
+                ).map((item, lineKey) => (
+                  <TouchableOpacity
+                    key={group.name + lineKey}
+                    onClick={this.hijack(item)}
+                    style={styles.row}
+                  >
+                    <Text style={styles.label}>{item.routeLongName}</Text>
+                    <View>
+                      {icons[item] === undefined ? (
+                        <Text
+                          style={[
+                            styles.pill,
+                            {
+                              backgroundColor: item.routeColor,
+                            },
+                          ]}
+                        >
+                          {item.routeShortName}
+                        </Text>
+                      ) : (
+                        <img
+                          alt={item.routeLongName}
+                          style={{ maxHeight: '28px', width: 'auto' }}
+                          src={`/route_icons/${icons[item]}-color.svg`}
+                        />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))}
                 {group.items.length > 3 ? (
                   <TouchableOpacity onClick={this.triggerGroup(group.name)}>
                     <Text style={[styles.label, styles.expandText]}>
                       {groupShow[group.name] === 'show'
                         ? `${t('lines.less', {
-                            number: group.items.length - 3,
-                          })} ▴`
+                          number: group.items.length - 3,
+                        })} ▴`
                         : `${t('lines.more', {
-                            number: group.items.length - 3,
-                          })} ▾`}
+                          number: group.items.length - 3,
+                        })} ▾`}
                     </Text>
                   </TouchableOpacity>
                 ) : null}

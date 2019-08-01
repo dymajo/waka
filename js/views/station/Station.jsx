@@ -164,7 +164,11 @@ class Station extends React.Component {
       if (trip.stop_sequence === undefined) return
 
       // this is so the route_numbers group together
-      const uniqueKey = [trip.route_short_name, trip.agency_id].join('-')
+      const uniqueKey = [
+        trip.route_short_name,
+        trip.route_id,
+        trip.agency_id,
+      ].join('-')
       if (!reducer.has(uniqueKey)) {
         reducer.set(uniqueKey, new Map())
       }
@@ -333,10 +337,11 @@ class Station extends React.Component {
     UiStore.safePush('./save')
   }
 
-  triggerMap = (agencyId, routeShortName, directionId) => {
+  triggerMap = (agencyId, routeId, routeShortName, directionId) => {
     const { history, match } = this.props
     const url = ['/l', match.params.region, agencyId, routeShortName].join('/')
-    history.push(`${url}?direction=${directionId}`)
+
+    history.push(`${url}?route_id=${routeId}&direction=${directionId}`)
   }
 
   getName(name) {
@@ -352,6 +357,10 @@ class Station extends React.Component {
   render() {
     let loading
     let content
+
+    const { region } = this.props.match.params
+    const stop = this.props.match.params.station
+    const regionStop = `${region}|${stop}`
     if (this.state.loading) {
       loading = <div className="spinner" />
     } else if (this.state.route_type === -2) {
@@ -384,7 +393,11 @@ class Station extends React.Component {
       loading = (
         <div className="error">
           <p>{this.state.error}</p>
-          <button className="nice-button primary" onClick={this.triggerRetry}>
+          <button
+            type="button"
+            className="nice-button primary"
+            onClick={this.triggerRetry}
+          >
             {t('app.errorRetry')}
           </button>
         </div>
@@ -398,33 +411,33 @@ class Station extends React.Component {
     } else {
       content = (
         <View style={styles.tripWrapper}>
-          {this.state.reducedTrips.map((item, key) => {
-            const tripId = item[0].trip_id
-            const agencyId = item[0].agency_id
-            const routeShortName = item[0].route_short_name
-            const directionId = item[0].direction_id
-            const routeColor = item[0].route_color
+          {this.state.reducedTrips.map(item => {
+            const {
+              trip_id: tripId,
+              agency_id: agencyId,
+              route_short_name: routeShortName,
+              direction_id: directionId,
+              route_color: routeColor,
+              route_id: routeId,
+            } = item[0]
             return (
               <TripItem
                 key={tripId}
                 routeShortName={routeShortName}
                 direction={directionId}
                 color={routeColor}
-                trips={item.map(i => {
-                  const departure = new Date(
-                    new Date().getTime() + StationStore.offsetTime
-                  )
-                  departure.setHours(0)
-                  departure.setMinutes(0)
-                  departure.setSeconds(parseInt(i.departure_time_seconds, 10))
-                  return {
-                    destination: i.trip_headsign,
-                    departureTime: departure,
-                    isRealtime: i.isRealtime,
-                  }
-                })}
+                trips={item.map(i => ({
+                  destination: i.trip_headsign,
+                  departureTime: new Date(i.departureTime),
+                  isRealtime: i.isRealtime,
+                }))}
                 onClick={() =>
-                  this.triggerMap(agencyId, routeShortName, directionId)
+                  this.triggerMap(
+                    agencyId,
+                    routeId,
+                    routeShortName,
+                    directionId
+                  )
                 }
               />
             )
@@ -432,10 +445,6 @@ class Station extends React.Component {
         </View>
       )
     }
-
-    const { region } = this.props.match.params
-    const stop = this.props.match.params.station
-    const regionStop = `${region}|${stop}`
 
     const actionIcon =
       StationStore.getOrder().indexOf(regionStop) === -1 ? (
