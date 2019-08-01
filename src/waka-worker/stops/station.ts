@@ -3,7 +3,7 @@ import { Response } from 'express'
 import * as Logger from 'bunyan'
 import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
-import { WakaRequest } from '../../typings'
+import { WakaRequest, DBStopTime } from '../../typings'
 import Lines from '../lines'
 import BaseStops from '../../types/BaseStops'
 import WakaRedis from '../../waka-realtime/Redis'
@@ -275,15 +275,6 @@ class Station {
       }
     }
 
-    const sending: {
-      provider: string
-      currentTime?: number
-      trips?: any[]
-      realtime?: any
-      allRoutes?: any
-    } = {
-      provider: 'sql-server',
-    }
     const timezone = prefixToTimezone(prefix)
 
     const time = moment().tz(timezone)
@@ -305,7 +296,7 @@ class Station {
         midnightOverride = true
       }
     }
-    sending.currentTime = currentTime.getTime() / 1000
+    const sendingCurrentTime = currentTime.getTime() / 1000
 
     const today = new Date(0)
     today.setUTCFullYear(time.year())
@@ -319,7 +310,7 @@ class Station {
 
     // combines train stations platforms together
     const procedure = 'GetStopTimes'
-    let trips = []
+    let trips: DBStopTime[] = []
     const realtimeTrips: string[] = []
     try {
       trips = await dataAccess.getStopTimes(
@@ -333,58 +324,18 @@ class Station {
       return res.status(500).send(err)
     }
 
-    sending.trips = trips.map(r => {
-      // const record: {
-      //   trip_id: string
-      //   stop_sequence: number
-      //   stop_id: string
-      //   trip_headsign: string
-      //   shape_id: string
-      //   direction_id: number
-      //   start_date: Date
-      //   end_date: Date
-      //   route_short_name: string
-      //   route_long_name: string
-      //   route_type: number
-      //   agency_id: string
-      //   route_color: string
-      //   stop_name: string
-      //   arrival_time_24: boolean
-      //   arrival_time: Date
-      //   arrival_time_seconds?: number
-      //   arrivalTime?: Moment
-      //   departure_time: Date
-      //   departure_time_24: boolean
-      //   departure_time_seconds?: number
-      //   departureTime?: Moment
-      //   route_icon?: string
-      // } = {...r} // clone?
+    const sendingTrips = trips.map(r => {
+      // now is 00:00 in region's local timezone
       const now = moment().tz(timezone)
       now.seconds(0)
       now.hours(0)
       now.minutes(0)
 
-      // const arrivalSeconds = r.arrival_time_24
-      //   ? moment(r.arrival_time)
-      //     .tz(timezone)
-      //     .unix() + 86400
-      //   : moment(r.arrival_time)
-      //     .tz(timezone)
-      //     .unix()
-      // const departureSeconds = r.departure_time_24
-      //   ? moment(r.departure_time)
-      //     .tz(timezone)
-      //     .unix() + 86400
-      //   : moment(r.departure_time)
-      //     .tz(timezone)
-      //     .unix()
-
-      // const arrivalTime = moment.unix(now.unix() + arrivalSeconds)
-      // const departureTime = moment.unix(now.unix() + departureSeconds)
+      // fully formed arrival and departure times in region's local tz
       const arrivalTime = moment.unix(now.unix() + r.new_arrival_time)
       const departureTime = moment.unix(now.unix() + r.new_departure_time)
 
-      // const dwell = departureSeconds - arrivalSeconds
+      // time between arrival and departure
       const dwell = r.new_departure_time - r.new_arrival_time
       let departure_time_seconds = new Date(r.departure_time).getTime() / 1000
       if (r.departure_time_24) {
@@ -399,40 +350,60 @@ class Station {
 
       // 30mins of realtime
       if (
-        departure_time_seconds < sending.currentTime + 1800 ||
+        departure_time_seconds < sendingCurrentTime + 1800 ||
         r.departure_time_24
       ) {
         realtimeTrips.push(r.trip_id)
       }
 
-      if (r.trip_headsign === null) {
-        logger.warn('This dataset has a null trip_headsign.')
-        r.trip_headsign = r.route_long_name
-      }
-      const {
-        arrival_time,
-        arrival_time_24,
-        departure_time,
-        departure_time_24,
-        new_arrival_time,
-        new_departure_time,
-        ...trip
-      } = r
       const record = {
-        ...trip,
-        trip_headsign: trip.trip_headsign || trip.route_long_name,
         arrival_time_seconds,
         departure_time_seconds,
         arrivalTime,
         departureTime,
         route_icon,
         dwell,
+        trip_headsign: r.trip_headsign || r.route_long_name,
+        route_id: r.route_id,
+        route_short_name: r.route_short_name,
+        route_long_name: r.route_long_name,
+        agency_id: r.agency_id,
+        stop_sequence: r.stop_sequence,
+        direction_id: r.direction_id,
+        route_color: r.route_color,
+        trip_id: r.trip_id,
+        pickup_type: r.pickup_type,
+        drop_off_type: r.drop_off_type,
       }
       return record
     })
 
-    sending.realtime = realtimeTimes(realtimeTrips)
+    const realtime = realtimeTimes(realtimeTrips)
 
+    const sending: {
+      provider: string
+      currentTime: number
+      trips: {
+        drop_off_type: 0 | 1
+        pickup_type: 0 | 1
+        stop_sequence: number
+        trip_id: string
+        direction_id: number
+        shape_id: string
+        trip_headsign: string
+        route_color: string
+        route_long_name: string
+        route_short_name: string
+        agency_id: string
+      }[]
+      realtime: { [tripId: string]: {} }
+      allRoutes?: any
+    } = {
+      provider: 'sql-server',
+      currentTime: sendingCurrentTime,
+      trips: sendingTrips,
+      realtime,
+    }
     // the all routes stuff is possibly an extra call to the database,
     // so we only do it if we need to
     if (req.query.allRoutes || sending.trips.length === 0) {

@@ -1,6 +1,12 @@
 import * as sql from 'mssql'
 import Connection from '../db/connection'
-import { RouteInfo, StopTime, TripRow, TripInfo } from '../../typings'
+import {
+  RouteInfo,
+  StopTime,
+  TripRow,
+  TripInfo,
+  DBStopTime,
+} from '../../typings'
 
 interface StopsDataAccessProps {
   connection: Connection
@@ -111,29 +117,7 @@ class StopsDataAccess {
       .input('departure_time', sql.Time, time)
       .input('date', sql.Date, date)
 
-
-    const result = await sqlRequest.execute<{
-      trip_id: string
-      stop_sequence: number
-      arrival_time: Date
-      arrival_time_24: boolean
-      departure_time: Date
-      departure_time_24: boolean
-      stop_id: string
-      trip_headsign: string
-      shape_id: string
-      direction_id: number
-      start_date: Date
-      end_date: Date
-      route_short_name: string
-      route_long_name: string
-      route_type: number
-      agency_id: string
-      route_color: string
-      stop_name: string
-      new_arrival_time: number
-      new_departure_time: number
-    }>(procedure)
+    const result = await sqlRequest.execute<DBStopTime>(procedure)
     return result.recordset
   }
 
@@ -324,7 +308,7 @@ class StopsDataAccess {
     if (filteredStopCodes.length > 0) {
       // TODO: This isn't SQL Injection Proof, but it shouldn't be hit from there anyway.
       // This should also be a stored procedure.
-      const stopCodesQuery = `('${filteredStopCodes.join('\',\'')}')`
+      const stopCodesQuery = `('${filteredStopCodes.join("','")}')`
 
       const sqlRequest = connection.get().request()
       const result = await sqlRequest.query<{
@@ -409,10 +393,10 @@ class StopsDataAccess {
       previous && next
         ? ` '${previous}', '${next}'`
         : previous
-          ? ` '${previous}'`
-          : next
-            ? ` '${next}'`
-            : ''
+        ? ` '${previous}'`
+        : next
+        ? ` '${next}'`
+        : ''
 
     const result = await sqlRequest.query<StopTime>(`
       select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name, stop_sequence

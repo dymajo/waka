@@ -296,6 +296,38 @@ export interface MetlinkUpdate {
   }
 }
 
+export interface DBStopTime {
+  // stop times
+  arrival_time: Date
+  arrival_time_24: boolean
+  departure_time: Date
+  departure_time_24: boolean
+  drop_off_type: 0 | 1
+  pickup_type: 0 | 1
+  stop_id: string
+  stop_sequence: number
+  trip_id: string
+  // trips
+  direction_id: number
+  shape_id: string
+  trip_headsign: string
+  // calendar
+  end_date: Date
+  start_date: Date
+  // routes
+  route_color: string
+  route_id: string
+  route_long_name: string
+  route_short_name: string
+  route_type: number
+  agency_id: string
+  // stops
+  stop_name: string
+  // calculated
+  new_arrival_time: number
+  new_departure_time: number
+}
+
 export { Logger }
 
 declare const process: {
