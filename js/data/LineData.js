@@ -3,7 +3,7 @@ import local from '../../local'
 class LineData {
   constructor(props) {
     this.region = props.region || null
-    this.line_id = props.line_id || null
+    this.route_short_name = props.route_short_name || null
     this.agency_id = props.agency_id || null
     this.shape_id = props.shape_id || null
     this.trip_id = props.trip_id || null
@@ -13,12 +13,12 @@ class LineData {
   async getMeta() {
     if (
       this.region === null ||
-      this.line_id === null ||
+      this.route_short_name === null ||
       this.agency_id === null
     ) {
-      return 'Requires both region, line_id, and agency_id to be set.'
+      return 'Requires both region, route_short_name, and agency_id to be set.'
     }
-    const line = encodeURIComponent(this.line_id)
+    const line = encodeURIComponent(this.route_short_name)
     const agency = encodeURIComponent(this.agency_id)
     const route = this.route_id ? encodeURIComponent(this.route_id) : null
     try {
@@ -95,7 +95,7 @@ class LineData {
   }
 
   async getRealtime() {
-    const line = encodeURIComponent(this.line_id)
+    const line = encodeURIComponent(this.route_short_name)
     const agency = encodeURIComponent(this.agency_id)
     const res = await fetch(
       `${local.endpoint}/${this.region}/realtime/${line}?agency_id=${agency}`

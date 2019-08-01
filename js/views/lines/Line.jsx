@@ -94,7 +94,7 @@ class Line extends React.Component {
 
     this.lineData = new LineData({
       region: match.params.region,
-      line_id: match.params.line_id,
+      route_short_name: match.params.route_short_name,
       agency_id: match.params.agency_id,
       route_id: parsed.route_id,
     })
@@ -161,7 +161,7 @@ class Line extends React.Component {
         this.pointsLayer,
         routeColor,
         match.params.region,
-        match.params.line_id
+        match.params.route_short_name
       )
       this.setState({ stops, loading: false })
     } catch (err) {
@@ -300,7 +300,7 @@ class Line extends React.Component {
           <Header title="Line Error" />
           <View style={styles.error}>
             <Text style={styles.errorMessage}>
-              We couldn&apos;t load the {match.params.line_id} line in{' '}
+              We couldn&apos;t load the {match.params.route_short_name} line in{' '}
               {match.params.region}.
             </Text>
             <Text style={styles.errorMessage}>{errorMessage}</Text>
@@ -317,7 +317,7 @@ class Line extends React.Component {
         <LineStops
           color={color}
           stops={stops}
-          line={match.params.line_id}
+          line={match.params.route_short_name}
           region={match.params.region}
         />
         <View style={styles.linkWrapper}>
@@ -335,7 +335,7 @@ class Line extends React.Component {
     return (
       <View style={styles.wrapper}>
         <Header
-          title={match.params.line_id}
+          title={match.params.route_short_name}
           subtitle={currentLine.route_long_name || ''}
         />
         <LinkedScroll>{inner}</LinkedScroll>

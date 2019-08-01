@@ -192,32 +192,32 @@ class AllLines extends React.Component {
       data.forEach(trip => {
         if (trip.latitude !== undefined) {
           switch (trip.route_type) {
-            case 3:
-            case 700:
-            case 712:
-              busPositions.coordinates.push([trip.longitude, trip.latitude])
+          case 3:
+          case 700:
+          case 712:
+            busPositions.coordinates.push([trip.longitude, trip.latitude])
 
-              break
-            case 2:
-            case 400:
-            case 401:
-            case 100:
-            case 106:
-              trainPositions.coordinates.push([trip.longitude, trip.latitude])
-              break
-            case 0:
-            case 900:
-              lightRailPositions.coordinates.push([
-                trip.longitude,
-                trip.latitude,
-              ])
-              break
-            case 4:
-            case 1000:
-              ferryPostitions.coordinates.push([trip.longitude, trip.latitude])
-              break
-            default:
-              break
+            break
+          case 2:
+          case 400:
+          case 401:
+          case 100:
+          case 106:
+            trainPositions.coordinates.push([trip.longitude, trip.latitude])
+            break
+          case 0:
+          case 900:
+            lightRailPositions.coordinates.push([
+              trip.longitude,
+              trip.latitude,
+            ])
+            break
+          case 4:
+          case 1000:
+            ferryPostitions.coordinates.push([trip.longitude, trip.latitude])
+            break
+          default:
+            break
           }
         }
       })
@@ -295,7 +295,7 @@ class AllLines extends React.Component {
           <Header title="Line Error" />
           <View style={styles.error}>
             <Text style={styles.errorMessage}>
-              We couldn&apos;t load the {match.params.line_id} line in{' '}
+              We couldn&apos;t load the {match.params.route_short_name} line in{' '}
               {match.params.region}.
             </Text>
             <Text style={styles.errorMessage}>{errorMessage}</Text>
@@ -349,7 +349,7 @@ class AllLines extends React.Component {
 
     return (
       <View style={styles.wrapper}>
-        <Header title={match.params.line_id} subtitle="" />
+        <Header title={match.params.route_short_name} subtitle="" />
         <LinkedScroll>{inner}</LinkedScroll>
       </View>
     )

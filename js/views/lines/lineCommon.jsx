@@ -17,7 +17,7 @@ export const renderStops = async (
   pointsLayer,
   routeColor,
   region,
-  line_id
+  route_short_name
 ) => {
   const stops = await lineData.getStops()
   const geojson = {
@@ -63,7 +63,7 @@ export const renderStops = async (
         const elem = e.popup.getElement()
         const { station } = elem.querySelector('[data-station]').dataset
         const baseUrl = `/s/${region}/${station}`
-        const extendedUrl = `${baseUrl}/timetable/${line_id}-2`
+        const extendedUrl = `${baseUrl}/timetable/${route_short_name}-2`
 
         elem
           .querySelector('.leaflet-service-button')
