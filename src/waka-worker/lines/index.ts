@@ -117,7 +117,7 @@ class Lines {
     }
   }
 
-  stop = () => { }
+  stop = () => {}
 
   getColor = (agencyId: string, routeShortName: string) => {
     const { lineDataSource } = this
@@ -301,7 +301,6 @@ class Lines {
     const lineId = req.params.line.trim()
     const routeId = (req.query.route_id || '').trim()
     const agencyId = (req.query.agency_id || '').trim()
-
     try {
       const data = await this._getLine(lineId, agencyId, routeId)
       res.send(data)
@@ -316,8 +315,11 @@ class Lines {
     const sqlRequest = connection.get().request()
     let route = ''
     if (routeId !== '') {
-      route = 'and routes.route_id = @route_id'
+      route = 'routes.route_id = @route_id'
       sqlRequest.input('route_id', sql.VarChar(50), routeId)
+    } else {
+      route = 'routes.route_short_name = @route_short_name'
+      sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
     }
     // filter by agency if a filter exists
     let agency = ''
@@ -325,7 +327,6 @@ class Lines {
       agency = 'and routes.agency_id = @agency_id'
       sqlRequest.input('agency_id', sql.VarChar(50), agencyId)
     }
-    sqlRequest.input('route_short_name', sql.VarChar(50), lineId)
     const query = `
       SELECT
         routes.route_id,
@@ -342,7 +343,6 @@ class Lines {
           LEFT JOIN trips on
           trips.route_id = routes.route_id
       WHERE
-          routes.route_short_name = @route_short_name
           ${route}
           and shape_id is not null
           ${agency}
@@ -359,7 +359,6 @@ class Lines {
       ORDER BY
         shape_score desc
     `
-
     const result = await sqlRequest.query<{
       route_id: string
       agency_id: string
