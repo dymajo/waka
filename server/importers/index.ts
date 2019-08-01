@@ -75,7 +75,7 @@ class Importer {
       })
     } else {
       try {
-
+        console.log(config.prefix)
         if (isKeyof(regions, config.prefix)) {
 
           const Region = regions[config.prefix]
@@ -126,6 +126,9 @@ class Importer {
     await this.fixRoutes()
     await this.addGeoLocation()
     await this.postImport()
+    await this.fixDropOffType()
+    await this.fixPickupType()
+
     await this.shapes()
     // await this.exportDb()
 
@@ -194,6 +197,34 @@ class Importer {
     log(
       `${config.prefix} ${config.version}`,
       `Updated ${rows} null route codes`,
+    )
+  }
+
+  async fixPickupType() {
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE stop_times
+      SET pickup_type = 0
+      WHERE pickup_type is null;
+    `)
+    const rows = res.rowsAffected[0]
+    log(
+      `${config.prefix} ${config.version}`,
+      `Updated ${rows} null pick ups`,
+    )
+  }
+
+  async fixDropOffType() {
+    const sqlRequest = connection.get().request()
+    const res = await sqlRequest.query(`
+      UPDATE stop_times
+      SET drop_off_type = 0
+      WHERE drop_off_type is null;
+    `)
+    const rows = res.rowsAffected[0]
+    log(
+      `${config.prefix} ${config.version}`,
+      `Updated ${rows} null drop offs`,
     )
   }
 
