@@ -240,7 +240,6 @@ class BaseMap extends React.Component {
   }
 
   async getData(lat, lon, dist) {
-    const { bikeShare } = SettingsStore.state
     this.position = [lat, lon, dist]
     try {
       const res = await fetch(
@@ -251,9 +250,10 @@ class BaseMap extends React.Component {
       const data = await res.json()
       data.forEach(item => {
         StationStore.stationCache[item.stop_id] = item
-        if (typeof this.myIcons[item.route_type.toString()] === 'undefined') {
-          this.myIcons[item.route_type.toString()] = this.iconHelper.getIcon(
-            StationStore.currentCity.prefix,
+        const key = [item.stop_region, item.route_type].join(':')
+        if (this.myIcons[key] === undefined) {
+          this.myIcons[key] = this.iconHelper.getIcon(
+            item.stop_region,
             item.route_type
           )
         }
@@ -353,10 +353,10 @@ class BaseMap extends React.Component {
     if (splitName.length === 4 && splitName[1][0] === 's') {
       const currentStation = splitName[3]
       const item = StationStore.stationCache[currentStation]
-      if (typeof item !== 'undefined') {
+      if (item !== undefined) {
         const icon = this.iconHelper.getRouteType(item.route_type)
         const markericon = this.iconHelper.getIcon(
-          StationStore.currentCity.prefix,
+          item.stop_region,
           item.route_type,
           'selection'
         )
@@ -421,7 +421,9 @@ class BaseMap extends React.Component {
             ? null
             : this.state.stops.map(stop => {
                 const icon = this.iconHelper.getRouteType(stop.route_type)
-                let markericon = this.myIcons[stop.route_type.toString()]
+                let markericon = this.myIcons[
+                  [stop.stop_region, stop.route_type].join(':')
+                ]
                 if (icon === 'bus') {
                   const stopSplit = stop.stop_name.split('Stop')
                   const platformSplit = stop.stop_name.split('Platform')
