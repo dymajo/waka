@@ -151,6 +151,21 @@ export interface VehicleDescriptor {
   id?: string
   label?: string
   licensePlate?: string
+  '.transit_realtime.tfnswVehicleDescriptor'?: TfNSWVehicleDescriptor
+}
+
+export interface TfNSWVehicleDescriptor {
+  airConditioned: boolean
+  performingPriorTrip: boolean
+  specialVehicleAttributes: number
+  vehicleModel: string
+  wheelChairAccessible: string
+}
+
+export enum TfNSWSpecialVehicle {
+  STA85 = 1 << 0,
+  wifi = 1 << 1,
+  xmas = 1 << 2,
 }
 
 export interface FeedHeader {
