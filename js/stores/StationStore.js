@@ -1,11 +1,8 @@
-import axios from 'axios'
 import Events from './Events'
 import local from '../../local.js'
 import SettingsStore from './SettingsStore.js'
 import { t } from './translationStore.js'
-import iconhelper from '../helpers/icon.js'
-
-const IconHelper = new iconhelper()
+import IconHelper from '../helpers/icons/index.js'
 
 class StationStore extends Events {
   constructor(props) {
@@ -61,11 +58,13 @@ class StationStore extends Events {
 
   lineCacheRegion = null
 
-  getDirection(region, direction_id) {
+  iconHelper = new IconHelper()
+
+  getDirection(region, directionId) {
     if (region === 'nz-akl') {
-      direction_id = !direction_id ? 1 : 0
+      directionId = !directionId ? 1 : 0
     }
-    return direction_id === 0 ? 'Outbound' : 'Inbound'
+    return directionId === 0 ? 'Outbound' : 'Inbound'
   }
 
   async getCity(lat, lon) {
@@ -144,7 +143,7 @@ class StationStore extends Events {
     const dataCollection = await Promise.all(promises)
     dataCollection.forEach((data, key) => {
       const no = stopNumber.split('+')[key]
-      const icon = IconHelper.getRouteType(data.route_type)
+      const icon = this.iconHelper.getRouteType(data.route_type)
       let description = t('savedStations.stop', {
         number: `${no} / ${data.stop_name}`,
       })
