@@ -52,8 +52,8 @@ export interface Alert {
 }
 
 export interface TimeRange {
-  start?: Long
-  end?: Long
+  start?: number
+  end?: number
 }
 
 export type Cause =
@@ -101,7 +101,7 @@ export interface EntitySelector {
 export interface TripUpdate {
   trip: TripDescriptor
   stopTimeUpdate?: StopTimeUpdate[]
-  timestamp?: Long
+  timestamp?: number
   vehicle?: VehicleDescriptor
   delay?: number
 }
@@ -121,7 +121,7 @@ export interface NyctStopTimeUpdate {
 
 export interface StopTimeEvent {
   delay?: number
-  time?: Long
+  time?: number
   uncertainty?: number
 }
 
@@ -171,7 +171,7 @@ export enum TfNSWSpecialVehicle {
 export interface FeedHeader {
   gtfsRealtimeversion: string
   incrementality: number
-  timestamp: Long
+  timestamp: number
 }
 
 export interface VehiclePosition {
@@ -181,7 +181,7 @@ export interface VehiclePosition {
   currentStopSequence?: number
   stopId?: string
   currentStatus?: VehicleStopStatus
-  timestamp?: Long
+  timestamp?: number
   congestionLevel?: CongestionLevel
   occupancyStatus?: OccupancyStatus
 }
