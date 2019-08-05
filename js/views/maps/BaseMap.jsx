@@ -17,14 +17,12 @@ import { t } from '../../stores/translationStore.js'
 
 import LocateIcon from '../../../dist/icons/locate-2.svg'
 
-import iconhelper from '../../helpers/icon.js'
+import IconHelper from '../../helpers/icons/index.js'
 
 const Icon = leaflet.icon
 const { CRS, point, latLng } = leaflet
 const LeafletMap = reactLeaflet.Map
 const { Marker, TileLayer, ZoomControl, Circle, CircleMarker } = reactLeaflet
-
-const IconHelper = new iconhelper()
 
 const getDist = function(zoom) {
   let screensize = document.body.offsetWidth
@@ -157,6 +155,8 @@ class BaseMap extends React.Component {
 
   map = React.createRef()
 
+  iconHelper = new IconHelper()
+
   myIcons = {}
 
   state = {
@@ -252,7 +252,7 @@ class BaseMap extends React.Component {
       data.forEach(item => {
         StationStore.stationCache[item.stop_id] = item
         if (typeof this.myIcons[item.route_type.toString()] === 'undefined') {
-          this.myIcons[item.route_type.toString()] = IconHelper.getIcon(
+          this.myIcons[item.route_type.toString()] = this.iconHelper.getIcon(
             StationStore.currentCity.prefix,
             item.route_type
           )
@@ -354,8 +354,8 @@ class BaseMap extends React.Component {
       const currentStation = splitName[3]
       const item = StationStore.stationCache[currentStation]
       if (typeof item !== 'undefined') {
-        const icon = IconHelper.getRouteType(item.route_type)
-        const markericon = IconHelper.getIcon(
+        const icon = this.iconHelper.getRouteType(item.route_type)
+        const markericon = this.iconHelper.getIcon(
           StationStore.currentCity.prefix,
           item.route_type,
           'selection'
@@ -420,7 +420,7 @@ class BaseMap extends React.Component {
           {this.state.hideStops
             ? null
             : this.state.stops.map(stop => {
-                const icon = IconHelper.getRouteType(stop.route_type)
+                const icon = this.iconHelper.getRouteType(stop.route_type)
                 let markericon = this.myIcons[stop.route_type.toString()]
                 if (icon === 'bus') {
                   const stopSplit = stop.stop_name.split('Stop')

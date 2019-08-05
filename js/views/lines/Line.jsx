@@ -14,10 +14,7 @@ import Layer from '../maps/Layer.jsx'
 import LineData from '../../data/LineData.js'
 import LineStops from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
-
-import IconHelper from '../../helpers/icon.js'
-
-const iconHelper = new IconHelper()
+import IconHelper from '../../helpers/icons/index.js'
 
 const Icon = leaflet.icon
 const icons = new Map([
@@ -68,6 +65,8 @@ class Line extends React.Component {
   pointsLayer = new Layer()
 
   liveLayer = new Layer()
+
+  iconHelper = new IconHelper()
 
   state = {
     color: '#666',
@@ -213,7 +212,7 @@ class Line extends React.Component {
       await this.dataResolved
       const { lineMetadata } = this.state
       const icon = icons.get(
-        iconHelper.getRouteType(lineMetadata[0].route_type)
+        this.iconHelper.getRouteType(lineMetadata[0].route_type)
       )
       this.liveLayer.add('geojson', busPositions, {
         icon,
