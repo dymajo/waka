@@ -17,7 +17,8 @@
     // Import non-ES modules as default imports.
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "plugins": [{ "transform": "ts-optchain/transform" }]
   },
   "include": ["./src/waka-*/**/*", "*.d.ts"]
 }

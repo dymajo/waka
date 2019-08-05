@@ -92,7 +92,8 @@
     "redis": "^2.8.0",
     "rimraf": "^2.6.3",
     "source-map-support": "^0.5.13",
-    "stream-transform": "^2.0.1"
+    "stream-transform": "^2.0.1",
+    "ts-optchain": "^0.1.8"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",

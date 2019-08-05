@@ -1,6 +1,6 @@
 import { Response } from 'express'
 import { VarChar } from 'mssql'
-
+import { oc } from 'ts-optchain'
 import Connection from '../../db/connection'
 import { WakaRequest, Logger, RedisConfig } from '../../../typings'
 
@@ -160,18 +160,66 @@ class RealtimeAUSYD extends BaseRealtime {
       })
 
       // now we return the structued data finally
-      const result = trips.map(vehicle => {
-        // console.log(tripIdsMap[vehicle.trip.tripId])
+      const result = vehiclePostions
+        .filter(vp => vp)
+        .map(vehiclePosition => {
+          console.log(vehiclePosition)
+          const latitude = oc(vehiclePosition).position.latitude()
+          const longitude = oc(vehiclePosition).position.longitude()
+          const bearing = oc(vehiclePosition).position.bearing()
+          const speed = oc(vehiclePosition).position.speed()
+          const stopId = oc(vehiclePosition).stopId()
+          const currentStopSequence = oc(vehiclePosition).currentStopSequence()
+          const congestionLevel = oc(vehiclePosition).congestionLevel()
+          const tripId = oc(vehiclePosition).trip.tripId()
+          const label = oc(vehiclePosition).vehicle.label()
+          const airConditioned = oc(vehiclePosition).vehicle[
+            '.transit_realtime.tfnswVehicleDescriptor'
+          ].airConditioned()
+          const performingPriorTrip = oc(vehiclePosition).vehicle[
+            '.transit_realtime.tfnswVehicleDescriptor'
+          ].performingPriorTrip()
+          const specialVehicleAttributes = oc(vehiclePosition).vehicle[
+            '.transit_realtime.tfnswVehicleDescriptor'
+          ].specialVehicleAttributes()
+          const vehicleModel = oc(vehiclePosition).vehicle[
+            '.transit_realtime.tfnswVehicleDescriptor'
+          ].vehicleModel()
+          const wheelChairAccessible = oc(vehiclePosition).vehicle[
+            '.transit_realtime.tfnswVehicleDescriptor'
+          ].wheelChairAccessible()
+          const split = tripId.split('.')
+          const [
+            run,
+            timetableId,
+            timetableVersion,
+            dopRef,
+            type,
+            cars,
+            instance,
+          ] = split.length === 7 ? split : new Array(7)
         return {
-          latitude: vehicle.position.latitude,
-          longitude: vehicle.position.longitude,
-          bearing: vehicle.position.bearing,
+            latitude,
+            longitude,
+            bearing,
+            speed,
           // direction: tripIdsMap[vehicle.trip.tripId].direction_id,
-          stopId: vehicle.stopId,
-          congestionLevel: vehicle.congestionLevel,
+            stopId,
+            congestionLevel,
+            currentStopSequence,
           updatedAt: this.lastVehicleUpdate,
-          trip_id: vehicle.trip.tripId,
-          label: vehicle.vehicle.label,
+            trip_id: tripId,
+            label,
+            extraInfo: {
+              airConditioned,
+              performingPriorTrip,
+              specialVehicleAttributes,
+              vehicleModel,
+              wheelChairAccessible,
+              cars,
+              type,
+              run,
+            },
         }
       })
       return res.send(result)
