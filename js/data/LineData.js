@@ -74,7 +74,7 @@ class LineData {
     }
   }
 
-  async getTimetable() {
+  async getTimetable(offset) {
     if (this.stop_id === null) {
       throw new Error('Requires stop_id to be set')
     }
@@ -86,7 +86,8 @@ class LineData {
         this.stop_id,
         'timetable',
         this.route_short_name,
-        `${this.direction_id}?agency_id=${this.agency_id}`,
+        this.direction_id,
+        `${offset}?agency_id=${this.agency_id}`,
       ].join('/')
     )
     const data = await res.json()

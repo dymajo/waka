@@ -15,6 +15,7 @@ import LineData from '../../data/LineData.js'
 import LineStops from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icons/index.js'
+import { getTime } from '../../helpers/date.js'
 
 const Icon = leaflet.icon
 const icons = new Map([
@@ -53,6 +54,16 @@ const icons = new Map([
   ],
 ])
 
+const formatDate = dateString => {
+  const date = new Date(dateString)
+  const humanTime = getTime(date, false, true)
+
+  // make this nicer
+  return `${humanTime.text || ''}${humanTime.subtext || ''}${
+    humanTime.minutes ? `${humanTime.minutes}mins` : ''
+  }`
+}
+
 let styles = null
 
 class Line extends React.Component {
@@ -72,6 +83,7 @@ class Line extends React.Component {
     color: '#666',
     stops: [],
     lineMetadata: [],
+    timetable: [],
     loading: true,
   }
 
@@ -178,8 +190,12 @@ class Line extends React.Component {
 
   getTimetable = async () => {
     try {
-      const timetableData = await this.lineData.getTimetable()
-      console.log('timetable data', timetableData)
+      const timetableData = await this.lineData.getTimetable(1)
+      // console.log('timetable data', timetableData)
+
+      this.setState({
+        timetable: timetableData,
+      })
     } catch (err) {
       // cannot get timetable, usually because the stop_id is undefined
     }
@@ -234,6 +250,7 @@ class Line extends React.Component {
       lineMetadata,
       loading,
       stops,
+      timetable,
     } = this.state
 
     const currentLine =
@@ -268,7 +285,30 @@ class Line extends React.Component {
       )
     }
 
-    const inner = loading ? (
+    // TODO: Realtime
+    const tolerance = 1000 * 60 * 2
+    const now = new Date(new Date().getTime() - tolerance)
+    const timetableElement =
+      timetable.length > 0 ? (
+        <View>
+          <Text style={styles.direction}>Departures</Text>
+          <View style={styles.departures}>
+            {timetable
+              .filter(service => now < new Date(service.departure_time))
+              .sort(
+                (a, b) =>
+                  new Date(a.departure_time) > new Date(b.departure_time)
+              )
+              .map(service => (
+                <View key={service.trip_id} style={styles.departure}>
+                  <Text>{formatDate(service.departure_time)}</Text>
+                  <Text>Scheduled</Text>
+                </View>
+              ))}
+          </View>
+        </View>
+      ) : null
+    const lineStops = loading ? (
       <div className="spinner" />
     ) : (
       <React.Fragment>
@@ -288,7 +328,10 @@ class Line extends React.Component {
           title={match.params.route_short_name}
           subtitle={currentLine.route_long_name || ''}
         />
-        <LinkedScroll>{inner}</LinkedScroll>
+        <LinkedScroll>
+          {timetableElement}
+          {lineStops}
+        </LinkedScroll>
       </View>
     )
   }
@@ -297,6 +340,14 @@ class Line extends React.Component {
 styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+  },
+  departures: {
+    flexDirection: 'row',
+    overflowX: 'scroll',
+  },
+  departure: {
+    background: '#fff',
+    width: '33%',
   },
   direction: {
     paddingTop: vars.padding,
