@@ -25,6 +25,7 @@ export default abstract class BaseLines {
       agencyId: string
       routeLongName: string
       routeShortName: string
+      directionId?: number
     }[]
   }[]
   lineOperators: { [routeShortName: string]: string }

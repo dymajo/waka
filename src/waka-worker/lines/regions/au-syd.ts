@@ -26,24 +26,25 @@ class LinesAUSYD extends BaseLines {
         routeLongName: string
         agencyId: string
         routeColor: string
+        directionId: number
       }[]
     }[] = [
-        { name: 'T1 North Shore & Western', items: [] },
-        { name: 'T2 Inner West & Leppington', items: [] },
-        { name: 'T3 Bankstown', items: [] },
-        { name: 'T4 Eastern Suburbs & Illawarra', items: [] },
-        { name: 'T5 Cumberland', items: [] },
-        { name: 'T6 Carlingford', items: [] },
-        { name: 'T7 Olympic Park', items: [] },
-        { name: 'T8 Airport & South', items: [] },
-        { name: 'T9 Northern', items: [] },
-        { name: 'Blue Mountains', items: [] },
-        { name: 'Central Coast & Newcastle', items: [] },
-        { name: 'Hunter', items: [] },
-        { name: 'South Coast', items: [] },
-        { name: 'Southern Highlands', items: [] },
-        { name: 'Other', items: [] },
-      ]
+      { name: 'T1 North Shore & Western', items: [] },
+      { name: 'T2 Inner West & Leppington', items: [] },
+      { name: 'T3 Bankstown', items: [] },
+      { name: 'T4 Eastern Suburbs & Illawarra', items: [] },
+      { name: 'T5 Cumberland', items: [] },
+      { name: 'T6 Carlingford', items: [] },
+      { name: 'T7 Olympic Park', items: [] },
+      { name: 'T8 Airport & South', items: [] },
+      { name: 'T9 Northern', items: [] },
+      { name: 'Blue Mountains', items: [] },
+      { name: 'Central Coast & Newcastle', items: [] },
+      { name: 'Hunter', items: [] },
+      { name: 'South Coast', items: [] },
+      { name: 'Southern Highlands', items: [] },
+      { name: 'Other Trains', items: [] },
+    ]
     const lineGroups: {
       name: string
       items: {
@@ -54,11 +55,12 @@ class LinesAUSYD extends BaseLines {
         routeColor: string
       }[]
     }[] = [
-        { name: 'Ferries', items: [] },
-        { name: 'Light Rail', items: [] },
-        { name: 'NSW TrainLink', items: [] },
-        { name: 'Other', items: [] },
-      ]
+      { name: 'Metro', items: [] },
+      { name: 'Ferries', items: [] },
+      { name: 'Light Rail', items: [] },
+      { name: 'NSW TrainLink', items: [] },
+      { name: 'Other', items: [] },
+    ]
     const busLineGroups: {
       name: string
       items: {
@@ -69,30 +71,30 @@ class LinesAUSYD extends BaseLines {
         routeColor: string
       }[]
     }[] = [
-        { name: '100 series - Northern Beaches', items: [] },
-        { name: '200 series - Northern Districts and North Shore', items: [] },
-        { name: '300 series - East', items: [] },
-        { name: '400 series - Inner West and South', items: [] },
-        { name: '500 series - North West', items: [] },
-        { name: '600 series - West and Hills District', items: [] },
-        { name: '700 series - Outer West and Hills District', items: [] },
-        { name: '800 series - Outer South-West', items: [] },
-        { name: '900 series - St George/Sutherland and South West', items: [] },
-        { name: 'Bus Rapid Transit', items: [] },
-        { name: 'Metrobus', items: [] },
-        { name: 'Express Buses', items: [] },
-        { name: 'Limited Stop Buses', items: [] },
-        { name: 'Shopper Buses', items: [] },
-        { name: 'Night Buses', items: [] },
-        { name: 'Other Sydney Buses', items: [] },
-        { name: 'Blue Mountains Buses', items: [] },
-        { name: 'Central Coast Buses', items: [] },
-        { name: 'Hunter Buses', items: [] },
-        { name: 'Illawarra Buses', items: [] },
-        { name: 'Other Buses', items: [] },
-      ]
-    const result = await dataAccess.getRoutes()
-    result.recordset.forEach(record => {
+      { name: '100 series - Northern Beaches', items: [] },
+      { name: '200 series - Northern Districts and North Shore', items: [] },
+      { name: '300 series - East', items: [] },
+      { name: '400 series - Inner West and South', items: [] },
+      { name: '500 series - North West', items: [] },
+      { name: '600 series - West and Hills District', items: [] },
+      { name: '700 series - Outer West and Hills District', items: [] },
+      { name: '800 series - Outer South-West', items: [] },
+      { name: '900 series - St George/Sutherland and South West', items: [] },
+      { name: 'Bus Rapid Transit', items: [] },
+      { name: 'Metrobus', items: [] },
+      { name: 'Express Buses', items: [] },
+      { name: 'Limited Stop Buses', items: [] },
+      { name: 'Shopper Buses', items: [] },
+      { name: 'Night Buses', items: [] },
+      { name: 'Other Sydney Buses', items: [] },
+      { name: 'Blue Mountains Buses', items: [] },
+      { name: 'Central Coast Buses', items: [] },
+      { name: 'Hunter Buses', items: [] },
+      { name: 'Illawarra Buses', items: [] },
+      { name: 'Other Buses', items: [] },
+    ]
+    const notrains = await dataAccess.getRoutes(true)
+    notrains.recordset.forEach(record => {
       lineOperators[record.route_short_name] = record.agency_id
       const splitName = record.route_long_name
         .replace(/^\d+\W+/, '')
@@ -119,149 +121,11 @@ class LinesAUSYD extends BaseLines {
         allLines[routeShortName].push(lineEntry)
       } else {
         allLines[routeShortName] = [lineEntry]
-        this.lineColors[routeShortName] = `#${routeColor}`
+        this.lineColors[routeShortName] = routeColor
       }
-      const [
-        T1,
-        T2,
-        T3,
-        T4,
-        T5,
-        T6,
-        T7,
-        T8,
-        T9,
-        BMT,
-        CCN,
-        HUN,
-        SCO,
-        SHL,
-        OTHTR,
-      ] = trainLineGroups
-      const [FER, LRT, NTL, OTH] = lineGroups
-      if (routeType === 2) {
-        if (routeShortName === 'T1') {
-          T1.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T2') {
-          T2.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T3') {
-          T3.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T4') {
-          T4.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T5') {
-          T5.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T6') {
-          T6.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T7') {
-          T7.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T8') {
-          T8.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'T9') {
-          T9.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'BMT') {
-          BMT.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'CCN') {
-          CCN.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'HUN') {
-          HUN.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'SCO') {
-          SCO.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else if (routeShortName === 'SHL') {
-          SHL.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        } else {
-          OTHTR.items.push({
-            routeColor,
-            routeId,
-            routeShortName,
-            routeLongName,
-            agencyId,
-          })
-        }
-      } else if (routeType === 700) {
+      const [MET, FER, LRT, NTL, OTH] = lineGroups
+
+      if (routeType === 700) {
         const isNumber = Number(routeShortName)
         const numRSN = parseInt(routeShortName.replace(/\D/g, ''), 10)
         const letterRSN = routeShortName.replace(/\d/g, '')
@@ -480,6 +344,14 @@ class LinesAUSYD extends BaseLines {
           routeLongName,
           agencyId,
         })
+      } else if (routeType === 401) {
+        MET.items.push({
+          routeColor,
+          routeId,
+          routeLongName,
+          routeShortName,
+          agencyId,
+        })
       } else {
         OTH.items.push({
           routeColor,
@@ -489,7 +361,6 @@ class LinesAUSYD extends BaseLines {
           agencyId,
         })
       }
-
       const numericLine = parseInt(routeShortName, 10)
 
       // lineGroups.forEach(group => {
@@ -503,6 +374,193 @@ class LinesAUSYD extends BaseLines {
       //     return parsedA - parsedB
       //   })
       // })
+    })
+    const trains = await dataAccess.getTrainRoutes()
+    trains.recordset.forEach(record => {
+      lineOperators[record.route_short_name] = record.agency_id
+      const splitName = record.route_long_name
+        .replace(/^\d+\W+/, '')
+        .split(' - ')
+      const viaSplit = (splitName[1] || '').split('via')
+      const lineEntry = [splitName[0]]
+      if (viaSplit.length > 1) {
+        lineEntry.push(viaSplit[0])
+        lineEntry.push(viaSplit[1])
+      } else if (splitName.length === 2) {
+        lineEntry.push(splitName[1])
+      }
+      const {
+        route_type: routeType,
+        route_short_name: routeShortName,
+        route_desc: routeDesc,
+        route_id: routeId,
+        route_long_name: routeLongName,
+        agency_id: agencyId,
+        direction_id: directionId,
+      } = record
+
+      const routeColor = `#${record.route_color}`
+      if (Object.prototype.hasOwnProperty.call(allLines, routeShortName)) {
+        allLines[routeShortName].push(lineEntry)
+      } else {
+        allLines[routeShortName] = [lineEntry]
+        this.lineColors[routeShortName] = routeColor
+      }
+      const [
+        T1,
+        T2,
+        T3,
+        T4,
+        T5,
+        T6,
+        T7,
+        T8,
+        T9,
+        BMT,
+        CCN,
+        HUN,
+        SCO,
+        SHL,
+        OTHTR,
+      ] = trainLineGroups
+      if (routeType === 2) {
+        if (routeShortName === 'T1') {
+          T1.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T2') {
+          T2.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T3') {
+          T3.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T4') {
+          T4.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T5') {
+          T5.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T6') {
+          T6.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T7') {
+          T7.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T8') {
+          T8.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'T9') {
+          T9.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'BMT') {
+          BMT.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'CCN') {
+          CCN.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'HUN') {
+          HUN.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'SCO') {
+          SCO.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else if (routeShortName === 'SHL') {
+          SHL.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        } else {
+          OTHTR.items.push({
+            routeColor,
+            routeId,
+            routeShortName,
+            routeLongName,
+            agencyId,
+            directionId,
+          })
+        }
+      }
     })
     this.allLines = allLines
     this.lineOperators = lineOperators
