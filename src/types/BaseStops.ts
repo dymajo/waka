@@ -1,12 +1,12 @@
-import { Logger } from '../typings'
+import { Logger, AklTimes } from '../typings'
 
 export interface BaseStopsProps {
-  logger?: Logger
+  logger: Logger
   apiKey?: string
 }
 
 export default abstract class BaseStops {
-  logger?: Logger
+  logger: Logger
   apiKey?: string
   constructor(props: BaseStopsProps) {
     this.logger = props.logger
@@ -57,5 +57,5 @@ export default abstract class BaseStops {
       maxSpaces: number
     }[]
   >
-  getTimes?: (code: string) => AklTimes
+  getTimes?: (code: string) => AklTimes | null
 }

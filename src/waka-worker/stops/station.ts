@@ -1,9 +1,10 @@
 import moment from 'moment-timezone'
 import { Response } from 'express'
 import * as Logger from 'bunyan'
+import { oc } from 'ts-optchain'
 import StopsDataAccess from './dataAccess'
 import Connection from '../db/connection'
-import { WakaRequest, DBStopTime } from '../../typings'
+import { WakaRequest, DBStopTime, WakaTripUpdate } from '../../typings'
 import Lines from '../lines'
 import BaseStops from '../../types/BaseStops'
 import WakaRedis from '../../waka-realtime/Redis'
@@ -23,16 +24,16 @@ interface StationProps {
     train: boolean
   ):
     | Promise<{
-        [tripId: string]: WakaTripUpdate
-      }>
+      [tripId: string]: WakaTripUpdate
+    }>
     | undefined
-    }
+}
 
 class Station {
   logger: Logger
   connection: Connection
   prefix: string
-  regionSpecific: BaseStops
+  regionSpecific?: BaseStops
   lines: Lines
   redis: WakaRedis
   realtimeTimes: (
@@ -41,8 +42,8 @@ class Station {
     train: boolean
   ) =>
     | Promise<{
-        [tripId: string]: WakaTripUpdate
-      }>
+      [tripId: string]: WakaTripUpdate
+    }>
     | undefined
   dataAccess: StopsDataAccess
   version: string
@@ -149,8 +150,13 @@ class Station {
     }
 
     let stopCode = req.params.station.trim()
-    let override = false
-    if (prefix === 'nz-wlg' && regionSpecific.badStops.indexOf(stopCode) > -1) {
+    let override = ''
+    if (
+      prefix === 'nz-wlg' &&
+      oc(regionSpecific)
+        .badStops([])
+        .indexOf(stopCode) > -1
+    ) {
       override = stopCode
       stopCode = `${stopCode}1`
     }
@@ -167,7 +173,10 @@ class Station {
       // TODO: make this more generic
       if (prefix === 'nz-akl') {
         try {
-          data = await regionSpecific.getSingle(stopCode)
+          const getSingle = oc(regionSpecific).getSingle()
+          if (getSingle) {
+            data = await getSingle(stopCode)
+          }
         } catch (err) {
           // couldn't get any carpark
         }
@@ -263,9 +272,12 @@ class Station {
 
     // carparks
     if (prefix === 'nz-akl') {
-      const data = regionSpecific.getTimes(station)
-      if (data !== null) {
-        return res.send(data)
+      const getTimes = oc(regionSpecific).getTimes()
+      if (getTimes) {
+        const data = getTimes(station)
+        if (data !== null) {
+          return res.send(data)
+        }
       }
     }
 
@@ -368,6 +380,7 @@ class Station {
         trip_id: r.trip_id,
         pickup_type: r.pickup_type,
         drop_off_type: r.drop_off_type,
+        shape_id: r.shape_id,
       }
       return record
     })
@@ -406,8 +419,7 @@ class Station {
         logger.error({ err, station }, 'Could not get all routes for station.')
       }
     }
-    res.send(sending)
-    return sending
+    return res.send(sending)
   }
 
   /**

@@ -1,4 +1,5 @@
 import fetch from 'node-fetch'
+import { oc } from 'ts-optchain'
 import { AklTimes } from '../../../typings'
 import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
@@ -98,8 +99,6 @@ class StopsNZAKL extends BaseStops {
   }
   constructor(props: BaseStopsProps) {
     super(props)
-
-    this.interval = null
 
     this.carparks = {
       'downtown-carpark': {
@@ -233,20 +232,24 @@ class StopsNZAKL extends BaseStops {
       }
       obj = Object.assign(obj, carpark)
       obj = Object.assign(obj, additionalData[code])
-      const percent = Math.round((obj.availableSpaces / obj.maxSpaces) * 100)
-      if (obj.availableSpaces === 0) {
+      const availableSpaces = oc(obj).availableSpaces()
+      const maxSpaces = oc(obj).maxSpaces()
+      if (availableSpaces && maxSpaces) {
+        const percent = Math.round((availableSpaces / maxSpaces) * 100)
+        if (obj.availableSpaces === 0) {
+          return obj
+        }
+        let emoji = '.'
+        if (percent > 80) {
+          emoji = ' 😭'
+        } else if (percent > 65) {
+          emoji = ' 😢'
+        } else if (percent > 50) {
+          emoji = ' 🙁'
+        }
+        obj.html += `<div class="error" style="padding: 10px 0 5px;"><p>This carpark is ${percent}% empty${emoji}</p></div>`
         return obj
       }
-      let emoji = '.'
-      if (percent > 80) {
-        emoji = ' 😭'
-      } else if (percent > 65) {
-        emoji = ' 😢'
-      } else if (percent > 50) {
-        emoji = ' 🙁'
-      }
-      obj.html += `<div class="error" style="padding: 10px 0 5px;"><p>This carpark is ${percent}% empty${emoji}</p></div>`
-      return obj
     }
     return null
   }

@@ -1,8 +1,8 @@
 import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
 class StopsNZWLG extends BaseStops {
-  constructor() {
-    super({})
+  constructor(props: BaseStopsProps) {
+    super(props)
     this.badStops = [
       'WATE',
       'WOBU',
@@ -21,9 +21,9 @@ class StopsNZWLG extends BaseStops {
     ]
   }
 
-  start = () => { }
+  start = () => {}
 
-  stop = () => { }
+  stop = () => {}
 
   extraSources = () => {
     return Promise.resolve([])
@@ -35,6 +35,7 @@ class StopsNZWLG extends BaseStops {
       .filter(item => {
         if (
           mode !== 'keep' &&
+          badStops &&
           badStops.indexOf(item.stop_id.slice(0, -1)) !== -1 &&
           (item.stop_id.slice(-1) === '2' ||
             (mode === 'delete' && item.stop_id.slice(-1) === '1'))
@@ -45,7 +46,7 @@ class StopsNZWLG extends BaseStops {
       })
       .map(i => {
         const item = i
-        if (badStops.indexOf(item.stop_id.slice(0, -1)) !== -1) {
+        if (badStops && badStops.indexOf(item.stop_id.slice(0, -1)) !== -1) {
           item.stop_id = item.stop_id.slice(0, -1)
         }
         return item
