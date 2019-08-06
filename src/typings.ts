@@ -1,6 +1,7 @@
 import * as Logger from 'bunyan'
 import { Request } from 'express'
 import { config as SqlConfig } from 'mssql'
+import { CongestionLevel } from './gtfs'
 
 export interface WakaConfig {
   port: number
@@ -13,7 +14,7 @@ export interface WakaConfig {
   requestTimeout: number
   transactionLimit: number
   api: {
-    [api: string]: string
+    [api: string]: string | null
   }
   db: {
     [dbConfig: string]: DBConfig
@@ -296,6 +297,33 @@ export interface MetlinkUpdate {
   }
 }
 
+export interface WakaVehicleInfo {
+  latitude: number
+  longitude: number
+  bearing?: number
+  speed?: number
+  direction: number
+  stop_id?: string
+  congestion_level?: CongestionLevel
+  current_stop_sequence?: number
+  updated_at?: Date
+  trip_id: string
+  label?: string
+  extraInfo?: {}
+}
+
+export interface WakaVehiclePosition {
+  v_id?: string
+  latitude: number
+  longitude: number
+}
+
+export interface WakaTripUpdate {
+  timestamp?: number
+  delay?: number
+  stop_sequence?: number
+}
+
 export interface DBStopTime {
   // stop times
   arrival_time: Date
@@ -338,5 +366,20 @@ declare const process: {
     KEYVALUE_PREFIX: string
     KEYVALUE_REGION: string
     STORAGE_SERVICE: 'aws' | 'local'
+    PREFIX: string
+    VERSION: string
+    SHAPES_CONTAINER: string
+    SHAPES_REGION: string
+    EMULATED_STORAGE: string
+    DB_USER: string
+    DB_PASSWORD: string
+    DB_SERVER: string
+    DB_DATABASE: string
+    DB_TRANSACTION_LIMIT: string
+    DB_CONNECTION_TIMEOUT: string
+    DB_REQUEST_TIMEOUT: string
+    AT_API_KEY: string
+    AGENDA21_API_KEY: string
+    TFNSW_API_KEY: string
   }
 }
