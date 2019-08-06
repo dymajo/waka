@@ -21,7 +21,7 @@
     "semi": "off",
     "indent": "off",
     "linebreak-style": ["error", "unix"],
-    "quotes": ["error", "single"],
+    "quotes": "off",
     "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
     "no-return-assign": 0,
     "global-require": "off",
