@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import * as morgan from 'morgan'
 import createLogger from './logger'
-import cityMetadata from '../cityMetadata.json'
+import cityMetadataJSON from '../cityMetadata.json'
 import Connection from './db/connection'
 import Lines from './lines'
 import Search from './stops/search'
@@ -28,8 +28,18 @@ class WakaWorker {
     lat: { min: number; max: number }
     lon: { min: number; max: number }
   }
+  cityMetadata: {
+    [prefix: string]: {
+      name: string
+      secondaryName: string
+      longName: string
+      initialLocation: number[]
+      showInCityList: boolean
+    }
+  }
 
   constructor(config: WorkerConfig) {
+    this.cityMetadata = cityMetadataJSON
     const {
       prefix,
       version,
@@ -62,11 +72,10 @@ class WakaWorker {
       wakaRedis: this.redis,
     })
 
-    this.stopsExtras = null
     if (prefix === 'nz-akl') {
       this.stopsExtras = new StopsNZAKL({ logger, apiKey: api['agenda-21'] })
     } else if (prefix === 'nz-wlg') {
-      this.stopsExtras = new StopsNZWLG()
+      this.stopsExtras = new StopsNZWLG({ logger })
     }
     const { stopsExtras } = this
 
@@ -122,14 +131,14 @@ class WakaWorker {
   }
 
   signature = () => {
-    const { bounds, config } = this
+    const { bounds, config, cityMetadata } = this
     const { prefix, version } = config
 
     // the region may have multiple cities
-    let city = cityMetadata[prefix]
-    if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
-      city = city[prefix]
-    }
+    const city = cityMetadata[prefix]
+    // if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
+    //   city = city[prefix]
+    // }
     const { name, secondaryName, longName } = city
     return { prefix, version, bounds, name, secondaryName, longName }
   }

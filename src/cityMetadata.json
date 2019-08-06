@@ -3,18 +3,22 @@
     "name": "Canberra",
     "secondaryName": "ACT",
     "longName": "Canberra, ACT",
-    "initialLocation": [-35.293056, 149.126944],
-    "showInCityList": true,
-    "bounds": {
-      "lat": {
-        "min": -35.476552,
-        "max": -35.148476
-      },
-      "lon": {
-        "min": 149.002975,
-        "max": 149.190288
-      }
-    }
+    "initialLocation": [-35.277585, 149.12905],
+    "showInCityList": true
+  },
+  "au-per": {
+    "name": "Perth",
+    "secondaryName": "WA",
+    "longName": "Perth, WA",
+    "initialLocation": [-31.951493, 115.860448],
+    "showInCityList": true
+  },
+  "au-seq": {
+    "name": "Brisbane",
+    "secondaryName": "QLD",
+    "longName": "Brisbane, QLD",
+    "initialLocation": [-27.4659, 153.0261],
+    "showInCityList": true
   },
   "au-syd": {
     "name": "Sydney",
@@ -37,13 +41,6 @@
     "initialLocation": [-43.534658, 172.637573],
     "showInCityList": true
   },
-  "nz-otg": {
-    "name": "Otago",
-    "secondaryName": "Otago Region",
-    "longName": "Otago Region",
-    "initialLocation": [-45.873097, 170.505368],
-    "showInCityList": false
-  },
   "nz-dud": {
     "name": "Ōtepoti",
     "secondaryName": "Dunedin",
@@ -51,18 +48,25 @@
     "initialLocation": [-45.873097, 170.505368],
     "showInCityList": true
   },
-  "nz-zqn": {
-    "name": "Tāhuna",
-    "secondaryName": "Queenstown",
-    "longName": "Tāhuna, Queenstown",
-    "initialLocation": [-45.031825, 168.661642],
-    "showInCityList": true
+  "nz-otg": {
+    "name": "Otago",
+    "secondaryName": "Otago Region",
+    "longName": "Otago Region",
+    "initialLocation": [-45.873097, 170.505368],
+    "showInCityList": false
   },
   "nz-wlg": {
     "name": "Te Whanganui-a-Tara",
     "secondaryName": "Wellington",
     "longName": "Te Whanganui-a-Tara, Wellington",
     "initialLocation": [-41.278366, 174.779359],
+    "showInCityList": true
+  },
+  "nz-zqn": {
+    "name": "Tāhuna",
+    "secondaryName": "Queenstown",
+    "longName": "Tāhuna, Queenstown",
+    "initialLocation": [-45.031825, 168.661642],
     "showInCityList": true
   },
   "fr-par": {
@@ -76,13 +80,28 @@
     "name": "Berlin",
     "secondaryName": " Berlin-Brandenburg",
     "longName": " Berlin-Brandenburg",
-    "initialLocation": [52.516667, 13.388889]
+    "initialLocation": [52.516667, 13.388889],
+    "showInCityList": false
+  },
+  "us-bos": {
+    "name": "Boston",
+    "secondaryName": "Boston",
+    "longName": "Boston, MA",
+    "initialLocation": [42.351944, -71.055278],
+    "showInCityList": true
+  },
+  "us-chi": {
+    "name": "Chicago",
+    "secondaryName": "Chicago",
+    "longName": "Chicago, IL",
+    "initialLocation": [41.87864, -87.64025],
+    "showInCityList": true
   },
   "us-nyc": {
     "name": "NYC",
     "secondaryName": "New York",
     "longName": "New York City, NY",
-    "initialLocation": [40.661, -73.944],
+    "initialLocation": [40.750638, -73.993899],
     "showInCityList": true
   }
 }
