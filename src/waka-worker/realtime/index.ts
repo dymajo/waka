@@ -79,12 +79,11 @@ class Realtime {
     }
   }
 
-  getCachedTrips = (trips: string[]) => {
+  getCachedTrips = (trips: string[], stop_id: string, train: boolean) => {
     const { fn } = this
     if (fn && fn.getTripsCached) {
-      return fn.getTripsCached(trips)
+      return fn.getTripsCached(trips, stop_id, train)
     }
-    return {}
   }
 
   /**

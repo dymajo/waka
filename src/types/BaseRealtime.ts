@@ -1,6 +1,13 @@
 import { Response } from 'express'
 import Connection from '../waka-worker/db/connection'
-import { WakaRequest, Logger } from '../typings'
+import {
+  WakaRequest,
+  Logger,
+  WakaVehicleInfo,
+  WakaVehiclePosition,
+  WakaTripUpdate,
+} from '../typings'
+import { TripUpdate, VehiclePosition } from '../gtfs'
 
 export default abstract class BaseRealtime {
   connection: Connection
@@ -29,18 +36,19 @@ export default abstract class BaseRealtime {
   }
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
-  getTripsCached?(
+  abstract getTripsCached(
+    trips: string[],
+    stop_id: string,
+    train: boolean
+  ): Promise<{
+    [tripId: string]: WakaTripUpdate
+  }>
+  abstract getVehiclePositionsCached(
     trips: string[]
-  ): {
-    [tripId: string]: {
-      stop_sequence: number
-      delay: number
-      timestamp: number
-      v_id: number
-      double_decker: boolean
-      ev: boolean
-    }
-  }
+  ): Promise<{
+    [tripId: string]: WakaVehiclePosition
+  }>
+  abstract getVehicleInfoCached(line: string): Promise<WakaVehicleInfo[]>
   getServiceAlertsEndpoint?(
     req: WakaRequest<
       { routeId?: string; stopId?: string; tripId?: string },

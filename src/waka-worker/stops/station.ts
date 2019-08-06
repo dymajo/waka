@@ -17,19 +17,16 @@ interface StationProps {
   lines: Lines
   redis: WakaRedis
   version: string
-  realtimeTimes: (
-    trips: string[]
-  ) => {
-    [tripId: string]: {
-      stop_sequence: number
-      delay: number
-      timestamp: number
-      v_id: number
-      double_decker: boolean
-      ev: boolean
+  realtimeTimes(
+    trips: string[],
+    stop_id: string,
+    train: boolean
+  ):
+    | Promise<{
+        [tripId: string]: WakaTripUpdate
+      }>
+    | undefined
     }
-  }
-}
 
 class Station {
   logger: Logger
@@ -39,17 +36,14 @@ class Station {
   lines: Lines
   redis: WakaRedis
   realtimeTimes: (
-    trips: string[]
-  ) => {
-    [tripId: string]: {
-      stop_sequence: number
-      delay: number
-      timestamp: number
-      v_id: number
-      double_decker: boolean
-      ev: boolean
-    }
-  }
+    trips: string[],
+    stop_id: string,
+    train: boolean
+  ) =>
+    | Promise<{
+        [tripId: string]: WakaTripUpdate
+      }>
+    | undefined
   dataAccess: StopsDataAccess
   version: string
   constructor(props: StationProps) {
@@ -377,8 +371,7 @@ class Station {
       }
       return record
     })
-
-    const realtime = realtimeTimes(realtimeTrips)
+    const realtime = await realtimeTimes(realtimeTrips, station, false)
 
     const sending: {
       provider: string
@@ -396,7 +389,7 @@ class Station {
         route_short_name: string
         agency_id: string
       }[]
-      realtime: { [tripId: string]: {} }
+      realtime?: { [tripId: string]: WakaTripUpdate }
       allRoutes?: any
     } = {
       provider: 'sql-server',
