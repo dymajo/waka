@@ -75,7 +75,7 @@ class VersionManager {
     gateway.start(prefix, gatewayConfig)
   }
 
-  async recycleGateway(prefix) {
+  async recycleGateway(prefix: string) {
     const { gateway } = this
     logger.info({ prefix }, 'Recycling Gateway')
     const _mapping = (await this.mappings.get(prefix)) as unknown

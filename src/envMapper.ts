@@ -55,7 +55,30 @@ class EnvMapper {
     return base
   }
 
-  fromEnvironmental(env: NodeJS.ProcessEnv) {
+  fromEnvironmental(env: {
+    PREFIX: string
+    VERSION: string
+    STORAGE_SERVICE: 'aws' | 'local'
+    SHAPES_CONTAINER: string
+    SHAPES_REGION: string
+    EMULATED_STORAGE: string
+    DB_USER: string
+    DB_PASSWORD: string
+    DB_SERVER: string
+    DB_DATABASE: string
+    DB_TRANSACTION_LIMIT: string
+    DB_CONNECTION_TIMEOUT: string
+    DB_REQUEST_TIMEOUT: string
+    AT_API_KEY: string
+    AGENDA21_API_KEY: string
+    TFNSW_API_KEY: string
+    REDIS_PORT: string
+    REDIS_HOST: string
+    REDIS_FAMILY: string
+    REDIS_PASSWORD: string
+    REDIS_DB: string
+    NEW_REALTIME: string
+  }) {
     const {
       PREFIX,
       VERSION,
@@ -73,6 +96,12 @@ class EnvMapper {
       AT_API_KEY,
       AGENDA21_API_KEY,
       TFNSW_API_KEY,
+      NEW_REALTIME,
+      REDIS_PORT,
+      REDIS_HOST,
+      REDIS_FAMILY,
+      REDIS_PASSWORD,
+      REDIS_DB,
     } = env
     return {
       prefix: PREFIX,
@@ -80,6 +109,14 @@ class EnvMapper {
       storageService: STORAGE_SERVICE,
       shapesContainer: SHAPES_CONTAINER,
       shapesRegion: SHAPES_REGION,
+      newRealtime: NEW_REALTIME === 'true',
+      redis: {
+        port: parseInt(REDIS_PORT, 10),
+        host: REDIS_HOST,
+        family: parseInt(REDIS_FAMILY, 10),
+        password: REDIS_PASSWORD,
+        db: REDIS_DB,
+      },
       db: {
         user: DB_USER,
         password: DB_PASSWORD,
