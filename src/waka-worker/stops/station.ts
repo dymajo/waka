@@ -24,8 +24,8 @@ interface StationProps {
     train: boolean
   ):
     | Promise<{
-      [tripId: string]: WakaTripUpdate
-    }>
+        [tripId: string]: WakaTripUpdate
+      }>
     | undefined
 }
 
@@ -42,8 +42,8 @@ class Station {
     train: boolean
   ) =>
     | Promise<{
-      [tripId: string]: WakaTripUpdate
-    }>
+        [tripId: string]: WakaTripUpdate
+      }>
     | undefined
   dataAccess: StopsDataAccess
   version: string
@@ -213,6 +213,12 @@ class Station {
    * @apiSuccess {String} trips.route_color Colour for the route
    * @apiSuccess {String} trips.route_icon Icon for the route (optional)
    * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
+   * @apiSuccess {Number} trips.arrival_time_seconds When the service is due to arrive at this station, in seconds.
+   * @apiSuccess {Date} trips.departure_time UTC date when the service is due to depart from this station.
+   * @apiSuccess {Date} trips.arrival_time UTC date when the service is due to arrive at this station.
+   * @apiSuccess {Number} trips.dwell Time between arrival and departure, in seconds.
+   * @apiSuccess {Number} trips.drop_off_type Indicates whether riders are dropped off at a stop as part of the normal schedule or whether a dropoff at the stop is unavailable.
+   * @apiSuccess {Number} trips.pickup_type Indicates whether riders are picked up at a stop as part of the normal schedule or whether a pickup at the stop isn't available.
    * @apiSuccess {Object[]} realtime Realtime Info, only provided for some services. If empty, call the realtime API.
    *
    * @apiSuccessExample Success-Response:
@@ -330,13 +336,13 @@ class Station {
       return res.status(500).send(err)
     }
 
-    const sendingTrips = trips.map(r => {
-      // now is 00:00 in region's local timezone
-      const now = moment().tz(timezone)
-      now.seconds(0)
-      now.hours(0)
-      now.minutes(0)
+    // now is 00:00 in region's local timezone
+    const now = moment().tz(timezone)
+    now.seconds(0)
+    now.hours(0)
+    now.minutes(0)
 
+    const sendingTrips = trips.map(r => {
       // fully formed arrival and departure times in region's local tz
       const arrivalTime = moment.unix(now.unix() + r.new_arrival_time)
       const departureTime = moment.unix(now.unix() + r.new_departure_time)
@@ -445,10 +451,13 @@ class Station {
    * @apiSuccess {String} trips.route_long_name Long service name - usually origin & destination. Sometimes "Eastern Line"
    * @apiSuccess {String} trips.agency_id Agency that operates this service
    * @apiSuccess {Number} trips.departure_time_seconds When the service is due to depart from this station, in seconds.
+   * @apiSuccess {Number} trips.arrival_time_seconds When the service is due to arrive at this station, in seconds.
+   * @apiSuccess {Date} trips.departure_time UTC time of when the service is due to depart from this station.
+   * @apiSuccess {Date} trips.arrival_time UTC time of when the service is due to arrive at this station.
    * @apiSuccess {String} trips.route_color Colour for the route
    * @apiSuccess {String} trips.route_icon Icon for the route (optional)
    * @apiSuccess {Number} trips.currentTime Server Time, in Seconds
-   * @apiSuccess {Number} trips.date Date of Trip
+   * @apiSuccess {Date} trips.date Date of the Trip, in local time
    *
    * @apiSuccessExample Success-Response:
    *    HTTP/1.1 200 OK
@@ -500,6 +509,12 @@ class Station {
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date() + dateOffset)
 
+    // now is 00:00 in region's local timezone
+    const now = moment(today).tz(timezone)
+    now.seconds(0)
+    now.hours(0)
+    now.minutes(0)
+
     // combines train stations platforms together
     const procedure = 'GetTimetable'
     let trips = []
@@ -518,13 +533,21 @@ class Station {
 
     const sending = trips.map(oldRecord => {
       const record = JSON.parse(JSON.stringify(oldRecord))
-      // const departure =
-      //   record.departure_time_seconds = moment(new Date().getTime() +
-      //     new Date(record.departure_time || record.arrival_time).getTime() / 1000
-      // if (record.departure_time_24 || record.arrival_time_24) {
-      //   record.arrival_time_seconds += 86400
-      // }
+      record.departure_time_seconds =
+        new Date(record.departure_time || record.arrival_time).getTime() / 1000
+      if (record.departure_time_24 || record.arrival_time_24) {
+        record.arrival_time_seconds += 86400
+      }
       record.arrival_time_seconds = record.departure_time_seconds
+
+      // fully formed arrival and departure times in region's local tz
+      record.arrival_time = moment.unix(
+        now.unix() + record.arrival_time_seconds
+      )
+      record.departure_time = moment.unix(
+        now.unix() + record.departure_time_seconds
+      )
+
       record.route_color = lines.getColor(record.agency_id, req.params.route)
       record.route_icon = lines.getIcon(record.agency_id, req.params.route)
       record.currentTime = currentTime.getTime() / 1000
@@ -535,7 +558,6 @@ class Station {
         record.trip_headsign = record.route_long_name
       }
 
-      delete record.departure_time
       delete record.departure_time_24
       return record
     })

@@ -384,10 +384,6 @@ class Lines {
       route_type: number
     }[] = []
     result.recordset.forEach(route => {
-      // checks to make it's the right route (the whole exception thing)
-      if (this.exceptionCheck(route) === false) {
-        return
-      }
       // make sure it's not already in the response
       if (
         typeof versions[route.route_long_name + (route.direction_id || '0')] ===
