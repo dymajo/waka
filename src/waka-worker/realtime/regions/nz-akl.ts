@@ -1,9 +1,15 @@
 import * as Logger from 'bunyan'
 import { Response } from 'express'
 import { VarChar } from 'mssql'
+import { oc } from 'ts-optchain'
 import doubleDeckers from './nz-akl-doubledecker.json'
 import Connection from '../../db/connection'
-import { WakaRequest, RedisConfig } from '../../../typings'
+import {
+  WakaRequest,
+  RedisConfig,
+  WakaVehiclePosition,
+  WakaTripUpdate,
+} from '../../../typings'
 import BaseRealtime from '../../../types/BaseRealtime'
 import WakaRedis from '../../../waka-realtime/Redis'
 import { TripUpdate } from '../../../gtfs'
@@ -30,6 +36,27 @@ class RealtimeNZAKL extends BaseRealtime {
     this.connection = connection
     this.logger = logger
     this.apiKey = apiKey
+  }
+  getVehiclePositionsCached = async (trips: string[]) => {
+    const vehicleInfo: {
+      [tripId: string]: { latitude: number; longitude: number }
+    } = {}
+    for (const tripId of trips) {
+      try {
+        const data = await this.wakaRedis.getVehiclePosition(tripId)
+        const latitude = oc(data).position.latitude()
+        const longitude = oc(data).position.longitude()
+        if (longitude && latitude) {
+          vehicleInfo[tripId] = {
+            latitude,
+            longitude,
+          }
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    return vehicleInfo
   }
 
   isSpecialVehicle = (vehicle: string) => {
@@ -61,103 +88,55 @@ class RealtimeNZAKL extends BaseRealtime {
     this.logger.info('Auckland Realtime stopped.')
   }
 
-  getTripsEndpoint = async (
-    req: WakaRequest<
-      { trips: string[]; train: boolean; stop_id: string },
-      null
-    >,
-    res: Response
-  ) => {
-    interface ExTripUpdate extends TripUpdate {
-      specialVehicle: { ev: boolean; dd: boolean }
-    }
-    interface TrainTripUpdate {
-      v_id: string
-      latitude: number
-      longitude: number
-    }
-    const { trips, train } = req.body
-    const realtimeInfo: {
-      [tripId: string]: ExTripUpdate | TrainTripUpdate
-    } = {}
-    if (train) {
-      for (const tripId of trips) {
-        try {
-          const data = await this.wakaRedis.getVehiclePosition(tripId)
-          if (data) {
-            realtimeInfo[data.trip.tripId] = {
-              v_id: data.vehicle.id,
-              latitude: data.position.latitude,
-              longitude: data.position.longitude,
-            }
-          }
-        } catch (err) {
-          console.log(err)
-        }
-      }
-    } else {
-      for (const tripId of trips) {
-        try {
-          const data = await this.wakaRedis.getTripUpdate(tripId)
-          if (data) {
-            realtimeInfo[tripId] = {
-              ...data,
-              specialVehicle: this.isSpecialVehicle(data.vehicle.id),
-            }
-          }
-        } catch (error) {
-          console.log(error)
-        }
-      }
-    }
-    return res.send(realtimeInfo)
-  }
-
-  getVehicleLocationEndpoint = async (
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ) => {
-    const { logger } = this
-    const { trips } = req.body
-    const vehicleInfo: {
-      [tripId: string]: { latitude: number; longitude: number }
-    } = {}
+  getTripsCached = async (trips: string[], stop_id: string) => {
+    const realtimeInfo: { [tripId: string]: WakaTripUpdate } = {}
     for (const tripId of trips) {
       try {
-        const data = await this.wakaRedis.getVehiclePosition(tripId)
-        if (data) {
-          vehicleInfo[tripId] = {
-            latitude: data.position.latitude,
-            longitude: data.position.longitude,
+        const data = await this.wakaRedis.getTripUpdate(tripId)
+        if (data !== undefined) {
+          const stopTimeUpdate = oc(data).stopTimeUpdate([])
+          if (stopTimeUpdate.length > 0) {
+            const targetStop = stopTimeUpdate.find(
+              stopUpdate => stopUpdate.stopId === stop_id
+            )
+            if (targetStop) {
+              const stop_sequence = oc(targetStop).stopSequence()
+              const delay = oc(targetStop).departure.delay()
+              const timestamp = oc(targetStop).departure.time()
+              const info: {
+                stop_sequence?: number
+                delay?: number
+                timestamp?: number
+              } = { stop_sequence, delay, timestamp }
+
+              realtimeInfo[tripId] = info
+            }
+
+            // return values:
+            // delay is added to the scheduled time to figure out the actual stop time
+            // timestamp is epoch scheduled time (according to the GTFS-R API)
+            // stop_sequence is the stop that the vechicle is currently at
           }
         }
-      } catch (err) {
-        console.log(err)
+      } catch (error) {
+        console.log(error)
       }
     }
-    return res.send(vehicleInfo)
+    return realtimeInfo
   }
 
-  getLocationsForLine = async (
-    req: WakaRequest<null, { line: string }>,
-    res: Response
-  ) => {
+  getVehicleInfoCached = async (line: string) => {
     const { logger, connection } = this
-    const { line } = req.params
-    // const keys = await this.wakaRedis.client.keys('*nz-akl:vehicle-position*')
-    // if (keys.length === 0) {
-    //   return res.send([])
-    // }
 
     try {
       const sqlRouteIdRequest = connection.get().request()
       sqlRouteIdRequest.input('route_short_name', VarChar(50), line)
       const routeIdResult = await sqlRouteIdRequest.query<{ route_id: string }>(
         `
-      SELECT route_id
-      FROM routes
-      WHERE route_short_name = @route_short_name or route_id = @route_short_name
-      `
+    SELECT route_id
+    FROM routes
+    WHERE route_short_name = @route_short_name or route_id = @route_short_name
+    `
       )
       const routeIds = routeIdResult.recordset.map(r => r.route_id)
       let tripIds: string[] = []
@@ -172,7 +151,7 @@ class RealtimeNZAKL extends BaseRealtime {
       const trips = await Promise.all(
         tripIds.map(tripId => this.wakaRedis.getVehiclePosition(tripId))
       )
-      const escapedTripIds = `'${tripIds.join('\', \'')}'`
+      const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
@@ -186,10 +165,10 @@ class RealtimeNZAKL extends BaseRealtime {
         trip_short_name: string
         wheelchair_accessible: number
       }>(`
-        SELECT *
-        FROM trips
-        WHERE trip_id IN (${escapedTripIds})
-      `)
+      SELECT *
+      FROM trips
+      WHERE trip_id IN (${escapedTripIds})
+    `)
       // console.log(tripIdRequest.recordset)
 
       const tripIdsMap: {
@@ -209,7 +188,6 @@ class RealtimeNZAKL extends BaseRealtime {
       tripIdRequest.recordset.forEach(record => {
         tripIdsMap[record.trip_id] = record
       })
-      debugger
       // now we return the structued data finally
       const result = trips.map(vehicle => {
         // console.log(vehicle)
@@ -227,10 +205,90 @@ class RealtimeNZAKL extends BaseRealtime {
           occupancyStatus: vehicle.occupancyStatus,
         }
       })
-      return res.send(result)
+      return result
     } catch (err) {
-      logger.error({ err }, 'Could not get locations from line.')
-      return res.status(500).send(err)
+      throw Error(err)
+    }
+  }
+
+  getTripsEndpoint = async (
+    req: WakaRequest<
+      { trips: string[]; train: boolean; stop_id: string },
+      null
+    >,
+    res: Response
+  ) => {
+    interface ExTripUpdate extends TripUpdate {
+      specialVehicle: { ev: boolean; dd: boolean }
+    }
+    const { trips, train } = req.body
+    const realtimeInfo: {
+      [tripId: string]: ExTripUpdate | WakaVehiclePosition
+    } = {}
+    if (train) {
+      for (const tripId of trips) {
+        try {
+          const data = await this.wakaRedis.getVehiclePosition(tripId)
+          if (data) {
+            const tripId = oc(data).trip.tripId('')
+            const vehicleId = oc(data).vehicle.id()
+            const latitude = oc(data).position.latitude(0)
+            const longitude = oc(data).position.longitude(0)
+            realtimeInfo[tripId] = {
+              v_id: vehicleId,
+              latitude,
+              longitude,
+            }
+          }
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    } else {
+      for (const tripId of trips) {
+        try {
+          const data = await this.wakaRedis.getTripUpdate(tripId)
+          const vehicleId = oc(data).vehicle.id()
+          if (data && vehicleId) {
+            realtimeInfo[tripId] = {
+              ...data,
+              specialVehicle: this.isSpecialVehicle(vehicleId),
+            }
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+    return res.send(realtimeInfo)
+  }
+
+  getVehicleLocationEndpoint = async (
+    req: WakaRequest<{ trips: string[] }, null>,
+    res: Response
+  ) => {
+    const { logger } = this
+    const { trips } = req.body
+    try {
+      const vehicleLocations = await this.getVehiclePositionsCached(trips)
+      return res.send(vehicleLocations)
+    } catch (error) {
+      return res.status(500).send(error)
+    }
+  }
+
+  getLocationsForLine = async (
+    req: WakaRequest<null, { line: string }>,
+    res: Response
+  ) => {
+    try {
+      const {
+        params: { line },
+      } = req
+      const lineinfo = await this.getVehicleInfoCached(line)
+      return res.send(lineinfo)
+    } catch (error) {
+      return res.status(500).send('Could not get locations from line.')
     }
   }
 }

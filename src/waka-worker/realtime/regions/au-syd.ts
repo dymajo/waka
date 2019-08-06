@@ -2,10 +2,14 @@ import { Response } from 'express'
 import { VarChar } from 'mssql'
 import { oc } from 'ts-optchain'
 import Connection from '../../db/connection'
-import { WakaRequest, Logger, RedisConfig } from '../../../typings'
+import {
+  WakaRequest,
+  Logger,
+  WakaTripUpdate,
+  WakaVehicleInfo,
+} from '../../../typings'
 
 import BaseRealtime from '../../../types/BaseRealtime'
-import { TripUpdate } from '../../../gtfs'
 import WakaRedis from '../../../waka-realtime/Redis'
 
 interface RealtimeAUSYDProps {
@@ -44,71 +48,91 @@ class RealtimeAUSYD extends BaseRealtime {
     this.logger.warn('Sydney Realtime Not Stopped! Not Implemented.')
   }
 
-  getTripsEndpoint = async (
-    req: WakaRequest<{ trips: string[]; stop_id: string }, null>,
-    res: Response
-  ) => {
-    const { trips, stop_id } = req.body
-    const realtimeInfo: { [tripId: string]: TripUpdate } = {}
+  getTripsCached = async (trips: string[], stop_id: string) => {
+    const realtimeInfo: { [tripId: string]: WakaTripUpdate } = {}
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getTripUpdate(tripId)
-        if (data) {
-          realtimeInfo[tripId] = data
+        if (data !== undefined) {
+          const stopTimeUpdate = oc(data).stopTimeUpdate([])
+          if (stopTimeUpdate.length > 0) {
+            const targetStop = stopTimeUpdate.find(
+              stopUpdate => stopUpdate.stopId === stop_id
+            )
+            if (targetStop) {
+              const stop_sequence = oc(targetStop).stopSequence()
+              const info = {}
+              Object.assign(
+                info,
+                { stop_sequence },
+                targetStop.departure && {
+                  delay: targetStop.departure.delay,
+                  timestamp: targetStop.departure.time || data.timestamp,
+                }
+              )
+
+              realtimeInfo[tripId] = info
+            }
+
+            // return values:
+            // delay is added to the scheduled time to figure out the actual stop time
+            // timestamp is epoch scheduled time (according to the GTFS-R API)
+            // stop_sequence is the stop that the vechicle is currently at
+          }
         }
       } catch (error) {
         console.log(error)
       }
     }
-    return res.send(realtimeInfo)
+    return realtimeInfo
   }
 
-  getVehicleLocationEndpoint = async (
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ) => {
-    const { logger } = this
-    const { trips } = req.body
+  getVehiclePositionsCached = async (trips: string[]) => {
     const vehicleInfo: {
       [tripId: string]: { latitude: number; longitude: number }
     } = {}
     for (const tripId of trips) {
-        try {
-          const data = await this.wakaRedis.getVehiclePosition(tripId)
+      try {
+        const data = await this.wakaRedis.getVehiclePosition(tripId)
+        const latitude = oc(data).position.latitude()
+        const longitude = oc(data).position.longitude()
+        if (longitude && latitude) {
           vehicleInfo[tripId] = {
-            latitude: data.position.latitude,
-            longitude: data.position.longitude,
+            latitude,
+            longitude,
           }
-        } catch (err) {
-          console.log(err)
         }
+      } catch (err) {
+        console.log(err)
       }
-    return res.send(vehicleInfo)
+    }
+    return vehicleInfo
   }
 
-  getLocationsForLine = async (
-    req: WakaRequest<null, { line: string }>,
-    res: Response
+  getVehicleInfoCached = async (
+    line: string,
+    route_id?: string,
+    agency_id?: string
   ) => {
     const { logger, connection } = this
-    const { line } = req.params
-
-    // const keys = await this.wakaRedis.client.keys('*au-syd:vehicle-position*')
-    // if (keys.length === 0) {
-    //   return res.send([])
-    // }
-
+    let routeIds
     try {
-      const sqlRouteIdRequest = connection.get().request()
-      sqlRouteIdRequest.input('route_short_name', VarChar(50), line)
-      const routeIdResult = await sqlRouteIdRequest.query<{ route_id: string }>(
-        `
-      SELECT route_id
-      FROM routes
-      WHERE route_short_name = @route_short_name or route_id = @route_short_name
-      `
-      )
-      const routeIds = routeIdResult.recordset.map(r => r.route_id)
+      if (!route_id) {
+        const sqlRouteIdRequest = connection.get().request()
+        sqlRouteIdRequest.input('route_short_name', VarChar(50), line)
+        const routeIdResult = await sqlRouteIdRequest.query<{
+          route_id: string
+        }>(
+          `
+          SELECT route_id
+          FROM routes
+          WHERE route_short_name = @route_short_name or route_id = @route_short_name
+          `
+        )
+        routeIds = routeIdResult.recordset.map(r => r.route_id)
+      } else {
+        routeIds = [route_id]
+      }
       let tripIds: string[] = []
       for (const routeId of routeIds) {
         const t = await this.wakaRedis.getArrayKey(
@@ -117,12 +141,21 @@ class RealtimeAUSYD extends BaseRealtime {
         )
         tripIds = [...tripIds, ...t]
       }
+      const escapedRouteIds = `'${routeIds.join("', '")}'`
 
-      const trips = await Promise.all(
+      if (tripIds.length === 0) {
+        const fallbackTripsRequest = connection.get().request()
+        const fallback = await fallbackTripsRequest.query<{ trip_id: string }>(`
+        select trip_id from trips trip where trip.route_id in (${escapedRouteIds})
+        `)
+        tripIds = [...fallback.recordset.map(line => line.trip_id)]
+      }
+      tripIds = [...new Set(tripIds)]
+      const vehiclePostions = await Promise.all(
         tripIds.map(tripId => this.wakaRedis.getVehiclePosition(tripId))
       )
-      const escapedTripIds = `'${tripIds.join("', '")}'`
       const sqlTripIdRequest = connection.get().request()
+      const escapedTripIds = `'${tripIds.join("', '")}'`
       const tripIdRequest = await sqlTripIdRequest.query<{
         trip_id: string
         direction_id: number
@@ -160,35 +193,38 @@ class RealtimeAUSYD extends BaseRealtime {
       })
 
       // now we return the structued data finally
-      const result = vehiclePostions
+      const result: WakaVehicleInfo[] = vehiclePostions
         .filter(vp => vp)
         .map(vehiclePosition => {
-          console.log(vehiclePosition)
-          const latitude = oc(vehiclePosition).position.latitude()
-          const longitude = oc(vehiclePosition).position.longitude()
+          const latitude = oc(vehiclePosition).position.latitude(0)
+          const longitude = oc(vehiclePosition).position.longitude(0)
           const bearing = oc(vehiclePosition).position.bearing()
           const speed = oc(vehiclePosition).position.speed()
-          const stopId = oc(vehiclePosition).stopId()
-          const currentStopSequence = oc(vehiclePosition).currentStopSequence()
-          const congestionLevel = oc(vehiclePosition).congestionLevel()
-          const tripId = oc(vehiclePosition).trip.tripId()
+          const stop_id = oc(vehiclePosition).stopId()
+          const current_stop_sequence = oc(
+            vehiclePosition
+          ).currentStopSequence()
+          const congestion_level = oc(vehiclePosition).congestionLevel()
+          const tripId = oc(vehiclePosition).trip.tripId('')
+          const directionId = oc(vehiclePosition).trip.directionId()
           const label = oc(vehiclePosition).vehicle.label()
-          const airConditioned = oc(vehiclePosition).vehicle[
+          const air_conditioned = oc(vehiclePosition).vehicle[
             '.transit_realtime.tfnswVehicleDescriptor'
           ].airConditioned()
-          const performingPriorTrip = oc(vehiclePosition).vehicle[
+          const performing_prior_trip = oc(vehiclePosition).vehicle[
             '.transit_realtime.tfnswVehicleDescriptor'
           ].performingPriorTrip()
-          const specialVehicleAttributes = oc(vehiclePosition).vehicle[
+          const special_vehicle_attributes = oc(vehiclePosition).vehicle[
             '.transit_realtime.tfnswVehicleDescriptor'
           ].specialVehicleAttributes()
-          const vehicleModel = oc(vehiclePosition).vehicle[
+          const vehicle_model = oc(vehiclePosition).vehicle[
             '.transit_realtime.tfnswVehicleDescriptor'
           ].vehicleModel()
-          const wheelChairAccessible = oc(vehiclePosition).vehicle[
+          const wheelchair_accessible = oc(vehiclePosition).vehicle[
             '.transit_realtime.tfnswVehicleDescriptor'
           ].wheelChairAccessible()
-          const split = tripId.split('.')
+          const timestamp = oc(vehiclePosition).timestamp(0)
+          const split = tripId ? tripId.split('.') : []
           const [
             run,
             timetableId,
@@ -198,31 +234,79 @@ class RealtimeAUSYD extends BaseRealtime {
             cars,
             instance,
           ] = split.length === 7 ? split : new Array(7)
-        return {
+          const backupDirectionId = tripIdsMap[tripId].direction_id
+          const direction: number =
+            directionId ||
+            (backupDirectionId === 0 || backupDirectionId === 1
+              ? backupDirectionId
+              : 0)
+          const result: WakaVehicleInfo = {
             latitude,
             longitude,
             bearing,
             speed,
-          // direction: tripIdsMap[vehicle.trip.tripId].direction_id,
-            stopId,
-            congestionLevel,
-            currentStopSequence,
-          updatedAt: this.lastVehicleUpdate,
+            direction,
+            stop_id,
+            congestion_level,
+            current_stop_sequence,
+            updated_at: new Date(timestamp * 1000) || this.lastVehicleUpdate,
             trip_id: tripId,
             label,
             extraInfo: {
-              airConditioned,
-              performingPriorTrip,
-              specialVehicleAttributes,
-              vehicleModel,
-              wheelChairAccessible,
+              air_conditioned,
+              performing_prior_trip,
+              special_vehicle_attributes,
+              vehicle_model,
+              wheelchair_accessible,
               cars,
               type,
               run,
             },
-        }
-      })
-      return res.send(result)
+          }
+          return result
+        })
+      return result
+    } catch (err) {
+      logger.error({ err })
+      throw Error('problem getting vehicle info')
+    }
+  }
+
+  getTripsEndpoint = async (
+    req: WakaRequest<{ trips: string[]; stop_id: string }, null>,
+    res: Response
+  ) => {
+    const { trips, stop_id } = req.body
+    const realtimeInfo = await this.getTripsCached(trips, stop_id)
+    return res.send(realtimeInfo)
+  }
+
+  getVehicleLocationEndpoint = async (
+    req: WakaRequest<{ trips: string[] }, null>,
+    res: Response
+  ) => {
+    const { logger } = this
+    const { trips } = req.body
+    const vehicleInfo = this.getVehiclePositionsCached(trips)
+    return res.send(vehicleInfo)
+  }
+
+  getLocationsForLine = async (
+    req: WakaRequest<null, { line: string }>,
+    res: Response
+  ) => {
+    const { logger } = this
+    const {
+      params: { line },
+      query: { route_id, agency_id },
+    } = req
+    try {
+      const vehicleInfo = await this.getVehicleInfoCached(
+        line,
+        route_id,
+        agency_id
+      )
+      return res.send(vehicleInfo)
     } catch (err) {
       logger.error({ err }, 'Could not get locations from line.')
       return res.status(500).send(err)
@@ -263,85 +347,6 @@ class RealtimeAUSYD extends BaseRealtime {
     }
     return res.send([])
   }
-
-  // getAllVehicleLocations = async (
-  //   req: WakaRequest<null, null>,
-  //   res: Response
-  // ) => {
-  //   const { buses, trains, lightrail, ferries } = req.query
-  //   const { connection } = this
-  //   if (currentVehicleData.length !== 0) {
-  //     const tripIds = currentVehicleData.map(
-  //       entity => entity.vehicle.trip.tripId
-  //     )
-  //     const escapedTripIds = `'${tripIds.join('\', \'')}'`
-  //     try {
-  //       const sqlTripIdRequest = connection.get().request()
-  //       const tripIdRequest = await sqlTripIdRequest.query<{
-  //         trip_id: string
-  //         route_type: number
-  //       }>(`
-  // select routes.route_type, trips.trip_id from trips join routes on trips.route_id = routes.route_id where trip_id in (${escapedTripIds})
-  // `)
-  //       const routeTypes = tripIdRequest.recordset.map(res => ({
-  //         trip_id: res.trip_id,
-  //         route_type: res.route_type,
-  //       }))
-  //       const vehicleData = currentVehicleData
-  //         .filter(entity => entity.vehicle.position)
-  //         .map(entity => ({
-  //           latitude: entity.vehicle.position.latitude,
-  //           longitude: entity.vehicle.position.longitude,
-  //           bearing: entity.vehicle.position.bearing,
-  //           updatedAt: this.lastVehicleUpdate,
-  //           trip_id: entity.vehicle.trip.tripId,
-  //         }))
-  //       const result: {
-  //         route_type: number
-  //         latitude: number
-  //         longitude: number
-  //         bearing: number
-  //         updatedAt: Date
-  //         trip_id: string
-  //       }[] = []
-  //       for (let i = 0; i < routeTypes.length; i++) {
-  //         result.push({
-  //           ...routeTypes[i],
-  //           ...vehicleData.find(
-  //             itmInner => itmInner.trip_id === routeTypes[i].trip_id
-  //           ),
-  //         })
-  //       }
-
-  //       result.filter(res => {
-  //         switch (res.route_type) {
-  //           case 1000:
-  //             return ferries === 'true'
-  //           case 400:
-  //           case 401:
-  //           case 2:
-  //           case 100:
-  //           case 106:
-  //             return trains === 'true'
-  //           case 900:
-  //             return lightrail === 'true'
-  //           case 700:
-  //           case 712:
-  //           case 714:
-  //           case 3:
-  //             return buses === 'true'
-  //           default:
-  //             return false
-  //         }
-  //       })
-  //       return res.send(result)
-  //     } catch (error) {
-  //       //
-  //     }
-  //   } else {
-  //     return res.sendStatus(400)
-  //   }
-  // }
 }
 
 export default RealtimeAUSYD
