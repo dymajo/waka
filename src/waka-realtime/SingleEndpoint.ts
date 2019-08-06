@@ -124,10 +124,9 @@ abstract class SingleEndpoint extends BaseRealtime {
     if (!protobuf) {
       await setupProtobuf()
     }
-    logger.info('Starting Vehicle VehiclePosition Pull')
+    logger.info('Starting Vehicle Position Pull')
     try {
       const res = await axios.get(`${vehiclePositionEndpoint}`)
-
       const oldModified = await wakaRedis.getKey(
         'default',
         'last-vehicle-position-update'
