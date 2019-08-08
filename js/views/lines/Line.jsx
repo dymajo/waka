@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
@@ -60,7 +60,7 @@ const formatDate = dateString => {
 
   // make this nicer
   return `${humanTime.text || ''}${humanTime.subtext || ''}${
-    humanTime.minutes ? `${humanTime.minutes}mins` : ''
+    humanTime.minutes ? `${humanTime.minutes} min` : ''
   }`
 }
 
@@ -85,6 +85,7 @@ class Line extends React.Component {
     lineMetadata: [],
     timetable: [],
     loading: true,
+    currentTrip: null,
   }
 
   constructor(props) {
@@ -189,12 +190,30 @@ class Line extends React.Component {
   }
 
   getTimetable = async () => {
+    const getTimetableState = rawData => {
+      // TODO: Realtime
+      const tolerance = 1000 * 60 * 2
+      const now = new Date(new Date().getTime() - tolerance)
+      const newState = {
+        timetable: rawData
+          .filter(service => now < new Date(service.departure_time))
+          .sort(
+            (a, b) => new Date(a.departure_time) > new Date(b.departure_time)
+          ),
+      }
+      if (newState.timetable.length > 0) {
+        newState.currentTrip = newState.timetable[0].trip_id
+      }
+      return newState
+    }
     try {
-      const timetableData = await this.lineData.getTimetable(1)
-      // console.log('timetable data', timetableData)
-
-      this.setState({
-        timetable: timetableData,
+      const timetableData = await this.lineData.getTimetable(0)
+      this.setState(getTimetableState(timetableData), async () => {
+        const tomorrowTimetableData = await this.lineData.getTimetable(1)
+        const { timetable } = this.state
+        this.setState(
+          getTimetableState(timetable.slice().concat(tomorrowTimetableData))
+        )
       })
     } catch (err) {
       // cannot get timetable, usually because the stop_id is undefined
@@ -241,6 +260,14 @@ class Line extends React.Component {
     }
   }
 
+  triggerTrip(tripId) {
+    return () => {
+      this.setState({
+        currentTrip: tripId,
+      })
+    }
+  }
+
   render() {
     const { match } = this.props
     const {
@@ -251,6 +278,7 @@ class Line extends React.Component {
       loading,
       stops,
       timetable,
+      currentTrip,
     } = this.state
 
     const currentLine =
@@ -285,26 +313,27 @@ class Line extends React.Component {
       )
     }
 
-    // TODO: Realtime
-    const tolerance = 1000 * 60 * 2
-    const now = new Date(new Date().getTime() - tolerance)
     const timetableElement =
       timetable.length > 0 ? (
         <View>
           <Text style={styles.direction}>Departures</Text>
           <View style={styles.departures}>
-            {timetable
-              .filter(service => now < new Date(service.departure_time))
-              .sort(
-                (a, b) =>
-                  new Date(a.departure_time) > new Date(b.departure_time)
-              )
-              .map(service => (
-                <View key={service.trip_id} style={styles.departure}>
-                  <Text>{formatDate(service.departure_time)}</Text>
-                  <Text>Scheduled</Text>
-                </View>
-              ))}
+            {timetable.map(service => (
+              <TouchableOpacity
+                key={[service.trip_id, service.departure_time].join()}
+                style={
+                  currentTrip === service.trip_id
+                    ? [styles.departure, styles.departureSelected]
+                    : styles.departure
+                }
+                onPress={this.triggerTrip(service.trip_id)}
+              >
+                <Text style={styles.departureDate}>
+                  {formatDate(service.departure_time)}
+                </Text>
+                <Text style={styles.departureStatus}>Scheduled</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       ) : null
@@ -344,10 +373,31 @@ styles = StyleSheet.create({
   departures: {
     flexDirection: 'row',
     overflowX: 'scroll',
+    paddingBottom: vars.padding / 2,
   },
   departure: {
-    background: '#fff',
-    width: '33%',
+    backgroundColor: 'rgba(0,0,0,0.06)',
+    width: `calc(33.3333% - ${Math.floor((vars.padding * 4) / 3)}px)`,
+    marginLeft: vars.padding,
+    borderRadius: 3,
+    paddingTop: vars.padding / 2,
+    paddingBottom: vars.padding / 2,
+  },
+  departureSelected: {
+    backgroundColor: '#fff',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+  },
+  departureDate: {
+    fontWeight: '600',
+    textAlign: 'center',
+    fontFamily: vars.fontFamily,
+    fontSize: 16,
+  },
+  departureStatus: {
+    textAlign: 'center',
+    fontFamily: vars.fontFamily,
+    fontSize: 13,
+    color: '#888',
   },
   direction: {
     paddingTop: vars.padding,
