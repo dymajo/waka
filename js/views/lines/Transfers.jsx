@@ -17,8 +17,8 @@ const styles = StyleSheet.create({
   transfer: {
     backgroundColor: '#222',
     color: '#fff',
-    marginRight: 3,
-    fontSize: vars.defaultFontSize - 2,
+    marginRight: 2,
+    fontSize: vars.defaultFontSize - 4,
     fontFamily,
     fontWeight: '600',
     paddingLeft: 3,

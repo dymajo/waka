@@ -3,9 +3,7 @@ import PropTypes from 'prop-types'
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { vars } from '../../styles.js'
-import { t } from '../../stores/translationStore.js'
 import UiStore from '../../stores/UiStore.js'
-import LinkButton from '../reusable/LinkButton.jsx'
 import Transfers from './Transfers.jsx'
 
 let styles = null // defined down below
@@ -33,6 +31,10 @@ class LineStops extends React.PureComponent {
   render() {
     const { color, stops, line } = this.props
     const stopStyle = [styles.stop, { borderColor: color }]
+    let comparisionStop
+    if (stops.length > 0) {
+      comparisionStop = new Date(stops[0].departure_time)
+    }
     return (
       <View style={styles.wrapper}>
         {stops.map((stop, index) => (
@@ -49,29 +51,40 @@ class LineStops extends React.PureComponent {
               </View>
             ) : null}
             <View style={styles.bullet} />
-            <View
+
+            <TouchableOpacity
               style={
                 index === stops.length - 1
                   ? [styles.controls, { borderBottomWidth: 0 }]
                   : styles.controls
               }
+              onClick={this.triggerClick(stop.stop_id, 'services')}
             >
-              <TouchableOpacity
-                style={styles.touchable}
-                onClick={this.triggerClick(stop.stop_id, 'services')}
-              >
-                <View style={styles.contentContainer}>
-                  <Text style={styles.stopText}>{stop.stop_name}</Text>
-                  <Transfers transfers={stop.transfers} currentLine={line} />
-                </View>
-              </TouchableOpacity>
-              <LinkButton
-                onClick={this.triggerClick(stop.stop_id, 'timetable')}
-                color="secondary"
-                size="small"
-                label={t('vech_loc.timetable')}
-              />
-            </View>
+              <View style={styles.contentContainer}>
+                <Text style={styles.stopText}>{stop.stop_name}</Text>
+                <Transfers transfers={stop.transfers} currentLine={line} />
+              </View>
+              <View style={styles.timeContainer}>
+                <Text style={styles.timeRelative}>
+                  +
+                  {Math.round(
+                    (new Date(stop.departure_time) - comparisionStop) / 60000 +
+                      1440
+                  ) % 1440}{' '}
+                  mins
+                </Text>
+                <Text style={styles.timeAbsolute}>
+                  {new Date(stop.departure_time).toLocaleTimeString(
+                    navigator.language,
+                    {
+                      timeZone: 'UTC',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    }
+                  )}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
         ))}
       </View>
@@ -128,12 +141,9 @@ styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: vars.padding,
   },
-  touchable: {
-    flex: 1,
-    paddingRight: vars.padding,
-  },
   contentContainer: {
     paddingBottom: vars.padding * 0.5,
+    flex: 1,
   },
   stopText: {
     flex: 1,
@@ -141,6 +151,22 @@ styles = StyleSheet.create({
     fontFamily,
     paddingTop: vars.padding * 0.75,
     paddingBottom: vars.padding * 0.25,
+  },
+  timeContainer: {
+    paddingTop: vars.padding / 2,
+    paddingBottom: vars.padding / 2,
+    paddingLeft: vars.padding * 0.75,
+  },
+  timeRelative: {
+    fontFamily,
+    fontSize: 14,
+    textAlign: 'right',
+    fontWeight: '600',
+  },
+  timeAbsolute: {
+    fontFamily,
+    fontSize: 13,
+    textAlign: 'right',
   },
 })
 
