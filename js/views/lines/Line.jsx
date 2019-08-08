@@ -279,9 +279,15 @@ class Line extends React.Component {
 
   triggerTrip(tripId) {
     return () => {
-      this.setState({
-        currentTrip: tripId,
-      })
+      this.setState(
+        {
+          currentTrip: tripId,
+          loading: true,
+        },
+        () => {
+          this.getStops()
+        }
+      )
     }
   }
 
