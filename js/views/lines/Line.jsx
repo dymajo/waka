@@ -145,7 +145,6 @@ class Line extends React.Component {
         throw new Error('The line had missing data.')
       }
 
-      const { match } = this.props
       const route = metadata.find(
         i => i.direction_id === this.lineData.direction_id
       )
@@ -155,6 +154,12 @@ class Line extends React.Component {
         lineMetadata: metadata,
       })
 
+      // if the stop wasn't specified in the URL
+      if (this.lineData.stop_id === null) {
+        this.lineData.stop_id = route.first_stop_id
+        this.getTimetable()
+      }
+
       // Render the shape
       this.lineData.shape_id = route.shape_id
 
@@ -163,22 +168,6 @@ class Line extends React.Component {
         .getShape()
         .then(shape => renderShape(shape, this.layer, route.route_color)) // eslint-disable-line promise/prefer-await-to-then
         .catch(err => console.err)
-
-      const stops = await this.lineData.getStops()
-      const renderedStops = renderStops(
-        stops,
-        this.pointsLayer,
-        route.route_color,
-        match.params.region,
-        match.params.route_short_name
-      )
-      this.setState({ stops: renderedStops, loading: false })
-
-      // if the stop wasn't specified in the URL
-      if (this.lineData.stop_id === null && stops.length > 0) {
-        this.lineData.stop_id = stops[0].stop_id
-        this.getTimetable()
-      }
     } catch (err) {
       clearInterval(this.liveRefresh)
       console.error(err)
@@ -209,15 +198,43 @@ class Line extends React.Component {
     try {
       const timetableData = await this.lineData.getTimetable(0)
       this.setState(getTimetableState(timetableData), async () => {
+        const { timetable, currentTrip } = this.state
+
+        // get stops only if there's a trip_id
+        if (currentTrip) {
+          this.getStops()
+        }
         const tomorrowTimetableData = await this.lineData.getTimetable(1)
-        const { timetable } = this.state
-        this.setState(
-          getTimetableState(timetable.slice().concat(tomorrowTimetableData))
+        const newState = getTimetableState(
+          timetable.slice().concat(tomorrowTimetableData)
         )
+
+        this.setState(newState, () => {
+          // get stops if we didn't have the data the first time
+          if (!currentTrip && newState.currentTrip) {
+            this.getStops()
+          }
+        })
       })
     } catch (err) {
       // cannot get timetable, usually because the stop_id is undefined
     }
+  }
+
+  getStops = async () => {
+    const { currentTrip } = this.state
+    const { match } = this.props
+    this.lineData.trip_id = currentTrip
+    const data = await this.lineData.getTripStops()
+
+    const renderedStops = renderStops(
+      data.current,
+      this.pointsLayer,
+      data.routeInfo.route_color,
+      match.params.region,
+      data.routeInfo.route_short_name
+    )
+    this.setState({ stops: renderedStops, loading: false })
   }
 
   getPositionData = async () => {

@@ -94,34 +94,29 @@ class LineData {
     return data
   }
 
-  async getStops() {
-    // console.log('getting stops')
-    if (this.region === null) {
-      throw new Error('Requires region to be set.')
-    }
-
-    let url = `${local.endpoint}/${this.region}/stops/`
-    if (this.trip_id !== null) {
-      url += `trip/${encodeURIComponent(this.trip_id)}`
-    } else if (this.shape_id !== null) {
-      url += `shape/${encodeURIComponent(this.shape_id)}`
-    } else {
-      throw new Error('Requires shape_id or trip_id to be set.')
-    }
-    try {
-      const res = await fetch(url)
-      const data = await res.json()
-      return data
-    } catch (error) {
-      throw new Error(error)
-    }
-  }
-
   async getRealtime() {
     const line = encodeURIComponent(this.route_short_name)
     const agency = encodeURIComponent(this.agency_id)
     const res = await fetch(
       `${local.endpoint}/${this.region}/realtime/${line}?agency_id=${agency}`
+    )
+    const data = await res.json()
+    if (res.status >= 400) {
+      const error = new Error(data.message)
+      error.response = data
+      throw error
+    }
+    return data
+  }
+
+  async getTripStops() {
+    if (this.trip_id === null) {
+      throw new Error('Requires trip_id to be set.')
+    }
+    const res = await fetch(
+      `${local.endpoint}/${this.region}/trip/${encodeURIComponent(
+        this.trip_id
+      )}/stops`
     )
     const data = await res.json()
     if (res.status >= 400) {
