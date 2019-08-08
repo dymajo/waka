@@ -373,13 +373,13 @@ class StopsDataAccess {
     const sqlRequest = connection.get().request()
     sqlRequest.input('tripId', sql.VarChar, tripId)
 
-    const result = await sqlRequest.query<RouteInfo>(
-      `  select route_short_name, route_long_name, route_desc, route_type, route_color, route_text_color from routes
-
-    inner join trips on routes.route_id = trips.route_id
-    where trip_id = @tripId`
-    )
-    return result.recordset[0]
+    const result = await sqlRequest.query<RouteInfo>(`
+      SELECT route_short_name, route_long_name, route_desc, route_type, route_color, route_text_color from routes
+      INNER JOIN trips on routes.route_id = trips.route_id
+      WHERE trip_id = @tripId`)
+    const routeInfo = result.recordset[0]
+    routeInfo.route_color = `#${routeInfo.route_color}`
+    return routeInfo
   }
 
   getStopTimesV2 = async (
@@ -393,22 +393,36 @@ class StopsDataAccess {
       previous && next
         ? ` '${previous}', '${next}'`
         : previous
-          ? ` '${previous}'`
-          : next
-            ? ` '${next}'`
-            : ''
+        ? ` '${previous}'`
+        : next
+        ? ` '${next}'`
+        : ''
 
     const result = await sqlRequest.query<StopTime>(`
-      select trips.trip_id, pickup_type, drop_off_type, arrival_time,departure_time,stop_times.stop_id,stop_name,trip_headsign,stop_headsign, route_short_name, stop_sequence
-      from stop_times
-      inner join trips
-      on stop_times.trip_id = trips.trip_id
-      inner join stops
-      on stop_times.stop_id = stops.stop_id
-      inner join routes
-on trips.route_id = routes.route_id
-      where trips.trip_id = '${current}'
-      order by stop_sequence
+      SELECT 
+        trips.trip_id,
+        pickup_type,
+        drop_off_type,
+        arrival_time,
+        departure_time,
+        stop_times.stop_id,
+        stop_code,
+        stop_name,
+        stop_lat,
+        stop_lon,
+        trip_headsign,
+        stop_headsign,
+        route_short_name,
+        stop_sequence
+      FROM stop_times
+      INNER JOIN trips
+      ON stop_times.trip_id = trips.trip_id
+      INNER JOIN stops
+      ON stop_times.stop_id = stops.stop_id
+      INNER JOIN routes
+      ON trips.route_id = routes.route_id
+      WHERE trips.trip_id = '${current}'
+      ORDER BY stop_sequence
       `)
     const sqlRequest2 = connection.get().request()
     let result2

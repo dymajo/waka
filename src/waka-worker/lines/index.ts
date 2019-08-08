@@ -338,14 +338,17 @@ class Lines {
         trips.shape_id,
         trips.trip_headsign,
         trips.direction_id,
+        stops.stop_code as first_stop_id,
         count(trips.shape_id) as shape_score
       FROM routes
-          LEFT JOIN trips on
-          trips.route_id = routes.route_id
+      LEFT JOIN trips ON
+        trips.route_id = routes.route_id
+      CROSS APPLY ( SELECT TOP 1 stop_id FROM stop_times WHERE trip_id = trips.trip_id ORDER BY stop_sequence) stop_times2
+      INNER JOIN stops on stop_times2.stop_id = stops.stop_id
       WHERE
-          ${route}
-          and shape_id is not null
-          ${agency}
+        ${route}
+        and shape_id is not null
+        ${agency}
       GROUP BY
         routes.route_id,
         routes.agency_id,
@@ -355,7 +358,8 @@ class Lines {
         routes.route_color,
         trips.shape_id,
         trips.trip_headsign,
-        trips.direction_id
+        trips.direction_id,
+        stops.stop_code
       ORDER BY
         shape_score desc
     `
@@ -369,6 +373,7 @@ class Lines {
       shape_id: string
       trip_headsign: string
       direction_id: string
+      first_stop_id: string
       shape_score: number
     }>(query)
     const versions = {}
@@ -381,6 +386,7 @@ class Lines {
       route_icon: string
       direction_id: string
       shape_id: string
+      first_stop_id: string
       route_type: number
     }[] = []
     result.recordset.forEach(route => {
@@ -403,6 +409,7 @@ class Lines {
         route_icon: this.getIcon(route.agency_id, route.route_short_name),
         direction_id: route.direction_id,
         shape_id: route.shape_id,
+        first_stop_id: route.first_stop_id,
         route_type: route.route_type,
       }
       // if it's the best match, inserts at the front
@@ -722,6 +729,8 @@ class Lines {
         this.getColor(null, j),
       ])
       transfersWithColors.sort(sortFn)
+      i.stop_id = i.stop_code
+      delete i.stop_code
 
       return { ...i, transfers: transfersWithColors }
     })
