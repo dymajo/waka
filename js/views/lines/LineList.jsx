@@ -107,8 +107,15 @@ class LineList extends React.Component {
       link.agencyId,
       link.routeShortName,
     ].join('/')
-    const url = link.routeId ? `${joined}?route_id=${link.routeId}` : joined
-
+    let query = ''
+    if (link.routeId && link.directionId) {
+      query = `?route_id=${link.routeId}&direction=${link.directionId}`
+    } else if (link.routeId && !link.directionId) {
+      query = `?route_id=${link.routeId}`
+    } else if (!link.routeId && link.directionId) {
+      query = `?direction=${link.directionId}`
+    }
+    const url = `${joined}${query}`
     history.push(url)
   }
 
@@ -168,11 +175,11 @@ class LineList extends React.Component {
                     <Text style={[styles.label, styles.expandText]}>
                       {groupShow[group.name] === 'show'
                         ? `${t('lines.less', {
-                          number: group.items.length - 3,
-                        })} ▴`
+                            number: group.items.length - 3,
+                          })} ▴`
                         : `${t('lines.more', {
-                          number: group.items.length - 3,
-                        })} ▾`}
+                            number: group.items.length - 3,
+                          })} ▾`}
                     </Text>
                   </TouchableOpacity>
                 ) : null}
