@@ -1,5 +1,4 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { Fragment, useState } from 'react'
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { vars } from '../../styles.js'
@@ -8,88 +7,117 @@ import Transfers from './Transfers.jsx'
 
 let styles = null // defined down below
 
-class LineStops extends React.PureComponent {
-  static propTypes = {
-    stops: PropTypes.array.isRequired,
-    color: PropTypes.string.isRequired,
-    line: PropTypes.string.isRequired,
-    region: PropTypes.string.isRequired,
+export const LineStops = ({
+  stops,
+  color,
+  line,
+  region,
+  selectedStop = null,
+}) => {
+  const stopStyle = [styles.stop, { borderColor: color }]
+  const [showAll, setShowAll] = useState(false)
+
+  let selectedStopIndex = 0
+  let afterSelectedStop = false
+  if (selectedStop) {
+    selectedStopIndex = stops.findIndex(a => a.stop_id === selectedStop)
+  } else if (stops.length > 0) {
+    afterSelectedStop = true
   }
+  const comparisionStopTime = new Date(stops[selectedStopIndex].departure_time)
 
-  triggerClick(stopCode, mode) {
-    return () => {
-      const { line, region } = this.props
-      const baseUrl = `/s/${region}/${stopCode}`
-      if (mode === 'timetable') {
-        UiStore.safePush(`${baseUrl}/timetable/${line}-2`)
-      } else {
-        UiStore.safePush(baseUrl)
-      }
-    }
-  }
-
-  render() {
-    const { color, stops, line } = this.props
-    const stopStyle = [styles.stop, { borderColor: color }]
-    let comparisionStop
-    if (stops.length > 0) {
-      comparisionStop = new Date(stops[0].departure_time)
-    }
-    return (
-      <View style={styles.wrapper}>
-        {stops.map((stop, index) => (
-          <View style={stopStyle} key={stop.stop_sequence}>
-            {index === 0 ? (
-              <View style={styles.bulletWrapper}>
-                <View style={styles.bulletFake} />
-                <View style={styles.bulletSpacing} />
-              </View>
-            ) : index === stops.length - 1 ? (
-              <View style={styles.bulletWrapper}>
-                <View style={styles.bulletSpacing} />
-                <View style={styles.bulletFake} />
-              </View>
-            ) : null}
-            <View style={styles.bullet} />
-
-            <TouchableOpacity
-              style={
-                index === stops.length - 1
-                  ? [styles.controls, { borderBottomWidth: 0 }]
-                  : styles.controls
-              }
-              onClick={this.triggerClick(stop.stop_id, 'services')}
-            >
-              <View style={styles.contentContainer}>
-                <Text style={styles.stopText}>{stop.stop_name}</Text>
-                <Transfers transfers={stop.transfers} currentLine={line} />
-              </View>
-              <View style={styles.timeContainer}>
-                <Text style={styles.timeRelative}>
-                  +
-                  {Math.round(
-                    (new Date(stop.departure_time) - comparisionStop) / 60000 +
-                      1440
-                  ) % 1440}{' '}
-                  mins
-                </Text>
-                <Text style={styles.timeAbsolute}>
-                  {new Date(stop.departure_time).toLocaleTimeString(
-                    navigator.language,
-                    {
-                      timeZone: 'UTC',
-                      hour: 'numeric',
-                      minute: 'numeric',
-                    }
-                  )}
-                </Text>
-              </View>
-            </TouchableOpacity>
+  return (
+    <Fragment>
+      {!showAll && selectedStopIndex > 0 ? (
+        <TouchableOpacity
+          onClick={() => setShowAll(true)}
+          style={styles.previousWrapper}
+        >
+          <View style={styles.previousDots} />
+          <View style={styles.previousTextWrapper}>
+            <Text style={styles.previousText}>
+              Show previous {selectedStopIndex} stops
+            </Text>
           </View>
-        ))}
+        </TouchableOpacity>
+      ) : null}
+      <View style={styles.wrapper}>
+        {stops.map((stop, index) => {
+          if (selectedStop === stop.stop_id) {
+            afterSelectedStop = true
+          }
+          const minutesOffset =
+            Math.round(
+              (new Date(stop.departure_time) - comparisionStopTime) / 60000 +
+                1440
+            ) % 1440
+
+          if (!showAll && !afterSelectedStop) return null
+
+          return (
+            <View style={stopStyle} key={stop.stop_sequence}>
+              {index === 0 ? (
+                <View style={styles.bulletWrapper}>
+                  <View style={styles.bulletFake} />
+                  <View style={styles.bulletSpacing} />
+                </View>
+              ) : index === stops.length - 1 ? (
+                <View style={styles.bulletWrapper}>
+                  <View style={styles.bulletSpacing} />
+                  <View style={styles.bulletFake} />
+                </View>
+              ) : null}
+              <View style={styles.bullet} />
+
+              <TouchableOpacity
+                style={
+                  index === stops.length - 1
+                    ? [styles.controls, { borderBottomWidth: 0 }]
+                    : styles.controls
+                }
+                onClick={() => UiStore.safePush(`/s/${region}/${stop.stop_id}`)}
+              >
+                <View style={styles.contentContainer}>
+                  <Text style={styles.stopText}>{stop.stop_name}</Text>
+                  <Transfers transfers={stop.transfers} currentLine={line} />
+                </View>
+                <View style={styles.timeContainer}>
+                  <Text
+                    style={
+                      afterSelectedStop
+                        ? styles.timeRelative
+                        : [styles.timeRelative, styles.timePast]
+                    }
+                  >
+                    {afterSelectedStop
+                      ? `+${minutesOffset}`
+                      : `${minutesOffset - 1440}`}{' '}
+                    mins
+                  </Text>
+                  <Text
+                    style={
+                      afterSelectedStop
+                        ? styles.timeAbsolute
+                        : [styles.timeAbsolute, styles.timePast]
+                    }
+                  >
+                    {new Date(stop.departure_time).toLocaleTimeString(
+                      navigator.language,
+                      {
+                        timeZone: 'UTC',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      }
+                    )}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )
+        })}
       </View>
-    )
-  }
+    </Fragment>
+  )
 }
 
 const { fontFamily } = vars
@@ -108,6 +136,41 @@ styles = StyleSheet.create({
     borderColor: '#666',
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  previousWrapper: {
+    flexDirection: 'row',
+  },
+  previousDots: {
+    width: 5,
+    height: 15,
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: vars.padding,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    boxShadow: '0 5px 0 rgba(0,0,0,0.25), 0 -5px 0 rgba(0,0,0,0.25)',
+    borderTopWidth: 5,
+    borderTopStyle: 'solid',
+    borderTopColor: '#fff',
+    borderBottomWidth: 5,
+    borderBottomStyle: 'solid',
+    borderBottomColor: '#fff',
+  },
+  previousTextWrapper: {
+    marginLeft: vars.padding * 0.75,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    marginBottom: vars.padding * 0.375,
+    marginTop: vars.padding * 0.375,
+    borderRadius: 3,
+    paddingLeft: vars.padding * 0.375,
+    paddingRight: vars.padding * 0.375,
+    paddingTop: 2,
+    paddingBottom: 2,
+  },
+  previousText: {
+    fontFamily,
+    fontWeight: '600',
+    color: vars.headerColor,
+    fontSize: 13,
   },
   bulletWrapper: {
     flexDirection: 'column',
@@ -168,6 +231,7 @@ styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'right',
   },
+  timePast: {
+    color: '#666',
+  },
 })
-
-export default LineStops
