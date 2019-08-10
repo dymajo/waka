@@ -12,7 +12,7 @@ import LinkedScroll from '../reusable/LinkedScroll.jsx'
 
 import Layer from '../maps/Layer.jsx'
 import LineData from '../../data/LineData.js'
-import LineStops from './LineStops.jsx'
+import { LineStops } from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icons/index.js'
 import { getTime } from '../../helpers/date.js'

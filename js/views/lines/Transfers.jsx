@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 
 const Transfers = props => {
   const { transfers, currentLine } = props
-  return transfers.length <= 1 ? null : (
+  return transfers.length <= 0 ? null : (
     <Text style={styles.transfers}>
       {transfers
         .filter(t => t[0] !== currentLine)
