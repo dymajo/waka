@@ -302,15 +302,7 @@ class Line extends React.Component {
             i => i.direction_id === this.lineData.direction_id
           )
         : {}
-    let lineLabel = null
-    if (lineMetadata.length <= 1) {
-      lineLabel = 'Route Stations'
-    } else {
-      lineLabel = StationStore.getDirection(
-        match.params.region,
-        currentLine.direction_id
-      )
-    }
+
     if (error) {
       return (
         <View style={styles.wrapper}>
@@ -338,12 +330,13 @@ class Line extends React.Component {
       <div className="spinner" />
     ) : (
       <React.Fragment>
-        <Text style={styles.direction}>{lineLabel}</Text>
+        <Text style={styles.direction}>Stops</Text>
         <LineStops
           color={color}
           stops={stops}
           line={match.params.route_short_name}
           region={match.params.region}
+          selectedStop={this.lineData.stop_id}
         />
       </React.Fragment>
     )

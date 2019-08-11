@@ -164,11 +164,7 @@ class Station extends React.Component {
       if (trip.stop_sequence === undefined) return
 
       // this is so the route_numbers group together
-      const uniqueKey = [
-        trip.route_short_name,
-        trip.route_id,
-        trip.agency_id,
-      ].join('-')
+      const uniqueKey = [trip.route_short_name, trip.agency_id].join('-')
       if (!reducer.has(uniqueKey)) {
         reducer.set(uniqueKey, new Map())
       }
