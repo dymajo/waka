@@ -46,10 +46,6 @@ class LinesNZWLG extends BaseLines {
     this.lineOperators = {}
   }
 
-  async start() {
-    await this.getLines()
-  }
-
   async getLines() {
     const { logger, dataAccess } = this
     const allLines: { [routeShortName: string]: string[][] } = {}
@@ -60,12 +56,17 @@ class LinesNZWLG extends BaseLines {
       items: [],
     }))
 
+    const lines = {}
     const result = await dataAccess.getRoutes()
     result.recordset.forEach(record => {
       const routeShortName = record.route_short_name
-      allLines[routeShortName] = [[record.route_long_name]]
+      const agencyId = record.agency_id
+      const routeId = record.route_id
+      const routeLongName = record.route_long_name
 
-      lineOperators[routeShortName] = record.agency_id
+      allLines[routeShortName] = [[routeLongName]]
+
+      lineOperators[routeShortName] = agencyId
       if (record.route_type !== 3) {
         lineGroups[regionEnum.cf].items.push(routeShortName)
       } else if (routeShortName.slice(0, 1) === 'N') {
@@ -88,11 +89,20 @@ class LinesNZWLG extends BaseLines {
         lineGroups[regionEnum.central].items.push(routeShortName)
       }
 
-      lineColors[routeShortName] = this.lineColorizer(
+      const routeColor = this.lineColorizer(
         record.agency_id,
         record.route_short_name,
         record.route_color
       )
+      lineColors[routeShortName] = routeColor
+
+      lines[routeShortName] = {
+        agencyId,
+        routeColor,
+        routeId,
+        routeLongName,
+        routeShortName,
+      }
     })
 
     lineGroups.forEach(group => {
@@ -107,6 +117,15 @@ class LinesNZWLG extends BaseLines {
     this.lineOperators = lineOperators
     this.lineColors = lineColors
     this.lineGroups = lineGroups
+
+    this.lineGroupsV2 = lineGroups.map(group => {
+      return {
+        name: group.name,
+        items: group.items.map(item => {
+          return lines[item]
+        }),
+      }
+    })
     logger.info('Cached Lines')
   }
 
