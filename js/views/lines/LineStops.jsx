@@ -25,6 +25,7 @@ export const LineStops = ({
     afterSelectedStop = true
   }
   const comparisionStopTime = new Date(stops[selectedStopIndex].departure_time)
+  comparisionStopTime.setSeconds(0) // so it makes more sense in the UI
 
   return (
     <Fragment>
@@ -47,7 +48,7 @@ export const LineStops = ({
             afterSelectedStop = true
           }
           const minutesOffset =
-            Math.round(
+            Math.floor(
               (new Date(stop.departure_time) - comparisionStopTime) / 60000 +
                 1440
             ) % 1440
