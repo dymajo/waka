@@ -97,8 +97,9 @@ class LineData {
   async getRealtime() {
     const line = encodeURIComponent(this.route_short_name)
     const agency = encodeURIComponent(this.agency_id)
+    const routeId = encodeURIComponent(this.route_id)
     const res = await fetch(
-      `${local.endpoint}/${this.region}/realtime/${line}?agency_id=${agency}`
+      `${local.endpoint}/${this.region}/realtime/${line}?agency_id=${agency}&route_id=${routeId}`
     )
     const data = await res.json()
     if (res.status >= 400) {
