@@ -62,9 +62,11 @@ BEGIN
 		ON trip.service_id = calendar_date.service_id AND
 			calendar_date.date = @departure_date
 	WHERE
-		(trip.trip_headsign <> 'Empty Train' OR trip.trip_headsign <> 'Out Of Service') AND
-		(stop.parent_station = @stop_id OR stop.stop_code = @stop_id) AND
-		(
+		trip.trip_headsign <> 'Empty Train'
+		AND trip.trip_headsign <> 'Out Of Service'
+		AND (stop.parent_station = @stop_id OR stop.stop_code = @stop_id)
+		AND stop_time.pickup_type = 0
+		AND (
 			stop_time.departure_time > DATEADD(MINUTE, @DepatureDelay, @departure_time) AND
 		stop_time.departure_time < CASE WHEN @DateDifference > 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '23:59:59' END OR
 		stop_time.departure_time < CASE WHEN @DateDifference <= 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '00:00:00' END
