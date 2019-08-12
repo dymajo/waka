@@ -245,10 +245,9 @@ class GtfsImport {
                 tableSchema,
                 endpoint,
               )
-              if (file.table === 'routes' && config.prefix === 'nz-akl'){
-                if (!record[7]){
-                const  {routeColor,textColor} = nzAklRouteColor(record[1],record[2])
-                record[7] =routeColor
+              if (file.table === 'agency' && !Object.keys(headers).some(header => header === 'agency_id' && record[0] === null)) {
+                record[0] = record[1].split(' ').map(word => word[0]).join('')
+              }
                 record[8] = textColor
                 }
               }
