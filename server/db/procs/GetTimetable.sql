@@ -22,6 +22,14 @@ BEGIN
 		stop_times.stop_sequence,
 		stop_times.departure_time,
 		stop_times.departure_time_24,
+		CASE
+			WHEN stop_times.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time) + 86400
+			ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time)
+		END AS new_arrival_time,
+		CASE
+			WHEN stop_times.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time) + 86400
+			ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time)
+		END AS new_departure_time,
 		routes.route_id,
 		routes.route_long_name,
 		routes.agency_id
