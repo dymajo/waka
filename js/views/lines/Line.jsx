@@ -15,7 +15,7 @@ import LineData from '../../data/LineData.js'
 import { LineStops } from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icons/index.js'
-import { getTime } from '../../helpers/date.js'
+import Timetable from './Timetable.jsx'
 
 const Icon = leaflet.icon
 const icons = new Map([
@@ -53,16 +53,6 @@ const icons = new Map([
     }),
   ],
 ])
-
-const formatDate = dateString => {
-  const date = new Date(dateString)
-  const humanTime = getTime(date, false, true)
-
-  // make this nicer
-  return `${humanTime.text || ''}${humanTime.subtext || ''}${
-    humanTime.minutes ? `${humanTime.minutes} min` : ''
-  }`
-}
 
 let styles = null
 
@@ -309,8 +299,8 @@ class Line extends React.Component {
         ? lineMetadata.length === 1
           ? lineMetadata[0]
           : lineMetadata.find(
-              i => i.direction_id === this.lineData.direction_id
-            )
+            i => i.direction_id === this.lineData.direction_id
+          )
         : {}
     let lineLabel = null
     if (lineMetadata.length <= 1) {
@@ -338,27 +328,11 @@ class Line extends React.Component {
 
     const timetableElement =
       timetable.length > 0 ? (
-        <View>
-          <Text style={styles.direction}>Departures</Text>
-          <View style={styles.departures}>
-            {timetable.map(service => (
-              <TouchableOpacity
-                key={[service.trip_id, service.departure_time].join()}
-                style={
-                  currentTrip === service.trip_id
-                    ? [styles.departure, styles.departureSelected]
-                    : styles.departure
-                }
-                onPress={this.triggerTrip(service.trip_id)}
-              >
-                <Text style={styles.departureDate}>
-                  {formatDate(service.departure_time)}
-                </Text>
-                <Text style={styles.departureStatus}>Scheduled</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        <Timetable
+          currentTrip={currentTrip}
+          timetable={timetable}
+          triggerTrip={this.triggerTrip}
+        />
       ) : null
     const lineStops = loading ? (
       <div className="spinner" />
