@@ -533,20 +533,16 @@ class Station {
 
     const sending = trips.map(oldRecord => {
       const record = JSON.parse(JSON.stringify(oldRecord))
-      record.departure_time_seconds =
-        new Date(record.departure_time || record.arrival_time).getTime() / 1000
-      if (record.departure_time_24 || record.arrival_time_24) {
-        record.arrival_time_seconds += 86400
-      }
-      record.arrival_time_seconds = record.departure_time_seconds
 
       // fully formed arrival and departure times in region's local tz
-      record.arrival_time = moment.unix(
-        now.unix() + record.arrival_time_seconds
-      )
       record.departure_time = moment.unix(
-        now.unix() + record.departure_time_seconds
+        now.unix() + record.new_departure_time
       )
+      record.arrival_time = moment.unix(now.unix() + record.new_arrival_time)
+
+      // old for compat
+      record.departure_time_seconds = record.new_departure_time
+      record.arrival_time_seconds = record.new_arrival_time
 
       record.route_color = lines.getColor(record.agency_id, req.params.route)
       record.route_icon = lines.getIcon(record.agency_id, req.params.route)
@@ -559,6 +555,8 @@ class Station {
       }
 
       delete record.departure_time_24
+      delete record.new_departure_time
+      delete record.new_arrival_time
       return record
     })
     res.send(sending)
