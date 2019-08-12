@@ -10,6 +10,7 @@ class LineData {
     this.route_id = props.route_id || null
     this.stop_id = props.stop_id || null
     this.direction_id = props.direction_id || 0
+    this.realtime_trips = props.realtime_trips || []
   }
 
   async getMeta() {
@@ -101,6 +102,28 @@ class LineData {
     const res = await fetch(
       `${local.endpoint}/${this.region}/realtime/${line}?agency_id=${agency}&route_id=${routeId}`
     )
+    const data = await res.json()
+    if (res.status >= 400) {
+      const error = new Error(data.message)
+      error.response = data
+      throw error
+    }
+    return data
+  }
+
+  async getRealtimeStopUpdate() {
+    const trips = this.realtime_trips
+    if (trips.length === 0) return {}
+
+    const res = await fetch(`${local.endpoint}/${this.region}/realtime`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        trips,
+      }),
+    })
     const data = await res.json()
     if (res.status >= 400) {
       const error = new Error(data.message)

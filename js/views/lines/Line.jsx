@@ -74,6 +74,7 @@ class Line extends React.Component {
     stops: [],
     lineMetadata: [],
     timetable: [],
+    realtimeStopUpdates: {},
     loading: true,
     currentTrip: null,
   }
@@ -110,6 +111,7 @@ class Line extends React.Component {
 
     this.liveRefresh = setInterval(() => {
       this.getPositionData()
+      this.getRealtimeStopUpdate()
     }, 10000)
   }
 
@@ -170,18 +172,31 @@ class Line extends React.Component {
 
   getTimetable = async () => {
     const getTimetableState = rawData => {
-      // TODO: Realtime
-      const tolerance = 1000 * 60 * 2
+      const tolerance = 1000 * 60 * 30
+      const visibleTolerance = 1000 * 60 * 2
+      const realtimeTolerance = 1000 * 60 * 90
       const now = new Date(new Date().getTime() - tolerance)
+      const visibleNow = new Date(new Date().getTime() - visibleTolerance)
+      const realtimeNow = new Date(new Date().getTime() + realtimeTolerance)
+
       const newState = {
         timetable: rawData
           .filter(service => now < new Date(service.departure_time))
           .sort(
             (a, b) => new Date(a.departure_time) > new Date(b.departure_time)
-          ),
+          )
+          .map(service => {
+            service.visible = visibleNow < new Date(service.departure_time)
+            service.realtimeQuery =
+              new Date(service.departure_time) < realtimeNow
+            return service
+          }),
       }
       if (newState.timetable.length > 0) {
-        newState.currentTrip = newState.timetable[0].trip_id
+        const selectedTrip = newState.timetable.find(a => a.visible === true)
+        if (selectedTrip) {
+          newState.currentTrip = selectedTrip.trip_id
+        }
       }
       return newState
     }
@@ -189,6 +204,12 @@ class Line extends React.Component {
       const timetableData = await this.lineData.getTimetable(0)
       this.setState(getTimetableState(timetableData), async () => {
         const { timetable, currentTrip } = this.state
+
+        this.lineData.realtime_trips = timetable
+          .filter(t => t.realtimeQuery === true)
+          .map(t => t.trip_id)
+
+        this.getRealtimeStopUpdate()
 
         // get stops only if there's a trip_id
         if (currentTrip) {
@@ -198,6 +219,9 @@ class Line extends React.Component {
         const newState = getTimetableState(
           timetable.slice().concat(tomorrowTimetableData)
         )
+        this.lineData.realtime_trips = newState.timetable
+          .filter(t => t.realtimeQuery === true)
+          .map(t => t.trip_id)
 
         this.setState(newState, () => {
           // get stops if we didn't have the data the first time
@@ -267,7 +291,14 @@ class Line extends React.Component {
     }
   }
 
-  triggerTrip(tripId) {
+  getRealtimeStopUpdate = async () => {
+    const realtimeStopUpdates = await this.lineData.getRealtimeStopUpdate()
+    this.setState({ realtimeStopUpdates })
+
+    // TODO: Update the departures UI ocassionally
+  }
+
+  triggerTrip = tripId => {
     return () => {
       this.setState(
         {
@@ -292,15 +323,18 @@ class Line extends React.Component {
       stops,
       timetable,
       currentTrip,
+      realtimeStopUpdates,
     } = this.state
+
+    console.log(realtimeStopUpdates)
 
     const currentLine =
       lineMetadata.length > 0
         ? lineMetadata.length === 1
           ? lineMetadata[0]
           : lineMetadata.find(
-            i => i.direction_id === this.lineData.direction_id
-          )
+              i => i.direction_id === this.lineData.direction_id
+            )
         : {}
 
     if (error) {

@@ -23,29 +23,31 @@ const Timetable = ({ timetable, currentTrip, triggerTrip }) => {
     <View>
       <Text style={styles.direction}>Departures</Text>
       <View style={styles.departures}>
-        {timetable.map(service => (
-          <TouchableOpacity
-            key={[service.trip_id, service.departure_time].join()}
-            style={
-              currentTrip === service.trip_id
-                ? [styles.departure, styles.departureSelected]
-                : styles.departure
-            }
-            onPress={triggerTrip(service.trip_id)}
-          >
-            <Text style={styles.departureDate}>
-              {formatDate(service.departure_time)}
-            </Text>
-            <Text style={styles.departureStatus}>Scheduled</Text>
-          </TouchableOpacity>
-        ))}
+        {timetable
+          .filter(service => service.visible === true)
+          .map(service => (
+            <TouchableOpacity
+              key={[service.trip_id, service.departure_time].join()}
+              style={
+                currentTrip === service.trip_id
+                  ? [styles.departure, styles.departureSelected]
+                  : styles.departure
+              }
+              onPress={triggerTrip(service.trip_id)}
+            >
+              <Text style={styles.departureDate}>
+                {formatDate(service.departure_time)}
+              </Text>
+              <Text style={styles.departureStatus}>Scheduled</Text>
+            </TouchableOpacity>
+          ))}
       </View>
     </View>
   )
 }
 
 Timetable.propTypes = {
-  currentTrip: PropTypes.string.isRequired,
+  currentTrip: PropTypes.string,
   timetable: PropTypes.arrayOf(
     PropTypes.shape({
       trip_id: PropTypes.string.isRequired,
@@ -53,6 +55,10 @@ Timetable.propTypes = {
     })
   ).isRequired,
   triggerTrip: PropTypes.func.isRequired,
+}
+
+Timetable.defaultProps = {
+  currentTrip: '',
 }
 
 styles = StyleSheet.create({
