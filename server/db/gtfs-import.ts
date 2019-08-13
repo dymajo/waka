@@ -252,7 +252,12 @@ class GtfsImport {
                 if (!record[7]) {
                   const { routeColor, textColor } = nzAklRouteColor(record[1], record[2])
                   record[7] = routeColor
-                record[8] = textColor
+                  record[8] = textColor
+                }
+              }
+              if (file.table === 'stops' && config.prefix === 'us-bos') {
+                if (!record[5] || record[6]) {
+                  return
                 }
               }
               if (

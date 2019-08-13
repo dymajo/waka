@@ -22,18 +22,24 @@ import BaseImporter from './BaseImporter'
 import MultiImporter from './MultiImporter'
 import SingleImporter from './SingleImporter'
 import LocalImporter from './LocalImporter'
+import PerthImporter from './regions/au-per';
+import ChicagoImporter from './regions/us-chi';
+import BostonImporter from './regions/us-bos'
 
 const regions = {
+  'au-mel': MelbourneImporter,
+  'au-per': PerthImporter,
+  'au-seq': SEQImporter,
+  'au-syd': SyndeyImporter,
+  'ch-sfr': SFRImporter,
+  'fr-par': ParisImporter,
   'nz-akl': AucklandImporter,
   'nz-chc': ChchImporter,
   'nz-otg': OtagoImporter,
   'nz-wlg': WellingtonImporter,
-  'au-seq': SEQImporter,
-  'au-mel': MelbourneImporter,
-  'fr-par': ParisImporter,
-  'ch-sfr': SFRImporter,
-  'au-syd': SyndeyImporter,
   'au-cbr': CanberraImporter,
+  'us-bos': BostonImporter,
+  'us-chi': ChicagoImporter,
   'us-nyc': NYCImporter,
 }
 
