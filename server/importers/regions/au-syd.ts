@@ -5,6 +5,38 @@ import log from '../../logger'
 
 const locations = [
   {
+    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/ferries',
+    type: 'ferry',
+    name: 'ferries',
+  },
+  {
+    endpoint:
+      'https://api.transport.nsw.gov.au/v1/gtfs/schedule/lightrail/innerwest',
+    type: 'lightrail',
+    name: 'innerwestlr',
+  },
+  {
+    endpoint:
+      'https://api.transport.nsw.gov.au/v1/gtfs/schedule/lightrail/newcastle',
+    type: 'lightrail',
+    name: 'newcastlelr',
+  },
+  {
+    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/nswtrains',
+    type: 'train',
+    name: 'nswtrains',
+  },
+  {
+    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/sydneytrains',
+    type: 'train',
+    name: 'sydneytrains',
+  },
+  {
+    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/metro',
+    type: 'metro',
+    name: 'metro',
+  },
+  {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC001',
     type: 'bus',
@@ -162,38 +194,6 @@ const locations = [
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/ECR109',
     type: 'bus',
     name: 'ECR109',
-  },
-  {
-    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/ferries',
-    type: 'ferry',
-    name: 'ferries',
-  },
-  {
-    endpoint:
-      'https://api.transport.nsw.gov.au/v1/gtfs/schedule/lightrail/innerwest',
-    type: 'lightrail',
-    name: 'innerwestlr',
-  },
-  {
-    endpoint:
-      'https://api.transport.nsw.gov.au/v1/gtfs/schedule/lightrail/newcastle',
-    type: 'lightrail',
-    name: 'newcastlelr',
-  },
-  {
-    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/nswtrains',
-    type: 'train',
-    name: 'nswtrains',
-  },
-  {
-    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/sydneytrains',
-    type: 'train',
-    name: 'sydneytrains',
-  },
-  {
-    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/metro',
-    type: 'metro',
-    name: 'metro',
   },
 ]
 
