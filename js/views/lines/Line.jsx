@@ -294,8 +294,6 @@ class Line extends React.Component {
   getRealtimeStopUpdate = async () => {
     const realtimeStopUpdates = await this.lineData.getRealtimeStopUpdate()
     this.setState({ realtimeStopUpdates })
-
-    // TODO: Update the departures UI ocassionally
   }
 
   triggerTrip = tripId => {
@@ -326,8 +324,6 @@ class Line extends React.Component {
       realtimeStopUpdates,
     } = this.state
 
-    console.log(realtimeStopUpdates)
-
     const currentLine =
       lineMetadata.length > 0
         ? lineMetadata.length === 1
@@ -357,6 +353,7 @@ class Line extends React.Component {
         <Timetable
           currentTrip={currentTrip}
           timetable={timetable}
+          realtimeStopUpdates={realtimeStopUpdates}
           triggerTrip={this.triggerTrip}
         />
       ) : null
