@@ -12,7 +12,9 @@ export const LineStops = ({
   color,
   line,
   region,
+  currentTrip = '',
   selectedStop = null,
+  realtimeStopUpdates = {},
 }) => {
   const stopStyle = [styles.stop, { borderColor: color }]
   const [showAll, setShowAll] = useState(false)
@@ -24,7 +26,29 @@ export const LineStops = ({
   } else if (stops.length > 0) {
     afterSelectedStop = true
   }
-  const comparisionStopTime = new Date(stops[selectedStopIndex].departure_time)
+  const comparisionStopTime = new Date(
+    stops[selectedStopIndex].departure_time ||
+      stops[selectedStopIndex].arrival_time
+  )
+
+  let realtimeStopUpdate
+  const currentRealtimeTrip = realtimeStopUpdates[currentTrip]
+  if (currentRealtimeTrip && currentRealtimeTrip.stopTimeUpdate) {
+    realtimeStopUpdate = currentRealtimeTrip.stopTimeUpdate
+
+    const goal = stops[selectedStopIndex].stop_sequence
+    let delay = 0
+    const closestUpdate = realtimeStopUpdate.reduce((prev, curr) => {
+      return Math.abs(curr.stopSequence - goal) <
+        Math.abs(prev.stopSequence - goal)
+        ? curr
+        : prev
+    })
+
+    const estimate = closestUpdate.departure || closestUpdate.arrival
+    delay = estimate.delay
+    comparisionStopTime.setTime(comparisionStopTime.getTime() + delay * 1000)
+  }
   comparisionStopTime.setSeconds(0) // so it makes more sense in the UI
 
   return (
@@ -47,13 +71,30 @@ export const LineStops = ({
           if (selectedStop === stop.stop_id) {
             afterSelectedStop = true
           }
+          if (!showAll && !afterSelectedStop) return null
+
+          let delay = 0
+          const goal = stop.stop_sequence
+          if (realtimeStopUpdate) {
+            const closestUpdate = realtimeStopUpdate.reduce((prev, curr) => {
+              return Math.abs(curr.stopSequence - goal) <
+                Math.abs(prev.stopSequence - goal)
+                ? curr
+                : prev
+            })
+
+            const estimate = closestUpdate.departure || closestUpdate.arrival
+            delay = estimate.delay
+          }
+
           const minutesOffset =
             Math.floor(
-              (new Date(stop.departure_time) - comparisionStopTime) / 60000 +
+              (new Date(stop.departure_time).getTime() +
+                delay * 1000 -
+                comparisionStopTime) /
+                60000 +
                 1440
             ) % 1440
-
-          if (!showAll && !afterSelectedStop) return null
 
           return (
             <View style={stopStyle} key={stop.stop_sequence}>
@@ -102,14 +143,16 @@ export const LineStops = ({
                         : [styles.timeAbsolute, styles.timePast]
                     }
                   >
-                    {new Date(stop.departure_time).toLocaleTimeString(
-                      navigator.language,
-                      {
-                        timeZone: 'UTC',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      }
-                    )}
+                    {new Date(
+                      new Date(
+                        stop.departure_time || stop.arrival_time
+                      ).getTime() +
+                        delay * 1000
+                    ).toLocaleTimeString(navigator.language, {
+                      timeZone: 'UTC',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
                   </Text>
                 </View>
               </TouchableOpacity>

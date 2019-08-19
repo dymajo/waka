@@ -40,7 +40,7 @@ const Timetable = ({
               service.realtimeStop = stop
 
               if (stop.stopSequence) {
-                service.visible = stop.stopSequence <= service.stopSequence
+                service.visible = stop.stopSequence <= service.stop_sequence
               }
             }
             return service
@@ -58,18 +58,7 @@ const Timetable = ({
 
               if (stop.scheduleRelationship === 'SCHEDULED') {
                 const estimate = stop.departure || stop.arrival
-                if (estimate.time) {
-                  delay =
-                    (new Date(
-                      Math.round(parseInt(estimate.time, 10) * 1000)
-                    ).getTime() -
-                      new Date(
-                        service.departure_time || service.arrival_time
-                      ).getTime()) /
-                    1000
-                } else {
-                  delay = estimate.delay
-                }
+                delay = estimate.delay
 
                 const delayText = `(${Math.ceil(Math.abs(delay) / 60)}m)`
                 if (delay < -90) {

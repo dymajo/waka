@@ -88,3 +88,61 @@ storiesOf('LineStops', module)
   .add('alternate current line', () => (
     <LineStops stops={stopData} color="#130f40" line="120" region="nz-akl" />
   ))
+  .add('realtime - 1 stop available', () => (
+    <LineStops
+      stops={stopData}
+      color="#130f40"
+      line="70"
+      region="nz-akl"
+      currentTrip="1"
+      realtimeStopUpdates={{
+        '1': {
+          stopTimeUpdate: [
+            {
+              scheduleRelationship: 'SCHEDULED',
+              stopSequence: 3,
+              departure: {
+                delay: -300,
+              },
+            },
+          ],
+        },
+      }}
+    />
+  ))
+  .add('realtime - multiple stops available', () => (
+    <LineStops
+      stops={stopData}
+      color="#130f40"
+      line="70"
+      region="nz-akl"
+      currentTrip="1"
+      realtimeStopUpdates={{
+        '1': {
+          stopTimeUpdate: [
+            {
+              scheduleRelationship: 'SCHEDULED',
+              stopSequence: 1,
+              departure: {
+                delay: -100,
+              },
+            },
+            {
+              scheduleRelationship: 'SCHEDULED',
+              stopSequence: 2,
+              departure: {
+                delay: -200,
+              },
+            },
+            {
+              scheduleRelationship: 'SCHEDULED',
+              stopSequence: 3,
+              departure: {
+                delay: -300,
+              },
+            },
+          ],
+        },
+      }}
+    />
+  ))

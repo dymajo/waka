@@ -368,6 +368,8 @@ class Line extends React.Component {
           line={match.params.route_short_name}
           region={match.params.region}
           selectedStop={this.lineData.stop_id}
+          currentTrip={currentTrip}
+          realtimeStopUpdates={realtimeStopUpdates}
         />
       </React.Fragment>
     )
