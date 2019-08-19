@@ -66,45 +66,6 @@ storiesOf('Timetable', module)
       triggerTrip={() => {}}
     />
   ))
-  .add('realtime - time prop', () => (
-    <Timetable
-      currentTrip="1"
-      timetable={[
-        { trip_id: '1', departure_time: now, visible: true },
-        { trip_id: '2', departure_time: tenMins, visible: true },
-        { trip_id: '3', departure_time: hour, visible: true },
-      ]}
-      realtimeStopUpdates={{
-        '1': {
-          stopTimeUpdate: [
-            {
-              scheduleRelationship: 'SCHEDULED',
-              departure: {
-                delay: 0,
-                time: Math.round(
-                  new Date(now).getTime() / 1000 + 290
-                ).toString(),
-              },
-            },
-          ],
-        },
-        '2': {
-          stopTimeUpdate: [
-            {
-              scheduleRelationship: 'SCHEDULED',
-              departure: {
-                delay: 0,
-                time: Math.round(
-                  new Date(tenMins).getTime() / 1000 + 290
-                ).toString(),
-              },
-            },
-          ],
-        },
-      }}
-      triggerTrip={() => {}}
-    />
-  ))
   .add('realtime - late', () => (
     <Timetable
       currentTrip="1"
