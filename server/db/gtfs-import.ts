@@ -17,11 +17,11 @@ import {
   calendarCreator,
   calendarDatesCreator,
   transfersCreator,
-  frequenciesCreator
+  frequenciesCreator,
 } from './tableCreator'
 
 import { badTfnsw, nzAklRouteColor } from './bad'
-import { isKeyof } from '../importers';
+import { isKeyof } from '../importers'
 
 const primaryKeys = {
   agency: 'agency_id',
@@ -31,7 +31,19 @@ const primaryKeys = {
   stop_times: 'trip_id',
   calendar: 'service_id',
   calendar_dates: 'service_id',
-  frequencies: 'trip_id'
+  frequencies: 'trip_id',
+}
+
+const creators = {
+  agency: agencyCreator,
+  stops: stopsCreator,
+  routes: routesCreator,
+  trips: tripsCreator,
+  stop_times: stopTimesCreator,
+  calendar: calendarCreator,
+  calendar_dates: calendarDatesCreator,
+  transfers: transfersCreator,
+  frequencies: frequenciesCreator,
 }
 
 const dayOfTheWeek = (column: string) =>
@@ -44,8 +56,21 @@ const dayOfTheWeek = (column: string) =>
   column === 'sunday'
 
 class GtfsImport {
-  private getTable = (name: string, hashName?: string, hash = false) => {
-    let newName = name
+  private getTable = (
+    name:
+      | 'agency'
+      | 'stops'
+      | 'routes'
+      | 'trips'
+      | 'stop_times'
+      | 'calendar'
+      | 'calendar_dates'
+      | 'transfers'
+      | 'frequencies',
+    hashName?: string,
+    hash = false,
+  ) => {
+    let newName: string = name
     if (hash) {
       newName = `${hashName}`
     }
@@ -53,35 +78,8 @@ class GtfsImport {
     if (hash) {
       table.create = true
     }
-    switch (name) {
-      case 'agency':
-        return agencyCreator(table)
 
-      case 'stops':
-        return stopsCreator(table)
-
-      case 'routes':
-        return routesCreator(table)
-
-      case 'trips':
-        return tripsCreator(table)
-
-      case 'stop_times':
-        return stopTimesCreator(table)
-
-      case 'calendar':
-        return calendarCreator(table)
-
-      case 'calendar_dates':
-        return calendarDatesCreator(table)
-
-      case 'transfers':
-        return transfersCreator(table)
-      case 'frequencies':
-        return frequenciesCreator(table)
-      default:
-        throw new Error('table name not found')
-    }
+    return creators[name](table)
   }
 
   private mapRowToRecord = (
