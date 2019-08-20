@@ -16,11 +16,20 @@ import { LineStops } from './LineStops.jsx'
 import { renderShape, renderStops } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icons/index.js'
 import Timetable from './Timetable.jsx'
+import TripInfo from './TripInfo.jsx'
 
 const Icon = leaflet.icon
 const icons = new Map([
   [
     'train',
+    Icon({
+      iconUrl: '/icons/normal/train-fill.svg',
+      iconSize: [24, 24],
+      className: 'vehIcon',
+    }),
+  ],
+  [
+    'subway',
     Icon({
       iconUrl: '/icons/normal/train-fill.svg',
       iconSize: [24, 24],
@@ -77,6 +86,7 @@ class Line extends React.Component {
     realtimeStopUpdates: {},
     loading: true,
     currentTrip: null,
+    vehiclepos: [],
   }
 
   constructor(props) {
@@ -178,10 +188,11 @@ class Line extends React.Component {
       const now = new Date(new Date().getTime() - tolerance)
       const visibleNow = new Date(new Date().getTime() - visibleTolerance)
       const realtimeNow = new Date(new Date().getTime() + realtimeTolerance)
-
       const newState = {
         timetable: rawData
-          .filter(service => now < new Date(service.departure_time))
+          .filter(service => {
+            return now < new Date(service.departure_time)
+          })
           .sort(
             (a, b) => new Date(a.departure_time) > new Date(b.departure_time)
           )
@@ -240,7 +251,6 @@ class Line extends React.Component {
     const { match } = this.props
     this.lineData.trip_id = currentTrip
     const data = await this.lineData.getTripStops()
-
     const renderedStops = renderStops(
       data.current,
       this.pointsLayer,
@@ -285,6 +295,7 @@ class Line extends React.Component {
       })
       if (this.cancelCallbacks === true) return 'cancelled'
       this.liveLayer.show()
+      this.setState({ vehiclepos: data })
       return 'done'
     } catch (err) {
       console.error(err)
@@ -323,7 +334,6 @@ class Line extends React.Component {
       currentTrip,
       realtimeStopUpdates,
     } = this.state
-
     const currentLine =
       lineMetadata.length > 0
         ? lineMetadata.length === 1
@@ -348,6 +358,10 @@ class Line extends React.Component {
       )
     }
 
+    const tripInfo = this.state.vehiclepos.find(
+      pos => pos.trip_id === currentTrip
+    )
+    console.log(tripInfo)
     const timetableElement =
       timetable.length > 0 ? (
         <Timetable
@@ -360,7 +374,8 @@ class Line extends React.Component {
     const lineStops = loading ? (
       <div className="spinner" />
     ) : (
-      <React.Fragment>
+      <>
+        <TripInfo trip={tripInfo} />
         <Text style={styles.direction}>Stops</Text>
         <LineStops
           color={color}
@@ -371,7 +386,7 @@ class Line extends React.Component {
           currentTrip={currentTrip}
           realtimeStopUpdates={realtimeStopUpdates}
         />
-      </React.Fragment>
+      </>
     )
 
     return (
