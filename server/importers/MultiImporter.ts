@@ -1,4 +1,4 @@
-import { existsSync, createWriteStream, mkdirSync, writeFileSync } from 'fs'
+import { existsSync, createWriteStream, mkdirSync } from 'fs'
 import { resolve as _resolve, join } from 'path'
 import rimraf from 'rimraf'
 import axios from 'axios'
@@ -70,11 +70,6 @@ abstract class MultiImporter extends BaseImporter {
   async get(location: { endpoint: string; type: string; name: string }) {
     const { endpoint, type, name } = location
     const { authorization } = this
-    const zipLocation = {
-      path: join(__dirname, `../../cache/${name}.zip`),
-      type,
-      name,
-    }
     log(config.prefix, 'Downloading GTFS Data', name)
     try {
       const headers = authorization ? { Authorization: authorization } : {}
@@ -82,10 +77,21 @@ abstract class MultiImporter extends BaseImporter {
         headers,
         responseType: 'stream',
       })
+      const zipLocation = {
+        path: join(__dirname, `../../cache/${name}.zip`),
+        type,
+        name,
+      }
+      const resfilename = res.headers['content-disposition']
+        .split('filename=')[1]
+        .replace('.zip', '')
+      if (resfilename) {
+        zipLocation.path = join(__dirname, `../../cache/${resfilename}.zip`)
+      }
       this.zipLocations.push(zipLocation)
       const dest = createWriteStream(zipLocation.path)
       res.data.pipe(dest)
-      return new Promise((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         dest.on('finish', () => {
           log(config.prefix, 'Finished Downloading GTFS Data', name)
           resolve()
