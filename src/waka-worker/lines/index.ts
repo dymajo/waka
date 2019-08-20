@@ -411,11 +411,7 @@ class Lines {
         shape_id: route.shape_id,
         first_stop_id: route.first_stop_id,
         route_type: route.route_type,
-      }
-      // if it's the best match, inserts at the front
-      if (this.exceptionCheck(route, true) === true) {
-        results.unshift(result)
-        return
+        services_count: route.shape_score, // factious
       }
       results.push(result)
     })
