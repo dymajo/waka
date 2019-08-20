@@ -1,13 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
+
 import { vars } from '../../styles.js'
-import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
+import Spinner from '../reusable/Spinner.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 
 import Layer from '../maps/Layer.jsx'
@@ -17,6 +18,8 @@ import { renderShape, renderStops } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icons/index.js'
 import Timetable from './Timetable.jsx'
 import TripInfo from './TripInfo.jsx'
+
+import LineIcon from '../../../dist/icons/linepicker.svg'
 
 const Icon = leaflet.icon
 const icons = new Map([
@@ -321,6 +324,11 @@ class Line extends React.Component {
     }
   }
 
+  triggerPicker = () => {
+    const { location } = this.props
+    UiStore.safePush(`./picker${location.search}`)
+  }
+
   render() {
     const { match } = this.props
     const {
@@ -372,7 +380,7 @@ class Line extends React.Component {
         />
       ) : null
     const lineStops = loading ? (
-      <div className="spinner" />
+      <Spinner />
     ) : (
       <>
         <TripInfo trip={tripInfo} />
@@ -394,6 +402,8 @@ class Line extends React.Component {
         <Header
           title={match.params.route_short_name}
           subtitle={currentLine.route_long_name || ''}
+          actionIcon={<LineIcon />}
+          actionFn={this.triggerPicker}
         />
         <LinkedScroll>
           {timetableElement}

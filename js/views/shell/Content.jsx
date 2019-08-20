@@ -11,6 +11,7 @@ import Save from '../station/Save.jsx'
 import Timetable from '../pages/Timetable.jsx'
 import LineList from '../lines/LineList.jsx'
 import Line from '../lines/Line.jsx'
+import LinePicker from '../lines/LinePicker.jsx'
 import Sponsor from '../pages/Sponsor.jsx'
 import Region from '../pages/Region.jsx'
 import Settings from '../pages/Settings.jsx'
@@ -89,6 +90,11 @@ class Content extends React.Component {
             path="/l/:region/:agency_id/:route_short_name"
             exact
             render={wrapFn(Line)}
+          />
+          <Route
+            path="/l/:region/:agency_id/:route_short_name/picker"
+            exact
+            render={wrapFn(LinePicker)}
           />
           <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
           <Route path="/region" exact render={wrapFn(Region)} />
