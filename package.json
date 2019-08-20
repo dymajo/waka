@@ -51,6 +51,7 @@
     "mssql": "^5.1.0",
     "p-ratelimit": "^0.11.0",
     "rimraf": "^2.6.3",
+    "source-map-support": "^0.5.13",
     "stream-transform": "^2.0.1"
   },
   "devDependencies": {
@@ -64,9 +65,10 @@
     "@typescript-eslint/parser": "^1.12.0",
     "cross-env": "^5.2.0",
     "eslint": "^5.16.0",
+    "eslint-config": "^0.3.0",
     "eslint-config-airbnb-base": "^13.2.0",
     "eslint-config-prettier": "^6.0.0",
-    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "prettier": "^1.18.2",

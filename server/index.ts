@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import 'source-map-support/register'
 import connection from './db/connection'
 import CreateDb from './db/create'
 import log from './logger'

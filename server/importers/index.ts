@@ -53,9 +53,8 @@ export function isKeyof<T extends object>(
   obj: T,
   possibleKey: keyof any,
 ): possibleKey is keyof T {
-  return possibleKey in obj;
+  return possibleKey in obj
 }
-
 
 class Importer {
   importer: GtfsImport
@@ -83,7 +82,6 @@ class Importer {
       try {
         console.log(config.prefix)
         if (isKeyof(regions, config.prefix)) {
-
           const Region = regions[config.prefix]
           this.current = new Region()
         }
@@ -214,10 +212,7 @@ class Importer {
       WHERE pickup_type is null;
     `)
     const rows = res.rowsAffected[0]
-    log(
-      `${config.prefix} ${config.version}`,
-      `Updated ${rows} null pick ups`,
-    )
+    log(`${config.prefix} ${config.version}`, `Updated ${rows} null pick ups`)
   }
 
   async fixDropOffType() {
@@ -228,10 +223,7 @@ class Importer {
       WHERE drop_off_type is null;
     `)
     const rows = res.rowsAffected[0]
-    log(
-      `${config.prefix} ${config.version}`,
-      `Updated ${rows} null drop offs`,
-    )
+    log(`${config.prefix} ${config.version}`, `Updated ${rows} null drop offs`)
   }
 
   async addGeoLocation() {

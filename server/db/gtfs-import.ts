@@ -180,14 +180,15 @@ class GtfsImport {
     location: string,
     file: {
       table:
-      | 'agency'
-      | 'stops'
-      | 'routes'
-      | 'trips'
-      | 'stop_times'
-      | 'calendar'
-      | 'calendar_dates'
-      | 'transfers'
+        | 'agency'
+        | 'stops'
+        | 'routes'
+        | 'trips'
+        | 'stop_times'
+        | 'calendar'
+        | 'calendar_dates'
+        | 'transfers'
+        | 'frequencies'
       name: string
     },
     version: string,
@@ -195,7 +196,6 @@ class GtfsImport {
     endpoint: string,
     merge: boolean = false,
   ) => {
-    if (file.table === 'stops') debugger
     if (!existsSync(_resolve(location, file.name))) {
       throw new Error(`file ${file.name} does not exist`)
     }
@@ -205,7 +205,6 @@ class GtfsImport {
       : this.getTable(file.table)
     if (table === null) return null
     const logstr = file.table.toString()
-
     return new Promise((resolve, reject) => {
       const input = createReadStream(_resolve(location, file.name))
       input.on('error', reject)
@@ -232,7 +231,9 @@ class GtfsImport {
 
         const processRow = async () => {
           if (row && row.length > 1) {
-            const tableSchema = isKeyof(schemas, file.table) ? schemas[file.table] : null
+            const tableSchema = isKeyof(schemas, file.table)
+              ? schemas[file.table]
+              : null
             if (!tableSchema) {
               throw new Error()
             }
@@ -243,12 +244,23 @@ class GtfsImport {
                 tableSchema,
                 endpoint,
               )
-              if (file.table === 'agency' && !Object.keys(headers).some(header => header === 'agency_id' && record[0] === null)) {
-                record[0] = record[1].split(' ').map(word => word[0]).join('')
+              if (
+                file.table === 'agency' &&
+                !Object.keys(headers).some(
+                  header => header === 'agency_id' && record[0] === null,
+                )
+              ) {
+                record[0] = record[1]
+                  .split(' ')
+                  .map(word => word[0])
+                  .join('')
               }
               if (file.table === 'routes' && config.prefix === 'nz-akl') {
                 if (!record[7]) {
-                  const { routeColor, textColor } = nzAklRouteColor(record[1], record[2])
+                  const { routeColor, textColor } = nzAklRouteColor(
+                    record[1],
+                    record[2],
+                  )
                   record[7] = routeColor
                   record[8] = textColor
                 }
@@ -283,7 +295,7 @@ class GtfsImport {
                     return
                   }
                   if (!record[4]) {
-                  record[4] = tripId.tripName
+                    record[4] = tripId.tripName
                   }
                 } else {
                   console.log(split)
@@ -322,11 +334,14 @@ class GtfsImport {
           }
         }
       })
-      transformer.on('error', (err) => {
-        debugger
+      transformer.on('error', err => {
         log(err)
       })
       transformer.on('finish', async () => {
+        if (totalTransactions === 0) {
+          log(endpoint, logstr, 'skipped')
+          return resolve()
+        }
         const transactionsStr =
           totalTransactions > 1000
             ? `${Math.round(totalTransactions / 1000)}k`
@@ -352,7 +367,6 @@ class GtfsImport {
 
   private commit = async (table: Table) => {
     try {
-
       const result = await connection
         .get()
         .request()
@@ -370,7 +384,8 @@ class GtfsImport {
       | 'trips'
       | 'stop_times'
       | 'calendar'
-      | 'calendar_dates',
+      | 'calendar_dates'
+      | 'frequencies',
   ) => {
     const hashTable = `temp_${table}`
     const primaryKey = primaryKeys[table]

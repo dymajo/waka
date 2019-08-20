@@ -4,7 +4,7 @@ const varCharLength = {
   small: 50,
   medium: 100,
   large: 150,
-  xl: 1000
+  xl: 1000,
 }
 
 const decimalPrecision = 10
@@ -179,17 +179,24 @@ export const calendarDatesCreator = (table: Table) => {
 }
 
 export const transfersCreator = (table: Table) => {
-  table.columns.add('from_stop_id', VarChar(varCharLength.medium), { nullable: false })
-  table.columns.add('to_stop_id', VarChar(varCharLength.medium), { nullable: false })
+  table.columns.add('from_stop_id', VarChar(varCharLength.medium), {
+    nullable: false,
+  })
+  table.columns.add('to_stop_id', VarChar(varCharLength.medium), {
+    nullable: false,
+  })
   table.columns.add('transfer_type', Int, { nullable: false })
   table.columns.add('min_transfer_time', Int, { nullable: true })
   return table
 }
 
 export const frequenciesCreator = (table: Table) => {
-  table.columns.add('trip_id', VarChar(varCharLength.medium), { nullable: false })
+  table.columns.add('trip_id', VarChar(varCharLength.medium), {
+    nullable: false,
+  })
   table.columns.add('start_time', Time(0), { nullable: false })
   table.columns.add('end_time', Time(0), { nullable: false })
   table.columns.add('headway_sec', Int, { nullable: false })
   table.columns.add('exact_times', Int, { nullable: true })
+  return table
 }
