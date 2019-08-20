@@ -284,6 +284,9 @@ class GtfsImport {
                   ) {
                     return
                   }
+                  if (!record[4]) {
+                  record[4] = tripId.tripName
+                  }
                 } else {
                   console.log(split)
                 }
