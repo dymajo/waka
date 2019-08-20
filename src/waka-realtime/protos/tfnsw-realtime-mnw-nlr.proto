@@ -1,0 +1,102 @@
+option java_package = "com.google.transit.realtime";
+
+package transit_realtime;
+
+import "gtfs-realtime.proto";
+
+// The TfnswVehicleDescriptor extends the GTFS vehicle message to provide additional vehicle
+// attribute information to the consuming application
+message TfnswVehicleDescriptor {
+
+    optional bool air_conditioned = 1 [default = false];
+    // Indicates the availability of air-conditioning on this vehicle
+
+    optional int32 wheelchair_accessible = 2 [default = 0];
+    // Indicates the number of wheel chairs that can be accommodated on this vehicle
+
+    optional string vehicle_model = 3;
+    // A the type of vehicle performing this trip
+
+    optional bool performing_prior_trip = 4 [default = false];
+    // An indicator used to display the location of vehicles that will execute this upon completion of their current trip
+
+    optional int32 special_vehicle_attributes = 5 [default = 0];
+    // Used to pass ad-hoc temporary additional vehicle attribute information, for example Christmas buses
+}
+
+// Identification information for rail carriages
+message CarriageDescriptor {
+
+    // Internal system for identifying the cars in a train.
+    optional string name = 1; // ID of the carriage - this should refer to a value customers can see
+
+    // Carriage position in the consist.
+    // The position of carriages is relative to the current leading carriage and commences with 1 for the leading carriage.
+    // This helps passengers locate special purpose carriages.
+    required int32 position_in_consist = 2;
+
+    // Occupancy definition is copied directly from the VehiclePosition. This provides a more granular view. The field in
+    // VehiclePosition should be a rollup of the individual carriage occupancy metrics
+    enum OccupancyStatus {
+        // The carriage is considered empty by most measures, and has few or no
+        // passengers onboard, but is still accepting passengers.
+        EMPTY = 0;
+
+        // The carriage has a relatively large percentage of seats available.
+        // What percentage of free seats out of the total seats available is to be
+        // considered large enough to fall into this category is determined at the
+        // discretion of the producer.
+        MANY_SEATS_AVAILABLE = 1;
+
+        // The carriage has a relatively small percentage of seats available.
+        // What percentage of free seats out of the total seats available is to be
+        // considered small enough to fall into this category is determined at the
+        // discretion of the feed producer.
+        FEW_SEATS_AVAILABLE = 2;
+
+        // The carriage can currently accommodate only standing passengers.
+        STANDING_ROOM_ONLY = 3;
+
+        // The carriage can currently accommodate only standing passengers
+        // and has limited space for them.
+        CRUSHED_STANDING_ROOM_ONLY = 4;
+
+        // The carriage is considered full by most measures, but may still be
+        // allowing passengers to board.
+        FULL = 5;
+    }
+    optional OccupancyStatus occupancy_status = 3;
+
+	// Is this a quiet carriage - used to indicate to passengers they should keep noise to a minimum
+    optional bool quiet_carriage = 4 [default = false];
+
+    // Does the carriage have a toilet and if so, is it an accessible one ?
+    enum ToiletStatus {
+        NONE = 0;         // No toilet in this carriage
+        NORMAL = 1;       // regular toilet for able bodied people
+        ACCESSIBLE = 2;   // toilet suitable for disabled people
+	}
+    optional ToiletStatus toilet = 5;
+
+    // Does the carriage have luggage racks
+    optional bool luggage_rack = 6 [default = false];
+
+    // The extensions namespace allows 3rd-party developers to extend the
+    // GTFS-realtime specification in order to add and evaluate new features and
+    // modifications to the spec.
+    extensions 1000 to 1999;
+}
+
+extend transit_realtime.VehiclePosition {
+    // Additional information on the consist if this vehicle is a train.
+    // This element describes each carriage in a train
+    // There should be one CarriageDescriptor per carriage
+    repeated CarriageDescriptor consist = 1007;
+}
+
+extend transit_realtime.VehicleDescriptor {
+
+    optional TfnswVehicleDescriptor tfnsw_vehicle_descriptor_mnw_nlr = 1007;
+    optional TfnswVehicleDescriptor tfnsw_vehicle_descriptor = 1999;
+    // Assumes the TfNSW extension number will be 1999
+}

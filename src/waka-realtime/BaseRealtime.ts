@@ -10,7 +10,13 @@ import {
 } from '../gtfs'
 import { check } from '../utils'
 
-export const PROTOBUF_PATH = path.join(__dirname, 'gtfs-realtime.proto')
+export const PROTOBUF_PATH = [
+  path.join(__dirname, 'protos', 'gtfs-realtime.proto'),
+  path.join(__dirname, 'protos', 'tfnsw-realtime.proto'),
+  path.join(__dirname, 'protos', 'tfnsw-realtime-mnw-nlr.proto'),
+  path.join(__dirname, 'protos', 'nyct-subway.proto'),
+  path.join(__dirname, 'protos', 'gtfs-realtime-MNR.proto'),
+]
 
 export interface BaseRealtimeProps {
   apiKey?: string
