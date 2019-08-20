@@ -176,8 +176,12 @@ export interface StopTime {
   arrival_time: Date
   departure_time: Date
   stop_id: string
+  stop_code: string
   stop_name: string
+  stop_lat: number
+  stop_lon: number
   trip_headsign: string
+  stop_headsign: string
   route_short_name: string
   stop_sequence: number
 }

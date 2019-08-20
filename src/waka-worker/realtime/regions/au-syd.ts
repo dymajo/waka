@@ -211,21 +211,38 @@ class RealtimeAUSYD extends BaseRealtime {
           const air_conditioned = oc(vehiclePosition).vehicle[
             '.transit_realtime.tfnswVehicleDescriptor'
           ].airConditioned()
-          const performing_prior_trip = oc(vehiclePosition).vehicle[
-            '.transit_realtime.tfnswVehicleDescriptor'
-          ].performingPriorTrip()
-          const special_vehicle_attributes = oc(vehiclePosition).vehicle[
-            '.transit_realtime.tfnswVehicleDescriptor'
-          ].specialVehicleAttributes()
-          const vehicle_model = oc(vehiclePosition).vehicle[
-            '.transit_realtime.tfnswVehicleDescriptor'
-          ].vehicleModel()
-          const wheelchair_accessible = oc(vehiclePosition).vehicle[
-            '.transit_realtime.tfnswVehicleDescriptor'
-          ].wheelChairAccessible()
+          const performing_prior_trip =
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptor'
+            ].performingPriorTrip() ||
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
+            ].performingPriorTrip()
+          const special_vehicle_attributes =
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptor'
+            ].specialVehicleAttributes() ||
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
+            ].specialVehicleAttributes()
+          const vehicle_model =
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptor'
+            ].vehicleModel() ||
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
+            ].vehicleModel()
+          const wheelchair_accessible =
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptor'
+            ].wheelChairAccessible() ||
+            oc(vehiclePosition).vehicle[
+              '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
+            ].wheelChairAccessible()
           const timestamp = oc(vehiclePosition).timestamp(0)
           const split = tripId ? tripId.split('.') : []
-          const [
+          const consist = oc(vehiclePosition)['.transit_realtime.consist']([])
+          let [
             run,
             timetableId,
             timetableVersion,
@@ -240,6 +257,52 @@ class RealtimeAUSYD extends BaseRealtime {
             (backupDirectionId === 0 || backupDirectionId === 1
               ? backupDirectionId
               : 0)
+          if (type) {
+            switch (type) {
+              case 'A':
+                type = 'Waratah'
+                break
+              case 'B':
+                type = 'Waratah Series 2'
+                break
+              case 'C':
+                type = 'C Set'
+                break
+              case 'H':
+                type = 'OSCAR'
+                break
+              case 'J':
+                type = 'Hunter'
+                break
+              case 'K':
+                type = 'K Set'
+                break
+              case 'M':
+                type = 'Millennium'
+                break
+              case 'N':
+                type = 'Endeavour'
+                break
+              case 'P':
+                type = 'XPLORER'
+                break
+              case 'S':
+                type = 'S Set'
+                break
+              case 'T':
+                type = 'Tangara'
+                break
+              case 'V':
+                type = 'Intercity'
+                break
+              case 'X':
+                type = 'XPT'
+                break
+
+              default:
+                break
+            }
+          }
           const result: WakaVehicleInfo = {
             latitude,
             longitude,
@@ -261,6 +324,7 @@ class RealtimeAUSYD extends BaseRealtime {
               cars,
               type,
               run,
+              consist,
             },
           }
           return result

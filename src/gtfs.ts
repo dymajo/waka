@@ -152,6 +152,7 @@ export interface VehicleDescriptor {
   label?: string
   licensePlate?: string
   '.transit_realtime.tfnswVehicleDescriptor'?: TfNSWVehicleDescriptor
+  '.transit_realtime.tfnswVehicleDescriptorMnwNlr'?: TfNSWVehicleDescriptor
 }
 
 export interface TfNSWVehicleDescriptor {
@@ -184,16 +185,27 @@ export interface VehiclePosition {
   timestamp?: number
   congestionLevel?: CongestionLevel
   occupancyStatus?: OccupancyStatus
+  '.transit_realtime.consist': CarriageDescriptor[]
 }
+
+export interface CarriageDescriptor {
+  name?: string
+  positionInConsist: number
+  occupancyStatus: OccupancyStatus
+  quietCarriage?: boolean
+  toiletStatus?: ToiletStatus
+  luggageStatus?: boolean
+}
+
+export type ToiletStatus = 'NONE' | 'NORMAL' | 'ACCESSIBLE'
 
 export type OccupancyStatus =
   | 'EMPTY'
-  | '_MANY_SEATS_AVAILABLE_'
-  | '_FEW_SEATS_AVAILABLE_'
-  | '_STANDING_ROOM_ONLY_'
-  | '_CRUSHED_STANDING_ROOM_ONLY_'
+  | 'MANY_SEATS_AVAILABLE'
+  | 'FEW_SEATS_AVAILABLE'
+  | 'STANDING_ROOM_ONLY'
+  | 'CRUSHED_STANDING_ROOM_ONLY'
   | 'FULL'
-  | '_NOT_ACCEPTING_PASSENGERS_'
 
 export type CongestionLevel =
   | 'UNKNOWN_CONGESTION_LEVEL'
