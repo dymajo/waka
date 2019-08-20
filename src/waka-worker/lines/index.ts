@@ -612,7 +612,9 @@ class Lines {
           stops.stop_lon,
           stop_times.departure_time,
           stop_times.departure_time_24,
-          stop_times.stop_sequence
+          stop_times.stop_sequence,
+          stop_times.pickup_type,
+          stop_times.drop_off_type
         FROM stop_times
         LEFT JOIN stops
           on stops.stop_id = stop_times.stop_id
