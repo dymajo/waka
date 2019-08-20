@@ -136,7 +136,6 @@ class StopsDataAccess {
       .input('route_short_name', sql.VarChar(50), routeId)
       .input('date', sql.Date, date)
       .input('direction', sql.Int, direction)
-
     const result = await sqlRequest.execute<{
       trip_id: string
       service_id: string
@@ -399,7 +398,15 @@ class StopsDataAccess {
         : ''
 
     const result = await sqlRequest.query<StopTime>(`
-      SELECT 
+      SELECT
+        CASE
+			    WHEN stop_times.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time) + 86400
+			    ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time)
+		    END AS new_arrival_time,
+		    CASE
+			    WHEN stop_times.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time) + 86400
+			    ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time)
+		    END AS new_departure_time,
         trips.trip_id,
         pickup_type,
         drop_off_type,
@@ -497,7 +504,7 @@ class StopsDataAccess {
       return this.getStopTimesV2(current.trip_id, previous.trip_id)
     }
     if (currentIdx === 0) {
-      return this.getStopTimesV2(current.trip_id, null, next.trip_id)
+      return this.getStopTimesV2(current.trip_id, undefined, next.trip_id)
     }
     return this.getStopTimesV2(current.trip_id, previous.trip_id, next.trip_id)
   }
