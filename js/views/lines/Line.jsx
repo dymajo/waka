@@ -238,14 +238,48 @@ class Line extends React.Component {
           .map(t => t.trip_id)
 
         this.setState(newState, () => {
-          // get stops if we didn't have the data the first time
-          if (!currentTrip && newState.currentTrip) {
+          if (newState.timetable.length === 0) {
+            // timetable is empty, so best guess
+            const { lineMetadata } = this.state
+
+            // if there's no metadata, try get it
+            if (lineMetadata.length === 0) {
+              this.lineData.stop_id = null
+              this.getData()
+            } else {
+              const secondAttempt =
+                lineMetadata.find(
+                  i => i.direction_id === this.lineData.direction_id
+                ) || lineMetadata[0]
+              this.lineData.direction_id = secondAttempt.direction_id
+
+              if (
+                this.lineData.stop_id === secondAttempt.first_stop_id &&
+                this.lineData.direction_id === secondAttempt.direction_id
+              ) {
+                // already attempted this, so give up
+                throw new Error(
+                  'We could not load the timetable for this line.'
+                )
+              } else {
+                this.lineData.direction_id = secondAttempt.direction_id
+                this.lineData.stop_id = secondAttempt.first_stop_id
+                this.getTimetable()
+              }
+            }
+          } else if (!currentTrip && newState.currentTrip) {
+            // get stops if we didn't have the data the first time
             this.getStops()
           }
         })
       })
     } catch (err) {
       // cannot get timetable, usually because the stop_id is undefined
+      console.error(err)
+      this.setState({
+        error: true,
+        errorMessage: err.message,
+      })
     }
   }
 
@@ -341,6 +375,7 @@ class Line extends React.Component {
       timetable,
       currentTrip,
       realtimeStopUpdates,
+      vehiclepos,
     } = this.state
     const currentLine =
       lineMetadata.length > 0
@@ -366,10 +401,7 @@ class Line extends React.Component {
       )
     }
 
-    const tripInfo = this.state.vehiclepos.find(
-      pos => pos.trip_id === currentTrip
-    )
-    console.log(tripInfo)
+    const tripInfo = vehiclepos.find(pos => pos.trip_id === currentTrip)
     const timetableElement =
       timetable.length > 0 ? (
         <Timetable
@@ -383,7 +415,9 @@ class Line extends React.Component {
       <Spinner />
     ) : (
       <>
-        <TripInfo trip={tripInfo} />
+        {window.location.hostname === 'localhost' ? (
+          <TripInfo trip={tripInfo} />
+        ) : null}
         <Text style={styles.direction}>Stops</Text>
         <LineStops
           color={color}
