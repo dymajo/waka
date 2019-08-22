@@ -184,6 +184,9 @@ class Line extends React.Component {
   }
 
   getTimetable = async () => {
+    // this will be invoked again properly
+    if (this.lineData.stop_id === null) return
+
     const getTimetableState = rawData => {
       const tolerance = 1000 * 60 * 30
       const visibleTolerance = 1000 * 60 * 2

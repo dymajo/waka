@@ -18,6 +18,7 @@ class LinePicker extends Component {
     error: false,
     errorMessage: '',
     lineMetadata: [],
+    showAll: false,
   }
 
   constructor(props) {
@@ -56,7 +57,7 @@ class LinePicker extends Component {
 
   render() {
     const { match } = this.props
-    const { loading, error, errorMessage, lineMetadata } = this.state
+    const { loading, error, errorMessage, lineMetadata, showAll } = this.state
 
     let content = null
     if (error) {
@@ -74,37 +75,80 @@ class LinePicker extends Component {
       )
     }
 
+    // only let through services that have at least 20% of services of the main one
+    let filteredServicePatterns = 0
+    let baselineServicePatterns = 0
+    if (lineMetadata.length > 0) {
+      baselineServicePatterns = Math.ceil(lineMetadata[0].services_count * 0.2)
+    }
     if (loading) {
       content = <Spinner />
     } else {
       content = (
         <LinkedScroll>
           <View style={styles.lineVariantWrapper}>
-            {lineMetadata.map((line, index) => (
-              <TouchableOpacity
-                key={line.route_id}
-                style={
-                  index === 0
-                    ? [styles.lineVariant, styles.lineVariantFirstChild]
-                    : styles.lineVariant
+            {lineMetadata
+              .filter(line => {
+                if (!showAll && line.services_count < baselineServicePatterns) {
+                  filteredServicePatterns += 1
+                  return false
                 }
-                onClick={() => {
-                  // TODO: Stop Id
-                  // Make this a replace, not a push, depending on the referral page
-                  UiStore.safePush(
-                    `/l/${match.params.region}/${line.agency_id}/${line.route_short_name}?route_id=${line.route_id}&direction=${line.direction_id}`
-                  )
-                }}
+                return true
+              })
+              .map((line, index) => {
+                const routeLongName = line.route_long_name
+                  .replace('Via', 'via')
+                  .split(' via ')
+                const title = routeLongName[0]
+                const subtitle = routeLongName.slice(1).join(' via ')
+                return (
+                  <TouchableOpacity
+                    key={line.route_id}
+                    style={
+                      index === 0
+                        ? [styles.lineVariant, styles.lineVariantFirstChild]
+                        : styles.lineVariant
+                    }
+                    onClick={() => {
+                      // TODO: Stop Id
+                      // Make this a replace, not a push, depending on the referral page
+                      UiStore.safePush(
+                        `/l/${match.params.region}/${line.agency_id}/${line.route_short_name}?route_id=${line.route_id}&direction=${line.direction_id}`
+                      )
+                    }}
+                  >
+                    <Text style={styles.lineVariantText}>{title}</Text>
+                    {subtitle !== '' ? (
+                      <Text
+                        style={[
+                          styles.lineVariantText,
+                          styles.lineVariantSubtitle,
+                        ]}
+                      >
+                        via {subtitle}
+                      </Text>
+                    ) : null}
+
+                    <Text style={styles.lineVariantSubtext}>
+                      {line.services_count} Service
+                      {line.services_count !== 1 ? 's' : ''}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })}
+            {filteredServicePatterns > 0 ? (
+              <TouchableOpacity
+                onClick={() => this.setState({ showAll: true })}
+                style={styles.showAllWrapper}
               >
-                <Text style={styles.lineVariantText}>
-                  {line.route_long_name}
-                </Text>
-                <Text style={styles.lineVariantSubtext}>
-                  {line.services_count} Service
-                  {line.services_count !== 1 ? 's' : ''}
-                </Text>
+                <View style={styles.showAllTextWrapper}>
+                  <Text style={styles.showAllText}>
+                    Show {filteredServicePatterns} other service{' '}
+                    {filteredServicePatterns === 1 ? 'pattern' : 'patterns'}
+                  </Text>
+                </View>
               </TouchableOpacity>
-            ))}
+            ) : null}
           </View>
         </LinkedScroll>
       )
@@ -112,7 +156,10 @@ class LinePicker extends Component {
 
     return (
       <View style={styles.wrapper}>
-        <Header title="Pick Line" subtitle={match.params.route_short_name} />
+        <Header
+          title="Service Patterns"
+          subtitle={match.params.route_short_name}
+        />
         {content}
       </View>
     )
@@ -122,8 +169,8 @@ const { padding, fontFamily } = vars
 styles = StyleSheet.create({
   wrapper: { flex: 1 },
   lineVariantWrapper: {
-    paddingTop: padding,
     paddingBottom: padding,
+    paddingTop: padding,
   },
   lineVariantFirstChild: {
     borderTopWidth: 1,
@@ -144,8 +191,34 @@ styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily,
   },
+  lineVariantSubtitle: {
+    fontSize: 12,
+    color: '#666',
+  },
   lineVariantSubtext: {
+    fontSize: 13,
+    lineHeight: 22,
     fontFamily,
+  },
+  showAllWrapper: {
+    flexDirection: 'row',
+  },
+  showAllTextWrapper: {
+    marginLeft: vars.padding * 0.75,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    marginBottom: vars.padding * 0.375,
+    marginTop: vars.padding * 0.75,
+    borderRadius: 3,
+    paddingLeft: vars.padding * 0.375,
+    paddingRight: vars.padding * 0.375,
+    paddingTop: 2,
+    paddingBottom: 2,
+  },
+  showAllText: {
+    fontFamily,
+    fontWeight: '600',
+    color: vars.headerColor,
+    fontSize: 13,
   },
 })
 

@@ -40,7 +40,9 @@ const Timetable = ({
               service.realtimeStop = stop
 
               if (stop.stopSequence) {
-                service.visible = stop.stopSequence <= service.stop_sequence
+                service.visible =
+                  stop.stopSequence < service.stop_sequence ||
+                  service.trip_id === currentTrip
               }
             }
             return service
