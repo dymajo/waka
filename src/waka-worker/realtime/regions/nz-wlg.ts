@@ -53,6 +53,7 @@ class RealtimeNZWLG extends BaseRealtime {
     if (!req.body.stop_id) {
       return res.status(400).send({ message: 'stop_id required' })
     }
+    const { stop_id } = req.body
     try {
       const bodies = await Promise.all<{
         LastModified: string
@@ -61,7 +62,7 @@ class RealtimeNZWLG extends BaseRealtime {
         Services: MetlinkUpdate[]
         station: string
       }>(
-        req.body.stop_id
+        stop_id
           .split('+')
           .slice(0, 3)
           .map(
@@ -110,7 +111,7 @@ class RealtimeNZWLG extends BaseRealtime {
       try {
         let dbTrips: DBStopTime[] = []
         dbTrips = await this.dataAccess.getStopTimes(
-          req.body.stop_id,
+          stop_id,
           currentTime,
           today,
           'GetStopTimes'
@@ -122,9 +123,7 @@ class RealtimeNZWLG extends BaseRealtime {
         return res.status(500).send(err)
       }
 
-      const responseData: {} = {
-        extraServices: {},
-      }
+      const responseData: {} = {}
       bodies.forEach(body => {
         const stop = body.station
         const realtimeServices: { [serviceId: string]: MetlinkUpdate[] } = {}
@@ -172,36 +171,49 @@ class RealtimeNZWLG extends BaseRealtime {
                   : prev
             )
 
-            // less than 180 seconds, then it's valid?
+            // less than 240 seconds, then it's valid?
             if (
               Math.abs(moment(closest.AimedDeparture).unix() - goal.unix()) <
-              180000
+              240
             ) {
+              const delay =
+                moment(closest.ExpectedDeparture).unix() - goal.unix()
               responseData[key] = {
-                goal,
-                found: moment(closest.AimedDeparture),
-                delay: moment(closest.ExpectedDeparture).unix() - goal.unix(),
-                v_id: closest.VehicleRef,
+                trip: {
+                  tripId: key,
+                  startTime: moment(closest.AimedDeparture).format('HH:mm:ss'),
+                  scheduleRelationship: 'SCHEDULED',
+                  routeId: trip.route_id,
+                },
+                stopTimeUpdate: [
+                  {
+                    stopSequence: -100,
+                    departure: {
+                      delay,
+                      time: moment(closest.ExpectedDeparture).unix(),
+                    },
+                    stopId: stop_id,
+                    scheduleRelationship: 'SCHEDULED',
+                  },
+                ],
+                vehicle: {
+                  id: closest.VehicleRef,
+                },
+                timestamp: moment(closest.ExpectedDeparture).unix(),
+                delay,
                 stop_sequence: -100,
-                time: 0,
-                double_decker: false,
+                specialVehicle: {
+                  ev: false, // TODO: Wellington actually has two electric buses
+                  dd: false, // TODO: Wellington actually has plenty of double deckers
+                },
               }
               realtimeServices[trip.route_short_name].splice(
                 realtimeServices[trip.route_short_name].indexOf(closest),
                 1
               )
-            } else if (goal < moment()) {
-              responseData[key] = {
-                departed: 'probably',
-              }
-            } else {
-              responseData[key] = {
-                departed: 'unlikely',
-              }
             }
           }
         })
-        responseData.extraServices[stop] = realtimeServices
       })
       return res.send(responseData)
     } catch (err) {

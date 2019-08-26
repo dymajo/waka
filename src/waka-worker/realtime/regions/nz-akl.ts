@@ -80,49 +80,16 @@ class RealtimeNZAKL extends BaseRealtime {
       logger.error('Must be new realtime')
     } else {
       // await this.redis.start()
-      logger.info('Realtime Gateway started')
+      logger.info('Realtime Gateway started blah')
     }
   }
 
   stop = () => {
-    this.logger.info('Auckland Realtime stopped.')
+    this.logger.info('Auckland Realtime stopped. blah')
   }
 
-  getTripsCached = async (trips: string[], stop_id: string) => {
-    const realtimeInfo: { [tripId: string]: WakaTripUpdate } = {}
-    for (const tripId of trips) {
-      try {
-        const data = await this.wakaRedis.getTripUpdate(tripId)
-        if (data !== undefined) {
-          const stopTimeUpdate = oc(data).stopTimeUpdate([])
-          if (stopTimeUpdate.length > 0) {
-            const targetStop = stopTimeUpdate.find(
-              stopUpdate => stopUpdate.stopId === stop_id
-            )
-            if (targetStop) {
-              const stop_sequence = oc(targetStop).stopSequence()
-              const delay = oc(targetStop).departure.delay()
-              const timestamp = oc(targetStop).departure.time()
-              const info: {
-                stop_sequence?: number
-                delay?: number
-                timestamp?: number
-              } = { stop_sequence, delay, timestamp }
-
-              realtimeInfo[tripId] = info
-            }
-
-            // return values:
-            // delay is added to the scheduled time to figure out the actual stop time
-            // timestamp is epoch scheduled time (according to the GTFS-R API)
-            // stop_sequence is the stop that the vechicle is currently at
-          }
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    return realtimeInfo
+  getTripsCached = (trips: string[], stop_id: string) => {
+    return this.getTrips(trips, false, stop_id)
   }
 
   getVehicleInfoCached = async (line: string) => {
@@ -218,49 +185,62 @@ class RealtimeNZAKL extends BaseRealtime {
     >,
     res: Response
   ) => {
+    const { trips, train, stop_id } = req.body
+    try {
+      const data = await this.getTrips(trips, train, stop_id)
+      return res.send(data)
+    } catch (err) {
+      this.logger.error(err)
+      return res.status(500).send({ err })
+    }
+  }
+
+  getTrips = async (trips: string[], train: boolean, stop_id: string) => {
     interface ExTripUpdate extends TripUpdate {
       specialVehicle: { ev: boolean; dd: boolean }
+      stop_sequence: number
     }
-    const { trips, train } = req.body
     const realtimeInfo: {
       [tripId: string]: ExTripUpdate | WakaVehiclePosition
     } = {}
     if (train) {
       for (const tripId of trips) {
-        try {
-          const data = await this.wakaRedis.getVehiclePosition(tripId)
-          if (data) {
-            const tripId = oc(data).trip.tripId('')
-            const vehicleId = oc(data).vehicle.id()
-            const latitude = oc(data).position.latitude(0)
-            const longitude = oc(data).position.longitude(0)
-            realtimeInfo[tripId] = {
-              v_id: vehicleId,
-              latitude,
-              longitude,
-            }
+        const data = await this.wakaRedis.getVehiclePosition(tripId)
+        if (data) {
+          const tripId = oc(data).trip.tripId('')
+          const vehicleId = oc(data).vehicle.id()
+          const latitude = oc(data).position.latitude(0)
+          const longitude = oc(data).position.longitude(0)
+          realtimeInfo[tripId] = {
+            v_id: vehicleId,
+            latitude,
+            longitude,
           }
-        } catch (err) {
-          console.log(err)
         }
       }
     } else {
       for (const tripId of trips) {
-        try {
-          const data = await this.wakaRedis.getTripUpdate(tripId)
-          const vehicleId = oc(data).vehicle.id()
-          if (data && vehicleId) {
+        const data = await this.wakaRedis.getTripUpdate(tripId)
+        const vehicleId = oc(data).vehicle.id()
+
+        const stopTimeUpdate = oc(data).stopTimeUpdate([])
+
+        if (stopTimeUpdate.length > 0) {
+          const targetStop =
+            stopTimeUpdate.find(stopUpdate => stopUpdate.stopId === stop_id) ||
+            stopTimeUpdate[0]
+          if (data && vehicleId && targetStop) {
             realtimeInfo[tripId] = {
               ...data,
+              delay: oc(targetStop).departure.delay(),
+              stop_sequence: oc(targetStop).stopSequence() as number,
               specialVehicle: this.isSpecialVehicle(vehicleId),
             }
           }
-        } catch (error) {
-          console.log(error)
         }
       }
     }
-    return res.send(realtimeInfo)
+    return realtimeInfo
   }
 
   getVehicleLocationEndpoint = async (
