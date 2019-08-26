@@ -112,6 +112,7 @@ class LineData {
   }
 
   async getRealtimeStopUpdate() {
+    const { stop_id } = this
     const trips = this.realtime_trips
     if (trips.length === 0) return {}
 
@@ -121,6 +122,7 @@ class LineData {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        stop_id,
         trips,
       }),
     })
