@@ -232,7 +232,9 @@ class RealtimeNZAKL extends BaseRealtime {
           if (data && vehicleId && targetStop) {
             realtimeInfo[tripId] = {
               ...data,
-              delay: oc(targetStop).departure.delay(),
+              delay: oc(targetStop).departure.delay(
+                oc(targetStop).arrival.delay()
+              ),
               stop_sequence: oc(targetStop).stopSequence() as number,
               specialVehicle: this.isSpecialVehicle(vehicleId),
             }

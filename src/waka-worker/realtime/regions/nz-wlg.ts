@@ -190,7 +190,9 @@ class RealtimeNZWLG extends BaseRealtime {
                     stopSequence: -100,
                     departure: {
                       delay,
-                      time: moment(closest.ExpectedDeparture).unix(),
+                      time: moment(closest.ExpectedDeparture)
+                        .unix()
+                        .toString(),
                     },
                     stopId: stop_id,
                     scheduleRelationship: 'SCHEDULED',
@@ -199,7 +201,9 @@ class RealtimeNZWLG extends BaseRealtime {
                 vehicle: {
                   id: closest.VehicleRef,
                 },
-                timestamp: moment(closest.ExpectedDeparture).unix(),
+                timestamp: moment(closest.ExpectedDeparture)
+                  .unix()
+                  .toString(),
                 delay,
                 stop_sequence: -100,
                 specialVehicle: {
