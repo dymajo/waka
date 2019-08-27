@@ -72,7 +72,7 @@ abstract class SingleEndpoint extends BaseRealtime {
       await setupProtobuf()
     }
     logger.info('Starting Trip Update Pull')
-
+    debugger
     try {
       const res = await axios.get(`${tripUpdateEndpoint}`)
       const oldModified = await wakaRedis.getKey('default', 'last-trip-update')

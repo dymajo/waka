@@ -6,8 +6,8 @@ import {
 
 class EnvMapper {
   toEnvironmental(
-    config,
-    subset
+    config: any,
+    subset: any
   ): EnvironmentConfig | EnvironmentImporterConfig | EnvironmentWorkerConfig {
     const base = {
       PREFIX: config.prefix,
@@ -58,7 +58,7 @@ class EnvMapper {
   fromEnvironmental(env: {
     PREFIX: string
     VERSION: string
-    STORAGE_SERVICE: 'aws' | 'local'
+    STORAGE_SERVICE: string
     SHAPES_CONTAINER: string
     SHAPES_REGION: string
     EMULATED_STORAGE: string
@@ -115,7 +115,7 @@ class EnvMapper {
         host: REDIS_HOST,
         family: parseInt(REDIS_FAMILY, 10),
         password: REDIS_PASSWORD,
-        db: REDIS_DB,
+        db: parseInt(REDIS_DB, 10),
       },
       db: {
         user: DB_USER,

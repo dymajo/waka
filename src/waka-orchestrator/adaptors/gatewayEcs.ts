@@ -6,8 +6,10 @@ import EnvMapper from '../../envMapper'
 import { EcsGatewayConfig, WorkerConfig } from '../../typings'
 import BaseGateway from '../../types/BaseGateway'
 
-const envConvert = env =>
-  JSON.stringify(env.map(e => `${e.name}|${e.value}`).sort())
+const envConvert = (env: any) =>
+  JSON.stringify(
+    env.map((e: { name: string; value: any }) => `${e.name}|${e.value}`).sort()
+  )
 
 class GatewayEcs extends BaseGateway {
   servicePrefix: string
@@ -32,7 +34,7 @@ class GatewayEcs extends BaseGateway {
     this.ecs = new AWS.ECS({ region, params: { cluster } })
   }
 
-  async start(prefix, config: WorkerConfig) {
+  async start(prefix: string, config: WorkerConfig) {
     const { ecs, servicePrefix, serviceSuffix, replicas } = this
     if (!ecs) {
       logger.error({ prefix }, 'Cannot start ECS Service - not configured.')

@@ -5,7 +5,6 @@ import 'source-map-support/register'
 import EnvMapper from '../envMapper'
 import WakaWorker from '.'
 
-const { PREFIX, VERSION, PORT } = process.env
 declare const process: {
   env: {
     PORT: string
@@ -13,7 +12,7 @@ declare const process: {
     KEYVALUE: string
     KEYVALUE_PREFIX: string
     KEYVALUE_REGION: string
-    STORAGE_SERVICE: 'aws' | 'local'
+    STORAGE_SERVICE: string
     PREFIX: string
     VERSION: string
     SHAPES_CONTAINER: string
@@ -37,6 +36,7 @@ declare const process: {
     NEW_REALTIME: string
   }
 }
+const { PREFIX, VERSION, PORT } = process.env
 const envMapper = new EnvMapper()
 const config = envMapper.fromEnvironmental(process.env)
 const worker = new WakaWorker(config)
@@ -50,7 +50,11 @@ app.use((req, res, next) => {
 app.use(`/a/${PREFIX}`, worker.router)
 app.use(worker.router)
 
-const listener = app.listen(PORT, () => {
-  worker.logger.info({ port: listener.address().port }, 'waka-worker listening')
-  worker.start()
+const listener = app.listen(PORT, async () => {
+  const addr = listener.address()
+  const bind = typeof addr === 'string' ? addr : addr ? addr.port : 9001
+  if (typeof bind === 'number') {
+    worker.logger.info({ port: bind }, 'waka-worker listening')
+    await worker.start()
+  }
 })

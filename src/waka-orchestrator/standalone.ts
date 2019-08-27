@@ -21,17 +21,12 @@ const start = async () => {
   app.use(orchestrator.router)
 
   const listener = app.listen(config.port, async () => {
-    logger.info(
-      { port: listener.address().port },
-      'waka-orchestrator listening'
-    )
-    await orchestrator.start(listener.address().port)
+    const addr = listener.address()
+    const bind = typeof addr === 'string' ? addr : addr ? addr.port : 9001
+    if (typeof bind === 'number') {
+      logger.info({ port: bind }, 'waka-orchestrator listening')
+      await orchestrator.start(bind)
+    }
   })
 }
 start()
-
-// process.on('unhandledRejection', error => {
-//   console.log(error)
-//   debugger
-//   // process.exit(1)
-// })
