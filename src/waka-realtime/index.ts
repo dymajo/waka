@@ -12,12 +12,16 @@ import AucklandRealtime from './regions/nz-akl'
 import CanberraRealtime from './regions/au-cbr'
 import SydneyRealtime from './regions/au-syd'
 import NYCRealtime from './regions/us-nyc'
+import BostonRealtime from './regions/us-bos'
+import SanFranciscoRealtime from './regions/us-sfo'
 
 const Regions = {
   'au-cbr': CanberraRealtime,
   'au-syd': SydneyRealtime,
   'nz-akl': AucklandRealtime,
+  'us-bos': BostonRealtime,
   'us-nyc': NYCRealtime,
+  'us-sfo': SanFranciscoRealtime,
 }
 
 interface RealtimeConfig {
@@ -67,6 +71,20 @@ class Realtime {
           const quota: Quota = this.config.quota || {
             interval: 1000,
             rate: 5,
+            concurrency: 5,
+          }
+          this.quotaManager = this.wakaRedis.client
+            ? new RedisQuotaManager(quota, this.prefix, this.wakaRedis.client)
+            : quota
+          this.quotaManager = quota
+          this.rateLimiter = pRateLimit(this.quotaManager)
+        }
+        if (this.prefix === 'us-sfo') {
+          console.log('redis connected:', this.wakaRedis.connected)
+
+          const quota: Quota = this.config.quota || {
+            interval: 3600,
+            rate: 60,
             concurrency: 5,
           }
           this.quotaManager = this.wakaRedis.client
