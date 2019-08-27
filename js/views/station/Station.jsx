@@ -419,6 +419,7 @@ class Station extends React.Component {
               direction_id: directionId,
               route_color: routeColor,
               route_id: routeId,
+              route_text_color: routeTextColor,
             } = item[0]
             return (
               <TripItem
@@ -426,6 +427,7 @@ class Station extends React.Component {
                 routeShortName={routeShortName}
                 direction={directionId}
                 color={routeColor}
+                textColor={routeTextColor}
                 trips={item.map(i => ({
                   destination: i.trip_headsign,
                   departureTime: new Date(i.departure_time),
