@@ -29,7 +29,13 @@ class CreateShapes {
   ) => {
     return new Promise((resolve, reject) => {
       const input = createReadStream(inputFile)
-      const parser = csvparse({ delimiter: ',', trim: true })
+      const parser = csvparse({
+        delimiter: ',',
+        trim: true,
+        bom: true,
+        skip_lines_with_empty_values: true,
+        skip_lines_with_error: true,
+      })
 
       const output: {
         [shape_id: string]: { type: string; coordinates: number[][] }
