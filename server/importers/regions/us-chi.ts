@@ -1,15 +1,15 @@
-import SingleImporter from "../SingleImporter";
+import SingleImporter from '../SingleImporter'
 import connection from '../../db/connection'
 import config from '../../config'
 import log from '../../logger'
+
 class ChicagoImporter extends SingleImporter {
   constructor() {
     super({
-      url: 'http://www.transitchicago.com/downloads/sch_data/google_transit.zip',
-      zipname: 'cta'
-    });
-
-
+      url:
+        'http://www.transitchicago.com/downloads/sch_data/google_transit.zip',
+      zipname: 'cta',
+    })
   }
   postImport = async () => {
     const sqlRequest = await connection.get().request()

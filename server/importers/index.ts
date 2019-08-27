@@ -18,12 +18,14 @@ import ParisImporter from './regions/fr-par'
 import SEQImporter from './regions/au-seq'
 import SFRImporter from './regions/ch-sfr'
 import NYCImporter from './regions/us-nyc'
+import LAXImporter from './regions/us-lax'
+import SFOImporter from './regions/us-sfo'
 import BaseImporter from './BaseImporter'
 import MultiImporter from './MultiImporter'
 import SingleImporter from './SingleImporter'
 import LocalImporter from './LocalImporter'
-import PerthImporter from './regions/au-per';
-import ChicagoImporter from './regions/us-chi';
+import PerthImporter from './regions/au-per'
+import ChicagoImporter from './regions/us-chi'
 import BostonImporter from './regions/us-bos'
 
 const regions = {
@@ -40,6 +42,8 @@ const regions = {
   'au-cbr': CanberraImporter,
   'us-bos': BostonImporter,
   'us-chi': ChicagoImporter,
+  'us-sfo': SFOImporter,
+  'us-lax': LAXImporter,
   'us-nyc': NYCImporter,
 }
 
