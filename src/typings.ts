@@ -356,12 +356,11 @@ export interface DBStopTime {
   agency_id: string
   // stops
   stop_name: string
+  parent_station: string
   // calculated
   new_arrival_time: number
   new_departure_time: number
 }
-
-export { Logger }
 
 declare const process: {
   env: {
@@ -388,3 +387,5 @@ declare const process: {
     TFNSW_API_KEY: string
   }
 }
+
+export { Logger }

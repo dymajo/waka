@@ -367,7 +367,14 @@ class Station {
       ) {
         realtimeTrips.push(r.trip_id)
       }
-
+      let platform: string
+      let { stop_name } = r
+      if (r.parent_station) {
+        const split = r.stop_name.split(' Platform ')
+        if (split.length === 2) {
+          ;[stop_name, platform] = split
+        }
+      }
       const record = {
         arrival_time_seconds,
         departure_time_seconds,
@@ -388,6 +395,8 @@ class Station {
         pickup_type: r.pickup_type,
         drop_off_type: r.drop_off_type,
         shape_id: r.shape_id,
+        platform,
+        stop_name,
       }
       return record
     })
@@ -408,6 +417,8 @@ class Station {
         route_long_name: string
         route_short_name: string
         agency_id: string
+        stop_name?: string
+        platform?: string
       }[]
       realtime?: { [tripId: string]: WakaTripUpdate }
       allRoutes?: any
