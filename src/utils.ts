@@ -22,10 +22,10 @@ export const sortFn = (a: string[], b: string[]) => {
   const second = b[0][0]
   // put night buses last
   if (first === 'N' && second !== 'N') {
-    return -1
+    return 1
   }
   if (first !== 'N' && second === 'N') {
-    return 1
+    return -1
   }
   // put lettered services first
   if (

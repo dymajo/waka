@@ -75,10 +75,10 @@ class Station {
     for (const stopId in transfers) {
       if (Object.prototype.hasOwnProperty.call(transfers, stopId)) {
         try {
-          const foo = transfers[stopId]
+          const stopTransfers = transfers[stopId].toString()
           this.redis.client.set(
             `waka-worker:${this.prefix}:stop-transfers:${stopId}`,
-            foo.toString()
+            stopTransfers
           )
         } catch (error) {
           console.log(error)
