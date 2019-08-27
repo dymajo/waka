@@ -246,9 +246,8 @@ class GtfsImport {
               )
               if (
                 file.table === 'agency' &&
-                !Object.keys(headers).some(
-                  header => header === 'agency_id' && record[0] === null,
-                )
+                !Object.keys(headers).some(header => header === 'agency_id') &&
+                record[0] === null
               ) {
                 record[0] = record[1]
                   .split(' ')
