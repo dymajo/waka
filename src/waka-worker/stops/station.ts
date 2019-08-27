@@ -383,6 +383,7 @@ class Station {
         stop_sequence: r.stop_sequence,
         direction_id: r.direction_id,
         route_color: `#${r.route_color}`,
+        route_text_color: `#${r.route_text_color}`,
         trip_id: r.trip_id,
         pickup_type: r.pickup_type,
         drop_off_type: r.drop_off_type,
@@ -553,14 +554,12 @@ class Station {
         logger.warn('This dataset has a null trip_headsign.')
         record.trip_headsign = record.route_long_name
       }
-
       delete record.departure_time_24
       delete record.new_departure_time
       delete record.new_arrival_time
       return record
     })
-    res.send(sending)
-    return sending
+    return res.send(sending)
   }
 }
 export default Station

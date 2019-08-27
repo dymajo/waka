@@ -43,7 +43,7 @@ export interface WakaConfig {
 export interface RedisConfig {
   port?: number
   host?: string
-  family?: 4 | 6
+  family?: number
   password?: string
   db?: number
 }
@@ -53,7 +53,7 @@ export interface WorkerConfig {
   version: string
   db: DBConfig
   api: { [api: string]: string }
-  storageService: 'aws' | 'local'
+  storageService: string
   shapesContainer: string
   shapesRegion: string
   newRealtime: boolean
@@ -348,6 +348,7 @@ export interface DBStopTime {
   start_date: Date
   // routes
   route_color: string
+  route_text_color: string
   route_id: string
   route_long_name: string
   route_short_name: string
