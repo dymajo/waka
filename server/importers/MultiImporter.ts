@@ -82,12 +82,13 @@ abstract class MultiImporter extends BaseImporter {
         type,
         name,
       }
-      const resfilename = res.headers['content-disposition']
-        .split('filename=')[1]
-        .replace('.zip', '')
-      if (resfilename) {
-        zipLocation.path = join(__dirname, `../../cache/${resfilename}.zip`)
-      }
+      // const contentDisposition = res.headers['content-disposition']
+      // const resfilename = contentDisposition
+      //   ? contentDisposition.split('filename=')[1].replace('.zip', '')
+      //   : null
+      // if (resfilename) {
+      //   zipLocation.path = join(__dirname, `../../cache/${resfilename}.zip`)
+      // }
       this.zipLocations.push(zipLocation)
       const dest = createWriteStream(zipLocation.path)
       res.data.pipe(dest)
