@@ -195,7 +195,7 @@ class GtfsImport {
     version: string,
     containsVersion: boolean,
     endpoint: string,
-    merge: boolean = false,
+    merge = false,
   ): Promise<void> => {
     if (!existsSync(_resolve(location, file.name))) {
       const logstr = file.table.toString()
