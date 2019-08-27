@@ -1,17 +1,14 @@
-import BaseImporter from './BaseImporter'
-
 import { resolve as _resolve, join } from 'path'
-import { createWriteStream, existsSync, mkdirSync, writeFileSync } from 'fs'
-
-import { promisify } from 'util'
+import { createWriteStream, existsSync, mkdirSync } from 'fs'
 import rimraf from 'rimraf'
 import extract from 'extract-zip'
+import axios from 'axios'
+import BaseImporter from './BaseImporter'
+
 import config from '../config'
 import log from '../logger'
 import CreateShapes from '../db/create-shapes'
-import Importer from '.'
 import GtfsImport from '../db/gtfs-import'
-import axios from 'axios'
 
 interface SingleImporterProps {
   zipname: string

@@ -302,7 +302,6 @@ export const badTfnsw: { rideId?: number; trip: string; consist?: string }[] = [
   { rideId: 10681, trip: 'V974', consist: '2J' },
 ]
 
-
 export const nzAklRouteColor = (agencyId: string, code: string) => {
   // First for our fancy services.
   switch (code) {

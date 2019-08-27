@@ -74,11 +74,18 @@ const schemas = {
   ],
   calendar_dates: ['service_id', 'date', 'exception_type'],
   transfers: [
-    'from_stop_id', 'to_stop_id', 'transfer_type', 'min_transfer_time'
+    'from_stop_id',
+    'to_stop_id',
+    'transfer_type',
+    'min_transfer_time',
   ],
   frequencies: [
-    'trip_id', 'start_time', 'end_time', 'headway_sec', 'exact_times'
-  ]
+    'trip_id',
+    'start_time',
+    'end_time',
+    'headway_sec',
+    'exact_times',
+  ],
 }
 
 export default schemas
