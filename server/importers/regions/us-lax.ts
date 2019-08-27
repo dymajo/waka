@@ -1,7 +1,9 @@
 import MultiImporter from '../MultiImporter'
 import connection from '../../db/connection'
 import config from '../../config'
-import log from '../../logger'
+import logger from '../../logger'
+
+const log = logger(config.prefix, config.version)
 
 class LosAngelesImporter extends MultiImporter {
   constructor() {
@@ -44,7 +46,7 @@ class LosAngelesImporter extends MultiImporter {
     await sqlRequest2.query(`
       update routes set agency_id = 'LACMTA_Rail' where agency_id is null and (route_type = 2 or route_type = 1 or route_type = 0)
     `)
-    log(
+    log.info(
       `${config.prefix} ${config.version}`,
       'Post Import: Completed agency override',
     )

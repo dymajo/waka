@@ -1,7 +1,11 @@
-/* eslint-disable no-console */
+import { createLogger, stdSerializers } from 'bunyan'
 
-const log = (...args: any[]) => {
-  const print = Array.from(args)
-  console.log(...print)
-}
-export default log
+const logger = (prefix: string, version: string) =>
+  createLogger({
+    name: 'waka-importer',
+    prefix,
+    version,
+    serializers: stdSerializers,
+  })
+
+export default logger

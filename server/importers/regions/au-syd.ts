@@ -1,7 +1,9 @@
 import config from '../../config'
 import MultiImporter from '../MultiImporter'
 import connection from '../../db/connection'
-import log from '../../logger'
+import logger from '../../logger'
+
+const log = logger(config.prefix, config.version)
 
 const locations = [
   {
@@ -213,7 +215,7 @@ class SydneyImporter extends MultiImporter {
     delete from routes where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
     delete from trips where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
     `)
-    log(
+    log.info(
       `${config.prefix} ${config.version}`,
       'Post Import: deleted non-revenue services',
     )

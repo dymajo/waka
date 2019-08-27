@@ -1,6 +1,7 @@
 import { join } from 'path'
 import { VarChar } from 'mssql'
-import log from '../logger'
+import logger from '../logger'
+import config from '../config'
 import GtfsImport from '../db/gtfs-import'
 import connection from '../db/connection'
 import Storage from '../db/storage'
@@ -27,6 +28,8 @@ import LocalImporter from './LocalImporter'
 import PerthImporter from './regions/au-per'
 import ChicagoImporter from './regions/us-chi'
 import BostonImporter from './regions/us-bos'
+
+const log = logger(config.prefix, config.version)
 
 const regions = {
   'au-mel': MelbourneImporter,
@@ -84,13 +87,12 @@ class Importer {
       })
     } else {
       try {
-        console.log(config.prefix)
         if (isKeyof(regions, config.prefix)) {
           const Region = regions[config.prefix]
           this.current = new Region()
         }
       } catch (err) {
-        log(
+        log.error(
           'fatal error',
           'Could not find an importer in ',
           join(__dirname, './regions', `${config.prefix}.ts`),
@@ -114,12 +116,12 @@ class Importer {
       } else if (version.status === 'pendingimport-willmap') {
         newStatus = 'importing-willmap'
       } else {
-        log(versionId, 'Status is not pending! Cancelling import!')
+        log.error(versionId, 'Status is not pending! Cancelling import!')
         return
       }
       version.status = newStatus
       await versions.set(versionId, version)
-      log(versionId, 'Updated status to', newStatus)
+      log.info(versionId, 'Updated status to', newStatus)
     }
 
     // if the db is already there, avoid the first few steps
@@ -128,7 +130,7 @@ class Importer {
       await this.unzip()
       await this.db()
     } else {
-      log('DB already created - skipping download & unzip.')
+      log.warn('DB already created - skipping download & unzip.')
     }
     await this.fixStopCodes()
     await this.fixRoutes()
@@ -152,7 +154,7 @@ class Importer {
       }
       version.status = newStatus
       await versions.set(versionId, version)
-      log(versionId, 'Updated status to', newStatus)
+      log.info(versionId, 'Updated status to', newStatus)
     }
   }
 
@@ -193,7 +195,10 @@ class Importer {
       WHERE stop_code is null;
     `)
     const rows = res.rowsAffected[0]
-    log(`${config.prefix} ${config.version}`, `Updated ${rows} null stop codes`)
+    log.info(
+      `${config.prefix} ${config.version}`,
+      `Updated ${rows} null stop codes`,
+    )
   }
 
   async fixRoutes() {
@@ -204,7 +209,7 @@ class Importer {
       WHERE route_long_name is null;
     `)
     const rows = res.rowsAffected[0]
-    log(
+    log.info(
       `${config.prefix} ${config.version}`,
       `Updated ${rows} null route codes`,
     )
@@ -218,7 +223,10 @@ class Importer {
       WHERE pickup_type is null;
     `)
     const rows = res.rowsAffected[0]
-    log(`${config.prefix} ${config.version}`, `Updated ${rows} null pick ups`)
+    log.info(
+      `${config.prefix} ${config.version}`,
+      `Updated ${rows} null pick ups`,
+    )
   }
 
   async fixDropOffType() {
@@ -229,7 +237,10 @@ class Importer {
       WHERE drop_off_type is null;
     `)
     const rows = res.rowsAffected[0]
-    log(`${config.prefix} ${config.version}`, `Updated ${rows} null drop offs`)
+    log.info(
+      `${config.prefix} ${config.version}`,
+      `Updated ${rows} null drop offs`,
+    )
   }
 
   async addGeoLocation() {
@@ -239,7 +250,10 @@ class Importer {
       SET geo_location = GEOGRAPHY ::STPointFromText('POINT(' + CAST([stop_lon] AS varchar(20)) + ' ' + CAST([stop_lat] AS varchar(20)) + ')', 4326);
     `)
     const rows = res.rowsAffected[0]
-    log(`${config.prefix} ${config.version}`, `Updated ${rows} geo locations`)
+    log.info(
+      `${config.prefix} ${config.version}`,
+      `Updated ${rows} geo locations`,
+    )
   }
 
   async postImport() {
@@ -266,7 +280,7 @@ class Importer {
         `,
       )
     } catch (err) {
-      log(err)
+      log.error(err)
     }
   }
 }

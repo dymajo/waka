@@ -9,7 +9,7 @@
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel server --out-dir lib --extensions \".ts,.tsx\" --copy-files",
-    "start": "node lib",
+    "start": "node lib | bunyan -L -o short",
     "bs": "npm run build:js && npm start"
   },
   "repository": {
@@ -36,6 +36,7 @@
   },
   "homepage": "https://github.com/dymajo/waka-importer#readme",
   "dependencies": {
+    "@types/bunyan": "^1.8.6",
     "@types/dotenv": "^6.1.1",
     "@types/extract-zip": "^1.6.2",
     "@types/form-data": "^2.5.0",
@@ -44,6 +45,7 @@
     "@types/rimraf": "^2.0.2",
     "aws-sdk": "^2.493.0",
     "axios": "^0.19.0",
+    "bunyan": "^1.8.12",
     "csv-parse": "^4.4.3",
     "dotenv": "^8.0.0",
     "extract-zip": "^1.6.7",

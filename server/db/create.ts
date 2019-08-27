@@ -1,7 +1,10 @@
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import log from '../logger'
+import logger from '../logger'
 import connection from './connection'
+import config from '../config'
+
+const log = logger(config.prefix, config.version)
 
 const tables = [
   'agency.sql',
@@ -48,13 +51,13 @@ const create = async (filenames: string[]) => {
 
 class CreateDB {
   public start = async () => {
-    log('Creating Tables...')
+    log.info('Creating Tables...')
     await create(tables)
-    log('Creating temp tables...')
+    log.info('Creating temp tables...')
     await create(tempTables)
-    log('Creating Stored Procedures...')
+    log.info('Creating Stored Procedures...')
     await create(procs)
-    log('Database Created')
+    log.info('Database Created')
   }
 }
 export default CreateDB

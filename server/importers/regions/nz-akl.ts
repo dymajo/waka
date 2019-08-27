@@ -8,7 +8,7 @@ class AucklandImporter extends SingleImporter {
     })
     this.files = this.files.map(file => {
       if (file.name !== 'agency.txt') {
-        file.versioned = true
+        return { ...file, versioned: true }
       }
       return file
     })

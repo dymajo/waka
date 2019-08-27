@@ -4,13 +4,15 @@ import rimraf from 'rimraf'
 import axios from 'axios'
 import extract from 'extract-zip'
 import { pRateLimit } from 'p-ratelimit'
-import log from '../logger'
+import logger from '../logger'
 import GtfsImport from '../db/gtfs-import'
 import CreateShapes from '../db/create-shapes'
 import Storage from '../db/storage'
 import KeyvalueDynamo from '../db/keyvalue-dynamo'
 import config from '../config'
 import BaseImporter from './BaseImporter'
+
+const log = logger(config.prefix, config.version)
 
 interface MultiImporterProps {
   keyvalue?: string
@@ -70,7 +72,7 @@ abstract class MultiImporter extends BaseImporter {
   async get(location: { endpoint: string; type: string; name: string }) {
     const { endpoint, type, name } = location
     const { authorization } = this
-    log(config.prefix, 'Downloading GTFS Data', name)
+    log.info(name, 'Starting download')
     try {
       const headers = authorization ? { Authorization: authorization } : {}
       const res = await axios.get(endpoint, {
@@ -94,20 +96,20 @@ abstract class MultiImporter extends BaseImporter {
       res.data.pipe(dest)
       return new Promise<void>((resolve, reject) => {
         dest.on('finish', () => {
-          log(config.prefix, 'Finished Downloading GTFS Data', name)
+          log.info(name, 'Downloaded')
           resolve()
         })
         dest.on('error', reject)
       })
     } catch (err) {
-      log(err)
+      log.error(err)
     }
   }
 
   async download() {
     const { downloadInterval, locations, batchSize } = this
 
-    log(batchSize, downloadInterval)
+    log.info(batchSize, downloadInterval)
     for (let index = 0; index < locations.length; index++) {
       const location = locations[index]
       await this.rateLimiter(() => this.get(location))
@@ -117,7 +119,7 @@ abstract class MultiImporter extends BaseImporter {
   async unzip() {
     try {
       await Promise.all(
-        this.zipLocations.map(({ path }) => {
+        this.zipLocations.map(({ path, name }) => {
           return new Promise((resolve, reject) => {
             extract(
               path,
@@ -126,6 +128,7 @@ abstract class MultiImporter extends BaseImporter {
               },
               err => {
                 if (err) reject(err)
+                log.info(name, 'unzipped')
                 resolve()
               },
             )
@@ -133,7 +136,7 @@ abstract class MultiImporter extends BaseImporter {
         }),
       )
     } catch (error) {
-      log('fatal error', error)
+      log.error('fatal error', error)
     }
   }
 
@@ -155,7 +158,7 @@ abstract class MultiImporter extends BaseImporter {
             merge,
           )
         } catch (error) {
-          log(error)
+          log.error(error)
         }
       }
     }
@@ -166,7 +169,7 @@ abstract class MultiImporter extends BaseImporter {
     const creator = new CreateShapes()
     for (const { path } of zipLocations) {
       if (!existsSync(path)) {
-        log('Shapes could not be found!')
+        log.error('Shapes could not be found!')
         return
       }
       const inputDir = _resolve(`${path}unarchived`, 'shapes.txt')

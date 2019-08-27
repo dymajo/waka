@@ -2,7 +2,9 @@
 
 import { DynamoDB } from 'aws-sdk'
 import logger from '../logger'
+import config from '../config'
 
+const log = logger(config.prefix, config.version)
 interface KeyvalueDynamoProps {
   name: string
   region: string
@@ -67,7 +69,7 @@ class KeyvalueDynamo {
       const response = data.Item || {}
       return flattenObject(response)
     } catch (err) {
-      logger({ err }, 'Could not get DynamoDB Item')
+      log.error({ err }, 'Could not get DynamoDB Item')
       return {}
     }
   }
@@ -83,7 +85,7 @@ class KeyvalueDynamo {
     return new Promise(resolve => {
       dynamo.putItem(params, err => {
         if (err) {
-          logger({ err }, 'Could not set DynamoDB Item')
+          log.error({ err }, 'Could not set DynamoDB Item')
           return resolve(false)
         }
         return resolve(true)
@@ -104,7 +106,7 @@ class KeyvalueDynamo {
     return new Promise(resolve => {
       dynamo.deleteItem(params, err => {
         if (err) {
-          logger({ err }, 'Could not delete DynamoDB Item')
+          log.error({ err }, 'Could not delete DynamoDB Item')
           return resolve(false)
         }
         return resolve(true)
@@ -120,7 +122,7 @@ class KeyvalueDynamo {
     return new Promise(resolve => {
       dynamo.scan(params, (err, data) => {
         if (err) {
-          logger({ err }, 'Could not scan DynamoDB Table')
+          log.error({ err }, 'Could not scan DynamoDB Table')
           return resolve({})
         }
         const response: any = {}

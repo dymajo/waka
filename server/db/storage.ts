@@ -4,11 +4,10 @@ import axios from 'axios'
 import { PutObjectRequest } from 'aws-sdk/clients/s3'
 import AWS from 'aws-sdk'
 import { ServerResponse } from 'http'
-import log from '../logger'
+import logger from '../logger'
 import config from '../config'
 
-// import { PutObjectRequest } from 'aws-sdk/clients/s3'
-
+const log = logger(config.prefix, config.version)
 interface StorageProps {
   backing?: string
   endpoint?: string
@@ -35,7 +34,7 @@ class Storage {
   createContainer(container: string, cb: any) {
     const createCb = (error: any) => {
       if (error) {
-        log(error)
+        log.error(error)
         throw error
       }
       cb()
@@ -64,7 +63,7 @@ class Storage {
         .createReadStream()
         .on('error', err => {
           // if (err.code !== 'NoSuchKey') {
-          console.error(err)
+          log.error(err)
           // }
           callback(err)
         })

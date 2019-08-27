@@ -6,9 +6,11 @@ import axios from 'axios'
 import BaseImporter from './BaseImporter'
 
 import config from '../config'
-import log from '../logger'
+import logger from '../logger'
 import CreateShapes from '../db/create-shapes'
 import GtfsImport from '../db/gtfs-import'
+
+const log = logger(config.prefix, config.version)
 
 interface SingleImporterProps {
   zipname: string
@@ -33,7 +35,7 @@ abstract class SingleImporter extends BaseImporter {
 
   async download() {
     try {
-      log(config.prefix, 'Downloading GTFS Data')
+      log.info('Downloading GTFS Data')
       const res = await axios.get(this.downloadOptions.url, {
         responseType: 'stream',
       })
@@ -41,18 +43,18 @@ abstract class SingleImporter extends BaseImporter {
       res.data.pipe(dest)
       return new Promise((resolve, reject) => {
         dest.on('finish', () => {
-          log(config.prefix, 'Finished Downloading GTFS Data')
+          log.info('Finished Downloading GTFS Data')
           resolve()
         })
         dest.on('error', reject)
       })
     } catch (error) {
-      log(error)
+      log.error(error)
     }
   }
 
   async unzip() {
-    log('Unzipping GTFS Data')
+    log.info('Unzipping GTFS Data')
     const { zipLocation } = this
     return new Promise((resolve, reject) => {
       extract(
@@ -79,14 +81,14 @@ abstract class SingleImporter extends BaseImporter {
           config.prefix,
         )
       } catch (error) {
-        log(error)
+        log.error(error)
       }
     }
   }
 
   async shapes() {
     if (!existsSync(this.zipLocation)) {
-      log('Shapes could not be found!')
+      log.error('Shapes could not be found!')
       return
     }
 

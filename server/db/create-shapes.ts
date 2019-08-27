@@ -8,9 +8,23 @@ import {
 import { resolve as _resolve } from 'path'
 import csvparse from 'csv-parse'
 import transform from 'stream-transform'
-import log from '../logger'
+import logger from '../logger'
 import Storage from './storage'
 import config from '../config'
+
+const log = logger(config.prefix, config.version)
+
+function readdirAsync(path: string) {
+  return new Promise<string[]>((resolve, reject) => {
+    readdir(path, (error, result) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(result)
+      }
+    })
+  })
+}
 
 class CreateShapes {
   storageSvc: Storage
@@ -65,13 +79,13 @@ class CreateShapes {
         ])
         total += 1
         if (total % 100000 === 0) {
-          log('Parsed', total, 'Points')
+          log.info('Parsed', total, 'Points')
         }
 
         return callback(null)
       })
         .on('finish', () => {
-          log('Created Shapes. Writing to disk...')
+          log.info('Created Shapes. Writing to disk...')
           Object.keys(output).forEach(key => {
             let subfolder =
               versions.length === 1 ? versions[0] : `${versions[0]}-extra`
@@ -89,20 +103,20 @@ class CreateShapes {
               JSON.stringify(output[key]),
             )
           })
-          log(`${Object.keys(output).length} shapes written to disk!`)
+          log.info(`${Object.keys(output).length} shapes written to disk!`)
           resolve()
         })
         .on('error', () => {
           reject()
         })
 
-      log('Building Shapes')
+      log.info('Building Shapes')
       input.pipe(parser).pipe(transformer)
     })
   }
   public upload = async (container: string, directory: string) => {
     if (config.shapesSkip === true) {
-      log('Skipping Shapes Upload.')
+      log.info('Skipping Shapes Upload.')
       return
     }
     let total = 0
@@ -127,14 +141,15 @@ class CreateShapes {
       } catch (error) {
         failed += 1
         if (error.toJSON) {
-          error = error.toJSON()
+          log.error(error.toJSON())
+        } else {
+          log.error(error)
         }
-        log(error)
       }
     }
     // process.stdout.write('\n')
-    log(`${container}:`, 'failed upload', failed, 'Shapes.')
-    log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
+    log.error(`${container}:`, 'failed upload', failed, 'Shapes.')
+    log.info(`${container}:`, 'Upload Complete!', total, 'Shapes.')
   }
 
   private uploadSingle = async (
@@ -152,15 +167,4 @@ class CreateShapes {
   }
 }
 
-function readdirAsync(path: string) {
-  return new Promise<string[]>((resolve, reject) => {
-    readdir(path, (error, result) => {
-      if (error) {
-        reject(error)
-      } else {
-        resolve(result)
-      }
-    })
-  })
-}
 export default CreateShapes

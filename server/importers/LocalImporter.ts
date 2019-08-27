@@ -7,11 +7,12 @@ import axios from 'axios'
 import BaseImporter from './BaseImporter'
 
 import config from '../config'
-import log from '../logger'
+import logger from '../logger'
 import CreateShapes from '../db/create-shapes'
 import Importer from '.'
 import GtfsImport from '../db/gtfs-import'
 
+const log = logger(config.prefix, config.version)
 interface LocalImporterProps {
   zipname: string
 }
@@ -39,7 +40,7 @@ class LocalImporter extends BaseImporter {
   }
 
   async unzip() {
-    log('Unzipping GTFS Data')
+    log.info('Unzipping GTFS Data')
     const { zipLocation } = this
     return new Promise((resolve, reject) => {
       extract(
@@ -66,14 +67,14 @@ class LocalImporter extends BaseImporter {
           config.prefix,
         )
       } catch (error) {
-        log(error)
+        log.error(error)
       }
     }
   }
 
   async shapes() {
     if (!existsSync(this.zipLocation)) {
-      log('Shapes could not be found!')
+      log.error('Shapes could not be found!')
       return
     }
 

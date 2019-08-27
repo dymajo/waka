@@ -5,7 +5,7 @@ import { createReadStream, existsSync } from 'fs'
 
 import { resolve as _resolve } from 'path'
 import connection from './connection'
-import log from '../logger'
+import logger from '../logger'
 import config from '../config'
 import schemas from './schemas'
 import {
@@ -23,6 +23,7 @@ import {
 import { badTfnsw, nzAklRouteColor } from './bad'
 import { isKeyof } from '../importers'
 
+const log = logger(config.prefix, config.version)
 const primaryKeys = {
   agency: 'agency_id',
   stops: 'stop_id',
@@ -317,41 +318,39 @@ class GtfsImport {
           processRow()
           callback(null)
         } else {
-          log(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
+            log.info(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
           try {
             await this.commit(table)
-            log(endpoint, logstr, 'Transaction Committed.')
+              log.info(endpoint, logstr, 'Transaction Committed.')
             transactions = 0
 
             table = this.getTable(file.table)
             processRow()
             callback(null)
           } catch (err) {
-            log(err)
+              log.error(err)
             process.exit()
           }
         }
       })
       transformer.on('error', err => {
-        log(err)
+        log.info(err)
       })
       transformer.on('finish', async () => {
         if (totalTransactions === 0) {
-          log(endpoint, logstr, 'skipped')
-          return resolve()
-        }
+          log.warn(endpoint, logstr, 'skipped')
         const transactionsStr =
           totalTransactions > 1000
             ? `${Math.round(totalTransactions / 1000)}k`
             : `${totalTransactions}`
-        log(endpoint, logstr, transactionsStr, 'Rows')
+          log.info(endpoint, logstr, transactionsStr, 'Rows')
         try {
           await this.commit(table)
 
-          log(endpoint, logstr, 'Transaction Committed.')
+            log.info(endpoint, logstr, 'Transaction Committed.')
           if (merge && file.table !== 'transfers') {
             await this.mergeToFinal(file.table)
-            log(endpoint, logstr, 'Merge Committed.')
+              log.info(endpoint, logstr, 'Merge Committed.')
           }
           resolve()
         } catch (error) {
@@ -370,7 +369,7 @@ class GtfsImport {
         .request()
         .bulk(table)
     } catch (error) {
-      log(error)
+      log.error(error)
     }
   }
 

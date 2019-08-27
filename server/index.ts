@@ -2,11 +2,13 @@ import 'dotenv/config'
 import 'source-map-support/register'
 import connection from './db/connection'
 import CreateDb from './db/create'
-import log from './logger'
+import logger from './logger'
 import Importer from './importers'
 import config from './config'
 
-log('Importer Started')
+const log = logger(config.prefix, config.version)
+
+log.info('Importer Started')
 
 const sydney = config.prefix === 'au-syd'
 Object.keys(config).forEach(key => {
@@ -25,9 +27,6 @@ Object.keys(config).forEach(key => {
   return true
 })
 
-log('prefix: ', config.prefix)
-log('version:', config.version)
-
 const checkCreated = async () => {
   const sqlRequest = connection.get().request()
   const databaseCreated = await sqlRequest.query<{ dbcreated: number }>(
@@ -41,15 +40,15 @@ const checkCreated = async () => {
 const start = async () => {
   await connection.open()
 
-  log('Connected to Database')
+  log.info('Connected to Database')
   const created = await checkCreated()
   if (!created) {
-    log('Building Database from Template')
+    log.info('Building Database from Template')
     const creator = new CreateDb()
     await creator.start()
   }
 
-  log('Worker Ready')
+  log.info('Worker Ready')
   const importer = new Importer({
     keyvalue: config.keyValue,
     keyvalueVersionTable: config.keyValueVersionTable,
@@ -58,36 +57,37 @@ const start = async () => {
   const { mode } = config
   switch (mode) {
     case 'all':
-      log('Started import of ALL')
+      log.info('Started import of ALL')
       await importer.start(created)
       break
     case 'db':
-      log('Started import of DB')
+      log.info('Started import of DB')
       await importer.db()
       break
     case 'shapes':
-      log('Started import of SHAPES')
+      log.info('Started import of SHAPES')
       await importer.shapes()
       break
     case 'unzip':
-      log('Started UNZIP')
+      log.info('Started UNZIP')
       await importer.unzip()
       break
     case 'download':
-      log('Started DOWNLOAD')
+      log.info('Started DOWNLOAD')
       await importer.download()
       break
     case 'export':
-      log('Started EXPORT')
+      log.info('Started EXPORT')
       await importer.exportDb()
       break
     case 'fullshapes':
-      log('Started FULL SHAPES')
+      log.info('Started FULL SHAPES')
       await importer.fullShapes()
+      break
     default:
       break
   }
-  log(`Completed ${mode.toUpperCase()}`)
+  log.info(`Completed ${mode.toUpperCase()}`)
   process.exit(0)
 }
 start()

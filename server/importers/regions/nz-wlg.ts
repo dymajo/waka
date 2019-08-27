@@ -1,7 +1,9 @@
 import connection from '../../db/connection'
-import log from '../../logger'
+import logger from '../../logger'
 import config from '../../config'
 import SingleImporter from '../SingleImporter'
+
+const log = logger(config.prefix, config.version)
 
 class WellingtonImporter extends SingleImporter {
   constructor() {
@@ -20,7 +22,7 @@ class WellingtonImporter extends SingleImporter {
       FROM trips JOIN stop_times ON trips.trip_id = stop_times.trip_id
       WHERE stop_sequence = 0 and trips.trip_headsign is null
     `)
-    log(
+    log.info(
       `${config.prefix} ${config.version}`,
       'Post Import: Completed Trip Headsign Override',
     )
