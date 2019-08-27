@@ -1,23 +1,23 @@
 import FormData from 'form-data'
 import { createReadStream } from 'fs'
-import config from '../config'
-import log from '../logger'
 import axios from 'axios'
 import { PutObjectRequest } from 'aws-sdk/clients/s3'
 import AWS from 'aws-sdk'
 import { ServerResponse } from 'http'
+import log from '../logger'
+import config from '../config'
 
 // import { PutObjectRequest } from 'aws-sdk/clients/s3'
 
 interface StorageProps {
-  backing?: 'aws' | 'local'
+  backing?: string
   endpoint?: string
   region?: string
 }
 
 class Storage {
-  backing: string
-  s3: AWS.S3
+  backing?: string
+  s3?: AWS.S3
   constructor(props: StorageProps) {
     this.backing = props.backing
     if (this.backing === 'aws') {
@@ -40,7 +40,7 @@ class Storage {
       }
       cb()
     }
-    if (this.backing === 'aws') {
+    if (this.backing === 'aws' && this.s3) {
       const params = {
         Bucket: container,
       }
@@ -54,7 +54,7 @@ class Storage {
     stream: ServerResponse,
     callback: (error: any, data?: any) => void,
   ) {
-    if (this.backing === 'aws') {
+    if (this.backing === 'aws' && this.s3) {
       const params = {
         Bucket: container,
         Key: file,
@@ -71,22 +71,23 @@ class Storage {
         .on('end', (data: any) => callback(null, data)) // do nothing, but this prevents from crashing
         .pipe(stream)
     }
+    return null
   }
 
   async uploadFile(container: string, file: string, sourcePath: string) {
-    if (this.backing === 'aws') {
+    if (this.backing === 'aws' && this.s3) {
       const params: PutObjectRequest = {
         Body: createReadStream(sourcePath),
         Bucket: container,
         Key: file,
       }
-      return this.s3.putObject(params).promise()
+      await this.s3.putObject(params).promise()
     }
     if (this.backing === 'local') {
       try {
         const bodyFormData = new FormData()
         bodyFormData.append('uploadFile', createReadStream(sourcePath))
-        return axios.post(`http://127.0.0.1:9004/${file}`, bodyFormData, {
+        await axios.post(`http://127.0.0.1:9004/${file}`, bodyFormData, {
           headers: bodyFormData.getHeaders(),
         })
       } catch (error) {

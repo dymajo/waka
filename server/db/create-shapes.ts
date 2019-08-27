@@ -40,13 +40,12 @@ class CreateShapes {
       const output: {
         [shape_id: string]: { type: string; coordinates: number[][] }
       } = {}
-      let headers: { [key: string]: number } = null
+      const headers: { [key: string]: number } = {}
       let total = 0
 
       const transformer = transform((row, callback) => {
         // builds the csv headers for easy access later
-        if (headers === null) {
-          headers = {}
+        if (Object.keys(headers).length === 0) {
           row.forEach((item, index) => {
             headers[item] = index
           })
@@ -136,7 +135,6 @@ class CreateShapes {
     // process.stdout.write('\n')
     log(`${container}:`, 'failed upload', failed, 'Shapes.')
     log(`${container}:`, 'Upload Complete!', total, 'Shapes.')
-    return
   }
 
   private uploadSingle = async (
@@ -155,8 +153,8 @@ class CreateShapes {
 }
 
 function readdirAsync(path: string) {
-  return new Promise<string[]>(function(resolve, reject) {
-    readdir(path, function(error, result) {
+  return new Promise<string[]>((resolve, reject) => {
+    readdir(path, (error, result) => {
       if (error) {
         reject(error)
       } else {

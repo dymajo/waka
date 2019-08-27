@@ -1,10 +1,14 @@
 import { Table, VarChar, Decimal, Int, Bit, Time, Date as _Date } from 'mssql'
 
+const small = 50
+const medium = 100
+const large = 150
+const xl = 1000
 const varCharLength = {
-  small: 50,
-  medium: 100,
-  large: 150,
-  xl: 1000,
+  small,
+  medium,
+  large,
+  xl,
 }
 
 const decimalPrecision = 10
@@ -141,7 +145,7 @@ export const stopTimesCreator = (table: Table) => {
     nullable: false,
   })
   table.columns.add('stop_sequence', Int, { nullable: false })
-  table.columns.add('stop_headsign', VarChar(varCharLength.small), {
+  table.columns.add('stop_headsign', VarChar(varCharLength.medium), {
     nullable: true,
   })
   table.columns.add('pickup_type', Int, { nullable: true })

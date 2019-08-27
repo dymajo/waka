@@ -27,6 +27,7 @@ export interface WakaConfig {
     connectionTimeout: number
     requestTimeout: number
   }
+  [key: string]: any
 }
 
 declare const process: {
@@ -104,7 +105,7 @@ const config: WakaConfig = {
   keyValueRegion: KEYVALUE_REGION,
   tfnswApiKey: TFNSW_API_KEY,
   extended: EXTENDED === 'true' || false,
-  localFile: LOCAL_FILE || null,
+  localFile: LOCAL_FILE || undefined,
   localImport: LOCAL_IMPORT === 'true' || false,
   db: {
     user: DB_USER,

@@ -3,7 +3,7 @@
 import { DynamoDB } from 'aws-sdk'
 import logger from '../logger'
 
-interface KeyvalueDynamo {
+interface KeyvalueDynamoProps {
   name: string
   region: string
 }
@@ -11,11 +11,10 @@ interface KeyvalueDynamo {
 class KeyvalueDynamo {
   name: string
   dynamo: DynamoDB
-  constructor(props: KeyvalueDynamo) {
+  constructor(props: KeyvalueDynamoProps) {
     const { name, region } = props
     this.name = name
     this.dynamo = new DynamoDB({ region })
-
   }
 
   flattenObject = (obj: any) => {
@@ -125,9 +124,10 @@ class KeyvalueDynamo {
           return resolve({})
         }
         const response: any = {}
-        data.Items.forEach(i => {
-          response[i.id.S] = this.flattenObject(i)
-        })
+        if (data && data.Items)
+          data.Items.forEach(i => {
+            if (i && i.id && i.id.S) response[i.id.S] = this.flattenObject(i)
+          })
         return resolve(response)
       })
     })

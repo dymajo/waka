@@ -29,7 +29,7 @@ abstract class MultiImporter extends BaseImporter {
   storage: Storage
   downloadInterval: number
   batchSize: number
-  versions: KeyvalueDynamo
+  versions: KeyvalueDynamo | null
   zipLocations: { path: string; type: string; name: string }[]
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
 
@@ -59,7 +59,7 @@ abstract class MultiImporter extends BaseImporter {
       concurrency: 5,
     })
 
-    if (keyvalue === 'dynamo') {
+    if (keyvalue === 'dynamo' && keyvalueVersionTable && keyvalueRegion) {
       this.versions = new KeyvalueDynamo({
         name: keyvalueVersionTable,
         region: keyvalueRegion,

@@ -215,14 +215,13 @@ class GtfsImport {
         skip_lines_with_empty_values: true,
         skip_lines_with_error: true,
       })
-      let headers: { [key: string]: number } = null
+      const headers: { [key: string]: number } = {}
       let transactions = 0
       let totalTransactions = 0
 
       const transformer = transform({ parallel: 1 }, async (row, callback) => {
         // builds the csv headers for easy access later
-        if (headers === null) {
-          headers = {}
+        if (Object.keys(headers).length === 0) {
           row.forEach((item, index) => {
             headers[item] = index
           })

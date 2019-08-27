@@ -63,14 +63,14 @@ export function isKeyof<T extends object>(
 class Importer {
   importer: GtfsImport
   storage: Storage
-  versions?: KeyvalueDynamo
-  current: BaseImporter
+  versions: KeyvalueDynamo | null
+  current: BaseImporter | null
   constructor(props: ImporterProps) {
     const { keyvalue, keyvalueVersionTable, keyvalueRegion } = props
     this.importer = new GtfsImport()
     this.storage = new Storage({})
     this.versions = null
-    if (keyvalue === 'dynamo') {
+    if (keyvalue === 'dynamo' && keyvalueVersionTable && keyvalueRegion) {
       this.versions = new KeyvalueDynamo({
         name: keyvalueVersionTable,
         region: keyvalueRegion,
@@ -78,7 +78,7 @@ class Importer {
     }
 
     this.current = null
-    if (config.localImport) {
+    if (config.localImport && config.localFile) {
       this.current = new LocalImporter({
         zipname: config.localFile,
       })
@@ -157,29 +157,31 @@ class Importer {
   }
 
   async unzip() {
-    await this.current.unzip()
+    if (this.current) await this.current.unzip()
   }
 
   async download() {
-    await this.current.download()
+    if (this.current) await this.current.download()
   }
 
   async db() {
-    await this.current.db(this.importer)
+    if (this.current) await this.current.db(this.importer)
   }
 
   async shapes() {
-    await this.current.shapes()
+    if (this.current) await this.current.shapes()
   }
 
   async fullShapes() {
-    await this.current.download()
-    await this.current.unzip()
-    await this.current.shapes()
-    await this.fixStopCodes()
-    await this.fixRoutes()
-    await this.addGeoLocation()
-    await this.postImport()
+    if (this.current) {
+      await this.current.download()
+      await this.current.unzip()
+      await this.current.shapes()
+      await this.fixStopCodes()
+      await this.fixRoutes()
+      await this.addGeoLocation()
+      await this.postImport()
+    }
   }
 
   async fixStopCodes() {
@@ -241,7 +243,7 @@ class Importer {
   }
 
   async postImport() {
-    if (this.current.postImport) {
+    if (this.current && this.current.postImport) {
       await this.current.postImport()
     }
   }
