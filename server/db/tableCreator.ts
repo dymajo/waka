@@ -93,10 +93,10 @@ export const routesCreator = (table: Table) => {
     nullable: true,
   })
   table.columns.add('route_color', VarChar(varCharLength.small), {
-    nullable: false,
+    nullable: true,
   })
   table.columns.add('route_text_color', VarChar(varCharLength.small), {
-    nullable: false,
+    nullable: true,
   })
   return table
 }

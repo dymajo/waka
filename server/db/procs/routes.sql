@@ -8,8 +8,8 @@ CREATE TABLE routes
   route_desc nvarchar(1000),
   route_type int NOT NULL,
   route_url nvarchar(150),
-  route_color nvarchar(50) NOT NULL,
-  route_text_color nvarchar(50) NOT NULL,
+  route_color nvarchar(50) default 'FFFFFF',
+  route_text_color nvarchar(50) default '000000',
   CONSTRAINT uc_Routes UNIQUE (route_id)
 );
 
