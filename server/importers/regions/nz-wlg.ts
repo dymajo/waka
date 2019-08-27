@@ -14,7 +14,7 @@ class WellingtonImporter extends SingleImporter {
     })
   }
 
-  async postImport() {
+  postImport = async () => {
     const sqlRequest = await connection.get().request()
     await sqlRequest.query(`
       UPDATE trips

@@ -209,7 +209,7 @@ class SydneyImporter extends MultiImporter {
     })
   }
 
-  async postImport() {
+  postImport = async () => {
     const sqlRequest = await connection.get().request()
     await sqlRequest.query(`
     delete from routes where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';

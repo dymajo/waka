@@ -69,7 +69,7 @@ abstract class MultiImporter extends BaseImporter {
     }
   }
 
-  async get(location: { endpoint: string; type: string; name: string }) {
+  get = async (location: { endpoint: string; type: string; name: string }) => {
     const { endpoint, type, name } = location
     const { authorization } = this
     log.info(name, 'Starting download')
@@ -94,7 +94,7 @@ abstract class MultiImporter extends BaseImporter {
       this.zipLocations.push(zipLocation)
       const dest = createWriteStream(zipLocation.path)
       res.data.pipe(dest)
-      return new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         dest.on('finish', () => {
           log.info(name, 'Downloaded')
           resolve()
@@ -106,7 +106,7 @@ abstract class MultiImporter extends BaseImporter {
     }
   }
 
-  async download() {
+  download = async () => {
     const { downloadInterval, locations, batchSize } = this
 
     log.info(batchSize, downloadInterval)
@@ -116,7 +116,7 @@ abstract class MultiImporter extends BaseImporter {
     }
   }
 
-  async unzip() {
+  unzip = async () => {
     try {
       await Promise.all(
         this.zipLocations.map(({ path, name }) => {
@@ -140,9 +140,9 @@ abstract class MultiImporter extends BaseImporter {
     }
   }
 
-  async db() {
+  db = async () => {
     const { zipLocations, files } = this
-    for (const { path, type, name } of zipLocations) {
+    for (const { path, name } of zipLocations) {
       for (const file of files) {
         let merge = true
         if (file.table === 'transfers') {
@@ -164,7 +164,7 @@ abstract class MultiImporter extends BaseImporter {
     }
   }
 
-  async shapes() {
+  shapes = async () => {
     const { zipLocations } = this
     const creator = new CreateShapes()
     for (const { path } of zipLocations) {
@@ -183,8 +183,11 @@ abstract class MultiImporter extends BaseImporter {
 
       // cleans up old import if exists
       if (existsSync(outputDir2)) {
-        await new Promise((resolve, reject) => {
-          rimraf(outputDir2, resolve)
+        await new Promise<void>((resolve, reject) => {
+          rimraf(outputDir2, err => {
+            if (err) reject(err)
+            resolve()
+          })
         })
       }
       mkdirSync(outputDir2)
@@ -196,7 +199,7 @@ abstract class MultiImporter extends BaseImporter {
         .replace('.', '-')
         .replace('_', '-')
       await creator.upload(
-        config.shapesContainer,
+        config.shapesContainer || containerName,
         _resolve(outputDir, config.version),
       )
     }

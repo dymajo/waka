@@ -6,7 +6,6 @@ import GtfsImport from '../db/gtfs-import'
 import connection from '../db/connection'
 import Storage from '../db/storage'
 import KeyvalueDynamo from '../db/keyvalue-dynamo'
-import config from '../config'
 
 import AucklandImporter from './regions/nz-akl'
 import ChchImporter from './regions/nz-chc'
@@ -22,8 +21,6 @@ import NYCImporter from './regions/us-nyc'
 import LAXImporter from './regions/us-lax'
 import SFOImporter from './regions/us-sfo'
 import BaseImporter from './BaseImporter'
-import MultiImporter from './MultiImporter'
-import SingleImporter from './SingleImporter'
 import LocalImporter from './LocalImporter'
 import PerthImporter from './regions/au-per'
 import ChicagoImporter from './regions/us-chi'
@@ -101,7 +98,7 @@ class Importer {
     }
   }
 
-  async start(created = false) {
+  start = async (created = false) => {
     if (!this.current) {
       return
     }
@@ -158,23 +155,23 @@ class Importer {
     }
   }
 
-  async unzip() {
+  unzip = async () => {
     if (this.current) await this.current.unzip()
   }
 
-  async download() {
+  download = async () => {
     if (this.current) await this.current.download()
   }
 
-  async db() {
+  db = async () => {
     if (this.current) await this.current.db(this.importer)
   }
 
-  async shapes() {
+  shapes = async () => {
     if (this.current) await this.current.shapes()
   }
 
-  async fullShapes() {
+  fullShapes = async () => {
     if (this.current) {
       await this.current.download()
       await this.current.unzip()
@@ -186,7 +183,7 @@ class Importer {
     }
   }
 
-  async fixStopCodes() {
+  fixStopCodes = async () => {
     // GTFS says it's optional, but Waka uses stop_code for stop lookups
     const sqlRequest = connection.get().request()
     const res = await sqlRequest.query(`
@@ -201,7 +198,7 @@ class Importer {
     )
   }
 
-  async fixRoutes() {
+  fixRoutes = async () => {
     const sqlRequest = connection.get().request()
     const res = await sqlRequest.query(`
       UPDATE routes
@@ -215,7 +212,7 @@ class Importer {
     )
   }
 
-  async fixPickupType() {
+  fixPickupType = async () => {
     const sqlRequest = connection.get().request()
     const res = await sqlRequest.query(`
       UPDATE stop_times
@@ -229,7 +226,7 @@ class Importer {
     )
   }
 
-  async fixDropOffType() {
+  fixDropOffType = async () => {
     const sqlRequest = connection.get().request()
     const res = await sqlRequest.query(`
       UPDATE stop_times
@@ -243,7 +240,7 @@ class Importer {
     )
   }
 
-  async addGeoLocation() {
+  addGeoLocation = async () => {
     const sqlRequest = connection.get().request()
     const res = await sqlRequest.query(`
       UPDATE stops
@@ -256,13 +253,13 @@ class Importer {
     )
   }
 
-  async postImport() {
+  postImport = async () => {
     if (this.current && this.current.postImport) {
       await this.current.postImport()
     }
   }
 
-  async exportDb() {
+  exportDb = async () => {
     const sqlRequest = connection.get().request()
     const {
       db: { database },

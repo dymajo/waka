@@ -33,7 +33,7 @@ abstract class SingleImporter extends BaseImporter {
     this.downloadOptions = { url: this.url }
   }
 
-  async download() {
+  download = async () => {
     try {
       log.info('Downloading GTFS Data')
       const res = await axios.get(this.downloadOptions.url, {
@@ -41,7 +41,7 @@ abstract class SingleImporter extends BaseImporter {
       })
       const dest = createWriteStream(this.zipLocation)
       res.data.pipe(dest)
-      return new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         dest.on('finish', () => {
           log.info('Finished Downloading GTFS Data')
           resolve()
@@ -53,7 +53,7 @@ abstract class SingleImporter extends BaseImporter {
     }
   }
 
-  async unzip() {
+  unzip = async () => {
     log.info('Unzipping GTFS Data')
     const { zipLocation } = this
     return new Promise((resolve, reject) => {
@@ -70,7 +70,7 @@ abstract class SingleImporter extends BaseImporter {
     })
   }
 
-  async db(importer: GtfsImport) {
+  db = async (importer: GtfsImport) => {
     for (const file of this.files) {
       try {
         await importer.upload(
@@ -86,7 +86,7 @@ abstract class SingleImporter extends BaseImporter {
     }
   }
 
-  async shapes() {
+  shapes = async () => {
     if (!existsSync(this.zipLocation)) {
       log.error('Shapes could not be found!')
       return
@@ -104,8 +104,11 @@ abstract class SingleImporter extends BaseImporter {
 
     // cleans up old import if exists
     if (existsSync(outputDir2)) {
-      await new Promise((resolve, reject) => {
-        rimraf(outputDir2, resolve)
+      await new Promise<void>((resolve, reject) => {
+        rimraf(outputDir2, err => {
+          if (err) reject(err)
+          resolve()
+        })
       })
     }
     mkdirSync(outputDir2)
@@ -117,7 +120,7 @@ abstract class SingleImporter extends BaseImporter {
       .replace('.', '-')
       .replace('_', '-')
     await creator.upload(
-      config.shapesContainer,
+      config.shapesContainer || containerName,
       _resolve(outputDir, config.version),
     )
   }

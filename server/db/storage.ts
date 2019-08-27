@@ -47,12 +47,12 @@ class Storage {
     }
   }
 
-  async downloadStream(
+  downloadStream = async (
     container: string,
     file: string,
     stream: ServerResponse,
     callback: (error: any, data?: any) => void,
-  ) {
+  ) => {
     if (this.backing === 'aws' && this.s3) {
       const params = {
         Bucket: container,
@@ -73,7 +73,7 @@ class Storage {
     return null
   }
 
-  async uploadFile(container: string, file: string, sourcePath: string) {
+  uploadFile = async (container: string, file: string, sourcePath: string) => {
     if (this.backing === 'aws' && this.s3) {
       const params: PutObjectRequest = {
         Body: createReadStream(sourcePath),
@@ -90,7 +90,7 @@ class Storage {
           headers: bodyFormData.getHeaders(),
         })
       } catch (error) {
-        console.error(error.data)
+        log.error(error.data)
         // throw error
       }
     }
