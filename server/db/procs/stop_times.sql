@@ -1,4 +1,5 @@
-CREATE TABLE stop_times (
+CREATE TABLE stop_times
+(
   id int NOT NULL IDENTITY(1,1) PRIMARY KEY NONCLUSTERED,
   trip_id nvarchar(100) NOT NULL,
   arrival_time time(0) NOT NULL,
@@ -8,8 +9,8 @@ CREATE TABLE stop_times (
   stop_id nvarchar(100) NOT NULL,
   stop_sequence int NOT NULL,
   stop_headsign nvarchar(100),
-  pickup_type int,
-  drop_off_type int,
+  pickup_type int default 0,
+  drop_off_type int default 0,
   shape_dist_traveled float,
   timepoint int
 );
