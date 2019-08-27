@@ -1,3 +1,7 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 -- =============================================
 -- Author:		Jono Cooper <jono@jonocooper.com> and Matt Davidson <matt@mattdavidson.kiwi>
 -- Create date: 2017-07-30
@@ -49,10 +53,13 @@ BEGIN
 		r.agency_id,
 		r.route_color,
 		r.route_text_color,
-		s.stop_name
+		s.stop_name,
+		p.stop_name AS parent_station
 	FROM [dbo].[stop_times] st
 		LEFT JOIN [dbo].[stops] s
 		ON st.stop_id = s.stop_id
+		LEFT JOIN [dbo].[stops] p
+		ON s.parent_station = p.stop_id
 		LEFT JOIN [dbo].[trips] t
 		ON st.trip_id = t.trip_id
 		LEFT JOIN [dbo].[routes] r
