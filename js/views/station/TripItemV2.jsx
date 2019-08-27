@@ -108,7 +108,13 @@ export const TripItem = ({
               {trips[0].destination}
             </Text>
           </View>
+          {trips[0].platform && (
+            <View style={styles.direction}>
+              <Text style={textColorStyles}>Platform {trips[0].platform}</Text>
+            </View>
+          )}
         </View>
+
         <View
           style={[
             styles.right,
@@ -142,20 +148,20 @@ export const TripItem = ({
               </Text>
             ) : null}
             {mainDepartureTime.hours ? (
-              <Fragment>
+              <>
                 <Text style={styles.departureTimeLarge}>
                   {mainDepartureTime.hours}
                 </Text>
                 <Text style={styles.departureTimeUnit}>hr</Text>
-              </Fragment>
+              </>
             ) : null}
             {mainDepartureTime.minutes ? (
-              <Fragment>
+              <>
                 <Text style={styles.departureTimeLarge}>
                   &nbsp;{mainDepartureTime.minutes}
                 </Text>
                 <Text style={styles.departureTimeUnit}>m</Text>
-              </Fragment>
+              </>
             ) : null}
           </Text>
           {trips.length === 1 ? (

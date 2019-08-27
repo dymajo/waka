@@ -480,6 +480,39 @@ storiesOf('TripItem', module)
       />
     </View>
   ))
+  .add('platform codes', () => (
+    <View style={{ backgroundColor: '#000' }}>
+      <TripItem
+        routeShortName="EAST"
+        direction={0}
+        color="#f9ca24"
+        textColor="rgba(0,0,0,0.85)"
+        trips={[
+          {
+            destination: 'Botany',
+            departureTime: new Date(),
+            isRealtime: false,
+            platform: '2',
+          },
+        ]}
+      />
+      <TripItem
+        routeShortName="EAST"
+        direction={1}
+        color="#f9ca24"
+        textColor="rgba(0,0,0,0.85)"
+        trips={[
+          {
+            destination: 'Britomart',
+            departureTime: new Date(),
+            isRealtime: false,
+            platform: '3',
+          },
+          singleTrip,
+        ]}
+      />
+    </View>
+  ))
   .add('realtime', () => (
     <View style={{ backgroundColor: '#000' }}>
       <TripItem

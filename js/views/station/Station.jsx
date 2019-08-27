@@ -432,6 +432,7 @@ class Station extends React.Component {
                   destination: i.trip_headsign,
                   departureTime: new Date(i.departure_time),
                   isRealtime: i.isRealtime,
+                  platform: i.platform,
                 }))}
                 onClick={() =>
                   this.triggerMap(
