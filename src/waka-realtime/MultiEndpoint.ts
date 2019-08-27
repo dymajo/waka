@@ -91,7 +91,7 @@ abstract class MultiEndpoint extends BaseRealtime {
     for (const mode of modes) {
       try {
         const res = await rateLimiter(() =>
-          axios.get(`${tripUpdateEndpoint}/${mode}`)
+          axios.get(`${tripUpdateEndpoint}/${mode()}`)
         )
         const oldModified = await wakaRedis.getKey(mode(), 'last-trip-update')
         if (res.headers['last-modified'] !== oldModified) {
@@ -146,7 +146,7 @@ abstract class MultiEndpoint extends BaseRealtime {
     for (const mode of modes) {
       try {
         const res = await rateLimiter(() =>
-          axios.get(`${vehiclePositionEndpoint}/${mode}`)
+          axios.get(`${vehiclePositionEndpoint}/${mode()}`)
         )
         const oldModified = await wakaRedis.getKey(
           mode(),
