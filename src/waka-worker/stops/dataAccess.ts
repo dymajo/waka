@@ -213,7 +213,7 @@ class StopsDataAccess {
       on stops.stop_id = stop_times.stop_id
       inner join routes
       on routes.route_id = trips.route_id
-      where (pickup_type = 0 or drop_off_type = 0 )and route_type <> 712 and parent_station is null
+      where (pickup_type = 0 or drop_off_type = 0 ) and route_type <> 712 and parent_station is null
       group by stops.stop_id,route_short_name;
     `)
     const stops: { [stop_id: string]: string[] } = {}
@@ -242,7 +242,7 @@ class StopsDataAccess {
       on stops.stop_id = stop_times.stop_id
       inner join routes
       on routes.route_id = trips.route_id
-      where (pickup_type = 0 or drop_off_type = 0 ) and parent_station is not null
+      where (pickup_type = 0 or drop_off_type = 0 ) and route_type <> 712 and parent_station is not null
       group by parent_station,route_short_name
       order by parent_station;
     `)
