@@ -8,7 +8,7 @@ import {
 
 export interface MultiEndpointProps extends BaseRealtimeProps {
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
-  modes: string[]
+  modes: Array<(agency?: boolean) => string>
   tripUpdateEndpoint: string
   vehiclePositionEndpoint: string
   serviceAlertEndpoint: string
@@ -17,7 +17,7 @@ export interface MultiEndpointProps extends BaseRealtimeProps {
 abstract class MultiEndpoint extends BaseRealtime {
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
   protobuf: protobuf.Type
-  modes: string[]
+  modes: ((agency?: boolean) => string)[]
   tripUpdateEndpoint: string
   vehiclePositionEndpoint: string
   serviceAlertEndpoint: string
@@ -88,13 +88,12 @@ abstract class MultiEndpoint extends BaseRealtime {
       await setupProtobuf()
     }
     logger.info('Starting Trip Update Pull')
-
     for (const mode of modes) {
       try {
         const res = await rateLimiter(() =>
           axios.get(`${tripUpdateEndpoint}/${mode}`)
         )
-        const oldModified = await wakaRedis.getKey(mode, 'last-trip-update')
+        const oldModified = await wakaRedis.getKey(mode(), 'last-trip-update')
         if (res.headers['last-modified'] !== oldModified) {
           const uInt8 = new Uint8Array(res.data)
           const _feed = protobuf.decode(uInt8) as unknown
@@ -103,7 +102,7 @@ abstract class MultiEndpoint extends BaseRealtime {
 
           if (res.headers['last-modified']) {
             await wakaRedis.setKey(
-              mode,
+              mode(),
               res.headers['last-modified'],
               'last-trip-update'
             )
@@ -150,7 +149,7 @@ abstract class MultiEndpoint extends BaseRealtime {
           axios.get(`${vehiclePositionEndpoint}/${mode}`)
         )
         const oldModified = await wakaRedis.getKey(
-          mode,
+          mode(),
           'last-vehicle-position-update'
         )
         if (res.headers['last-modified'] !== oldModified) {
@@ -160,7 +159,7 @@ abstract class MultiEndpoint extends BaseRealtime {
           await this.processVehiclePositions(feed.entity)
           if (res.headers['last-modified']) {
             await wakaRedis.setKey(
-              mode,
+              mode(),
               res.headers['last-modified'],
               'last-vehicle-position-update'
             )
@@ -199,13 +198,20 @@ abstract class MultiEndpoint extends BaseRealtime {
       await setupProtobuf()
     }
     logger.info('Starting Service Alert Pull')
-
-    for (const mode of modes) {
+    for (let i = 0; i < modes.length; i++) {
+      const mode = modes[i]
+      // work around for sfo single alert endpoint
+      if (i > 0 && mode(false) === modes[i - 1](false)) {
+        break
+      }
       try {
         const res = await rateLimiter(() =>
-          axios.get(`${serviceAlertEndpoint}/${mode}`)
+          axios.get(`${serviceAlertEndpoint}/${mode(false)}`)
         )
-        const oldModified = await wakaRedis.getKey(mode, 'last-alert-update')
+        const oldModified = await wakaRedis.getKey(
+          mode(false),
+          'last-alert-update'
+        )
         if (res.headers['last-modified'] !== oldModified) {
           const uInt8 = new Uint8Array(res.data)
           const _feed = protobuf.decode(uInt8) as unknown
@@ -214,7 +220,7 @@ abstract class MultiEndpoint extends BaseRealtime {
 
           if (res.headers['last-modified']) {
             await wakaRedis.setKey(
-              mode,
+              mode(false),
               res.headers['last-modified'],
               'last-alert-update'
             )

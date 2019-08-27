@@ -4,13 +4,13 @@ import { Logger } from '../../typings'
 import Redis from '../Redis'
 
 const modes = [
-  'buses',
-  'ferries',
-  'lightrail/innerwest',
-  'lightrail/newcastle',
-  'nswtrains',
-  'sydneytrains',
-  'metro',
+  () => 'buses',
+  () => 'ferries',
+  () => 'lightrail/innerwest',
+  () => 'lightrail/newcastle',
+  () => 'nswtrains',
+  () => 'sydneytrains',
+  () => 'metro',
 ]
 
 interface SydneyRealtimeProps {
