@@ -1,8 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 
+import { TouchableOpacity } from 'react-native-web'
 import { vars } from '../../styles'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
@@ -11,7 +12,6 @@ import SettingsStore from '../../stores/SettingsStore.js'
 import UiStore from '../../stores/UiStore.js'
 import { t } from '../../stores/translationStore.js'
 import CurrentLocation from '../../stores/CurrentLocation.js'
-
 import SavedIcon from '../../../dist/icons/saved.svg'
 import UnsavedIcon from '../../../dist/icons/unsaved.svg'
 
@@ -41,9 +41,8 @@ class Station extends React.Component {
     error: null,
     html: null,
     route_type: undefined,
-    stop_lat: undefined,
-    stop_lon: undefined,
     updated: undefined,
+    platforms: [],
   }
 
   constructor(props) {
@@ -100,9 +99,8 @@ class Station extends React.Component {
         name: this.getName(name),
         description,
         route_type,
-        stop_lat: data.stop_lat,
-        stop_lon: data.stop_lon,
         updated: data.updated || null,
+        platforms: data.platforms || [],
       })
       CurrentLocation.setInitialPosition(data.stop_lat, data.stop_lon)
       SettingsStore.state.lastLocation = [data.stop_lat, data.stop_lon]
@@ -371,7 +369,7 @@ class Station extends React.Component {
           <div className="align-center" style={{ paddingBottom: '15px' }}>
             <a
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               href={this.state.html.url}
               className="nice-button primary"
             >
@@ -465,6 +463,21 @@ class Station extends React.Component {
           actionIcon={actionIcon}
           actionFn={this.triggerSave}
         />
+        {this.state.platforms.length > 0 && (
+          <View style={styles.platforms}>
+            {this.state.platforms.map(platform => (
+              <TouchableOpacity
+                style={styles.platform}
+                key={platform.stop_code}
+                onClick={() =>
+                  UiStore.safePush(`/s/${region}/${platform.stop_code}`)
+                }
+              >
+                <Text>{platform.stop_name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
         <LinkedScroll ref={this.scrollContent}>
           <div className="trip-content" ref={this.swipeContent}>
             {loading}
@@ -483,6 +496,16 @@ const styles = StyleSheet.create({
   },
   tripWrapper: {
     backgroundColor: '#000',
+  },
+  platforms: { display: 'flex', overflowX: 'auto', flexDirection: 'row' },
+  platform: {
+    width: '150px',
+    padding: '10px',
+    margin: '5px',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'black',
+    borderRadius: '5px',
   },
 })
 const saveStyle = { fill: vars.headerIconColor }
