@@ -323,8 +323,11 @@ class Station {
       today.setTime(today.getTime() - 1000 * 60 * 60 * 24)
     }
 
-    // combines train stations platforms together
-    const procedure = 'GetStopTimes'
+    let procedure = 'GetStopTimes'
+    if (station.split(',').length > 1) {
+      // this *does not* work for parent stations
+      procedure = 'GetMultiStopTimes'
+    }
     let trips: DBStopTime[] = []
     const realtimeTrips: string[] = []
     try {
