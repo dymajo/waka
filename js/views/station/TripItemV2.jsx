@@ -10,7 +10,7 @@ const { padding, headerColor, fontFamily } = vars
 let styles
 
 // this is called recursively, with options to make it look good
-const getNextText = (times, hideVerb = false, amphersand = 'also') => {
+const getNextText = (times, hideVerb = false, ampersand = 'also') => {
   const time = times[0]
   const time2 = times[1]
 
@@ -24,7 +24,7 @@ const getNextText = (times, hideVerb = false, amphersand = 'also') => {
   }
   return (
     <>
-      {amphersand ? ` ${amphersand}` : null}
+      {ampersand ? ` ${ampersand}` : null}
       {hideVerb ? null : time.text ? ' at' : ' in'}
       {time.text ? (
         <>

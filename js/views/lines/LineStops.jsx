@@ -26,7 +26,7 @@ export const LineStops = ({
   } else if (stops.length > 0) {
     afterSelectedStop = true
   }
-  const comparisionStopTime = new Date(
+  const comparisonStopTime = new Date(
     stops[selectedStopIndex].departure_time ||
       stops[selectedStopIndex].arrival_time
   )
@@ -47,12 +47,12 @@ export const LineStops = ({
 
     const estimate = closestUpdate.departure || closestUpdate.arrival
     delay = estimate.delay
-    comparisionStopTime.setTime(comparisionStopTime.getTime() + delay * 1000)
+    comparisonStopTime.setTime(comparisonStopTime.getTime() + delay * 1000)
   }
-  comparisionStopTime.setSeconds(0) // so it makes more sense in the UI
+  comparisonStopTime.setSeconds(0) // so it makes more sense in the UI
 
   return (
-    <Fragment>
+    <>
       {!showAll && selectedStopIndex > 0 ? (
         <TouchableOpacity
           onClick={() => setShowAll(true)}
@@ -91,7 +91,7 @@ export const LineStops = ({
             Math.floor(
               (new Date(stop.departure_time).getTime() +
                 delay * 1000 -
-                comparisionStopTime) /
+                comparisonStopTime) /
                 60000 +
                 1440
             ) % 1440
@@ -160,7 +160,7 @@ export const LineStops = ({
           )
         })}
       </View>
-    </Fragment>
+    </>
   )
 }
 
