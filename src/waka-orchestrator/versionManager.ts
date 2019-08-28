@@ -52,8 +52,10 @@ class VersionManager {
     logger.info({ mappings }, `Found ${mappings.length} Mappings`)
 
     // load data for version
-    mappings.forEach(prefix =>
-      this.updateGateway(prefix, mappingsTable[prefix].value)
+    await Promise.all(
+      mappings.map(prefix =>
+        this.updateGateway(prefix, mappingsTable[prefix].value)
+      )
     )
   }
 
@@ -72,37 +74,38 @@ class VersionManager {
 
     // We trust the gateways to handle the scheduling of new tasks / configs
     // We shouldn't have to stop the gateway or anything silly.
-    gateway.start(prefix, gatewayConfig)
+
+    await gateway.start(prefix, gatewayConfig)
   }
 
-  async recycleGateway(prefix: string) {
+  recycleGateway = async (prefix: string) => {
     const { gateway } = this
     logger.info({ prefix }, 'Recycling Gateway')
     const _mapping = (await this.mappings.get(prefix)) as unknown
     const mapping = _mapping as { id: string; value: string }
     const versionId = mapping.value
     const gatewayConfig = await this.getVersionConfig(versionId)
-    gateway.recycle(prefix, gatewayConfig)
+    await gateway.recycle(prefix, gatewayConfig)
   }
 
-  stopGateway(prefix) {
+  stopGateway = async (prefix: string) => {
     const { gateway } = this
     logger.info({ prefix }, 'Stopping Gateway')
-    gateway.stop(prefix)
+    await gateway.stop(prefix)
   }
 
-  async updateMapping(prefix, versionId) {
+  updateMapping = async (prefix: string, versionId: string) => {
     await this.mappings.set(prefix, { value: versionId })
     await this.updateGateway(prefix, versionId)
   }
 
-  async deleteMapping(prefix) {
+  deleteMapping = async (prefix: string) => {
     this.stopGateway(prefix)
     logger.info({ prefix }, 'Deleting Gateway')
     await this.mappings.delete(prefix)
   }
 
-  async deleteWorker(id: string) {
+  deleteWorker = async (id: string) => {
     const { versions } = this
 
     const _data = (await versions.get(id)) as unknown
@@ -156,7 +159,7 @@ class VersionManager {
     })
   }
 
-  async checkVersionExists(prefix, version) {
+  checkVersionExists = async (prefix: string, version: string) => {
     const { versions } = this
     const id = `${prefix.replace(/-/g, '_')}_${version
       .replace(/-/g, '_')
@@ -170,14 +173,14 @@ class VersionManager {
     }
   }
 
-  async addVersion(workerConfig: {
+  addVersion = async (workerConfig: {
     prefix: string
     version: string
     shapesContainer: string
     shapesRegion: string
     dbconfig: string
     newRealtime: boolean
-  }) {
+  }) => {
     const { config, versions } = this
     const {
       prefix,
@@ -214,7 +217,7 @@ class VersionManager {
     await versions.set(id, newConfig)
   }
 
-  async getVersionConfig(versionId) {
+  getVersionConfig = async (versionId: string) => {
     const { config, versions } = this
     // the gateway needs some settings from the orchestrator,
     // but also some settings from the worker config
@@ -248,7 +251,7 @@ class VersionManager {
     return gatewayConfig
   }
 
-  async updateVersionStatus(versionId: string, status) {
+  updateVersionStatus = async (versionId: string, status) => {
     // statuses:
     // empty -> pendingimport -> importing -> imported
     // empty -> pendingimport-willmap -> importing-willmap -> imported-willmap -> imported
@@ -259,17 +262,17 @@ class VersionManager {
     await versions.set(versionId, version)
   }
 
-  async allVersions() {
+  allVersions = () => {
     // get all versions
     return this.versions.scan()
   }
 
-  async allMappings() {
+  allMappings = () => {
     // get all mappings
     return this.mappings.scan()
   }
 
-  async getDockerCommand(versionId: string) {
+  getDockerCommand = async (versionId: string) => {
     const config = await this.getVersionConfig(versionId)
     const env = this.envMapper.toEnvironmental(config, 'importer-local')
     const envArray = Object.keys(env).map(
@@ -282,7 +285,7 @@ class VersionManager {
     return command
   }
 
-  async getFargateVariables(versionId: string) {
+  getFargateVariables = async (versionId: string) => {
     const config = await this.getVersionConfig(versionId)
     const env = this.envMapper.toEnvironmental(config, 'importer')
     const envArray = Object.keys(env).map(name => ({

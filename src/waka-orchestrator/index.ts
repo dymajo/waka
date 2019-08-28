@@ -47,7 +47,7 @@ class WakaOrchestrator {
 
   start = async (port: number) => {
     const { config } = this
-    this.versionManager.start()
+    await this.versionManager.start()
     await this.updateManager.start()
 
     if (config.gateway === 'local') {
