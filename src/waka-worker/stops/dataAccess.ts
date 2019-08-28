@@ -508,5 +508,29 @@ class StopsDataAccess {
     }
     return this.getStopTimesV2(current.trip_id, previous.trip_id, next.trip_id)
   }
+
+  getPlatforms = async (parent_station: string) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('parent_station', parent_station)
+    const result = await sqlRequest.query<{
+      stop_code: string
+      stop_name: string
+    }>(`
+      select s.stop_code, s.stop_name from stops s where s.parent_station = @parent_station
+    `)
+    const platforms = result.recordset.map(record => {
+      const platformSplit = record.stop_name.split(' Platform ')
+      if (platformSplit.length === 2) {
+        return {
+          stop_name: `Platform ${platformSplit[1]}`,
+          stop_code: record.stop_code,
+        }
+      }
+      return record
+    })
+
+    return platforms
+  }
 }
 export default StopsDataAccess

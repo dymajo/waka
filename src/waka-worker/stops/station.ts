@@ -162,28 +162,31 @@ class Station {
     }
 
     const notFound = { message: 'Station not found.' }
-    let data
     try {
-      data = await dataAccess.getStopInfo(stopCode)
+      const data = await dataAccess.getStopInfo(stopCode)
       if (override) {
         data.stop_id = override
       }
-      res.send(data)
+      if (data.location_type === 1) {
+        const platforms = await dataAccess.getPlatforms(data.stop_id)
+        return res.send({ ...data, platforms })
+      }
+      return res.send(data)
     } catch (err) {
       // TODO: make this more generic
       if (prefix === 'nz-akl') {
         try {
           const getSingle = oc(regionSpecific).getSingle()
           if (getSingle) {
-            data = await getSingle(stopCode)
+            const data = await getSingle(stopCode)
+            return res.send(data)
           }
         } catch (err) {
           // couldn't get any carpark
         }
       }
-      res.status(404).send(notFound)
+      return res.status(404).send(notFound)
     }
-    return data
   }
 
   /**
@@ -397,6 +400,7 @@ class Station {
         shape_id: r.shape_id,
         platform,
         stop_name,
+        stop_id: r.stop_id,
       }
       return record
     })
