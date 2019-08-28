@@ -219,19 +219,16 @@ class Search {
         // merges all the arays of data together
         const data = await Promise.all(sources)
         const response = [].concat(...data)
-        res.send(response)
-        return response
+        return res.send(response)
       } catch (err) {
         logger.error({ err }, 'Could not get stops lat lng.')
-        res.status(500).send(err)
-        return err
+        return res.status(500).send(err)
       }
     } else {
       const error = {
         message: 'please send all required params (lat, lng, distance)',
       }
-      res.status(400).send(error)
-      return error
+      return res.status(400).send(error)
     }
   }
 
@@ -252,7 +249,7 @@ class Search {
     // TODO: Temporary - needs to be more robust
     // Other cities have hubs.
     const locationQuery =
-      prefix === 'nz-syd'
+      prefix === 'au-syd'
         ? `
     (
       (location_type is null and parent_station is null) OR
