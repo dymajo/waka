@@ -15,6 +15,7 @@ import LinkButton from '../reusable/LinkButton.jsx'
 class Save extends React.Component {
   state = {
     name: '',
+    mergeable: false,
     checked: this.props.match.params.station
       .split('+')
       .reduce((result, item) => {
@@ -41,8 +42,13 @@ class Save extends React.Component {
       this.props.match.params.station,
       this.props.match.params.region
     )
+    let mergeable = false
+    if (data.parent_station || data.location_type === '0') {
+      mergeable = true
+    }
     this.setState({
       name: data.name || data.stop_name || '',
+      mergeable,
     })
   }
 
@@ -100,6 +106,7 @@ class Save extends React.Component {
   }
 
   render() {
+    const { mergeable } = this.state
     const { region } = this.props.match.params
     const stop = this.props.match.params.station
     const regionStop = `${region}|${stop}`
@@ -133,9 +140,9 @@ class Save extends React.Component {
       }
     }
 
-    if (mergers.length > 1) {
+    if (mergeable && mergers.length > 1) {
       combined = (
-        <React.Fragment>
+        <>
           <Text style={styles.label}>
             {t('stationedit.merge').toUpperCase()}
           </Text>
@@ -157,7 +164,7 @@ class Save extends React.Component {
                 </div>
               ))}
           </View>
-        </React.Fragment>
+        </>
       )
     }
 
