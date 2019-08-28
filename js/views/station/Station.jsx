@@ -334,10 +334,9 @@ class Station extends React.Component {
     UiStore.safePush('./save')
   }
 
-  triggerMap = (agencyId, routeId, routeShortName, directionId) => {
+  triggerMap = (agencyId, routeId, routeShortName, directionId, stopId) => {
     const { history, match } = this.props
     const url = ['/l', match.params.region, agencyId, routeShortName].join('/')
-    const stopId = match.params.station
 
     history.push(
       `${url}?route_id=${routeId}&direction=${directionId}&stop_id=${stopId}`
@@ -420,6 +419,7 @@ class Station extends React.Component {
               route_color: routeColor,
               route_id: routeId,
               route_text_color: routeTextColor,
+              stop_id: stopId,
             } = item[0]
             return (
               <TripItem
@@ -439,7 +439,8 @@ class Station extends React.Component {
                     agencyId,
                     routeId,
                     routeShortName,
-                    directionId
+                    directionId,
+                    stopId
                   )
                 }
               />
