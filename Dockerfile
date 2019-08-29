@@ -10,4 +10,4 @@ RUN npm run build:js
 
 ENV NODE_ENV=production
 
-CMD ["npm", "start"]
+ENTRYPOINT [ "node","lib/index.js" ]
