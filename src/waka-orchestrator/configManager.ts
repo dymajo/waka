@@ -36,7 +36,10 @@ class ConfigManager {
       updaters: {},
       importer: {},
       redis: {
+        port: 6379,
         host: 'localhost',
+        family: 4,
+        db: 0,
       },
       gatewayConfig: {
         // local doesn't need config

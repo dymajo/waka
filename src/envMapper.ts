@@ -31,6 +31,11 @@ class EnvMapper {
       // worker only:
       AT_API_KEY: config.api['nz-akl'],
       AGENDA21_API_KEY: config.api['agenda-21'],
+      REDIS_PORT: config.redis.port,
+      REDIS_HOST: config.redis.host,
+      REDIS_FAMILY: config.redis.family,
+      REDIS_PASSWORD: config.redis.password,
+      REDIS_DB: config.redis.db,
 
       // needed in importer & worker
       TFNSW_API_KEY: config.api['au-syd'],
@@ -114,7 +119,7 @@ class EnvMapper {
         port: parseInt(REDIS_PORT, 10),
         host: REDIS_HOST,
         family: parseInt(REDIS_FAMILY, 10),
-        password: REDIS_PASSWORD,
+        password: REDIS_PASSWORD ? REDIS_PASSWORD : undefined,
         db: parseInt(REDIS_DB, 10),
       },
       db: {
