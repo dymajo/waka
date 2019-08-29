@@ -130,7 +130,7 @@ class LineList extends React.Component {
             <View style={styles.errorWrapper}>
               <Text style={styles.error}>{error}</Text>
               <LinkButton
-                onClick={this.triggerRetry}
+                onClick={this.triggerGetLines}
                 label={t('app.errorRetry')}
               />
             </View>
@@ -186,6 +186,7 @@ class LineList extends React.Component {
               </Fragment>
             ))
           )}
+          <View style={styles.linesInner} />
         </LinkedScroll>
       </View>
     )
@@ -201,6 +202,9 @@ const {
 styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+  },
+  linesInner: {
+    paddingBottom: vars.padding * 2,
   },
   errorWrapper: { padding },
   error: {

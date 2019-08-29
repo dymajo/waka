@@ -150,9 +150,10 @@ class Line extends React.Component {
         throw new Error('The line had missing data.')
       }
 
-      const route = metadata.find(
-        i => i.direction_id === this.lineData.direction_id
-      )
+      const route =
+        metadata.find(i => i.direction_id === this.lineData.direction_id) ||
+        metadata[0]
+      this.lineData.direction_id = route.direction_id
 
       this.setState({
         color: route.route_color,
@@ -261,9 +262,11 @@ class Line extends React.Component {
                 this.lineData.direction_id === secondAttempt.direction_id
               ) {
                 // already attempted this, so give up
-                throw new Error(
-                  'We could not load the timetable for this line.'
-                )
+                this.setState({
+                  error: true,
+                  errorMessage:
+                    'We didn’t find any services for this line within the next few days.',
+                })
               } else {
                 this.lineData.direction_id = secondAttempt.direction_id
                 this.lineData.stop_id = secondAttempt.first_stop_id
@@ -395,8 +398,8 @@ class Line extends React.Component {
           <Header title="Line Error" />
           <View style={styles.error}>
             <Text style={styles.errorMessage}>
-              We couldn&apos;t load the {match.params.route_short_name} line in{' '}
-              {match.params.region}.
+              Sorry! We couldn&apos;t load the {match.params.route_short_name}{' '}
+              line.
             </Text>
             <Text style={styles.errorMessage}>{errorMessage}</Text>
           </View>
@@ -498,6 +501,7 @@ styles = StyleSheet.create({
   errorMessage: {
     fontSize: vars.defaultFontSize,
     fontFamily: vars.fontFamily,
+    marginBottom: vars.padding,
   },
 })
 export default withRouter(Line)
