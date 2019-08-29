@@ -9,24 +9,24 @@ class LosAngelesImporter extends MultiImporter {
   constructor() {
     super({
       locations: [
-        // {
-        //   endpoint:
-        //     'https://gitlab.com/LACMTA/gtfs_bus/raw/master/gtfs_bus.zip',
-        //   name: 'la-metro-bus',
-        //   type: 'bus',
-        // },
-        // {
-        //   endpoint:
-        //     'https://gitlab.com/LACMTA/gtfs_rail/raw/master/gtfs_rail.zip',
-        //   name: 'la-metro-rail',
-        //   type: 'train',
-        // },
-        // {
-        //   endpoint:
-        //     'https://www.metrolinktrains.com/globalassets/about/gtfs/gtfs.zip',
-        //   name: 'metrolink',
-        //   type: 'train',
-        // },
+        {
+          endpoint:
+            'https://gitlab.com/LACMTA/gtfs_bus/raw/master/gtfs_bus.zip',
+          name: 'la-metro-bus',
+          type: 'bus',
+        },
+        {
+          endpoint:
+            'https://gitlab.com/LACMTA/gtfs_rail/raw/master/gtfs_rail.zip',
+          name: 'la-metro-rail',
+          type: 'train',
+        },
+        {
+          endpoint:
+            'https://www.metrolinktrains.com/globalassets/about/gtfs/gtfs.zip',
+          name: 'metrolink',
+          type: 'train',
+        },
         {
           endpoint:
             'http://lacitydot.com/gtfs/administrator/gtfszip/ladotgtfs.zip',
