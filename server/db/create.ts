@@ -34,6 +34,7 @@ const procs = [
   'GetTimetable.sql',
   'alphasort.sql',
   'GetRoutes.sql',
+  'GetMultiStopTimes.sql',
 ]
 
 const create = async (filenames: string[]) => {

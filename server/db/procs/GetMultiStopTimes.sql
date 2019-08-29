@@ -4,7 +4,7 @@
 -- Updated: 2019-03-18
 -- Description:	Retrieves stop times for a station.
 -- =============================================
-CREATE PROCEDURE [dbo].[GetStopTimes]
+CREATE PROCEDURE [dbo].[aGetStopTimes]
 	@stop_id NVARCHAR(100),
 	@departure_time TIME,
 	@departure_date DATE
