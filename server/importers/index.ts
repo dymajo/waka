@@ -135,6 +135,7 @@ class Importer {
     await this.postImport()
     await this.fixDropOffType()
     await this.fixPickupType()
+    await this.dumpTempTables()
 
     await this.shapes()
     // await this.exportDb()
@@ -251,6 +252,25 @@ class Importer {
       `${config.prefix} ${config.version}`,
       `Updated ${rows} geo locations`,
     )
+  }
+
+  dumpTempTables = async () => {
+    const sqlRequest = connection.get().request()
+    try {
+      const res = await sqlRequest.query(`
+      DROP TABLE
+      [dbo].[temp_agency],
+      [dbo].[temp_calendar],
+      [dbo].[temp_calendar_dates],
+      [dbo].[temp_frequencies],
+      [dbo].[temp_routes],
+      [dbo].[temp_stop_times],
+      [dbo].[temp_stops],
+      [dbo].[temp_trips];
+      `)
+    } catch (error) {
+      log.error(error)
+    }
   }
 
   postImport = async () => {
