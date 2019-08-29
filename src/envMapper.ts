@@ -120,7 +120,7 @@ class EnvMapper {
         host: REDIS_HOST,
         family: parseInt(REDIS_FAMILY, 10),
         password: REDIS_PASSWORD ? REDIS_PASSWORD : undefined,
-        db: parseInt(REDIS_DB, 10),
+        db: REDIS_DB ? parseInt(REDIS_DB, 10) : 0,
       },
       db: {
         user: DB_USER,
