@@ -204,8 +204,9 @@ class StopsDataAccess {
     const result = await sqlRequest.query<{
       stop_id: string
       route_short_name: string
+      agency_id: string
     }>(`
-      select distinct stops.stop_id,  route_short_name
+      select distinct stops.stop_id, route_short_name, agency_id
       from trips
       inner join stop_times
       on stop_times.trip_id = trips.trip_id
@@ -214,14 +215,15 @@ class StopsDataAccess {
       inner join routes
       on routes.route_id = trips.route_id
       where (pickup_type = 0 or drop_off_type = 0 ) and route_type <> 712 and parent_station is null
-      group by stops.stop_id,route_short_name;
+      group by stops.stop_id, route_short_name, agency_id;
     `)
     const stops: { [stop_id: string]: string[] } = {}
-    for (const { stop_id, route_short_name } of result.recordset) {
+    for (const { stop_id, route_short_name, agency_id } of result.recordset) {
+      const uniqueKey = [agency_id, route_short_name].join('/')
       if (Object.prototype.hasOwnProperty.call(stops, stop_id)) {
-        stops[stop_id].push(route_short_name)
+        stops[stop_id].push(uniqueKey)
       } else {
-        stops[stop_id] = [route_short_name]
+        stops[stop_id] = [uniqueKey]
       }
     }
     return stops
@@ -233,8 +235,9 @@ class StopsDataAccess {
     const result = await sqlRequest.query<{
       parent_station: string
       route_short_name: string
+      agency_id: string
     }>(`
-      select distinct parent_station, route_short_name
+      select distinct parent_station, route_short_name, agency_id
       from trips
       inner join stop_times
       on stop_times.trip_id = trips.trip_id
@@ -243,18 +246,19 @@ class StopsDataAccess {
       inner join routes
       on routes.route_id = trips.route_id
       where (pickup_type = 0 or drop_off_type = 0 ) and route_type <> 712 and parent_station is not null
-      group by parent_station,route_short_name
+      group by parent_station, route_short_name, agency_id
       order by parent_station;
     `)
     const parents: { [parent_station: string]: string[] } = {}
     const parentsMap = await this.getParentStops()
     const stops: { [stop_id: string]: string[] } = {}
 
-    for (const { parent_station, route_short_name } of result.recordset) {
+    for (const { parent_station, route_short_name, agency_id } of result.recordset) {
+      const uniqueKey = [agency_id, route_short_name].join('/')
       if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
-        parents[parent_station].push(route_short_name)
+        parents[parent_station].push(uniqueKey)
       } else {
-        parents[parent_station] = [route_short_name]
+        parents[parent_station] = [uniqueKey]
       }
     }
 

@@ -630,10 +630,13 @@ class Lines {
           transfers = redisresult.split(',')
         }
 
-        const transfersWithColors = transfers.map(j => [
-          j,
-          this.getColor(null, j),
-        ])
+        const transfersWithColors = transfers.map(t => {
+          const [agency, routeShortName] = t.split('/')
+          return [
+            routeShortName,
+            this.getColor(agency, j),
+          ]
+        })
         transfersWithColors.sort(sortFn)
 
         return { ...i, transfers: transfersWithColors }
@@ -722,10 +725,13 @@ class Lines {
       if (redisresult) {
         transfers = redisresult.split(',')
       }
-      const transfersWithColors = transfers.map(j => [
-        j,
-        this.getColor(null, j),
-      ])
+      const transfersWithColors = transfers.map(t => {
+        const [agency, routeShortName] = t.split('/')
+        return [
+          routeShortName,
+          this.getColor(agency, t),
+        ]
+      })
       transfersWithColors.sort(sortFn)
       i.stop_id = i.stop_code
       delete i.stop_code

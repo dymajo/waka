@@ -63,30 +63,31 @@ class LinesNZWLG extends BaseLines {
       const agencyId = record.agency_id
       const routeId = record.route_id
       const routeLongName = record.route_long_name
+      const uniqueKey = [agencyId, routeShortName].join('/')
 
-      allLines[routeShortName] = [[routeLongName]]
+      allLines[uniqueKey] = [[routeLongName]]
 
-      lineOperators[routeShortName] = agencyId
+      lineOperators[uniqueKey] = agencyId
       if (record.route_type !== 3) {
-        lineGroups[regionEnum.cf].items.push(routeShortName)
+        lineGroups[regionEnum.cf].items.push(uniqueKey)
       } else if (routeShortName.slice(0, 1) === 'N') {
-        lineGroups[regionEnum.lateNight].items.push(routeShortName)
+        lineGroups[regionEnum.lateNight].items.push(uniqueKey)
       } else if (parseInt(routeShortName, 10) >= 250) {
-        lineGroups[regionEnum.paraparaumu].items.push(routeShortName)
+        lineGroups[regionEnum.paraparaumu].items.push(uniqueKey)
       } else if (
         parseInt(routeShortName, 10) >= 200 &&
         parseInt(routeShortName, 10) < 210
       ) {
-        lineGroups[regionEnum.wairarapa].items.push(routeShortName)
+        lineGroups[regionEnum.wairarapa].items.push(uniqueKey)
       } else if (
         parseInt(routeShortName, 10) >= 80 &&
         parseInt(routeShortName, 10) < 200
       ) {
-        lineGroups[regionEnum.hutt].items.push(routeShortName)
+        lineGroups[regionEnum.hutt].items.push(uniqueKey)
       } else if (parseInt(routeShortName, 10) > 200) {
-        lineGroups[regionEnum.porirua].items.push(routeShortName)
+        lineGroups[regionEnum.porirua].items.push(uniqueKey)
       } else {
-        lineGroups[regionEnum.central].items.push(routeShortName)
+        lineGroups[regionEnum.central].items.push(uniqueKey)
       }
 
       const routeColor = this.lineColorizer(
@@ -94,9 +95,9 @@ class LinesNZWLG extends BaseLines {
         record.route_short_name,
         record.route_color
       )
-      lineColors[routeShortName] = routeColor
+      lineColors[uniqueKey] = routeColor
 
-      lines[routeShortName] = {
+      lines[uniqueKey] = {
         agencyId,
         routeColor,
         routeId,
