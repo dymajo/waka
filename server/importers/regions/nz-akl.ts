@@ -24,7 +24,7 @@ class AucklandImporter extends SingleImporter {
     await sqlRequest.query(`
       UPDATE routes
       SET route_type = '712'
-      WHERE route_short_name LIKE '0__' OR route_short_name LIKE '5__'
+      WHERE route_short_name LIKE '0__' OR route_short_name LIKE '4__' OR route_short_name LIKE '5__'
     `)
     log.info(
       'Post Import: Updated Schools Routes to route_type 712',
