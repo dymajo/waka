@@ -139,32 +139,10 @@ export default {
     min: '%{smart_count}& min |||| %{smart_count}& mins',
     and: 'and in&%{times}& min',
     last: 'Last',
-    map: 'Route Map',
-    timetable: 'Timetable',
-  },
-  timetable: {
-    title: 'Timetable',
-    header: '%{route} Timetable - %{appname}',
-    error: 'We couldn’t get the timetable for this route.',
-    empty: 'There were no services found today.',
   },
   vech_loc: {
     header: '%{route} - Live Location - %{appname}',
     stop: 'Stop %{number}',
     services: 'View Services',
-    timetable: 'Timetable',
-  },
-  specific: {
-    auckland: {
-      cfn: 'Congestion Free Network',
-      ferries: 'Ferries',
-      city: 'City & Isthmus',
-      east: 'East',
-      south: 'South',
-      west: 'West',
-      north: 'North Shore',
-      night: 'Late Night',
-      waiheke: 'Waiheke Island',
-    },
   },
 }

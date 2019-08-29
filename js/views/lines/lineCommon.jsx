@@ -51,9 +51,6 @@ export const renderStops = (
             <button class="leaflet-service-button">
               ${t('vech_loc.services')}
             </button>
-            <button class="leaflet-timetable-button timetable-button">
-              ${t('vech_loc.timetable')}
-            </button>
           </span>`
         )
       },

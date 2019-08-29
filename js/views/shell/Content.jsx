@@ -8,7 +8,6 @@ import Switch from './Switch.jsx'
 import Events from '../../stores/Events'
 import Station from '../station/Station.jsx'
 import Save from '../station/Save.jsx'
-import Timetable from '../pages/Timetable.jsx'
 import LineList from '../lines/LineList.jsx'
 import Line from '../lines/Line.jsx'
 import LinePicker from '../lines/LinePicker.jsx'
@@ -65,6 +64,7 @@ class Content extends React.Component {
   }
 
   render() {
+    const { location, rootComponent } = this.props
     const { desktopLayout } = this.state
     return (
       <View
@@ -75,15 +75,10 @@ class Content extends React.Component {
         }
         onLayout={this.triggerLayout}
       >
-        <Switch location={this.props.location} key="switch" timeout={400}>
-          <Route path="/" exact render={wrapFn(this.props.rootComponent)} />
+        <Switch location={location} key="switch" timeout={400}>
+          <Route path="/" exact render={wrapFn(rootComponent)} />
           <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
           <Route path="/s/:region/:station/save" exact render={wrapFn(Save)} />
-          <Route
-            path="/s/:region/:station/timetable/:route_name"
-            exact
-            render={wrapFn(Timetable)}
-          />
           <Route path="/l/:region" exact render={wrapFn(LineList)} />
           <Route path="/l/:region/all" exact render={wrapFn(AllLines)} />
           <Route
