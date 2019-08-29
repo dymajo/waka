@@ -105,7 +105,7 @@ const config: WakaConfig = {
   keyValueRegion: KEYVALUE_REGION,
   tfnswApiKey: TFNSW_API_KEY,
   extended: EXTENDED === 'true' || false,
-  localFile: LOCAL_FILE || undefined,
+  localFile: LOCAL_FILE || '',
   localImport: LOCAL_IMPORT === 'true' || false,
   db: {
     user: DB_USER,
