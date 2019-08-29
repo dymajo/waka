@@ -199,7 +199,7 @@ class GtfsImport {
   ): Promise<void> => {
     if (!existsSync(_resolve(location, file.name))) {
       const logstr = file.table.toString()
-      log.info(endpoint, logstr, 'skipped')
+      log.warn(endpoint, logstr, 'skipped')
       return
     }
 
