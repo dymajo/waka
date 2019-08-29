@@ -306,21 +306,21 @@ export const nzAklRouteColor = (agencyId: string, code: string) => {
   // First for our fancy services.
   switch (code) {
     case 'CTY': // City Link
-      return { routeColor: 'ef3c34', textColor: '000000' }
+      return { routeColor: 'ef3c34', textColor: 'ffffff' }
     case 'INN': // Inner Link
       return { routeColor: '41b649', textColor: 'ffffff' }
     case 'OUT': // Outer Link
-      return { routeColor: 'f7991c', textColor: '000000' }
+      return { routeColor: 'f7991c', textColor: 'ffffff' }
     case 'TMK':
       return { routeColor: '038fcc', textColor: 'ffffff' }
     case 'WEST': // Western Line
-      return { routeColor: '84bd00', textColor: '000000' }
+      return { routeColor: '84bd00', textColor: 'ffffff' }
     case 'STH': // South Line
-      return { routeColor: 'da291c', textColor: '000000' }
+      return { routeColor: 'da291c', textColor: 'ffffff' }
     case 'EAST': // East Line
-      return { routeColor: 'ed8b00', textColor: '000000' }
+      return { routeColor: 'ed8b00', textColor: 'ffffff' }
     case 'PUK': // South Line
-      return { routeColor: 'da291c', textColor: '000000' }
+      return { routeColor: 'da291c', textColor: 'ffffff' }
     case 'ONE': // ONE Line
       return { routeColor: '00a6d6', textColor: 'ffffff' }
     case 'NX1': // Northern Express 1
@@ -350,7 +350,7 @@ export const nzAklRouteColor = (agencyId: string, code: string) => {
       return { routeColor: '0759b0', textColor: 'ffffff' }
 
     case 'NZBNS': // NZ Bus - North Star
-      return { routeColor: 'f39c12', textColor: '000000' }
+      return { routeColor: 'f39c12', textColor: 'ffffff' }
 
     case 'NZBWP': // NZ Bus - Waka Pacific
       return { routeColor: '0f91ab', textColor: 'ffffff' }
@@ -359,10 +359,10 @@ export const nzAklRouteColor = (agencyId: string, code: string) => {
       return { routeColor: '776242', textColor: 'ffffff' }
 
     case 'BTL': // Birkenhead Transport
-      return { routeColor: 'b2975b', textColor: '000000' }
+      return { routeColor: 'b2975b', textColor: 'ffffff' }
 
     case 'RTH': // Ritchies
-      return { routeColor: 'ff6f2c', textColor: '000000' }
+      return { routeColor: 'ff6f2c', textColor: 'ffffff' }
 
     case 'TZG': // Tranzit
       return { routeColor: '008540', textColor: 'ffffff' }
@@ -371,16 +371,16 @@ export const nzAklRouteColor = (agencyId: string, code: string) => {
       return { routeColor: '2196F3', textColor: 'ffffff' }
 
     case 'EXPNZ': // Explore Waiheke - supposed to be closed?
-      return { routeColor: 'ffe81c', textColor: '000000' }
+      return { routeColor: 'ffe81c', textColor: 'ffffff' }
 
     case 'BFL': // Belaire Ferries
-      return { routeColor: 'ffd503', textColor: '000000' }
+      return { routeColor: 'ffd503', textColor: 'ffffff' }
 
     case 'ATAPT': // AT Airporter
-      return { routeColor: 'f7931d', textColor: '000000' }
+      return { routeColor: 'f7931d', textColor: 'ffffff' }
 
     case 'SLPH': // Pine Harbour / Sealink
-      return { routeColor: 'd92732', textColor: '000000' }
+      return { routeColor: 'd92732', textColor: 'ffffff' }
 
     case 'GBT': // Go Bus
       return { routeColor: '58aa17', textColor: 'ffffff' }
@@ -389,7 +389,7 @@ export const nzAklRouteColor = (agencyId: string, code: string) => {
       return { routeColor: '2756a4', textColor: 'ffffff' }
 
     case 'ABEXP': // Skybus
-      return { routeColor: 'F44336', textColor: '000000' }
+      return { routeColor: 'F44336', textColor: 'ffffff' }
 
     case 'PC': // Pavolich
       return { routeColor: '776242', textColor: 'ffffff' }
