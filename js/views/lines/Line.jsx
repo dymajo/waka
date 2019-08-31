@@ -415,6 +415,7 @@ class Line extends React.Component {
           timetable={timetable}
           realtimeStopUpdates={realtimeStopUpdates}
           triggerTrip={this.triggerTrip}
+          region={match.params.region}
         />
       ) : null
     const lineStops = loading ? (

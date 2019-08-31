@@ -1,4 +1,21 @@
-export const getTime = (date, isTwentyFourHour, showDue) => {
+export const prefixToTimezone = prefix => {
+  switch (prefix) {
+    case 'au-syd':
+      return 'Australia/Sydney'
+    case 'au-mel':
+      return 'Australia/Melbourne'
+    case 'au-per':
+      return 'Australia/Perth'
+    case 'us-nyc':
+      return 'America/New_York'
+    case 'nz-wlg':
+    case 'nz-akl':
+    default:
+      return 'Pacific/Auckland'
+  }
+}
+
+export const getTime = (date, isTwentyFourHour, showDue, region) => {
   const now = new Date()
   if (date <= now) {
     if (showDue === true) {
@@ -19,6 +36,7 @@ export const getTime = (date, isTwentyFourHour, showDue) => {
       hour12: !isTwentyFourHour,
       hour: 'numeric',
       minute: 'numeric',
+      timeZone: prefixToTimezone(region),
     })
     // if us -> AM/PM, if au/nz -> am/pm, if gb -> 24h
     return {

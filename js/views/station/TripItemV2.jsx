@@ -73,6 +73,7 @@ export const TripItem = ({
   isTwentyFourHour = false,
   trips = [],
   onClick,
+  region,
 }) => {
   if (trips.length === 0) return null
   const textColorStyles = {
@@ -86,7 +87,7 @@ export const TripItem = ({
   )
   const secondaryDepartureTime = trips
     .slice(1, 3)
-    .map(i => getTime(i.departureTime, isTwentyFourHour, false))
+    .map(i => getTime(i.departureTime, isTwentyFourHour, false, region))
   return (
     <TouchableOpacity activeOpacity={0.85} onClick={onClick}>
       <View style={[styles.wrapper, { backgroundColor: color }]}>
@@ -264,5 +265,9 @@ styles = StyleSheet.create({
   },
   strong: {
     fontWeight: 'bold',
+  },
+  and: {
+    fontFamily,
+    fontSize: 13,
   },
 })

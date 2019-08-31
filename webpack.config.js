@@ -181,4 +181,11 @@ if (process.env.NODE_ENV === 'devlive') {
   config.devServer.proxy['/a'].changeOrigin = true
 }
 
+if (process.env.NODE_ENV === 'devuat') {
+  console.log('Using UAT Server for API')
+  config.devServer.proxy['/a'].target = 'https://uat.waka.app'
+  config.devServer.proxy['/a'].pathRewrite = null
+  config.devServer.proxy['/a'].changeOrigin = true
+}
+
 module.exports = config

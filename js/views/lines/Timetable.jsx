@@ -6,10 +6,10 @@ import { vars } from '../../styles.js'
 
 import { getTime } from '../../helpers/date.js'
 
-const formatDate = (dateString, delay) => {
+const formatDate = (dateString, delay, region) => {
   const date = new Date(dateString)
   date.setTime(date.getTime() + delay * 1000)
-  const humanTime = getTime(date, false, true)
+  const humanTime = getTime(date, false, true, region)
 
   // make this nicer
   return `${humanTime.text || ''}${humanTime.subtext || ''}${
@@ -24,7 +24,9 @@ const Timetable = ({
   currentTrip,
   triggerTrip,
   realtimeStopUpdates,
+  region,
 }) => {
+  const tripIds = {}
   return (
     <View>
       <Text style={styles.direction}>Departures</Text>
@@ -47,7 +49,11 @@ const Timetable = ({
             }
             return service
           })
-          .filter(service => service.visible === true)
+          .filter(service => {
+            // ensures that services that start and finish at the same place with the same trip_id don't show up more than once
+            tripIds[service.trip_id] = (tripIds[service.trip_id] || 0) + 1
+            return service.visible === true && tripIds[service.trip_id] === 1
+          })
           .map(service => {
             let departureTextStyle = null
             let emotion = null
@@ -89,7 +95,7 @@ const Timetable = ({
                 onPress={triggerTrip(service.trip_id)}
               >
                 <Text style={[styles.departureDate, departureTextStyle]}>
-                  {formatDate(service.departure_time, delay)}
+                  {formatDate(service.departure_time, delay, region)}
                 </Text>
                 <Text style={[styles.departureStatus, emotion]}>
                   {scheduleRelationship}

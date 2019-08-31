@@ -358,22 +358,23 @@ class Station extends React.Component {
     let loading
     let content
 
+    const { reducedTrips, error, html, route_type, updated } = this.state
     const { region } = this.props.match.params
     const stop = this.props.match.params.station
     const regionStop = `${region}|${stop}`
     if (this.state.loading) {
       loading = <div className="spinner" />
-    } else if (this.state.route_type === -2) {
-      content = <Onzo updated={this.state.updated} />
-    } else if (this.state.html !== null) {
+    } else if (route_type === -2) {
+      content = <Onzo updated={updated} />
+    } else if (html !== null) {
       content = (
         <div>
-          <div dangerouslySetInnerHTML={{ __html: this.state.html.html }} />
+          <div dangerouslySetInnerHTML={{ __html: html.html }} />
           <div className="align-center" style={{ paddingBottom: '15px' }}>
             <a
               target="_blank"
               rel="noopener"
-              href={this.state.html.url}
+              href={html.url}
               className="nice-button primary"
             >
               More Info
@@ -381,18 +382,18 @@ class Station extends React.Component {
             <a
               target="_blank"
               rel="noopener"
-              href={this.state.html.twitter}
+              href={html.twitter}
               className="nice-button secondary"
             >
-              @{this.state.html.twitter.split('/').slice(-1)} on Twitter
+              @{html.twitter.split('/').slice(-1)} on Twitter
             </a>
           </div>
         </div>
       )
-    } else if (this.state.error !== null) {
+    } else if (error !== null) {
       loading = (
         <div className="error">
-          <p>{this.state.error}</p>
+          <p>{error}</p>
           <button
             type="button"
             className="nice-button primary"
@@ -402,7 +403,7 @@ class Station extends React.Component {
           </button>
         </div>
       )
-    } else if (this.state.reducedTrips.length === 0) {
+    } else if (reducedTrips.length === 0) {
       loading = (
         <div className="error">
           <p>{t('station.noservices')}</p>
@@ -411,7 +412,7 @@ class Station extends React.Component {
     } else {
       content = (
         <View style={styles.tripWrapper}>
-          {this.state.reducedTrips.map(item => {
+          {reducedTrips.map(item => {
             const {
               trip_id: tripId,
               agency_id: agencyId,
@@ -428,6 +429,7 @@ class Station extends React.Component {
                 direction={directionId}
                 color={routeColor}
                 textColor={routeTextColor}
+                region={region}
                 trips={item.map(i => ({
                   destination: i.trip_headsign,
                   departureTime: new Date(i.departure_time),
