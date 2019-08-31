@@ -90,11 +90,7 @@ class LinesNZWLG extends BaseLines {
         lineGroups[regionEnum.central].items.push(uniqueKey)
       }
 
-      const routeColor = this.lineColorizer(
-        record.agency_id,
-        record.route_short_name,
-        record.route_color
-      )
+      const routeColor = `#${record.route_color}`
       lineColors[uniqueKey] = routeColor
 
       lines[uniqueKey] = {
@@ -111,7 +107,9 @@ class LinesNZWLG extends BaseLines {
         numeric: true,
         sensitivity: 'base',
       })
-      group.items.sort(collator.compare)
+      group.items.sort((a: string, b: string) => (
+        collator.compare(a.split('/')[1], b.split('/')[1])
+      ))
     })
 
     this.allLines = allLines
@@ -128,23 +126,6 @@ class LinesNZWLG extends BaseLines {
       }
     })
     logger.info('Cached Lines')
-  }
-
-  lineColorizer(agency: string, routeShortName: string, dbColor: string) {
-    const agMapper: { [routeShortName: string]: string } = {
-      WCCL: 'e43e42',
-      EBYW: '41bada',
-    }
-    const rtMapper: { [routeShortName: string]: string } = {
-      HVL: 'e52f2b',
-      JVL: '4f9734',
-      KPL: 'f39c12',
-      MEL: '21b4e3',
-      WRL: 'e52f2b',
-    }
-    const retValue =
-      rtMapper[routeShortName] || agMapper[agency] || dbColor || '000000'
-    return `#${retValue}`
   }
 }
 export default LinesNZWLG
