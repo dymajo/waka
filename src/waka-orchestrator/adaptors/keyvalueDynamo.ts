@@ -30,7 +30,11 @@ class KeyvalueDynamo extends BaseKeyvalue {
           // little bit of a hack to use the flatten object for lists
           response[key] = obj[key].L.map(i => flattenObject({ i }).i)
         } else {
-          response[key] = parseFloat(obj[key].N) || obj[key].S
+          if (obj[key].BOOL !== undefined) {
+            response[key] = obj[key].BOOL
+          } else {
+            response[key] = parseFloat(obj[key].N) || obj[key].S
+          }
         }
       })
     return response
@@ -40,7 +44,9 @@ class KeyvalueDynamo extends BaseKeyvalue {
     const { fattenObject } = this
     const response: any = {}
     Object.keys(obj).forEach(key => {
-      if (typeof obj[key] === 'number') {
+      if (typeof obj[key] === 'boolean') {
+        response[key] = { BOOL: obj[key] }
+      } else if (typeof obj[key] === 'number') {
         response[key] = { N: obj[key].toString() }
       } else if (typeof obj[key] === 'string') {
         response[key] = { S: obj[key] }
