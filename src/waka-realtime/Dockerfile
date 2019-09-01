@@ -15,4 +15,4 @@ ENV PORT=80
 EXPOSE 80
 WORKDIR /app
 COPY --from=build /app ./
-ENTRYPOINT ["node", "lib/waka-orchestrator/standalone.js"]
+ENTRYPOINT ["node", "lib/waka-realtime/standalone.js"]

@@ -1,7 +1,11 @@
-FROM node:latest as build
+FROM node:alpine as build
 WORKDIR /app
-COPY . ./
+COPY package.json ./
+COPY package-lock.json ./
+RUN apk add --no-cache git
 RUN npm ci
+
+COPY . ./
 RUN npm test
 RUN npm run build:js
 
