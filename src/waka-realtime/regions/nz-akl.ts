@@ -26,6 +26,7 @@ class AucklandRealtime extends SingleEndpoint {
       tripUpdateEndpoint: 'tripupdates',
       serviceAlertEndpoint: 'servicealerts',
       apiKeyRequired: true,
+      scheduleAlertPullTimeout: 60000,
       ...props,
     })
   }

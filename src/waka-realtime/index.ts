@@ -1,11 +1,11 @@
 import { pRateLimit, QuotaManager, RedisQuotaManager, Quota } from 'p-ratelimit'
 
 import WakaRedis from './Redis'
-import createLogger from './logger'
 
 import { isKeyof } from '../utils'
 import { Logger, RedisConfig } from '../typings'
 
+import createLogger from './logger'
 import BaseRealtime from './BaseRealtime'
 
 import AucklandRealtime from './regions/nz-akl'
@@ -27,7 +27,6 @@ const Regions = {
 interface RealtimeConfig {
   prefix: string
   quota?: Quota
-  version: string
   api: { [prefix: string]: string }
   redis: RedisConfig
 }
@@ -40,14 +39,20 @@ class Realtime {
   region: BaseRealtime
   logger: Logger
   config: RealtimeConfig
-  constructor(config: RealtimeConfig) {
+  constructor(config: RealtimeConfig, logger?: Logger) {
     this.config = config
-    const logger = createLogger(config.prefix, config.version)
-    this.logger = logger
     this.prefix = config.prefix
+
+    // running locally
+    if (!logger) {
+      this.logger = createLogger(this.prefix)
+    } else {
+      this.logger = logger
+    }
+    
     this.wakaRedis = new WakaRedis({
       prefix: this.prefix,
-      logger,
+      logger: this.logger,
       config: config.redis,
     })
 

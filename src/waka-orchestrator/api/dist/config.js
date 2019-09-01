@@ -27,8 +27,9 @@ class ConfigDomController {
     e.preventDefault()
     try {
       const config = JSON.parse(document.getElementById('configTextarea').value)
+      const configRealtime = JSON.parse(document.getElementById('configRealtimeTextarea').value)
       controller
-        .runAction('/config', JSON.stringify({ config }))
+        .runAction('/config', JSON.stringify({ config, configRealtime }))
         .then(() => alert('Saved Config! Please restart Waka.'))
     } catch (err) {
       console.error(err)
@@ -64,6 +65,11 @@ class ConfigController {
     const data = await response.json()
     document.getElementById('configTextarea').value = JSON.stringify(
       data.config,
+      ' ',
+      2
+    )
+    document.getElementById('configRealtimeTextarea').value = JSON.stringify(
+      data.configRealtime,
       ' ',
       2
     )

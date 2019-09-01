@@ -160,7 +160,8 @@ class PrivateApi {
     router.get('/config', async (req, res) => {
       try {
         const remoteConfig = await this.meta.get('config')
-        res.send({ config: remoteConfig })
+        const remoteConfigRealtime = await this.meta.get('config-realtime')
+        res.send({ config: remoteConfig, configRealtime: remoteConfigRealtime })
       } catch (err) {
         logger.error({ err }, 'Error getting remote config')
         res.status(500).send(err)
@@ -169,7 +170,12 @@ class PrivateApi {
 
     router.post('/config', async (req, res) => {
       try {
-        await this.meta.set('config', req.body.config)
+        if (req.body.config) {
+          await this.meta.set('config', req.body.config)
+        }
+        if (req.body.configRealtime) {
+          await this.meta.set('config-realtime', req.body.configRealtime)
+        }
         res.send({ message: 'Saved config.' })
       } catch (err) {
         logger.error({ err }, 'Error saving config.')
