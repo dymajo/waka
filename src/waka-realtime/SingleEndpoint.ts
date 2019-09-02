@@ -195,6 +195,12 @@ abstract class SingleEndpoint extends BaseRealtime {
             res.headers['last-modified'],
             'last-alert-update'
           )
+        } else {
+          await wakaRedis.setKey(
+            'default',
+            new Date().toISOString(),
+            'last-alert-update'
+          )
         }
       }
     } catch (err) {

@@ -39,12 +39,14 @@ class Realtime {
   prefix: string
   fn: BaseRealtime
   newRealtime: boolean
+  wakaRedis: WakaRedis
   constructor(props: RealtimeProps) {
     const { connection, logger, prefix, api, newRealtime, wakaRedis } = props
     this.connection = connection
     this.logger = logger
     this.prefix = prefix
     this.newRealtime = newRealtime
+    this.wakaRedis = wakaRedis
     const apiKey = api[prefix]
     this.fn = isKeyof(regions, prefix)
       ? new regions[prefix]({
@@ -233,14 +235,22 @@ class Realtime {
     })
   }
 
-  healthcheck = (req: WakaRequest<null, null>, res: Response) => {
-    if (this.fn) {
-      let { lastTripUpdate } = this.fn
-      if (lastTripUpdate === undefined) lastTripUpdate = null
-      return res.send({ lastTripUpdate })
-    }
-    return res.status(400).send({
-      message: 'realtime not available',
+  healthcheck = async (req: WakaRequest<null, null>, res: Response) => {
+    const { wakaRedis } = this
+    const lastTripUpdate = await wakaRedis.getKey('default', 'last-trip-update')
+    const lastVehiclePositionUpdate = await wakaRedis.getKey(
+      'default',
+      'last-vehicle-position-update'
+    )
+    const lastAlertUpdate = await wakaRedis.getKey(
+      'default',
+      'last-alert-update'
+    )
+
+    res.send({
+      lastTripUpdate,
+      lastVehiclePositionUpdate,
+      lastAlertUpdate,
     })
   }
 
