@@ -661,7 +661,7 @@ class Lines {
 
         const transfersWithColors = transfers.map(t => {
           const [agency, routeShortName] = t.split('/')
-          return [routeShortName, this.getColor(agency, t)]
+          return [routeShortName, this.getColor(agency, routeShortName)]
         })
         transfersWithColors.sort(sortFn)
 
@@ -753,7 +753,7 @@ class Lines {
       }
       const transfersWithColors = transfers.map(t => {
         const [agency, routeShortName] = t.split('/')
-        return [routeShortName, this.getColor(agency, t)]
+        return [routeShortName, this.getColor(agency, routeShortName)]
       })
       transfersWithColors.sort(sortFn)
       i.stop_id = i.stop_code
