@@ -350,7 +350,6 @@ class Station extends React.Component {
     name = name.replace(' Train Station', '')
     name = name.replace(' Ferry Terminal', '')
     name = name.replace('- Cable Car Station', '')
-    name = name.replace(' Station', '')
     return name
   }
 
@@ -421,11 +420,13 @@ class Station extends React.Component {
               route_color: routeColor,
               route_id: routeId,
               route_text_color: routeTextColor,
+              route_icon: routeIcon,
             } = item[0]
             return (
               <TripItem
                 key={tripId}
                 routeShortName={routeShortName}
+                routeIcon={routeIcon}
                 direction={directionId}
                 color={routeColor}
                 textColor={routeTextColor}

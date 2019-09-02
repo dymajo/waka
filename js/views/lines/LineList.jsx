@@ -18,12 +18,9 @@ class LineList extends React.Component {
     loading: true,
     meta: {},
     error: null,
-    lines: undefined,
     groups: [],
-    colors: {},
     icons: {},
     groupShow: {},
-    friendlyNames: {},
   }
 
   componentDidMount() {
@@ -66,26 +63,12 @@ class LineList extends React.Component {
       data.groups.forEach(group => {
         groupShow[group.name] = ''
       })
-      const {
-        meta,
-        lines,
-        colors,
-        icons,
-        groups,
-        operators,
-        friendlyNames,
-        friendlyNumbers,
-      } = data
+      const { meta, icons, groups } = data
 
       this.setState({
         meta,
-        lines,
-        colors,
         icons,
         groups,
-        operators,
-        friendlyNames,
-        friendlyNumbers,
         groupShow,
         loading: false,
       })
@@ -149,7 +132,8 @@ class LineList extends React.Component {
                   >
                     <Text style={styles.label}>{item.routeLongName}</Text>
                     <View>
-                      {icons[item] === undefined ? (
+                      {icons[`${item.agencyId}/${item.routeShortName}`] ===
+                      undefined ? (
                         <Text
                           style={[
                             styles.pill,
@@ -164,7 +148,9 @@ class LineList extends React.Component {
                         <img
                           alt={item.routeLongName}
                           style={{ maxHeight: '28px', width: 'auto' }}
-                          src={`/route_icons/${icons[item]}-color.svg`}
+                          src={`/route_icons/${
+                            icons[`${item.agencyId}/${item.routeShortName}`]
+                          }-color.svg`}
                         />
                       )}
                     </View>

@@ -67,6 +67,7 @@ const getNextText = (times, hideVerb = false, amphersand = 'also') => {
 
 export const TripItem = ({
   routeShortName,
+  routeIcon,
   color = headerColor,
   textColor = '#fff',
   direction,
@@ -92,9 +93,19 @@ export const TripItem = ({
     <TouchableOpacity activeOpacity={0.85} onClick={onClick}>
       <View style={[styles.wrapper, { backgroundColor: color }]}>
         <View style={styles.left}>
-          <Text style={[styles.routeShortName, textColorStyles]}>
-            {routeShortName}
-          </Text>
+          {routeIcon ? (
+            <View style={styles.routeIcon}>
+              <img
+                alt={routeShortName}
+                style={{ maxHeight: '28px', width: 'auto' }}
+                src={`/route_icons/${routeIcon}-mono.svg`}
+              />
+            </View>
+          ) : (
+            <Text style={[styles.routeShortName, textColorStyles]}>
+              {routeShortName}
+            </Text>
+          )}
           <View style={styles.destinations}>
             <View
               style={
@@ -201,9 +212,14 @@ styles = StyleSheet.create({
   },
   right: {
     paddingRight: padding * 0.75,
-    display: 'block',
-    textAlign: 'right',
+    display: 'flex',
     backgroundRepeat: 'no-repeat',
+    alignItems: 'flex-end',
+  },
+  routeIcon: {
+    alignItems: 'start',
+    paddingTop: 5,
+    paddingBottom: 3,
   },
   routeShortName: {
     fontSize: 28,
@@ -234,6 +250,7 @@ styles = StyleSheet.create({
     paddingTop: 2,
     paddingRight: 1,
     fontFamily,
+    textAlign: 'right',
   },
   departureTimeText: {
     lineHeight: 30,
@@ -262,6 +279,7 @@ styles = StyleSheet.create({
     letterSpacing: 0.5,
     color: '#fff',
     fontFamily,
+    textAlign: 'right',
   },
   strong: {
     fontWeight: 'bold',
@@ -269,5 +287,6 @@ styles = StyleSheet.create({
   and: {
     fontFamily,
     fontSize: 13,
+    textAlign: 'right',
   },
 })
