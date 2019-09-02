@@ -37,17 +37,22 @@ class WakaRedis {
     }
     const { logger, config } = this
     logger.info('Connecting to Redis')
-    const Client = this.tryClient(client, config)
 
-    try {
-      const res = await Client.ping()
-      logger.info('Connected to Redis')
-      this.client = Client
-      this.connected = true
-    } catch (error) {
-      logger.info('Could not connect to Redis, retrying in 20s')
-      setTimeout(() => this.tryClient(client, config), 20000)
+    const Client = this.tryClient(client, config)
+    Client.on('error', error => {
+      logger.warn({ ...error }, error.toString()) // captures our logs nicely
+    })
+
+    while (!this.connected) {
+      try {
+        const res = await Client.ping()
+        this.client = Client
+        this.connected = true
+      } catch (error) {
+        logger.error('Could not connect to Redis, will continue to retry')
+      }
     }
+    logger.info('Connected to Redis')
   }
 
   stop = () => {

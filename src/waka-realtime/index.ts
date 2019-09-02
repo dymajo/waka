@@ -49,7 +49,7 @@ class Realtime {
     } else {
       this.logger = logger
     }
-    
+
     this.wakaRedis = new WakaRedis({
       prefix: this.prefix,
       logger: this.logger,
@@ -72,7 +72,6 @@ class Realtime {
       try {
         await this.wakaRedis.start()
         if (this.prefix === 'au-syd') {
-          console.log('redis connected:', this.wakaRedis.connected)
           const quota: Quota = this.config.quota || {
             interval: 1000,
             rate: 5,
@@ -85,8 +84,6 @@ class Realtime {
           this.rateLimiter = pRateLimit(this.quotaManager)
         }
         if (this.prefix === 'us-sfo') {
-          console.log('redis connected:', this.wakaRedis.connected)
-
           const quota: Quota = this.config.quota || {
             interval: 3600,
             rate: 60,
