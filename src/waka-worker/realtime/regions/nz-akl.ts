@@ -195,7 +195,7 @@ class RealtimeNZAKL extends BaseRealtime {
     }
   }
 
-  getTrips = async (trips: string[], train: boolean, stop_id: string) => {
+  getTrips = async (rawTrips: string[], train: boolean, stop_id: string) => {
     interface ExTripUpdate extends TripUpdate {
       specialVehicle: { ev: boolean; dd: boolean }
       stop_sequence: number
@@ -203,6 +203,10 @@ class RealtimeNZAKL extends BaseRealtime {
     const realtimeInfo: {
       [tripId: string]: ExTripUpdate | WakaVehiclePosition
     } = {}
+    let trips = rawTrips
+    if (!Array.isArray(trips)) {
+      trips = Object.keys(trips)
+    }
     if (train) {
       for (const tripId of trips) {
         const data = await this.wakaRedis.getVehiclePosition(tripId)

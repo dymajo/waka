@@ -239,6 +239,33 @@ class Lines {
       city = city[prefix]
     }
 
+    const updateKeys = obj => {
+      const newObj = {}
+      Object.keys(obj).forEach(key => {
+        newObj[
+          key
+            .split('/')
+            .slice(1)
+            .join('/')
+        ] = obj[key]
+      })
+      return newObj
+    }
+
+    const updateGroups = groups =>
+      groups
+        .filter(group => group.items.length > 0)
+        .map(group => {
+          const { name } = group
+          const items = group.items.map(i =>
+            i
+              .split('/')
+              .slice(1)
+              .join('/')
+          )
+          return { name, items }
+        })
+
     return {
       meta: {
         prefix,
@@ -246,13 +273,13 @@ class Lines {
         secondaryName: cityMetadata[prefix].secondaryName,
         longName: cityMetadata[prefix].longName,
       },
-      colors: lineDataSource.lineColors,
-      icons: lineDataSource.lineIcons,
+      colors: updateKeys(lineDataSource.lineColors),
+      icons: updateKeys(lineDataSource.lineIcons),
       friendlyNames: lineDataSource.friendlyNames,
-      friendlyNumbers: lineDataSource.friendlyNumbers,
-      groups: lineDataSource.lineGroups,
-      lines: lineDataSource.allLines,
-      operators: lineDataSource.lineOperators,
+      friendlyNumbers: updateKeys(lineDataSource.friendlyNumbers),
+      groups: updateGroups(lineDataSource.lineGroups),
+      lines: updateKeys(lineDataSource.allLines),
+      operators: updateKeys(lineDataSource.lineOperators),
     }
   }
 
@@ -634,7 +661,7 @@ class Lines {
 
         const transfersWithColors = transfers.map(t => {
           const [agency, routeShortName] = t.split('/')
-          return [routeShortName, this.getColor(agency, j)]
+          return [routeShortName, this.getColor(agency, t)]
         })
         transfersWithColors.sort(sortFn)
 
