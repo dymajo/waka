@@ -122,7 +122,9 @@ class Lines {
   getColor = (agencyId: string, routeShortName: string) => {
     const { lineDataSource } = this
     if (lineDataSource.lineColors) {
-      return lineDataSource.lineColors[routeShortName] || '#00263A'
+      return (
+        lineDataSource.lineColors[`${agencyId}/${routeShortName}`] || '#00263A'
+      )
     }
     return '#00263A'
   }
@@ -131,7 +133,7 @@ class Lines {
     // this will probably be revised soon
     const { lineDataSource } = this
     if (lineDataSource.lineIcons) {
-      return lineDataSource.lineIcons[routeShortName] || null
+      return lineDataSource.lineIcons[`${agencyId}/${routeShortName}`] || null
     }
     return null
   }
@@ -632,10 +634,7 @@ class Lines {
 
         const transfersWithColors = transfers.map(t => {
           const [agency, routeShortName] = t.split('/')
-          return [
-            routeShortName,
-            this.getColor(agency, j),
-          ]
+          return [routeShortName, this.getColor(agency, j)]
         })
         transfersWithColors.sort(sortFn)
 
@@ -727,10 +726,7 @@ class Lines {
       }
       const transfersWithColors = transfers.map(t => {
         const [agency, routeShortName] = t.split('/')
-        return [
-          routeShortName,
-          this.getColor(agency, t),
-        ]
+        return [routeShortName, this.getColor(agency, t)]
       })
       transfersWithColors.sort(sortFn)
       i.stop_id = i.stop_code
