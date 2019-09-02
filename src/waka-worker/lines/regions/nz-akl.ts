@@ -3,13 +3,13 @@ import { parseRoutes } from '../helpers'
 
 class LinesNZAKL extends BaseLines {
   lineIcons: { [routeShortName: string]: string } = {
-    EAST: 'nz/at-metro-eastern',
-    ONE: 'nz/at-metro-onehunga',
-    STH: 'nz/at-metro-southern',
-    PUK: 'nz/at-metro-southern',
-    WEST: 'nz/at-metro-western',
+    'AM/EAST': 'nz/at-metro-eastern',
+    'AM/ONE': 'nz/at-metro-onehunga',
+    'AM/STH': 'nz/at-metro-southern',
+    'AM/PUK': 'nz/at-metro-southern',
+    'AM/WEST': 'nz/at-metro-western',
     // enable this if they want to pay us lots of money
-    // 'SKY': 'nz/skybus-raster',
+    // 'ABEXP/SKY': 'nz/skybus-raster',
   }
 
   friendlyNames: { [routeShortName: string]: string } = {
