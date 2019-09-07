@@ -35,10 +35,6 @@ export interface BaseRealtimeProps {
 }
 
 export default abstract class BaseRealtime {
-  vehiclePositionTimeout: NodeJS.Timer
-  tripUpdateTimeout: NodeJS.Timer
-  serviceAlertTimeout: NodeJS.Timer
-
   scheduleUpdatePullTimeout: number
   scheduleVehiclePositionPullTimeout: number
   scheduleAlertPullTimeout: number
@@ -55,12 +51,12 @@ export default abstract class BaseRealtime {
   axios: AxiosInstance
   wakaRedis: WakaRedis
   protobuf: protobuf.Type
+  isPullActive: boolean
 
   apiKey?: string
 
   apiKeyRequired?: boolean
   abstract start(rateLimiter?: <T>(fn: () => Promise<T>) => Promise<T>): void
-  abstract stop(): void
   constructor(props: BaseRealtimeProps) {
     const { apiKey, apiKeyRequired } = props
     if (apiKeyRequired && !apiKey) {
@@ -75,9 +71,16 @@ export default abstract class BaseRealtime {
       props.scheduleVehiclePositionPullTimeout || 15000
     this.scheduleAlertPullTimeout = props.scheduleAlertPullTimeout || 15000
     this.apiKeyRequired = props.apiKeyRequired || false
+    this.isPullActive = true
     // this.vehiclePositionEndpoint = props.vehiclePositionEndpoint
     // this.tripUpdateEndpoint = props.tripUpdateEndpoint
     // this.serviceAlertEndpoint = props.serviceAlertEndpoint
+  }
+
+  stop = () => {
+    const { logger } = this
+    this.isPullActive = false
+    logger.info('Realtime Stopped.')
   }
 
   sendArray = async (

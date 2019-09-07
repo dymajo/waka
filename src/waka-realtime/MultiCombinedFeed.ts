@@ -6,11 +6,14 @@ import {
   PositionFeedEntity,
 } from '../gtfs'
 import BaseRealtime, { PROTOBUF_PATH, BaseRealtimeProps } from './BaseRealtime'
+import SingleEndpoint from './SingleEndpoint'
 
 export interface MultiEndpointProps extends BaseRealtimeProps {
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
   modes: string[]
 }
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 abstract class MultiCombinedFeed extends BaseRealtime {
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
@@ -39,15 +42,10 @@ abstract class MultiCombinedFeed extends BaseRealtime {
       const pb = await Protobuf.load(PROTOBUF_PATH)
       const FeedMessage = pb.lookupType('transit_realtime.FeedMessage')
       this.protobuf = FeedMessage
+      this.isPullActive = true
       this.scheduleUpdatePull()
       logger.info('Realtime Started.')
     }
-  }
-
-  stop = () => {
-    const { logger } = this
-    clearTimeout(this.tripUpdateTimeout)
-    logger.info('Realtime Stopped.')
   }
 
   setupProtobuf = async () => {
@@ -63,7 +61,6 @@ abstract class MultiCombinedFeed extends BaseRealtime {
       logger,
       axios,
       redis,
-      scheduleUpdatePull,
       scheduleUpdatePullTimeout,
       protobuf,
       setupProtobuf,
@@ -73,62 +70,60 @@ abstract class MultiCombinedFeed extends BaseRealtime {
     if (!protobuf) {
       await setupProtobuf()
     }
-    logger.info('Starting Trip Update Pull')
-    for (const mode of modes) {
-      try {
-        const res = await rateLimiter(() => axios.get(mode))
-        const oldModified = await redis.getKey('default', 'last-trip-update')
-        if (
-          res.headers['last-modified'] !== oldModified ||
-          new Date().toISOString() !== oldModified
-        ) {
-          const uInt8 = new Uint8Array(res.data)
-          const _feed = protobuf.decode(uInt8) as unknown
-          const feed = _feed as FeedMessage
-          const alerts: AlertFeedEntity[] = []
-          const tripUpdates: UpdateFeedEntity[] = []
-          const vehiclePositions: PositionFeedEntity[] = []
-          for (const entity of feed.entity) {
-            if (entity.vehicle) {
-              // const ne: PositionFeedEntity = entity as PositionFeedEntity
-              vehiclePositions.push(entity as PositionFeedEntity)
+    while (this.isPullActive) {
+      logger.info('Starting Trip Update Pull')
+      for (const mode of modes) {
+        try {
+          const res = await rateLimiter(() => axios.get(mode))
+          const oldModified = await redis.getKey('default', 'last-trip-update')
+          if (
+            res.headers['last-modified'] !== oldModified ||
+            new Date().toISOString() !== oldModified
+          ) {
+            const uInt8 = new Uint8Array(res.data)
+            const _feed = protobuf.decode(uInt8) as unknown
+            const feed = _feed as FeedMessage
+            const alerts: AlertFeedEntity[] = []
+            const tripUpdates: UpdateFeedEntity[] = []
+            const vehiclePositions: PositionFeedEntity[] = []
+            for (const entity of feed.entity) {
+              if (entity.vehicle) {
+                // const ne: PositionFeedEntity = entity as PositionFeedEntity
+                vehiclePositions.push(entity as PositionFeedEntity)
+              }
+              if (entity.alert) {
+                alerts.push(entity as AlertFeedEntity)
+              }
+              if (entity.tripUpdate) {
+                tripUpdates.push(entity as UpdateFeedEntity)
+              }
             }
-            if (entity.alert) {
-              alerts.push(entity as AlertFeedEntity)
-            }
-            if (entity.tripUpdate) {
-              tripUpdates.push(entity as UpdateFeedEntity)
-            }
-          }
-          await this.processTripUpdates(tripUpdates)
-          await this.processAlerts(alerts)
-          await this.processVehiclePositions(vehiclePositions)
+            await this.processTripUpdates(tripUpdates)
+            await this.processAlerts(alerts)
+            await this.processVehiclePositions(vehiclePositions)
 
-          if (res.headers['last-modified']) {
-            await redis.setKey(
-              'default',
-              res.headers['last-modified'],
-              'last-trip-update'
-            )
-          } else {
-            await redis.setKey(
-              'default',
-              new Date().toISOString(),
-              'last-trip-update'
-            )
+            if (res.headers['last-modified']) {
+              await redis.setKey(
+                'default',
+                res.headers['last-modified'],
+                'last-trip-update'
+              )
+            } else {
+              await redis.setKey(
+                'default',
+                new Date().toISOString(),
+                'last-trip-update'
+              )
+            }
           }
+        } catch (err) {
+          console.log(mode)
+          logger.error({ err }, 'Failed to pull trip updates')
         }
-      } catch (err) {
-        console.log(mode)
-        logger.error({ err }, 'Failed to pull trip updates')
       }
+      logger.info('Pulled Trip Updates.')
+      await sleep(scheduleUpdatePullTimeout)
     }
-    logger.info('Pulled Trip Updates.')
-
-    this.tripUpdateTimeout = setTimeout(
-      scheduleUpdatePull,
-      scheduleUpdatePullTimeout
-    )
   }
 }
 
