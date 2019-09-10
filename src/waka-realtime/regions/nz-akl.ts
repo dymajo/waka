@@ -21,6 +21,7 @@ class AucklandRealtime extends SingleEndpoint {
           Accept: 'application/x-protobuf',
         },
         responseType: 'arraybuffer',
+        timeout: 5000,
       }),
       vehiclePositionEndpoint: 'vehiclelocations',
       tripUpdateEndpoint: 'tripupdates',

@@ -19,6 +19,7 @@ class BostonRealtime extends SingleEndpoint {
           Accept: 'application/x-protobuf',
         },
         responseType: 'arraybuffer',
+        timeout: 5000,
       }),
       vehiclePositionEndpoint: 'VehiclePositions.pb',
       tripUpdateEndpoint: 'TripUpdates.pb',

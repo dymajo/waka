@@ -31,6 +31,7 @@ class SydneyRealtime extends MultiEndpoint {
           Authorization: props.apiKey,
         },
         responseType: 'arraybuffer',
+        timeout: 5000,
       }),
       vehiclePositionEndpoint: 'vehiclepos',
       tripUpdateEndpoint: 'realtime',

@@ -15,6 +15,7 @@ class CanberraRealtime extends CombinedFeed {
       axios: axios.create({
         baseURL: 'http://files.transport.act.gov.au/feeds/lightrail.pb',
         responseType: 'arraybuffer',
+        timeout: 5000,
       }),
       ...props,
     })

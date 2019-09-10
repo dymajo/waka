@@ -22,6 +22,7 @@ class SanFranciscoRealtime extends MultiEndpoint {
           Accept: 'application/x-protobuf',
         },
         responseType: 'arraybuffer',
+        timeout: 5000,
       }),
       vehiclePositionEndpoint: 'vehiclepositions',
       tripUpdateEndpoint: 'tripupdates',

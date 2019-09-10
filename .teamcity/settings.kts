@@ -8,7 +8,7 @@ version = "2019.1"
 
 project {
     params {
-        param("teamcity.ui.settings.readOnly", "true")
+        //param("teamcity.ui.settings.readOnly", "true")
     }
 
     sequence {

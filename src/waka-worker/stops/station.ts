@@ -86,7 +86,7 @@ class Station {
       }
     }
     const { logger, prefix, version } = this
-    logger.info({ prefix, version }, 'Got Transfers')
+    logger.info({ stopCount: Object.keys(transfers).length }, 'Got Transfers')
   }
 
   getBounds = async () => {

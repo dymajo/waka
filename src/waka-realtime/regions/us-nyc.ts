@@ -33,6 +33,7 @@ class NYCRealtime extends MultiCombinedFeed {
           accept: 'application/x-protobuf',
         },
         responseType: 'arraybuffer',
+        timeout: 5000,
       }),
       ...props,
     })
