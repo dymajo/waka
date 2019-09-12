@@ -90,7 +90,10 @@ class Line extends React.Component {
     loading: true,
     currentTrip: null,
     vehiclepos: [],
+    isShapeLoaded: false,
   }
+
+  tripStops = []
 
   constructor(props) {
     super(props)
@@ -172,8 +175,12 @@ class Line extends React.Component {
       // we don't want to await this, so the data loads async
       this.lineData
         .getShape()
-        .then(shape => renderShape(shape, this.layer, route.route_color)) // eslint-disable-line promise/prefer-await-to-then
-        .catch(err => console.err)
+        // eslint-disable-next-line promise/prefer-await-to-then
+        .then(shape => {
+          this.setState({ isShapeLoaded: true })
+          return renderShape(shape, this.layer, route.route_color)
+        })
+        .catch(() => this.interpolateShape()) // failed to get a shape, so we'll interpolate one
     } catch (err) {
       clearInterval(this.liveRefresh)
       console.error(err)
@@ -294,6 +301,7 @@ class Line extends React.Component {
     const { match } = this.props
     this.lineData.trip_id = currentTrip
     const data = await this.lineData.getTripStops()
+    this.tripStops = data.current
     const renderedStops = renderStops(
       data.current,
       this.pointsLayer,
@@ -302,6 +310,7 @@ class Line extends React.Component {
       data.routeInfo.route_short_name
     )
     this.setState({ stops: renderedStops, loading: false })
+    this.interpolateShape()
   }
 
   getPositionData = async () => {
@@ -367,6 +376,22 @@ class Line extends React.Component {
   triggerPicker = () => {
     const { location } = this.props
     UiStore.safePush(`./picker${location.search}`)
+  }
+
+  interpolateShape() {
+    const { color, isShapeLoaded } = this.state
+    if (this.tripStops.length === 0) return
+    if (isShapeLoaded) return
+    const shape = {
+      type: 'LineString',
+      coordinates: this.tripStops.map(stop => [stop.stop_lon, stop.stop_lat]),
+    }
+    renderShape(
+      { ...shape, ...this.lineData.getShapeBounds(shape) },
+      this.layer,
+      color
+    )
+    this.setState({ isShapeLoaded: true })
   }
 
   render() {

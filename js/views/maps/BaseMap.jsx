@@ -427,9 +427,12 @@ class BaseMap extends React.Component {
                 if (icon === 'bus') {
                   const stopSplit = stop.stop_name.split('Stop')
                   const platformSplit = stop.stop_name.split('Platform')
-                  if (stopSplit.length > 1) {
+                  if (stopSplit.length > 1 && stopSplit[1].trim().length > 0) {
                     markericon = getMarker('bus', stopSplit[1])
-                  } else if (platformSplit.length > 1) {
+                  } else if (
+                    platformSplit.length > 1 &&
+                    platformSplit[1].trim().length > 0
+                  ) {
                     markericon = getMarker('bus', platformSplit[1])
                   }
                 }
