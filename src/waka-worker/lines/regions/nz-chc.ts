@@ -3,13 +3,13 @@ import { parseRoutes } from '../helpers'
 
 class LinesNZCHC extends BaseLines {
   lineIcons = {
-    B: 'nz/metro-blue',
-    O: 'nz/metro-orange',
-    Oa: 'nz/metro-orbiter',
-    Oc: 'nz/metro-orbiter',
-    P: 'nz/metro-purple',
-    Y: 'nz/metro-yellow',
-    F: 'nz/metro-ferry',
+    '1/B': 'nz/metro-blue',
+    '1/O': 'nz/metro-orange',
+    '1/Oa': 'nz/metro-orbiter',
+    '1/Oc': 'nz/metro-orbiter',
+    '1/P': 'nz/metro-purple',
+    '1/Y': 'nz/metro-yellow',
+    '1/F': 'nz/metro-ferry',
   }
   
   async getLines() {
@@ -55,7 +55,6 @@ class LinesNZCHC extends BaseLines {
         delete routeItem.duplicate
 
         const routeLongNameComponents = routeItem.routeLongName.trim().split(' ')
-        console.log(routeLongNameComponents)
         if (!isNaN(parseInt(routeLongNameComponents[0], 10))) {
           routeItem.routeLongName = routeLongNameComponents.slice(1).join(' ')
         }

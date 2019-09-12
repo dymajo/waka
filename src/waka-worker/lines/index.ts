@@ -741,28 +741,33 @@ class Lines {
     const {
       params: { tripId },
     } = req
-    const { stopsDataAccess } = this
-    const data = await stopsDataAccess.getBlockFromTrip(tripId)
-    const promises = data.current.map(async i => {
-      const redisresult = await this.redis.client.get(
-        `waka-worker:${this.prefix}:stop-transfers:${i.stop_id}`
-      )
-      let transfers: string[] = []
-      if (redisresult) {
-        transfers = redisresult.split(',')
-      }
-      const transfersWithColors = transfers.map(t => {
-        const [agency, routeShortName] = t.split('/')
-        return [routeShortName, this.getColor(agency, routeShortName)]
-      })
-      transfersWithColors.sort(sortFn)
-      i.stop_id = i.stop_code
-      delete i.stop_code
+    const { stopsDataAccess, logger } = this
+    try {
+      const data = await stopsDataAccess.getBlockFromTrip(tripId)
+      const promises = data.current.map(async i => {
+        const redisresult = await this.redis.client.get(
+          `waka-worker:${this.prefix}:stop-transfers:${i.stop_id}`
+        )
+        let transfers: string[] = []
+        if (redisresult) {
+          transfers = redisresult.split(',')
+        }
+        const transfersWithColors = transfers.map(t => {
+          const [agency, routeShortName] = t.split('/')
+          return [routeShortName, this.getColor(agency, routeShortName)]
+        })
+        transfersWithColors.sort(sortFn)
+        i.stop_id = i.stop_code
+        delete i.stop_code
 
-      return { ...i, transfers: transfersWithColors }
-    })
-    const current = await Promise.all(promises)
-    res.send({ ...data, current })
+        return { ...i, transfers: transfersWithColors }
+      })
+      const current = await Promise.all(promises)
+      res.send({ ...data, current })
+    } catch (err) {
+      logger.error({ err }, 'Could not get stop times for trip')
+      res.status(500).send({ message: 'Could not get stop times for trip' })
+    }
   }
 }
 

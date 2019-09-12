@@ -495,13 +495,14 @@ class StopsDataAccess {
                 trips.trip_headsign
       `
     )
+
     const numberOfTrips = result.rowsAffected[0]
     const currentIdx = result.recordset.map(el => el.trip_id).indexOf(tripId)
     const previous = result.recordset[currentIdx - 1]
     const next = result.recordset[currentIdx + 1]
     const current = result.recordset[currentIdx]
 
-    if (numberOfTrips === 0) {
+    if (numberOfTrips === 0 || (previous === undefined && next === undefined)) {
       return this.getStopTimesV2(tripId)
     }
     if (numberOfTrips === currentIdx + 1) {
