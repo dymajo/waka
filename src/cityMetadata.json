@@ -20,5 +20,12 @@
     "longName": "Te Whanganui-a-Tara, Wellington",
     "initialLocation": [-41.278366, 174.779359],
     "showInCityList": true
+  },
+  "nz-chc": {
+    "name": "Ōtautahi",
+    "secondaryName": "Christchurch",
+    "longName": "Ōtautahi, Christchurch",
+    "initialLocation": [-43.534658, 172.637573],
+    "showInCityList": true
   }
 }

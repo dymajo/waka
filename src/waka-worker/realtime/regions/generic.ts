@@ -1,16 +1,20 @@
 import { Response } from 'express'
 import { VarChar } from 'mssql'
 import { oc } from 'ts-optchain'
+import moment from 'moment-timezone'
 import Connection from '../../db/connection'
 import {
   WakaRequest,
   Logger,
   WakaTripUpdate,
   WakaVehicleInfo,
+  DBStopTime,
 } from '../../../typings'
 
 import BaseRealtime from '../../../types/BaseRealtime'
+import StopsDataAccess from '../../stops/dataAccess'
 import WakaRedis from '../../../waka-realtime/Redis'
+import { prefixToTimezone } from '../../../utils';
 
 interface GenericRealtimeProps {
   connection: Connection
@@ -23,14 +27,18 @@ interface GenericRealtimeProps {
 class GenericRealtime extends BaseRealtime {
   wakaRedis: WakaRedis
   newRealtime: boolean
+  prefix: string
+  dataAccess: StopsDataAccess
 
   constructor(props: GenericRealtimeProps) {
     super()
-    const { connection, logger, newRealtime, wakaRedis } = props
+    const { connection, logger, newRealtime, wakaRedis, prefix } = props
     this.newRealtime = newRealtime
     this.connection = connection
     this.logger = logger
     this.wakaRedis = wakaRedis
+    this.prefix = prefix
+    this.dataAccess = new StopsDataAccess({ connection, prefix })
   }
 
   start = async () => {
@@ -39,52 +47,144 @@ class GenericRealtime extends BaseRealtime {
     if (!newRealtime) {
       logger.error('Must be new realtime')
     } else {
-      // await this.wakaRedis.start()
       logger.info('Realtime Gateway started')
     }
   }
 
   stop = () => {
-    // TODO!
-    this.logger.warn('Realtime Not Stopped! Not Implemented.')
+    this.logger.warn('Realtime stopped.')
   }
 
   getTripsCached = async (trips: string[], stop_id: string) => {
+    const { connection, dataAccess, logger } = this
     const realtimeInfo: { [tripId: string]: WakaTripUpdate } = {}
+
+    // now is 00:00 in region's local timezone
+    const timezone = prefixToTimezone(this.prefix)
+    const now = moment().tz(timezone)
+    now.seconds(0)
+    now.hours(0)
+    now.minutes(0)
+
+    const realtimeTripData = []
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getTripUpdate(tripId)
-        if (data !== undefined) {
-          const stopTimeUpdate = oc(data).stopTimeUpdate([])
-          if (stopTimeUpdate.length > 0) {
-            const targetStop = stopTimeUpdate.find(
-              stopUpdate => stopUpdate.stopId === stop_id
-            )
-            if (targetStop) {
-              const stop_sequence = oc(targetStop).stopSequence()
-              const info = {}
-              Object.assign(
-                info,
-                { stop_sequence },
-                targetStop.departure && {
-                  delay: targetStop.departure.delay,
-                  timestamp: targetStop.departure.time || data.timestamp,
-                }
-              )
-
-              realtimeInfo[tripId] = info
-            }
-
-            // return values:
-            // delay is added to the scheduled time to figure out the actual stop time
-            // timestamp is epoch scheduled time (according to the GTFS-R API)
-            // stop_sequence is the stop that the vechicle is currently at
-          }
+        if (data !== undefined && data !== null) {
+          realtimeTripData.push(data)
         }
       } catch (error) {
-        console.log(error)
+        logger.warn(error)
       }
     }
+
+    const dbQuery = realtimeTripData.map(trip => {
+      const stopTimeUpdates = trip.stopTimeUpdate.map(stopTimeUpdate => {
+        const requiredData = { tripId: trip.trip.tripId, stopSequence: null, stopId: null }
+        // grab the stop time update if there's no stop id or stop sequence
+        if (stopTimeUpdate.stopId === undefined) {
+          requiredData.stopSequence = stopTimeUpdate.stopSequence
+        } else if (stopTimeUpdate.stopSequence === undefined) {
+          requiredData.stopId = stopTimeUpdate.stopId
+        } else {
+          // likewise, if there's no delay or time, grab it from the db so we can interpolate
+          if (stopTimeUpdate.departure) {
+            const { delay, time } = stopTimeUpdate.departure
+            if (delay === undefined || time === undefined) { 
+              requiredData.stopId = stopTimeUpdate.stopId
+            }
+          }
+          if (stopTimeUpdate.arrival) {
+            const { delay, time } = stopTimeUpdate.arrival
+            if (delay === undefined || time === undefined) { 
+              requiredData.stopId = stopTimeUpdate.stopId
+            }
+          }
+        }
+        return requiredData
+      })
+      const stopSequences =  stopTimeUpdates.map(t => t.stopSequence).filter(t => t !== null)
+      const stopIds =  stopTimeUpdates.map(t => t.stopSequence).filter(t => t !== null)
+
+      // TODO: this is hot garbage
+      let query
+      if (stopSequences.length > 0) {
+        query = `(trip_id = '${trip.trip.tripId}' AND stop_sequence in (${stopSequences.join(',')}))`
+      } else if (stopIds.length > 0) {
+        query = `(trip_id = '${trip.trip.tripId}' AND stop_sequence in ('${stopIds.join('\' , \'')}'))`
+      }
+      return query
+    })
+
+    let results = []
+    if (dbQuery.length > 0) {
+      const sqlRequest = connection.get().request()
+      const result = await sqlRequest.query<{
+        trip_id: string,
+        arrival_time: string,
+        departure_time: string,
+        stop_id: string,
+        stop_sequence: number
+      }>(
+        `SELECT trip_id, arrival_time, departure_time, stop_id, stop_sequence FROM stop_times WHERE ${dbQuery.join(' OR ')}`
+      )
+      results = result.recordset
+    }
+
+    realtimeTripData.forEach(realtimeTrip => {
+      if (realtimeTrip.stopTimeUpdate === undefined || realtimeTrip.stopTimeUpdate.length === 0) return
+
+      // enrich the data
+      const { trip, stopTimeUpdate } = realtimeTrip
+      const { tripId } = trip
+      trip.scheduleRelationship = trip.scheduleRelationship || 'SCHEDULED'
+      
+      stopTimeUpdate.forEach(update => {
+        update.scheduleRelationship = update.scheduleRelationship || 'SCHEDULED'
+
+        let timetabledTrip = null
+        if (update.stopId === undefined) {
+          timetabledTrip = results.find(t => t.trip_id === trip.tripId && t.stop_sequence === update.stopSequence)
+        } else {
+          timetabledTrip = results.find(t => t.trip_id === trip.tripId && t.stop_id === update.stopId)
+        }
+
+        update.stopId = update.stopId || timetabledTrip.stop_id
+        update.stopSequence = update.stopSequence || timetabledTrip.stop_sequence
+
+        if (update.departure) {
+          let { delay, time } = update.departure
+          const scheduledDeparture = now.unix() + moment(timetabledTrip.departure_time, 'HH:mm:ss').unix()
+          if (delay === undefined) {
+            update.departure.delay = scheduledDeparture - time
+          } else if (time === undefined) {
+            update.departure.time = scheduledDeparture + delay
+          }
+        }
+
+        if (update.arrival) {
+          let { delay, time } = update.arrival
+          const scheduledArrival = now.unix() + moment(timetabledTrip.arrival_time, 'HH:mm:ss').unix()
+          if (delay === undefined) {
+            update.arrival.delay = scheduledArrival - time
+          } else if (time === undefined) {
+            update.arrival.time = scheduledArrival + delay
+          }
+        }
+      })
+
+      const targetStop = stopTimeUpdate.find(s => s.stopId === stop_id) || stopTimeUpdate[0]
+      const delay = oc(targetStop).departure.delay(oc(targetStop).arrival.delay())
+
+      realtimeInfo[tripId] = {
+        ...realtimeTripData,
+        trip,
+        stopTimeUpdate,
+        // these bottom two are legacy
+        delay,
+        stop_sequence: oc(targetStop).stopSequence(),
+      }
+    })    
     return realtimeInfo
   }
 

@@ -56,8 +56,9 @@ export const prefixToTimezone = (prefix: string) => {
       return 'Australia/Perth'
     case 'us-nyc':
       return 'America/New_York'
-    case 'nz-wlg':
     case 'nz-akl':
+    case 'nz-chc':
+    case 'nz-wlg':
     default:
       return 'Pacific/Auckland'
   }
