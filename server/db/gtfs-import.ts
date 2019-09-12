@@ -171,7 +171,7 @@ class GtfsImport {
         return departure_time_24
       }
       if (column === 'route_short_name' && row[rowSchema[column]] === '') {
-        row[rowSchema[column]] = row[rowSchema.route_long_name].split(' ')[0]
+        row[rowSchema[column]] = row[rowSchema.route_id]
       }
       return row[rowSchema[column]] || null
     })

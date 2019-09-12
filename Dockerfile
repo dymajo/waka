@@ -3,9 +3,12 @@ FROM node:alpine
 WORKDIR /usr/src/app
 RUN mkdir cache
 
-COPY . .
+COPY package.json .
+COPY package-lock.json .
 
 RUN npm ci
+
+COPY . .
 RUN npm run build:js
 
 ENV NODE_ENV=production
