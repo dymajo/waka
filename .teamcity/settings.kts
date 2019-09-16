@@ -50,7 +50,7 @@ object Build : BuildType({
         script {
             name = "Docker Push"
             scriptContent = """
-                docker login -u %docker-username% --password-stdin <<< "%docker-password%"
+                docker login -u %docker-username% -p "%docker-password%"
                 docker push dymajo/waka-server:proxy 
                 docker push dymajo/waka-server:proxy-%build.vcs.number%
                 docker push dymajo/waka-server:orchestrator 
