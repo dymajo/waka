@@ -14,8 +14,6 @@ project {
 
     sequence {
         build(Build)
-        build(DeployUat)
-        build(DeployProduction)
     }
 }
 
