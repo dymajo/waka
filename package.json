@@ -8,7 +8,7 @@
     "type-check:watch": "npm run type-check -- --watch",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files --source-maps true && git log -1 > v.txt",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files --source-maps true && git log -1 > v.txt || git rev-parse HEAD > v.txt",
     "test": "mocha",
     "coverage": "nyc mocha",
     "start": "node lib/waka-orchestrator/standalone.js | bunyan -L -o short",
