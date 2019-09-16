@@ -26,19 +26,42 @@ object Build : BuildType({
     steps {
         script {
             name = "Docker Build - waka-go-proxy"
-            scriptContent = "docker build -t waka-server:proxy -f src/waka-go-proxy/Dockerfile ./"
+            scriptContent = "docker build -t dymajo/waka-server:proxy -f src/waka-go-proxy/Dockerfile ./"
         }
         script {
             name = "Docker Build - waka-orchestrator"
-            scriptContent = "docker build -t waka-server:orchestrator -f src/waka-orchestrator/Dockerfile ./"
+            scriptContent = "docker build -t dymajo/waka-server:orchestrator -f src/waka-orchestrator/Dockerfile ./"
         }
         script {
             name = "Docker Build - waka-realtime"
-            scriptContent = "docker build -t waka-server:realtime -f src/waka-realtime/Dockerfile ./"
+            scriptContent = "docker build -t dymajo/waka-server:realtime -f src/waka-realtime/Dockerfile ./"
         }
         script {
             name = "Docker Build - waka-worker"
-            scriptContent = "docker build -t waka-server:worker -f src/waka-worker/Dockerfile ./"
+            scriptContent = "docker build -t dymajo/waka-server:worker -f src/waka-worker/Dockerfile ./"
+        }
+        script {
+            name = "Docker Tag"
+            scriptContent = """
+                docker tag dymajo/waka-server:proxy dymajo/waka-server:proxy-%build.vcs.number%
+                docker tag dymajo/waka-server:orchestrator dymajo/waka-server:orchestrator-%build.vcs.number%
+                docker tag dymajo/waka-server:realtime dymajo/waka-server:realtime-%build.vcs.number%
+                docker tag dymajo/waka-server:worker dymajo/waka-server:worker-%build.vcs.number%
+            """.trim()
+        }
+        script {
+            name = "Docker Push"
+            scriptContent = """
+                docker login -u %docker-username% -p %docker-password%
+                docker push dymajo/waka-server:proxy 
+                docker push dymajo/waka-server:proxy-%build.vcs.number%
+                docker push dymajo/waka-server:orchestrator 
+                docker push dymajo/waka-server:orchestrator-%build.vcs.number%
+                docker push dymajo/waka-server:realtime 
+                docker push dymajo/waka-server:realtime-%build.vcs.number%
+                docker push dymajo/waka-server:worker 
+                docker push dymajo/waka-server:worker-%build.vcs.number%
+            """.trim()
         }
     }
 
@@ -51,37 +74,5 @@ object Build : BuildType({
         vcs {
             branchFilter = "+:*"
         }
-    }
-})
-
-object DeployUat : BuildType({
-    name = "Deploy to UAT"
-
-    steps {
-        script {
-            name = "Run Terraform"
-            scriptContent = "terraform version"
-        }
-    }
-
-    vcs {
-        root(DslContext.settingsRoot.id!!)
-        cleanCheckout = true
-    }
-})
-
-object DeployProduction : BuildType({
-    name = "Deploy to Production"
-
-    steps {
-        script {
-            name = "Run Terraform"
-            scriptContent = "terraform version"
-        }
-    }
-
-    vcs {
-        root(DslContext.settingsRoot.id!!)
-        cleanCheckout = true
     }
 })
