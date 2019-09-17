@@ -17,7 +17,7 @@ let styles
 
 const renderLinks = items =>
   items.map((item, key) => (
-    <View key={key} style={styles.creditRow}>
+    <View key={item[0]} style={styles.creditRow}>
       <Text accessibilityRole="link" href={item[0]} style={styles.link}>
         {item[1]}
       </Text>
@@ -101,11 +101,14 @@ const Settings = () => {
               ['https://jono.nz', 'Jono Cooper', 'Engineering'],
               ['http://mattdavidson.kiwi', 'Matt Davidson', 'Engineering'],
               ['http://www.generationzero.org/', 'Generation Zero', 'Artwork'],
-            ])}
-            {renderLinks([
               ['https://at.govt.nz', 'Auckland Transport', 'API Usage'],
               ['https://www.openstreetmap.org/', 'OpenStreetMap', 'Map Data'],
               ['https://www.openmaptiles.com/', 'OpenMapTiles', 'Map Data'],
+              [
+                'https://www.flickr.com/photos/vdmakwana/35888025371/',
+                'Vishal Makwana',
+                'Christchurch Imagery - Cropped',
+              ],
             ])}
             <Text style={[paragraphStyles.p, styles.love]}>
               Made with 💚 in Aotearoa, NZ

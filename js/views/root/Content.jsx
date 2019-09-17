@@ -65,9 +65,9 @@ class RootContent extends React.Component {
   }
 
   render() {
-    const { desktopLayout, stations } = this.state
+    const { desktopLayout, stations, currentCity } = this.state
     let twitterAcc
-    if (this.state.currentCity.prefix === 'nz-akl') {
+    if (currentCity.prefix === 'nz-akl') {
       twitterAcc = (
         <Sidebar
           type="url"
@@ -77,7 +77,19 @@ class RootContent extends React.Component {
           description={t('serviceAlerts.twitter', { account: 'AklTransport' })}
         />
       )
-    } else if (this.state.currentCity.prefix === 'nz-wlg') {
+    } else if (currentCity.prefix === 'nz-chc') {
+      twitterAcc = (
+        <Sidebar
+          type="url"
+          url="https://twitter.com/MetroCanterbury"
+          icon="metro-canterbury.png"
+          name="Metro"
+          description={t('serviceAlerts.twitter', {
+            account: 'MetroCanterbury',
+          })}
+        />
+      )
+    } else if (currentCity.prefix === 'nz-wlg') {
       twitterAcc = (
         <Sidebar
           type="url"
@@ -88,6 +100,7 @@ class RootContent extends React.Component {
         />
       )
     }
+
     const secondTwo = [
       <Sidebar
         key="city"
