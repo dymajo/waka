@@ -13,14 +13,13 @@ project {
 
     sequence {
         build(Build)
-        build(DeployUat)
         build(DeployProduction)
     }
 }
 
 
 object Build : BuildType({
-    name = "Build"
+    name = "Build & Deploy JS to Test"
 
     steps {
         step {
@@ -36,6 +35,19 @@ object Build : BuildType({
             name = "Build"
             scriptContent = "npm run build"
         }
+        script {
+            name = "Install AWS CLI"
+            scriptContent = """
+                apt-update && apt install -y unzip  
+                curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+                unzip awscli-bundle.zip
+                ./awscli-bundle/install -b ~/bin/aws
+            """.trim()
+        }
+        script {
+            name = "Upload assets to S3"
+            scriptContent = "~/bin/aws s3 sync dist s3://test-assets-us-west-2.waka.app"
+        }
     }
 
     vcs {
@@ -47,22 +59,6 @@ object Build : BuildType({
         vcs {
             branchFilter = "+:*"
         }
-    }
-})
-
-object DeployUat : BuildType({
-    name = "Deploy to UAT"
-
-    steps {
-        script {
-            name = "Run Terraform"
-            scriptContent = "aws sts get-caller-identity"
-        }
-    }
-
-    vcs {
-        root(DslContext.settingsRoot.id!!)
-        cleanCheckout = true
     }
 })
 
