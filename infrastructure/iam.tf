@@ -1,7 +1,7 @@
 resource "aws_iam_role" "api_service" {
   name = "ecs-${var.name}-${data.aws_region.current.name}"
 
-  assume_role_policy = "${data.aws_iam_policy_document.api_service_assume.json}"
+  assume_role_policy = data.aws_iam_policy_document.api_service_assume.json
 }
 
 data "aws_iam_policy_document" "api_service_assume" {
@@ -19,7 +19,7 @@ resource "aws_iam_policy" "api_service" {
   name        = "ecs-${var.name}-${data.aws_region.current.name}"
   description = "Allow write to CloudWatch"
   path        = "/"
-  policy      = "${data.aws_iam_policy_document.api_service.json}"
+  policy      = data.aws_iam_policy_document.api_service.json
 }
 
 data "aws_iam_policy_document" "api_service" {
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "api_service" {
       "s3:PutObject"
     ]
 
-    resources = ["${var.s3_bucket_arn}"]
+    resources = var.s3_bucket_arn
   }
 
   statement {
@@ -53,11 +53,11 @@ data "aws_iam_policy_document" "api_service" {
 
     actions = ["dynamodb:*"]
 
-    resources = ["${var.dynamo_arn}"]
+    resources = var.dynamo_arn
   }
 }
 
 resource "aws_iam_role_policy_attachment" "api_service" {
-  role       = "${aws_iam_role.api_service.name}"
-  policy_arn = "${aws_iam_policy.api_service.arn}"
+  role       = aws_iam_role.api_service.name
+  policy_arn = aws_iam_policy.api_service.arn
 }
