@@ -4,6 +4,11 @@ provider "aws" {
 
 data "aws_region" "current" {}
 
+
+data "http" "git_sha" {
+  url = "https://api.github.com/repos/dymajo/waka-importer/branches/master"
+}
+
 resource "aws_ecs_task_definition" "waka-importer" {
   family = "linux-${var.name}"
   container_definitions = local.container_definition
@@ -26,7 +31,7 @@ locals {
 [
   {
     "name": "waka-importer",
-    "image": "dymajo/waka-importer:latest",
+    "image": "dymajo/waka-importer:${jsondecode(data.http.example.body).commit.sha}",
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
