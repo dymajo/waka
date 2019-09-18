@@ -31,7 +31,7 @@ locals {
 [
   {
     "name": "waka-importer",
-    "image": "dymajo/waka-importer:${jsondecode(data.http.example.body).commit.sha}",
+    "image": "dymajo/waka-importer:${jsondecode(data.http.git_sha.body).commit.sha}",
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
