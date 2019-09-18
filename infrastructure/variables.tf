@@ -12,8 +12,8 @@ variable "tags" {
 }
 
 variable "s3_bucket_arn" {
-  type = string
-  default = ""
+  type = list(string)
+  default = []
 }
 
 variable "dynamo_arn" {
