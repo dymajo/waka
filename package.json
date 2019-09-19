@@ -9,10 +9,12 @@
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.1.1",
-    "reactstrap": "^8.0.1"
+    "reactstrap": "^8.0.1",
+    "source-map-explorer": "^2.0.1"
   },
   "proxy": "http://localhost:9001/private",
   "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
