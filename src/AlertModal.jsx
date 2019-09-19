@@ -1,7 +1,7 @@
 import React from 'react';
-import { Modal, ModalHeader, ModalBody } from 'reactstrap';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 
-const Popup = ({ modal, toggle, content }) => {
+const AlertModal = ({ modal, toggle, content, fn }) => {
   const CloseButton = (
     <button className="close btn btn-round" type="button" onClick={toggle}>
       <span aria-hidden="true">&times;</span>
@@ -11,8 +11,13 @@ const Popup = ({ modal, toggle, content }) => {
     <Modal isOpen={modal} toggle={toggle} backdrop="static">
       <ModalHeader close={CloseButton}>Alert</ModalHeader>
       <ModalBody>{content}</ModalBody>
+      {fn && (
+        <ModalFooter>
+          <Button onClick={fn}>Submit</Button>
+        </ModalFooter>
+      )}
     </Modal>
   );
 };
 
-export default Popup;
+export default AlertModal;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Badge, DropdownItem } from 'reactstrap';
 import CreateWorkerModal from './CreateWorkerModal';
 import Worker from './Worker';
-import Popup from './Popup';
+import AlertModal from './AlertModal';
 
 const Workers = () => {
   const [workers, setWorkers] = useState([]);
@@ -100,8 +100,8 @@ const Workers = () => {
         <ul>
           <li>
             To add a worker, either turn on an auto-updater, or grab a version
-            string from
-            <a href="https:waka.app/a/nz-wlg/info">waka.app/a/nz-wlg/info.</a>
+            string from{' '}
+            <a href="https:waka.app/a/nz-wlg/info">waka.app/a/nz-wlg/info</a>.
           </li>
           <li>
             If you're running this locally, the import is not automatic. Use the
@@ -115,7 +115,7 @@ const Workers = () => {
         </ul>
       </div>
       {alertModal && (
-        <Popup
+        <AlertModal
           toggle={toggleAlertModal}
           content={alertContent}
           modal={alertModal}
