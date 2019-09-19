@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   ModalBody,
@@ -17,6 +17,22 @@ export default function CreateWorkerModal({ createWorker }) {
   const [shapesRegion, setShapesRegion] = useState('');
   const [dbConfig, setDbConfig] = useState('');
   const [newRealtime, setNewRealtime] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [cities, setCities] = useState([]);
+  const getCities = async () => {
+    setLoadingCities(true);
+    const res = await fetch('/prefixes');
+    const data = await res.json();
+    const cities = Object.keys(data).map(city => ({
+      label: data[city].longName,
+      value: city
+    }));
+    setCities(cities);
+    setLoadingCities(false);
+  };
+  useEffect(() => {
+    getCities();
+  }, []);
   const onCreateWorker = () => {
     createWorker(
       prefix,
@@ -50,19 +66,24 @@ export default function CreateWorkerModal({ createWorker }) {
           <FormGroup>
             <Label htmlFor="workerPrefix">Prefix</Label>
             <Input
-              onChange={e => setPrefix(e.target.value)}
-              type="text"
-              id="workerPrefix"
-              placeholder="us-nyc"
-              value={prefix}
-            />
+              type="select"
+              disabled={loadingCities || cities.length === 0}
+              onChange={e =>
+                setPrefix(e.target.options[e.target.selectedIndex].value)
+              }
+            >
+              {cities.map(city => (
+                <option key={city.value} value={city.value}>
+                  {city.label}
+                </option>
+              ))}
+            </Input>
           </FormGroup>
           <FormGroup>
             <Label htmlFor="workerVersion">Version</Label>
             <Input
               onChange={e => setVersion(e.target.value)}
               type="text"
-              id="workerVersion"
               placeholder="20180706-12345"
               value={version}
             />
@@ -72,7 +93,6 @@ export default function CreateWorkerModal({ createWorker }) {
             <Input
               onChange={e => setShapesContainer(e.target.value)}
               type="text"
-              id="workerShapesContainer"
               placeholder="shapes-us-west-2.waka.app"
               value={shapesContainer}
             />
@@ -82,7 +102,6 @@ export default function CreateWorkerModal({ createWorker }) {
             <Input
               onChange={e => setShapesRegion(e.target.value)}
               type="text"
-              id="workerShapesRegion"
               placeholder="us-west-2"
               value={shapesRegion}
             />
@@ -94,7 +113,6 @@ export default function CreateWorkerModal({ createWorker }) {
             <Input
               onChange={e => setDbConfig(e.target.value)}
               type="text"
-              id="workerDbconfig"
               placeholder="local"
               value={dbConfig}
             />
@@ -104,7 +122,6 @@ export default function CreateWorkerModal({ createWorker }) {
               onChange={e => setNewRealtime(e.target.checked)}
               type="checkbox"
               className="form-check-Input"
-              id="workerNewRealtime"
               checked={newRealtime}
             />
             <Label className="form-check-Label" htmlFor="workerNewRealtime">
