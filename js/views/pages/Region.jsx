@@ -4,7 +4,7 @@ import local from '../../../local.js'
 
 import UiStore from '../../stores/UiStore.js'
 import CurrentLocation from '../../stores/CurrentLocation.js'
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 
 import { vars } from '../../styles.js'
 import Header from '../reusable/Header.jsx'

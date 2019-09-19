@@ -31,10 +31,13 @@
     "global-require": "off",
     "class-methods-use-this": "off",
     "react/jsx-filename-extension": 1,
+    "react/static-property-placement": 0,
+    "react/state-in-constructor": 0,
     "import/prefer-default-export": 0,
     "react/prefer-stateless-function": 0,
     "import/no-dynamic-require": 0,
     "import/extensions": 0,
+    "camelcase": 0,
     "import/no-unresolved": 0,
     "no-constant-condition": [
       "error",

@@ -18,6 +18,7 @@ import NoMatch from '../pages/NoMatch.jsx'
 
 import Wrapper from './Wrapper.jsx'
 import AllLines from '../lines/AllLines.jsx'
+import LineMerge from '../lines/LineMerge.jsx';
 
 const routingEvents = new Events()
 
@@ -85,6 +86,11 @@ class Content extends React.Component {
             path="/l/:region/:agency_id/:route_short_name"
             exact
             render={wrapFn(Line)}
+          />
+          <Route
+            path="/lm/:region/:agency_id/:route_short_name"
+            exact
+            render={wrapFn(LineMerge)}
           />
           <Route
             path="/l/:region/:agency_id/:route_short_name/picker"

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 
 import UiStore from '../../stores/UiStore.js'
-import { t } from '../../stores/translationStore'
+import { t } from '../../stores/TranslationStore'
 
 import LinesIcon from '../../../dist/icons/lines.svg'
 import PinIcon from '../../../dist/icons/pin.svg'

@@ -13,7 +13,7 @@ import CurrentLocation from '../../stores/CurrentLocation.js'
 import StationStore from '../../stores/StationStore.js'
 import SettingsStore from '../../stores/SettingsStore.js'
 import UiStore from '../../stores/UiStore.js'
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 
 import LocateIcon from '../../../dist/icons/locate-2.svg'
 

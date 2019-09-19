@@ -2,7 +2,7 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { vars } from '../../styles.js'
 import SettingsStore from '../../stores/SettingsStore.js'
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 
 let styles
 const Toggle = ({ id, children }) => {

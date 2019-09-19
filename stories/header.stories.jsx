@@ -24,6 +24,6 @@ storiesOf('Header', module)
       subtitle="This is the Header Subtitle"
       actionIcon={<SavedIcon style={{ fill: '#666' }} />}
       actionFn={() => alert('button clicked')}
-      hideClose={true}
+      hideClose
     />
   ))

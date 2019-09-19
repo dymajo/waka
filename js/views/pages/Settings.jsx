@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { paragraphStyles, vars } from '../../styles.js'
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'

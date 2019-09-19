@@ -6,6 +6,7 @@ class LineData {
     this.route_short_name = props.route_short_name || null
     this.agency_id = props.agency_id || null
     this.shape_id = props.shape_id || null
+    this.shape_ids = props.shape_ids || null
     this.trip_id = props.trip_id || null
     this.route_id = props.route_id || null
     this.stop_id = props.stop_id || null
@@ -35,11 +36,50 @@ class LineData {
     }
   }
 
+  async getShapes() {
+    if (this.region === null || this.shape_ids === null) {
+      return new Error('Requires both region and shape_ids to be set.')
+    }
+    const split = this.shape_ids.split(',')
+    return Promise.all(
+      split.map(async shape => {
+        const res = await fetch(
+          `${local.endpoint}/${this.region}/shapejson/${shape}`
+        )
+        return res.json()
+      })
+    ).then(shapes => {
+      const bounds = {
+        lon_min: shapes[0].coordinates[0][0],
+        lon_max: shapes[0].coordinates[0][0],
+        lat_min: shapes[0].coordinates[0][1],
+        lat_max: shapes[0].coordinates[0][1],
+      }
+      shapes.forEach(shape => {
+        shape.coordinates.forEach(item => {
+          if (item[0] < bounds.lon_min) {
+            bounds.lon_min = item[0]
+          }
+          if (item[0] > bounds.lon_max) {
+            bounds.lon_max = item[0]
+          }
+          if (item[1] < bounds.lat_min) {
+            bounds.lat_min = item[1]
+          }
+          if (item[1] > bounds.lat_max) {
+            bounds.lat_max = item[1]
+          }
+        })
+      })
+      return { bounds, shapes }
+    })
+  }
+
   async getShape() {
     if (this.region === null || this.shape_id === null) {
       return new Error('Requires both region and shape_id to be set.')
     }
-    const shape = encodeURIComponent(this.shape_id)
+    const shape = encodeURIComponent(this.shape_ids)
     try {
       const res = await fetch(
         `${local.endpoint}/${this.region}/shapejson/${shape}`

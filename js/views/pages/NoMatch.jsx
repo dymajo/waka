@@ -2,7 +2,7 @@ import React from 'react'
 import { Text, View, StyleSheet } from 'react-native-web'
 import { withRouter } from 'react-router-dom'
 
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkButton from '../reusable/LinkButton.jsx'
 import { vars, paragraphStyles } from '../../styles.js'

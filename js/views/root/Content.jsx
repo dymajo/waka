@@ -3,7 +3,7 @@ import { View, Text } from 'react-native'
 import PropTypes from 'prop-types'
 import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 import Sidebar from './Sidebar.jsx'
 
 class RootContent extends React.Component {

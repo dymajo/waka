@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 import { vars, paragraphStyles } from '../../styles.js'
 
 import Header from '../reusable/Header.jsx'

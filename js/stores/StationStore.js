@@ -1,7 +1,7 @@
 import Events from './Events'
 import local from '../../local.js'
 import SettingsStore from './SettingsStore.js'
-import { t } from './translationStore.js'
+import { t } from './TranslationStore.js'
 import IconHelper from '../helpers/icons/index.js'
 
 class StationStore extends Events {
@@ -205,7 +205,7 @@ class StationStore extends Events {
         throw new Error(t('app.nointernet'))
       }
       try {
-        const res = await fetch(`${local.endpoint}/${prefix}/all-lines`)
+        const res = await fetch(`${local.endpoint}/${prefix}/only-lines`)
         const data = await res.json()
         this.lineCache = data
         this.lineCacheRegion = prefix

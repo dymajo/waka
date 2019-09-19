@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom'
 
 import { vars } from '../../styles.js'
 import StationStore from '../../stores/StationStore'
-import { t } from '../../stores/translationStore.js'
+import { t } from '../../stores/TranslationStore.js'
 
 import Header from '../reusable/Header.jsx'
 import LinkButton from '../reusable/LinkButton.jsx'
@@ -85,19 +85,30 @@ class LineList extends React.Component {
     e.preventDefault()
     const joined = [
       '',
-      'l',
+      'lm',
       match.params.region,
       link.agencyId,
       link.routeShortName,
     ].join('/')
-    let query = ''
-    if (link.routeId && link.directionId) {
-      query = `?route_id=${link.routeId}&direction=${link.directionId}`
-    } else if (link.routeId && !link.directionId) {
-      query = `?route_id=${link.routeId}`
-    } else if (!link.routeId && link.directionId) {
-      query = `?direction=${link.directionId}`
-    }
+    const query = ''
+    const queryParams = []
+    queryParams.push(
+      { route_id: link.routeId },
+      { direction: link.directionId },
+      { route_id: link.routeId },
+      { shape_ids: link.shapeIds.join(',') }
+    )
+
+    // if (link.routeId && link.directionId) {
+    //   query = `?route_id=${link.routeId}&direction=${link.directionId}`
+    // } else if (link.routeId && !link.directionId) {
+    //   query = `?route_id=${link.routeId}`
+    // } else if (!link.routeId && link.directionId) {
+    //   query = `?direction=${link.directionId}`
+    // }
+    // if (link.shapeIds) {
+    //   query += `&shape_ids=${link.shapeIds.join(',')}`
+    // }
     const url = `${joined}${query}`
     history.push(url)
   }
@@ -134,25 +145,25 @@ class LineList extends React.Component {
                     <View>
                       {icons[`${item.agencyId}/${item.routeShortName}`] ===
                       undefined ? (
-                        <Text
-                          style={[
-                            styles.pill,
-                            {
-                              backgroundColor: item.routeColor,
-                            },
-                          ]}
-                        >
-                          {item.routeShortName}
-                        </Text>
-                      ) : (
-                        <img
-                          alt={item.routeLongName}
-                          style={{ maxHeight: '28px', width: 'auto' }}
-                          src={`/route_icons/${
-                            icons[`${item.agencyId}/${item.routeShortName}`]
-                          }-color.svg`}
-                        />
-                      )}
+                          <Text
+                            style={[
+                              styles.pill,
+                              {
+                                backgroundColor: item.routeColor,
+                              },
+                            ]}
+                          >
+                            {item.routeShortName}
+                          </Text>
+                        ) : (
+                          <img
+                            alt={item.routeLongName}
+                            style={{ maxHeight: '28px', width: 'auto' }}
+                            src={`/route_icons/${
+                              icons[`${item.agencyId}/${item.routeShortName}`]
+                            }-color.svg`}
+                          />
+                        )}
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -161,11 +172,11 @@ class LineList extends React.Component {
                     <Text style={[styles.label, styles.expandText]}>
                       {groupShow[group.name] === 'show'
                         ? `${t('lines.less', {
-                            number: group.items.length - 3,
-                          })} ▴`
+                          number: group.items.length - 3,
+                        })} ▴`
                         : `${t('lines.more', {
-                            number: group.items.length - 3,
-                          })} ▾`}
+                          number: group.items.length - 3,
+                        })} ▾`}
                     </Text>
                   </TouchableOpacity>
                 ) : null}

@@ -14,7 +14,7 @@ import LinkedScroll from '../reusable/LinkedScroll.jsx'
 import Layer from '../maps/Layer.jsx'
 import LineData from '../../data/LineData.js'
 import { LineStops } from './LineStops.jsx'
-import { renderShape, renderStops } from './lineCommon.jsx'
+import { renderShape, renderStops, showBounds } from './lineCommon.jsx'
 import IconHelper from '../../helpers/icons/index.js'
 import Timetable from './Timetable.jsx'
 import TripInfo from './TripInfo.jsx'
@@ -68,7 +68,7 @@ const icons = new Map([
 
 let styles = null
 
-class Line extends React.Component {
+class LineMerge extends React.Component {
   static propTypes = {
     match: PropTypes.object.isRequired,
   }
@@ -105,6 +105,7 @@ class Line extends React.Component {
       route_id: parsed.route_id || null,
       stop_id: parsed.stop_id || null,
       direction_id: parsed.direction === '1' ? 1 : 0,
+      shape_ids: parsed.shape_ids,
     })
 
     if (
@@ -119,12 +120,12 @@ class Line extends React.Component {
 
   componentDidMount() {
     this.dataResolved = this.getData()
-    this.getTimetable()
+    // this.getTimetable()
     this.getPositionData()
 
     this.liveRefresh = setInterval(() => {
       this.getPositionData()
-      this.getRealtimeStopUpdate()
+      // this.getRealtimeStopUpdate()
     }, 10000)
   }
 
@@ -150,10 +151,9 @@ class Line extends React.Component {
         throw new Error('The line had missing data.')
       }
 
-      const route =
-        metadata.find(i => i.direction_id === this.lineData.direction_id) ||
-        metadata[0]
-      this.lineData.direction_id = route.direction_id
+      const route = metadata.find(
+        i => i.direction_id === this.lineData.direction_id
+      )
 
       this.setState({
         color: route.route_color,
@@ -161,19 +161,24 @@ class Line extends React.Component {
       })
 
       // if the stop wasn't specified in the URL
-      if (this.lineData.stop_id === null) {
-        this.lineData.stop_id = route.first_stop_id
-        this.getTimetable()
-      }
-
+      // if (this.lineData.stop_id === null) {
+      //   this.lineData.stop_id = route.first_stop_id
+      //   this.getTimetable()
+      // }
+      console.log(route)
       // Render the shape
-      this.lineData.shape_id = route.shape_id
+      // this.lineData.shape_id = route.shape_id
 
       // we don't want to await this, so the data loads async
-      this.lineData
-        .getShape()
-        .then(shape => renderShape(shape, this.layer, route.route_color)) // eslint-disable-line promise/prefer-await-to-then
-        .catch(err => console.err)
+      this.lineData.getShapes().then(({ shapes, bounds }) => {
+        debugger
+        shapes
+          .forEach(shape => {
+            renderShape(shape, this.layer, route.route_color)
+          })
+          .catch(err => console.err)
+        showBounds(this.layer, bounds)
+      })
     } catch (err) {
       clearInterval(this.liveRefresh)
       console.error(err)
@@ -184,125 +189,123 @@ class Line extends React.Component {
     }
   }
 
-  getTimetable = async () => {
-    // this will be invoked again properly
-    if (this.lineData.stop_id === null) return
+  // getTimetable = async () => {
+  //   // this will be invoked again properly
+  //   if (this.lineData.stop_id === null) return
 
-    const getTimetableState = rawData => {
-      const tolerance = 1000 * 60 * 30
-      const visibleTolerance = 1000 * 60 * 2
-      const realtimeTolerance = 1000 * 60 * 90
-      const now = new Date(new Date().getTime() - tolerance)
-      const visibleNow = new Date(new Date().getTime() - visibleTolerance)
-      const realtimeNow = new Date(new Date().getTime() + realtimeTolerance)
-      const newState = {
-        timetable: rawData
-          .filter(service => {
-            return now < new Date(service.departure_time)
-          })
-          .sort(
-            (a, b) => new Date(a.departure_time) > new Date(b.departure_time)
-          )
-          .map(service => {
-            service.visible = visibleNow < new Date(service.departure_time)
-            service.realtimeQuery =
-              new Date(service.departure_time) < realtimeNow
-            return service
-          }),
-      }
-      if (newState.timetable.length > 0) {
-        const selectedTrip = newState.timetable.find(a => a.visible === true)
-        if (selectedTrip) {
-          newState.currentTrip = selectedTrip.trip_id
-        }
-      }
-      return newState
-    }
-    try {
-      const timetableData = await this.lineData.getTimetable(0)
-      this.setState(getTimetableState(timetableData), async () => {
-        const { timetable, currentTrip } = this.state
+  //   const getTimetableState = rawData => {
+  //     const tolerance = 1000 * 60 * 30
+  //     const visibleTolerance = 1000 * 60 * 2
+  //     const realtimeTolerance = 1000 * 60 * 90
+  //     const now = new Date(new Date().getTime() - tolerance)
+  //     const visibleNow = new Date(new Date().getTime() - visibleTolerance)
+  //     const realtimeNow = new Date(new Date().getTime() + realtimeTolerance)
+  //     const newState = {
+  //       timetable: rawData
+  //         .filter(service => {
+  //           return now < new Date(service.departure_time)
+  //         })
+  //         .sort(
+  //           (a, b) => new Date(a.departure_time) > new Date(b.departure_time)
+  //         )
+  //         .map(service => {
+  //           service.visible = visibleNow < new Date(service.departure_time)
+  //           service.realtimeQuery =
+  //             new Date(service.departure_time) < realtimeNow
+  //           return service
+  //         }),
+  //     }
+  //     if (newState.timetable.length > 0) {
+  //       const selectedTrip = newState.timetable.find(a => a.visible === true)
+  //       if (selectedTrip) {
+  //         newState.currentTrip = selectedTrip.trip_id
+  //       }
+  //     }
+  //     return newState
+  //   }
+  //   try {
+  //     const timetableData = await this.lineData.getTimetable(0)
+  //     this.setState(getTimetableState(timetableData), async () => {
+  //       const { timetable, currentTrip } = this.state
 
-        this.lineData.realtime_trips = timetable
-          .filter(t => t.realtimeQuery === true)
-          .map(t => t.trip_id)
+  //       this.lineData.realtime_trips = timetable
+  //         .filter(t => t.realtimeQuery === true)
+  //         .map(t => t.trip_id)
 
-        this.getRealtimeStopUpdate()
+  //       this.getRealtimeStopUpdate()
 
-        // get stops only if there's a trip_id
-        if (currentTrip) {
-          this.getStops()
-        }
-        const tomorrowTimetableData = await this.lineData.getTimetable(1)
-        const newState = getTimetableState(
-          timetable.slice().concat(tomorrowTimetableData)
-        )
-        this.lineData.realtime_trips = newState.timetable
-          .filter(t => t.realtimeQuery === true)
-          .map(t => t.trip_id)
+  //       // get stops only if there's a trip_id
+  //       if (currentTrip) {
+  //         this.getStops()
+  //       }
+  //       const tomorrowTimetableData = await this.lineData.getTimetable(1)
+  //       const newState = getTimetableState(
+  //         timetable.slice().concat(tomorrowTimetableData)
+  //       )
+  //       this.lineData.realtime_trips = newState.timetable
+  //         .filter(t => t.realtimeQuery === true)
+  //         .map(t => t.trip_id)
 
-        this.setState(newState, () => {
-          if (newState.timetable.length === 0) {
-            // timetable is empty, so best guess
-            const { lineMetadata } = this.state
+  //       this.setState(newState, () => {
+  //         if (newState.timetable.length === 0) {
+  //           // timetable is empty, so best guess
+  //           const { lineMetadata } = this.state
 
-            // if there's no metadata, try get it
-            if (lineMetadata.length === 0) {
-              this.lineData.stop_id = null
-              this.getData()
-            } else {
-              const secondAttempt =
-                lineMetadata.find(
-                  i => i.direction_id === this.lineData.direction_id
-                ) || lineMetadata[0]
-              this.lineData.direction_id = secondAttempt.direction_id
+  //           // if there's no metadata, try get it
+  //           if (lineMetadata.length === 0) {
+  //             this.lineData.stop_id = null
+  //             this.getData()
+  //           } else {
+  //             const secondAttempt =
+  //               lineMetadata.find(
+  //                 i => i.direction_id === this.lineData.direction_id
+  //               ) || lineMetadata[0]
+  //             this.lineData.direction_id = secondAttempt.direction_id
 
-              if (
-                this.lineData.stop_id === secondAttempt.first_stop_id &&
-                this.lineData.direction_id === secondAttempt.direction_id
-              ) {
-                // already attempted this, so give up
-                this.setState({
-                  error: true,
-                  errorMessage:
-                    'We didn’t find any services for this line within the next few days.',
-                })
-              } else {
-                this.lineData.direction_id = secondAttempt.direction_id
-                this.lineData.stop_id = secondAttempt.first_stop_id
-                this.getTimetable()
-              }
-            }
-          } else if (!currentTrip && newState.currentTrip) {
-            // get stops if we didn't have the data the first time
-            this.getStops()
-          }
-        })
-      })
-    } catch (err) {
-      // cannot get timetable, usually because the stop_id is undefined
-      console.error(err)
-      this.setState({
-        error: true,
-        errorMessage: err.message,
-      })
-    }
-  }
+  //             if (
+  //               this.lineData.stop_id === secondAttempt.first_stop_id &&
+  //               this.lineData.direction_id === secondAttempt.direction_id
+  //             ) {
+  //               // already attempted this, so give up
+  //               throw new Error(
+  //                 'We could not load the timetable for this line.'
+  //               )
+  //             } else {
+  //               this.lineData.direction_id = secondAttempt.direction_id
+  //               this.lineData.stop_id = secondAttempt.first_stop_id
+  //               this.getTimetable()
+  //             }
+  //           }
+  //         } else if (!currentTrip && newState.currentTrip) {
+  //           // get stops if we didn't have the data the first time
+  //           this.getStops()
+  //         }
+  //       })
+  //     })
+  //   } catch (err) {
+  //     // cannot get timetable, usually because the stop_id is undefined
+  //     console.error(err)
+  //     this.setState({
+  //       error: true,
+  //       errorMessage: err.message,
+  //     })
+  //   }
+  // }
 
-  getStops = async () => {
-    const { currentTrip } = this.state
-    const { match } = this.props
-    this.lineData.trip_id = currentTrip
-    const data = await this.lineData.getTripStops()
-    const renderedStops = renderStops(
-      data.current,
-      this.pointsLayer,
-      data.routeInfo.route_color,
-      match.params.region,
-      data.routeInfo.route_short_name
-    )
-    this.setState({ stops: renderedStops, loading: false })
-  }
+  // getStops = async () => {
+  //   const { currentTrip } = this.state
+  //   const { match } = this.props
+  //   this.lineData.trip_id = currentTrip
+  //   const data = await this.lineData.getTripStops()
+  //   const renderedStops = renderStops(
+  //     data.current,
+  //     this.pointsLayer,
+  //     data.routeInfo.route_color,
+  //     match.params.region,
+  //     data.routeInfo.route_short_name
+  //   )
+  //   this.setState({ stops: renderedStops, loading: false })
+  // }
 
   getPositionData = async () => {
     let busPositions = null
@@ -388,8 +391,8 @@ class Line extends React.Component {
         ? lineMetadata.length === 1
           ? lineMetadata[0]
           : lineMetadata.find(
-            i => i.direction_id === this.lineData.direction_id
-          )
+              i => i.direction_id === this.lineData.direction_id
+            )
         : {}
 
     if (error) {
@@ -398,8 +401,8 @@ class Line extends React.Component {
           <Header title="Line Error" />
           <View style={styles.error}>
             <Text style={styles.errorMessage}>
-              Sorry! We couldn&apos;t load the {match.params.route_short_name}{' '}
-              line.
+              We couldn&apos;t load the {match.params.route_short_name} line in{' '}
+              {match.params.region}.
             </Text>
             <Text style={styles.errorMessage}>{errorMessage}</Text>
           </View>
@@ -415,7 +418,6 @@ class Line extends React.Component {
           timetable={timetable}
           realtimeStopUpdates={realtimeStopUpdates}
           triggerTrip={this.triggerTrip}
-          region={match.params.region}
         />
       ) : null
     const lineStops = loading ? (
@@ -502,7 +504,6 @@ styles = StyleSheet.create({
   errorMessage: {
     fontSize: vars.defaultFontSize,
     fontFamily: vars.fontFamily,
-    marginBottom: vars.padding,
   },
 })
-export default withRouter(Line)
+export default withRouter(LineMerge)

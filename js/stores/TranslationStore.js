@@ -1,7 +1,7 @@
 import Polyglot from 'node-polyglot'
 import en from '../../translations/en.js'
 
-export class translationStore {
+export class TranslationStore {
   constructor() {
     this.i18n = new Polyglot({ phrases: en })
   }
@@ -10,5 +10,5 @@ export class translationStore {
     return this.i18n.t(str, args)
   }
 }
-export const TranslationStore = new translationStore()
-export const { t } = TranslationStore
+
+export const { t } = new TranslationStore()
