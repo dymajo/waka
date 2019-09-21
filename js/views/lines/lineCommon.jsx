@@ -1,7 +1,7 @@
 import { t } from '../../stores/translationStore.js'
 import UiStore from '../../stores/UiStore.js'
 
-export const renderShape = async (shape, layer, routeColor) => {
+export const renderShape = (shape, layer, routeColor) => {
   layer.add('geojson', shape, {
     color: routeColor,
     className: 'metro-line',

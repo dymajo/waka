@@ -22,7 +22,14 @@ export const LineStops = ({
   let selectedStopIndex = 0
   let afterSelectedStop = false
   if (selectedStop) {
-    selectedStopIndex = stops.findIndex(a => a.stop_id === selectedStop)
+    selectedStopIndex = stops.findIndex(
+      a => a.stop_id === selectedStop || a.parent_station === selectedStop
+    )
+    // if it couldn't find it for whatever reason
+    if (selectedStopIndex === -1) {
+      selectedStopIndex = 0
+      afterSelectedStop = true
+    }
   } else if (stops.length > 0) {
     afterSelectedStop = true
   }
@@ -68,7 +75,10 @@ export const LineStops = ({
       ) : null}
       <View style={styles.wrapper}>
         {stops.map((stop, index) => {
-          if (selectedStop === stop.stop_id) {
+          if (
+            selectedStop === stop.stop_id ||
+            selectedStop === stop.parent_station
+          ) {
             afterSelectedStop = true
           }
           if (!showAll && !afterSelectedStop) return null

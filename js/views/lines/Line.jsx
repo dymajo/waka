@@ -81,6 +81,8 @@ class Line extends React.Component {
 
   iconHelper = new IconHelper()
 
+  interpolatedShape = null
+
   state = {
     color: '#666',
     stops: [],
@@ -178,6 +180,10 @@ class Line extends React.Component {
         // eslint-disable-next-line promise/prefer-await-to-then
         .then(shape => {
           this.setState({ isShapeLoaded: true })
+          if (this.interpolatedShape) {
+            this.layer.hide(true, true)
+            this.layer = new Layer()
+          }
           return renderShape(shape, this.layer, route.route_color)
         })
         .catch(() => this.interpolateShape()) // failed to get a shape, so we'll interpolate one
@@ -386,7 +392,7 @@ class Line extends React.Component {
       type: 'LineString',
       coordinates: this.tripStops.map(stop => [stop.stop_lon, stop.stop_lat]),
     }
-    renderShape(
+    this.interpolatedShape = renderShape(
       { ...shape, ...this.lineData.getShapeBounds(shape) },
       this.layer,
       color
