@@ -4,6 +4,7 @@ import { View, StyleSheet } from 'react-native'
 import { withRouter, Route } from 'react-router-dom'
 
 import Switch from './Switch.jsx'
+import { ErrorBoundary } from './ErrorBoundary.jsx'
 
 import Events from '../../stores/Events'
 import Station from '../station/Station.jsx'
@@ -75,27 +76,40 @@ class Content extends React.Component {
         }
         onLayout={this.triggerLayout}
       >
-        <Switch location={location} key="switch" timeout={400}>
-          <Route path="/" exact render={wrapFn(rootComponent)} />
-          <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
-          <Route path="/s/:region/:station/save" exact render={wrapFn(Save)} />
-          <Route path="/l/:region" exact render={wrapFn(LineList)} />
-          <Route path="/l/:region/all" exact render={wrapFn(AllLines)} />
-          <Route
-            path="/l/:region/:agency_id/:route_short_name"
-            exact
-            render={wrapFn(Line)}
-          />
-          <Route
-            path="/l/:region/:agency_id/:route_short_name/picker"
-            exact
-            render={wrapFn(LinePicker)}
-          />
-          <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
-          <Route path="/region" exact render={wrapFn(Region)} />
-          <Route path="/settings" exact render={wrapFn(Settings)} />
-          <Route render={wrapFn(NoMatch)} />
-        </Switch>
+        <ErrorBoundary>
+          <Switch location={location} key="switch" timeout={400}>
+            <Route path="/" exact render={wrapFn(rootComponent)} />
+            <Route
+              path="/fail"
+              exact
+              render={() => {
+                throw new Error('Intentional error')
+              }}
+            />
+            <Route path="/s/:region/:station" exact render={wrapFn(Station)} />
+            <Route
+              path="/s/:region/:station/save"
+              exact
+              render={wrapFn(Save)}
+            />
+            <Route path="/l/:region" exact render={wrapFn(LineList)} />
+            <Route path="/l/:region/all" exact render={wrapFn(AllLines)} />
+            <Route
+              path="/l/:region/:agency_id/:route_short_name"
+              exact
+              render={wrapFn(Line)}
+            />
+            <Route
+              path="/l/:region/:agency_id/:route_short_name/picker"
+              exact
+              render={wrapFn(LinePicker)}
+            />
+            <Route path="/sponsor" exact render={wrapFn(Sponsor)} />
+            <Route path="/region" exact render={wrapFn(Region)} />
+            <Route path="/settings" exact render={wrapFn(Settings)} />
+            <Route render={wrapFn(NoMatch)} />
+          </Switch>
+        </ErrorBoundary>
       </View>
     )
   }

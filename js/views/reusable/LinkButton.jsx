@@ -13,45 +13,52 @@ class LinkButton extends React.Component {
     onClick: PropTypes.func,
     color: PropTypes.string,
     size: PropTypes.string,
+    target: PropTypes.string,
+  }
+
+  static defaultProps = {
+    target: '_blank',
   }
 
   triggerLink = () => {
-    if (this.props.href.split(':')[0] === 'mailto') {
-      window.location = this.props.href
+    const { href } = this.props
+    if (href.split(':')[0] === 'mailto') {
+      window.location = href
     } else {
-      window.open(this.props.href)
+      window.open(href)
     }
   }
 
   render() {
+    const { href, target, size, color, label, onClick } = this.props
     let wrapperStyle = null
     let textStyle = null
-    if (this.props.size === 'small') {
+    if (size === 'small') {
       wrapperStyle =
-        this.props.color === 'secondary'
+        color === 'secondary'
           ? [styles.wrapper, styles.wrapperSecondary, styles.wrapperSmall]
           : [styles.wrapper, styles.wrapperSmall]
       textStyle =
-        this.props.color === 'secondary'
+        color === 'secondary'
           ? [styles.text, styles.textSecondary, styles.textSmall]
           : [styles.text, styles.textSmall]
     } else {
       wrapperStyle =
-        this.props.color === 'secondary'
+        color === 'secondary'
           ? [styles.wrapper, styles.wrapperSecondary]
           : styles.wrapper
       textStyle =
-        this.props.color === 'secondary'
+        color === 'secondary'
           ? [styles.text, styles.textSecondary]
           : styles.text
     }
 
     const inner = (
       <View style={wrapperStyle}>
-        <Text style={textStyle}>{this.props.label}</Text>
+        <Text style={textStyle}>{label}</Text>
       </View>
     )
-    if (this.props.href && iOS.detect()) {
+    if (href && iOS.detect()) {
       return (
         <TouchableOpacity
           iOSHacks
@@ -62,21 +69,19 @@ class LinkButton extends React.Component {
         </TouchableOpacity>
       )
     }
-    if (this.props.href) {
+    if (href) {
       return (
         <TouchableOpacity
           activeOpacity={75}
-          target="_blank"
+          target={target}
           accessibilityRole="link"
-          href={this.props.href}
+          href={href}
         >
           {inner}
         </TouchableOpacity>
       )
     }
-    return (
-      <TouchableOpacity onClick={this.props.onClick}>{inner}</TouchableOpacity>
-    )
+    return <TouchableOpacity onClick={onClick}>{inner}</TouchableOpacity>
   }
 }
 styles = StyleSheet.create({
