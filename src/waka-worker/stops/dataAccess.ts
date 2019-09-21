@@ -253,7 +253,11 @@ class StopsDataAccess {
     const parentsMap = await this.getParentStops()
     const stops: { [stop_id: string]: string[] } = {}
 
-    for (const { parent_station, route_short_name, agency_id } of result.recordset) {
+    for (const {
+      parent_station,
+      route_short_name,
+      agency_id,
+    } of result.recordset) {
       const uniqueKey = [agency_id, route_short_name].join('/')
       if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
         parents[parent_station].push(uniqueKey)
@@ -404,13 +408,13 @@ class StopsDataAccess {
     const result = await sqlRequest.query<StopTime>(`
       SELECT
         CASE
-			    WHEN stop_times.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time) + 86400
-			    ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time)
-		    END AS new_arrival_time,
-		    CASE
-			    WHEN stop_times.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time) + 86400
-			    ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time)
-		    END AS new_departure_time,
+          WHEN stop_times.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time) + 86400
+          ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time)
+        END AS new_arrival_time,
+        CASE
+          WHEN stop_times.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time) + 86400
+          ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time)
+        END AS new_departure_time,
         trips.trip_id,
         pickup_type,
         drop_off_type,
@@ -424,6 +428,7 @@ class StopsDataAccess {
         trip_headsign,
         stop_headsign,
         route_short_name,
+        parent_station,
         stop_sequence
       FROM stop_times
       INNER JOIN trips

@@ -184,6 +184,7 @@ export interface StopTime {
   stop_headsign: string
   route_short_name: string
   stop_sequence: number
+  parent_station: string
 }
 
 export interface TripRow {
