@@ -16,7 +16,7 @@ var (
 
 func init() {
 	flag.StringVar(&port, "p", "9000", "port for server to run on")
-	flag.StringVar(&apiEndpoint, "e", "https://waka.app/a", "api endpoint to proxy to")
+	flag.StringVar(&apiEndpoint, "e", "https://waka.app", "api endpoint to proxy to")
 	flag.Parse()
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 }
@@ -24,9 +24,11 @@ func init() {
 
 func main() {
 	ping := NewPing()
+	proxy := NewProxy(apiEndpoint)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
+	router.PathPrefix("/a/").HandlerFunc(proxy.Handler())
 	server := &http.Server{
 		Addr:         ":" + port,
 		Handler:      router,
