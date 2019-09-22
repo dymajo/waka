@@ -1,21 +1,26 @@
-FROM node:lts as build
+FROM node:lts-alpine as build-client
 
-WORKDIR /app
-COPY / ./
-RUN npm ci
-RUN npm run build
-
-# This shaves off like 100mb. Could be better.
-FROM node:lts-alpine as runtime
 WORKDIR /app
 COPY /package.json ./
 COPY /package-lock.json ./
-RUN npm ci --production
+RUN apk add --no-cache git
+RUN npm ci
+COPY / ./
+RUN npm run build
 
-COPY --from=build /app/dist ./dist
-COPY /server-static ./server-static
+FROM golang:1.12-alpine as build-server
+WORKDIR /app
+COPY /server ./
+ENV GOPATH /go
+ENV GOBIN=$GOPATH/bin
+RUN apk add --no-cache git
+RUN go get -v ./
+RUN go build -o waka
 
-ENV serverStaticPort 8000
-EXPOSE 8000
-
-CMD node ./server-static/
+FROM alpine:3.9
+EXPOSE 80
+WORKDIR /app
+COPY --from=build-client /app/dist ./dist
+COPY --from=build-server /app/waka ./
+RUN apk add --no-cache ca-certificates
+CMD ./waka -p 80
