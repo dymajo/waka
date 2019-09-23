@@ -8,10 +8,7 @@ const OfflinePlugin = require('offline-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const GitRevisionPlugin = require('git-revision-webpack-plugin')
 const gitRevisionPlugin = new GitRevisionPlugin()
-
-const generate = require('./server-static/generator.js')
-
-generate()
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const config = {
   entry: {
@@ -86,12 +83,9 @@ const config = {
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
-    historyApiFallback: {
-      rewrites: [{ from: /./, to: '/index-generated.html' }],
-    },
+    historyApiFallback: true,
     port: 8009,
     host: '0.0.0.0',
-    index: 'index-generated.html',
     proxy: {
       '/a': {
         pathRewrite: path => path.replace(/^\/a\//, '/'),
@@ -117,6 +111,10 @@ const config = {
     }),
     new ManifestPlugin({
       fileName: 'assets.json',
+    }),
+    new HtmlWebpackPlugin({
+      title: 'Waka',
+      template: 'dist/dev-index.html',
     }),
   ],
   optimization: {
