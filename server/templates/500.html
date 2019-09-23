@@ -1,0 +1,19 @@
+{{- define "500"}}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Internal Server Error - Waka</title>
+</head>
+<body>
+<h1>500: Internal Server Error</h1>
+<p>Sorry, but the server encountered an error.</p>
+<pre><code>{{.Description}}</code></pre>
+<nav>
+  <ul>
+    <li><a href="/">Home</a></li>
+  </ul>
+</nav>
+</body>
+</html>
+{{end}}

@@ -28,9 +28,15 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
-	router.PathPrefix("/a/").HandlerFunc(proxy.Handler())
+	router.PathPrefix("/a/").HandlerFunc(proxy.Handler()) // proxies requests to API
+
+	// here's all the pages that exist in Waka (in the react-router)
+	// some have nice static rendering, most do not
 	router.HandleFunc("/", layout.Handler("home"))
-	router.PathPrefix("/").HandlerFunc(layout.Handler("page"))
+	router.HandleFunc("/region", layout.Handler("page"))
+	router.HandleFunc("/sponsor", layout.Handler("page"))
+	router.HandleFunc("/settings", layout.Handler("page"))
+	router.PathPrefix("/").HandlerFunc(layout.Handler("404"))
 
 	server := &http.Server{
 		Addr:         ":" + port,
