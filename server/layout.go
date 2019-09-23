@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"html/template"
 	"net/http"
 )
 
+// Layout serves our HTML templates
 type Layout struct {
 	Templates *template.Template
 }
@@ -47,6 +49,21 @@ func (l Layout) Handler(layout string) func(http.ResponseWriter, *http.Request) 
 			"Title":       defaultTitle,
 			"Description": defaultDescription,
 		}
-		l.Templates.ExecuteTemplate(res, layout, fullData)
+
+		// write our response into a buffer, before sending it for reals
+		buf := &bytes.Buffer{}
+		err := l.Templates.ExecuteTemplate(buf, layout, fullData)
+		if err != nil {
+			// capture the error and send it back to the client
+			res.WriteHeader(500)
+			fullData["Description"] = err.Error()
+			l.Templates.ExecuteTemplate(res, "500", fullData)
+		} else {
+			// no error
+			if layout == "404" {
+				res.WriteHeader(404)
+			}
+			buf.WriteTo(res)
+		}
 	}
 }
