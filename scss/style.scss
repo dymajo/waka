@@ -31,6 +31,31 @@ button {
   font-family: 'Open Sans', sans-serif;
 }
 
+.server-rendered {
+  padding: 16px 16px 0;
+  color: #333;
+  font-size: 15px;
+
+  h1, h2, h3 {
+    font-weight: 600;
+    color: #273d52;
+    letter-spacing: -0.5px;
+  }
+
+  h1 { font-size: 1.5em; }
+  h2 { font-size: 1.25em; }
+  h3 { font-size: 1em; }
+
+  a {
+    color: #fb6754;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 @import '_mixins';
 @import '_buttons';
 @import '_defaults';
