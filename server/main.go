@@ -21,17 +21,17 @@ func init() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 }
 
-
 func main() {
 	ping := NewPing()
 	proxy := NewProxy(apiEndpoint)
 	layout := NewLayout()
-	layout.Parse()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
 	router.PathPrefix("/a/").HandlerFunc(proxy.Handler())
-	router.HandleFunc("/", layout.Handler("index"))
+	router.HandleFunc("/", layout.Handler("home"))
+	router.PathPrefix("/").HandlerFunc(layout.Handler("page"))
+
 	server := &http.Server{
 		Addr:         ":" + port,
 		Handler:      router,
@@ -40,7 +40,7 @@ func main() {
 	}
 	logrus.WithFields(
 		logrus.Fields{
-			"port":       port,
+			"port": port,
 		}).Infof("Starting Waka")
 	logrus.Fatal(server.ListenAndServe())
 }

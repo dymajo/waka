@@ -1,6 +1,8 @@
 {{define "page"}}
-{{template "header"}}
-{{.Title}}
-the middle
-{{template "footer"}}
+{{- template "header" (WrapHeader .Title .Description)}}
+
+{{- /* Use this page if you just want the JS to take over.  */ -}}
+<div id="app"></div>
+
+{{template "footer" (WrapFooter)}}
 {{end}}
