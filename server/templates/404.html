@@ -1,15 +1,17 @@
 {{- define "404"}}
-{{$description:="Sorry, but the page you requested cannot be found."}}
+{{- $description:="Sorry, but the page you requested cannot be found."}}
 {{- template "header" (WrapHeader "Not Found - Waka" $description)}}
 
 <div id="app">
-  <h1>404: Not Found</h1>
-  <p>{{$description}}</p>
-  <nav>
-    <ul>
-      <li><a href="/">Home</a></li>
-    </ul>
-</nav>
+  <div class="server-rendered">
+    <h1>404: Not Found</h1>
+    <p>{{$description}}</p>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+      </ul>
+  </nav>
+  </div>
 </div>
 
 {{template "footer" (WrapFooter)}}

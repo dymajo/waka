@@ -2,15 +2,17 @@
 {{- template "header" (WrapHeader .Title .Description)}}
 
 <div id="app">
-  <h1>Kia Ora! Welcome to Waka!</h1>
-  <p>{{.Description}}</p>
-  <nav>
-    <ul>
-      <li><a href="/region">Pick City</a></li>
-      <li><a href="/sponsor">Contribute to Waka</a></li>
-      <li><a href="/settings">Settings</a></li>
-    </ul>
-  </nav>
+  <div class="server-rendered">
+    <h1>Kia Ora! Welcome to Waka!</h1>
+    <p>{{.Description}}</p>
+    <nav>
+      <ul>
+        <li><a href="/region">Pick City</a></li>
+        <li><a href="/sponsor">Contribute to Waka</a></li>
+        <li><a href="/settings">Settings</a></li>
+      </ul>
+    </nav>
+  </div>
 </div>
 
 {{template "footer" (WrapFooter)}}
