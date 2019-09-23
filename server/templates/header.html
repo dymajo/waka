@@ -1,10 +1,56 @@
-{{define "header"}}
+{{define "header" -}}
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Waka</title>
-        <meta name="description" content="Your way around Auckland &amp; Wellington. Realtime, beautiful, and runs on all of your devices.">
-    </head>
+  <head>
+    <meta charset="utf-8">
+    <title>{{.Title}}</title>
+    <meta name="description" content="{{.Description}}">
+    <link rel="stylesheet" href="{{.CSSPath}}">
+
+    {{/* Progressive Web App */ -}}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Waka">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/branding/favicon-180.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="/branding/favicon-96.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/branding/favicon-120.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/branding/favicon-152.png">
+    <link rel="apple-touch-icon" sizes="160x160" href="/branding/favicon-160.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/branding/favicon-167.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/branding/favicon-180.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/branding/favicon-192.png">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#273D52">
+    <link rel="manifest" href="/manifest.json">
+
+    {{/* Facebook */ -}}
+    <meta property="og:url" content="TODO">
+    <meta property="og:title" content="{{.Title}}">
+    <meta property="og:description" content="{{.Description}}">
+    <meta property="og:image" content="https://waka.app/photos/splash.jpg">
+
+    {{/* Twitter */ -}}
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@dymajoltd">
+    <meta name="twitter:title" content="{{.Title}}">
+    <meta name="twitter:description" content="{{.Description}}">
+    <meta name="twitter:image" content="https://waka.app/branding/app.png">
+
+    {{/* Favicons */ -}}
+    <link rel="shortcut icon" href="/branding/favicon.ico">
+    <link rel="icon" sizes="16x16 32x32 64x64" href="/branding/favicon.ico">
+    <link rel="icon" type="image/png" sizes="64x64" href="/branding/favicon-64.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/branding/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/branding/favicon-16.png">
+
+    {{/* Google Translate Fix */ -}}
+    <meta name="google" content="notranslate">
+  </head>
 <body>
-{{end}}
+  <noscript>
+    <h1>Sorry!</h1>
+    <p>DYMAJO Waka requires JavaScript to be enabled.</p>
+  </noscript>
+{{- end}}
