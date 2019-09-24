@@ -13,6 +13,7 @@ project {
 
     sequence {
         build(Build)
+        build(BuildDocker)
         build(DeployProduction)
     }
 }
@@ -62,6 +63,43 @@ object Build : BuildType({
         }
     }
 })
+
+object BuildDocker : BuildType({
+    name = "Build & Publish BFF"
+
+    steps {
+        script {
+            name = "Docker Build"
+            scriptContent = "docker build -t dymajo/waka:latest ./"
+        }
+        script {
+            name = "Docker Tag"
+            scriptContent = """
+                docker tag dymajo/waka:latest dymajo/waka:%build.vcs.number%
+            """.trim()
+        }
+        script {
+            name = "Docker Push"
+            scriptContent = """
+                docker login -u %docker-username% -p "%docker-password%"
+                docker push dymajo/waka:latest 
+                docker push dymajo/waka:%build.vcs.number%
+            """.trim()
+        }
+    }
+
+    vcs {
+        root(DslContext.settingsRoot.id!!)
+        cleanCheckout = true
+    }
+
+    triggers {
+        vcs {
+            branchFilter = "+:*"
+        }
+    }
+})
+
 
 object DeployProduction : BuildType({
     name = "Deploy to Production"
