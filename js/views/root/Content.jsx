@@ -181,21 +181,18 @@ class RootContent extends React.Component {
               name={t('onboarding.lines.name')}
               description={t('onboarding.lines.description')}
             />
-          ) : null}
-          <Sidebar
-            type="install"
-            action={this.props.togglePin}
-            icon="pin.svg"
-            name={t('onboarding.install.name')}
-            description={t(
-              desktopLayout
-                ? 'onboarding.install.description2'
-                : 'onboarding.install.description',
-              {
+          ) : (
+            <Sidebar
+              type="install"
+              action={this.props.togglePin}
+              icon="pin.svg"
+              name={t('onboarding.install.name')}
+              description={t('onboarding.install.description', {
                 appname: t('app.name'),
-              }
-            )}
-          />
+              })}
+            />
+          )}
+
           {secondTwo}
         </ul>
       </div>
@@ -223,7 +220,6 @@ class RootContent extends React.Component {
             <ul>
               {StationStore.getOrder().map(station => {
                 const url = station.split('|').slice(-1)
-                console.log(station)
                 return (
                   <Sidebar
                     key={station}
