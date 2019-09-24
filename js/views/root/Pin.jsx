@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types'
 import Clipboard from 'clipboard'
 import iOS from '../../helpers/ios.js'
-import local from '../../../local'
 
 let deferredPrompt = null
 window.addEventListener('beforeinstallprompt', e => {
@@ -19,7 +18,6 @@ class Pin extends React.Component {
   }
 
   state = {
-    email: '',
     copied: false,
     hide: false,
     emailSent: false,
@@ -73,28 +71,6 @@ class Pin extends React.Component {
 
   doNothing(e) {
     e.preventDefault()
-  }
-
-  sendEmail = e => {
-    e.preventDefault()
-    fetch(`${local.endpoint}/email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: this.state.email,
-      }),
-    })
-    this.setState({
-      emailSent: true,
-    })
-  }
-
-  triggerChange = e => {
-    this.setState({
-      email: e.currentTarget.value,
-    })
   }
 
   render() {
@@ -214,42 +190,7 @@ class Pin extends React.Component {
     if (this.state.hide) {
       className += ' hide'
     }
-    let desktopOut = ''
-    if (!this.state.emailSent) {
-      desktopOut = (
-        <div>
-          <h3>Email yourself a link to Waka!</h3>
-          <form onSubmit={this.sendEmail}>
-            <input
-              value={this.state.email}
-              type="email"
-              placeholder="Email Address"
-              onChange={this.triggerChange}
-            />
-            <br />
-            <button className="nice-button primary" type="submit">
-              Send Link
-            </button>
-            <button className="nice-button" onClick={this.triggerClose}>
-              Cancel
-            </button>
-          </form>
-        </div>
-      )
-    } else {
-      desktopOut = (
-        <div>
-          <h3>Thanks! You should receive an email shortly.</h3>
-          <button onClick={this.triggerClose}>Close</button>
-        </div>
-      )
-    }
-    return (
-      <div className={className}>
-        <div className="mobile">{output}</div>
-        <div className="desktop">{desktopOut}</div>
-      </div>
-    )
+    return <div className={className}>{output}</div>
   }
 }
 
