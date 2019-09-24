@@ -37,18 +37,16 @@ object Build : BuildType({
             scriptContent = "npm run build"
         }
         script {
-            name = "Install AWS CLI"
+            name = "Install AWS CLI & Upload Assets to S3"
             scriptContent = """
                 apt update
                 apt install -y unzip  
                 curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
                 unzip awscli-bundle.zip
-                ./awscli-bundle/install -b ~/bin/aws
+                ./awscli-bundle/install -b ./aws
+                ./aws s3 sync dist s3://test-assets-us-west-2.waka.app
             """.trim()
-        }
-        script {
-            name = "Upload assets to S3"
-            scriptContent = "~/bin/aws s3 sync dist s3://test-assets-us-west-2.waka.app"
+            dockerImage = "alpine:latest"
         }
     }
 
