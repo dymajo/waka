@@ -22,7 +22,7 @@ project {
 
 
 object Build : BuildType({
-    name = "Build & Deploy JS to Test"
+    name = "Build & Deploy JS"
 
     steps {
         step {
@@ -46,6 +46,7 @@ object Build : BuildType({
                 unzip awscli-bundle.zip
                 ./awscli-bundle/install -b ./aws
                 ./aws s3 sync dist s3://test-assets-us-west-2.waka.app
+                ./aws s3 sync dist s3://assets-us-west-2.waka.app
             """.trim()
             dockerImage = "alpine:latest"
         }
@@ -54,12 +55,6 @@ object Build : BuildType({
     vcs {
         root(DslContext.settingsRoot.id!!)
         cleanCheckout = true
-    }
-
-    triggers {
-        vcs {
-            branchFilter = "+:*"
-        }
     }
 
     features {
