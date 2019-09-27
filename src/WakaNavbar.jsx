@@ -10,7 +10,7 @@ const WakaNavbar = () => {
           &nbsp;Orchestrator
         </Link>
         <Collapse className="collapse navbar-collapse" id="navbarCollapse">
-          <Nav className="mr-auto">
+          <Nav className="mr-auto" navbar>
             <NavItem>
               <Link to="/config" className="nav-link">
                 Configuration
