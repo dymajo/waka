@@ -93,7 +93,8 @@
     "rimraf": "^3.0.0",
     "source-map-support": "^0.5.13",
     "stream-transform": "^2.0.1",
-    "ts-optchain": "^0.1.8"
+    "ts-optchain": "^0.1.8",
+    "waka-manager": "git+ssh://git@github.com/dymajo/waka-manager.git"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",

@@ -1,11 +1,13 @@
 import { join } from 'path'
 import { readFile } from 'fs'
 import { Router, static as _static } from 'express'
+
 import logger from '../logger'
 import KeyvalueLocal from '../adaptors/keyvalueLocal'
 import KeyvalueDynamo from '../adaptors/keyvalueDynamo'
 import VersionManager from '../versionManager'
 import { WakaConfig } from '../../typings'
+import cityMetadataJSON from '../../cityMetadata.json'
 
 interface PrivateApiProps {
   config: WakaConfig
@@ -37,6 +39,9 @@ class PrivateApi {
 
   bindRoutes() {
     const { router } = this
+    router.get('/prefixes', (req, res) => {
+      return res.send(cityMetadataJSON)
+    })
     router.get('/git', (req, res) => {
       readFile('v.txt', 'utf8', (err, data) => {
         const git = data.replace(/(<|>)/g, '')
@@ -189,7 +194,25 @@ class PrivateApi {
       process.exit()
     })
 
-    router.use('/', _static(join(__dirname, '/dist')))
+    router.use(
+      _static(
+        join(__dirname, '../../../', 'node_modules', 'waka-manager', 'build')
+      )
+    )
+    router.get('/*', (req, res) =>
+      res.sendFile(
+        join(
+          __dirname,
+          '../../../',
+          'node_modules',
+          'waka-manager',
+          'build',
+          'index.html'
+        )
+      )
+    )
+
+    // router.use('/', _static(join(__dirname, '/dist')))
   }
 }
 export default PrivateApi
