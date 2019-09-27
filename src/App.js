@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Config from './Config';
 function App() {
   return (
-    <Router>
+    <Router basename="/private">
       <WakaNavbar />
       <div className="container main-container pt-5">
         <Switch>
