@@ -19,7 +19,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "homepage": ".",
+  "homepage": "http://localhost:9001/private",
   "eslintConfig": {
     "extends": "react-app"
   },
