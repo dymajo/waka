@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Badge, DropdownItem } from 'reactstrap';
+import { Table } from 'reactstrap';
 import CreateWorkerModal from './CreateWorkerModal';
 import Worker from './Worker';
 import AlertModal from './AlertModal';
@@ -20,7 +20,7 @@ const Workers = () => {
     }
   };
   const runAction = async (action, input) => {
-    const r = await fetch(action, {
+    const r = await fetch(`/private/${action}`, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -40,11 +40,11 @@ const Workers = () => {
         setLoading(true);
       }
 
-      const mappingsRequest = await fetch('/mapping');
+      const mappingsRequest = await fetch('/private/mapping');
       const mappingsResponse = await mappingsRequest.json();
       setMappings(mappingsResponse);
 
-      const workersRequest = await fetch('/worker');
+      const workersRequest = await fetch('/private/worker');
       const workersResponse = await workersRequest.json();
       setWorkers(workersResponse);
       if (loading) {

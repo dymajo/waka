@@ -21,7 +21,7 @@ const Worker = ({ worker, mapping = {}, runAction }) => {
     </Badge>
   );
   let btns = (
-    <Button onClick={() => action('/mapping/set')} color="light" size="sm">
+    <Button onClick={() => action('mapping/set')} color="light" size="sm">
       activate
     </Button>
   );
@@ -33,17 +33,13 @@ const Worker = ({ worker, mapping = {}, runAction }) => {
       </Badge>
     );
     btns = (
-      <Button
-        onClick={() => action('/mapping/delete')}
-        color="danger"
-        size="sm"
-      >
+      <Button onClick={() => action('mapping/delete')} color="danger" size="sm">
         unmap
       </Button>
     );
     recycle = (
       <>
-        <DropdownItem onClick={() => action('/worker/recycle')}>
+        <DropdownItem onClick={() => action('worker/recycle')}>
           Recycle Service
         </DropdownItem>
         <DropdownItem divider />
@@ -59,25 +55,25 @@ const Worker = ({ worker, mapping = {}, runAction }) => {
 
       <DropdownMenu>
         {recycle}
-        <DropdownItem onClick={() => action('/worker/docker')}>
+        <DropdownItem onClick={() => action('worker/docker')}>
           Get Docker Import Command
         </DropdownItem>
-        <DropdownItem onClick={() => action('/worker/status/pendingimport')}>
+        <DropdownItem onClick={() => action('worker/status/pendingimport')}>
           Start Import (pending)
         </DropdownItem>
         <DropdownItem
-          onClick={() => action('/worker/status/pendingimport-willmap')}
+          onClick={() => action('worker/status/pendingimport-willmap')}
         >
           Start Import & Map (pending)
         </DropdownItem>
-        <DropdownItem onClick={() => action('/worker/status/imported')}>
+        <DropdownItem onClick={() => action('worker/status/imported')}>
           Set Status to Imported
         </DropdownItem>
-        <DropdownItem onClick={() => action('/worker/status/imported-willmap')}>
+        <DropdownItem onClick={() => action('worker/status/imported-willmap')}>
           Set Status to Imported & Map
         </DropdownItem>
         <DropdownItem divider />
-        <DropdownItem onClick={() => action('/worker/delete')}>
+        <DropdownItem onClick={() => action('worker/delete')}>
           Delete Worker
         </DropdownItem>
       </DropdownMenu>
@@ -85,7 +81,7 @@ const Worker = ({ worker, mapping = {}, runAction }) => {
   );
 
   return (
-    <tr data-id={worker.id} data-prefix={worker.prefix}>
+    <tr>
       <td>
         <a href={`../${worker.prefix}/info`}>{worker.prefix}</a>
       </td>

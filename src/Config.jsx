@@ -27,7 +27,7 @@ const Config = () => {
 
   const killOrchestrator = async () => {
     try {
-      await runAction('/orchestrator/kill');
+      await runAction('orchestrator/kill');
       toggleKillModal();
     } catch (error) {
       toggleAlertModal('something bad happened');
@@ -40,13 +40,13 @@ const Config = () => {
         config: JSON.parse(config),
         configRealtime: JSON.parse(configRealtime)
       };
-      runAction('/config', data);
+      runAction('config', data);
     } catch (error) {
       toggleAlertModal('Error in JSON');
     }
   };
   const runAction = async (action, input) => {
-    const r = await fetch(action, {
+    const r = await fetch(`/private/${action}`, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json'
@@ -60,13 +60,13 @@ const Config = () => {
     getConfig();
   };
   const getConfig = async () => {
-    const res = await fetch('/config');
+    const res = await fetch('/private/config');
     const data = await res.json();
     setConfig(JSON.stringify(data.config, ' ', 2));
     setConfigRealtime(JSON.stringify(data.configRealtime, ' ', 2));
   };
   const getHash = async () => {
-    const res = await fetch('/git');
+    const res = await fetch('/private/git');
     const git = await res.text();
     setGit(git);
   };
@@ -100,7 +100,6 @@ const Config = () => {
         <div className="form-group">
           <textarea
             className="form-control pre"
-            id="configTextarea"
             rows="36"
             value={config}
             onChange={e => setConfig(e.target.value)}
@@ -121,7 +120,6 @@ const Config = () => {
         <div className="form-group">
           <textarea
             className="form-control pre"
-            id="configRealtimeTextarea"
             rows="16"
             value={configRealtime}
             onChange={e => setConfigRealtime(e.target.value)}

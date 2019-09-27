@@ -21,7 +21,7 @@ export default function CreateWorkerModal({ createWorker }) {
   const [cities, setCities] = useState([]);
   const getCities = async () => {
     setLoadingCities(true);
-    const res = await fetch('/prefixes');
+    const res = await fetch('/private/prefixes');
     const data = await res.json();
     const cities = Object.keys(data).map(city => ({
       label: data[city].longName,
