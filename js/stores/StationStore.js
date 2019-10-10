@@ -277,6 +277,12 @@ class StationStore extends Events {
     offsetTime.setSeconds(0)
     offsetTime.setSeconds(time)
     this.offsetTime = offsetTime.getTime() - new Date().getTime()
+
+    // essentially ignores timezones
+    // and it doesn't matter cause you're not waiting for a bus anyway
+    if (Math.abs(this.offsetTime) > 600000) {
+      this.offsetTime = 0
+    }
   }
 
   async getRealtime(tripData, stop_id = null, region) {
