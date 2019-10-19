@@ -32,12 +32,16 @@ func init() {
 
 func main() {
 	ping := NewPing()
+	feedback := NewFeedback()
 	proxy := NewProxy(apiEndpoint)
 	layout := NewLayout(assetsPath, assetsPrefix)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/ping", ping.Handler()).Methods("GET", "HEAD")
 	router.PathPrefix("/a/").HandlerFunc(proxy.Handler()) // proxies requests to API
+
+	// implement non-waka server API requests in /b/
+	router.PathPrefix("/b/feedback").HandlerFunc(feedback.Handler()).Methods("POST", "HEAD")
 
 	// here's all the pages that exist in Waka (in the react-router)
 	// some have nice static rendering, most do not
