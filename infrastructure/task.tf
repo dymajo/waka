@@ -33,6 +33,14 @@ locals {
       {
         "name": "ENDPOINT",
         "value": "${var.endpoint}"
+      },
+      {
+        "name": "AWS_REGION",
+        "value": "${var.region}"
+      },
+      {
+        "name": "FEEDBACK_SNS_TOPIC_ARN",
+        "value": "${aws_sns_topic.feedback_notifications.arn}"
       }
     ]
   }

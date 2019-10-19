@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "api_service" {
     ]
 
     resources = [
-      "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.name}-feedback"
+      aws_sns_topic.feedback_notifications.arn
     ]
   }
 }
