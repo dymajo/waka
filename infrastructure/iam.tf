@@ -37,6 +37,18 @@ data "aws_iam_policy_document" "api_service" {
 
     resources = ["*"]
   }
+
+  statement {
+    sid = "PublishToSns"
+
+    actions = [
+      "sns:Publish",
+    ]
+
+    resources = [
+      "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.name}-feedback"
+    ]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "api_service" {
