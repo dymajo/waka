@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "dependencies": {
     "bootstrap": "^4.3.1",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-router": "^5.1.0",
-    "react-router-dom": "^5.1.0",
-    "react-scripts": "3.1.1",
-    "reactstrap": "^8.0.1",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.2.0",
+    "reactstrap": "^8.1.1",
     "source-map-explorer": "^2.1.0"
   },
   "proxy": "http://localhost:9001/private",
