@@ -408,19 +408,19 @@ class StopsDataAccess {
     const result = await sqlRequest.query<StopTime>(`
       SELECT
         CASE
-          WHEN stop_times.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time) + 86400
-          ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.arrival_time)
-        END AS new_arrival_time,
-        CASE
-          WHEN stop_times.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time) + 86400
-          ELSE DATEDIFF(s, cast('00:00' AS TIME), stop_times.departure_time)
-        END AS new_departure_time,
-        trips.trip_id,
+			    WHEN st.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), st.arrival_time) + 86400
+			    ELSE DATEDIFF(s, cast('00:00' AS TIME), st.arrival_time)
+		    END AS new_arrival_time,
+		    CASE
+			    WHEN st.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), st.departure_time) + 86400
+			    ELSE DATEDIFF(s, cast('00:00' AS TIME), st.departure_time)
+		    END AS new_departure_time,
+        t.trip_id,
         pickup_type,
         drop_off_type,
         arrival_time,
         departure_time,
-        stop_times.stop_id,
+        st.stop_id,
         stop_code,
         stop_name,
         stop_lat,
@@ -428,16 +428,16 @@ class StopsDataAccess {
         trip_headsign,
         stop_headsign,
         route_short_name,
-        parent_station,
-        stop_sequence
-      FROM stop_times
-      INNER JOIN trips
-      ON stop_times.trip_id = trips.trip_id
-      INNER JOIN stops
-      ON stop_times.stop_id = stops.stop_id
-      INNER JOIN routes
-      ON trips.route_id = routes.route_id
-      WHERE trips.trip_id = '${current}'
+        stop_sequence,
+        s.parent_station
+      FROM stop_times st
+      INNER JOIN trips t
+      ON st.trip_id = t.trip_id
+      INNER JOIN stops s
+      ON st.stop_id = s.stop_id
+      INNER JOIN routes r
+      ON t.route_id = r.route_id
+      WHERE t.trip_id = '${current}'
       ORDER BY stop_sequence
       `)
     const sqlRequest2 = connection.get().request()
@@ -541,6 +541,23 @@ class StopsDataAccess {
     })
 
     return platforms
+  }
+
+  checkSiblingStations = async (stop1: string, stop2: string) => {
+    const { connection } = this
+    const sqlRequest = connection.get().request()
+    sqlRequest.input('stop1', stop1)
+    sqlRequest.input('stop2', stop2)
+    const result = await sqlRequest.query<{
+      stop_code: string
+    }>(`select p.stop_code from stops s1
+    inner join stops p
+    on s1.parent_station = p.stop_id
+    inner join stops s2
+    on s2.parent_station = p.stop_id
+    where s2.stop_code = @stop1 and s1.stop_code = @stop2;`)
+
+    return result.recordset.length === 1
   }
 }
 export default StopsDataAccess

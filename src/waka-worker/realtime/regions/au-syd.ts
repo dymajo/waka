@@ -1,3 +1,4 @@
+/* eslint-disable no-labels */
 import { Response } from 'express'
 import { VarChar } from 'mssql'
 import { oc } from 'ts-optchain'
@@ -7,10 +8,13 @@ import {
   Logger,
   WakaTripUpdate,
   WakaVehicleInfo,
+  StopTime,
 } from '../../../typings'
 
 import BaseRealtime from '../../../types/BaseRealtime'
 import WakaRedis from '../../../waka-realtime/Redis'
+import StopsDataAccess from '../../stops/dataAccess'
+import { StopTimeUpdate } from '../../../gtfs'
 
 interface RealtimeAUSYDProps {
   connection: Connection
@@ -22,6 +26,7 @@ interface RealtimeAUSYDProps {
 class RealtimeAUSYD extends BaseRealtime {
   wakaRedis: WakaRedis
   newRealtime: boolean
+  stopsDataAccess: StopsDataAccess
 
   constructor(props: RealtimeAUSYDProps) {
     super()
@@ -30,6 +35,7 @@ class RealtimeAUSYD extends BaseRealtime {
     this.newRealtime = newRealtime
     this.connection = connection
     this.logger = logger
+    this.stopsDataAccess = new StopsDataAccess({ connection, prefix: 'au-syd' })
   }
 
   start = async () => {
@@ -53,7 +59,165 @@ class RealtimeAUSYD extends BaseRealtime {
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getTripUpdate(tripId)
+        if (data !== undefined && data !== null) {
+          const result: {
+            realtime?: StopTimeUpdate
+            timetable: StopTime
+            options?: {
+              skipped?: boolean
+              changed_platform?: boolean
+              added?: boolean
+            }
+          }[] = []
+          const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesV2(
+            tripId
+          )
+          const realtimeStopTimes = data.stopTimeUpdate
+          const timetableStopTimes = timeTabledStopTimes.current
+          tt: for (let i = 0; i < timetableStopTimes.length; i++) {
+            const ttst = timetableStopTimes[i]
+            for (let j = 0; j < realtimeStopTimes.length; j++) {
+              const rtst = realtimeStopTimes[j]
+
+              if (ttst === null) {
+                continue tt
+              }
+              if (ttst.stop_id === rtst.stopId) {
+                result.push({
+                  realtime: rtst,
+                  timetable: ttst,
+                })
+                timetableStopTimes[i] = null
+                continue tt
+              }
+              const sibling = await this.stopsDataAccess.checkSiblingStations(
+                ttst.stop_id,
+                rtst.stopId
+              )
+              if (sibling) {
+                result.push({
+                  realtime: rtst,
+                  timetable: ttst,
+                  options: {
+                    changed_platform: true,
+                  },
+                })
+                timetableStopTimes[i] = null
+                continue tt
+              }
+            }
+          }
+          timetableStopTimes
+            .filter(ttst => ttst !== null)
+            .forEach(ttst => {
+              if (ttst.pickup_type === 0 || ttst.drop_off_type === 0)
+                result.push({
+                  timetable: ttst,
+                  options: {
+                    skipped: true,
+                  },
+                })
+            })
+
+          const { stopTimeUpdate } = data
+          if (stopTimeUpdate.length > 0) {
+            const targetStop = stopTimeUpdate.find(
+              stopUpdate => stopUpdate.stopId === stop_id
+            )
+            if (targetStop) {
+              const stop_sequence = oc(targetStop).stopSequence()
+              const info = {}
+              Object.assign(
+                info,
+                { stop_sequence },
+                targetStop.departure && {
+                  delay: targetStop.departure.delay,
+                  timestamp: targetStop.departure.time || data.timestamp,
+                }
+              )
+
+              realtimeInfo[tripId] = info
+            }
+
+            // return values:
+            // delay is added to the scheduled time to figure out the actual stop time
+            // timestamp is epoch scheduled time (according to the GTFS-R API)
+            // stop_sequence is the stop that the vechicle is currently at
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    return realtimeInfo
+  }
+
+  getTripsCachedwithskips = async (trips: string[], stop_id: string) => {
+    const realtimeInfo: { [tripId: string]: WakaTripUpdate } = {}
+    for (const tripId of trips) {
+      try {
+        const data = await this.wakaRedis.getTripUpdate(tripId)
         if (data !== undefined) {
+          const result: {
+            realtime?: StopTimeUpdate
+            timetable: StopTime
+            options?: {
+              skipped?: boolean
+              changed_platform?: boolean
+              added?: boolean
+            }
+          }[] = []
+          const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesV2(
+            tripId
+          )
+          const realtimeStopTimes = data.stopTimeUpdate
+          const timetableStopTimes = timeTabledStopTimes.current
+          tt: for (let i = 0; i < timetableStopTimes.length; i++) {
+            const ttst = timetableStopTimes[i]
+            for (let j = 0; j < realtimeStopTimes.length; j++) {
+              const rtst = realtimeStopTimes[j]
+
+              if (ttst === null) {
+                continue tt
+              }
+              if (ttst.stop_id === rtst.stopId) {
+                result.push({
+                  realtime: rtst,
+                  timetable: ttst,
+                })
+                timetableStopTimes[i] = null
+                continue tt
+              }
+              const sibling = await this.stopsDataAccess.checkSiblingStations(
+                ttst.stop_id,
+                rtst.stopId
+              )
+              if (sibling) {
+                result.push({
+                  realtime: rtst,
+                  timetable: ttst,
+                  options: {
+                    changed_platform: true,
+                  },
+                })
+                timetableStopTimes[i] = null
+                continue tt
+              }
+            }
+          }
+          timetableStopTimes
+            .filter(ttst => ttst !== null)
+            .forEach(ttst => {
+              if (ttst.pickup_type === 0 || ttst.drop_off_type === 0)
+                result.push({
+                  timetable: ttst,
+                  options: {
+                    skipped: true,
+                  },
+                })
+            })
+
           const stopTimeUpdate = oc(data).stopTimeUpdate([])
           if (stopTimeUpdate.length > 0) {
             const targetStop = stopTimeUpdate.find(
@@ -84,6 +248,7 @@ class RealtimeAUSYD extends BaseRealtime {
         console.log(error)
       }
     }
+
     return realtimeInfo
   }
 
@@ -387,7 +552,9 @@ class RealtimeAUSYD extends BaseRealtime {
     const {
       body: { routeId, stopId, tripId },
     } = req
-    // const alerts = []
+    if (!routeId && !stopId && !tripId) {
+      return res.status(400).send({ notrips: 'send trips' })
+    }
     if (routeId) {
       const alid = await this.wakaRedis.getArrayKey(routeId, 'alert-route')
       const alerts = await Promise.all(
