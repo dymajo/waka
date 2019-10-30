@@ -70,6 +70,7 @@ BEGIN
 		AND t.trip_headsign <> 'Out Of Service'
 		AND (s.parent_station = @stop_id OR s.stop_code = @stop_id)
 		AND st.pickup_type = 0
+		AND r.route_type <> 712
 		AND (
 			st.departure_time > DATEADD(MINUTE, @DepatureDelay, @departure_time) AND
 		st.departure_time < CASE WHEN @DateDifference > 0 THEN DATEADD(MINUTE, @DepatureFuture, @departure_time) ELSE '23:59:59' END OR
