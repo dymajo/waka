@@ -62,7 +62,7 @@ export const stopsCreator = (table: Table) => {
     nullable: false,
   })
   table.columns.add('zone_id', VarChar(varCharLength.small), { nullable: true })
-  table.columns.add('stop_url', VarChar(varCharLength.medium), {
+  table.columns.add('stop_url', VarChar(varCharLength.xl), {
     nullable: true,
   })
   table.columns.add('location_type', Int, { nullable: true })

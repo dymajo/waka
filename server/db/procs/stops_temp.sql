@@ -8,7 +8,7 @@ CREATE TABLE temp_stops
   stop_lat decimal(10,6) NOT NULL,
   stop_lon decimal(10,6) NOT NULL,
   zone_id nvarchar(50),
-  stop_url nvarchar(100),
+  stop_url nvarchar(1000),
   location_type int,
   parent_station nvarchar(100),
   stop_timezone nvarchar(100),
