@@ -178,22 +178,22 @@ class StopsNZAKL extends BaseStops {
   pullCarparkData = async () => {
     const { logger, apiKey } = this
     try {
-      const response = await fetch(
-        `http://whatthecatbroughtin.com:55533/api/parking/latest-availability?key=${apiKey}`
-      )
-      const data = await response.json()
-      data.forEach(
-        (carpark: {
+      const res = await axios.get<
+        {
           name: string
           timestamp: string
           availableSpaces: number
-        }) => {
+        }[]
+      >(
+        `http://whatthecatbroughtin.com:55533/api/parking/latest-availability?key=${apiKey}`,
+      )
+      const { data } = res
+      data.forEach(carpark => {
           const cacheObj = this.carparks[agenda21mapper[carpark.name]]
           cacheObj.availableSpaces = carpark.availableSpaces
           cacheObj.timestamp = new Date(carpark.timestamp)
           cacheObj.description = `${carpark.availableSpaces} spaces currently available`
-        }
-      )
+      })
     } catch (err) {
       // api is offline or whatever. just retries in 5 mins
       logger.warn({ err }, 'Could not get carpark information.')

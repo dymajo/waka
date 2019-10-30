@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import axios from 'axios'
 import sql from 'mssql'
 import momenttz from 'moment-timezone'
 import moment from 'moment'
@@ -65,31 +65,22 @@ class RealtimeNZWLG extends BaseRealtime {
         stop_id
           .split('+')
           .slice(0, 3)
-          .map(
-            (stop: string) =>
-              new Promise<{
-                LastModified: string
-                Stop: MetlinkStop
-                Notices: MetlinkNotice[]
-                Services: MetlinkUpdate[]
-                station: string
-              }>(async (resolve, reject) => {
+          .map(async (stop: string) => {
                 try {
-                  const request = await fetch(tripsUrl + stop)
-                  const data: {
+              const res = await axios.get<{
                     LastModified: string
                     Stop: MetlinkStop
                     Notices: MetlinkNotice[]
                     Services: MetlinkUpdate[]
                     station: string
-                  } = await request.json()
+              }>(tripsUrl + stop)
+              const { data } = res
                   data.station = stop
-                  resolve(data)
+              return data
                 } catch (err) {
-                  reject(err)
+              console.log(err)
                 }
-              })
-          )
+          }),
       )
 
       // Stop Times Crap
@@ -296,12 +287,10 @@ class RealtimeNZWLG extends BaseRealtime {
     const { logger } = this
     const { line } = req.params
     try {
-      const metlinkData = (await fetch(`${serviceLocation}${line}`).then(r =>
-        r.json()
-      )) as {
+      const { data: metlinkData } = await axios.get<{
         LastModified: string
         Services: MetlinkService[]
-      }
+      }>(`${serviceLocation}${line}`)
       const responseData = metlinkData.Services.map(service => ({
         latitude: parseFloat(service.Lat),
         longitude: parseFloat(service.Long),
