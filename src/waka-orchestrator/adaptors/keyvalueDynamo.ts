@@ -29,12 +29,10 @@ class KeyvalueDynamo extends BaseKeyvalue {
         } else if (obj[key].L) {
           // little bit of a hack to use the flatten object for lists
           response[key] = obj[key].L.map(i => flattenObject({ i }).i)
+        } else if (obj[key].BOOL !== undefined) {
+          response[key] = obj[key].BOOL
         } else {
-          if (obj[key].BOOL !== undefined) {
-            response[key] = obj[key].BOOL
-          } else {
-            response[key] = parseFloat(obj[key].N) || obj[key].S
-          }
+          response[key] = parseFloat(obj[key].N) || obj[key].S
         }
       })
     return response

@@ -93,7 +93,6 @@ class BasicUpdater {
   download = async () => {
     const { prefix, url } = this
     const res = await axios.get(url, { responseType: 'stream' })
-    // console.log(res)
     const { headers } = res
     if (res.headers['last-modified']) {
       const newest = new Date(headers['last-modified'])

@@ -14,7 +14,8 @@ export interface MultiEndpointProps extends BaseRealtimeProps {
   serviceAlertEndpoint: string
 }
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms: number) =>
+  new Promise<void>(resolve => setTimeout(resolve, ms))
 
 abstract class MultiEndpoint extends BaseRealtime {
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>
@@ -61,6 +62,8 @@ abstract class MultiEndpoint extends BaseRealtime {
       this.protobuf = FeedMessage
     }
   }
+
+  getFromFile = async () => {}
 
   scheduleUpdatePull = async () => {
     const {

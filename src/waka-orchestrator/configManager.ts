@@ -21,9 +21,10 @@ class ConfigManager {
       requestTimeout: 60000,
 
       api: {
-        'nz-akl': null, // dev-portal.at.govt.nz
-        'agenda-21': null, // ask @DowntownCarpark on Twitter
-        'au-syd': null, // opendata.transport.nsw.gov.au
+        'nz-akl': undefined, // dev-portal.at.govt.nz
+        'agenda-21': undefined, // ask @DowntownCarpark on Twitter
+        'au-syd': undefined, // opendata.transport.nsw.gov.au
+        'us-sfo': undefined,
       },
       db: {
         local: {

@@ -66,21 +66,21 @@ class RealtimeNZWLG extends BaseRealtime {
           .split('+')
           .slice(0, 3)
           .map(async (stop: string) => {
-                try {
+            try {
               const res = await axios.get<{
-                    LastModified: string
-                    Stop: MetlinkStop
-                    Notices: MetlinkNotice[]
-                    Services: MetlinkUpdate[]
-                    station: string
+                LastModified: string
+                Stop: MetlinkStop
+                Notices: MetlinkNotice[]
+                Services: MetlinkUpdate[]
+                station: string
               }>(tripsUrl + stop)
               const { data } = res
-                  data.station = stop
+              data.station = stop
               return data
-                } catch (err) {
+            } catch (err) {
               console.log(err)
-                }
-          }),
+            }
+          })
       )
 
       // Stop Times Crap
@@ -254,11 +254,11 @@ class RealtimeNZWLG extends BaseRealtime {
           bearing: string
         }
       } = {}
-      const request = await fetch(`${serviceLocation}${routeName}`)
-      const data = (await request.json()) as {
+      const response = await axios.get<{
         LastModified: string
         Services: MetlinkService[]
-      }
+      }>(`${serviceLocation}${routeName}`)
+      const { data } = response
       data.Services.filter(service => {
         const dbdir = result.recordset[0].direction_id
         const rtdir = service.Direction

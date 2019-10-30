@@ -11,7 +11,7 @@ class LinesNZCHC extends BaseLines {
     '1/Y': 'nz/metro-yellow',
     '1/F': 'nz/metro-ferry',
   }
-  
+
   async getLines() {
     const { logger, dataAccess } = this
     const lineGroups: {
@@ -34,10 +34,7 @@ class LinesNZCHC extends BaseLines {
       },
     ]
 
-    const [
-      frequent,
-      connector
-    ] = lineGroups
+    const [frequent, connector] = lineGroups
 
     const routesData = await dataAccess.getRoutes()
     const {
@@ -54,8 +51,10 @@ class LinesNZCHC extends BaseLines {
         delete routeItem.routeType
         delete routeItem.duplicate
 
-        const routeLongNameComponents = routeItem.routeLongName.trim().split(' ')
-        if (!isNaN(parseInt(routeLongNameComponents[0], 10))) {
+        const routeLongNameComponents = routeItem.routeLongName
+          .trim()
+          .split(' ')
+        if (!Number.isNaN(parseInt(routeLongNameComponents[0], 10))) {
           routeItem.routeLongName = routeLongNameComponents.slice(1).join(' ')
         }
 

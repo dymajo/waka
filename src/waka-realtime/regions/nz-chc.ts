@@ -14,7 +14,8 @@ class ChristchurchRealtime extends SingleEndpoint {
   constructor(props: ChristchurchRealtimeProps) {
     super({
       axios: axios.create({
-        baseURL: 'http://rtt.metroinfo.org.nz/rtt/public/utility/gtfsrealtime.aspx/',
+        baseURL:
+          'http://rtt.metroinfo.org.nz/rtt/public/utility/gtfsrealtime.aspx/',
         headers: {
           Accept: 'application/x-protobuf',
         },

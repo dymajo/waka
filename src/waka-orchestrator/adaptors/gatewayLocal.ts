@@ -46,7 +46,6 @@ class GatewayLocal extends BaseGateway {
       realtimes[prefix] = newRealtime
     }
     logger.info({ prefix }, 'Local Gateway Started.')
-
     // If there's no route, we simply add it to the router
     // This weird middleware exists because express does not support
     // removing items from the router (can cause issues with in-flight requests)

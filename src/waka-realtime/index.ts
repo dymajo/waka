@@ -9,7 +9,7 @@ import createLogger from './logger'
 import BaseRealtime from './BaseRealtime'
 
 import AucklandRealtime from './regions/nz-akl'
-import ChristchurchRealtime from './regions/nz-chc';
+import ChristchurchRealtime from './regions/nz-chc'
 import CanberraRealtime from './regions/au-cbr'
 import SydneyRealtime from './regions/au-syd'
 import NYCRealtime from './regions/us-nyc'

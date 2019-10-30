@@ -35,7 +35,7 @@
     ],
     "no-underscore-dangle": 0,
     "lines-between-class-members": 0,
-    "comma-dangle": ["error", "always-multiline"],
+    "comma-dangle": 0,
     "no-shadow": "off",
     "no-nested-ternary": 0,
     "promise/prefer-await-to-then": "error",

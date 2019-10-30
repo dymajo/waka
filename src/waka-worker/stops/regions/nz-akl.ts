@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'
+import axios from 'axios'
 import { oc } from 'ts-optchain'
 import { AklTimes } from '../../../typings'
 import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
@@ -185,14 +185,14 @@ class StopsNZAKL extends BaseStops {
           availableSpaces: number
         }[]
       >(
-        `http://whatthecatbroughtin.com:55533/api/parking/latest-availability?key=${apiKey}`,
+        `http://whatthecatbroughtin.com:55533/api/parking/latest-availability?key=${apiKey}`
       )
       const { data } = res
       data.forEach(carpark => {
-          const cacheObj = this.carparks[agenda21mapper[carpark.name]]
-          cacheObj.availableSpaces = carpark.availableSpaces
-          cacheObj.timestamp = new Date(carpark.timestamp)
-          cacheObj.description = `${carpark.availableSpaces} spaces currently available`
+        const cacheObj = this.carparks[agenda21mapper[carpark.name]]
+        cacheObj.availableSpaces = carpark.availableSpaces
+        cacheObj.timestamp = new Date(carpark.timestamp)
+        cacheObj.description = `${carpark.availableSpaces} spaces currently available`
       })
     } catch (err) {
       // api is offline or whatever. just retries in 5 mins

@@ -107,9 +107,9 @@ class LinesNZWLG extends BaseLines {
         numeric: true,
         sensitivity: 'base',
       })
-      group.items.sort((a: string, b: string) => (
+      group.items.sort((a: string, b: string) =>
         collator.compare(a.split('/')[1], b.split('/')[1])
-      ))
+      )
     })
 
     this.allLines = allLines

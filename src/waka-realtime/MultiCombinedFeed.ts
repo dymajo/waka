@@ -117,7 +117,6 @@ abstract class MultiCombinedFeed extends BaseRealtime {
             }
           }
         } catch (err) {
-          console.log(mode)
           logger.error({ err }, 'Failed to pull trip updates')
         }
       }

@@ -52,7 +52,6 @@ class Fargate {
       logger.info({ taskArn: data.tasks[0].taskArn }, 'Started Task')
     } catch (error) {
       logger.error({ error }, 'Could not start task.')
-      return
     }
   }
 }
