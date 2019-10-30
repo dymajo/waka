@@ -34,7 +34,11 @@ const Timetable = ({
         {timetable
           .map(service => {
             const realtimeTrip = realtimeStopUpdates[service.trip_id]
-            if (realtimeTrip && realtimeTrip.stopTimeUpdate.length > 0) {
+            if (
+              realtimeTrip &&
+              realtimeTrip.stopTimeUpdate &&
+              realtimeTrip.stopTimeUpdate.length > 0
+            ) {
               let stop = realtimeTrip.stopTimeUpdate.find(
                 i => i.stopSequence === service.stop_sequence
               )
@@ -71,13 +75,13 @@ const Timetable = ({
                 const delayText = `(${Math.ceil(Math.abs(delay) / 60)}m)`
                 if (delay < -90) {
                   emotion = styles.neutral
-                  scheduleRelationship = <Fragment>early {delayText}</Fragment>
+                  scheduleRelationship = <>early {delayText}</>
                 } else if (delay < 180) {
                   emotion = styles.positive
                   scheduleRelationship = 'on time'
                 } else if (delay >= 180) {
                   emotion = styles.negative
-                  scheduleRelationship = <Fragment>late {delayText}</Fragment>
+                  scheduleRelationship = <>late {delayText}</>
                 }
               } else if (stop.scheduleRelationship === 'CANCELLED') {
                 departureTextStyle = styles.cancelled
