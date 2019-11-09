@@ -5,6 +5,9 @@ import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
 import { t } from '../../stores/translationStore.js'
 import Sidebar from './Sidebar.jsx'
+import { vars } from '../../styles.js'
+
+const { desktopThreshold } = vars
 
 class RootContent extends React.Component {
   static propTypes = {
@@ -14,7 +17,7 @@ class RootContent extends React.Component {
   state = {
     stations: null,
     currentCity: StationStore.currentCity,
-    desktopLayout: window.innerWidth > 850,
+    desktopLayout: window.innerWidth > desktopThreshold,
   }
 
   async componentDidMount() {
@@ -43,11 +46,14 @@ class RootContent extends React.Component {
 
   triggerLayout = () => {
     const { desktopLayout } = this.state
-    if (window.innerWidth > 850 && desktopLayout === false) {
+    if (window.innerWidth > desktopThreshold && desktopLayout === false) {
       this.setState({
         desktopLayout: true,
       })
-    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+    } else if (
+      window.innerWidth <= desktopThreshold &&
+      desktopLayout === true
+    ) {
       this.setState({
         desktopLayout: false,
       })

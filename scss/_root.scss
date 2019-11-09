@@ -46,7 +46,7 @@ $min-position: 0;
 $pad: 25px;
 
 // only applies to mobile touch devices
-@media (max-width: 850px) {
+@media (max-width: $desktop-threshold) {
   .max-view {
     .search {
       opacity: 0.9;
@@ -124,9 +124,10 @@ $pad: 25px;
   }
 }
 
-@media (min-width: 851px) {
+@media (min-width: $desktop-threshold + 1) {
   .root-card {
-    width: $sidebar-width;
+    width: 50vw;
+    max-width: $sidebar-width;
   }
   .root-card-content {
     padding: 0;
@@ -137,6 +138,13 @@ $pad: 25px;
   .root-card-wrapper {
     height: 100%;
   }
+  .root-map {
+    margin-left: 50vw;
+  }
+}
+
+// this is when we get to the max width of the sidebar, and just start expanding the map
+@media (min-width: $sidebar-width * 2) {
   .root-map {
     margin-left: $sidebar-width;
   }

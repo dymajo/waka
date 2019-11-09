@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 
+import { vars } from '../../styles.js'
 import iOS from '../../helpers/ios.js'
 import UiStore from '../../stores/UiStore.js'
 
@@ -12,6 +13,8 @@ import ContentView from './Content.jsx'
 import Root from '../root/Root.jsx'
 
 import Pin from '../root/Pin.jsx'
+
+const { desktopThreshold } = vars
 
 const paddingHeight = 25
 const barHeight = 66
@@ -188,7 +191,7 @@ class Index extends React.Component {
       (UiStore.state.scrollPosition === 0 ||
         e.target === UiStore.state.headerEvent ||
         this.state.cardPosition === 'default') &&
-      window.innerWidth < 851
+      window.innerWidth <= desktopThreshold
     ) {
       this.ioskillscroll = false
       this.touchstartpos = e.touches[0].clientY

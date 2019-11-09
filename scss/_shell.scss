@@ -182,7 +182,7 @@ $darken-opacity: 0.85;
   }
 
   // Mobile UI
-  @media (max-width: 850px) {
+  @media (max-width: $desktop-threshold) {
     &.max-position-max {
       &.direction-forward.entering {
         animation: 300ms ease shell-max-enter-max 1;
@@ -247,7 +247,7 @@ $darken-opacity: 0.85;
     }
   }
 
-  @media (min-width: 851px) {
+  @media (min-width: $desktop-threshold + 1) {
     &.direction-forward.entering {
       animation: 300ms ease shell-desktop-in 1;
     }

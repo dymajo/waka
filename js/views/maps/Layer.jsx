@@ -1,7 +1,8 @@
 import leaflet from 'leaflet'
-
+import { vars } from '../../styles.js'
 import UiStore from '../../stores/UiStore.js'
 
+const { desktopThreshold } = vars
 const GeoJSON = leaflet.geoJSON
 const DivIcon = leaflet.divIcon
 const Marker = leaflet.marker
@@ -20,7 +21,7 @@ class Layer {
     }
     if (bounds !== null) {
       const options = {}
-      if (document.documentElement.clientWidth <= 850) {
+      if (document.documentElement.clientWidth <= desktopThreshold) {
         options.paddingBottomRight = [0, 350]
       }
       UiStore.basemap.fitBounds(

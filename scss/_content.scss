@@ -1,6 +1,6 @@
 $bgheight: 125px;
 
-@media (min-width: 851px) {
+@media (min-width: $desktop-threshold + 1) {
   .content {
     &:empty {
       pointer-events: none;

@@ -1,6 +1,9 @@
+import { vars } from '../styles.js'
 import Events from './Events'
 import StationStore from './StationStore'
 import SettingsStore from './SettingsStore'
+
+const { desktopThreshold } = vars
 
 class CurrentLocation extends Events {
   // ability to subscribe to location updates
@@ -21,7 +24,7 @@ class CurrentLocation extends Events {
   async componentDidMount() {
     // this only works in chrome & firefox not safari whoops.
     // also, don't do it on desktop
-    if ('permissions' in navigator && window.innerWidth < 851) {
+    if ('permissions' in navigator && window.innerWidth <= desktopThreshold) {
       const e = await navigator.permissions.query({ name: 'geolocation' })
       if (e.state === 'granted') {
         this.state.hasGranted = true

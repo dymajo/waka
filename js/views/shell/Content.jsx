@@ -6,6 +6,7 @@ import { withRouter, Route } from 'react-router-dom'
 import Switch from './Switch.jsx'
 import { ErrorBoundary } from './ErrorBoundary.jsx'
 
+import { vars } from '../../styles.js'
 import Events from '../../stores/Events'
 import Station from '../station/Station.jsx'
 import Save from '../station/Save.jsx'
@@ -19,6 +20,8 @@ import NoMatch from '../pages/NoMatch.jsx'
 
 import Wrapper from './Wrapper.jsx'
 import AllLines from '../lines/AllLines.jsx'
+
+const { desktopThreshold } = vars
 
 const routingEvents = new Events()
 
@@ -42,7 +45,7 @@ class Content extends React.Component {
   }
 
   state = {
-    desktopLayout: window.innerWidth > 850,
+    desktopLayout: window.innerWidth > desktopThreshold,
   }
 
   triggerStateUpdate = state => data => {
@@ -53,11 +56,14 @@ class Content extends React.Component {
 
   triggerLayout = () => {
     const { desktopLayout } = this.state
-    if (window.innerWidth > 850 && desktopLayout === false) {
+    if (window.innerWidth > desktopThreshold && desktopLayout === false) {
       this.setState({
         desktopLayout: true,
       })
-    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+    } else if (
+      window.innerWidth <= desktopThreshold &&
+      desktopLayout === true
+    ) {
       this.setState({
         desktopLayout: false,
       })

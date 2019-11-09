@@ -7,7 +7,7 @@
   z-index: 4;
   background: $default-back;
 
-  @media (min-width: 851px) {
+  @media (min-width: $desktop-threshold + 1) {
     max-width: $sidebar-width;
   }
 }

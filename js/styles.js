@@ -15,7 +15,7 @@ export const vars = {
   fontFamily:
     '"Open Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif',
 
-  desktopThreshold: 850,
+  desktopThreshold: 640,
 }
 
 const { padding, defaultFontSize, fontFamily } = vars

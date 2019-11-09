@@ -2,8 +2,11 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { ScrollView, StyleSheet } from 'react-native'
 
+import { vars } from '../../styles.js'
 import UiStore from '../../stores/UiStore.js'
 import iOS from '../../helpers/ios.js'
+
+const { desktopThreshold } = vars
 
 // This component links the scroll to the fancy shell.
 let styles
@@ -19,7 +22,7 @@ class LinkedScroll extends React.Component {
     this.state = {
       cardPosition: UiStore.state.cardPosition,
       cancelScroll: true,
-      desktopLayout: window.innerWidth > 850,
+      desktopLayout: window.innerWidth > desktopThreshold,
     }
   }
 
@@ -67,11 +70,14 @@ class LinkedScroll extends React.Component {
 
   triggerLayout = () => {
     const { desktopLayout } = this.state
-    if (window.innerWidth > 850 && desktopLayout === false) {
+    if (window.innerWidth > desktopThreshold && desktopLayout === false) {
       this.setState({
         desktopLayout: true,
       })
-    } else if (window.innerWidth <= 850 && desktopLayout === true) {
+    } else if (
+      window.innerWidth <= desktopThreshold &&
+      desktopLayout === true
+    ) {
       this.setState({
         desktopLayout: false,
       })
