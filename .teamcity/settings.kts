@@ -28,7 +28,7 @@ object Build : BuildType({
         step {
             name = "Install Node JS"
             type = "jonnyzzz.nvm"
-            param("version", "10.16.3")
+            param("version", "12.13.1")
         }
         script {
             name = "Restore Packages"
