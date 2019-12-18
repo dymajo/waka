@@ -59,4 +59,12 @@ resource "kubernetes_deployment" "waka" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      spec.0.replicas
+    ]
+  }
 }
+
+
