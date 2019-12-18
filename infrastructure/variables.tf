@@ -42,3 +42,8 @@ variable "vpc_id" {
   type    = string
   default = "vpc-39000740"
 }
+
+variable "namespace" {
+  type    = string
+  default = "waka-test"
+}
