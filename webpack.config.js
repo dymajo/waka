@@ -136,6 +136,10 @@ const config = {
     },
   },
 }
+
+// TODO: This should be configurable somehow.
+let assetsUrl = 'https://assets-us-west-2.waka.app/'
+
 if (process.env.NODE_ENV === 'production') {
   config.output.filename = 'generated/[name].[chunkhash].bundle.js'
   config.output.chunkFilename = 'generated/[name].[chunkhash].chunk.js'
@@ -153,14 +157,25 @@ if (process.env.NODE_ENV === 'production') {
       // caches the root url
       externals: [
         '/',
-        '/fonts/OpenSansRegular.woff2',
-        '/fonts/OpenSansRegularExt.woff2',
-        '/fonts/OpenSansSemiBold.woff2',
-        '/fonts/OpenSansSemiBoldExt.woff2',
-        '/fonts/OpenSansBold.woff2',
+        'fonts/OpenSansRegular.woff2',
+        'fonts/OpenSansRegularExt.woff2',
+        'fonts/OpenSansSemiBold.woff2',
+        'fonts/OpenSansSemiBoldExt.woff2',
+        'fonts/OpenSansBold.woff2',
       ],
       ServiceWorker: {
         navigateFallbackURL: '/',
+      },
+      rewrites: function(asset) {
+        if (
+          asset.endsWith('.js') ||
+          asset.endsWith('.css') ||
+          asset.endsWith('.woff2')
+        ) {
+          return assetsUrl + asset
+        }
+
+        return asset
       },
     })
   )
