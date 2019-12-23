@@ -1,6 +1,6 @@
 resource "aws_iam_user" "api_service" {
   name = var.name
-  path = "/digital-ocean/${data.aws_region.current.name}"
+  path = "/digital-ocean/${data.aws_region.current.name}/"
 }
 
 resource "aws_iam_user_policy" "api_service" {
