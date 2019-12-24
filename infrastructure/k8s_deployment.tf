@@ -21,6 +21,9 @@ resource "kubernetes_deployment" "waka-proxy" {
         labels = {
           app = "waka-proxy"
         }
+        annotations = {
+          "linkerd.io/inject" = "enabled"
+        }
       }
 
       spec {
