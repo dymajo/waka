@@ -21,7 +21,7 @@ resource "kubernetes_service" "default-backend" {
     namespace = var.namespace
   }
   spec {
-    type         = "ExternalName"
-    externalName = "sfo2-k8s.dymajo.com"
+    type          = "ExternalName"
+    external_name = "sfo2-k8s.dymajo.com"
   }
 }
