@@ -36,10 +36,38 @@ resource "kubernetes_deployment" "waka" {
             name  = "ENDPOINT"
             value = var.endpoint
           }
+
           env {
-            name  = "AWS_REGION"
-            value = var.region
+            name = "AWS_REGION"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.api_service.metadata.0.name
+                key  = "AWS_DEFAULT_REGION"
+              }
+            }
           }
+
+          env {
+            name = "AWS_ACCESS_KEY_ID"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.api_service.metadata.0.name
+                key  = "AWS_ACCESS_KEY_ID"
+              }
+            }
+          }
+
+
+          env {
+            name = "AWS_SECRET_ACCESS_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.api_service.metadata.0.name
+                key  = "AWS_SECRET_ACCESS_KEY"
+              }
+            }
+          }
+
           env {
             name  = "FEEDBACK_SNS_TOPIC_ARN"
             value = aws_sns_topic.feedback_notifications.arn
@@ -64,6 +92,11 @@ resource "kubernetes_deployment" "waka" {
     ignore_changes = [
       spec.0.replicas
     ]
+  }
+
+  timeouts {
+    create = "15m"
+    update = "15m"
   }
 }
 
