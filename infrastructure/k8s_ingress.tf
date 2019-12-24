@@ -3,7 +3,11 @@ resource "kubernetes_ingress" "waka" {
     name      = "waka"
     namespace = var.namespace
     annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
+      "kubernetes.io/ingress.class"                       = "nginx"
+      "nginx.ingress.kubernetes.io/configuration-snippet" = <<EOT
+proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+EOT
     }
   }
 

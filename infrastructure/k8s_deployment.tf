@@ -21,9 +21,13 @@ resource "kubernetes_deployment" "waka" {
         labels = {
           app = "waka"
         }
+        annotations = {
+          "linkerd.io/inject" = "enabled"
+        }
       }
 
       spec {
+        automount_service_account_token = "true"
         container {
           image = "dymajo/waka:${jsondecode(data.http.git_sha.body).commit.sha}"
           name  = "waka"
