@@ -91,7 +91,7 @@
     "source-map-support": "^0.5.16",
     "stream-transform": "^2.0.1",
     "ts-optchain": "^0.1.8",
-    "waka-manager": "git+ssh://git@github.com/dymajo/waka-manager.git"
+    "waka-manager": "git+https://git@github.com/dymajo/waka-manager.git"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
