@@ -9,3 +9,4 @@ dist/docs
 v.txt
 coverage/
 .nyc_output/
+.terraform
