@@ -1,7 +1,7 @@
 resource "kubernetes_ingress" "waka" {
   metadata {
-    name        = "waka"
-    namespace   = var.namespace
+    name      = "waka"
+    namespace = var.namespace
     annotations = {
       "kubernetes.io/ingress.class" = "nginx"
     }
@@ -18,6 +18,42 @@ resource "kubernetes_ingress" "waka" {
           }
 
           path = "/"
+        }
+
+        path {
+          backend {
+            service_name = "waka-proxy"
+            service_port = 80
+          }
+
+          path = "/a"
+        }
+
+        path {
+          backend {
+            service_name = "default-backend"
+            service_port = 80
+          }
+
+          path = "/a/nz-akl"
+        }
+
+        path {
+          backend {
+            service_name = "default-backend"
+            service_port = 80
+          }
+
+          path = "/a/nz-chc"
+        }
+
+        path {
+          backend {
+            service_name = "default-backend"
+            service_port = 80
+          }
+
+          path = "/a/nz-wlg"
         }
       }
     }
