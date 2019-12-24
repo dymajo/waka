@@ -136,7 +136,8 @@ func (wd WorkerDiscovery) BoundsHandler(pathPrefix string) func(http.ResponseWri
 func (wd WorkerDiscovery) GetWorker(prefix string, initialLocation [2]float32, showInCityList bool) {
 	response, err := http.Get(fmt.Sprintf("%s/%s/info", endpoint, prefix))
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.Warn(err)
+		return
 	}
 	defer response.Body.Close()
 

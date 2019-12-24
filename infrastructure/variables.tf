@@ -1,6 +1,6 @@
 variable "endpoint" {
   type    = string
-  default = "https://waka.app"
+  default = "http:/"
 }
 
 variable "namespace" {
