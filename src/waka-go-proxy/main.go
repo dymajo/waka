@@ -32,7 +32,7 @@ func init() {
 
 func docsRedirectHandler() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/docs/", http.StatusFound)
+		http.Redirect(w, r, fmt.Sprintf("%s/docs/", pathPrefix), http.StatusFound)
 	}
 }
 
