@@ -31,7 +31,7 @@ resource "kubernetes_ingress" "waka" {
 
         path {
           backend {
-            service_name = "default-backend"
+            service_name = "waka-worker-nz-akl"
             service_port = 80
           }
 
@@ -40,7 +40,7 @@ resource "kubernetes_ingress" "waka" {
 
         path {
           backend {
-            service_name = "default-backend"
+            service_name = "waka-worker-nz-chc"
             service_port = 80
           }
 
@@ -49,7 +49,7 @@ resource "kubernetes_ingress" "waka" {
 
         path {
           backend {
-            service_name = "default-backend"
+            service_name = "waka-worker-nz-wlg"
             service_port = 80
           }
 

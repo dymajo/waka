@@ -14,14 +14,3 @@ resource "kubernetes_service" "waka" {
     type = "ClusterIP"
   }
 }
-
-resource "kubernetes_service" "default-backend" {
-  metadata {
-    name      = "default-backend"
-    namespace = var.namespace
-  }
-  spec {
-    type          = "ExternalName"
-    external_name = "sfo2-k8s.dymajo.com"
-  }
-}
