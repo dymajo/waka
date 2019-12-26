@@ -11,3 +11,8 @@ variable "namespace" {
 variable "region" {
   type = string
 }
+
+variable "environment" {
+  type  = "string"
+  value = "uat"
+}

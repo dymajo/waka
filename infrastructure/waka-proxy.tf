@@ -37,6 +37,22 @@ resource "kubernetes_deployment" "waka-proxy" {
             value = var.endpoint
           }
 
+          liveness_probe {
+            http_get {
+              path = "/a/ping"
+            }
+            initial_delay_seconds = 3
+            period_seconds        = 3
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/a/ping"
+            }
+            initial_delay_seconds = 3
+            period_seconds        = 3
+          }
+
           resources {
             limits {
               cpu    = "100m"
@@ -64,4 +80,20 @@ resource "kubernetes_deployment" "waka-proxy" {
   }
 }
 
+resource "kubernetes_service" "waka-proxy" {
+  metadata {
+    name      = "waka-proxy"
+    namespace = var.namespace
+  }
+  spec {
+    selector = {
+      app = kubernetes_deployment.waka-proxy.metadata.0.labels.app
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+    type = "ClusterIP"
+  }
+}
 
