@@ -40,6 +40,7 @@ resource "kubernetes_deployment" "waka-proxy" {
           liveness_probe {
             http_get {
               path = "/a/ping"
+              port = "80"
             }
             initial_delay_seconds = 3
             period_seconds        = 3
@@ -48,6 +49,7 @@ resource "kubernetes_deployment" "waka-proxy" {
           readiness_probe {
             http_get {
               path = "/a/ping"
+              port = "80"
             }
             initial_delay_seconds = 3
             period_seconds        = 3
