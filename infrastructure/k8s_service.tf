@@ -14,3 +14,20 @@ resource "kubernetes_service" "waka-proxy" {
     type = "ClusterIP"
   }
 }
+
+resource "kubernetes_service" "redis" {
+  metadata {
+    name      = "redis"
+    namespace = var.namespace
+  }
+  spec {
+    selector = {
+      app = kubernetes_deployment.redis.metadata.0.labels.app
+    }
+    port {
+      port        = 6379
+      target_port = 6379
+    }
+    type = "ClusterIP"
+  }
+}
