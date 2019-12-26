@@ -13,6 +13,6 @@ variable "region" {
 }
 
 variable "environment" {
-  type  = "string"
-  value = "uat"
+  type    = string
+  default = "uat"
 }
