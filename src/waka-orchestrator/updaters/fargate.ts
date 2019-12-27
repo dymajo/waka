@@ -1,6 +1,6 @@
 /* eslint-disable promise/prefer-await-to-callbacks */
-// import * as AWS from 'aws-sdk'
 import AWS from 'aws-sdk'
+import { EnvironmentImporterConfig } from '../../types'
 import logger from '../logger'
 
 class Fargate {
@@ -15,6 +15,7 @@ class Fargate {
       logger.warn('Cannot use Fargate Importer - Missing Config.')
       return
     }
+    logger.info('Using Fargate Importer')
 
     this.cluster = cluster
     this.taskDefinition = taskDefinition
@@ -23,11 +24,17 @@ class Fargate {
     this.ecs = new AWS.ECS({ region })
   }
 
-  async startTask(environment: AWS.ECS.KeyValuePair[]) {
+  async startTask(env: EnvironmentImporterConfig) {
     if (!this.ecs) {
       logger.warn('Cannot start task - missing config.')
       return
     }
+
+    const ecsEnvironment = Object.keys(env).map(name => ({
+      name,
+      value: (env[name] || '').toString(),
+    }))
+
     const { cluster, taskDefinition, securityGroups, subnets, ecs } = this
     const params: AWS.ECS.RunTaskRequest = {
       taskDefinition,
@@ -42,7 +49,7 @@ class Fargate {
         },
       },
       overrides: {
-        containerOverrides: [{ name: 'waka-importer', environment }],
+        containerOverrides: [{ name: 'waka-importer', environment: ecsEnvironment }],
       },
     }
     logger.debug({ params }, 'Task Parameters')

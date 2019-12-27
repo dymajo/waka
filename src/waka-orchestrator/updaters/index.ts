@@ -1,9 +1,10 @@
-import { WakaConfig } from '../../types'
+import { EnvironmentConfig, WakaConfig } from '../../types'
 import logger from '../logger'
 import VersionManager from '../versionManager'
 import TfNSWUpdater from './au-syd'
 import BasicUpdater from './basic'
 import Fargate from './fargate'
+import Kubernetes from './kubernetes'
 import ATUpdater from './nz-akl'
 
 interface UpdateManagerProps {
@@ -11,21 +12,30 @@ interface UpdateManagerProps {
   versionManager: VersionManager
 }
 
+interface Importer {
+  startTask: (env: EnvironmentConfig) => void
+}
+
 class UpdateManager {
   config: WakaConfig
   versionManager: VersionManager
   updaters: { [prefix: string]: {} }
   interval: NodeJS.Timeout
-  fargate: Fargate
+  importer: Importer
+
   constructor(props: UpdateManagerProps) {
     const { config, versionManager } = props
     this.config = config
     this.versionManager = versionManager
     const { importer } = config
 
-    this.fargate = null
-    if (importer && importer.provider === 'fargate') {
-      this.fargate = new Fargate(importer)
+    this.importer = null
+    if (importer) {
+      if (importer.provider === 'fargate') {
+        this.importer = new Fargate(importer)
+      } else if (importer.provider === 'kubernetes') {
+        this.importer = new Kubernetes(importer)
+      }
     }
 
     this.updaters = {}
@@ -150,21 +160,25 @@ class UpdateManager {
   }
 
   checkVersions = async () => {
-    const { versionManager, fargate } = this
+    const { versionManager, importer } = this
     const allVersions = await versionManager.allVersions()
     Object.keys(allVersions).forEach(async id => {
       const version = allVersions[id]
       const { prefix, status } = version
       if (status === 'pendingimport' || status === 'pendingimport-willmap') {
-        if (this.fargate === null) {
+        if (this.importer === null) {
           logger.info(
             { prefix, version: version.version },
-            'No Fargate Configured - Please open /private and do a manual import.'
+            'No Importer Configured - Please open /private and do a manual import.'
           )
         } else {
           logger.info({ prefix, version: version.version }, 'Starting Import')
-          const environment = await versionManager.getFargateVariables(id)
-          await fargate.startTask(environment)
+          const config = await versionManager.getVersionConfig(id)
+          const env = versionManager.envMapper.toEnvironmental(
+            config,
+            'importer'
+          )
+          await importer.startTask(env)
         }
       } else if (version.status === 'imported-willmap') {
         logger.info(
