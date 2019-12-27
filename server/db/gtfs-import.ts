@@ -87,7 +87,7 @@ class GtfsImport {
     row: any[],
     rowSchema: { [key: string]: number },
     tableSchema: string[],
-    // endpoint?: string,
+    endpoint?: string,
   ): string[] => {
     let arrival_time_24 = false
     let departure_time_24 = false
@@ -173,6 +173,9 @@ class GtfsImport {
       if (column === 'route_short_name' && row[rowSchema[column]] === '') {
         row[rowSchema[column]] = row[rowSchema.route_id]
       }
+      if (column === 'import_package') {
+        return endpoint
+      }
       return row[rowSchema[column]] || null
     })
   }
@@ -243,7 +246,7 @@ class GtfsImport {
                   row,
                   headers,
                   tableSchema,
-                  // endpoint,
+                  endpoint,
                 )
                 if (
                   file.table === 'agency' &&
@@ -299,6 +302,8 @@ class GtfsImport {
                     if (!record[4]) {
                       record[4] = tripId.tripName
                     }
+                    record[10] = tripId.numberOfCars
+                    record[11] = tripId.setType
                   } else {
                     // console.log(split)
                   }

@@ -40,6 +40,7 @@ class CreateShapes {
     inputFile: string,
     outputDirectory: string,
     versions: string[],
+    name: string,
   ) => {
     return new Promise((resolve, reject) => {
       const input = createReadStream(inputFile)
@@ -79,13 +80,13 @@ class CreateShapes {
         ])
         total += 1
         if (total % 100000 === 0) {
-          log.info('Parsed', total, 'Points')
+          log.info(name, 'Parsed', total, 'Points')
         }
 
         return callback(null)
       })
         .on('finish', () => {
-          log.info('Created Shapes. Writing to disk...')
+          log.info(name, 'Created Shapes. Writing to disk...')
           Object.keys(output).forEach(key => {
             let subfolder =
               versions.length === 1 ? versions[0] : `${versions[0]}-extra`
@@ -103,20 +104,27 @@ class CreateShapes {
               JSON.stringify(output[key]),
             )
           })
-          log.info(`${Object.keys(output).length} shapes written to disk!`)
+          log.info(
+            name,
+            `${Object.keys(output).length} shapes written to disk!`,
+          )
           resolve()
         })
         .on('error', () => {
           reject()
         })
 
-      log.info('Building Shapes')
+      log.info(name, 'Building Shapes')
       input.pipe(parser).pipe(transformer)
     })
   }
-  public upload = async (container: string, directory: string) => {
+  public upload = async (
+    container: string,
+    directory: string,
+    name: string,
+  ) => {
     if (config.shapesSkip === true) {
-      log.info('Skipping Shapes Upload.')
+      log.info(name, 'Skipping Shapes Upload.')
       return
     }
     let total = 0
@@ -148,8 +156,12 @@ class CreateShapes {
       }
     }
     // process.stdout.write('\n')
-    log.error(`${container}:`, 'failed upload', failed, 'Shapes.')
-    log.info(`${container}:`, 'Upload Complete!', total, 'Shapes.')
+    if (failed > 0) {
+      log.error(name, `${container}:`, 'failed upload', failed, 'Shapes.')
+    }
+    if (total > 0) {
+      log.info(name, `${container}:`, 'Upload Complete!', total, 'Shapes.')
+    }
   }
 
   private uploadSingle = async (

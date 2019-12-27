@@ -114,7 +114,7 @@ abstract class SingleImporter extends BaseImporter {
     mkdirSync(outputDir2)
 
     // creates the new datas
-    await creator.create(inputDir, outputDir, [config.version])
+    await creator.create(inputDir, outputDir, [config.version], config.prefix)
 
     const containerName = `${config.prefix}-${config.version}`
       .replace('.', '-')
@@ -122,6 +122,7 @@ abstract class SingleImporter extends BaseImporter {
     await creator.upload(
       config.shapesContainer || containerName,
       _resolve(outputDir, config.version),
+      config.prefix,
     )
   }
 }

@@ -167,7 +167,7 @@ abstract class MultiImporter extends BaseImporter {
   shapes = async () => {
     const { zipLocations } = this
     const creator = new CreateShapes()
-    for (const { path } of zipLocations) {
+    for (const { path, name } of zipLocations) {
       if (!existsSync(path)) {
         log.error('Shapes could not be found!')
         return
@@ -193,7 +193,7 @@ abstract class MultiImporter extends BaseImporter {
       mkdirSync(outputDir2)
 
       // creates the new datas
-      await creator.create(inputDir, outputDir, [config.version])
+      await creator.create(inputDir, outputDir, [config.version], name)
 
       const containerName = `${config.prefix}-${config.version}`
         .replace('.', '-')
@@ -201,6 +201,7 @@ abstract class MultiImporter extends BaseImporter {
       await creator.upload(
         config.shapesContainer || containerName,
         _resolve(outputDir, config.version),
+        name,
       )
     }
   }
