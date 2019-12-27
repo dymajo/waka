@@ -1,10 +1,10 @@
+import AWS from 'aws-sdk'
+import { PutObjectRequest } from 'aws-sdk/clients/s3'
+import axios from 'axios'
 import FormData from 'form-data'
 import { createReadStream } from 'fs'
-import axios from 'axios'
-import { PutObjectRequest } from 'aws-sdk/clients/s3'
-import AWS from 'aws-sdk'
 import { ServerResponse } from 'http'
-import { Logger } from '../../typings'
+import { Logger } from '../../types'
 
 interface StorageProps {
   backing?: 'aws' | 'local'

@@ -1,6 +1,6 @@
 import axios from 'axios'
+import { Logger } from '../../types'
 import MultiEndpoint from '../MultiEndpoint'
-import { Logger } from '../../typings'
 import Redis from '../Redis'
 
 const modes = [

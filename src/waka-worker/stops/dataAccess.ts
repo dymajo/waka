@@ -1,12 +1,6 @@
 import * as sql from 'mssql'
+import { DBStopTime, RouteInfo, StopTime, TripInfo, TripRow } from '../../types'
 import Connection from '../db/connection'
-import {
-  RouteInfo,
-  StopTime,
-  TripRow,
-  TripInfo,
-  DBStopTime,
-} from '../../typings'
 
 interface StopsDataAccessProps {
   connection: Connection

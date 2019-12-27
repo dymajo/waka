@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { Logger } from '../../typings'
-import Redis from '../Redis'
+import { Logger } from '../../types'
 import MultiCombinedFeed from '../MultiCombinedFeed'
+import Redis from '../Redis'
 
 interface NYCRealtimeProps {
   wakaRedis: Redis

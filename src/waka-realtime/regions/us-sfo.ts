@@ -1,8 +1,7 @@
 import axios from 'axios'
-import SingleEndpoint from '../SingleEndpoint'
-import Redis from '../Redis'
-import { Logger } from '../../typings'
+import { Logger } from '../../types'
 import MultiEndpoint from '../MultiEndpoint'
+import Redis from '../Redis'
 
 interface SanFranciscoRealtimeProps {
   wakaRedis: Redis

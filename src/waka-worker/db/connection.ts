@@ -1,5 +1,5 @@
 import { ConnectionPool } from 'mssql'
-import { DBConfig, Logger } from '../../typings'
+import { DBConfig, Logger } from '../../types'
 
 interface ConnectionProps {
   logger: Logger

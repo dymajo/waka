@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { oc } from 'ts-optchain'
-import { AklTimes } from '../../../typings'
+import { AklTimes } from '../../../types'
 import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
 const pricingHtml = `

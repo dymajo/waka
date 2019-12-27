@@ -1,13 +1,13 @@
 import Protobuf from 'protobufjs'
 import {
-  FeedMessage,
   AlertFeedEntity,
-  UpdateFeedEntity,
+  FeedMessage,
   PositionFeedEntity,
+  UpdateFeedEntity,
 } from '../gtfs'
 import BaseRealtime, { PROTOBUF_PATH } from './BaseRealtime'
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 abstract class CombinedFeed extends BaseRealtime {
   start = async () => {

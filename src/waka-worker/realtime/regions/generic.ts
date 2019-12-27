@@ -1,21 +1,15 @@
 import { Response } from 'express'
+import moment from 'moment-timezone'
 import { VarChar } from 'mssql'
 import { oc } from 'ts-optchain'
-import moment from 'moment-timezone'
-import Connection from '../../db/connection'
-import {
-  WakaRequest,
-  Logger,
-  WakaTripUpdate,
-  WakaVehicleInfo,
-  DBStopTime,
-} from '../../../typings'
-
-import BaseRealtime from '../../../types/BaseRealtime'
-import StopsDataAccess from '../../stops/dataAccess'
-import WakaRedis from '../../../waka-realtime/Redis'
-import { prefixToTimezone } from '../../../utils'
 import { TripUpdate } from '../../../gtfs'
+import { Logger, WakaRequest, WakaTripUpdate, WakaVehicleInfo } from '../../../types'
+import BaseRealtime from '../../../types/BaseRealtime'
+import { prefixToTimezone } from '../../../utils'
+import WakaRedis from '../../../waka-realtime/Redis'
+import Connection from '../../db/connection'
+import StopsDataAccess from '../../stops/dataAccess'
+
 
 interface GenericRealtimeProps {
   connection: Connection

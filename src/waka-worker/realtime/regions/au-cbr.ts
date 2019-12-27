@@ -1,7 +1,7 @@
+import { Logger } from '../../../types'
+import Connection from '../../db/connection'
 import ProtobufRealtime from '../ProtobufRealtime'
 
-import { Logger } from '../../../typings'
-import Connection from '../../db/connection'
 
 interface CanberraRealtimeProps {
   logger: Logger

@@ -1,14 +1,14 @@
-import moment from 'moment-timezone'
-import { Response } from 'express'
 import * as Logger from 'bunyan'
+import { Response } from 'express'
+import moment from 'moment-timezone'
 import { oc } from 'ts-optchain'
-import StopsDataAccess from './dataAccess'
-import Connection from '../db/connection'
-import { WakaRequest, DBStopTime, WakaTripUpdate } from '../../typings'
-import Lines from '../lines'
+import { DBStopTime, WakaRequest, WakaTripUpdate } from '../../types'
 import BaseStops from '../../types/BaseStops'
-import WakaRedis from '../../waka-realtime/Redis'
 import { prefixToTimezone } from '../../utils'
+import WakaRedis from '../../waka-realtime/Redis'
+import Connection from '../db/connection'
+import Lines from '../lines'
+import StopsDataAccess from './dataAccess'
 
 interface StationProps {
   logger: Logger

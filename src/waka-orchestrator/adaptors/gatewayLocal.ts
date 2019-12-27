@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import logger from '../logger'
-import WakaWorker from '../../waka-worker'
-import { WorkerConfig } from '../../typings'
+import { WorkerConfig } from '../../types'
 import BaseGateway from '../../types/BaseGateway'
 import WakaRealtime from '../../waka-realtime'
+import WakaWorker from '../../waka-worker'
+import logger from '../logger'
 
 class GatewayLocal extends BaseGateway {
   router: Router

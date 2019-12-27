@@ -1,11 +1,11 @@
 import 'dotenv'
 import 'source-map-support/register'
-
 // this only supports dynamo, because the local dev experience is different
 import KeyvalueDynamo from '../waka-orchestrator/adaptors/keyvalueDynamo'
-
 import WakaRealtime from './index'
 import createLogger from './logger'
+
+
 
 const prefix = process.env.PREFIX
 const kvPrefix = process.env.KEYVALUE_PREFIX || 'waka'

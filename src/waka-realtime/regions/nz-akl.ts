@@ -1,7 +1,7 @@
 import axios from 'axios'
-import SingleEndpoint from '../SingleEndpoint'
+import { Logger } from '../../types'
 import Redis from '../Redis'
-import { Logger } from '../../typings'
+import SingleEndpoint from '../SingleEndpoint'
 
 interface AucklandRealtimeProps {
   wakaRedis: Redis

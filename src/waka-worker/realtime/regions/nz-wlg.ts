@@ -1,19 +1,12 @@
 import axios from 'axios'
-import sql from 'mssql'
-import momenttz from 'moment-timezone'
-import moment from 'moment'
 import * as Logger from 'bunyan'
 import { Response } from 'express'
-import {
-  WakaRequest,
-  MetlinkService,
-  MetlinkUpdate,
-  MetlinkStop,
-  MetlinkNotice,
-  DBStopTime,
-} from '../../../typings'
-import Connection from '../../db/connection'
+import moment from 'moment'
+import momenttz from 'moment-timezone'
+import sql from 'mssql'
+import { DBStopTime, MetlinkNotice, MetlinkService, MetlinkStop, MetlinkUpdate, WakaRequest } from '../../../types'
 import BaseRealtime from '../../../types/BaseRealtime'
+import Connection from '../../db/connection'
 import StopsDataAccess from '../../stops/dataAccess'
 
 const tripsUrl = 'https://www.metlink.org.nz/api/v1/StopDepartures/'

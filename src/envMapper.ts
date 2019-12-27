@@ -1,8 +1,4 @@
-import {
-  EnvironmentConfig,
-  EnvironmentWorkerConfig,
-  EnvironmentImporterConfig,
-} from './typings'
+import { EnvironmentConfig, EnvironmentImporterConfig, EnvironmentWorkerConfig } from './types'
 
 class EnvMapper {
   toEnvironmental(

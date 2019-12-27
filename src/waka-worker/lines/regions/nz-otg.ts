@@ -1,4 +1,3 @@
-import connection from '../../db/connection'
 import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
 
 class OtagoLines extends BaseLines {

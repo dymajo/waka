@@ -1,13 +1,6 @@
 import { Response } from 'express'
+import { Logger, WakaRequest, WakaTripUpdate, WakaVehicleInfo, WakaVehiclePosition } from '../types'
 import Connection from '../waka-worker/db/connection'
-import {
-  WakaRequest,
-  Logger,
-  WakaVehicleInfo,
-  WakaVehiclePosition,
-  WakaTripUpdate,
-} from '../typings'
-import { TripUpdate, VehiclePosition } from '../gtfs'
 
 export default abstract class BaseRealtime {
   connection: Connection

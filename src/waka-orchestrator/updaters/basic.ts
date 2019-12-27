@@ -1,14 +1,14 @@
+import axios from 'axios'
+import csvparse from 'csv-parse'
+import extract from 'extract-zip'
 import * as fs from 'fs'
+import moment from 'moment-timezone'
 import * as os from 'os'
 import * as path from 'path'
-import axios from 'axios'
-import extract from 'extract-zip'
-import csvparse from 'csv-parse'
 import transform from 'stream-transform'
-import moment from 'moment-timezone'
-import logger from '../logger'
-import { BasicUpdaterProps } from '../../typings'
+import { BasicUpdaterProps } from '../../types'
 import { prefixToTimezone } from '../../utils'
+import logger from '../logger'
 
 class BasicUpdater {
   prefix: string

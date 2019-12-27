@@ -1,12 +1,6 @@
 import Protobuf from 'protobufjs'
-import {
-  FeedMessage,
-  AlertFeedEntity,
-  UpdateFeedEntity,
-  PositionFeedEntity,
-} from '../gtfs'
-import BaseRealtime, { PROTOBUF_PATH, BaseRealtimeProps } from './BaseRealtime'
-import SingleEndpoint from './SingleEndpoint'
+import { AlertFeedEntity, FeedMessage, PositionFeedEntity, UpdateFeedEntity } from '../gtfs'
+import BaseRealtime, { BaseRealtimeProps, PROTOBUF_PATH } from './BaseRealtime'
 
 export interface MultiEndpointProps extends BaseRealtimeProps {
   rateLimiter: <T>(fn: () => Promise<T>) => Promise<T>

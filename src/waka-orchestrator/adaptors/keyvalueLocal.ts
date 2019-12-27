@@ -1,7 +1,7 @@
-import * as path from 'path'
 import fs from 'fs'
-import logger from '../logger'
+import * as path from 'path'
 import BaseKeyvalue from '../../types/BaseKeyvalue'
+import logger from '../logger'
 
 interface KeyValueLocalProps {
   name: string

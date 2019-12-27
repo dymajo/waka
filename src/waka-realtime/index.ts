@@ -1,19 +1,15 @@
-import { pRateLimit, QuotaManager, RedisQuotaManager, Quota } from 'p-ratelimit'
-
-import WakaRedis from './Redis'
-
+import { pRateLimit, Quota, QuotaManager, RedisQuotaManager } from 'p-ratelimit'
+import { Logger, RedisConfig } from '../types'
 import { isKeyof } from '../utils'
-import { Logger, RedisConfig } from '../typings'
-
-import createLogger from './logger'
 import BaseRealtime from './BaseRealtime'
-
-import AucklandRealtime from './regions/nz-akl'
-import ChristchurchRealtime from './regions/nz-chc'
+import createLogger from './logger'
+import WakaRedis from './Redis'
 import CanberraRealtime from './regions/au-cbr'
 import SydneyRealtime from './regions/au-syd'
-import NYCRealtime from './regions/us-nyc'
+import AucklandRealtime from './regions/nz-akl'
+import ChristchurchRealtime from './regions/nz-chc'
 import BostonRealtime from './regions/us-bos'
+import NYCRealtime from './regions/us-nyc'
 import SanFranciscoRealtime from './regions/us-sfo'
 
 const Regions = {

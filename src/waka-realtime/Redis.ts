@@ -1,7 +1,7 @@
 /* eslint-disable promise/prefer-await-to-callbacks */
 import Redis from 'ioredis'
-import { TripUpdate, VehiclePosition, Alert } from '../gtfs'
-import { Logger, RedisConfig } from '../typings'
+import { Alert, TripUpdate, VehiclePosition } from '../gtfs'
+import { Logger, RedisConfig } from '../types'
 
 interface WakaRedisProps {
   prefix: string

@@ -2,17 +2,12 @@ import * as Logger from 'bunyan'
 import { Response } from 'express'
 import { VarChar } from 'mssql'
 import { oc } from 'ts-optchain'
-import doubleDeckers from './nz-akl-doubledecker.json'
-import Connection from '../../db/connection'
-import {
-  WakaRequest,
-  RedisConfig,
-  WakaVehiclePosition,
-  WakaTripUpdate,
-} from '../../../typings'
+import { TripUpdate } from '../../../gtfs'
+import { RedisConfig, WakaRequest, WakaVehiclePosition } from '../../../types'
 import BaseRealtime from '../../../types/BaseRealtime'
 import WakaRedis from '../../../waka-realtime/Redis'
-import { TripUpdate } from '../../../gtfs'
+import Connection from '../../db/connection'
+import doubleDeckers from './nz-akl-doubledecker.json'
 
 interface RealtimeNZAKLProps {
   connection: Connection

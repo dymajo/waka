@@ -1,9 +1,9 @@
-import Express from 'express'
-import 'dotenv'
 import * as bodyParser from 'body-parser'
+import 'dotenv'
+import Express from 'express'
 import 'source-map-support/register'
-import EnvMapper from '../envMapper'
 import WakaWorker from '.'
+import EnvMapper from '../envMapper'
 
 declare const process: {
   env: {

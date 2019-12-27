@@ -1,10 +1,10 @@
 /* eslint-disable promise/prefer-await-to-callbacks */
 
 import AWS from 'aws-sdk'
-import logger from '../logger'
 import EnvMapper from '../../envMapper'
-import { EcsGatewayConfig, WorkerConfig } from '../../typings'
+import { EcsGatewayConfig, WorkerConfig } from '../../types'
 import BaseGateway from '../../types/BaseGateway'
+import logger from '../logger'
 
 const envConvert = (env: any) =>
   JSON.stringify(

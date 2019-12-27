@@ -1,7 +1,7 @@
 import axios from 'axios'
+import { Logger } from '../../types'
 import CombinedFeed from '../CombinedFeed'
 import Redis from '../Redis'
-import { Logger } from '../../typings'
 
 interface CanberraRealtimeProps {
   wakaRedis: Redis

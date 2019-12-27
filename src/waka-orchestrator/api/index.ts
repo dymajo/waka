@@ -1,13 +1,13 @@
-import { join } from 'path'
-import { readFile } from 'fs'
 import { Router, static as _static } from 'express'
-
-import logger from '../logger'
-import KeyvalueLocal from '../adaptors/keyvalueLocal'
-import KeyvalueDynamo from '../adaptors/keyvalueDynamo'
-import VersionManager from '../versionManager'
-import { WakaConfig } from '../../typings'
+import { readFile } from 'fs'
+import { join } from 'path'
 import cityMetadataJSON from '../../cityMetadata.json'
+import { WakaConfig } from '../../types'
+import KeyvalueDynamo from '../adaptors/keyvalueDynamo'
+import KeyvalueLocal from '../adaptors/keyvalueLocal'
+import logger from '../logger'
+import VersionManager from '../versionManager'
+
 
 interface PrivateApiProps {
   config: WakaConfig

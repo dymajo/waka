@@ -1,6 +1,6 @@
+import { Logger } from '../types'
 import Connection from '../waka-worker/db/connection'
 import DataAccess from '../waka-worker/lines/dataAccess'
-import { Logger } from '../typings'
 
 export interface BaseLinesProps {
   logger: Logger

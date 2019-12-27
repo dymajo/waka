@@ -1,7 +1,7 @@
-import moment from 'moment-timezone'
 import axios from 'axios'
+import moment from 'moment-timezone'
+import { ATUpdaterProps } from '../../types'
 import logger from '../logger'
-import { ATUpdaterProps } from '../../typings'
 
 class ATUpdater {
   apiKey: string

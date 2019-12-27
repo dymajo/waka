@@ -1,14 +1,13 @@
 import { Response } from 'express'
-import RealtimeAUSYD from './regions/au-syd'
-import RealtimeNZAKL from './regions/nz-akl'
-import RealtimeNZWLG from './regions/nz-wlg'
-import Connection from '../db/connection'
-import CanberraRealtime from './regions/au-cbr'
-import { WakaRequest, Logger, RedisConfig } from '../../typings'
+import { Logger, WakaRequest } from '../../types'
 import BaseRealtime from '../../types/BaseRealtime'
-import GenericRealtime from './regions/generic'
 import { isKeyof } from '../../utils'
 import WakaRedis from '../../waka-realtime/Redis'
+import Connection from '../db/connection'
+import RealtimeAUSYD from './regions/au-syd'
+import GenericRealtime from './regions/generic'
+import RealtimeNZAKL from './regions/nz-akl'
+import RealtimeNZWLG from './regions/nz-wlg'
 
 const regions = {
   'au-syd': RealtimeAUSYD,

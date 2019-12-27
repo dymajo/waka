@@ -1,20 +1,20 @@
-import * as sql from 'mssql'
 import { Request, Response } from 'express'
+import * as sql from 'mssql'
 import cityMetadataJSON from '../../cityMetadata.json'
-import StopsDataAccess from '../stops/dataAccess'
+import { Logger, WakaRequest } from '../../types'
+import BaseLines from '../../types/BaseLines'
+import { isKeyof, sortFn } from '../../utils'
+import WakaRedis from '../../waka-realtime/Redis'
+import Connection from '../db/connection'
 import Storage from '../db/storage'
-
+import StopsDataAccess from '../stops/dataAccess'
+import Search from '../stops/search'
 import SydneyLines from './regions/au-syd'
+import GenericLines from './regions/generic'
 import AucklandLines from './regions/nz-akl'
 import ChristchurchLines from './regions/nz-chc'
 import WellingtonLines from './regions/nz-wlg'
-import GenericLines from './regions/generic'
-import Connection from '../db/connection'
-import Search from '../stops/search'
-import { Logger, WakaRequest } from '../../typings'
-import { isKeyof, sortFn } from '../../utils'
-import BaseLines from '../../types/BaseLines'
-import WakaRedis from '../../waka-realtime/Redis'
+
 
 const regions = {
   'au-syd': SydneyLines,

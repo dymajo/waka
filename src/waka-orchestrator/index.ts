@@ -1,18 +1,18 @@
-import { Router, Request, Response } from 'express'
-
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
-import path from 'path'
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
+import { Request, Response, Router } from 'express'
 import proxy from 'express-http-proxy'
 import fs from 'fs'
-
-import logger from './logger'
-import GatewayLocal from './adaptors/gatewayLocal'
+import path from 'path'
+import BaseGateway from '../types/BaseGateway'
+import { WakaConfig } from '../types'
 import GatewayEcs from './adaptors/gatewayEcs'
+import GatewayLocal from './adaptors/gatewayLocal'
+import PrivateApi from './api'
+import logger from './logger'
 import UpdateManager from './updaters'
 import VersionManager from './versionManager'
-import PrivateApi from './api'
-import { WakaConfig } from '../typings'
-import BaseGateway from '../types/BaseGateway'
+
+
 
 const proxyPort = '9002'
 

@@ -1,12 +1,12 @@
 import { ConnectionPool, VarChar } from 'mssql'
-import logger from './logger'
-import KeyvalueLocal from './adaptors/keyvalueLocal'
-import KeyvalueDynamo from './adaptors/keyvalueDynamo'
 import EnvMapper from '../envMapper'
-import GatewayLocal from './adaptors/gatewayLocal'
-import GatewayEcs from './adaptors/gatewayEcs'
-import { DBConfig, WakaConfig, Version } from '../typings'
+import { DBConfig, Version, WakaConfig } from '../types'
 import BaseKeyvalue from '../types/BaseKeyvalue'
+import GatewayEcs from './adaptors/gatewayEcs'
+import GatewayLocal from './adaptors/gatewayLocal'
+import KeyvalueDynamo from './adaptors/keyvalueDynamo'
+import KeyvalueLocal from './adaptors/keyvalueLocal'
+import logger from './logger'
 
 interface VersionManagerProps {
   gateway: GatewayLocal

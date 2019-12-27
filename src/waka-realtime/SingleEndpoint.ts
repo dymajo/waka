@@ -1,10 +1,6 @@
 import Protobuf from 'protobufjs'
+import { AlertFeedMessage, PositionFeedMessage, UpdateFeedMessage } from '../gtfs'
 import BaseRealtime, { BaseRealtimeProps, PROTOBUF_PATH } from './BaseRealtime'
-import {
-  PositionFeedMessage,
-  UpdateFeedMessage,
-  AlertFeedMessage,
-} from '../gtfs'
 
 export interface SingleEndpointProps extends BaseRealtimeProps {
   vehiclePositionEndpoint: string

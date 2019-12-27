@@ -1,4 +1,4 @@
-import BaseLines, { BaseLinesProps } from '../../../types/BaseLines'
+import BaseLines from '../../../types/BaseLines'
 import { parseRoutes } from '../helpers'
 
 class LinesNZCHC extends BaseLines {

@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { pRateLimit, RedisQuotaManager } from 'p-ratelimit'
-import logger from '../logger'
-import { TfNSWUpdaterProps, WakaConfig } from '../../typings'
+import { TfNSWUpdaterProps, WakaConfig } from '../../types'
 import { isKeyof } from '../../utils'
 import WakaRedis from '../../waka-realtime/Redis'
+import logger from '../logger'
 
 const tfnswmodes = {
   buses1: { endpoint: 'buses/SMBSC001' },

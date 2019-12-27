@@ -1,11 +1,10 @@
-import Express from 'express'
 import * as bodyParser from 'body-parser'
-import * as morgan from 'morgan'
+import Express from 'express'
 import 'source-map-support/register'
-
-import ConfigManager from './configManager'
 import WakaOrchestrator from '.'
+import ConfigManager from './configManager'
 import logger from './logger'
+
 
 const start = async () => {
   const app = Express()
