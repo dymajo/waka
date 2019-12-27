@@ -1,13 +1,11 @@
 import config from '../../config'
-import MultiImporter from '../MultiImporter'
-import connection from '../../db/connection'
 import logger from '../../logger'
-
-const log = logger(config.prefix, config.version)
+import MultiImporter from '../MultiImporter'
 
 const locations = [
   {
-    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/ferries',
+    endpoint:
+      'https://api.transport.nsw.gov.au/v1/gtfs/schedule/ferries/sydneyferries',
     type: 'ferry',
     name: 'ferries',
   },
@@ -42,160 +40,155 @@ const locations = [
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC001',
     type: 'bus',
-    name: 'SMBSC001',
+    name: 'SMBSC001_Busways_Western_Sydney',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC002',
     type: 'bus',
-    name: 'SMBSC002',
+    name: 'SMBSC002_Interline_Bus_Services',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC003',
     type: 'bus',
-    name: 'SMBSC003',
+    name: 'SMBSC003_Transit_Systems',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC004',
     type: 'bus',
-    name: 'SMBSC004',
+    name: 'SMBSC004_Hillsbus',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC005',
     type: 'bus',
-    name: 'SMBSC005',
+    name: 'SMBSC005_Punchbowl_Bus_Company',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SBSC006',
     type: 'bus',
-    name: 'SBSC006',
+    name: 'SMBSC006_Transit_Systems',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC007',
     type: 'bus',
-    name: 'SMBSC007',
+    name: 'SMBSC007_State_Transit_Sydney',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC008',
     type: 'bus',
-    name: 'SMBSC008',
+    name: 'SMBSC008_State_Transit_Sydney',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC009',
     type: 'bus',
-    name: 'SMBSC009',
+    name: 'SMBSC009_State_Transit_Sydney',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC010',
     type: 'bus',
-    name: 'SMBSC010',
+    name: 'SMBSC010_Transdev_NSW',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC012',
     type: 'bus',
-    name: 'SMBSC012',
+    name: 'SMBSC012_Transdev_NSW',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC013',
     type: 'bus',
-    name: 'SMBSC013',
+    name: 'SMBSC013_Transdev_NSW',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC014',
     type: 'bus',
-    name: 'SMBSC014',
+    name: 'SMBSC014_Forest_Coach_Lines',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/SMBSC015',
     type: 'bus',
-    name: 'SMBSC015',
+    name: 'SMBSC015_Busabout',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC001',
     type: 'bus',
-    name: 'OSMBSC001',
+    name: 'OSMBSC001_Rover_Coaches',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC002',
     type: 'bus',
-    name: 'OSMBSC002',
+    name: 'OSMBSC002_Hunter_Valley_Buses',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC003',
     type: 'bus',
-    name: 'OSMBSC003',
+    name: 'OSMBSC003_Port_Stephens_Coaches',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC004',
     type: 'bus',
-    name: 'OSMBSC004',
+    name: 'OSMBSC004_Hunter_Valley_Buses',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC006',
     type: 'bus',
-    name: 'OSMBSC006',
+    name: 'OSMBSC006_Busways_Central_Coast',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC007',
     type: 'bus',
-    name: 'OSMBSC007',
+    name: 'OSMBSC007_Red_Bus_Service',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC008',
     type: 'bus',
-    name: 'OSMBSC008',
+    name: 'OSMBSC008_Blue_Mountains_Transit',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC009',
     type: 'bus',
-    name: 'OSMBSC009',
+    name: 'OSMBSC009_Premier_Charters',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC010',
     type: 'bus',
-    name: 'OSMBSC010',
+    name: 'OSMBSC010_Premier_Illawarra',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC011',
     type: 'bus',
-    name: 'OSMBSC011',
+    name: 'OSMBSC011_Coastal_Liner',
   },
   {
     endpoint:
       'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/OSMBSC012',
     type: 'bus',
-    name: 'OSMBSC012',
+    name: 'OSMBSC012_Dions_Bus_Service',
   },
   {
     endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/NISC001',
     type: 'bus',
-    name: 'NISC001',
-  },
-  {
-    endpoint: 'https://api.transport.nsw.gov.au/v1/gtfs/schedule/buses/ECR109',
-    type: 'bus',
-    name: 'ECR109',
+    name: 'NISC001_Newcastle_Transport_Buses',
   },
 ]
 
@@ -209,17 +202,17 @@ class SydneyImporter extends MultiImporter {
     })
   }
 
-  postImport = async () => {
-    const sqlRequest = await connection.get().request()
-    await sqlRequest.query(`
-    delete from routes where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
-    delete from trips where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
-    `)
-    log.info(
-      `${config.prefix} ${config.version}`,
-      'Post Import: deleted non-revenue services',
-    )
-  }
+  // postImport = async () => {
+  //   const sqlRequest = await connection.get().request()
+  //   await sqlRequest.query(`
+  //   delete from routes where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
+  //   delete from trips where route_id = 'RTTA_DEF' or route_id = 'RTTA_REV';
+  //   `)
+  //   log.info(
+  //     `${config.prefix} ${config.version}`,
+  //     'Post Import: deleted non-revenue services',
+  //   )
+  // }
 }
 
 export default SydneyImporter
