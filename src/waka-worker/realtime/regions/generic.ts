@@ -1,14 +1,14 @@
 import { Response } from 'express'
 import moment from 'moment-timezone'
 import { VarChar } from 'mssql'
-import { oc } from 'ts-optchain'
 import { TripUpdate } from '../../../gtfs'
-import { Logger, WakaRequest, WakaTripUpdate, WakaVehicleInfo } from '../../../types'
 import BaseRealtime from '../../../types/BaseRealtime'
+import { Logger, WakaRequest, WakaTripUpdate, WakaVehicleInfo } from '../../../typings'
 import { prefixToTimezone } from '../../../utils'
 import WakaRedis from '../../../waka-realtime/Redis'
 import Connection from '../../db/connection'
 import StopsDataAccess from '../../stops/dataAccess'
+
 
 
 interface GenericRealtimeProps {
@@ -54,7 +54,7 @@ class GenericRealtime extends BaseRealtime {
     const { connection, dataAccess, logger } = this
     const realtimeInfo: { [tripId: string]: WakaTripUpdate } = {}
 
-    // now is 00:00 in region's local timezone
+    // now is 00:00 in region's ll timezone
     const timezone = prefixToTimezone(this.prefix)
     const now = moment().tz(timezone)
     now.seconds(0)
@@ -198,9 +198,7 @@ class GenericRealtime extends BaseRealtime {
 
       const targetStop =
         stopTimeUpdate.find(s => s.stopId === stop_id) || stopTimeUpdate[0]
-      const delay = oc(targetStop).departure.delay(
-        oc(targetStop).arrival.delay()
-      )
+      const delay = targetStop?.departure?.delay ?? targetStop?.arrival?.delay
 
       realtimeInfo[tripId] = {
         ...realtimeTripData,
@@ -208,7 +206,7 @@ class GenericRealtime extends BaseRealtime {
         stopTimeUpdate,
         // these bottom two are legacy
         delay,
-        stop_sequence: oc(targetStop).stopSequence(),
+        stop_sequence: targetStop?.stopSequence,
       }
     })
     return realtimeInfo
@@ -221,8 +219,8 @@ class GenericRealtime extends BaseRealtime {
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getVehiclePosition(tripId)
-        const latitude = oc(data).position.latitude()
-        const longitude = oc(data).position.longitude()
+        const latitude = data?.position?.latitude
+        const longitude = data?.position?.longitude
         if (longitude && latitude) {
           vehicleInfo[tripId] = {
             latitude,
@@ -323,52 +321,51 @@ class GenericRealtime extends BaseRealtime {
       const result: WakaVehicleInfo[] = vehiclePostions
         .filter(vp => vp)
         .map(vehiclePosition => {
-          const latitude = oc(vehiclePosition).position.latitude(0)
-          const longitude = oc(vehiclePosition).position.longitude(0)
-          const bearing = oc(vehiclePosition).position.bearing()
-          const speed = oc(vehiclePosition).position.speed()
-          const stop_id = oc(vehiclePosition).stopId()
-          const current_stop_sequence = oc(
-            vehiclePosition
-          ).currentStopSequence()
-          const congestion_level = oc(vehiclePosition).congestionLevel()
-          const tripId = oc(vehiclePosition).trip.tripId('')
-          const directionId = oc(vehiclePosition).trip.directionId()
-          const label = oc(vehiclePosition).vehicle.label()
-          const air_conditioned = oc(vehiclePosition).vehicle[
-            '.transit_realtime.tfnswVehicleDescriptor'
-          ].airConditioned()
+          const latitude = vehiclePosition?.position?.latitude ?? 0
+          const longitude = vehiclePosition?.position?.longitude ?? 0
+          const bearing = vehiclePosition?.position?.bearing
+          const speed = vehiclePosition?.position?.speed
+          const stop_id = vehiclePosition?.stopId
+          const current_stop_sequence = vehiclePosition?.currentStopSequence
+          const congestion_level = vehiclePosition?.congestionLevel
+          const tripId = vehiclePosition?.trip?.tripId ?? ''
+          const directionId = vehiclePosition?.trip?.directionId
+          const label = vehiclePosition?.vehicle?.label
+          const air_conditioned =
+            vehiclePosition?.vehicle?.[
+              '.transit_realtime.tfnswVehicleDescriptor'
+            ]?.airConditioned
           const performing_prior_trip =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].performingPriorTrip() ||
-            oc(vehiclePosition).vehicle[
+            ]?.performingPriorTrip ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].performingPriorTrip()
+            ]?.performingPriorTrip
           const special_vehicle_attributes =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].specialVehicleAttributes() ||
-            oc(vehiclePosition).vehicle[
+            ]?.specialVehicleAttributes ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].specialVehicleAttributes()
+            ]?.specialVehicleAttributes
           const vehicle_model =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].vehicleModel() ||
-            oc(vehiclePosition).vehicle[
+            ]?.vehicleModel ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].vehicleModel()
+            ]?.vehicleModel
           const wheelchair_accessible =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].wheelChairAccessible() ||
-            oc(vehiclePosition).vehicle[
+            ]?.wheelChairAccessible ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].wheelChairAccessible()
-          const timestamp = oc(vehiclePosition).timestamp(0)
+            ]?.wheelChairAccessible
+          const timestamp = vehiclePosition?.timestamp ?? 0
           const split = tripId ? tripId.split('.') : []
-          const consist = oc(vehiclePosition)['.transit_realtime.consist']([])
+          const consist = vehiclePosition?.['.transit_realtime.consist'] ?? []
           let [
             run,
             timetableId,

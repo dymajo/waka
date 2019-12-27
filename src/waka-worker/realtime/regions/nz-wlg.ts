@@ -147,12 +147,13 @@ class RealtimeNZWLG extends BaseRealtime {
             trip.route_short_name in realtimeServices &&
             realtimeServices[trip.route_short_name].length > 0
           ) {
-            const closest = realtimeServices[trip.route_short_name].reduce(
-              (prev, curr) =>
-                Math.abs(moment(curr.AimedDeparture).unix() - goal.unix()) <
-                Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
-                  ? curr
-                  : prev
+            const closest = realtimeServices[
+              trip.route_short_name
+            ].reduce((prev, curr) =>
+              Math.abs(moment(curr.AimedDeparture).unix() - goal.unix()) <
+              Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
+                ? curr
+                : prev
             )
 
             // less than 240 seconds, then it's valid?

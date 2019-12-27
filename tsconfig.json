@@ -18,7 +18,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "plugins": [{ "transform": "ts-optchain/transform" }]
   },
   "include": ["./src/waka-*/**/*", "*.d.ts"]
 }

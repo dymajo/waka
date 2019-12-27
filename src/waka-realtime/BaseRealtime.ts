@@ -1,6 +1,5 @@
 import { AxiosInstance } from 'axios'
 import path from 'path'
-import { oc } from 'ts-optchain'
 import { AlertFeedEntity, PositionFeedEntity, UpdateFeedEntity, VehiclePosition } from '../gtfs'
 import { Logger } from '../types'
 import { check } from '../utils'
@@ -111,7 +110,7 @@ export default abstract class BaseRealtime {
   ) => {
     const routes: { [routeId: string]: string[] } = {}
     for (const trip of vehiclePositionEntities) {
-      if (oc(trip).vehicle.trip.tripId()) {
+      if (trip?.vehicle?.trip?.tripId) {
         check<string>(
           routes,
           trip.vehicle.trip.routeId || 'route_id_unknown',

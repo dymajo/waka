@@ -21,7 +21,6 @@ const defaultConfig = {
   redis: {},
   api: { [prefix]: '' },
 }
-
 ;(async () => {
   if (prefix === undefined) {
     throw new Error('Region Prefix (process.env.PREFIX) must be specified!')
@@ -36,7 +35,7 @@ const defaultConfig = {
   const remoteConfig = _remoteConfig[prefix]
   const mergedConfig = Object.assign(defaultConfig, remoteConfig)
   mergedConfig.prefix = prefix
-  
+
   logger.info('Retrieved Configuration from Remote')
   const realtime = new WakaRealtime(mergedConfig, logger)
   await realtime.start()

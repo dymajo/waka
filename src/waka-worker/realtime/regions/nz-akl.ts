@@ -1,10 +1,9 @@
 import * as Logger from 'bunyan'
 import { Response } from 'express'
 import { VarChar } from 'mssql'
-import { oc } from 'ts-optchain'
 import { TripUpdate } from '../../../gtfs'
-import { RedisConfig, WakaRequest, WakaVehiclePosition } from '../../../types'
 import BaseRealtime from '../../../types/BaseRealtime'
+import { RedisConfig, WakaRequest, WakaVehiclePosition } from '../../../types'
 import WakaRedis from '../../../waka-realtime/Redis'
 import Connection from '../../db/connection'
 import doubleDeckers from './nz-akl-doubledecker.json'
@@ -39,8 +38,8 @@ class RealtimeNZAKL extends BaseRealtime {
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getVehiclePosition(tripId)
-        const latitude = oc(data).position.latitude()
-        const longitude = oc(data).position.longitude()
+        const latitude = data?.position?.latitude
+        const longitude = data?.position?.longitude
         if (longitude && latitude) {
           vehicleInfo[tripId] = {
             latitude,
@@ -206,10 +205,10 @@ class RealtimeNZAKL extends BaseRealtime {
       for (const tripId of trips) {
         const data = await this.wakaRedis.getVehiclePosition(tripId)
         if (data) {
-          const tripId = oc(data).trip.tripId('')
-          const vehicleId = oc(data).vehicle.id()
-          const latitude = oc(data).position.latitude(0)
-          const longitude = oc(data).position.longitude(0)
+          const tripId = data?.trip?.tripId ?? ''
+          const vehicleId = data?.vehicle?.id
+          const latitude = data?.position?.latitude ?? 0
+          const longitude = data?.position?.longitude ?? 0
           realtimeInfo[tripId] = {
             v_id: vehicleId,
             latitude,
@@ -220,9 +219,9 @@ class RealtimeNZAKL extends BaseRealtime {
     } else {
       for (const tripId of trips) {
         const data = await this.wakaRedis.getTripUpdate(tripId)
-        const vehicleId = oc(data).vehicle.id()
+        const vehicleId = data?.vehicle?.id
 
-        const stopTimeUpdate = oc(data).stopTimeUpdate([])
+        const stopTimeUpdate = data.stopTimeUpdate ?? []
 
         if (stopTimeUpdate.length > 0) {
           const targetStop =
@@ -231,10 +230,8 @@ class RealtimeNZAKL extends BaseRealtime {
           if (data && vehicleId && targetStop) {
             realtimeInfo[tripId] = {
               ...data,
-              delay: oc(targetStop).departure.delay(
-                oc(targetStop).arrival.delay()
-              ),
-              stop_sequence: oc(targetStop).stopSequence() as number,
+              delay: targetStop?.departure?.delay ?? targetStop?.arrival?.delay,
+              stop_sequence: targetStop?.stopSequence as number,
               specialVehicle: this.isSpecialVehicle(vehicleId),
             }
           }

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { oc } from 'ts-optchain'
 import { AklTimes } from '../../../types'
 import BaseStops, { BaseStopsProps } from '../../../types/BaseStops'
 
@@ -232,8 +231,8 @@ class StopsNZAKL extends BaseStops {
       }
       obj = Object.assign(obj, carpark)
       obj = Object.assign(obj, additionalData[code])
-      const availableSpaces = oc(obj).availableSpaces()
-      const maxSpaces = oc(obj).maxSpaces()
+      const { availableSpaces } = obj
+      const { maxSpaces } = obj
       if (availableSpaces && maxSpaces) {
         const percent = Math.round((availableSpaces / maxSpaces) * 100)
         if (obj.availableSpaces === 0) {

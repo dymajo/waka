@@ -1,13 +1,13 @@
 /* eslint-disable no-labels */
 import { Response } from 'express'
 import { VarChar } from 'mssql'
-import { oc } from 'ts-optchain'
 import { StopTimeUpdate } from '../../../gtfs'
 import { Logger, StopTime, WakaRequest, WakaTripUpdate, WakaVehicleInfo } from '../../../types'
 import BaseRealtime from '../../../types/BaseRealtime'
 import WakaRedis from '../../../waka-realtime/Redis'
 import Connection from '../../db/connection'
 import StopsDataAccess from '../../stops/dataAccess'
+
 
 
 interface RealtimeAUSYDProps {
@@ -66,7 +66,7 @@ class RealtimeAUSYD extends BaseRealtime {
           const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesV2(
             tripId
           )
-          const realtimeStopTimes = data.stopTimeUpdate
+          const realtimeStopTimes = data.stopTimeUpdate ?? []
           const timetableStopTimes = timeTabledStopTimes.current
           tt: for (let i = 0; i < timetableStopTimes.length; i++) {
             const ttst = timetableStopTimes[i]
@@ -113,13 +113,13 @@ class RealtimeAUSYD extends BaseRealtime {
                 })
             })
 
-          const { stopTimeUpdate } = data
+          const stopTimeUpdate = data.stopTimeUpdate ?? []
           if (stopTimeUpdate.length > 0) {
             const targetStop = stopTimeUpdate.find(
               stopUpdate => stopUpdate.stopId === stop_id
             )
             if (targetStop) {
-              const stop_sequence = oc(targetStop).stopSequence()
+              const stop_sequence = targetStop?.stopSequence
               const info = {}
               Object.assign(
                 info,
@@ -165,7 +165,7 @@ class RealtimeAUSYD extends BaseRealtime {
           const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesV2(
             tripId
           )
-          const realtimeStopTimes = data.stopTimeUpdate
+          const realtimeStopTimes = data.stopTimeUpdate ?? []
           const timetableStopTimes = timeTabledStopTimes.current
           tt: for (let i = 0; i < timetableStopTimes.length; i++) {
             const ttst = timetableStopTimes[i]
@@ -212,13 +212,13 @@ class RealtimeAUSYD extends BaseRealtime {
                 })
             })
 
-          const stopTimeUpdate = oc(data).stopTimeUpdate([])
+          const stopTimeUpdate = data.stopTimeUpdate ?? []
           if (stopTimeUpdate.length > 0) {
             const targetStop = stopTimeUpdate.find(
               stopUpdate => stopUpdate.stopId === stop_id
             )
             if (targetStop) {
-              const stop_sequence = oc(targetStop).stopSequence()
+              const stop_sequence = targetStop.stopSequence
               const info = {}
               Object.assign(
                 info,
@@ -253,8 +253,8 @@ class RealtimeAUSYD extends BaseRealtime {
     for (const tripId of trips) {
       try {
         const data = await this.wakaRedis.getVehiclePosition(tripId)
-        const latitude = oc(data).position.latitude()
-        const longitude = oc(data).position.longitude()
+        const latitude = data?.position?.latitude
+        const longitude = data?.position?.longitude
         if (longitude && latitude) {
           vehicleInfo[tripId] = {
             latitude,
@@ -355,52 +355,51 @@ class RealtimeAUSYD extends BaseRealtime {
       const result: WakaVehicleInfo[] = vehiclePostions
         .filter(vp => vp)
         .map(vehiclePosition => {
-          const latitude = oc(vehiclePosition).position.latitude(0)
-          const longitude = oc(vehiclePosition).position.longitude(0)
-          const bearing = oc(vehiclePosition).position.bearing()
-          const speed = oc(vehiclePosition).position.speed()
-          const stop_id = oc(vehiclePosition).stopId()
-          const current_stop_sequence = oc(
-            vehiclePosition
-          ).currentStopSequence()
-          const congestion_level = oc(vehiclePosition).congestionLevel()
-          const tripId = oc(vehiclePosition).trip.tripId('')
-          const directionId = oc(vehiclePosition).trip.directionId()
-          const label = oc(vehiclePosition).vehicle.label()
-          const air_conditioned = oc(vehiclePosition).vehicle[
-            '.transit_realtime.tfnswVehicleDescriptor'
-          ].airConditioned()
+          const latitude = vehiclePosition?.position?.latitude ?? 0
+          const longitude = vehiclePosition?.position?.longitude ?? 0
+          const bearing = vehiclePosition?.position?.bearing
+          const speed = vehiclePosition?.position?.speed
+          const stop_id = vehiclePosition?.stopId
+          const current_stop_sequence = vehiclePosition?.currentStopSequence
+          const congestion_level = vehiclePosition?.congestionLevel
+          const tripId = vehiclePosition?.trip?.tripId ?? ''
+          const directionId = vehiclePosition?.trip?.directionId
+          const label = vehiclePosition?.vehicle?.label
+          const air_conditioned =
+            vehiclePosition?.vehicle?.[
+              '.transit_realtime.tfnswVehicleDescriptor'
+            ]?.airConditioned
           const performing_prior_trip =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].performingPriorTrip() ||
-            oc(vehiclePosition).vehicle[
+            ]?.performingPriorTrip ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].performingPriorTrip()
+            ]?.performingPriorTrip
           const special_vehicle_attributes =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].specialVehicleAttributes() ||
-            oc(vehiclePosition).vehicle[
+            ]?.specialVehicleAttributes ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].specialVehicleAttributes()
+            ]?.specialVehicleAttributes
           const vehicle_model =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].vehicleModel() ||
-            oc(vehiclePosition).vehicle[
+            ]?.vehicleModel ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].vehicleModel()
+            ]?.vehicleModel
           const wheelchair_accessible =
-            oc(vehiclePosition).vehicle[
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptor'
-            ].wheelChairAccessible() ||
-            oc(vehiclePosition).vehicle[
+            ]?.wheelChairAccessible ||
+            vehiclePosition?.vehicle?.[
               '.transit_realtime.tfnswVehicleDescriptorMnwNlr'
-            ].wheelChairAccessible()
-          const timestamp = oc(vehiclePosition).timestamp(0)
+            ]?.wheelChairAccessible
+          const timestamp = vehiclePosition?.timestamp ?? 0
           const split = tripId ? tripId.split('.') : []
-          const consist = oc(vehiclePosition)['.transit_realtime.consist']([])
+          const consist = vehiclePosition?.['.transit_realtime.consist'] ?? []
           let [
             run,
             timetableId,
