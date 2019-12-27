@@ -12,15 +12,20 @@ variable "tags" {
 }
 
 variable "s3_bucket_arn" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "dynamo_arn" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "region" {
   type = string
+}
+
+variable "namespace" {
+  type    = string
+  default = "waka-test"
 }
