@@ -1,6 +1,7 @@
 variable "realtime_regions" {
   description = "Map of Realtime Regions to Replicas for Region"
   default = {
+    "au-syd" = 0
     "nz-akl" = 1
     "nz-chc" = 1
   }
@@ -63,14 +64,16 @@ resource "kubernetes_deployment" "waka-realtime" {
 
     selector {
       match_labels = {
-        app = "waka-realtime"
+        app    = "waka-realtime"
+        region = each.key
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "waka-realtime"
+          app    = "waka-realtime"
+          region = each.key
         }
       }
 
