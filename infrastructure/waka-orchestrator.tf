@@ -120,12 +120,12 @@ resource "kubernetes_deployment" "waka-orchestrator" {
 
           resources {
             limits {
-              cpu    = "100m"
-              memory = "32Mi"
+              cpu    = "200m"
+              memory = "96Mi"
             }
             requests {
               cpu    = "50m"
-              memory = "16Mi"
+              memory = "32Mi"
             }
           }
         }
