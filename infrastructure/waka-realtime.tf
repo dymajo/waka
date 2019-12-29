@@ -98,34 +98,9 @@ resource "kubernetes_deployment" "waka-realtime" {
             value = each.key
           }
 
-          env {
-            name = "AWS_REGION"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.waka-realtime.metadata.0.name
-                key  = "AWS_DEFAULT_REGION"
-              }
-            }
-          }
-
-          env {
-            name = "AWS_ACCESS_KEY_ID"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.waka-realtime.metadata.0.name
-                key  = "AWS_ACCESS_KEY_ID"
-              }
-            }
-          }
-
-
-          env {
-            name = "AWS_SECRET_ACCESS_KEY"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.waka-realtime.metadata.0.name
-                key  = "AWS_SECRET_ACCESS_KEY"
-              }
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.waka-realtime.metadata.0.name
             }
           }
 

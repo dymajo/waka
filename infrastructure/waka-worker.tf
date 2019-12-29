@@ -85,34 +85,9 @@ resource "kubernetes_deployment" "waka-worker" {
           image = "dymajo/waka-server:worker-${jsondecode(data.http.git_sha.body).commit.sha}"
           name  = "waka-worker"
 
-          env {
-            name = "AWS_REGION"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.waka-worker.metadata.0.name
-                key  = "AWS_DEFAULT_REGION"
-              }
-            }
-          }
-
-          env {
-            name = "AWS_ACCESS_KEY_ID"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.waka-worker.metadata.0.name
-                key  = "AWS_ACCESS_KEY_ID"
-              }
-            }
-          }
-
-
-          env {
-            name = "AWS_SECRET_ACCESS_KEY"
-            value_from {
-              secret_key_ref {
-                name = kubernetes_secret.waka-worker.metadata.0.name
-                key  = "AWS_SECRET_ACCESS_KEY"
-              }
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.waka-worker.metadata.0.name
             }
           }
 
