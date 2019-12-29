@@ -47,6 +47,25 @@ resource "kubernetes_secret" "waka-worker" {
   }
 }
 
+resource "kubernetes_service" "waka-worker" {
+  for_each = var.worker_regions
+  metadata {
+    name      = each.key
+    namespace = var.namespace
+  }
+  spec {
+    selector = {
+      app    = "waka-worker"
+      region = each.key
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+    type = "ClusterIP"
+  }
+}
+
 resource "kubernetes_deployment" "waka-worker" {
   for_each = var.worker_regions
   metadata {
@@ -91,7 +110,6 @@ resource "kubernetes_deployment" "waka-worker" {
             }
           }
 
-          // TODO: liveness & readiness probes
           resources {
             limits {
               cpu    = "200m"
