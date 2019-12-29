@@ -42,6 +42,75 @@ resource "kubernetes_secret" "waka-orchestrator" {
   }
 }
 
+resource "kubernetes_service_account" "waka-orchestrator" {
+  metadata {
+    name      = "waka-orchestrator"
+    namespace = var.namespace
+  }
+}
+
+resource "kubernetes_role" "waka-orchestrator" {
+  metadata {
+    name      = "waka-orchestrator"
+    namespace = var.namespace
+  }
+
+  rule {
+    api_groups = [
+      "",
+      "apps",
+      "autoscaling",
+      "batch",
+      "extensions",
+      "policy",
+      "networking.k8s.io",
+      "rbac.authorization.k8s.io"
+    ]
+    resources = [
+      "configmaps",
+      "deployments",
+      "deployments/scale",
+      "events",
+      "replicasets",
+      "replicasets/scale",
+      "replicationcontrollers",
+      "pods",
+      "pods/status",
+      "jobs",
+      "secrets"
+    ]
+    verbs = [
+      "get",
+      "list",
+      "watch",
+      "create",
+      "update",
+      "patch",
+      "delete",
+      "deletecollection"
+    ]
+  }
+}
+
+resource "kubernetes_role_binding" "waka-orchestrator" {
+  metadata {
+    name      = kubernetes_role.waka-orchestrator.metadata.0.name
+    namespace = var.namespace
+  }
+
+  role_ref {
+    kind      = "Role"
+    name      = kubernetes_role.waka-orchestrator.metadata.0.name
+    api_group = "rbac.authorization.k8s.io"
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = kubernetes_service_account.waka-orchestrator.metadata.0.name
+    namespace = var.namespace
+  }
+}
+
 resource "kubernetes_deployment" "waka-orchestrator" {
   metadata {
     name      = "waka-orchestrator"
@@ -72,6 +141,8 @@ resource "kubernetes_deployment" "waka-orchestrator" {
 
       spec {
         automount_service_account_token = "true"
+        service_account_name            = kubernetes_service_account.waka-orchestrator.metadata.0.name
+
         container {
           image = "dymajo/waka-server:orchestrator-${jsondecode(data.http.git_sha.body).commit.sha}"
           name  = "waka-orchestrator"
@@ -122,11 +193,11 @@ resource "kubernetes_deployment" "waka-orchestrator" {
 
           resources {
             limits {
-              cpu    = "200m"
+              cpu    = "1000m"
               memory = "96Mi"
             }
             requests {
-              cpu    = "50m"
+              cpu    = "100m"
               memory = "32Mi"
             }
           }
