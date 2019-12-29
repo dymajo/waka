@@ -27,9 +27,7 @@ data "aws_iam_policy_document" "waka-realtime" {
     ]
 
     resources = [
-      aws_dynamodb_table.waka-meta.arn,
-      aws_dynamodb_table.waka-mappings.arn,
-      aws_dynamodb_table.waka-versions.arn,
+      aws_dynamodb_table.waka-meta.arn
     ]
   }
 }
