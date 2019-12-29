@@ -85,7 +85,7 @@ resource "kubernetes_deployment" "waka-realtime" {
 
           env {
             name  = "KEYVALUE_PREFIX"
-            value = "waka-${var.environment}"
+            value = "waka-${var.environment}-k8s"
           }
 
           env {

@@ -88,7 +88,7 @@ resource "kubernetes_deployment" "waka-orchestrator" {
 
           env {
             name  = "KEYVALUE_PREFIX"
-            value = "waka-${var.environment}"
+            value = "waka-${var.environment}-k8s"
           }
 
           env {
