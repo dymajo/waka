@@ -35,7 +35,7 @@ EOT
 
         path {
           backend {
-            service_name = "waka-worker-nz-akl"
+            service_name = "nz-akl"
             service_port = 80
           }
 
@@ -44,7 +44,7 @@ EOT
 
         path {
           backend {
-            service_name = "waka-worker-nz-chc"
+            service_name = "nz-chc"
             service_port = 80
           }
 
@@ -53,7 +53,7 @@ EOT
 
         path {
           backend {
-            service_name = "waka-worker-nz-wlg"
+            service_name = "nz-wlg"
             service_port = 80
           }
 
