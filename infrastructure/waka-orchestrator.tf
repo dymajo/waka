@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "waka-orchestrator" {
     sid = "DynamoAccess"
 
     actions = [
-      "dynamodb:GetItem",
+      "dynamodb:*",
     ]
 
     resources = [

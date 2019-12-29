@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "waka-realtime" {
     sid = "DynamoAccess"
 
     actions = [
-      "dynamodb:*",
+      "dynamodb:GetItem",
     ]
 
     resources = [
