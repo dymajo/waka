@@ -18,7 +18,9 @@ data "aws_iam_policy_document" "waka-orchestrator" {
     ]
 
     resources = [
-      data.aws_dynamodb_table.meta.arn
+      aws_dynamodb_table.waka-meta.arn,
+      aws_dynamodb_table.waka-mappings.arn,
+      aws_dynamodb_table.waka-versions.arn,
     ]
   }
 }
