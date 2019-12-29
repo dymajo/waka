@@ -3,16 +3,15 @@ import { Request, Response, Router } from 'express'
 import proxy from 'express-http-proxy'
 import fs from 'fs'
 import path from 'path'
-import BaseGateway from '../types/BaseGateway'
 import { WakaConfig } from '../types'
+import BaseGateway from '../types/BaseGateway'
 import GatewayEcs from './adaptors/gatewayEcs'
+import GatewayKubernetes from './adaptors/gatewayKubernetes'
 import GatewayLocal from './adaptors/gatewayLocal'
 import PrivateApi from './api'
 import logger from './logger'
 import UpdateManager from './updaters'
 import VersionManager from './versionManager'
-
-
 
 const proxyPort = '9002'
 
@@ -35,7 +34,7 @@ class WakaOrchestrator {
     } else if (gateway === 'ecs') {
       this.gateway = new GatewayEcs(config.gatewayConfig.ecs)
     } else if (gateway === 'kubernetes') {
-      // this.gateway = new GatewayKubernetes(config.gatewayConfig.kubernetes)
+      this.gateway = new GatewayKubernetes(config.gatewayConfig.kubernetes)
     }
     const versionManager = new VersionManager({ config, gateway: this.gateway })
     this.versionManager = versionManager

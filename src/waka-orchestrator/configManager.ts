@@ -45,6 +45,7 @@ class ConfigManager {
       gatewayConfig: {
         // local doesn't need config
         ecs: null,
+        kubernetes: null,
       },
     }
     this.config = config

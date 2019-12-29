@@ -36,7 +36,8 @@ export interface WakaConfig {
   }
   importer: any
   gatewayConfig?: {
-    ecs?: EcsGatewayConfig
+    ecs: EcsGatewayConfig,
+    kubernetes: KubernetesGatewayConfig,
   }
 }
 
@@ -65,6 +66,14 @@ export interface EcsGatewayConfig {
   region: string
   servicePrefix: string
   serviceSuffix: string
+  replicas: number
+}
+
+export interface KubernetesGatewayConfig {
+  deploymentSuffix: string
+  deploymentPrefix: string
+  namespace: string
+  containerName: string
   replicas: number
 }
 

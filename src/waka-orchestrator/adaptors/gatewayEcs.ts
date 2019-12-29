@@ -20,7 +20,7 @@ class GatewayEcs extends BaseGateway {
 
   constructor(config: EcsGatewayConfig) {
     super()
-    const { cluster, region, servicePrefix, serviceSuffix, replicas } = config
+    const { cluster, region, servicePrefix, serviceSuffix, replicas } = config || {}
     this.servicePrefix = servicePrefix || ''
     this.serviceSuffix = serviceSuffix || ''
     this.replicas = replicas || 1
@@ -30,6 +30,8 @@ class GatewayEcs extends BaseGateway {
       logger.warn('Cannot use ECS Gateway - Missing Config.')
       return
     }
+
+    logger.info('Using ECS Gateway')
 
     this.ecs = new AWS.ECS({ region, params: { cluster } })
   }
