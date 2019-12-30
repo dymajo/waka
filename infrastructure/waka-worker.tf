@@ -94,7 +94,7 @@ resource "kubernetes_deployment" "waka-worker" {
           region = each.key
         }
         annotations = {
-          "linkerd.io/inject" = "enabled"
+          # "linkerd.io/inject" = "enabled"
         }
       }
 

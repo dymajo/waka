@@ -135,7 +135,7 @@ resource "kubernetes_deployment" "waka-orchestrator" {
           app = "waka-orchestrator"
         }
         annotations = {
-          "linkerd.io/inject" = "enabled"
+          # "linkerd.io/inject" = "enabled"
         }
       }
 
