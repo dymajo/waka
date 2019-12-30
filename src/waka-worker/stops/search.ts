@@ -32,7 +32,7 @@ class Search {
     await this.getStopsRouteType()
   }
 
-  stop = () => {}
+  stop = () => { }
 
   stopsFilter = (recordset: { stop_id: string }[], mode?: string) => {
     const { prefix, regionSpecific } = this
@@ -201,15 +201,11 @@ class Search {
 
       // the database is the default source
       let sources = [stopsFromDb(lat, lon, dist)]
-      const { extraSources } = regionSpecific
-      if (prefix === 'nz-wlg') {
-        if (extraSources) {
-          sources = sources.concat(extraSources(lat, lon, dist))
-        }
-      } else if (prefix === 'nz-akl') {
-        if (extraSources) {
-          sources = sources.concat(extraSources(lat, lon, dist))
-        }
+      const extraSources = regionSpecific?.extraSources
+      if (prefix === 'nz-wlg' && extraSources) {
+        sources = sources.concat(extraSources(lat, lon, dist))
+      } else if (prefix === 'nz-akl' && extraSources) {
+        sources = sources.concat(extraSources(lat, lon, dist))
       }
 
       try {
