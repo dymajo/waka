@@ -22,7 +22,7 @@ resource "kubernetes_deployment" "waka" {
           app = "waka"
         }
         annotations = {
-          "linkerd.io/inject" = "enabled"
+          # "linkerd.io/inject" = "enabled"
         }
       }
 
