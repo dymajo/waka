@@ -220,8 +220,7 @@ class RealtimeNZAKL extends BaseRealtime {
       for (const tripId of trips) {
         const data = await this.wakaRedis.getTripUpdate(tripId)
         const vehicleId = data?.vehicle?.id
-
-        const stopTimeUpdate = data.stopTimeUpdate ?? []
+        const stopTimeUpdate = data?.stopTimeUpdate ?? []
 
         if (stopTimeUpdate.length > 0) {
           const targetStop =
@@ -245,7 +244,6 @@ class RealtimeNZAKL extends BaseRealtime {
     req: WakaRequest<{ trips: string[] }, null>,
     res: Response
   ) => {
-    const { logger } = this
     const { trips } = req.body
     try {
       const vehicleLocations = await this.getVehiclePositionsCached(trips)
