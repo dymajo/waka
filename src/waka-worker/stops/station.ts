@@ -152,7 +152,7 @@ class Station {
     let override = ''
     if (
       prefix === 'nz-wlg' &&
-      (regionSpecific?.badStops?.indexOf(stopCode) ?? -1 > -1)
+      ((regionSpecific?.badStops?.indexOf(stopCode) ?? -1) > -1)
     ) {
       override = stopCode
       stopCode = `${stopCode}1`
