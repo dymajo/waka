@@ -184,9 +184,10 @@ class Station extends React.Component {
 
       // This allows buses to be two minutes late, and still show on the app.
       let tolerance = 1000 * 60 * 2
+      trip.realtime_departure_time = trip.departure_time
       if (realtimeData[trip.trip_id] !== undefined) {
         const realtimeTrip = realtimeData[trip.trip_id]
-        trip.departure_time = new Date(
+        trip.realtime_departure_time = new Date(
           new Date(trip.departure_time).getTime() +
             (realtimeTrip.delay || 0) * 1000
         ).toISOString()
@@ -208,7 +209,10 @@ class Station extends React.Component {
       }
 
       const offsetTime = new Date().getTime() + StationStore.offsetTime
-      if (new Date(trip.departure_time) < new Date(offsetTime - tolerance)) {
+      if (
+        new Date(trip.realtime_departure_time) <
+        new Date(offsetTime - tolerance)
+      ) {
         return
       }
 
@@ -226,7 +230,10 @@ class Station extends React.Component {
         if (tripVariant.length === 0) return
         sortedGroup.push(
           tripVariant.sort((a, b) => {
-            return new Date(a.departure_time) - new Date(b.departure_time)
+            return (
+              new Date(a.realtime_departure_time) -
+              new Date(b.realtime_departure_time)
+            )
           })
         )
       })
@@ -236,7 +243,10 @@ class Station extends React.Component {
       sortedGroup.sort((a, b) => {
         const stopSequenceDifference = a[0].stop_sequence - b[0].stop_sequence
         if (stopSequenceDifference !== 0) return stopSequenceDifference
-        return new Date(a[0].departure_time) - new Date(b[0].departure_time)
+        return (
+          new Date(a[0].realtime_departure_time) -
+          new Date(b[0].realtime_departure_time)
+        )
       })
       tripGroups.push(sortedGroup)
     })
@@ -245,7 +255,8 @@ class Station extends React.Component {
     const trips = tripGroups
       .sort((a, b) => {
         return (
-          new Date(a[0][0].departure_time) - new Date(b[0][0].departure_time)
+          new Date(a[0][0].realtime_departure_time) -
+          new Date(b[0][0].realtime_departure_time)
         )
       })
       .reduce((acc, val) => acc.concat(val), [])
@@ -433,7 +444,7 @@ class Station extends React.Component {
                 region={region}
                 trips={item.map(i => ({
                   destination: i.trip_headsign,
-                  departureTime: new Date(i.departure_time),
+                  departureTime: new Date(i.realtime_departure_time),
                   isRealtime: i.isRealtime,
                   platform: i.platform,
                 }))}
