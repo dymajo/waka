@@ -145,4 +145,14 @@ export default {
     stop: 'Stop %{number}',
     services: 'View Services',
   },
+  feedback: {
+    header: 'Send Feedback',
+    generalFeedback:
+      'We would love to hear any feedback so we can improve Waka for you!',
+    errorReport:
+      'We apologize for the issue you encountered. Please let us know what happened, so we can fix it!',
+    email: 'Email (optional)',
+    message: 'Feedback',
+    send: 'Send Feedback',
+  },
 }
