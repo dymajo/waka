@@ -154,5 +154,9 @@ export default {
     email: 'Email (optional)',
     message: 'Feedback',
     send: 'Send Feedback',
+    complete: 'Thank you for your feedback!',
+    completeFollowup: 'Thank you feedback! We’ll be in touch.',
+    done: 'Done',
+    error: 'An error occured.',
   },
 }

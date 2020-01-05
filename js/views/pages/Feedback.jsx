@@ -1,9 +1,11 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import { View, Text, StyleSheet, TextInput } from 'react-native'
 import { t } from '../../stores/translationStore.js'
+import UiStore from '../../stores/UiStore'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 import LinkButton from '../reusable/LinkButton.jsx'
+import Spinner from '../reusable/Spinner.jsx'
 import { vars, paragraphStyles } from '../../styles.js'
 import { getQueryVariable } from '../../helpers/url.js'
 
@@ -40,46 +42,123 @@ const styles = StyleSheet.create({
   },
 })
 
-class Feedback extends Component {
-  sendFeedback() {
-    alert('sending...')
-  }
+const Feedback = () => {
+  const [contact, setContact] = useState('')
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState(false)
 
-  render() {
-    return (
-      <View style={styles.wrapper}>
-        <Header title={t('feedback.header')} />
-        <LinkedScroll>
-          <View style={styles.content}>
-            <Text style={paragraphStyles.p}>
-              {t(
-                getQueryVariable('type') === 'error-report'
-                  ? 'feedback.errorReport'
-                  : 'feedback.generalFeedback'
-              )}
-            </Text>
-            <View style={styles.form}>
-              <Text
-                accessibilityRole="label"
-                style={styles.label}
-                keyboardType="email-address"
-              >
-                {t('feedback.email')}
+  return (
+    <View style={styles.wrapper}>
+      <Header title={t('feedback.header')} />
+      <LinkedScroll>
+        <View style={styles.content}>
+          {submitted ? (
+            <>
+              <Text style={paragraphStyles.p}>
+                {t(
+                  contact === ''
+                    ? 'feedback.complete'
+                    : 'feedback.completeFollowup'
+                )}
               </Text>
-              <TextInput style={styles.input} />
-              <Text accessibilityRole="label" style={styles.label}>
-                {t('feedback.message')}
+              <View style={[styles.content, styles.form]}>
+                <LinkButton
+                  onClick={() => UiStore.goBack('/')}
+                  label={t('feedback.done')}
+                />
+              </View>
+            </>
+          ) : (
+            <>
+              <Text style={paragraphStyles.p}>
+                {t(
+                  getQueryVariable('type') === 'error-report'
+                    ? 'feedback.errorReport'
+                    : 'feedback.generalFeedback'
+                )}
               </Text>
-              <TextInput style={styles.input} multiline numberOfLines={10} />
-              <LinkButton
-                label={t('feedback.send')}
-                onClick={this.sendFeedback}
-              />
-            </View>
-          </View>
-        </LinkedScroll>
-      </View>
-    )
-  }
+              <View style={styles.form}>
+                <Text accessibilityRole="label" style={styles.label}>
+                  {t('feedback.email')}
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  value={contact}
+                  keyboardType="email-address"
+                  onChange={e => setContact(e.currentTarget.value)}
+                />
+                <Text accessibilityRole="label" style={styles.label}>
+                  {t('feedback.message')}
+                </Text>
+                <TextInput
+                  style={styles.input}
+                  multiline
+                  numberOfLines={10}
+                  value={message}
+                  onChange={e => setMessage(e.currentTarget.value)}
+                />
+                {loading ? (
+                  <Spinner />
+                ) : (
+                  <LinkButton
+                    label={t('feedback.send')}
+                    onClick={async () => {
+                      if (message.trim() === '') {
+                        return
+                      }
+                      setLoading(true)
+                      const payload = {
+                        type:
+                          getQueryVariable('type') === 'error-report'
+                            ? 'error-report'
+                            : 'general-feedback',
+                        url:
+                          getQueryVariable('url') || window.location.toString(),
+                        message,
+                        contact,
+                      }
+
+                      let res
+                      try {
+                        res = await fetch('/b/feedback', {
+                          method: 'POST',
+                          contentType: 'application/json',
+                          body: JSON.stringify(payload),
+                        })
+                      } catch (err) {
+                        console.error(err)
+                        setError(true)
+                        setLoading(false)
+                        return
+                      }
+
+                      if (res.status === 200) {
+                        setSubmitted(true)
+                      } else {
+                        const data = await res.text()
+                        try {
+                          const json = JSON.parse(data)
+                          console.error(res.status, json)
+                        } catch (err) {
+                          console.error(res.status, err, data)
+                        }
+                        setError(true)
+                      }
+                      setLoading(false)
+                    }}
+                  />
+                )}
+              </View>
+              {error ? (
+                <Text style={paragraphStyles.p}>{t('feedback.error')}</Text>
+              ) : null}
+            </>
+          )}
+        </View>
+      </LinkedScroll>
+    </View>
+  )
 }
 export default Feedback

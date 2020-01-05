@@ -68,9 +68,9 @@ func (f Feedback) Handler() func(http.ResponseWriter, *http.Request) {
 		if err != nil {
 			w.WriteHeader(400)
 			response.Status = "Could not decode JSON"
-		} else if feedbackItem.Type != "error-report" {
+		} else if feedbackItem.Type != "error-report" || feedbackItem.Type != "general-feedback" {
 			w.WriteHeader(400)
-			response.Status = "Invalid type - only 'error-report' is valid."
+			response.Status = "Invalid type - only 'error-report' or 'general-feedback' is valid."
 		} else if feedbackItem.Message == "" {
 			w.WriteHeader(400)
 			response.Status = "Please include a message in your feedback."
