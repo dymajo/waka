@@ -34,9 +34,9 @@ export default {
       name: 'Switch City',
       description: 'Get directions in another city',
     },
-    sponsor: {
-      name: 'Become a Sponsor',
-      description: 'Contribute to help support development!',
+    feedback: {
+      name: 'Give Feedback',
+      description: 'Let us know how we can improve Waka!',
     },
     settings: {
       name: 'Settings',
@@ -84,6 +84,7 @@ export default {
     more: {
       title: 'More',
       feedback: 'Send Feedback',
+      sponsor: 'Support Waka',
       credits: 'View Credits',
     },
   },
@@ -146,7 +147,7 @@ export default {
     services: 'View Services',
   },
   feedback: {
-    header: 'Send Feedback',
+    header: 'Give Feedback',
     generalFeedback:
       'We would love to hear any feedback so we can improve Waka for you!',
     errorReport:

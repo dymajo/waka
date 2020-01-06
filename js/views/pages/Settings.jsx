@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { paragraphStyles, vars } from '../../styles.js'
 import { t } from '../../stores/translationStore.js'
+import UiStore from '../../stores/UiStore.js'
 
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
@@ -11,6 +12,7 @@ import Toggle from '../reusable/Toggle.jsx'
 import ClockIcon from '../../../dist/icons/clock.svg'
 import LongnamesIcon from '../../../dist/icons/longnames.svg'
 import FeedbackIcon from '../../../dist/icons/feedback.svg'
+import SponsorIcon from '../../../dist/icons/patron.svg'
 import CreditsIcon from '../../../dist/icons/credits.svg'
 
 let styles
@@ -56,7 +58,7 @@ const Settings = () => {
             { fontSize: vars.smallFontSize, marginTop: 0 },
           ]}
         >
-          Build {process.env.VERSION}-{process.env.BRANCH}
+          Build {process.env.VERSION}
         </Text>
         <Text style={paragraphStyles.p}>
           {t('settings.license')} {t('settings.contributions')}
@@ -85,11 +87,19 @@ const Settings = () => {
         <TouchableOpacity>
           <View
             style={styles.button}
-            accessibilityRole="link"
-            href="https://twitter.com/dymajoltd"
+            onClick={() => UiStore.safePush('/feedback')}
           >
             <FeedbackIcon />
             <Text style={styles.buttonText}>{t('settings.more.feedback')}</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <View
+            style={styles.button}
+            onClick={() => UiStore.safePush('/sponsor')}
+          >
+            <SponsorIcon />
+            <Text style={styles.buttonText}>{t('settings.more.sponsor')}</Text>
           </View>
         </TouchableOpacity>
         {credits ? (

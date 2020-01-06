@@ -33,11 +33,17 @@ export class ErrorBoundary extends Component {
             <Header title="Error!" hideClose />
             <View style={styles.error}>
               <Text style={styles.errorMessage}>
-                There was an unexpected error. You can either try reload this
-                page, or return home.
+                There was an unexpected error. You can send feedback, try reload
+                this page, or return home.
               </Text>
               <LinkButton
+                href={`/feedback?type=error-report&url=${window.location.toString()}`}
+                label="Send Feedback"
+                target="_self"
+              />
+              <LinkButton
                 href={window.location.toString()}
+                color="secondary"
                 target="_self"
                 label="Reload Page"
               />

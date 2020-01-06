@@ -117,11 +117,11 @@ class RootContent extends React.Component {
         description={t('onboarding.city.description')}
       />,
       <Sidebar
-        key="sponsor"
-        url="/sponsor"
+        key="feedback"
+        url="/feedback"
         icon="patron.svg"
-        name={t('onboarding.sponsor.name')}
-        description={t('onboarding.sponsor.description')}
+        name={t('onboarding.feedback.name')}
+        description={t('onboarding.feedback.description')}
       />,
     ]
     if (!desktopLayout) {
@@ -150,18 +150,6 @@ class RootContent extends React.Component {
           Aotearoa, and provide improved access for Māori communities.
         </p>
         <p>Kia Ora.</p>
-        <h3>What’s new in the latest version?</h3>
-        <p>
-          Version 2.3 is exciting. There’s now a new interface which gives you
-          access to the map at all times. We’ve also fixed a lot of bugs,
-          especially on iOS. Lastly, we’ve improved the lines view, allowing you
-          to see all the stops at once.
-        </p>
-        <p>
-          We’re all ready for the central new network in Auckland and Wellington
-          too.
-        </p>
-        <p>We hope you enjoy Waka 2.3!</p>
       </div>
     )
     const onboarding = (
