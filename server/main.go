@@ -59,6 +59,7 @@ func main() {
 
 	// other pages
 	router.HandleFunc("/fail", layout.Handler("page"))
+	router.HandleFunc("/feedback", layout.Handler("page"))
 	router.HandleFunc("/region", layout.Handler("page"))
 	router.HandleFunc("/sponsor", layout.Handler("page"))
 	router.HandleFunc("/settings", layout.Handler("page"))
