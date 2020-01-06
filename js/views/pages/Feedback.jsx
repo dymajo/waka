@@ -42,6 +42,56 @@ const styles = StyleSheet.create({
   },
 })
 
+const sendFeedback = async ({
+  message,
+  contact,
+  setError,
+  setLoading,
+  setSubmitted,
+}) => {
+  if (message.trim() === '') {
+    return
+  }
+  setLoading(true)
+  const payload = {
+    type:
+      getQueryVariable('type') === 'error-report'
+        ? 'error-report'
+        : 'general-feedback',
+    url: getQueryVariable('url') || window.location.toString(),
+    message,
+    contact,
+  }
+
+  let res
+  try {
+    res = await fetch('/b/feedback', {
+      method: 'POST',
+      contentType: 'application/json',
+      body: JSON.stringify(payload),
+    })
+  } catch (err) {
+    console.error(err)
+    setError(true)
+    setLoading(false)
+    return
+  }
+
+  if (res.status === 200) {
+    setSubmitted(true)
+  } else {
+    const data = await res.text()
+    try {
+      const json = JSON.parse(data)
+      console.error(res.status, json)
+    } catch (err) {
+      console.error(res.status, err, data)
+    }
+    setError(true)
+  }
+  setLoading(false)
+}
+
 const Feedback = () => {
   const [contact, setContact] = useState('')
   const [message, setMessage] = useState('')
@@ -104,50 +154,15 @@ const Feedback = () => {
                 ) : (
                   <LinkButton
                     label={t('feedback.send')}
-                    onClick={async () => {
-                      if (message.trim() === '') {
-                        return
-                      }
-                      setLoading(true)
-                      const payload = {
-                        type:
-                          getQueryVariable('type') === 'error-report'
-                            ? 'error-report'
-                            : 'general-feedback',
-                        url:
-                          getQueryVariable('url') || window.location.toString(),
+                    onClick={() =>
+                      sendFeedback({
                         message,
                         contact,
-                      }
-
-                      let res
-                      try {
-                        res = await fetch('/b/feedback', {
-                          method: 'POST',
-                          contentType: 'application/json',
-                          body: JSON.stringify(payload),
-                        })
-                      } catch (err) {
-                        console.error(err)
-                        setError(true)
-                        setLoading(false)
-                        return
-                      }
-
-                      if (res.status === 200) {
-                        setSubmitted(true)
-                      } else {
-                        const data = await res.text()
-                        try {
-                          const json = JSON.parse(data)
-                          console.error(res.status, json)
-                        } catch (err) {
-                          console.error(res.status, err, data)
-                        }
-                        setError(true)
-                      }
-                      setLoading(false)
-                    }}
+                        setError,
+                        setLoading,
+                        setSubmitted,
+                      })
+                    }
                   />
                 )}
               </View>
