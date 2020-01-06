@@ -56,6 +56,8 @@ abstract class BaseImporter {
 
   abstract download(): void
 
+  abstract optimize(): void
+
   abstract unzip(): void
 
   abstract db(importer: GtfsImport): void

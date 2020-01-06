@@ -124,6 +124,7 @@ class Importer {
     // if the db is already there, avoid the first few steps
     if (!created) {
       await this.download()
+      await this.optimize()
       await this.unzip()
       await this.db()
     } else {
@@ -156,12 +157,16 @@ class Importer {
     }
   }
 
-  unzip = async () => {
-    if (this.current) await this.current.unzip()
-  }
-
   download = async () => {
     if (this.current) await this.current.download()
+  }
+
+  optimize = async () => {
+    if (this.current) await this.current.optimize()
+  }
+
+  unzip = async () => {
+    if (this.current) await this.current.unzip()
   }
 
   db = async () => {

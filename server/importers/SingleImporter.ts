@@ -1,14 +1,17 @@
-import { resolve as _resolve, join } from 'path'
-import { createWriteStream, existsSync, mkdirSync } from 'fs'
-import rimraf from 'rimraf'
-import extract from 'extract-zip'
 import axios from 'axios'
-import BaseImporter from './BaseImporter'
-
+import { exec } from 'child_process'
+import extract from 'extract-zip'
+import { createWriteStream, existsSync, mkdirSync, renameSync } from 'fs'
+import { join, resolve as _resolve } from 'path'
+import rimraf from 'rimraf'
+import { promisify } from 'util'
 import config from '../config'
-import logger from '../logger'
 import CreateShapes from '../db/create-shapes'
 import GtfsImport from '../db/gtfs-import'
+import logger from '../logger'
+import BaseImporter from './BaseImporter'
+
+const execAsync = promisify(exec)
 
 const log = logger(config.prefix, config.version)
 
@@ -50,6 +53,23 @@ abstract class SingleImporter extends BaseImporter {
       })
     } catch (error) {
       log.error(error)
+    }
+  }
+
+  optimize = async () => {
+    const { zipLocation } = this
+    log.info('Optimizing GTFS Data')
+    try {
+      const { stdout, stderr } = await execAsync(
+        `gtfstidy --compress ${zipLocation} -o ${zipLocation}-compressed.zip`,
+      )
+      log.info({ stdout, stderr }, 'Optimized feed')
+      log.info('Renaming feed')
+      renameSync(zipLocation, `${zipLocation}-original.zip`)
+      renameSync(`${zipLocation}-compressed.zip`, zipLocation)
+      log.info('Renamed feed - will import optimized version')
+    } catch (error) {
+      log.error({ error }, 'Failed to optimize')
     }
   }
 

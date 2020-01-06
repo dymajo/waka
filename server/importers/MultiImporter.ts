@@ -1,16 +1,19 @@
-import { existsSync, createWriteStream, mkdirSync } from 'fs'
-import { resolve as _resolve, join } from 'path'
-import rimraf from 'rimraf'
 import axios from 'axios'
+import { exec } from 'child_process'
 import extract from 'extract-zip'
+import { createWriteStream, existsSync, mkdirSync, renameSync } from 'fs'
 import { pRateLimit } from 'p-ratelimit'
-import logger from '../logger'
-import GtfsImport from '../db/gtfs-import'
-import CreateShapes from '../db/create-shapes'
-import Storage from '../db/storage'
-import KeyvalueDynamo from '../db/keyvalue-dynamo'
+import { join, resolve as _resolve } from 'path'
+import rimraf from 'rimraf'
+import { promisify } from 'util'
 import config from '../config'
+import CreateShapes from '../db/create-shapes'
+import GtfsImport from '../db/gtfs-import'
+import KeyvalueDynamo from '../db/keyvalue-dynamo'
+import Storage from '../db/storage'
+import logger from '../logger'
 import BaseImporter from './BaseImporter'
+const execAsync = promisify(exec)
 
 const log = logger(config.prefix, config.version)
 
@@ -114,6 +117,29 @@ abstract class MultiImporter extends BaseImporter {
       const location = locations[index]
       await this.rateLimiter(() => this.get(location))
     }
+  }
+
+  optimize = async () => {
+    log.info('Optimizing GTFS Data')
+    await Promise.all(
+      this.zipLocations.map(async ({ path, name }) => {
+        try {
+          const { stdout, stderr } = await execAsync(
+            `gtfstidy --compress ${path} -o ${path}-compressed.zip`,
+          )
+          log.info({ path, name, stdout, stderr }, 'Optimized feed')
+          log.info({ path, name }, 'Renaming feed')
+          renameSync(path, `${path}-original.zip`)
+          renameSync(`${path}-compressed.zip`, path)
+          log.info(
+            { path, name },
+            'Renamed feed - will import optimized version',
+          )
+        } catch (error) {
+          log.error({ error }, 'Failed to optimize')
+        }
+      }),
+    )
   }
 
   unzip = async () => {
