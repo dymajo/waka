@@ -1,0 +1,17 @@
+.guidebook-styles {
+  padding: 0 16px;
+  font-size: 15px;
+
+  a {
+    color: $lightblue;
+    text-decoration: none;
+
+    &:visited {
+      color: darken($lightblue, 30);
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
