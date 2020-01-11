@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { useLocation } from 'react-router-dom'
 
+import UiStore from '../../stores/UiStore'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 
@@ -18,9 +19,12 @@ const fetchPage = async location => {
   const url = `${endpoint}/${location.substring('/guide/'.length)}`
 
   if (pageCache[url] === undefined) {
-    const res = await fetch(url, {
-      redirect: 'follow',
-    })
+    const res = await fetch(url)
+    if (res.redirected && !window.location.pathname.endsWith('/')) {
+      UiStore.customHistory.replace([window.location.pathname, '/'].join(''))
+      return ''
+    }
+
     const data = await res.text()
 
     // remove the footer & get the relevant bits
@@ -40,6 +44,21 @@ const fetchPage = async location => {
   }
 
   return pageCache[url]
+}
+
+const hijackLinks = e => {
+  if (e.target.tagName === 'A') {
+    const { href } = e.target
+    if (href.startsWith(window.location.origin)) {
+      if (href.split('#')[0] !== window.location.href) {
+        e.preventDefault()
+        UiStore.absolutePush(href)
+      }
+    } else {
+      e.preventDefault()
+      window.open(href)
+    }
+  }
 }
 
 const Guidebook = () => {
@@ -62,6 +81,7 @@ const Guidebook = () => {
           <div
             className="guidebook-styles"
             dangerouslySetInnerHTML={{ __html: html.body }}
+            onClick={hijackLinks}
           />
         </View>
       </LinkedScroll>
