@@ -14,4 +14,12 @@
       text-decoration: underline;
     }
   }
+
+  h2 {
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 0;
+    background: #f8f8f8; 
+  }
 }

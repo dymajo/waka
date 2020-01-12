@@ -35,6 +35,24 @@ const fetchPage = async location => {
 
     const header = fakeDOM.querySelector('h1:first-child').innerText
     fakeDOM.querySelector('h1:first-child').remove() // remove the header we just extracted into the header component
+
+    // boops all the elements between H2s into divs,
+    // so position sticky works, and we can collapse them easy
+    Array.from(fakeDOM.querySelectorAll('h2')).forEach(header => {
+      let el = header
+
+      const elements = []
+      while (el.nextElementSibling !== null && el.nextElementSibling.tagName !== 'H2') {
+        el = el.nextElementSibling
+        elements.push(el)
+      }
+
+      const div = document.createElement('div')
+      elements.forEach(el => div.appendChild(el))
+      header.parentNode.replaceChild(div, header)
+      div.prepend(header)
+    })
+
     const body = fakeDOM.querySelector('body div:first-child').innerHTML
 
     pageCache[url] = {
