@@ -67,17 +67,20 @@ class CreateShapes {
           return callback(null)
         }
 
-        if (!(row[headers.shape_id] in output)) {
-          // geojson
-          output[row[headers.shape_id]] = {
+        const shapeId = row[headers.shape_id]
+        const shapePtSequence = parseInt(row[headers.shape_pt_sequence], 10)
+        const lon = parseFloat(row[headers.shape_pt_lon])
+        const lat = parseFloat(row[headers.shape_pt_lat])
+
+        if (!(shapeId in output)) {
+          // this is a geojson object
+          output[shapeId] = {
             type: 'LineString',
             coordinates: [],
           }
         }
-        output[row[headers.shape_id]].coordinates.push([
-          parseFloat(row[headers.shape_pt_lon]),
-          parseFloat(row[headers.shape_pt_lat]),
-        ])
+        output[shapeId].coordinates[shapePtSequence] = [lon, lat]
+
         total += 1
         if (total % 100000 === 0) {
           log.info(name, 'Parsed', total, 'Points')
@@ -99,9 +102,12 @@ class CreateShapes {
             if (!existsSync(dir)) {
               mkdirSync(dir)
             }
+
+            const shape = output[key]
+            shape.coordinates = shape.coordinates.filter(i => i != null)
             writeFileSync(
               _resolve(dir, `${Buffer.from(key).toString('base64')}.json`),
-              JSON.stringify(output[key]),
+              JSON.stringify(shape),
             )
           })
           log.info(
