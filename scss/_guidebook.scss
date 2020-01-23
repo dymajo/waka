@@ -1,6 +1,46 @@
 .guidebook-styles {
-  padding: 0 16px;
+  $guidebook-border: 1px solid #ddd;
+  padding-bottom: 16px;
+  user-select: text;
   font-size: 15px;
+  line-height: 1.5;
+
+  h2,
+  h3 {
+    font-weight: 600;
+  }
+
+  h2 {
+    position: sticky;
+    top: 0;
+    border-bottom: $guidebook-border;
+    padding: 16px 16px 8px;
+    margin: 0;
+    background: #f8f8f8;
+    font-size: 20px;
+  }
+
+  h3 {
+    margin: 0 0 0.5em;
+    font-size: 18px;
+  }
+
+  h4 {
+    font-size: 16px;
+    margin: 0 0 0.5em;
+  }
+
+  p {
+    margin: 0 0 1.75em;
+  }
+
+  .h2-section {
+    background: #fff;
+  }
+  .h2-section-content {
+    padding: 24px 16px 8px;
+    border-bottom: $guidebook-border;
+  }
 
   a {
     color: $lightblue;
@@ -13,13 +53,5 @@
     &:hover {
       text-decoration: underline;
     }
-  }
-
-  h2 {
-    position: sticky;
-    top: 0;
-    border-bottom: 1px solid #ddd;
-    padding: 8px 0;
-    background: #f8f8f8; 
   }
 }

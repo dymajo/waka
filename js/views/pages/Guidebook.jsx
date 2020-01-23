@@ -42,15 +42,24 @@ const fetchPage = async location => {
       let el = header
 
       const elements = []
-      while (el.nextElementSibling !== null && el.nextElementSibling.tagName !== 'H2') {
+      while (
+        el.nextElementSibling !== null &&
+        el.nextElementSibling.tagName !== 'H2'
+      ) {
         el = el.nextElementSibling
         elements.push(el)
       }
 
-      const div = document.createElement('div')
-      elements.forEach(el => div.appendChild(el))
-      header.parentNode.replaceChild(div, header)
-      div.prepend(header)
+      const section = document.createElement('div')
+      const content = document.createElement('div')
+      section.className = 'h2-section'
+      content.className = 'h2-section-content'
+
+      elements.forEach(el => content.appendChild(el))
+
+      header.parentNode.replaceChild(section, header)
+      section.prepend(header)
+      section.append(content)
     })
 
     const body = fakeDOM.querySelector('body div:first-child').innerHTML
@@ -95,7 +104,7 @@ const Guidebook = () => {
     <View style={styles.wrapper}>
       <Header title={html.header} />
       <LinkedScroll>
-        <View style={styles.innerWrapper}>
+        <View>
           <div
             className="guidebook-styles"
             dangerouslySetInnerHTML={{ __html: html.body }}
