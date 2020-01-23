@@ -14,10 +14,27 @@
     position: sticky;
     top: 0;
     border-bottom: $guidebook-border;
-    padding: 16px 16px 8px;
+    padding: 12px 14px 11px 16px;
     margin: 0;
     background: #f8f8f8;
     font-size: 20px;
+    display: flex;
+
+    &:active {
+      background: rgba(0, 0, 0, 0.075);
+    }
+
+    &::after {
+      content: 'Expand Icon';
+      font-size: 0px;
+      background: url(/icons/dropdown.svg);
+      background-repeat: no-repeat;
+      background-position: 0 50%;
+      transform: rotate(-180deg);
+      flex: 1;
+      display: block;
+      text-align: right;
+    }
   }
 
   h3 {
@@ -36,6 +53,16 @@
 
   .h2-section {
     background: #fff;
+
+    &.collapsed {
+      .h2-section-content {
+        display: none;
+      }
+      h2::after {
+        background-position: 100% 50%;
+        transform: rotate(0deg);
+      }
+    }
   }
   .h2-section-content {
     padding: 24px 16px 8px;

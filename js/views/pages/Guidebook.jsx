@@ -52,7 +52,7 @@ const fetchPage = async location => {
 
       const section = document.createElement('div')
       const content = document.createElement('div')
-      section.className = 'h2-section'
+      section.className = 'h2-section collapsed'
       content.className = 'h2-section-content'
 
       elements.forEach(el => content.appendChild(el))
@@ -85,6 +85,8 @@ const hijackLinks = e => {
       e.preventDefault()
       window.open(href)
     }
+  } else if (e.target.tagName === 'H2') {
+    e.target.parentNode.classList.toggle('collapsed')
   }
 }
 
