@@ -162,7 +162,8 @@ class Importer {
   }
 
   optimize = async () => {
-    if (this.current) await this.current.optimize()
+    log.info('Optimization Skipped - Need to figure out bugs.')
+    // if (this.current) await this.current.optimize()
   }
 
   unzip = async () => {
