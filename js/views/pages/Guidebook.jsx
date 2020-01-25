@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { useLocation } from 'react-router-dom'
 
+import { endpoint, guidebookEndpoint } from '../../../local.js'
 import UiStore from '../../stores/UiStore'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
@@ -12,17 +13,36 @@ const styles = StyleSheet.create({
   },
 })
 
-const endpoint = 'https://dymajo.com/waka-guidebooks/regions'
 const pageCache = {}
+const cityCache = {}
+
+const getCity = async prefix => {
+  if (!(prefix in cityCache)) {
+    const url = `${endpoint}/${prefix}/info`
+    try {
+      const res = await fetch(url)
+      const data = await res.json()
+      cityCache[prefix] = data.longName
+    } catch (err) {
+      // doesn't really matter in the ui if this request fails
+      console.error(err)
+    }
+  }
+  return cityCache[prefix] || undefined
+}
 
 const fetchPage = async location => {
-  const url = `${endpoint}/${location.substring('/guide/'.length)}`
+  const url = `${guidebookEndpoint}/${location.substring('/guide/'.length)}`
 
   if (pageCache[url] === undefined) {
-    const res = await fetch(url)
-    if (res.redirected && !window.location.pathname.endsWith('/')) {
-      UiStore.customHistory.replace([window.location.pathname, '/'].join(''))
-      return ''
+    let res
+    try {
+      res = await fetch(url)
+    } catch (err) {
+      if (!location.endsWith('/')) {
+        return fetchPage(`${location}/`)
+      }
+      console.error('Network error?')
     }
 
     const data = await res.text()
@@ -91,20 +111,26 @@ const hijackLinks = e => {
 }
 
 const Guidebook = () => {
+  const location = useLocation()
   const [html, setHtml] = useState('')
+  const [cityName, setCityName] = useState('')
 
   // pulls from guidebook server whenever location updates
-  const location = useLocation()
   useEffect(() => {
     const fetchData = async () => {
-      setHtml(await fetchPage(location.pathname))
+      const data = await Promise.all([
+        fetchPage(location.pathname),
+        getCity(location.pathname.split('/')[2]),
+      ])
+      setHtml(data[0])
+      setCityName(data[1])
     }
     fetchData()
   }, [location])
 
   return (
     <View style={styles.wrapper}>
-      <Header title={html.header} />
+      <Header title={html.header} subtitle={cityName} />
       <LinkedScroll>
         <View>
           <div
