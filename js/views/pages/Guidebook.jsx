@@ -51,9 +51,11 @@ const fetchPage = async location => {
     const fakeDOM = document.createElement('html')
     fakeDOM.innerHTML = data
     fakeDOM.querySelector('h1:first-child').remove() // the name of the repo
-    fakeDOM.querySelector('.footer').remove() // a github message
+    const footer = fakeDOM.querySelector('.footer') // a github message
+    const footerHTML = footer.innerHTML
+    footer.remove()
 
-    const header = fakeDOM.querySelector('h1:first-child').innerText
+    const headerText = fakeDOM.querySelector('h1:first-child').innerText
     fakeDOM.querySelector('h1:first-child').remove() // remove the header we just extracted into the header component
 
     // boops all the elements between H2s into divs,
@@ -82,11 +84,14 @@ const fetchPage = async location => {
       section.append(content)
     })
 
-    const body = fakeDOM.querySelector('body div:first-child').innerHTML
+    const body = fakeDOM.querySelector('body div:first-child')
+    const newFooter = document.createElement('footer')
+    newFooter.innerHTML = footerHTML
+    body.appendChild(newFooter)
 
     pageCache[url] = {
-      header,
-      body,
+      header: headerText,
+      body: body.innerHTML,
     }
   }
 
