@@ -1,4 +1,5 @@
 .guidebook-styles {
+  $guidebook-background: #f8f8f8;
   $guidebook-border: 1px solid #ddd;
   padding-bottom: 16px;
   user-select: text;
@@ -10,24 +11,26 @@
     font-weight: 600;
   }
 
+  // our collapsable headers
   h2 {
     position: sticky;
     top: 0;
     border-bottom: $guidebook-border;
     padding: 12px 14px 11px 16px;
     margin: 0;
-    background: #f8f8f8;
+    background: $guidebook-background;
     font-size: 20px;
     display: flex;
+    color: $atblue;
 
     &:active {
-      background: rgba(0, 0, 0, 0.075);
+      background: darken($guidebook-background, 10);
     }
 
     &::after {
       content: 'Expand Icon';
       font-size: 0px;
-      background: url(/icons/dropdown.svg);
+      background: url(/icons/chevron-down.svg);
       background-repeat: no-repeat;
       background-position: 0 50%;
       transform: rotate(-180deg);
@@ -37,6 +40,7 @@
     }
   }
 
+  // general styles
   h3 {
     margin: 0 0 0.5em;
     font-size: 18px;
@@ -82,6 +86,59 @@
     }
   }
 
+  // splash screen
+  .splash {
+    margin: 16px;
+    border: $guidebook-border;
+    padding: 16px;
+    font-size: 16px;
+    background: #fff;
+    border-radius: 3px;
+  }
+
+  nav {
+    ul {
+      padding: 0;
+      list-style-type: none;
+      border-top: $guidebook-border;
+      margin: 24px 0 0;
+    }
+    a {
+      border-bottom: $guidebook-border;
+      padding: 12px 14px 11px 16px;
+      margin: 0;
+      background: #f8f8f8;
+      font-size: 20px;
+      display: flex;
+      font-weight: 600;
+      color: $atblue;
+
+      &:visited {
+        color: $atblue;
+      }
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      &:active {
+        background: rgba(0, 0, 0, 0.075);
+      }
+
+      &::after {
+        content: 'Forward Icon';
+        font-size: 0px;
+        background: url(/icons/chevron-right.svg);
+        background-repeat: no-repeat;
+        background-position: 100% 50%;
+        flex: 1;
+        display: block;
+        text-align: right;
+      }
+    }
+  }
+
+  // waka is open source
   footer {
     text-align: center;
     font-size: 13px;
