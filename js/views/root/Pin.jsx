@@ -1,5 +1,5 @@
-﻿import React from 'react'
-import PropTypes from 'prop-types'
+﻿import React, { Component } from 'react'
+import { func } from 'prop-types'
 import Clipboard from 'clipboard'
 import iOS from '../../helpers/ios.js'
 
@@ -12,15 +12,17 @@ window.addEventListener('beforeinstallprompt', e => {
 })
 
 let clipboard
-class Pin extends React.Component {
+class Pin extends Component {
   static propTypes = {
-    onHide: PropTypes.func,
+    onHide: func,
   }
 
-  state = {
-    copied: false,
-    hide: false,
-    emailSent: false,
+  constructor(props) {
+    super(props)
+    this.state = {
+      copied: false,
+      hide: false,
+    }
   }
 
   async componentDidMount() {
@@ -30,12 +32,7 @@ class Pin extends React.Component {
       // Show the prompt
       deferredPrompt.prompt()
       // Wait for the user to respond to the prompt
-      const choiceResult = await deferredPrompt.userChoice
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the A2HS prompt')
-      } else {
-        console.log('User dismissed the A2HS prompt')
-      }
+      await deferredPrompt.userChoice
       this.triggerClose()
       deferredPrompt = null
     }
@@ -46,6 +43,7 @@ class Pin extends React.Component {
   }
 
   triggerClose = e => {
+    const { onHide } = this.props
     if (e) {
       e.preventDefault()
     }
@@ -55,22 +53,19 @@ class Pin extends React.Component {
     })
 
     setTimeout(() => {
-      this.props.onHide()
+      onHide()
     }, 400)
   }
 
   triggerClipboard = () => {
-    if (this.state.copied) {
+    const { copied } = this.state
+    if (copied) {
       this.triggerClose()
     } else {
       this.setState({
         copied: true,
       })
     }
-  }
-
-  doNothing(e) {
-    e.preventDefault()
   }
 
   render() {
@@ -80,16 +75,19 @@ class Pin extends React.Component {
     const userAgent = window.navigator.userAgent.toLowerCase()
     let output = (
       <div className="other">
-        <p>We don't know what browser you're using. 😕😕😕</p>
-        <button className="nice-button primary" onClick={this.triggerClose}>
+        <p>We don’t know what browser you’re using. 😕😕😕</p>
+        <button
+          type="button"
+          className="nice-button primary"
+          onClick={this.triggerClose}
+        >
           Maybe next time.
         </button>
       </div>
     )
-    let linktext = 'Copy Link'
-    if (this.state.copied) {
-      linktext = 'Copied!'
-    }
+
+    const { copied, hide } = this.state
+    const linktext = copied ? 'Copied!' : 'Copy Link'
     if (iOS.detect()) {
       // jfc why is everything a uawebview in ios
       if (
@@ -102,6 +100,7 @@ class Pin extends React.Component {
           <div className="ios-other">
             <p>You’ll need to open this app in Safari first!</p>
             <button
+              type="button"
               className="nice-button primary clipboardcopy"
               data-clipboard-text="https://waka.app"
               onClick={this.triggerClipboard}
@@ -119,7 +118,11 @@ class Pin extends React.Component {
               Tap the <img src="/icons/ios-share.png" alt="share" /> button,
               then tap <strong>add to home screen</strong>.
             </p>
-            <button className="nice-button primary" onClick={this.triggerClose}>
+            <button
+              type="button"
+              className="nice-button primary"
+              onClick={this.triggerClose}
+            >
               Thanks!
             </button>
           </div>
@@ -130,11 +133,12 @@ class Pin extends React.Component {
           <div className="ios-other">
             <p>You’ll need to open this app in Safari first!</p>
             <p>
-              <a href="https://waka.app" onClick={this.doNothing}>
+              <a href="https://waka.app" onClick={e => e.preventDefault()}>
                 waka.app
               </a>
             </p>
             <button
+              type="button"
               className="nice-button primary clipboardcopy"
               data-clipboard-text="https://waka.app"
               onClick={this.triggerClipboard}
@@ -145,52 +149,12 @@ class Pin extends React.Component {
         )
       }
     }
-    if (/android/.test(userAgent)) {
-      if (/firefox/.test(userAgent) || /samsung/.test(userAgent)) {
-        output = (
-          <div className="android-other">
-            <p>You’ll need to open this page in Chrome first!</p>
-            <button
-              className="nice-button primary clipboardcopy"
-              data-clipboard-text="https://getwaka.com"
-              onClick={this.triggerClipboard}
-            >
-              {linktext}
-            </button>
-          </div>
-        )
-      } else {
-        output = (
-          <div className="android-chrome">
-            <p>
-              Tap the <img src="/icons/android-menu.png" alt="share" /> button,
-              then tap <strong>add to home screen</strong>.
-            </p>
-            <button className="nice-button primary" onClick={this.triggerClose}>
-              Thanks!
-            </button>
-          </div>
-        )
-      }
-    }
-    if (/edge/.test(userAgent)) {
-      output = (
-        <div className="windows-edge">
-          <p>
-            Tap the dots button, then tap <strong>pin to start</strong>.
-          </p>
-          <button className="nice-button primary" onClick={this.triggerClose}>
-            Thanks!
-          </button>
-        </div>
-      )
-    }
 
-    let className = 'pincontainer'
-    if (this.state.hide) {
-      className += ' hide'
-    }
-    return <div className={className}>{output}</div>
+    return (
+      <div className={hide ? 'pincontainer hide' : 'pincontainer'}>
+        {output}
+      </div>
+    )
   }
 }
 
