@@ -6,6 +6,7 @@ import { endpoint, guidebookEndpoint } from '../../../local.js'
 import UiStore from '../../stores/UiStore'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
+import Spinner from '../reusable/Spinner.jsx'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -138,11 +139,15 @@ const Guidebook = () => {
       <Header title={html.header} subtitle={cityName} />
       <LinkedScroll>
         <View>
-          <div
-            className="guidebook-styles"
-            dangerouslySetInnerHTML={{ __html: html.body }}
-            onClick={hijackLinks}
-          />
+          {html.body ? (
+            <div
+              className="guidebook-styles"
+              dangerouslySetInnerHTML={{ __html: html.body }}
+              onClick={hijackLinks}
+            />
+          ) : (
+            <Spinner />
+          )}
         </View>
       </LinkedScroll>
     </View>
