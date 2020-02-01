@@ -19,6 +19,7 @@ import DymajoIcon from '../../../dist/icons/dymajo.svg'
 import PatronIcon from '../../../dist/icons/patron.svg'
 import CityIcon from '../../../dist/icons/city.svg'
 import SettingsIcon from '../../../dist/icons/settings.svg'
+import GuidebookIcon from '../../../dist/icons/guidebook.svg'
 
 const iconMap = {
   'lines.svg': <LinesIcon />,
@@ -34,6 +35,7 @@ const iconMap = {
   'patron.svg': <PatronIcon />,
   'city.svg': <CityIcon />,
   'settings.svg': <SettingsIcon />,
+  'guidebook.svg': <GuidebookIcon />,
 }
 
 class Sidebar extends React.Component {

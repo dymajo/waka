@@ -14,6 +14,7 @@ import LineList from '../lines/LineList.jsx'
 import Line from '../lines/Line.jsx'
 import LinePicker from '../lines/LinePicker.jsx'
 import Feedback from '../pages/Feedback.jsx'
+import Guidebook from '../pages/Guidebook.jsx'
 import Sponsor from '../pages/Sponsor.jsx'
 import Region from '../pages/Region.jsx'
 import Settings from '../pages/Settings.jsx'
@@ -112,6 +113,7 @@ class Content extends React.Component {
               render={wrapFn(LinePicker)}
             />
             <Route path="/feedback" exact render={wrapFn(Feedback)} />
+            <Route path="/guide/:region" render={wrapFn(Guidebook)} />
             <Route path="/region" exact render={wrapFn(Region)} />
             <Route path="/settings" exact render={wrapFn(Settings)} />
             <Route path="/sponsor" exact render={wrapFn(Sponsor)} />

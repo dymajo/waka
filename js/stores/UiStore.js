@@ -46,9 +46,9 @@ class UIStore extends Events {
     const { state } = this
     customHistory.listen((event, action) => {
       state.currentUrl = event.pathname
-      this.state.totalNavigations++
 
       if (action === 'PUSH') {
+        this.state.totalNavigations += 1
         historyTracker.push(event.key)
 
         // usually always forward
@@ -59,6 +59,7 @@ class UIStore extends Events {
         }
         state.lastTransition = state.suggestedPushTransition
       } else if (action === 'POP') {
+        this.state.totalNavigations += 1
         // array indexing - 1
         let suggestedPopTransition = 'backward'
         const previousLocationKey = historyTracker[historyTracker.length - 2]
@@ -89,6 +90,17 @@ class UIStore extends Events {
         ? this.customHistory.location.pathname.replace(/\/$/, '') +
           relativeUrl.slice(1)
         : relativeUrl
+
+    if (url !== this.customHistory.location.pathname) {
+      this.customHistory.push(url)
+    }
+  }
+
+  absolutePush = absoluteUrl => {
+    let url = absoluteUrl
+    if (url.startsWith(window.location.origin)) {
+      url = url.substring(window.location.origin.length)
+    }
 
     if (url !== this.customHistory.location.pathname) {
       this.customHistory.push(url)

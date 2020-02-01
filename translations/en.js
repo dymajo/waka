@@ -14,6 +14,7 @@ export default {
   root: {
     stationsLabel: 'Stations',
     linesLabel: 'Lines',
+    guideLabel: 'Guidebook',
   },
   onboarding: {
     welcome: {
@@ -41,6 +42,10 @@ export default {
     settings: {
       name: 'Settings',
       description: 'Preferences & Credits',
+    },
+    guidebook: {
+      name: 'Guidebook',
+      description: 'Local tips for getting around %{city}',
     },
   },
   savedStations: {
@@ -91,7 +96,15 @@ export default {
   notFound: {
     header: 'Not Found',
     body: 'Sorry, but the page you were trying to view does not exist.',
-    home: 'Return to Home Page',
+    home: 'Return Home',
+  },
+  errorBoundary: {
+    header: 'Error!',
+    unexpected:
+      'There was an unexpected error. You can send feedback, try reload this page, or return home.',
+    feedback: 'Send Feedback',
+    reload: 'Reload Page',
+    home: 'Return Home',
   },
   sponsor: {
     title: 'Contribute',

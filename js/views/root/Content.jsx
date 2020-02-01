@@ -164,17 +164,30 @@ class RootContent extends React.Component {
             description2={description2}
           />
           {desktopLayout ? (
-            <Sidebar
-              url={`/l/${
-                this.state.currentCity.prefix === 'none'
-                  ? 'nz-akl' // just go... somewhere
-                  : this.state.currentCity.prefix
-              }`}
-              icon="lines.svg"
-              action={this.toggleRegion}
-              name={t('onboarding.lines.name')}
-              description={t('onboarding.lines.description')}
-            />
+            <>
+              <Sidebar
+                url={`/l/${
+                  currentCity.prefix === 'none'
+                    ? 'nz-akl' // just go... somewhere
+                    : this.state.currentCity.prefix
+                }`}
+                icon="lines.svg"
+                action={this.toggleRegion}
+                name={t('onboarding.lines.name')}
+                description={t('onboarding.lines.description')}
+              />
+              {currentCity.prefix === 'nz-wlg' ? (
+                <Sidebar
+                  key="guidebook"
+                  url={`/guide/${currentCity.prefix}`}
+                  icon="guidebook.svg"
+                  name={t('onboarding.guidebook.name')}
+                  description={t('onboarding.guidebook.description', {
+                    city: currentCity.name || 'your city',
+                  })}
+                />
+              ) : null}
+            </>
           ) : (
             <Sidebar
               type="install"

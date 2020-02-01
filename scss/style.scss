@@ -36,15 +36,23 @@ button {
   color: #333;
   font-size: 15px;
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-weight: 600;
     color: #273d52;
     letter-spacing: -0.5px;
   }
 
-  h1 { font-size: 1.5em; }
-  h2 { font-size: 1.25em; }
-  h3 { font-size: 1em; }
+  h1 {
+    font-size: 1.5em;
+  }
+  h2 {
+    font-size: 1.25em;
+  }
+  h3 {
+    font-size: 1em;
+  }
 
   a {
     color: #fb6754;
@@ -68,3 +76,4 @@ button {
 @import '_toggle';
 @import '_splash';
 @import '_react_native';
+@import '_guidebook';

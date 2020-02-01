@@ -1,0 +1,180 @@
+.guidebook-styles {
+  $guidebook-background: #f8f8f8;
+  $guidebook-border: 1px solid #ddd;
+  padding-bottom: 16px;
+  user-select: text;
+  font-size: 15px;
+  line-height: 1.5;
+
+  h2,
+  h3 {
+    font-weight: 600;
+  }
+
+  // our collapsable headers
+  h2 {
+    position: sticky;
+    top: 0;
+    border-bottom: $guidebook-border;
+    padding: 12px 14px 11px 16px;
+    margin: 0;
+    background: $guidebook-background;
+    font-size: 20px;
+    display: flex;
+    color: $atblue;
+
+    &:active {
+      background: darken($guidebook-background, 10);
+    }
+
+    &::after {
+      content: 'Expand Icon';
+      font-size: 0px;
+      background: url(/icons/chevron-down.svg);
+      background-repeat: no-repeat;
+      background-position: 0 50%;
+      transform: rotate(-180deg);
+      flex: 1;
+      display: block;
+      text-align: right;
+    }
+  }
+
+  // general styles
+  h3 {
+    margin: 0 0 0.5em;
+    font-size: 18px;
+  }
+
+  h4 {
+    font-size: 16px;
+    margin: 0 0 0.5em;
+  }
+
+  p {
+    margin: 0 0 1.75em;
+  }
+
+  .h2-section {
+    background: #fff;
+
+    &.collapsed {
+      .h2-section-content {
+        display: none;
+      }
+      h2::after {
+        background-position: 100% 50%;
+        transform: rotate(0deg);
+      }
+    }
+  }
+  .h2-section-content {
+    padding: 24px 16px 8px;
+    border-bottom: $guidebook-border;
+  }
+
+  a {
+    color: $lightblue;
+    text-decoration: none;
+
+    &:visited {
+      color: darken($lightblue, 30);
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // splash screen
+  .splash {
+    margin: 16px;
+    border: $guidebook-border;
+    padding: 16px;
+    font-size: 16px;
+    background: #fff;
+    border-radius: 3px;
+  }
+
+  nav {
+    ul {
+      padding: 0;
+      list-style-type: none;
+      border-top: $guidebook-border;
+      margin: 24px 0 0;
+    }
+    a {
+      border-bottom: $guidebook-border;
+      padding: 12px 14px 11px 16px;
+      margin: 0;
+      background: #f8f8f8;
+      font-size: 20px;
+      display: flex;
+      font-weight: 600;
+      color: $atblue;
+
+      &:visited {
+        color: $atblue;
+      }
+
+      &:hover {
+        text-decoration: none;
+      }
+
+      &:active {
+        background: rgba(0, 0, 0, 0.075);
+      }
+
+      &::after {
+        content: 'Forward Icon';
+        font-size: 0px;
+        background: url(/icons/chevron-right.svg);
+        background-repeat: no-repeat;
+        background-position: 100% 50%;
+        flex: 1;
+        display: block;
+        text-align: right;
+      }
+    }
+  }
+
+  table {
+    $offset: 16px;
+    font-size: 13px;
+    margin: 12px 0 16px $offset * -1;
+    padding-left: $offset;
+    padding-bottom: 6px;
+    border-collapse: collapse;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: calc(100% + 32px);
+    overflow-x: auto;
+    display: block;
+  }
+
+  th,
+  td {
+    border: 1px dotted #ccc;
+    padding: 5px;
+  }
+
+  th {
+    text-align: left;
+    background: $guidebook-background;
+    color: $atblue;
+    border-bottom: 1px solid #bbb;
+  }
+
+  tr:nth-child(even) td {
+    background: $guidebook-background;
+  }
+
+  // waka is open source
+  footer {
+    text-align: center;
+    font-size: 13px;
+    padding: 24px 16px;
+    color: #777;
+  }
+}
