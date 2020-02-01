@@ -138,6 +138,38 @@
     }
   }
 
+  table {
+    $offset: 16px;
+    font-size: 13px;
+    margin: 12px 0 16px $offset * -1;
+    padding-left: $offset;
+    padding-bottom: 6px;
+    border-collapse: collapse;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: calc(100% + 32px);
+    overflow-x: auto;
+    display: block;
+  }
+
+  th,
+  td {
+    border: 1px dotted #ccc;
+    padding: 5px;
+  }
+
+  th {
+    text-align: left;
+    background: $guidebook-background;
+    color: $atblue;
+    border-bottom: 1px solid #bbb;
+  }
+
+  tr:nth-child(even) td {
+    background: $guidebook-background;
+  }
+
   // waka is open source
   footer {
     text-align: center;
