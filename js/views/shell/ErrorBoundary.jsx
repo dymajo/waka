@@ -64,7 +64,7 @@ export class ErrorBoundary extends Component {
   }
 }
 
-const { padding, defaultFontSize, fontFamily } = vars
+const { padding } = vars
 styles = StyleSheet.create({
   wrapper: {
     flex: 1,

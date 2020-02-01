@@ -75,7 +75,12 @@ class Pin extends Component {
     const userAgent = window.navigator.userAgent.toLowerCase()
     let output = (
       <div className="other">
-        <p>We don’t know what browser you’re using. 😕😕😕</p>
+        <p>
+          We don’t know what browser you’re using.{' '}
+          <span role="img" aria-label="Unsure of the issue.">
+            😕😕😕
+          </span>
+        </p>
         <button
           type="button"
           className="nice-button primary"

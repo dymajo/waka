@@ -167,7 +167,7 @@ class RootContent extends React.Component {
             <>
               <Sidebar
                 url={`/l/${
-                  this.state.currentCity.prefix === 'none'
+                  currentCity.prefix === 'none'
                     ? 'nz-akl' // just go... somewhere
                     : this.state.currentCity.prefix
                 }`}
@@ -176,14 +176,14 @@ class RootContent extends React.Component {
                 name={t('onboarding.lines.name')}
                 description={t('onboarding.lines.description')}
               />
-              {this.state.currentCity.prefix === 'nz-wlg' ? (
+              {currentCity.prefix === 'nz-wlg' ? (
                 <Sidebar
                   key="guidebook"
-                  url={`/guide/${this.state.currentCity.prefix}`}
+                  url={`/guide/${currentCity.prefix}`}
                   icon="guidebook.svg"
                   name={t('onboarding.guidebook.name')}
                   description={t('onboarding.guidebook.description', {
-                    city: this.state.currentCity.name || 'your city',
+                    city: currentCity.name || 'your city',
                   })}
                 />
               ) : null}

@@ -33,7 +33,7 @@ const getCity = async prefix => {
       cityCache[prefix] = data.longName
     } catch (err) {
       // doesn't really matter in the ui if this request fails
-      console.error(err)
+      // console.error(err)
     }
   }
   return cityCache[prefix] || undefined
