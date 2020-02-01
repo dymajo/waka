@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { useLocation } from 'react-router-dom'
 
+import { t } from '../../stores/translationStore.js'
+import { vars, paragraphStyles } from '../../styles.js'
 import { endpoint, guidebookEndpoint } from '../../../local.js'
 import UiStore from '../../stores/UiStore'
 import Header from '../reusable/Header.jsx'
+import LinkButton from '../reusable/LinkButton.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 import Spinner from '../reusable/Spinner.jsx'
 
+const { padding } = vars
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+  },
+  error: {
+    padding,
   },
 })
 
@@ -35,6 +42,12 @@ const getCity = async prefix => {
 const fetchPage = async location => {
   const url = `${guidebookEndpoint}/${location.substring('/guide/'.length)}`
 
+  if (!navigator.onLine) {
+    const err = new Error()
+    err.message = t('app.nointernet')
+    throw err
+  }
+
   if (pageCache[url] === undefined) {
     let res
     try {
@@ -43,7 +56,13 @@ const fetchPage = async location => {
       if (!location.endsWith('/')) {
         return fetchPage(`${location}/`)
       }
-      console.error('Network error?')
+      err.message = `${err.message}.`
+      throw err
+    }
+    if (res.status === 404) {
+      const err = new Error()
+      err.message = t('notFound.body')
+      throw err
     }
 
     const data = await res.text()
@@ -120,16 +139,25 @@ const Guidebook = () => {
   const location = useLocation()
   const [html, setHtml] = useState('')
   const [cityName, setCityName] = useState('')
+  const [error, setError] = useState('')
 
   // pulls from guidebook server whenever location updates
   useEffect(() => {
     const fetchData = async () => {
-      const data = await Promise.all([
-        fetchPage(location.pathname),
-        getCity(location.pathname.split('/')[2]),
-      ])
-      setHtml(data[0])
-      setCityName(data[1])
+      try {
+        const data = await Promise.all([
+          fetchPage(location.pathname),
+          getCity(location.pathname.split('/')[2]),
+        ])
+        setHtml(data[0])
+        setCityName(data[1])
+      } catch (err) {
+        setHtml({
+          header: t('errorBoundary.header'),
+        })
+        setCityName(undefined)
+        setError(err.message)
+      }
     }
     fetchData()
   }, [location])
@@ -139,7 +167,26 @@ const Guidebook = () => {
       <Header title={html.header} subtitle={cityName} />
       <LinkedScroll>
         <View>
-          {html.body ? (
+          {error ? (
+            <View style={styles.error}>
+              <Text style={paragraphStyles.errorMessage}>{error}</Text>
+              <LinkButton
+                onClick={() =>
+                  UiStore.absolutePush(
+                    `/feedback?type=error-report&url=${window.location.toString()}`
+                  )
+                }
+                label={t('errorBoundary.feedback')}
+                target="_self"
+              />
+              <LinkButton
+                href={window.location.toString()}
+                color="secondary"
+                label={t('errorBoundary.reload')}
+                target="_self"
+              />
+            </View>
+          ) : html.body ? (
             <div
               className="guidebook-styles"
               dangerouslySetInnerHTML={{ __html: html.body }}

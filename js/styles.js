@@ -57,4 +57,9 @@ export const paragraphStyles = StyleSheet.create({
     lineHeight: defaultFontSize * 1.3,
     fontFamily,
   },
+  errorMessage: {
+    fontSize: defaultFontSize,
+    fontFamily,
+    marginBottom: padding,
+  },
 })
