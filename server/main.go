@@ -57,6 +57,10 @@ func main() {
 	router.HandleFunc("/l/{region}/{agency}/{route_short_name}", layout.Handler("page"))
 	router.HandleFunc("/l/{region}/{agency}/{route_short_name}/picker", layout.Handler("page"))
 
+	// guides
+	router.HandleFunc("/guide/{region}", layout.Handler("page"))
+	router.HandleFunc("/guide/{region}/{page}", layout.Handler("page"))
+
 	// other pages
 	router.HandleFunc("/fail", layout.Handler("page"))
 	router.HandleFunc("/feedback", layout.Handler("page"))

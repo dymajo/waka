@@ -14,6 +14,7 @@ export default {
   root: {
     stationsLabel: 'Stations',
     linesLabel: 'Lines',
+    guideLabel: 'Guidebook',
   },
   onboarding: {
     welcome: {
@@ -41,6 +42,10 @@ export default {
     settings: {
       name: 'Settings',
       description: 'Preferences & Credits',
+    },
+    guidebook: {
+      name: 'Guidebook',
+      description: 'Local tips for getting around %{city}',
     },
   },
   savedStations: {

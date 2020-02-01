@@ -13,6 +13,7 @@ import RootContent from './Content.jsx'
 import StationIcon from '../../../dist/icons/station.svg'
 import LinesIcon from '../../../dist/icons/lines.svg'
 import SettingsIcon from '../../../dist/icons/settings.svg'
+import GuidebookIcon from '../../../dist/icons/guidebook.svg'
 
 const { desktopThreshold } = vars
 let styles
@@ -50,14 +51,15 @@ class Root extends React.Component {
     })
   }
 
-  toggleLines = () => {
-    const { currentCity } = this.state
-    const prefix = currentCity.prefix === 'none' ? 'nz-akl' : currentCity.prefix
-    UiStore.safePush(`/l/${prefix}`)
-    if (UiStore.state.cardPosition === 'map') {
-      setTimeout(() => {
-        UiStore.setCardPosition('default')
-      }, 50)
+  triggerUrl = url => {
+    return () => {
+      const { currentCity } = this.state
+      UiStore.safePush(`${url}${currentCity.prefix || 'nz-akl'}`)
+      if (UiStore.state.cardPosition === 'map') {
+        setTimeout(() => {
+          UiStore.setCardPosition('default')
+        }, 50)
+      }
     }
   }
 
@@ -82,13 +84,13 @@ class Root extends React.Component {
   }
 
   render() {
-    const { desktopLayout } = this.state
+    const { desktopLayout, currentCity } = this.state
     return (
       <View style={styles.wrapper} onLayout={this.triggerLayout}>
         {desktopLayout ? (
           <Header
             title={t('app.name')}
-            subtitle={this.state.currentCity.longName}
+            subtitle={currentCity.longName}
             hideClose
             actionIcon={<SettingsIcon style={{ fill: vars.headerIconColor }} />}
             actionFn={this.triggerSettings}
@@ -103,10 +105,26 @@ class Root extends React.Component {
               <StationIcon style={{ margin: 'auto' }} />
               <Text style={styles.text}>{t('root.stationsLabel')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onClick={this.toggleLines}>
+            <TouchableOpacity
+              style={
+                currentCity.prefix === 'nz-wlg'
+                  ? [styles.button, styles.rightBorder]
+                  : styles.button
+              }
+              onClick={this.triggerUrl('/l/')}
+            >
               <LinesIcon style={{ margin: 'auto' }} />
               <Text style={styles.text}>{t('root.linesLabel')}</Text>
             </TouchableOpacity>
+            {currentCity.prefix === 'nz-wlg' ? (
+              <TouchableOpacity
+                style={styles.button}
+                onClick={this.triggerUrl('/guide/')}
+              >
+                <GuidebookIcon style={{ margin: 'auto' }} />
+                <Text style={styles.text}>{t('root.guideLabel')}</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         )}
         <LinkedScroll>
@@ -148,6 +166,7 @@ styles = StyleSheet.create({
     fontSize: vars.smallFontSize - 1,
     fontWeight: '700',
     fontFamily: vars.fontFamily,
+    color: vars.headerColor,
   },
 })
 
