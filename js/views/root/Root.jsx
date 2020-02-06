@@ -108,7 +108,7 @@ class Root extends React.Component {
             <TouchableOpacity
               style={
                 currentCity.prefix === 'nz-wlg'
-                  ? [styles.button, styles.rightBorder]
+                  ? [styles.button, styles.rightBorder, styles.middle]
                   : styles.button
               }
               onClick={this.triggerUrl('/l/')}
@@ -152,6 +152,9 @@ styles = StyleSheet.create({
     paddingTop: vars.padding / 2,
     paddingBottom: vars.padding * 0.625,
     borderTopRightRadius: 10,
+  },
+  middle: {
+    borderTopLeftRadius: 0,
   },
   rightBorder: {
     borderTopRightRadius: 0,

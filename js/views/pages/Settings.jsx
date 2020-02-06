@@ -14,6 +14,7 @@ import LongnamesIcon from '../../../dist/icons/longnames.svg'
 import FeedbackIcon from '../../../dist/icons/feedback.svg'
 import SponsorIcon from '../../../dist/icons/patron.svg'
 import CreditsIcon from '../../../dist/icons/credits.svg'
+import NewIcon from '../../../dist/icons/unsaved.svg'
 
 let styles
 
@@ -84,6 +85,15 @@ const Settings = () => {
           </Text>
         </Toggle>
         <Text style={paragraphStyles.h1}>{t('settings.more.title')}</Text>
+        <TouchableOpacity>
+          <View
+            style={styles.button}
+            onClick={() => window.open('https://dymajo.com')}
+          >
+            <NewIcon />
+            <Text style={styles.buttonText}>{t('settings.more.whatsnew')}</Text>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity>
           <View
             style={styles.button}

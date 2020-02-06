@@ -258,7 +258,7 @@ class RootContent extends React.Component {
             </div>
             <a
               className="label version"
-              href="https://github.com/consindo/dymajo-transit"
+              href="https://dymajo.com"
               target="_blank"
               rel="noopener"
               onClick={this.reject}

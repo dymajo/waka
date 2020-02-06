@@ -90,6 +90,7 @@ export default {
       title: 'More',
       feedback: 'Send Feedback',
       sponsor: 'Support Waka',
+      whatsnew: 'What’s new?',
       credits: 'View Credits',
     },
   },
