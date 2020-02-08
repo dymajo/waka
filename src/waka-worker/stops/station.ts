@@ -553,6 +553,18 @@ class Station {
         direction,
         procedure
       )
+      // use last week's timetable if no trips
+      if (trips.length === 0) {
+        logger.warn({ station }, 'Used timetable for last week!')
+        today.setDate(today.getDate() - 7)
+        trips = await dataAccess.getTimetable(
+          station,
+          route,
+          today,
+          direction,
+          procedure
+        )
+      }
     } catch (err) {
       logger.error({ err }, 'Could not get timetable.')
       return res.status(500).send(err)
