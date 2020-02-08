@@ -13,7 +13,7 @@ class SettingsStore {
         this.state[attrname] = preState[attrname]
       }
     }
-    localStorage.setItem('AppVersion', '2.4.5')
+    localStorage.setItem('AppVersion', '2.4.6')
   }
 
   getState() {

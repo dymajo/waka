@@ -10,7 +10,6 @@ import LinkedScroll from '../reusable/LinkedScroll.jsx'
 import Toggle from '../reusable/Toggle.jsx'
 
 import ClockIcon from '../../../dist/icons/clock.svg'
-import LongnamesIcon from '../../../dist/icons/longnames.svg'
 import FeedbackIcon from '../../../dist/icons/feedback.svg'
 import SponsorIcon from '../../../dist/icons/patron.svg'
 import CreditsIcon from '../../../dist/icons/credits.svg'
@@ -19,7 +18,7 @@ import NewIcon from '../../../dist/icons/unsaved.svg'
 let styles
 
 const renderLinks = items =>
-  items.map((item, key) => (
+  items.map(item => (
     <View key={item[0]} style={styles.creditRow}>
       <Text accessibilityRole="link" href={item[0]} style={styles.link}>
         {item[1]}
@@ -77,12 +76,6 @@ const Settings = () => {
         <Toggle id="clock">
           <ClockIcon />
           <Text style={styles.buttonText}>{t('settings.preferences.hrs')}</Text>
-        </Toggle>
-        <Toggle id="longName">
-          <LongnamesIcon />
-          <Text style={styles.buttonText}>
-            {t('settings.preferences.longnames')}
-          </Text>
         </Toggle>
         <Text style={paragraphStyles.h1}>{t('settings.more.title')}</Text>
         <TouchableOpacity>

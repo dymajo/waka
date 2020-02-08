@@ -84,7 +84,6 @@ export default {
       enabled: 'On',
       disabled: 'Off',
       hrs: '24 hour time',
-      longnames: 'Long Route Names',
     },
     more: {
       title: 'More',
