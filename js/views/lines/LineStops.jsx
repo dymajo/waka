@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 
 import { vars } from '../../styles.js'
@@ -15,6 +15,7 @@ export const LineStops = ({
   currentTrip = '',
   selectedStop = null,
   realtimeStopUpdates = {},
+  isTwentyFourHour = false,
 }) => {
   const stopStyle = [styles.stop, { borderColor: color }]
   const [showAll, setShowAll] = useState(false)
@@ -59,7 +60,7 @@ export const LineStops = ({
   comparisionStopTime.setSeconds(0) // so it makes more sense in the UI
 
   return (
-    <Fragment>
+    <>
       {!showAll && selectedStopIndex > 0 ? (
         <TouchableOpacity
           onClick={() => setShowAll(true)}
@@ -160,6 +161,7 @@ export const LineStops = ({
                         delay * 1000
                     ).toLocaleTimeString(navigator.language, {
                       timeZone: 'UTC',
+                      hour12: !isTwentyFourHour,
                       hour: 'numeric',
                       minute: 'numeric',
                     })}
@@ -170,7 +172,7 @@ export const LineStops = ({
           )
         })}
       </View>
-    </Fragment>
+    </>
   )
 }
 

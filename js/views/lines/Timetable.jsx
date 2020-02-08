@@ -6,10 +6,10 @@ import { vars } from '../../styles.js'
 
 import { getTime } from '../../helpers/date.js'
 
-const formatDate = (dateString, delay, region) => {
+const formatDate = (dateString, delay, isTwentyFourHour, region) => {
   const date = new Date(dateString)
   date.setTime(date.getTime() + delay * 1000)
-  const humanTime = getTime(date, false, true, region)
+  const humanTime = getTime(date, isTwentyFourHour, true, region)
 
   // make this nicer
   return `${humanTime.text || ''}${humanTime.subtext || ''}${
@@ -25,6 +25,7 @@ const Timetable = ({
   triggerTrip,
   realtimeStopUpdates,
   region,
+  isTwentyFourHour = false,
 }) => {
   const tripIds = {}
   return (
@@ -99,7 +100,12 @@ const Timetable = ({
                 onPress={triggerTrip(service.trip_id)}
               >
                 <Text style={[styles.departureDate, departureTextStyle]}>
-                  {formatDate(service.departure_time, delay, region)}
+                  {formatDate(
+                    service.departure_time,
+                    delay,
+                    isTwentyFourHour,
+                    region
+                  )}
                 </Text>
                 <Text style={[styles.departureStatus, emotion]}>
                   {scheduleRelationship}

@@ -73,7 +73,7 @@ const Settings = () => {
         <Text style={paragraphStyles.h1}>
           {t('settings.preferences.title')}
         </Text>
-        <Toggle id="clock">
+        <Toggle id="isTwentyFourHour">
           <ClockIcon />
           <Text style={styles.buttonText}>{t('settings.preferences.hrs')}</Text>
         </Toggle>

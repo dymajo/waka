@@ -6,6 +6,7 @@ import { withRouter } from 'react-router'
 import queryString from 'query-string'
 
 import { vars } from '../../styles.js'
+import SettingsStore from '../../stores/SettingsStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import Spinner from '../reusable/Spinner.jsx'
@@ -447,6 +448,7 @@ class Line extends React.Component {
           realtimeStopUpdates={realtimeStopUpdates}
           triggerTrip={this.triggerTrip}
           region={match.params.region}
+          isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
         />
       ) : null
     const lineStops = loading ? (
@@ -465,6 +467,7 @@ class Line extends React.Component {
           selectedStop={this.lineData.stop_id}
           currentTrip={currentTrip}
           realtimeStopUpdates={realtimeStopUpdates}
+          isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
         />
       </>
     )

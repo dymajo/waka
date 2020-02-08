@@ -1,17 +1,16 @@
 class SettingsStore {
   constructor() {
     this.state = {
-      clock: true,
-      longName: false,
+      isTwentyFourHour: false,
       lastLocation: [-36.844229, 174.767823], // britomart
       bikeShare: false,
     }
     if (localStorage.getItem('SettingsData')) {
       const preState = JSON.parse(localStorage.getItem('SettingsData'))
       // copies saved state, preserves defaults
-      for (const attrname in preState) {
-        this.state[attrname] = preState[attrname]
-      }
+      Object.keys(preState).forEach(attr => {
+        this.state[attr] = preState[attr]
+      })
     }
     localStorage.setItem('AppVersion', '2.4.6')
   }

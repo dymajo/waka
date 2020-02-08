@@ -448,6 +448,7 @@ class Station extends React.Component {
                   isRealtime: i.isRealtime,
                   platform: i.platform,
                 }))}
+                isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
                 onClick={() =>
                   this.triggerMap(
                     agencyId,
