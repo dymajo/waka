@@ -23,8 +23,8 @@ interface StationProps {
     train: boolean
   ):
     | Promise<{
-        [tripId: string]: WakaTripUpdate
-      }>
+      [tripId: string]: WakaTripUpdate
+    }>
     | undefined
 }
 
@@ -41,8 +41,8 @@ class Station {
     train: boolean
   ) =>
     | Promise<{
-        [tripId: string]: WakaTripUpdate
-      }>
+      [tripId: string]: WakaTripUpdate
+    }>
     | undefined
   dataAccess: StopsDataAccess
   version: string
@@ -334,6 +334,17 @@ class Station {
         today,
         procedure
       )
+      // use last week's timetable if no trips
+      if (trips.length === 0) {
+        logger.warn({ station }, 'Used timetable for last week!')
+        today.setDate(today.getDate() - 7)
+        trips = await dataAccess.getStopTimes(
+          station,
+          currentTime,
+          today,
+          procedure
+        )
+      }
     } catch (err) {
       logger.error({ err }, 'Could not get stop times.')
       return res.status(500).send(err)
