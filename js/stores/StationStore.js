@@ -289,53 +289,26 @@ class StationStore extends Events {
     if (tripData.length === 0) {
       return
     }
-    // realtime request for buses and trains
-    // not ferries though
-    let route_type
-    if (this.timesFor[0].split('+').length > 1) {
-      route_type = 3
-    } else if (tripData.length > 0) {
-      route_type = tripData[0].route_type
-    }
-    if (tripData.length === 0 || tripData[0].route_type === 4) {
-      return
-    }
 
-    const queryString = []
-    tripData
-      .filter(trip => {
-        const arrival = new Date()
-        if (arrival.getHours() < 5) {
-          arrival.setDate(arrival.getDate() - 1)
-        }
-        arrival.setHours(0)
-        arrival.setMinutes(0)
-        arrival.setSeconds(parseInt(trip.departure_time_seconds, 10))
-        // only gets realtime info for things +30mins away
-        if (arrival.getTime() < new Date().getTime() + 3600000) {
-          return true
-        }
-        return false
-      })
-      .forEach(trip => {
-        queryString.push(trip.trip_id)
-      })
+    // only gets realtime info for things +1 hrs away
+    const queryString = tripData
+      .filter(
+        trip =>
+          new Date(trip.departure_time).getTime() <
+          new Date().getTime() + 3600000
+      )
+      .map(trip => trip.trip_id)
 
-    // we need to pass an extra param for train trips
-    const requestData = {
-      stop_id,
-      trips: queryString,
-    }
-    if (route_type === 2 && region === 'nz-akl') {
-      requestData.train = true
-    }
     // now we do a request to the realtime API
     const res = await fetch(`${local.endpoint}/${region}/realtime`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestData),
+      body: JSON.stringify({
+        stop_id,
+        trips: queryString,
+      }),
     })
     const data = await res.json()
     this.realtimeData = this.realtimeModifier(tripData, data, stop_id, region)
