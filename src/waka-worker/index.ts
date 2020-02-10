@@ -9,7 +9,7 @@ import createLogger from './logger'
 import Realtime from './realtime'
 import StopsNZAKL from './stops/regions/nz-akl'
 import StopsNZWLG from './stops/regions/nz-wlg'
-import Search from './stops/search'
+import Search from './controllers/searchController'
 import Station from './stops/station'
 
 class WakaWorker {

@@ -7,8 +7,8 @@ import { isKeyof, sortFn } from '../../utils'
 import WakaRedis from '../../waka-realtime/Redis'
 import Connection from '../db/connection'
 import Storage from '../db/storage'
-import StopsDataAccess from '../stops/dataAccess'
-import Search from '../stops/search'
+import StopsDataAccess from '../dataAccess/stopsDataAccess'
+import Search from '../controllers/searchController'
 import SydneyLines from './regions/au-syd'
 import GenericLines from './regions/generic'
 import AucklandLines from './regions/nz-akl'
@@ -117,7 +117,7 @@ class Lines {
     }
   }
 
-  stop = () => {}
+  stop = () => { }
 
   getColor = (agencyId: string, routeShortName: string) => {
     const { lineDataSource } = this

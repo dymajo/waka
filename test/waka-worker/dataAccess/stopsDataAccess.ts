@@ -5,7 +5,7 @@ import { instance, mock, when } from 'ts-mockito'
 import StopsDataAccess from '../../../src/waka-worker/dataAccess/stopsDataAccess'
 import StopsSqlRepostory from '../../../src/waka-worker/dataAccess/sql/stopsSqlRepository'
 
-describe('waka-worker/stops/dataAccess', () => {
+describe('waka-worker/dataAccess/stopsDataAccess', () => {
   it('should return bounds', async () => {
     const stopsDataAccess = new StopsDataAccess({
       prefix: 'fake-prefix',

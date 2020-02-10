@@ -212,10 +212,6 @@ export interface RouteInfo {
   route_text_color: string
 }
 
-export interface StopRouteType {
-  [stop_id: string]: string
-}
-
 export interface Onzo {
   battery: number
   chargeVoltage: number
