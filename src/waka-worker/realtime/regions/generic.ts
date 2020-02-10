@@ -7,7 +7,7 @@ import { Logger, WakaRequest, WakaTripUpdate, WakaVehicleInfo } from '../../../t
 import { prefixToTimezone } from '../../../utils'
 import WakaRedis from '../../../waka-realtime/Redis'
 import Connection from '../../db/connection'
-import StopsDataAccess from '../../stops/dataAccess'
+import StopsDataAccess from '../../dataAccess/stopsDataAccess'
 
 
 
@@ -114,11 +114,11 @@ class GenericRealtime extends BaseRealtime {
       if (stopSequences.length > 0) {
         query = `(trip_id = '${
           trip.trip.tripId
-        }' AND stop_sequence in (${stopSequences.join(',')}))`
+          }' AND stop_sequence in (${stopSequences.join(',')}))`
       } else if (stopIds.length > 0) {
         query = `(trip_id = '${
           trip.trip.tripId
-        }' AND stop_sequence in ('${stopIds.join("' , '")}'))`
+          }' AND stop_sequence in ('${stopIds.join("' , '")}'))`
       }
       return query
     })

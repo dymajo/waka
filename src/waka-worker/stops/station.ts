@@ -7,7 +7,7 @@ import { prefixToTimezone } from '../../utils'
 import WakaRedis from '../../waka-realtime/Redis'
 import Connection from '../db/connection'
 import Lines from '../lines'
-import StopsDataAccess from './dataAccess'
+import StopsDataAccess from '../dataAccess/stopsDataAccess'
 
 interface StationProps {
   logger: Logger
@@ -71,30 +71,24 @@ class Station {
 
   transfers = async () => {
     const transfers = await this.dataAccess.getTransfers()
-    for (const stopId in transfers) {
-      if (Object.prototype.hasOwnProperty.call(transfers, stopId)) {
-        try {
-          const stopTransfers = transfers[stopId].toString()
-          this.redis.client.set(
-            `waka-worker:${this.prefix}:stop-transfers:${stopId}`,
-            stopTransfers
-          )
-        } catch (error) {
-          console.log(error)
-        }
+    Object.keys(transfers).forEach(stopId => {
+      try {
+        const stopTransfers = transfers[stopId].toString()
+        this.redis.client.set(
+          `waka-worker:${this.prefix}:stop-transfers:${stopId}`,
+          stopTransfers
+        )
+      } catch (error) {
+        console.log(error)
       }
-    }
+    })
+
     const { logger, prefix, version } = this
     logger.info({ stopCount: Object.keys(transfers).length }, 'Got Transfers')
   }
 
   getBounds = async () => {
-    const { dataAccess } = this
-    const bounds = await dataAccess.getBounds()
-    return {
-      lat: { min: bounds.lat_min, max: bounds.lat_max },
-      lon: { min: bounds.lon_min, max: bounds.lon_max },
-    }
+    return this.dataAccess.getBounds()
   }
 
   /**
@@ -445,12 +439,10 @@ class Station {
     }
     // the all routes stuff is possibly an extra call to the database,
     // so we only do it if we need to
-    if (req.query.allRoutes || sending.trips.length === 0) {
-      try {
-        sending.allRoutes = await dataAccess.getRoutesForStop(station)
-      } catch (err) {
-        logger.error({ err, station }, 'Could not get all routes for station.')
-      }
+    try {
+      sending.allRoutes = await dataAccess.getRoutesForMultipleStops([station])
+    } catch (err) {
+      logger.error({ err, station }, 'Could not get all routes for station.')
     }
     return res.send(sending)
   }

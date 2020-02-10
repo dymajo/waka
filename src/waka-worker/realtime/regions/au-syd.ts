@@ -6,7 +6,7 @@ import { Logger, StopTime, WakaRequest, WakaTripUpdate, WakaVehicleInfo } from '
 import BaseRealtime from '../../../types/BaseRealtime'
 import WakaRedis from '../../../waka-realtime/Redis'
 import Connection from '../../db/connection'
-import StopsDataAccess from '../../stops/dataAccess'
+import StopsDataAccess from '../../dataAccess/stopsDataAccess'
 
 
 

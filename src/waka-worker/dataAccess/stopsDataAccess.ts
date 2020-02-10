@@ -1,6 +1,7 @@
 import * as sql from 'mssql'
 import { DBStopTime, RouteInfo, StopTime, TripInfo, TripRow } from '../../types'
 import Connection from '../db/connection'
+import StopsSqlRepostory from './sql/stopsSqlRepository'
 
 interface StopsDataAccessProps {
   connection: Connection
@@ -10,6 +11,7 @@ interface StopsDataAccessProps {
 class StopsDataAccess {
   connection: Connection
   prefix: string
+  stopIdCache: Map<string, string>
   stopRouteCache: Map<
     string,
     {
@@ -18,83 +20,32 @@ class StopsDataAccess {
       direction_id: number
     }[]
   >
+  stopsSqlRepository: StopsSqlRepostory
+
   constructor(props: StopsDataAccessProps) {
     const { connection, prefix } = props
     this.connection = connection
     this.prefix = prefix
 
+    this.stopsSqlRepository = new StopsSqlRepostory(connection)
     this.stopRouteCache = new Map()
   }
 
   async getBounds() {
-    const { connection } = this
-    const sqlRequest = connection.get().request()
-    const result = await sqlRequest.query<{
-      lat_min: number
-      lat_max: number
-      lon_min: number
-      lon_max: number
-    }>(`
-      SELECT
-        MIN(stop_lat) as lat_min,
-        MAX(stop_lat) as lat_max,
-        MIN(stop_lon) as lon_min,
-        MAX(stop_lon) as lon_max
-      FROM stops;`)
-
-    const data = result.recordset[0]
-    return data
+    const result = await this.stopsSqlRepository.getBounds()
+    const bounds = result[0]
+    return {
+      lat: { min: bounds.lat_min, max: bounds.lat_max },
+      lon: { min: bounds.lon_min, max: bounds.lon_max },
+    }
   }
 
   async getStopInfo(stopCode: string) {
-    const { connection, prefix } = this
-    const sqlRequest = connection
-      .get()
-      .request()
-      .input('stop_code', sql.VarChar, stopCode)
-
-    const result = await sqlRequest.query<{
-      stop_id: string
-      stop_name: string
-      stop_desc: string
-      stop_lat: number
-      stop_lon: number
-      zone_id: string
-      location_type: number
-      parent_station: string
-      stop_timezone: string
-      wheelchair_boarding: number
-      route_type: number
-    }>(`
-      SELECT
-        stops.stop_code as stop_id,
-        stops.stop_name,
-        stops.stop_desc,
-        stops.stop_lat,
-        stops.stop_lon,
-        stops.zone_id,
-        stops.location_type,
-        stops.parent_station,
-        stops.stop_timezone,
-        stops.wheelchair_boarding,
-        routes.route_type
-      FROM
-        stops
-      LEFT JOIN
-        stop_times
-      ON stop_times.id = (
-          SELECT TOP 1 id
-          FROM    stop_times
-          WHERE
-          stop_times.stop_id = stops.stop_id
-      )
-      LEFT JOIN trips ON trips.trip_id = stop_times.trip_id
-      LEFT JOIN routes on routes.route_id = trips.route_id
-      WHERE
-        stops.stop_code = @stop_code
-    `)
-    const data = { ...result.recordset[0], prefix }
-    return data
+    const result = await this.stopsSqlRepository.getStopInfo(stopCode)
+    if (result.length === 0) {
+      throw new Error('404')
+    }
+    return { ...result[0], prefix: this.prefix }
   }
 
   getStopTimes = async (
@@ -103,16 +54,8 @@ class StopsDataAccess {
     date: Date,
     procedure = 'GetStopTimes'
   ) => {
-    const { connection } = this
-    const sqlRequest = connection
-      .get()
-      .request()
-      .input('stop_id', sql.VarChar(100), stopCode)
-      .input('departure_time', sql.Time, time)
-      .input('departure_date', sql.Date, date)
-
-    const result = await sqlRequest.execute<DBStopTime>(procedure)
-    return result.recordset
+    // TODO: Pull more of the controller logic into here
+    return this.stopsSqlRepository.getStopTimes(stopCode, time, date, procedure)
   }
 
   async getTimetable(
@@ -122,170 +65,47 @@ class StopsDataAccess {
     direction: string,
     procedure = 'GetTimetable'
   ) {
-    const { connection } = this
-    const sqlRequest = connection
-      .get()
-      .request()
-      .input('stop_id', sql.VarChar(100), stopCode)
-      .input('route_short_name', sql.VarChar(50), routeId)
-      .input('date', sql.Date, date)
-      .input('direction', sql.Int, direction)
-    const result = await sqlRequest.execute<{
-      trip_id: string
-      service_id: string
-      shape_id: string
-      trip_headsign: string
-      direction_id: number
-      stop_sequence: string
-      departure_time: Date
-      departure_time_24: Date
-      route_id: string
-      route_long_name: string
-      agency_id: string
-    }>(procedure)
-    return result.recordset
+    // TODO: Pull more of the controller logic into here
+    return this.stopsSqlRepository.getTimetable(
+      stopCode,
+      routeId,
+      date,
+      direction,
+      procedure
+    )
   }
 
-  async getRoutesForStop(stopCode: string) {
-    const { connection } = this
-    const cachedRoutes = this.stopRouteCache.get(stopCode)
-    if (cachedRoutes !== undefined) {
-      return cachedRoutes
-    }
+  async getTransfers() {
+    const stopsToRoutes = {}
+    const routesAtStopsRecordset = await this.stopsSqlRepository.getRoutesAtStops()
 
-    const sqlRequest = connection
-      .get()
-      .request()
-      .input('stop_code', sql.VarChar, stopCode)
-
-    const result = await sqlRequest.query<{
-      route_short_name: string
-      trip_headsign: string
-      direction_id: number
-    }>(`
-      DECLARE @stop_id varchar(200)
-
-      SELECT @stop_id = stop_id
-      FROM stops
-      WHERE stop_code = @stop_code
-
-      SELECT
-        trip_headsign,
-        direction_id
-      FROM stop_times
-        JOIN trips ON trips.trip_id = stop_times.trip_id
-        JOIN routes ON routes.route_id = trips.route_id
-      WHERE stop_times.stop_id = @stop_id
-      GROUP BY
-        route_short_name,
-        trip_headsign,
-        direction_id
-      ORDER BY
-        route_short_name,
-        direction_id,
-        -- this is so it chooses normal services first before expresses or others
-        count(trip_headsign) desc
-    `)
-
-    const routes = result.recordset
-    this.stopRouteCache.set(stopCode, routes)
-    return routes
-  }
-
-  getNullParentStationRouteStops = async () => {
-    const { connection } = this
-    const sqlRequest = connection.get().request()
-    const result = await sqlRequest.query<{
-      stop_id: string
-      route_short_name: string
-      agency_id: string
-    }>(`
-      select distinct stops.stop_id, route_short_name, agency_id
-      from trips
-      inner join stop_times
-      on stop_times.trip_id = trips.trip_id
-      inner join stops
-      on stops.stop_id = stop_times.stop_id
-      inner join routes
-      on routes.route_id = trips.route_id
-      where (pickup_type = 0 or drop_off_type = 0 ) and route_type <> 712 and parent_station is null
-      group by stops.stop_id, route_short_name, agency_id;
-    `)
-    const stops: { [stop_id: string]: string[] } = {}
-    for (const { stop_id, route_short_name, agency_id } of result.recordset) {
-      const uniqueKey = [agency_id, route_short_name].join('/')
-      if (Object.prototype.hasOwnProperty.call(stops, stop_id)) {
-        stops[stop_id].push(uniqueKey)
-      } else {
-        stops[stop_id] = [uniqueKey]
+    // turns the table into a map with arrays
+    routesAtStopsRecordset.forEach(record => {
+      const { stop_id, route_short_name, agency_id } = record
+      if (stopsToRoutes[stop_id] === undefined) {
+        stopsToRoutes[stop_id] = new Set()
       }
-    }
-    return stops
-  }
+      stopsToRoutes[stop_id].add([agency_id, route_short_name].join('/'))
+    })
 
-  getParentStationRouteStops = async () => {
-    const { connection } = this
-    const sqlRequest = connection.get().request()
-    const result = await sqlRequest.query<{
-      parent_station: string
-      route_short_name: string
-      agency_id: string
-    }>(`
-      select distinct parent_station, route_short_name, agency_id
-      from trips
-      inner join stop_times
-      on stop_times.trip_id = trips.trip_id
-      inner join stops
-      on stops.stop_id = stop_times.stop_id
-      inner join routes
-      on routes.route_id = trips.route_id
-      where (pickup_type = 0 or drop_off_type = 0 ) and route_type <> 712 and parent_station is not null
-      group by parent_station, route_short_name, agency_id
-      order by parent_station;
-    `)
-    const parents: { [parent_station: string]: string[] } = {}
-    const parentsMap = await this.getParentStops()
-    const stops: { [stop_id: string]: string[] } = {}
-
-    for (const {
-      parent_station,
-      route_short_name,
-      agency_id,
-    } of result.recordset) {
-      const uniqueKey = [agency_id, route_short_name].join('/')
-      if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
-        parents[parent_station].push(uniqueKey)
-      } else {
-        parents[parent_station] = [uniqueKey]
+    // now get the parents, and pop the transfers into the parents
+    const parents = await this.stopsSqlRepository.getParentStops()
+    parents.forEach(record => {
+      const { stop_id, parent_station } = record
+      if (stopsToRoutes[parent_station] === undefined) {
+        stopsToRoutes[parent_station] = new Set()
       }
-    }
+      Array.from(stopsToRoutes[stop_id] || []).forEach(route => {
+        stopsToRoutes[parent_station].add(route)
+      })
+    })
 
-    for (const { stop_id, parent_station } of parentsMap) {
-      if (Object.prototype.hasOwnProperty.call(parents, parent_station)) {
-        stops[stop_id] = parents[parent_station]
-      }
-    }
+    // now convert everything to a regular dict
+    Object.keys(stopsToRoutes).forEach(key => {
+      stopsToRoutes[key] = Array.from(stopsToRoutes[key])
+    })
 
-    return stops
-  }
-
-  getParentStops = async () => {
-    const { connection } = this
-    const sqlRequest = connection.get().request()
-    const result = await sqlRequest.query<{
-      stop_id: string
-      parent_station: string
-    }>(`
-      select stop_id, parent_station from stops where parent_station is not null;
-    `)
-    return result.recordset
-  }
-
-  getTransfers = async () => {
-    const parents = await this.getParentStationRouteStops()
-    const stops = await this.getNullParentStationRouteStops()
-    const transfers = { ...parents, ...stops }
-    return transfers
+    return stopsToRoutes
   }
 
   async getRoutesForMultipleStops(stopCodes: string[]) {
@@ -402,13 +222,13 @@ class StopsDataAccess {
     const result = await sqlRequest.query<StopTime>(`
       SELECT
         CASE
-			    WHEN st.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), st.arrival_time) + 86400
-			    ELSE DATEDIFF(s, cast('00:00' AS TIME), st.arrival_time)
-		    END AS new_arrival_time,
-		    CASE
-			    WHEN st.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), st.departure_time) + 86400
-			    ELSE DATEDIFF(s, cast('00:00' AS TIME), st.departure_time)
-		    END AS new_departure_time,
+          WHEN st.arrival_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), st.arrival_time) + 86400
+          ELSE DATEDIFF(s, cast('00:00' AS TIME), st.arrival_time)
+        END AS new_arrival_time,
+        CASE
+          WHEN st.departure_time_24 = 1 THEN DATEDIFF(s, cast('00:00' AS TIME), st.departure_time) + 86400
+          ELSE DATEDIFF(s, cast('00:00' AS TIME), st.departure_time)
+        END AS new_departure_time,
         t.trip_id,
         pickup_type,
         drop_off_type,

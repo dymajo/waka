@@ -7,7 +7,7 @@ import sql from 'mssql'
 import { DBStopTime, MetlinkNotice, MetlinkService, MetlinkStop, MetlinkUpdate, WakaRequest } from '../../../types'
 import BaseRealtime from '../../../types/BaseRealtime'
 import Connection from '../../db/connection'
-import StopsDataAccess from '../../stops/dataAccess'
+import StopsDataAccess from '../../dataAccess/stopsDataAccess'
 
 const tripsUrl = 'https://www.metlink.org.nz/api/v1/StopDepartures/'
 const serviceLocation = 'https://www.metlink.org.nz/api/v1/ServiceLocation/'
@@ -151,7 +151,7 @@ class RealtimeNZWLG extends BaseRealtime {
               trip.route_short_name
             ].reduce((prev, curr) =>
               Math.abs(moment(curr.AimedDeparture).unix() - goal.unix()) <
-              Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
+                Math.abs(moment(prev.AimedDeparture).unix() - goal.unix())
                 ? curr
                 : prev
             )
