@@ -136,14 +136,14 @@ export default class StopsSqlRepostory {
       route_short_name: string
       agency_id: string
     }>(`
-      SELECT DISTINCT stops.stop_id, route_short_name, agency_id
+      SELECT DISTINCT stops.stop_code as stop_id, route_short_name, agency_id
       FROM trips
       INNER JOIN stop_times ON stop_times.trip_id = trips.trip_id
       INNER JOIN stops ON stops.stop_id = stop_times.stop_id
       INNER JOIN routes ON routes.route_id = trips.route_id
       WHERE
           (pickup_type = 0 or drop_off_type = 0) AND route_type <> 712
-      ORDER BY stop_id;
+      ORDER BY stop_code;
     `)
     return Array.from(data.recordset)
   }
@@ -155,7 +155,7 @@ export default class StopsSqlRepostory {
       stop_id: string
       parent_station: string
     }>(`
-      SELECT stop_id, parent_station
+      SELECT stop_code as stop_id, parent_station
       FROM stops
       WHERE parent_station IS NOT NULL
     `)

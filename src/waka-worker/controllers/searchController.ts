@@ -1,16 +1,19 @@
 import * as Logger from 'bunyan'
 import { Response } from 'express'
-import * as sql from 'mssql'
 import { WakaRequest } from '../../types'
 import BaseStops from '../../types/BaseStops'
 import Connection from '../db/connection'
 import SearchDataAccess from '../dataAccess/searchDataAccess'
+import Lines from '../lines/index'
+import WakaRedis from '../../waka-realtime/Redis'
 
 interface SearchProps {
   logger: Logger
   connection: Connection
   prefix: string
   stopsExtras: BaseStops
+  lines: Lines
+  redis: WakaRedis
 }
 
 type RouteTypes = { [stop_id: string]: number }
@@ -22,13 +25,17 @@ class Search {
   regionSpecific: BaseStops
   stopsRouteType: RouteTypes
   searchDataAccess: SearchDataAccess
+  lines: Lines
+  redis: WakaRedis
 
   constructor(props: SearchProps) {
-    const { logger, connection, prefix, stopsExtras } = props
+    const { logger, connection, prefix, stopsExtras, lines, redis } = props
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
     this.regionSpecific = stopsExtras
+    this.lines = lines
+    this.redis = redis
 
     this.searchDataAccess = new SearchDataAccess({ logger, connection, prefix })
     this.stopsRouteType = {}
@@ -110,6 +117,10 @@ class Search {
    * @apiSuccess {Number} items.stop_lon Stop Longitude
    * @apiSuccess {String} items.stop_region Worker Region that a stop is in
    * @apiSuccess {Number} items.route_type See GTFS Route Types.
+   * @apiSuccess {Object[]} items.lines A list of all the lines that stop at this station
+   * @apiSuccess {String} items.lines.agency_id Agency of Line
+   * @apiSuccess {String} items.lines.route_short_name Route Short Name of Line
+   * @apiSuccess {String} items.lines.route_color Color of Line
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
@@ -120,14 +131,21 @@ class Search {
    *         "stop_lat": -41.278969,
    *         "stop_lon": 174.780562,
    *         "stop_region": "nz-wlg",
-   *         "route_type": 2
+   *         "route_type": 2,
+   *         "lines": [
+   *            { 
+   *              agency_id: "RAIL",
+   *              route_short_name: "HVL",
+   *              route_color: "#e52f2b"
+   *            }
+   *          ]
    *       }
    *     ]
    *
    */
   getStopsLatLon = async (req: WakaRequest<null, null>, res: Response) => {
     // no caching here, maybe we need it?
-    const { logger, prefix, regionSpecific, stopsFilter, searchDataAccess } = this
+    const { logger, prefix, regionSpecific, stopsFilter, searchDataAccess, lines } = this
     const { lat, lon, distance } = req.query
 
     if (!(lat && lon && distance)) {
@@ -158,7 +176,34 @@ class Search {
     // gross wrapper because gross reasons
     const dbWrapper = async (latFloat, lonFloat, dist) => {
       const stops = await searchDataAccess.getStops(latFloat, lonFloat, dist)
-      return stopsFilter(stops.items)
+      const stopsWithTransfers = await Promise.all(stops.items.map(async stop => {
+        // TODO: do we add the redis stuff to the dataAccess?
+        // Do we have a redis data access?
+        // I'll figure it out when I do more refactoring
+        try {
+          const transfers = await this.redis.client.get(`waka-worker:${this.prefix}:stop-transfers:${stop.stop_id}`)
+          const linesObject = (transfers || '').split(',').map(line => {
+            // this handles multiple '/' characters
+            // yeah we should move this into it's own function
+            const split = line.split('/')
+            const components = [split.shift(), split.join('/')]
+            const [agency_id, route_short_name] = components
+            return {
+              agency_id,
+              route_short_name,
+              route_color: lines.getColor(agency_id, route_short_name)
+            }
+          })
+          return {
+            ...stop,
+            lines: linesObject,
+          }
+        } catch (err) {
+          logger.warn({ err })
+          return stop
+        }
+      }))
+      return stopsFilter(stopsWithTransfers)
     }
 
     let sources = [dbWrapper(latFloat, lonFloat, distance)]

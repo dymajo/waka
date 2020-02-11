@@ -8,7 +8,6 @@ import WakaRedis from '../../waka-realtime/Redis'
 import Connection from '../db/connection'
 import Storage from '../db/storage'
 import StopsDataAccess from '../dataAccess/stopsDataAccess'
-import Search from '../controllers/searchController'
 import SydneyLines from './regions/au-syd'
 import GenericLines from './regions/generic'
 import AucklandLines from './regions/nz-akl'
@@ -27,7 +26,6 @@ interface LinesProps {
   connection: Connection
   prefix: string
   version: string
-  search: Search
   config: {
     storageService: 'aws' | 'local'
     shapesContainer: string
@@ -41,7 +39,6 @@ class Lines {
   connection: Connection
   prefix: string
   version: string
-  search: Search
   stopsDataAccess: StopsDataAccess
   storageSvc: Storage
   lineDataSource: BaseLines
@@ -71,12 +68,11 @@ class Lines {
   }
   redis: WakaRedis
   constructor(props: LinesProps) {
-    const { logger, connection, prefix, version, config, search, redis } = props
+    const { logger, connection, prefix, version, config, redis } = props
     this.logger = logger
     this.connection = connection
     this.prefix = prefix
     this.version = version
-    this.search = search
     this.config = config
     this.cityMetadata = cityMetadataJSON
     this.redis = redis
@@ -589,136 +585,6 @@ class Lines {
     return retval
   }
 
-  /**
-   * @api {get} /:region/stops/trip/:trip_id Line Stops - by trip_id
-   * @apiName GetStopsByTrip
-   * @apiGroup Lines
-   *
-   * @apiParam {String} region Region of Worker
-   * @apiParam {String} trip_id GTFS trip_id for particular trip
-   *
-   * @apiSuccess {Object[]} stops Array of stops
-   *
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * [
-   *   {
-   *     "stop_id": "9218",
-   *     "stop_name": "Manukau Train Station",
-   *     "stop_lat": -36.99388,
-   *     "stop_lon": 174.8774,
-   *     "departure_time": "1970-01-01T18:00:00.000Z",
-   *     "departure_time_24": false,
-   *     "stop_sequence": 1
-   *   }
-   * ]
-   */
-  getStopsFromTrip = async (
-    req: WakaRequest<null, { tripId: string }>,
-    res: Response
-  ) => {
-    const { connection, logger, stopsDataAccess, search, redis, prefix } = this
-    const sqlRequest = connection.get().request()
-    sqlRequest.input('trip_id', sql.VarChar(100), req.params.tripId)
-    try {
-      const result = await sqlRequest.query<{
-        stop_id: string
-        stop_name: string
-        stop_lat: number
-        stop_lon: number
-        departure_time: Date
-        departure_time_24: Date
-        stop_sequence: Date
-      }>(`
-        SELECT
-          stops.stop_code as stop_id,
-          stops.stop_name,
-          stops.stop_lat,
-          stops.stop_lon,
-          stop_times.departure_time,
-          stop_times.departure_time_24,
-          stop_times.stop_sequence,
-          stop_times.pickup_type,
-          stop_times.drop_off_type
-        FROM stop_times
-        LEFT JOIN stops
-          on stops.stop_id = stop_times.stop_id
-        WHERE
-          stop_times.trip_id = @trip_id
-        ORDER BY stop_sequence`)
-
-      // const stopRoutes = await stopsDataAccess.getRoutesForMultipleStops(
-      //   result.recordset.map(i => i.stop_id)
-      // )
-      const promises = result.recordset.map(async i => {
-        const redisresult = await redis.client.get(
-          `waka-worker:${prefix}:stop-transfers:${i.stop_id}`
-        )
-        let transfers: string[] = []
-        if (redisresult) {
-          transfers = redisresult.split(',')
-        }
-
-        const transfersWithColors = transfers.map(t => {
-          const [agency, routeShortName] = t.split('/')
-          return [routeShortName, this.getColor(agency, routeShortName)]
-        })
-        transfersWithColors.sort(sortFn)
-
-        return { ...i, transfers: transfersWithColors }
-      })
-      const results = await Promise.all(promises)
-      const sending = search.stopsFilter(results, 'keep')
-      return res.send(sending)
-    } catch (err) {
-      logger.error({ err }, 'Could not get stops from trip.')
-      res.status(500).send(err)
-    }
-  }
-
-  /**
-   * @api {get} /:region/stops/shape/:shape_id Line Stops - by shape_id
-   * @apiName GetStopsByShape
-   * @apiGroup Lines
-   *
-   * @apiParam {String} region Region of Worker
-   * @apiParam {String} shape_id GTFS shape_id for particular trip
-   *
-   * @apiSuccess {Object[]} stops Array of stops
-   *
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * [
-   *   {
-   *     "stop_id": "9218",
-   *     "stop_name": "Manukau Train Station",
-   *     "stop_lat": -36.99388,
-   *     "stop_lon": 174.8774,
-   *     "departure_time": "1970-01-01T18:00:00.000Z",
-   *     "departure_time_24": false,
-   *     "stop_sequence": 1
-   *   }
-   * ]
-   */
-  getStopsFromShape = async (req: Request, res: Response) => {
-    const { connection, logger } = this
-    const sqlRequest = connection.get().request()
-    sqlRequest.input('shape_id', sql.VarChar(100), req.params.shapeId)
-    try {
-      const result = await sqlRequest.query<{ trip_id: string }>(
-        'SELECT TOP(1) trip_id FROM trips WHERE trips.shape_id = @shape_id'
-      )
-
-      // forwards the request on.
-      const tripId = result.recordset[0].trip_id
-      req.params.tripId = tripId
-      this.getStopsFromTrip(req, res)
-    } catch (err) {
-      logger.error({ err }, 'Could not get stops from shape.')
-      res.status(500).send({ message: 'Could not get stops from shape.' })
-    }
-  }
-
   getAllStops = async (req: Request, res: Response) => {
     const { connection, logger } = this
     const sqlRequest = connection.get().request()
@@ -746,7 +612,7 @@ class Lines {
       const data = await stopsDataAccess.getBlockFromTrip(tripId)
       const promises = data.current.map(async i => {
         const redisresult = await this.redis.client.get(
-          `waka-worker:${this.prefix}:stop-transfers:${i.stop_id}`
+          `waka-worker:${this.prefix}:stop-transfers:${i.stop_code}`
         )
         let transfers: string[] = []
         if (redisresult) {

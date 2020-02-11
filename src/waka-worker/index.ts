@@ -78,20 +78,19 @@ class WakaWorker {
     }
     const { stopsExtras } = this
 
-    this.search = new Search({ logger, connection, prefix, stopsExtras })
     this.lines = new Lines({
       redis: this.redis,
       logger,
       connection,
       prefix,
       version,
-      search: this.search,
       config: {
         storageService,
         shapesContainer,
         shapesRegion,
       },
     })
+    this.search = new Search({ logger, connection, prefix, stopsExtras, lines: this.lines, redis: this.redis })
     this.station = new Station({
       logger,
       connection,
@@ -209,8 +208,6 @@ class WakaWorker {
     router.get('/all-lines', lines.getLinesV2)
     router.get('/line/:line', lines.getLine)
     router.get('/stops/all', lines.getAllStops)
-    router.get('/stops/trip/:tripId', lines.getStopsFromTrip)
-    router.get('/stops/shape/:shapeId', lines.getStopsFromShape)
     router.get('/shapejson/:shapeId', lines.getShapeJSON)
 
     router.get('/realtime-healthcheck', realtime.healthcheck)
