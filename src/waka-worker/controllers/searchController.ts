@@ -3,6 +3,7 @@ import { Response } from 'express'
 import { WakaRequest } from '../../types'
 import BaseStops from '../../types/BaseStops'
 import Connection from '../db/connection'
+import RedisDataAccess from '../dataAccess/redisDataAccess'
 import SearchDataAccess from '../dataAccess/searchDataAccess'
 import Lines from '../lines/index'
 import WakaRedis from '../../waka-realtime/Redis'
@@ -26,7 +27,7 @@ class Search {
   stopsRouteType: RouteTypes
   searchDataAccess: SearchDataAccess
   lines: Lines
-  redis: WakaRedis
+  redisDataAccess: RedisDataAccess
 
   constructor(props: SearchProps) {
     const { logger, connection, prefix, stopsExtras, lines, redis } = props
@@ -35,8 +36,8 @@ class Search {
     this.prefix = prefix
     this.regionSpecific = stopsExtras
     this.lines = lines
-    this.redis = redis
 
+    this.redisDataAccess = new RedisDataAccess({ logger, prefix, redis })
     this.searchDataAccess = new SearchDataAccess({ logger, connection, prefix })
     this.stopsRouteType = {}
   }
@@ -177,26 +178,14 @@ class Search {
     const dbWrapper = async (latFloat, lonFloat, dist) => {
       const stops = await searchDataAccess.getStops(latFloat, lonFloat, dist)
       const stopsWithTransfers = await Promise.all(stops.items.map(async stop => {
-        // TODO: do we add the redis stuff to the dataAccess?
-        // Do we have a redis data access?
-        // I'll figure it out when I do more refactoring
         try {
-          const transfers = await this.redis.client.get(`waka-worker:${this.prefix}:stop-transfers:${stop.stop_id}`)
-          const linesObject = (transfers || '').split(',').map(line => {
-            // this handles multiple '/' characters
-            // yeah we should move this into it's own function
-            const split = line.split('/')
-            const components = [split.shift(), split.join('/')]
-            const [agency_id, route_short_name] = components
-            return {
-              agency_id,
-              route_short_name,
-              route_color: lines.getColor(agency_id, route_short_name)
-            }
-          })
+          const linesObject = await this.redisDataAccess.getLinesForStop(stop.stop_id)
           return {
             ...stop,
-            lines: linesObject,
+            lines: linesObject.map(l => ({
+              ...l,
+              route_color: this.lines.getColor(l.agency_id, l.route_short_name)
+            })),
           }
         } catch (err) {
           logger.warn({ err })
