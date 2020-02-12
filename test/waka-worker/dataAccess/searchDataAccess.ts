@@ -58,9 +58,21 @@ describe('waka-worker/dataAccess/searchDataAccess', () => {
     )
     searchDataAccess.searchSqlRepository = searchSqlRepository
 
-    // should get an empty object now
+    // should get an object now
     await searchDataAccess.start()
     expect(searchDataAccess.routeTypesCache).to.deep.equal({ '1': 2 })
+  })
+
+
+  it('should fail safely if there is no database connection', async () => {
+    const searchDataAccess = new SearchDataAccess({
+      prefix: 'fake-prefix',
+      connection: null,
+      logger,
+    })
+
+    // should not crash
+    await searchDataAccess.start()
   })
 
   it('should get all stops', async () => {
@@ -131,6 +143,13 @@ describe('waka-worker/dataAccess/searchDataAccess', () => {
         stop_lon: 1,
         location_type: 0
       },
+      {
+        stop_id: '2',
+        stop_name: 'BUS_STOP',
+        stop_lat: 1,
+        stop_lon: 1.5,
+        location_type: 0
+      },
     ])
     const searchSqlRepository: SearchSqlRepostory = instance(
       mockedSearchSqlRepository
@@ -139,7 +158,7 @@ describe('waka-worker/dataAccess/searchDataAccess', () => {
 
     await searchDataAccess.start()
     const result = await searchDataAccess.getStops(2, 2, 65000)
-    expect(result.items).to.have.lengthOf(1)
+    expect(result.items).to.have.lengthOf(2)
     expect(result.items[0]).to.deep.equal({
       stop_region: 'fake-prefix',
       route_type: 2,
@@ -147,6 +166,15 @@ describe('waka-worker/dataAccess/searchDataAccess', () => {
       stop_name: 'TRAIN_STOP',
       stop_lat: 1,
       stop_lon: 1,
+      location_type: 0
+    })
+    expect(result.items[1]).to.deep.equal({
+      stop_region: 'fake-prefix',
+      route_type: 3,
+      stop_id: '2',
+      stop_name: 'BUS_STOP',
+      stop_lat: 1,
+      stop_lon: 1.5,
       location_type: 0
     })
   })

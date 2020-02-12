@@ -25,10 +25,14 @@
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
+    "include": [
+      "src"
+    ],
     "exclude": [
-      "lib/**/*.js",
+      "lib",
       "coverage",
-      "test"
+      "test",
+      "dist"
     ],
     "reporter": [
       "html",

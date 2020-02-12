@@ -8,6 +8,7 @@ import WakaRedis from '../../waka-realtime/Redis'
 import Connection from '../db/connection'
 import Lines from '../lines'
 import StopsDataAccess from '../dataAccess/stopsDataAccess'
+import RedisDataAccess from '../dataAccess/redisDataAccess'
 
 interface StationProps {
   logger: Logger
@@ -45,6 +46,7 @@ class Station {
     }>
     | undefined
   dataAccess: StopsDataAccess
+  redisDataAccess: RedisDataAccess
   version: string
   constructor(props: StationProps) {
     const {
@@ -67,6 +69,7 @@ class Station {
     this.realtimeTimes = realtimeTimes
 
     this.dataAccess = new StopsDataAccess({ connection, prefix })
+    this.redisDataAccess = new RedisDataAccess({ logger, prefix, redis })
   }
 
   transfers = async () => {
@@ -154,7 +157,18 @@ class Station {
 
     const notFound = { message: 'Station not found.' }
     try {
-      const data = await dataAccess.getStopInfo(stopCode)
+      const [stopData, linesObject] = await Promise.all([
+        dataAccess.getStopInfo(stopCode),
+        this.redisDataAccess.getLinesForStop(stopCode),
+      ])
+
+      const data = {
+        ...stopData,
+        lines: linesObject.map(l => ({
+          ...l,
+          route_color: this.lines.getColor(l.agency_id, l.route_short_name)
+        })),
+      }
       if (override) {
         data.stop_id = override
       }
