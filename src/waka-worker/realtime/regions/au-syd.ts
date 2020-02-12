@@ -246,28 +246,6 @@ class RealtimeAUSYD extends BaseRealtime {
     return realtimeInfo
   }
 
-  getVehiclePositionsCached = async (trips: string[]) => {
-    const vehicleInfo: {
-      [tripId: string]: { latitude: number; longitude: number }
-    } = {}
-    for (const tripId of trips) {
-      try {
-        const data = await this.wakaRedis.getVehiclePosition(tripId)
-        const latitude = data?.position?.latitude
-        const longitude = data?.position?.longitude
-        if (longitude && latitude) {
-          vehicleInfo[tripId] = {
-            latitude,
-            longitude,
-          }
-        }
-      } catch (err) {
-        console.log(err)
-      }
-    }
-    return vehicleInfo
-  }
-
   getVehicleInfoCached = async (
     line: string,
     route_id?: string,
@@ -501,16 +479,6 @@ class RealtimeAUSYD extends BaseRealtime {
     const { trips, stop_id } = req.body
     const realtimeInfo = await this.getTripsCached(trips, stop_id)
     return res.send(realtimeInfo)
-  }
-
-  getVehicleLocationEndpoint = async (
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ) => {
-    const { logger } = this
-    const { trips } = req.body
-    const vehicleInfo = this.getVehiclePositionsCached(trips)
-    return res.send(vehicleInfo)
   }
 
   getLocationsForLine = async (

@@ -585,21 +585,6 @@ class Lines {
     return retval
   }
 
-  getAllStops = async (req: Request, res: Response) => {
-    const { connection, logger } = this
-    const sqlRequest = connection.get().request()
-    try {
-      const result = await sqlRequest.query<{
-        stop_name: string
-        stop_id: string
-      }>('select stop_name, stop_id from stops order by stop_name;')
-      res.send(result.recordset)
-    } catch (err) {
-      logger.error({ err }, 'Could not get stops.')
-      res.status(500).send({ message: 'Could not get stops' })
-    }
-  }
-
   stopTimesv2 = async (
     req: WakaRequest<null, { tripId: string }>,
     res: Response

@@ -211,69 +211,6 @@ class RealtimeNZWLG extends BaseRealtime {
     }
   }
 
-  getVehicleLocationEndpoint = async (
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ) => {
-    const { logger, connection } = this
-    const tripId = req.body.trips[0]
-
-    const sqlRequest = connection.get().request()
-    sqlRequest.input('trip_id', sql.VarChar(50), tripId)
-    try {
-      const result = await sqlRequest.query(
-        `
-      SELECT TOP 1
-        route_short_name, direction_id
-      FROM trips
-      INNER JOIN routes ON
-        routes.route_id = trips.route_id
-      WHERE
-        trip_id = @trip_id
-    `
-      )
-      if (result.recordset.length < 1) {
-        return res.send({})
-      }
-      let routeName = result.recordset[0].route_short_name
-      // 050 bus fix.
-      if (parseInt(routeName, 10) >= 50 && parseInt(routeName, 10) < 60) {
-        routeName = parseInt(routeName, 10).toString()
-      }
-
-      const responseData: {
-        [VehicleRef: string]: {
-          latitude: number
-          longitude: number
-          bearing: string
-        }
-      } = {}
-      const response = await axios.get<{
-        LastModified: string
-        Services: MetlinkService[]
-      }>(`${serviceLocation}${routeName}`)
-      const { data } = response
-      data.Services.filter(service => {
-        const dbdir = result.recordset[0].direction_id
-        const rtdir = service.Direction
-        return (
-          (dbdir === 0 && rtdir === 'Outbound') ||
-          (dbdir === 1 && rtdir === 'Inbound')
-        )
-      }).forEach(service => {
-        responseData[service.VehicleRef] = {
-          latitude: parseFloat(service.Lat),
-          longitude: parseFloat(service.Long),
-          bearing: service.Bearing,
-        }
-      })
-      return res.send(responseData)
-    } catch (err) {
-      logger.error(err)
-      return res.status(500).send({ message: 'error' })
-    }
-  }
-
   getLocationsForLine = async (
     req: WakaRequest<null, { line: string }>,
     res: Response

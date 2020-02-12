@@ -31,27 +31,6 @@ class RealtimeNZAKL extends BaseRealtime {
     this.logger = logger
     this.apiKey = apiKey
   }
-  getVehiclePositionsCached = async (trips: string[]) => {
-    const vehicleInfo: {
-      [tripId: string]: { latitude: number; longitude: number }
-    } = {}
-    for (const tripId of trips) {
-      try {
-        const data = await this.wakaRedis.getVehiclePosition(tripId)
-        const latitude = data?.position?.latitude
-        const longitude = data?.position?.longitude
-        if (longitude && latitude) {
-          vehicleInfo[tripId] = {
-            latitude,
-            longitude,
-          }
-        }
-      } catch (err) {
-        console.log(err)
-      }
-    }
-    return vehicleInfo
-  }
 
   isSpecialVehicle = (vehicle: string) => {
     const sv = {
@@ -238,19 +217,6 @@ class RealtimeNZAKL extends BaseRealtime {
       }
     }
     return realtimeInfo
-  }
-
-  getVehicleLocationEndpoint = async (
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ) => {
-    const { trips } = req.body
-    try {
-      const vehicleLocations = await this.getVehiclePositionsCached(trips)
-      return res.send(vehicleLocations)
-    } catch (error) {
-      return res.status(500).send(error)
-    }
   }
 
   getLocationsForLine = async (

@@ -49,19 +49,19 @@ class Realtime {
     const apiKey = api[prefix]
     this.fn = isKeyof(regions, prefix)
       ? new regions[prefix]({
-          logger,
-          connection,
-          apiKey,
-          newRealtime,
-          wakaRedis,
-        })
+        logger,
+        connection,
+        apiKey,
+        newRealtime,
+        wakaRedis,
+      })
       : new GenericRealtime({
-          connection,
-          logger,
-          newRealtime,
-          wakaRedis,
-          prefix,
-        })
+        connection,
+        logger,
+        newRealtime,
+        wakaRedis,
+        prefix,
+      })
   }
 
   start = async () => {
@@ -144,46 +144,6 @@ class Realtime {
 
     if (this.fn && typeof this.fn.getTripsEndpoint !== 'undefined') {
       return this.fn.getTripsEndpoint(req, res)
-    }
-    return res.status(400).send({
-      message: 'realtime not available',
-    })
-  }
-
-  /**
-   * @api {post} /:region/vehicle_location Vehicle Location v1
-   * @apiName GetRealtimeLocation
-   * @apiDeprecated please use (#Realtime:GetRealtimeLocationV2).
-   * @apiGroup Realtime
-   * @apiDescription The in built API tester doesn't work for this endpoint! Look at the request example and try it out yourself.
-   *
-   * @apiParam {String} region Region of Worker
-   * @apiParam {Object[String]} trips Array of trips that you want
-   * @apiParamExample {json} Request-Example:
-   * {
-   *   "trips": [
-   *     "14267044381-20171113160906_v60.12"
-   *   ]
-   * }
-   *
-   * @apiSuccess {Object} trips Object of Requested Trips, blank if no data
-   * @apiSuccess {Number} trips.latitude Latitude of Vehicle
-   * @apiSuccess {Number} trips.longitude longitude of Vehicle
-   * @apiSuccess {Number} trips.bearing Bearing of Vehicle, in Degrees
-   *
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   "14267065322-20171113160906_v60.12": {
-   *     "latitude":  -36.851867,
-   *     "longitude": 174.76415,
-   *     "bearing": 197
-   *   }
-   * }
-   */
-  vehicleLocation = (req: WakaRequest<null, null>, res: Response) => {
-    if (this.fn) {
-      return this.fn.getVehicleLocationEndpoint(req, res)
     }
     return res.status(400).send({
       message: 'realtime not available',

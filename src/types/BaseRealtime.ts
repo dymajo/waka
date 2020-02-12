@@ -36,11 +36,6 @@ export default abstract class BaseRealtime {
   ): Promise<{
     [tripId: string]: WakaTripUpdate
   }>
-  abstract getVehiclePositionsCached(
-    trips: string[]
-  ): Promise<{
-    [tripId: string]: WakaVehiclePosition
-  }>
   abstract getVehicleInfoCached(line: string): Promise<WakaVehicleInfo[]>
   getServiceAlertsEndpoint?(
     req: WakaRequest<
@@ -58,10 +53,6 @@ export default abstract class BaseRealtime {
   ): Promise<Response>
   abstract start(): Promise<void>
   abstract stop(): void
-  abstract getVehicleLocationEndpoint(
-    req: WakaRequest<{ trips: string[] }, null>,
-    res: Response
-  ): Promise<Response>
   abstract getLocationsForLine(
     req: WakaRequest<null, { line: string }>,
     res: Response

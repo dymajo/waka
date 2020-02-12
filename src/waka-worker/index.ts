@@ -134,9 +134,6 @@ class WakaWorker {
 
     // the region may have multiple cities
     const city = cityMetadata[prefix]
-    // if (!Object.prototype.hasOwnProperty.call(city, 'name')) {
-    //   city = city[prefix]
-    // }
     const { name, secondaryName, longName } = city
     return { prefix, version, bounds, name, secondaryName, longName }
   }
@@ -207,14 +204,12 @@ class WakaWorker {
     router.get('/lines', lines.getLines)
     router.get('/all-lines', lines.getLinesV2)
     router.get('/line/:line', lines.getLine)
-    router.get('/stops/all', lines.getAllStops)
     router.get('/shapejson/:shapeId', lines.getShapeJSON)
 
     router.get('/realtime-healthcheck', realtime.healthcheck)
     // router.get('/realtime/all', realtime.all)
     router.get('/realtime/:line', realtime.vehicleLocationV2)
     router.post('/realtime', realtime.stopInfo)
-    router.post('/vehicle_location', realtime.vehicleLocation)
     router.post('/service-alerts', realtime.serviceAlerts)
   }
 }
