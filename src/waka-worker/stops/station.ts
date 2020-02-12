@@ -329,19 +329,25 @@ class Station {
     }
 
     let procedure = 'GetStopTimes'
-    if (station.split(',').length > 1) {
-      // this *does not* work for parent stations
-      procedure = 'GetMultiStopTimes'
-    }
     let trips: DBStopTime[] = []
+    let allRoutesWithColors = {}
     const realtimeTrips: string[] = []
     try {
-      trips = await dataAccess.getStopTimes(
-        station,
-        currentTime,
-        today,
-        procedure
-      )
+      let allRoutes = {};
+      [trips, allRoutes] = await Promise.all([
+        dataAccess.getStopTimes(
+          station,
+          currentTime,
+          today,
+          procedure
+        ),
+        dataAccess.getRoutesForMultipleStops([station])
+      ])
+      allRoutesWithColors = (allRoutes[station] || []).map(l => ({
+        ...l,
+        route_color: this.lines.getColor(l.agency_id, l.route_short_name)
+      }))
+
       // use last week's timetable if no trips
       if (trips.length === 0) {
         logger.warn({ station }, 'Used timetable for last week!')
@@ -355,7 +361,7 @@ class Station {
       }
     } catch (err) {
       logger.error({ err }, 'Could not get stop times.')
-      return res.status(500).send(err)
+      return res.status(500).send({ message: 'Could not get stop times.' })
     }
 
     // now is 00:00 in region's local timezone
@@ -449,14 +455,8 @@ class Station {
       provider: 'sql-server',
       currentTime: sendingCurrentTime,
       trips: sendingTrips,
+      allRoutes: allRoutesWithColors,
       realtime,
-    }
-    // the all routes stuff is possibly an extra call to the database,
-    // so we only do it if we need to
-    try {
-      sending.allRoutes = await dataAccess.getRoutesForMultipleStops([station])
-    } catch (err) {
-      logger.error({ err, station }, 'Could not get all routes for station.')
     }
     return res.send(sending)
   }

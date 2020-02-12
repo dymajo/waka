@@ -15,6 +15,7 @@ class StopsDataAccess {
   stopRouteCache: Map<
     string,
     {
+      agency_id: string
       route_short_name: string
       trip_headsign: string
       direction_id: number
@@ -112,6 +113,7 @@ class StopsDataAccess {
     const { connection } = this
     const routesContainer: {
       [stopCode: string]: {
+        agency_id: string
         route_short_name: string
         trip_headsign: string
         direction_id: number
@@ -133,6 +135,7 @@ class StopsDataAccess {
 
       const sqlRequest = connection.get().request()
       const result = await sqlRequest.query<{
+        agency_id: string
         stop_code: string
         route_short_name: string
         trip_headsign: string
@@ -147,6 +150,7 @@ class StopsDataAccess {
 
         SELECT
           #stops.stop_code,
+          agency_id,
           route_short_name,
           trip_headsign,
           direction_id
@@ -154,13 +158,17 @@ class StopsDataAccess {
           JOIN #stops on stop_times.stop_id = #stops.stop_id
           JOIN trips ON trips.trip_id = stop_times.trip_id
           JOIN routes ON routes.route_id = trips.route_id
+        WHERE
+          pickup_type <> 1
         GROUP BY
           #stops.stop_code,
+          agency_id,
           route_short_name,
           trip_headsign,
           direction_id
         ORDER BY
           #stops.stop_code,
+          agency_id,
           route_short_name,
           direction_id,
           -- this is so it chooses normal services first before expresses or others
@@ -175,6 +183,7 @@ class StopsDataAccess {
         }
 
         routesContainer[record.stop_code].push({
+          agency_id: record.agency_id,
           route_short_name: record.route_short_name,
           trip_headsign: record.trip_headsign,
           direction_id: record.direction_id,
@@ -214,10 +223,10 @@ class StopsDataAccess {
       previous && next
         ? ` '${previous}', '${next}'`
         : previous
-        ? ` '${previous}'`
-        : next
-        ? ` '${next}'`
-        : ''
+          ? ` '${previous}'`
+          : next
+            ? ` '${next}'`
+            : ''
 
     const result = await sqlRequest.query<StopTime>(`
       SELECT
