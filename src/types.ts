@@ -196,22 +196,6 @@ export interface StopTime {
   parent_station: string
 }
 
-export interface TripRow {
-  trip_id: string
-  start_time: Date
-  row_number: number
-  trip_headsign: string
-}
-
-export interface RouteInfo {
-  route_short_name: string
-  route_long_name: string
-  route_desc: string
-  route_type: number
-  route_color: string
-  route_text_color: string
-}
-
 export interface Onzo {
   battery: number
   chargeVoltage: number

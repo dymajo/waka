@@ -345,7 +345,8 @@ class Station {
       ])
       allRoutesWithColors = (allRoutes[station] || []).map(l => ({
         ...l,
-        route_color: this.lines.getColor(l.agency_id, l.route_short_name)
+        route_color: this.lines.getColor(l.agency_id, l.route_short_name),
+        route_text_color: '#ffffff' // TODO!
       }))
 
       // use last week's timetable if no trips

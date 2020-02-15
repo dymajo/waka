@@ -63,7 +63,7 @@ class RealtimeAUSYD extends BaseRealtime {
               added?: boolean
             }
           }[] = []
-          const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesV2(
+          const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesForTrip(
             tripId
           )
           const realtimeStopTimes = data.stopTimeUpdate ?? []
@@ -162,7 +162,7 @@ class RealtimeAUSYD extends BaseRealtime {
               added?: boolean
             }
           }[] = []
-          const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesV2(
+          const timeTabledStopTimes = await this.stopsDataAccess.getStopTimesForTrip(
             tripId
           )
           const realtimeStopTimes = data.stopTimeUpdate ?? []
