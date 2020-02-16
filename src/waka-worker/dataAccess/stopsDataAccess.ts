@@ -13,6 +13,7 @@ class StopsDataAccess {
   stopRouteCache: Map<
     string,
     {
+      route_id: string
       agency_id: string
       route_short_name: string
       trip_headsign: string
@@ -110,6 +111,7 @@ class StopsDataAccess {
   async getRoutesForMultipleStops(stopCodes: string[]) {
     const routesContainer: {
       [stopCode: string]: {
+        route_id: string
         agency_id: string
         route_short_name: string
         trip_headsign: string
@@ -132,6 +134,7 @@ class StopsDataAccess {
       }
 
       routesContainer[record.stop_code].push({
+        route_id: record.route_id,
         agency_id: record.agency_id,
         route_short_name: record.route_short_name,
         trip_headsign: record.trip_headsign,

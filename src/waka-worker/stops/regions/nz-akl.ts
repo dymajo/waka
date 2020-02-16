@@ -90,7 +90,7 @@ class StopsNZAKL extends BaseStops {
       stop_region: string
       route_type: number
       stop_name: string
-      description: string
+      stop_desc: string
       timestamp: Date
       availableSpaces: number
       maxSpaces: number
@@ -108,7 +108,7 @@ class StopsNZAKL extends BaseStops {
         stop_region: 'nz-akl',
         route_type: -1,
         stop_name: 'Downtown Carpark',
-        description: 'Unknown Occupancy',
+        stop_desc: 'Unknown Occupancy',
         timestamp: new Date(0),
         availableSpaces: 0,
         maxSpaces: 1944,
@@ -121,7 +121,7 @@ class StopsNZAKL extends BaseStops {
         stop_region: 'nz-akl',
         route_type: -1,
         stop_name: 'Civic Carpark',
-        description: 'Unknown Occupancy',
+        stop_desc: 'Unknown Occupancy',
         timestamp: new Date(0),
         availableSpaces: 0,
         maxSpaces: 928,
@@ -134,7 +134,7 @@ class StopsNZAKL extends BaseStops {
         stop_region: 'nz-akl',
         route_type: -1,
         stop_name: 'Victoria St Carpark',
-        description: 'Unknown Occupancy',
+        stop_desc: 'Unknown Occupancy',
         timestamp: new Date(0),
         availableSpaces: 0,
         maxSpaces: 895,
@@ -147,7 +147,7 @@ class StopsNZAKL extends BaseStops {
         stop_region: 'nz-akl',
         route_type: -1,
         stop_name: 'Ronwood Ave Carpark',
-        description: 'Unknown Occupancy',
+        stop_desc: 'Unknown Occupancy',
         timestamp: new Date(0),
         availableSpaces: 0,
         maxSpaces: 678,
@@ -191,7 +191,7 @@ class StopsNZAKL extends BaseStops {
         const cacheObj = this.carparks[agenda21mapper[carpark.name]]
         cacheObj.availableSpaces = carpark.availableSpaces
         cacheObj.timestamp = new Date(carpark.timestamp)
-        cacheObj.description = `${carpark.availableSpaces} spaces currently available`
+        cacheObj.stop_desc = `${carpark.availableSpaces} spaces currently available`
       })
     } catch (err) {
       // api is offline or whatever. just retries in 5 mins

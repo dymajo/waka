@@ -177,6 +177,7 @@ export default class StopsSqlRepostory {
     const escapedTripIds = `('${tripIds.join('\', \'')}')`
     const data = await sqlRequest.query<{
       trip_id: string
+      route_id: string
       route_long_name: string
       route_short_name: string
       route_color: string
@@ -185,6 +186,7 @@ export default class StopsSqlRepostory {
     }>(`
       SELECT
         trips.trip_id,
+        routes.route_id,
         routes.agency_id,
         routes.route_short_name,
         routes.route_long_name, 
@@ -265,6 +267,7 @@ export default class StopsSqlRepostory {
     const stopCodesQuery = `('${stopCodes.join("','")}')`
     const sqlRequest = connection.get().request()
     const data = await sqlRequest.query<{
+      route_id: string
       agency_id: string
       stop_code: string
       route_short_name: string
@@ -280,6 +283,7 @@ export default class StopsSqlRepostory {
 
       SELECT
         #stops.stop_code,
+        routes.route_id,
         agency_id,
         route_short_name,
         trip_headsign,
@@ -293,6 +297,7 @@ export default class StopsSqlRepostory {
         AND routes.route_type <> 712
       GROUP BY
         #stops.stop_code,
+        routes.route_id,
         agency_id,
         route_short_name,
         trip_headsign,

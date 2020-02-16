@@ -24,8 +24,8 @@ interface StationProps {
     train: boolean
   ):
     | Promise<{
-      [tripId: string]: WakaTripUpdate
-    }>
+        [tripId: string]: WakaTripUpdate
+      }>
     | undefined
 }
 
@@ -42,8 +42,8 @@ class Station {
     train: boolean
   ) =>
     | Promise<{
-      [tripId: string]: WakaTripUpdate
-    }>
+        [tripId: string]: WakaTripUpdate
+      }>
     | undefined
   dataAccess: StopsDataAccess
   redisDataAccess: RedisDataAccess
@@ -86,7 +86,7 @@ class Station {
       }
     })
 
-    const { logger, prefix, version } = this
+    const { logger } = this
     logger.info({ stopCount: Object.keys(transfers).length }, 'Got Transfers')
   }
 
@@ -149,7 +149,7 @@ class Station {
     let override = ''
     if (
       prefix === 'nz-wlg' &&
-      ((regionSpecific?.badStops?.indexOf(stopCode) ?? -1) > -1)
+      (regionSpecific?.badStops?.indexOf(stopCode) ?? -1) > -1
     ) {
       override = stopCode
       stopCode = `${stopCode}1`
@@ -166,7 +166,7 @@ class Station {
         ...stopData,
         lines: linesObject.map(l => ({
           ...l,
-          route_color: this.lines.getColor(l.agency_id, l.route_short_name)
+          route_color: this.lines.getColor(l.agency_id, l.route_short_name),
         })),
       }
       if (override) {
@@ -333,20 +333,15 @@ class Station {
     let allRoutesWithColors = {}
     const realtimeTrips: string[] = []
     try {
-      let allRoutes = {};
-      [trips, allRoutes] = await Promise.all([
-        dataAccess.getStopTimes(
-          station,
-          currentTime,
-          today,
-          procedure
-        ),
-        dataAccess.getRoutesForMultipleStops([station])
+      let allRoutes = {}
+      ;[trips, allRoutes] = await Promise.all([
+        dataAccess.getStopTimes(station, currentTime, today, procedure),
+        dataAccess.getRoutesForMultipleStops([station]),
       ])
       allRoutesWithColors = (allRoutes[station] || []).map(l => ({
         ...l,
         route_color: this.lines.getColor(l.agency_id, l.route_short_name),
-        route_text_color: '#ffffff' // TODO!
+        route_text_color: '#ffffff', // TODO!
       }))
 
       // use last week's timetable if no trips
