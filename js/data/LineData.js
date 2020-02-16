@@ -13,13 +13,28 @@ class LineData {
     this.realtime_trips = props.realtime_trips || []
   }
 
+  async getLines() {
+    if (this.region === null) {
+      throw new Error('Requires region to be set.')
+    }
+    try {
+      const res = await fetch(`${local.endpoint}/${this.region}/all-lines`)
+      const data = await res.json()
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
+
   async getMeta() {
     if (
       this.region === null ||
       this.route_short_name === null ||
       this.agency_id === null
     ) {
-      return 'Requires both region, route_short_name, and agency_id to be set.'
+      throw new Error(
+        'Requires both region, route_short_name, and agency_id to be set.'
+      )
     }
     const line = encodeURIComponent(this.route_short_name)
     const agency = encodeURIComponent(this.agency_id)
@@ -37,7 +52,7 @@ class LineData {
 
   async getShape() {
     if (this.region === null || this.shape_id === null) {
-      return new Error('Requires both region and shape_id to be set.')
+      throw new Error('Requires both region and shape_id to be set.')
     }
     const shape = encodeURIComponent(this.shape_id)
     try {

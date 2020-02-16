@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { withRouter } from 'react-router-dom'
 
 import { vars } from '../../styles.js'
-import StationStore from '../../stores/StationStore'
+import LineData from '../../data/LineData.js'
 import { t } from '../../stores/translationStore.js'
 
 import Header from '../reusable/Header.jsx'
@@ -22,6 +22,8 @@ class LineList extends React.Component {
     icons: {},
     groupShow: {},
   }
+
+  lineData = new LineData({})
 
   componentDidMount() {
     window.addEventListener('online', this.triggerGetLines)
@@ -56,8 +58,10 @@ class LineList extends React.Component {
 
   getLines = async () => {
     const { match } = this.props
+    const { lineData } = this
     try {
-      const data = await StationStore.getLines(match.params.region)
+      lineData.region = match.params.region
+      const data = await lineData.getLines()
 
       const groupShow = {}
       data.groups.forEach(group => {
