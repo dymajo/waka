@@ -1,16 +1,17 @@
 {
   "plugins": [
     "@babel/plugin-proposal-class-properties",
+    "@babel/transform-runtime",
     "react-native-web"
   ],
   "presets": [
     [
-      "@babel/env",
+      "@babel/preset-env",
       {
         "targets": ">1% in AU and not IE 11"
       }
     ],
-    "@babel/react",
+    "@babel/preset-react",
     "airbnb"
   ]
 }

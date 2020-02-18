@@ -58,7 +58,6 @@ const config = {
             loader: 'sass-loader',
             options: {
               sourceMap: true,
-              outputStyle: 'compressed',
             },
           },
         ],
