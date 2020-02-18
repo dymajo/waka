@@ -1,9 +1,10 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, Text } from 'react-native'
 import { TripItem } from './TripItemV2.jsx'
 
 export const InactiveTrips = ({ routes, onClick, region }) => (
   <View>
+    {routes.length > 0 ? <Text>Inactive Routes:</Text> : null}
     {routes.map(route => {
       const {
         route_id: routeId,
@@ -13,7 +14,6 @@ export const InactiveTrips = ({ routes, onClick, region }) => (
         route_color: routeColor,
         route_text_color: routeTextColor,
       } = route
-      console.log(route)
       return (
         <TripItem
           key={routeId}

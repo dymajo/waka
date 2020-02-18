@@ -229,5 +229,71 @@ class StationData {
 
     return trips
   }
+
+  reduceRoutes = (routes, stops) => {
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    })
+
+    const dedup = dedupCodes => route => {
+      // the sql on the server is written to show the more common routes first
+      const uniqueKey = [route.agency_id, route.route_short_name].join('/')
+      if (dedupCodes.includes(uniqueKey)) {
+        return false
+      }
+      dedupCodes.push(uniqueKey)
+      return true
+    }
+
+    // first pass
+    const globalDedupCodes = []
+    const filtered = routes
+      .map((routeCollection, collectionKey) => {
+        // dedup a first time, on the individual stops
+        const dedupCodes = []
+        return routeCollection
+          .filter(dedup(dedupCodes))
+          .map(route => ({ ...route, stop_id: stops[collectionKey] }))
+      })
+      .flat()
+      .filter(dedup(globalDedupCodes)) // dedup a first time, on the combined stops
+      .sort((a, b) => {
+        // if the first character of the route short name is a letter
+        if (
+          Number.isNaN(parseInt(a.route_short_name[0], 10)) ||
+          Number.isNaN(parseInt(b.route_short_name[0], 10))
+        ) {
+          const aMostlyLetters =
+            (a.route_short_name.match(/\d+/) || [''])[0].length <
+            a.route_short_name.length / 2
+          const bMostlyLetters =
+            (b.route_short_name.match(/\d+/) || [''])[0].length <
+            b.route_short_name.length / 2
+
+          // if one is mostly letters, and one isn't, push the one that has more letters to the top
+          if (aMostlyLetters && !bMostlyLetters) {
+            return -1
+          }
+          if (bMostlyLetters && !aMostlyLetters) {
+            return 1
+          }
+
+          // this will put stuff like night buses at the bottom (n1, n2, n3)
+          // this will also alpha sort when both are mostly letters
+          return collator.compare(a.route_short_name, b.route_short_name)
+        }
+
+        // assumptions:
+        // length - lower number is better frequency, so sort that higher
+        // then if the length is the same, alphabetical/numerical sort
+        return (
+          a.route_short_name.length - b.route_short_name.length ||
+          collator.compare(a.route_short_name, b.route_short_name)
+        )
+      })
+
+    return filtered
+  }
 }
 export default StationData

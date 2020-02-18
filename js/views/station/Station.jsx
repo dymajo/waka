@@ -18,6 +18,7 @@ import SavedIcon from '../../../dist/icons/saved.svg'
 import UnsavedIcon from '../../../dist/icons/unsaved.svg'
 
 import { TripItem } from './TripItemV2.jsx'
+import { InactiveTrips } from './InactiveTrips.jsx'
 
 class Station extends Component {
   static propTypes = {
@@ -36,7 +37,7 @@ class Station extends Component {
     name: '',
     description: '',
     trips: [],
-    allRoutes: [],
+    routes: [],
     loading: true,
     error: null,
     html: null,
@@ -97,13 +98,14 @@ class Station extends Component {
   getStationTimes = async () => {
     const { stationData } = this
     const { region, station } = this.props.match.params
+    const stops = station.split('+')
     try {
       const stationsTimes = await Promise.all(
-        station.split('+').map(s => stationData.getStationTimes(region, s))
+        stops.map(s => stationData.getStationTimes(region, s))
       )
 
       let allTrips = []
-      let allRoutes = []
+      let routes = []
       let reducedTrips = []
       let triggerRefresh = false
       let html = false
@@ -114,7 +116,7 @@ class Station extends Component {
           return
         }
         allTrips.push(trips)
-        allRoutes.push(allRoutes)
+        routes.push(allRoutes)
         if (realtime == null) {
           triggerRefresh = true
           reducedTrips.push(stationData.reduceTrips(trips))
@@ -136,7 +138,11 @@ class Station extends Component {
       if (triggerRefresh) {
         this.getStationRealtime()
       }
-      this.setState({ allRoutes, trips: reducedTrips, loading: false })
+      this.setState({
+        routes: this.stationData.reduceRoutes(routes, stops),
+        trips: reducedTrips,
+        loading: false,
+      })
     } catch (err) {
       this.setState({
         loading: false,
@@ -189,7 +195,7 @@ class Station extends Component {
     let loading
     let content
 
-    const { trips, error, html, allRoutes } = this.state
+    const { trips, error, html, routes } = this.state
 
     const { region } = this.props.match.params
     const stop = this.props.match.params.station
@@ -303,6 +309,13 @@ class Station extends Component {
         <LinkedScroll>
           {loading}
           {content}
+          {window.location.hostname === 'localhost' ? (
+            <InactiveTrips
+              routes={routes}
+              onClick={this.triggerMap}
+              region={region}
+            />
+          ) : null}
         </LinkedScroll>
       </View>
     )
