@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native-web'
 import { vars } from '../../styles.js'
 import { getTime } from '../../helpers/date.js'
@@ -176,20 +176,22 @@ export const TripItem = ({
               </>
             ) : null}
           </Text>
-          {trips.length === 1 ? (
-            <Text
-              style={[
-                styles.last,
-                { ...textColorStyles, borderColor: textColor },
-              ]}
-            >
-              Last
-            </Text>
-          ) : (
-            <Text style={[styles.and, textColorStyles]}>
-              {getNextText(secondaryDepartureTime)}
-            </Text>
-          )}
+          {trips[0].departureTime !== null ? (
+            trips.length === 1 ? (
+              <Text
+                style={[
+                  styles.last,
+                  { ...textColorStyles, borderColor: textColor },
+                ]}
+              >
+                Last
+              </Text>
+            ) : (
+              <Text style={[styles.and, textColorStyles]}>
+                {getNextText(secondaryDepartureTime)}
+              </Text>
+            )
+          ) : null}
         </View>
       </View>
     </TouchableOpacity>

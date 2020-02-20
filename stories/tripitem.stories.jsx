@@ -19,6 +19,20 @@ const hoursTrip = {
 }
 
 storiesOf('TripItem', module)
+  .add('no trip', () => (
+    <View style={{ backgroundColor: '#000' }}>
+      <TripItem routeShortName="70" direction={0} trips={[]} />
+    </View>
+  ))
+  .add('null trip', () => (
+    <View style={{ backgroundColor: '#000' }}>
+      <TripItem
+        routeShortName="70"
+        direction={0}
+        trips={[{ ...singleTrip, departureTime: null }]}
+      />
+    </View>
+  ))
   .add('single trip', () => (
     <View style={{ backgroundColor: '#000' }}>
       <TripItem

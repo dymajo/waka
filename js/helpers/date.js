@@ -16,6 +16,11 @@ export const prefixToTimezone = prefix => {
 }
 
 export const getTime = (date, isTwentyFourHour, showDue, region) => {
+  if (date === null) {
+    return {
+      text: '—',
+    }
+  }
   const now = new Date()
   if (date <= now) {
     if (showDue === true) {

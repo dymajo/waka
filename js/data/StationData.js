@@ -230,7 +230,7 @@ class StationData {
     return trips
   }
 
-  reduceRoutes = (routes, stops) => {
+  reduceRoutes = (routes, stops, activeRoutes = []) => {
     const collator = new Intl.Collator(undefined, {
       numeric: true,
       sensitivity: 'base',
@@ -247,7 +247,7 @@ class StationData {
     }
 
     // first pass
-    const globalDedupCodes = []
+    const globalDedupCodes = activeRoutes
     const filtered = routes
       .map((routeCollection, collectionKey) => {
         // dedup a first time, on the individual stops

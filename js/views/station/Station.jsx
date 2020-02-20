@@ -138,8 +138,13 @@ class Station extends Component {
       if (triggerRefresh) {
         this.getStationRealtime()
       }
+
+      const activeRoutes = reducedTrips
+        .map(j => j.map(i => `${i[0].agency_id}/${i[0].route_short_name}`))
+        .flat()
+
       this.setState({
-        routes: this.stationData.reduceRoutes(routes, stops),
+        routes: this.stationData.reduceRoutes(routes, stops, activeRoutes),
         trips: reducedTrips,
         loading: false,
       })
