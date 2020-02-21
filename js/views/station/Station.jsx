@@ -314,13 +314,11 @@ class Station extends Component {
         <LinkedScroll>
           {loading}
           {content}
-          {window.location.hostname === 'localhost' ? (
-            <InactiveTrips
-              routes={routes}
-              onClick={this.triggerMap}
-              region={region}
-            />
-          ) : null}
+          <InactiveTrips
+            routes={routes}
+            onClick={this.triggerMap}
+            region={region}
+          />
         </LinkedScroll>
       </View>
     )
