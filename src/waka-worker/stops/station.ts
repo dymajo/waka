@@ -323,9 +323,17 @@ class Station {
     today.setUTCMonth(time.month())
     today.setUTCDate(time.date())
 
+    // now is 00:00 in region's local timezone
+    const now = moment().tz(timezone)
+    now.seconds(0)
+    now.hours(0)
+    now.minutes(0)
+
     // midnight fix
+    // the big issue that it probably needs to handle a sliding window
     if (time.hour() < 5 && midnightOverride === false) {
       today.setTime(today.getTime() - 1000 * 60 * 60 * 24)
+      now.subtract(1, 'day')
     }
 
     let procedure = 'GetStopTimes'
@@ -359,12 +367,6 @@ class Station {
       logger.error({ err }, 'Could not get stop times.')
       return res.status(500).send({ message: 'Could not get stop times.' })
     }
-
-    // now is 00:00 in region's local timezone
-    const now = moment().tz(timezone)
-    now.seconds(0)
-    now.hours(0)
-    now.minutes(0)
 
     const sendingTrips = trips.map(r => {
       // fully formed arrival and departure times in region's local tz
