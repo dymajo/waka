@@ -13,7 +13,7 @@ Your guide around public transport in Auckland & Wellington. Help us add more ci
 
 ## Public API
 
-We have a public API! Go here for the documentation: <https://waka.app/docs>.
+We have a public API! Go here for the documentation: <https://waka.app/a/docs/>.
 
 ## Quickstart Client Development
 
