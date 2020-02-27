@@ -1,11 +1,11 @@
 # Waka
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/bf59f49c861eee7e624e/maintainability)](https://codeclimate.com/github/consindo/waka/maintainability)
-[![Dependency Status](https://david-dm.org/consindo/waka.svg?theme=shields.io)](https://david-dm.org/consindo/waka)
-[![devDependency Status](https://david-dm.org/consindo/waka/dev-status.svg?theme=shields.io)](https://david-dm.org/consindo/waka#info=devDependencies)
+[![Maintainability](https://api.codeclimate.com/v1/badges/bad16b4eb9cb4fcdb079/maintainability)](https://codeclimate.com/github/dymajo/waka)
+[![Dependency Status](https://david-dm.org/dymajo/waka.svg?theme=shields.io)](https://david-dm.org/dymajo/waka)
+[![devDependency Status](https://david-dm.org/dymajo/waka/dev-status.svg?theme=shields.io)](https://david-dm.org/dymajo/waka#info=devDependencies)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdymajo%2Fwaka.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdymajo%2Fwaka?ref=badge_shield)
 
-![Waka Icon](https://raw.githubusercontent.com/consindo/waka/master/dist/branding/launcher-icon-3x.png)
+![Waka Icon](https://raw.githubusercontent.com/dymajo/waka/master/dist/branding/launcher-icon-3x.png)
 
 Your guide around public transport in Auckland & Wellington. Help us add more cities!
 
@@ -13,7 +13,7 @@ Your guide around public transport in Auckland & Wellington. Help us add more ci
 
 ## Public API
 
-We have a public API! Go here for the documentation: <https://waka.app/docs>.
+We have a public API! Go here for the documentation: <https://waka.app/a/docs/>.
 
 ## Quickstart Client Development
 
