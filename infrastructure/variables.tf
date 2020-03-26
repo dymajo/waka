@@ -16,3 +16,8 @@ variable "environment" {
   type    = string
   default = "uat"
 }
+
+variable "orchestrator_host" {
+  type    = string
+  default = "uat-admin.waka.app"
+}

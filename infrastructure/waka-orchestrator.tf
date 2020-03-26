@@ -230,3 +230,34 @@ resource "kubernetes_service" "waka-orchestrator" {
   }
 }
 
+resource "kubernetes_ingress" "waka-orchestrator" {
+  metadata {
+    name      = "waka-orchestrator"
+    namespace = var.namespace
+    annotations = {
+      "kubernetes.io/ingress.class" = "nginx"
+      # These are the CloudFlare IPs - CloudFlare access protects this endpoint
+      "nginx.ingress.kubernetes.io/whitelist-source-range" = "173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22"
+      # Uncomment for Linkerd
+      # nginx.ingress.kubernetes.io/configuration-snippet" = <<EOT
+      # proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      # grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      # EOT
+    }
+  }
+
+  spec {
+    rule {
+      host = var.orchestrator_host
+      http {
+        path {
+          backend {
+            service_name = kubernetes_service.waka-orchestrator.metadata.0.name
+            service_port = kubernetes_service.waka-orchestrator.spec.0.port.0.port
+          }
+
+          path = "/"
+        }
+    }
+  }
+}
