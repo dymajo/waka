@@ -258,6 +258,7 @@ resource "kubernetes_ingress" "waka-orchestrator" {
 
           path = "/"
         }
+      }
     }
   }
 }
