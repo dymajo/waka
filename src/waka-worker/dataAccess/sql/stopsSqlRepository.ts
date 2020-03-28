@@ -177,6 +177,7 @@ export default class StopsSqlRepostory {
     const escapedTripIds = `('${tripIds.join('\', \'')}')`
     const data = await sqlRequest.query<{
       trip_id: string
+      direction_id: number
       route_id: string
       route_long_name: string
       route_short_name: string
@@ -186,13 +187,14 @@ export default class StopsSqlRepostory {
     }>(`
       SELECT
         trips.trip_id,
+        trips.direction_id,
         routes.route_id,
         routes.agency_id,
         routes.route_short_name,
         routes.route_long_name, 
         routes.route_color, 
         routes.route_text_color,
-        stop_times.departure_time 
+        stop_times.departure_time
       FROM trips
       INNER JOIN routes ON routes.route_id = trips.route_id
       INNER JOIN stop_times ON stop_times.trip_id = trips.trip_id
