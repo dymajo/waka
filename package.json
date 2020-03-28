@@ -11,7 +11,7 @@
     "reactstrap": "^8.1.1",
     "source-map-explorer": "^2.1.0"
   },
-  "proxy": "http://localhost:9001/private",
+  "proxy": "http://localhost:9001",
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "react-scripts start",

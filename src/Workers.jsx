@@ -46,6 +46,18 @@ const Workers = () => {
 
       const workersRequest = await fetch('/private/worker');
       const workersResponse = await workersRequest.json();
+      workersResponse.sort((a, b) => {
+        // if they're both null, order by version
+        if (a.createdAt === null && b.createdAt === null) { 
+          return b.version.localeCompare(a.version)
+        }
+        // send null created at's to the bottom
+        if (a.createdAt === null) return 1
+        if (b.createdAt === null) return -1
+
+        // if they have creation dates, order by that
+        return new Date(b.createdAt) - new Date(a.createdAt)
+      })
       setWorkers(workersResponse);
       if (loading) {
         setLoading(false);
@@ -69,18 +81,7 @@ const Workers = () => {
         {loading || workers.length === 0 ? (
           'Loading...'
         ) : (
-          <Table>
-            <thead>
-              <tr>
-                <th>Prefix</th>
-                <th>Version</th>
-                <th>DB Name</th>
-                <th>Import Status</th>
-                <th>Status</th>
-                <th>New Realtime?</th>
-                <th>Control</th>
-              </tr>
-            </thead>
+          <Table className="mt-3">
             <tbody>
               {workers.map(worker => (
                 <Worker
@@ -96,7 +97,7 @@ const Workers = () => {
       </div>
 
       <div>
-        <h5>Instructions</h5>
+        <h4>Instructions</h4>
         <ul>
           <li>
             To add a worker, either turn on an auto-updater, or grab a version
