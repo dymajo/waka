@@ -1,25 +1,24 @@
 /* eslint-disable promise/prefer-await-to-callbacks */
-
-import { DynamoDB } from 'aws-sdk'
+import AWS from 'aws-sdk'
+import BaseKeyvalue from '../types/BaseKeyvalue'
 import logger from '../logger'
-import config from '../config'
 
-const log = logger(config.prefix, config.version)
 interface KeyvalueDynamoProps {
   name: string
   region: string
 }
 
-class KeyvalueDynamo {
+class KeyvalueDynamo extends BaseKeyvalue {
   name: string
-  dynamo: DynamoDB
+  dynamo: AWS.DynamoDB
   constructor(props: KeyvalueDynamoProps) {
+    super()
     const { name, region } = props
     this.name = name
-    this.dynamo = new DynamoDB({ region })
+    this.dynamo = new AWS.DynamoDB({ region })
   }
 
-  flattenObject = (obj: any) => {
+  flattenObject = (obj: AWS.DynamoDB.AttributeMap) => {
     const { flattenObject } = this
     const response: any = {}
     Object.keys(obj)
@@ -27,6 +26,11 @@ class KeyvalueDynamo {
       .forEach(key => {
         if (obj[key].M) {
           response[key] = flattenObject(obj[key].M)
+        } else if (obj[key].L) {
+          // little bit of a hack to use the flatten object for lists
+          response[key] = obj[key].L.map(i => flattenObject({ i }).i)
+        } else if (obj[key].BOOL !== undefined) {
+          response[key] = obj[key].BOOL
         } else {
           response[key] = parseFloat(obj[key].N) || obj[key].S
         }
@@ -34,21 +38,23 @@ class KeyvalueDynamo {
     return response
   }
 
-  fattenObject = (obj: { [key: string]: any }) => {
+  fattenObject = (obj: any) => {
     const { fattenObject } = this
-    // type Response = {
-    //   [key: string]: Response | DynamoDB.AttributeValue | DynamoDB.AttributeMap
-    // }
-    // const response: Response = {}
     const response: any = {}
-
     Object.keys(obj).forEach(key => {
-      if (typeof obj[key] === 'number') {
+      if (typeof obj[key] === 'boolean') {
+        response[key] = { BOOL: obj[key] }
+      } else if (typeof obj[key] === 'number') {
         response[key] = { N: obj[key].toString() }
       } else if (typeof obj[key] === 'string') {
         response[key] = { S: obj[key] }
       } else if (typeof obj[key] === 'object') {
-        response[key] = { M: fattenObject(obj[key]) }
+        if (obj[key].constructor === Array) {
+          // little bit of a hack to use the fatten object for lists
+          response[key] = { L: obj[key].map(i => fattenObject({ i }).i) }
+        } else {
+          response[key] = { M: fattenObject(obj[key]) }
+        }
       }
     })
     return response
@@ -64,12 +70,13 @@ class KeyvalueDynamo {
       },
       TableName: name,
     }
+    logger.debug(params)
     try {
-      const data = await dynamo.getItem(params).promise()
-      const response = data.Item || {}
+      const result = await dynamo.getItem(params).promise()
+      const response = result.Item || {}
       return flattenObject(response)
     } catch (err) {
-      log.error({ err }, 'Could not get DynamoDB Item')
+      logger.warn({ err }, 'Could not get DynamoDB Item')
       return {}
     }
   }
@@ -82,10 +89,11 @@ class KeyvalueDynamo {
       Item: item,
       TableName: name,
     }
-    return new Promise(resolve => {
+    logger.debug(params)
+    return new Promise<boolean>(resolve => {
       dynamo.putItem(params, err => {
         if (err) {
-          log.error({ err }, 'Could not set DynamoDB Item')
+          logger.warn({ err }, 'Could not set DynamoDB Item')
           return resolve(false)
         }
         return resolve(true)
@@ -103,10 +111,11 @@ class KeyvalueDynamo {
       },
       TableName: name,
     }
+    logger.debug(params)
     return new Promise(resolve => {
       dynamo.deleteItem(params, err => {
         if (err) {
-          log.error({ err }, 'Could not delete DynamoDB Item')
+          logger.warn({ err }, 'Could not delete DynamoDB Item')
           return resolve(false)
         }
         return resolve(true)
@@ -119,17 +128,17 @@ class KeyvalueDynamo {
     const params = {
       TableName: name,
     }
+    logger.debug(params)
     return new Promise(resolve => {
       dynamo.scan(params, (err, data) => {
         if (err) {
-          log.error({ err }, 'Could not scan DynamoDB Table')
+          logger.warn({ err }, 'Could not scan DynamoDB Table')
           return resolve({})
         }
-        const response: any = {}
-        if (data && data.Items)
-          data.Items.forEach(i => {
-            if (i && i.id && i.id.S) response[i.id.S] = this.flattenObject(i)
-          })
+        const response: { [key: string]: any } = {}
+        data.Items.forEach(i => {
+          response[i.id.S] = this.flattenObject(i)
+        })
         return resolve(response)
       })
     })
