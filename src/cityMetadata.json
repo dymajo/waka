@@ -72,14 +72,14 @@
   "fr-par": {
     "name": "Paris",
     "secondaryName": "Paris",
-    "longName": "Paris",
+    "longName": "Paris, France",
     "initialLocation": [48.8567, 2.3508],
     "showInCityList": true
   },
   "de-ber": {
     "name": "Berlin",
-    "secondaryName": " Berlin-Brandenburg",
-    "longName": " Berlin-Brandenburg",
+    "secondaryName": "Berlin-Brandenburg",
+    "longName": "Berlin-Brandenburg",
     "initialLocation": [52.516667, 13.388889],
     "showInCityList": false
   },
@@ -93,7 +93,7 @@
   "us-atk": {
     "name": "Amtrak",
     "secondaryName": "Amtrak",
-    "longName": "Amtrak",
+    "longName": "Amtrak, USA",
     "initialLocation": [38.89731, -77.00626],
     "showInCityList": true
   },
@@ -112,16 +112,16 @@
     "showInCityList": true
   },
   "us-sfo": {
-    "name": "sfo",
-    "secondaryName": "sfo",
-    "longName": "sfo",
+    "name": "San Francisco",
+    "secondaryName": "San Francisco",
+    "longName": "San Francisco, CA",
     "initialLocation": [37.776389, -122.394444],
     "showInCityList": true
   },
   "us-nyc": {
-    "name": "NYC",
-    "secondaryName": "New York",
-    "longName": "New York City, NY",
+    "name": "New York",
+    "secondaryName": "New York City",
+    "longName": "New York, NY",
     "initialLocation": [40.750638, -73.993899],
     "showInCityList": true
   }

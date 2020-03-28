@@ -8,7 +8,6 @@ import KeyvalueLocal from '../adaptors/keyvalueLocal'
 import logger from '../logger'
 import VersionManager from '../versionManager'
 
-
 interface PrivateApiProps {
   config: WakaConfig
   versionManager: VersionManager
@@ -57,6 +56,8 @@ class PrivateApi {
           return {
             id: versionKey,
             prefix: versionData.prefix,
+            createdAt: versionData.createdAt || null,
+            updatedAt: versionData.updatedAt || null,
             status: versionData.status,
             version: versionData.version,
             dbname: versionData.db.database,

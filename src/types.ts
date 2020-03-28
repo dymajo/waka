@@ -36,8 +36,8 @@ export interface WakaConfig {
   }
   importer: any
   gatewayConfig?: {
-    ecs: EcsGatewayConfig,
-    kubernetes: KubernetesGatewayConfig,
+    ecs: EcsGatewayConfig
+    kubernetes: KubernetesGatewayConfig
   }
 }
 
@@ -134,6 +134,8 @@ export interface Version {
   db: { database: string; password: string; server: string; user: string }
   id: string
   prefix: string
+  createdAt: string
+  updatedAt: string
   shapesContainer: string
   shapesRegion: string
   status: string
@@ -379,4 +381,3 @@ declare const process: {
 }
 
 export { Logger }
-

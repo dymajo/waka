@@ -208,6 +208,8 @@ class VersionManager {
     const newConfig = {
       prefix,
       version,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       shapesContainer,
       shapesRegion,
       status: 'empty',
@@ -259,6 +261,7 @@ class VersionManager {
     const _version = (await versions.get(versionId)) as unknown
     const version = _version as Version
     version.status = status
+    version.updatedAt = new Date().toISOString()
     await versions.set(versionId, version)
   }
 
