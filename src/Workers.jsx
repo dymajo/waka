@@ -74,7 +74,7 @@ const Workers = () => {
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-2">
         <h2>Workers</h2>
         <div className="btn-toolbar mb-2 mb-md-0">
-          <CreateWorkerModal />
+          <CreateWorkerModal createWorker={data => runAction('/worker/add', data)}/>
         </div>
       </div>
       <div id="workers" className="mb-4">

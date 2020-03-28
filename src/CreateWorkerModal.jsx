@@ -13,10 +13,10 @@ export default function CreateWorkerModal({ createWorker }) {
   const [modal, setmodal] = useState(false);
   const [prefix, setPrefix] = useState('');
   const [version, setVersion] = useState('');
-  const [shapesContainer, setShapesContainer] = useState('');
-  const [shapesRegion, setShapesRegion] = useState('');
-  const [dbConfig, setDbConfig] = useState('');
-  const [newRealtime, setNewRealtime] = useState(false);
+  const [shapesContainer, setShapesContainer] = useState('shapes-us-west-2.waka.app');
+  const [shapesRegion, setShapesRegion] = useState('us-west-2');
+  const [dbConfig, setDbConfig] = useState('local');
+  const [newRealtime, setNewRealtime] = useState(true);
   const [loadingCities, setLoadingCities] = useState(false);
   const [cities, setCities] = useState([]);
   const getCities = async () => {
@@ -27,6 +27,8 @@ export default function CreateWorkerModal({ createWorker }) {
       label: data[city].longName,
       value: city
     }));
+    cities.sort((a, b) => a.label.localeCompare(b.label, 'en', { sensitivity: 'base' }))
+    setPrefix(cities[0].value)
     setCities(cities);
     setLoadingCities(false);
   };
@@ -34,14 +36,15 @@ export default function CreateWorkerModal({ createWorker }) {
     getCities();
   }, []);
   const onCreateWorker = () => {
-    createWorker(
+    createWorker({
       prefix,
       version,
       shapesContainer,
       shapesRegion,
-      dbConfig,
+      dbconfig: dbConfig,
       newRealtime
-    );
+    });
+    setmodal(false)
   };
   const disabled =
     !prefix || !version || !shapesContainer || !shapesRegion || !dbConfig;
@@ -84,7 +87,6 @@ export default function CreateWorkerModal({ createWorker }) {
             <Input
               onChange={e => setVersion(e.target.value)}
               type="text"
-              placeholder="20180706-12345"
               value={version}
             />
           </FormGroup>
@@ -93,7 +95,6 @@ export default function CreateWorkerModal({ createWorker }) {
             <Input
               onChange={e => setShapesContainer(e.target.value)}
               type="text"
-              placeholder="shapes-us-west-2.waka.app"
               value={shapesContainer}
             />
           </FormGroup>
@@ -102,7 +103,6 @@ export default function CreateWorkerModal({ createWorker }) {
             <Input
               onChange={e => setShapesRegion(e.target.value)}
               type="text"
-              placeholder="us-west-2"
               value={shapesRegion}
             />
           </FormGroup>
@@ -113,7 +113,6 @@ export default function CreateWorkerModal({ createWorker }) {
             <Input
               onChange={e => setDbConfig(e.target.value)}
               type="text"
-              placeholder="local"
               value={dbConfig}
             />
           </FormGroup>

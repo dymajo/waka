@@ -7,6 +7,11 @@ import {
   DropdownMenu
 } from 'reactstrap';
 
+// so the links work in production
+let urlPrefix = '..'
+if (window.location.hostname === 'uat-admin.waka.app') urlPrefix = 'https://uat.waka.app/a'
+if (window.location.hostname === 'admin.waka.app') urlPrefix = 'https://waka.app/a'
+
 const Worker = ({ worker, mapping = {}, runAction }) => {
   const { id, prefix } = worker;
   const workerData = { id, prefix };
@@ -72,7 +77,7 @@ const Worker = ({ worker, mapping = {}, runAction }) => {
   return (
     <tr>
       <td className="pl-0">
-        {worker.id === mapping.value ? <><a href={`../${worker.prefix}/info`}>{worker.prefix}</a> ⭐</> : worker.prefix}<br />
+        {worker.id === mapping.value ? <><a href={`${urlPrefix}/${worker.prefix}/info`}>{worker.prefix}</a> ⭐</> : worker.prefix}<br />
         <small className="text-muted">{worker.newRealtime ? 'GTFS-R' : 'No GTFS-R'}</small>
       </td>
       <td>
