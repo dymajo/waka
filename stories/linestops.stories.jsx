@@ -146,3 +146,23 @@ storiesOf('LineStops', module)
       }}
     />
   ))
+  .add('with an extra block id', () => (
+    <LineStops
+      stops={stopData}
+      color="#130f40"
+      line="70"
+      region="nz-akl"
+      nextBlock={{
+        trip_id: '1',
+        route_id: '2',
+        agency_id: 'NZB',
+        route_short_name: 'T1',
+        route_long_name: 'North Shore Line',
+        route_color: '#f99e1c',
+        route_text_color: '#ffffff',
+        departure_time: new Date(
+          new Date(stopData.slice(-1)[0].departure_time).getTime() + 600000
+        ).toISOString(),
+      }}
+    />
+  ))

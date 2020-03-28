@@ -4,6 +4,7 @@ import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 import { vars } from '../../styles.js'
 import UiStore from '../../stores/UiStore.js'
 import Transfers from './Transfers.jsx'
+import LineStopsTime from './LineStopsTime.jsx'
 
 let styles = null // defined down below
 
@@ -16,6 +17,7 @@ export const LineStops = ({
   selectedStop = null,
   realtimeStopUpdates = {},
   isTwentyFourHour = false,
+  nextBlock = null,
 }) => {
   const stopStyle = [styles.stop, { borderColor: color }]
   const [showAll, setShowAll] = useState(false)
@@ -59,6 +61,7 @@ export const LineStops = ({
   }
   comparisionStopTime.setSeconds(0) // so it makes more sense in the UI
 
+  console.log(nextBlock)
   return (
     <>
       {!showAll && selectedStopIndex > 0 ? (
@@ -74,7 +77,13 @@ export const LineStops = ({
           </View>
         </TouchableOpacity>
       ) : null}
-      <View style={styles.wrapper}>
+      <View
+        style={
+          nextBlock === null
+            ? styles.wrapper
+            : [styles.wrapper, { borderBottomWidth: 0 }]
+        }
+      >
         {stops.map((stop, index) => {
           if (
             selectedStop === stop.stop_id ||
@@ -98,15 +107,6 @@ export const LineStops = ({
             delay = estimate.delay
           }
 
-          const minutesOffset =
-            Math.floor(
-              (new Date(stop.departure_time).getTime() +
-                delay * 1000 -
-                comparisionStopTime) /
-                60000 +
-                1440
-            ) % 1440
-
           return (
             <View style={stopStyle} key={stop.stop_sequence}>
               {index === 0 ? (
@@ -114,7 +114,7 @@ export const LineStops = ({
                   <View style={styles.bulletFake} />
                   <View style={styles.bulletSpacing} />
                 </View>
-              ) : index === stops.length - 1 ? (
+              ) : index === stops.length - 1 && nextBlock === null ? (
                 <View style={styles.bulletWrapper}>
                   <View style={styles.bulletSpacing} />
                   <View style={styles.bulletFake} />
@@ -124,7 +124,7 @@ export const LineStops = ({
 
               <TouchableOpacity
                 style={
-                  index === stops.length - 1
+                  index === stops.length - 1 && nextBlock === null
                     ? [styles.controls, { borderBottomWidth: 0 }]
                     : styles.controls
                 }
@@ -134,44 +134,52 @@ export const LineStops = ({
                   <Text style={styles.stopText}>{stop.stop_name}</Text>
                   <Transfers transfers={stop.transfers} currentLine={line} />
                 </View>
-                <View style={styles.timeContainer}>
-                  <Text
-                    style={
-                      afterSelectedStop
-                        ? styles.timeRelative
-                        : [styles.timeRelative, styles.timePast]
-                    }
-                  >
-                    {afterSelectedStop
-                      ? `+${minutesOffset}`
-                      : `${minutesOffset - 1440}`}{' '}
-                    mins
-                  </Text>
-                  <Text
-                    style={
-                      afterSelectedStop
-                        ? styles.timeAbsolute
-                        : [styles.timeAbsolute, styles.timePast]
-                    }
-                  >
-                    {new Date(
-                      new Date(
-                        stop.departure_time || stop.arrival_time
-                      ).getTime() +
-                        delay * 1000
-                    ).toLocaleTimeString(navigator.language, {
-                      timeZone: 'UTC',
-                      hour12: !isTwentyFourHour,
-                      hour: 'numeric',
-                      minute: 'numeric',
-                    })}
-                  </Text>
-                </View>
+                <LineStopsTime
+                  isTwentyFourHour={isTwentyFourHour}
+                  afterSelectedStop={afterSelectedStop}
+                  departureTime={
+                    new Date(
+                      stop.departure_time || stop.arrival_time
+                    ).getTime() +
+                    delay * 1000
+                  }
+                  comparisonTime={comparisionStopTime}
+                />
               </TouchableOpacity>
             </View>
           )
         })}
       </View>
+      {nextBlock ? (
+        <View style={[stopStyle, { borderColor: nextBlock.route_color }]}>
+          <View style={styles.bullet} />
+          <TouchableOpacity style={[styles.controls]}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.nextBlockLabel}>Service continues as</Text>
+              <View style={styles.nextBlockName}>
+                <Transfers
+                  transfers={[
+                    [
+                      nextBlock.route_short_name,
+                      nextBlock.route_color,
+                      nextBlock.route_text_color,
+                    ],
+                  ]}
+                />
+                <Text style={styles.nextBlockRoute}>
+                  {nextBlock.route_long_name}
+                </Text>
+              </View>
+            </View>
+            <LineStopsTime
+              afterSelectedStop
+              isTwentyFourHour={isTwentyFourHour}
+              departureTime={new Date(nextBlock.departure_time).getTime()}
+              comparisonTime={comparisionStopTime}
+            />
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </>
   )
 }
@@ -255,7 +263,7 @@ styles = StyleSheet.create({
     flex: 1,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
-    borderBottomColor: vars.borderColorWhite,
+    borderBottomColor: 'rgba(0,0,0,0.075)',
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: vars.padding,
@@ -271,23 +279,20 @@ styles = StyleSheet.create({
     paddingTop: vars.padding * 0.75,
     paddingBottom: vars.padding * 0.25,
   },
-  timeContainer: {
-    paddingTop: vars.padding / 2,
-    paddingBottom: vars.padding / 2,
-    paddingLeft: vars.padding * 0.75,
-  },
-  timeRelative: {
-    fontFamily,
-    fontSize: 14,
-    textAlign: 'right',
-    fontWeight: '600',
-  },
-  timeAbsolute: {
+  nextBlockLabel: {
     fontFamily,
     fontSize: 13,
-    textAlign: 'right',
+    paddingTop: vars.padding / 2,
+    paddingBottom: 4,
   },
-  timePast: {
-    color: '#666',
+  nextBlockName: {
+    flexDirection: 'row',
+  },
+  nextBlockRoute: {
+    paddingLeft: 3,
+    fontFamily,
+    fontWeight: '600',
+    fontSize: vars.defaultFontSize - 1,
+    lineHeight: vars.defaultFontSize + 2,
   },
 })
