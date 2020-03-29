@@ -61,7 +61,6 @@ export const LineStops = ({
   }
   comparisionStopTime.setSeconds(0) // so it makes more sense in the UI
 
-  console.log(nextBlock)
   return (
     <>
       {!showAll && selectedStopIndex > 0 ? (
@@ -153,7 +152,14 @@ export const LineStops = ({
       {nextBlock ? (
         <View style={[stopStyle, { borderColor: nextBlock.route_color }]}>
           <View style={styles.bullet} />
-          <TouchableOpacity style={[styles.controls]}>
+          <TouchableOpacity
+            style={[styles.controls]}
+            onClick={() =>
+              UiStore.safePush(
+                `/l/${region}/${nextBlock.agency_id}/${nextBlock.route_short_name}?trip_id=${nextBlock.trip_id}&route_id=${nextBlock.route_id}&direction_id=${nextBlock.direction_id}`
+              )
+            }
+          >
             <View style={styles.contentContainer}>
               <Text style={styles.nextBlockLabel}>Service continues as</Text>
               <View style={styles.nextBlockName}>

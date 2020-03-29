@@ -84,18 +84,6 @@ class Line extends React.Component {
 
   interpolatedShape = null
 
-  state = {
-    color: '#666',
-    stops: [],
-    lineMetadata: [],
-    timetable: [],
-    realtimeStopUpdates: {},
-    loading: true,
-    currentTrip: null,
-    vehiclepos: [],
-    isShapeLoaded: false,
-  }
-
   tripStops = []
 
   constructor(props) {
@@ -109,9 +97,23 @@ class Line extends React.Component {
       route_short_name: match.params.route_short_name,
       agency_id: match.params.agency_id,
       route_id: parsed.route_id || null,
+      trip_id: parsed.trip_id || null,
       stop_id: parsed.stop_id || null,
       direction_id: parsed.direction === '1' ? 1 : 0,
     })
+
+    this.state = {
+      color: '#666',
+      stops: [],
+      lineMetadata: [],
+      timetable: [],
+      realtimeStopUpdates: {},
+      loading: true,
+      currentTrip: parsed.trip_id || null,
+      nextBlock: null,
+      vehiclepos: [],
+      isShapeLoaded: false,
+    }
 
     if (
       UiStore.state.lastTransition !== 'backward' &&
@@ -224,7 +226,9 @@ class Line extends React.Component {
             return service
           }),
       }
-      if (newState.timetable.length > 0) {
+      if (this.state.currentTrip !== null) {
+        newState.currentTrip = this.state.currentTrip
+      } else if (newState.timetable.length > 0) {
         const selectedTrip = newState.timetable.find(a => a.visible === true)
         if (selectedTrip) {
           newState.currentTrip = selectedTrip.trip_id
@@ -306,6 +310,7 @@ class Line extends React.Component {
   getStops = async () => {
     const { currentTrip } = this.state
     const { match } = this.props
+
     this.lineData.trip_id = currentTrip
     const data = await this.lineData.getTripStops()
     this.tripStops = data.current
@@ -316,7 +321,11 @@ class Line extends React.Component {
       match.params.region,
       data.routeInfo.route_short_name
     )
-    this.setState({ stops: renderedStops, loading: false })
+    this.setState({
+      stops: renderedStops,
+      nextBlock: data.next,
+      loading: false,
+    })
     this.interpolateShape()
   }
 
@@ -414,6 +423,7 @@ class Line extends React.Component {
       currentTrip,
       realtimeStopUpdates,
       vehiclepos,
+      nextBlock,
     } = this.state
     const currentLine =
       lineMetadata.length > 0
@@ -468,6 +478,7 @@ class Line extends React.Component {
           currentTrip={currentTrip}
           realtimeStopUpdates={realtimeStopUpdates}
           isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
+          nextBlock={nextBlock}
         />
       </>
     )
