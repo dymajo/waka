@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import Consist from './Consist.jsx'
 
 const TripInfo = ({ trip }) => {
-  console.log(trip)
+  // console.log(trip)
   const [toggle, settoggle] = useState(false)
   return (
     <div>

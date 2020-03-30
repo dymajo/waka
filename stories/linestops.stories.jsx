@@ -1,7 +1,7 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 
-import { LineStops } from '../js/views/lines/LineStops.jsx'
+import { LineStopsRoute } from '../js/views/lines/stops/LineStopsRoute'
 
 const stopData = [
   {
@@ -62,10 +62,15 @@ const stopData = [
 
 storiesOf('LineStops', module)
   .add('from first stop', () => (
-    <LineStops stops={stopData} color="#130f40" line="70" region="nz-akl" />
+    <LineStopsRoute
+      stops={stopData}
+      color="#130f40"
+      line="70"
+      region="nz-akl"
+    />
   ))
   .add('from alternate stop', () => (
-    <LineStops
+    <LineStopsRoute
       stops={stopData}
       color="#130f40"
       line="70"
@@ -74,7 +79,7 @@ storiesOf('LineStops', module)
     />
   ))
   .add('from last stop', () => (
-    <LineStops
+    <LineStopsRoute
       stops={stopData}
       color="#130f40"
       line="70"
@@ -83,13 +88,23 @@ storiesOf('LineStops', module)
     />
   ))
   .add('alternate color', () => (
-    <LineStops stops={stopData} color="#22a6b3" line="70" region="nz-akl" />
+    <LineStopsRoute
+      stops={stopData}
+      color="#22a6b3"
+      line="70"
+      region="nz-akl"
+    />
   ))
   .add('alternate current line', () => (
-    <LineStops stops={stopData} color="#130f40" line="120" region="nz-akl" />
+    <LineStopsRoute
+      stops={stopData}
+      color="#130f40"
+      line="120"
+      region="nz-akl"
+    />
   ))
   .add('realtime - 1 stop available', () => (
-    <LineStops
+    <LineStopsRoute
       stops={stopData}
       color="#130f40"
       line="70"
@@ -111,7 +126,7 @@ storiesOf('LineStops', module)
     />
   ))
   .add('realtime - multiple stops available', () => (
-    <LineStops
+    <LineStopsRoute
       stops={stopData}
       color="#130f40"
       line="70"
@@ -147,7 +162,7 @@ storiesOf('LineStops', module)
     />
   ))
   .add('with an extra block id', () => (
-    <LineStops
+    <LineStopsRoute
       stops={stopData}
       color="#130f40"
       line="70"

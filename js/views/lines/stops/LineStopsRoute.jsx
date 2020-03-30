@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native'
 
-import { vars } from '../../styles.js'
-import UiStore from '../../stores/UiStore.js'
-import Transfers from './Transfers.jsx'
+import { vars } from '../../../styles.js'
+import UiStore from '../../../stores/UiStore.js'
+import Transfers from './LineStopsTransfers.jsx'
 import LineStopsTime from './LineStopsTime.jsx'
 
 let styles = null // defined down below
 
-export const LineStops = ({
+export const LineStopsRoute = ({
   stops,
   color,
   line,

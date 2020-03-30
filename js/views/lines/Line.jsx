@@ -9,13 +9,11 @@ import { vars } from '../../styles.js'
 import SettingsStore from '../../stores/SettingsStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
-import Spinner from '../reusable/Spinner.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 
 import Layer from '../maps/Layer.jsx'
 import LineData from '../../data/LineData.js'
-import { LineStops } from './LineStops.jsx'
-import { renderShape, renderStops } from './lineCommon.jsx'
+import { LineStops } from './stops/LineStops.jsx'
 import IconHelper from '../../helpers/icons/index.js'
 import Timetable from './Timetable.jsx'
 import TripInfo from './TripInfo.jsx'
@@ -74,15 +72,9 @@ class Line extends React.Component {
     match: PropTypes.object.isRequired,
   }
 
-  layer = new Layer()
-
-  pointsLayer = new Layer()
-
   liveLayer = new Layer()
 
   iconHelper = new IconHelper()
-
-  interpolatedShape = null
 
   tripStops = []
 
@@ -103,16 +95,11 @@ class Line extends React.Component {
     })
 
     this.state = {
-      color: '#666',
-      stops: [],
       lineMetadata: [],
       timetable: [],
       realtimeStopUpdates: {},
-      loading: true,
       currentTrip: parsed.trip_id || null,
-      nextBlock: null,
       vehiclepos: [],
-      isShapeLoaded: false,
     }
 
     if (
@@ -137,11 +124,7 @@ class Line extends React.Component {
   }
 
   componentWillUnmount() {
-    this.layer.hide(true, true)
-    this.pointsLayer.hide()
     this.liveLayer.hide()
-    this.layer.unmounted = true
-    this.pointsLayer.unmounted = true
     this.liveLayer.unmounted = true
 
     clearInterval(this.liveRefresh)
@@ -154,8 +137,6 @@ class Line extends React.Component {
 
       if (metadata.length === 0) {
         throw new Error('The line was not found.')
-      } else if (metadata[0].shape_id === null) {
-        throw new Error('The line had missing data.')
       }
 
       const route =
@@ -164,7 +145,6 @@ class Line extends React.Component {
       this.lineData.direction_id = route.direction_id
 
       this.setState({
-        color: route.route_color,
         lineMetadata: metadata,
       })
 
@@ -173,23 +153,6 @@ class Line extends React.Component {
         this.lineData.stop_id = route.first_stop_id
         this.getTimetable()
       }
-
-      // Render the shape
-      this.lineData.shape_id = route.shape_id
-
-      // we don't want to await this, so the data loads async
-      this.lineData
-        .getShape()
-        // eslint-disable-next-line promise/prefer-await-to-then
-        .then(shape => {
-          this.setState({ isShapeLoaded: true })
-          if (this.interpolatedShape) {
-            this.layer.hide(true, true)
-            this.layer = new Layer()
-          }
-          return renderShape(shape, this.layer, route.route_color)
-        })
-        .catch(() => this.interpolateShape()) // failed to get a shape, so we'll interpolate one
     } catch (err) {
       clearInterval(this.liveRefresh)
       console.error(err)
@@ -239,7 +202,7 @@ class Line extends React.Component {
     try {
       const timetableData = await this.lineData.getTimetable(0)
       this.setState(getTimetableState(timetableData), async () => {
-        const { timetable, currentTrip } = this.state
+        const { timetable } = this.state
 
         this.lineData.realtime_trips = timetable
           .filter(t => t.realtimeQuery === true)
@@ -247,10 +210,6 @@ class Line extends React.Component {
 
         this.getRealtimeStopUpdate()
 
-        // get stops only if there's a trip_id
-        if (currentTrip) {
-          this.getStops()
-        }
         const tomorrowTimetableData = await this.lineData.getTimetable(1)
         const newState = getTimetableState(
           timetable.slice().concat(tomorrowTimetableData)
@@ -291,9 +250,6 @@ class Line extends React.Component {
                 this.getTimetable()
               }
             }
-          } else if (!currentTrip && newState.currentTrip) {
-            // get stops if we didn't have the data the first time
-            this.getStops()
           }
         })
       })
@@ -305,28 +261,6 @@ class Line extends React.Component {
         errorMessage: err.message,
       })
     }
-  }
-
-  getStops = async () => {
-    const { currentTrip } = this.state
-    const { match } = this.props
-
-    this.lineData.trip_id = currentTrip
-    const data = await this.lineData.getTripStops()
-    this.tripStops = data.current
-    const renderedStops = renderStops(
-      data.current,
-      this.pointsLayer,
-      data.routeInfo.route_color,
-      match.params.region,
-      data.routeInfo.route_short_name
-    )
-    this.setState({
-      stops: renderedStops,
-      nextBlock: data.next,
-      loading: false,
-    })
-    this.interpolateShape()
   }
 
   getPositionData = async () => {
@@ -377,15 +311,9 @@ class Line extends React.Component {
 
   triggerTrip = tripId => {
     return () => {
-      this.setState(
-        {
-          currentTrip: tripId,
-          loading: true,
-        },
-        () => {
-          this.getStops()
-        }
-      )
+      this.setState({
+        currentTrip: tripId,
+      })
     }
   }
 
@@ -394,36 +322,16 @@ class Line extends React.Component {
     UiStore.safePush(`./picker${location.search}`)
   }
 
-  interpolateShape() {
-    const { color, isShapeLoaded } = this.state
-    if (this.tripStops.length === 0) return
-    if (isShapeLoaded) return
-    const shape = {
-      type: 'LineString',
-      coordinates: this.tripStops.map(stop => [stop.stop_lon, stop.stop_lat]),
-    }
-    this.interpolatedShape = renderShape(
-      { ...shape, ...this.lineData.getShapeBounds(shape) },
-      this.layer,
-      color
-    )
-    this.setState({ isShapeLoaded: true })
-  }
-
   render() {
     const { match } = this.props
     const {
-      color,
       error,
       errorMessage,
       lineMetadata,
-      loading,
-      stops,
       timetable,
       currentTrip,
       realtimeStopUpdates,
       vehiclepos,
-      nextBlock,
     } = this.state
     const currentLine =
       lineMetadata.length > 0
@@ -461,27 +369,6 @@ class Line extends React.Component {
           isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
         />
       ) : null
-    const lineStops = loading ? (
-      <Spinner />
-    ) : (
-      <>
-        {window.location.hostname === 'localhost' ? (
-          <TripInfo trip={tripInfo} />
-        ) : null}
-        <Text style={styles.direction}>Stops</Text>
-        <LineStops
-          color={color}
-          stops={stops}
-          line={match.params.route_short_name}
-          region={match.params.region}
-          selectedStop={this.lineData.stop_id}
-          currentTrip={currentTrip}
-          realtimeStopUpdates={realtimeStopUpdates}
-          isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
-          nextBlock={nextBlock}
-        />
-      </>
-    )
 
     return (
       <View style={styles.wrapper}>
@@ -493,7 +380,16 @@ class Line extends React.Component {
         />
         <LinkedScroll>
           {timetableElement}
-          {lineStops}
+          {window.location.hostname === 'localhost' ? (
+            <TripInfo trip={tripInfo} />
+          ) : null}
+          <LineStops
+            region={match.params.region}
+            line={match.params.route_short_name}
+            stopId={this.lineData.stop_id}
+            tripId={currentTrip}
+            realtimeTripUpdate={realtimeStopUpdates[currentTrip]}
+          />
         </LinkedScroll>
       </View>
     )
@@ -533,14 +429,7 @@ styles = StyleSheet.create({
     fontSize: 13,
     color: '#888',
   },
-  direction: {
-    paddingTop: vars.padding,
-    paddingLeft: vars.padding,
-    paddingBottom: vars.padding * 0.5,
-    fontWeight: '600',
-    fontSize: vars.defaultFontSize,
-    fontFamily: vars.fontFamily,
-  },
+
   error: {
     padding: vars.padding,
   },

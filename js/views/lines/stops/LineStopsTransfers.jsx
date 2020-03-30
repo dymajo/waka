@@ -1,7 +1,7 @@
 import React from 'react'
 import { Text, StyleSheet } from 'react-native'
 
-import { vars } from '../../styles.js'
+import { vars } from '../../../styles.js'
 
 const { fontFamily } = vars
 

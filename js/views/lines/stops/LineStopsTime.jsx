@@ -1,7 +1,7 @@
 import React from 'react'
 import { Text, View, StyleSheet } from 'react-native'
 
-import { vars } from '../../styles.js'
+import { vars } from '../../../styles.js'
 
 const { fontFamily, padding } = vars
 const styles = StyleSheet.create({

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { storiesOf } from '@storybook/react'
-import Transfers from '../js/views/lines/Transfers'
+import Transfers from '../js/views/lines/stops/LineStopsTransfers'
 
 storiesOf('Transfers', module)
   .add('no transfers', () => (
