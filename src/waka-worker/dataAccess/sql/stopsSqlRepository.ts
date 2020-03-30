@@ -92,9 +92,10 @@ export default class StopsSqlRepostory {
       route_desc: string
       route_type: number
       route_color: string
-      route_text_color: string
+      route_text_color: string,
+      shape_id: string,
     }>(`
-      SELECT agency_id, route_short_name, route_long_name, route_desc, route_type, route_color, route_text_color from routes
+      SELECT agency_id, route_short_name, route_long_name, route_desc, route_type, route_color, route_text_color, shape_id from routes
       INNER JOIN trips on routes.route_id = trips.route_id
       WHERE trip_id = @trip_id
     `)
