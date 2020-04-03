@@ -65,6 +65,10 @@ resource "kubernetes_deployment" "waka-proxy" {
               memory = "16Mi"
             }
           }
+
+          port {
+            container_port = 80
+          }
         }
       }
     }

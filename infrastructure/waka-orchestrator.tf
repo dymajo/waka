@@ -201,6 +201,10 @@ resource "kubernetes_deployment" "waka-orchestrator" {
               memory = "32Mi"
             }
           }
+
+          port {
+            container_port = 80
+          }
         }
       }
     }

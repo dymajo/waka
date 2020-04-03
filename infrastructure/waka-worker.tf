@@ -138,6 +138,10 @@ resource "kubernetes_deployment" "waka-worker" {
             initial_delay_seconds = 3
             period_seconds        = 3
           }
+
+          port {
+            container_port = 80
+          }
         }
       }
     }
