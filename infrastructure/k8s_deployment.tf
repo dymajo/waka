@@ -87,6 +87,10 @@ resource "kubernetes_deployment" "waka" {
               memory = "16Mi"
             }
           }
+
+          port {
+            container_port = 80
+          }
         }
       }
     }
