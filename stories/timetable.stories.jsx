@@ -1,6 +1,6 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import Timetable from '../js/views/lines/Timetable'
+import LineTimetableSelector from '../js/views/lines/timetable/LineTimetableSelector'
 
 const now = new Date().toISOString()
 const tenMins = new Date(new Date(now).getTime() + 10 * 60000).toISOString()
@@ -9,7 +9,7 @@ const past = new Date(new Date(now).getTime() - 10 * 60000).toISOString()
 
 storiesOf('Timetable', module)
   .add('1 trip', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="1"
       timetable={[{ trip_id: '1', departure_time: now, visible: true }]}
       realtimeStopUpdates={{}}
@@ -17,7 +17,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('2 trips', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="1"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true },
@@ -28,7 +28,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('3 trips', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="1"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true },
@@ -40,7 +40,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('selected trip', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="2"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true },
@@ -52,7 +52,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('realtime - cancelled', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="1"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true },
@@ -67,7 +67,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('realtime - late', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="1"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true },
@@ -100,7 +100,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('realtime - on time', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="1"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true },
@@ -133,7 +133,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('realtime - early', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="1"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true },
@@ -166,7 +166,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('realtime - very late', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="0"
       timetable={[
         {
@@ -196,7 +196,7 @@ storiesOf('Timetable', module)
     />
   ))
   .add('realtime - very early', () => (
-    <Timetable
+    <LineTimetableSelector
       currentTrip="2"
       timetable={[
         { trip_id: '1', departure_time: now, visible: true, stopSequence: 15 },

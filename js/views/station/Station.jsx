@@ -198,7 +198,7 @@ class Station extends Component {
     const stopId = match.params.station
     let tripIdParameter = ''
     if (tripId != null) {
-      tripIdParameter = `&tripId=${tripId}`
+      tripIdParameter = `&trip_id=${tripId}`
     }
 
     history.push(

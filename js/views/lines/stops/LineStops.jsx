@@ -34,15 +34,19 @@ export class LineStops extends Component {
   componentDidUpdate(prevProps) {
     const { tripId } = this.props
     if (tripId !== prevProps.tripId) {
+      this.setState({ loading: true })
       this.getStops()
     }
   }
 
   componentWillUnmount() {
     const { pointsLayer, shapesLayer } = this
-    shapesLayer.hide(true, true)
+    // shapeslayer is nullable
+    if (shapesLayer) {
+      shapesLayer.hide(true, true)
+      shapesLayer.unmounted = true
+    }
     pointsLayer.hide()
-    shapesLayer.unmounted = true
     pointsLayer.unmounted = true
   }
 
@@ -113,23 +117,25 @@ export class LineStops extends Component {
   render() {
     const { line, region, stopId, tripId, realtimeTripUpdate } = this.props
     const { loading, current, next, color } = this.state
-    if (loading) {
-      return <Spinner />
-    }
+
     return (
       <View>
         <Text style={styles.header}>Stops</Text>
-        <LineStopsRoute
-          color={color}
-          stops={current}
-          line={line}
-          region={region}
-          selectedStop={stopId}
-          currentTrip={tripId}
-          realtimeStopUpdates={realtimeTripUpdate}
-          isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
-          nextBlock={next}
-        />
+        {loading ? (
+          <Spinner />
+        ) : (
+          <LineStopsRoute
+            color={color}
+            stops={current}
+            line={line}
+            region={region}
+            selectedStop={stopId}
+            currentTrip={tripId}
+            realtimeStopUpdates={realtimeTripUpdate}
+            isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
+            nextBlock={next}
+          />
+        )}
       </View>
     )
   }

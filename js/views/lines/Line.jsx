@@ -1,12 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 
 import { vars } from '../../styles.js'
-import SettingsStore from '../../stores/SettingsStore.js'
 import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
@@ -14,8 +13,9 @@ import LinkedScroll from '../reusable/LinkedScroll.jsx'
 import Layer from '../maps/Layer.jsx'
 import LineData from '../../data/LineData.js'
 import { LineStops } from './stops/LineStops.jsx'
+import { LineTimetable } from './timetable/LineTimetable.jsx'
+import { LineErrorBoundary } from './LineErrorBoundary.jsx'
 import IconHelper from '../../helpers/icons/index.js'
-import Timetable from './Timetable.jsx'
 import TripInfo from './TripInfo.jsx'
 
 import LineIcon from '../../../dist/icons/linepicker.svg'
@@ -96,7 +96,6 @@ class Line extends React.Component {
 
     this.state = {
       lineMetadata: [],
-      timetable: [],
       realtimeStopUpdates: {},
       currentTrip: parsed.trip_id || null,
       vehiclepos: [],
@@ -114,7 +113,6 @@ class Line extends React.Component {
 
   componentDidMount() {
     this.dataResolved = this.getData()
-    this.getTimetable()
     this.getPositionData()
 
     this.liveRefresh = setInterval(() => {
@@ -132,135 +130,30 @@ class Line extends React.Component {
   }
 
   async getData() {
-    try {
-      const metadata = await this.lineData.getMeta()
+    const metadata = await this.lineData.getMeta()
 
-      if (metadata.length === 0) {
-        throw new Error('The line was not found.')
-      }
-
-      const route =
-        metadata.find(i => i.direction_id === this.lineData.direction_id) ||
-        metadata[0]
-      this.lineData.direction_id = route.direction_id
-
-      this.setState({
-        lineMetadata: metadata,
-      })
-
-      // if the stop wasn't specified in the URL
-      if (this.lineData.stop_id === null) {
-        this.lineData.stop_id = route.first_stop_id
-        this.getTimetable()
-      }
-    } catch (err) {
+    if (metadata.length === 0) {
       clearInterval(this.liveRefresh)
-      console.error(err)
       this.setState({
         error: true,
-        errorMessage: err.message,
+        errorMessage: 'The line was not found.',
       })
+      return
     }
-  }
 
-  getTimetable = async () => {
-    // this will be invoked again properly
-    if (this.lineData.stop_id === null) return
+    const route =
+      metadata.find(i => i.direction_id === this.lineData.direction_id) ||
+      metadata[0]
+    this.lineData.direction_id = route.direction_id
 
-    const getTimetableState = rawData => {
-      const tolerance = 1000 * 60 * 30
-      const visibleTolerance = 1000 * 60 * 2
-      const realtimeTolerance = 1000 * 60 * 90
-      const now = new Date(new Date().getTime() - tolerance)
-      const visibleNow = new Date(new Date().getTime() - visibleTolerance)
-      const realtimeNow = new Date(new Date().getTime() + realtimeTolerance)
-      const newState = {
-        timetable: rawData
-          .filter(service => {
-            return now < new Date(service.departure_time)
-          })
-          .sort(
-            (a, b) => new Date(a.departure_time) > new Date(b.departure_time)
-          )
-          .map(service => {
-            service.visible = visibleNow < new Date(service.departure_time)
-            service.realtimeQuery =
-              new Date(service.departure_time) < realtimeNow
-            return service
-          }),
-      }
-      if (this.state.currentTrip !== null) {
-        newState.currentTrip = this.state.currentTrip
-      } else if (newState.timetable.length > 0) {
-        const selectedTrip = newState.timetable.find(a => a.visible === true)
-        if (selectedTrip) {
-          newState.currentTrip = selectedTrip.trip_id
-        }
-      }
-      return newState
+    // if the stop wasn't specified in the URL
+    if (this.lineData.stop_id === null) {
+      this.lineData.stop_id = route.first_stop_id
     }
-    try {
-      const timetableData = await this.lineData.getTimetable(0)
-      this.setState(getTimetableState(timetableData), async () => {
-        const { timetable } = this.state
 
-        this.lineData.realtime_trips = timetable
-          .filter(t => t.realtimeQuery === true)
-          .map(t => t.trip_id)
-
-        this.getRealtimeStopUpdate()
-
-        const tomorrowTimetableData = await this.lineData.getTimetable(1)
-        const newState = getTimetableState(
-          timetable.slice().concat(tomorrowTimetableData)
-        )
-        this.lineData.realtime_trips = newState.timetable
-          .filter(t => t.realtimeQuery === true)
-          .map(t => t.trip_id)
-
-        this.setState(newState, () => {
-          if (newState.timetable.length === 0) {
-            // timetable is empty, so best guess
-            const { lineMetadata } = this.state
-
-            // if there's no metadata, try get it
-            if (lineMetadata.length === 0) {
-              this.lineData.stop_id = null
-              this.getData()
-            } else {
-              const secondAttempt =
-                lineMetadata.find(
-                  i => i.direction_id === this.lineData.direction_id
-                ) || lineMetadata[0]
-              this.lineData.direction_id = secondAttempt.direction_id
-
-              if (
-                this.lineData.stop_id === secondAttempt.first_stop_id &&
-                this.lineData.direction_id === secondAttempt.direction_id
-              ) {
-                // already attempted this, so give up
-                this.setState({
-                  error: true,
-                  errorMessage:
-                    'We didn’t find any services for this line within the next few days.',
-                })
-              } else {
-                this.lineData.direction_id = secondAttempt.direction_id
-                this.lineData.stop_id = secondAttempt.first_stop_id
-                this.getTimetable()
-              }
-            }
-          }
-        })
-      })
-    } catch (err) {
-      // cannot get timetable, usually because the stop_id is undefined
-      console.error(err)
-      this.setState({
-        error: true,
-        errorMessage: err.message,
-      })
-    }
+    this.setState({
+      lineMetadata: metadata,
+    })
   }
 
   getPositionData = async () => {
@@ -289,6 +182,7 @@ class Line extends React.Component {
       // this makes sure the route data has been loaded.
       await this.dataResolved
       const { lineMetadata } = this.state
+      if (lineMetadata.length === 0) return 'cancelled' // this if it the line can't loa
       const icon = icons.get(
         this.iconHelper.getRouteType(lineMetadata[0].route_type)
       )
@@ -307,6 +201,14 @@ class Line extends React.Component {
   getRealtimeStopUpdate = async () => {
     const realtimeStopUpdates = await this.lineData.getRealtimeStopUpdate()
     this.setState({ realtimeStopUpdates })
+  }
+
+  setRealtimeTrips = (trips, triggerUpdate) => {
+    this.lineData.realtime_trips = trips
+      .filter(t => t.realtimeQuery === true)
+      .map(t => t.trip_id)
+
+    if (triggerUpdate) this.getRealtimeStopUpdate()
   }
 
   triggerTrip = tripId => {
@@ -328,11 +230,11 @@ class Line extends React.Component {
       error,
       errorMessage,
       lineMetadata,
-      timetable,
       currentTrip,
       realtimeStopUpdates,
       vehiclepos,
     } = this.state
+
     const currentLine =
       lineMetadata.length > 0
         ? lineMetadata.length === 1
@@ -342,55 +244,45 @@ class Line extends React.Component {
             )
         : {}
 
-    if (error) {
-      return (
-        <View style={styles.wrapper}>
-          <Header title="Line Error" />
-          <View style={styles.error}>
-            <Text style={styles.errorMessage}>
-              Sorry! We couldn&apos;t load the {match.params.route_short_name}{' '}
-              line.
-            </Text>
-            <Text style={styles.errorMessage}>{errorMessage}</Text>
-          </View>
-        </View>
-      )
-    }
-
-    const tripInfo = vehiclepos.find(pos => pos.trip_id === currentTrip)
-    const timetableElement =
-      timetable.length > 0 ? (
-        <Timetable
-          currentTrip={currentTrip}
-          timetable={timetable}
-          realtimeStopUpdates={realtimeStopUpdates}
-          triggerTrip={this.triggerTrip}
-          region={match.params.region}
-          isTwentyFourHour={SettingsStore.state.isTwentyFourHour}
-        />
-      ) : null
-
     return (
       <View style={styles.wrapper}>
-        <Header
-          title={match.params.route_short_name}
-          subtitle={currentLine.route_long_name || ''}
-          actionIcon={<LineIcon />}
-          actionFn={this.triggerPicker}
-        />
-        <LinkedScroll>
-          {timetableElement}
-          {window.location.hostname === 'localhost' ? (
-            <TripInfo trip={tripInfo} />
-          ) : null}
-          <LineStops
-            region={match.params.region}
-            line={match.params.route_short_name}
-            stopId={this.lineData.stop_id}
-            tripId={currentTrip}
-            realtimeTripUpdate={realtimeStopUpdates[currentTrip]}
+        <LineErrorBoundary
+          line={match.params.route_short_name}
+          forceError={error}
+          errorMessage={errorMessage}
+        >
+          <Header
+            title={match.params.route_short_name}
+            subtitle={currentLine.route_long_name || ''}
+            actionIcon={<LineIcon />}
+            actionFn={this.triggerPicker}
           />
-        </LinkedScroll>
+          <LinkedScroll>
+            <LineTimetable
+              region={match.params.region}
+              line={match.params.route_short_name}
+              stopId={this.lineData.stop_id}
+              tripId={currentTrip}
+              directionId={this.lineData.direction_id}
+              agencyId={this.lineData.agency_id}
+              triggerTrip={this.triggerTrip}
+              setRealtimeTrips={this.setRealtimeTrips}
+              realtimeStopUpdates={realtimeStopUpdates}
+            />
+            {window.location.hostname === 'localhost' ? (
+              <TripInfo
+                trip={vehiclepos.find(pos => pos.trip_id === currentTrip)}
+              />
+            ) : null}
+            <LineStops
+              region={match.params.region}
+              line={match.params.route_short_name}
+              stopId={this.lineData.stop_id}
+              tripId={currentTrip}
+              realtimeTripUpdate={realtimeStopUpdates[currentTrip]}
+            />
+          </LinkedScroll>
+        </LineErrorBoundary>
       </View>
     )
   }
@@ -428,15 +320,6 @@ styles = StyleSheet.create({
     fontFamily: vars.fontFamily,
     fontSize: 13,
     color: '#888',
-  },
-
-  error: {
-    padding: vars.padding,
-  },
-  errorMessage: {
-    fontSize: vars.defaultFontSize,
-    fontFamily: vars.fontFamily,
-    marginBottom: vars.padding,
   },
 })
 export default withRouter(Line)
