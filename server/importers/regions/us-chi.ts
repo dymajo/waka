@@ -1,7 +1,7 @@
-import SingleImporter from '../SingleImporter'
-import connection from '../../db/connection'
 import config from '../../config'
+import connection from '../../db/connection'
 import logger from '../../logger'
+import SingleImporter from '../SingleImporter'
 
 const log = logger(config.prefix, config.version)
 
@@ -14,7 +14,7 @@ class ChicagoImporter extends SingleImporter {
     })
   }
   postImport = async () => {
-    const sqlRequest = await connection.get().request()
+    const sqlRequest = connection.get().request()
     await sqlRequest.query(`
     update routes
     set agency_id = (select top(1) agency_id from agency)

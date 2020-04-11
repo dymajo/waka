@@ -1,11 +1,11 @@
+import AWS from 'aws-sdk'
+import { PutObjectRequest } from 'aws-sdk/clients/s3'
+import axios from 'axios'
 import FormData from 'form-data'
 import { createReadStream } from 'fs'
-import axios from 'axios'
-import { PutObjectRequest } from 'aws-sdk/clients/s3'
-import AWS from 'aws-sdk'
 import { ServerResponse } from 'http'
-import logger from '../logger'
 import config from '../config'
+import logger from '../logger'
 
 const log = logger(config.prefix, config.version)
 interface StorageProps {
@@ -31,8 +31,8 @@ class Storage {
     }
   }
 
-  createContainer(container: string, cb: any) {
-    const createCb = (error: any) => {
+  createContainer(container: string, cb: () => void) {
+    const createCb = (error: unknown) => {
       if (error) {
         log.error(error)
         throw error
@@ -51,7 +51,7 @@ class Storage {
     container: string,
     file: string,
     stream: ServerResponse,
-    callback: (error: any, data?: any) => void,
+    callback: (error: unknown, data?: unknown) => void,
   ) => {
     if (this.backing === 'aws' && this.s3) {
       const params = {
@@ -61,13 +61,13 @@ class Storage {
       return this.s3
         .getObject(params)
         .createReadStream()
-        .on('error', err => {
+        .on('error', (err) => {
           // if (err.code !== 'NoSuchKey') {
           log.error(err)
           // }
           callback(err)
         })
-        .on('end', (data: any) => callback(null, data)) // do nothing, but this prevents from crashing
+        .on('end', (data: unknown) => callback(null, data)) // do nothing, but this prevents from crashing
         .pipe(stream)
     }
     return null

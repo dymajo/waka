@@ -1,7 +1,7 @@
-import MultiImporter from '../MultiImporter'
-import connection from '../../db/connection'
 import config from '../../config'
+import connection from '../../db/connection'
 import logger from '../../logger'
+import MultiImporter from '../MultiImporter'
 
 const log = logger(config.prefix, config.version)
 
@@ -37,12 +37,12 @@ class LosAngelesImporter extends MultiImporter {
     })
   }
   postImport = async () => {
-    const sqlRequest = await connection.get().request()
+    const sqlRequest = connection.get().request()
     await sqlRequest.query(`
       update routes set agency_id = 'LACMTA' where agency_id is null and route_type = 3
     `)
 
-    const sqlRequest2 = await connection.get().request()
+    const sqlRequest2 = connection.get().request()
     await sqlRequest2.query(`
       update routes set agency_id = 'LACMTA_Rail' where agency_id is null and (route_type = 2 or route_type = 1 or route_type = 0)
     `)

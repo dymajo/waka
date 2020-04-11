@@ -1,13 +1,12 @@
-import { resolve as _resolve, join } from 'path'
-import { existsSync, mkdirSync } from 'fs'
-import rimraf from 'rimraf'
 import extract from 'extract-zip'
-import BaseImporter from './BaseImporter'
-
+import { existsSync, mkdirSync } from 'fs'
+import { join, resolve as _resolve } from 'path'
+import rimraf from 'rimraf'
 import config from '../config'
-import logger from '../logger'
 import CreateShapes from '../db/create-shapes'
 import GtfsImport from '../db/gtfs-import'
+import logger from '../logger'
+import BaseImporter from './BaseImporter'
 
 const log = logger(config.prefix, config.version)
 interface LocalImporterProps {
@@ -26,6 +25,10 @@ class LocalImporter extends BaseImporter {
     this.zipLocation = join(__dirname, `../../cache/${this.zipname}.zip`)
   }
 
+  optimize = async () => {
+    log.info('Optimization Skipped - Need to figure out bugs.')
+    // if (this.current) await this.current.optimize()
+  }
   download = async () => {
     return new Promise<void>((resolve, reject) => {
       const exists = existsSync(this.zipLocation)
@@ -39,17 +42,8 @@ class LocalImporter extends BaseImporter {
   unzip = async () => {
     log.info('Unzipping GTFS Data')
     const { zipLocation } = this
-    return new Promise((resolve, reject) => {
-      extract(
-        zipLocation,
-        {
-          dir: _resolve(`${zipLocation}unarchived`),
-        },
-        err => {
-          if (err) reject(err)
-          resolve()
-        },
-      )
+    await extract(zipLocation, {
+      dir: _resolve(`${zipLocation}unarchived`),
     })
   }
 
@@ -88,8 +82,10 @@ class LocalImporter extends BaseImporter {
     // cleans up old import if exists
     if (existsSync(outputDir2)) {
       await new Promise<void>((resolve, reject) => {
-        rimraf(outputDir2, err => {
-          if (err) reject(err)
+        rimraf(outputDir2, (err) => {
+          if (err != null) {
+            reject(err)
+          }
           resolve()
         })
       })
@@ -103,7 +99,7 @@ class LocalImporter extends BaseImporter {
       .replace('.', '-')
       .replace('_', '-')
     await creator.upload(
-      config.shapesContainer || containerName,
+      config.shapesContainer !== '' ? config.shapesContainer : containerName,
       _resolve(outputDir, config.version),
       config.prefix,
     )

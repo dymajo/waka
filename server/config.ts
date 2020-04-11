@@ -27,7 +27,7 @@ export interface WakaConfig {
     connectionTimeout: number
     requestTimeout: number
   }
-  [key: string]: any
+  [key: string]: unknown
 }
 
 declare const process: {
@@ -94,34 +94,37 @@ const {
 const config: WakaConfig = {
   prefix: PREFIX,
   version: VERSION,
-  mode: MODE || 'all',
-  storageService: STORAGE_SERVICE || 'aws',
-  shapesContainer: SHAPES_CONTAINER || 'shapes-us-west-2.waka.app',
-  shapesRegion: SHAPES_REGION || 'us-west-2',
-  shapesSkip: SHAPES_SKIP === 'true' || false,
-  emulatedStorage: EMULATED_STORAGE === 'true' || false,
+  mode: MODE ?? 'all',
+  storageService: STORAGE_SERVICE ?? 'aws',
+  shapesContainer: SHAPES_CONTAINER ?? 'shapes-us-west-2.waka.app',
+  shapesRegion: SHAPES_REGION ?? 'us-west-2',
+  shapesSkip: SHAPES_SKIP === 'true',
+  emulatedStorage: EMULATED_STORAGE === 'true',
   keyValue: KEYVALUE,
   keyValueVersionTable: KEYVALUE_VERSION_TABLE,
   keyValueRegion: KEYVALUE_REGION,
   tfnswApiKey: TFNSW_API_KEY,
-  extended: EXTENDED === 'true' || false,
-  localFile: LOCAL_FILE || '',
-  localImport: LOCAL_IMPORT === 'true' || false,
+  extended: EXTENDED === 'true',
+  localFile: LOCAL_FILE ?? '',
+  localImport: LOCAL_IMPORT === 'true',
   db: {
     user: DB_USER,
     password: DB_PASSWORD,
     server: DB_SERVER,
-    database: DB_DATABASE || `${PREFIX}_${VERSION}`,
-    masterDatabase: DB_MASTER_DATABASE || 'master',
-    transactionLimit: DB_TRANSACTION_LIMIT
-      ? parseInt(DB_TRANSACTION_LIMIT, 10)
-      : 50000,
-    connectionTimeout: DB_CONNECTION_TIMEOUT
-      ? parseInt(DB_CONNECTION_TIMEOUT, 10)
-      : 60000,
-    requestTimeout: DB_REQUEST_TIMEOUT
-      ? parseInt(DB_REQUEST_TIMEOUT, 10)
-      : 60000,
+    database: DB_DATABASE !== '' ? DB_DATABASE : `${PREFIX}_${VERSION}`,
+    masterDatabase: DB_MASTER_DATABASE ?? 'master',
+    transactionLimit:
+      DB_TRANSACTION_LIMIT !== undefined
+        ? parseInt(DB_TRANSACTION_LIMIT, 10)
+        : 50000,
+    connectionTimeout:
+      DB_CONNECTION_TIMEOUT !== undefined
+        ? parseInt(DB_CONNECTION_TIMEOUT, 10)
+        : 60000,
+    requestTimeout:
+      DB_REQUEST_TIMEOUT !== undefined
+        ? parseInt(DB_REQUEST_TIMEOUT, 10)
+        : 60000,
   },
 }
 

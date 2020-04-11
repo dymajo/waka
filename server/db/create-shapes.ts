@@ -90,10 +90,10 @@ class CreateShapes {
       })
         .on('finish', () => {
           log.info(name, 'Created Shapes. Writing to disk...')
-          Object.keys(output).forEach(key => {
+          Object.keys(output).forEach((key) => {
             let subfolder =
               versions.length === 1 ? versions[0] : `${versions[0]}-extra`
-            versions.forEach(version => {
+            versions.forEach((version) => {
               if (key.match(version)) {
                 subfolder = version
               }
@@ -104,7 +104,7 @@ class CreateShapes {
             }
 
             const shape = output[key]
-            shape.coordinates = shape.coordinates.filter(i => i != null)
+            shape.coordinates = shape.coordinates.filter((i) => i != null)
             writeFileSync(
               _resolve(dir, `${Buffer.from(key).toString('base64')}.json`),
               JSON.stringify(shape),
@@ -170,7 +170,7 @@ class CreateShapes {
     }
   }
 
-  private uploadSingle = async (
+  private readonly uploadSingle = async (
     fileName: string,
     directory: string,
     container: string,

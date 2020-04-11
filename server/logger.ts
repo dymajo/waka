@@ -1,6 +1,6 @@
-import { createLogger, stdSerializers } from 'bunyan'
+import Logger, { createLogger, stdSerializers } from 'bunyan'
 
-const logger = (prefix: string, version: string) =>
+const logger = (prefix: string, version: string): Logger =>
   createLogger({
     name: 'waka-importer',
     prefix,

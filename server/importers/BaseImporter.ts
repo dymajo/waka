@@ -51,19 +51,12 @@ abstract class BaseImporter {
     ]
     this.shapeFile = 'shapes.txt'
   }
-
-  postImport?(): void
-
-  abstract download(): void
-
-  abstract optimize(): void
-
-  abstract unzip(): void
-
-  abstract db(importer: GtfsImport): void
-
-  abstract shapes(): void
-
+  postImport?(): Promise<void>
+  optimize?(): void
+  abstract download(): Promise<void>
+  abstract unzip(): Promise<void>
+  abstract db(importer: GtfsImport): Promise<void>
+  abstract shapes(): Promise<void>
   files: {
     name: string
     table:
@@ -78,7 +71,6 @@ abstract class BaseImporter {
       | 'frequencies'
     versioned: boolean
   }[]
-
   shapeFile: string
 }
 

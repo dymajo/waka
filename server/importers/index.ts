@@ -1,30 +1,29 @@
-import { join } from 'path'
 import { VarChar } from 'mssql'
-import logger from '../logger'
+import { join } from 'path'
 import config from '../config'
-import GtfsImport from '../db/gtfs-import'
 import connection from '../db/connection'
-import Storage from '../db/storage'
+import GtfsImport from '../db/gtfs-import'
 import KeyvalueDynamo from '../db/keyvalue-dynamo'
-
+import Storage from '../db/storage'
+import logger from '../logger'
+import BaseImporter from './BaseImporter'
+import LocalImporter from './LocalImporter'
+import CanberraImporter from './regions/au-cbr'
+import MelbourneImporter from './regions/au-mel'
+import PerthImporter from './regions/au-per'
+import SEQImporter from './regions/au-seq'
+import SyndeyImporter from './regions/au-syd'
+import SFRImporter from './regions/ch-sfr'
+import ParisImporter from './regions/fr-par'
 import AucklandImporter from './regions/nz-akl'
 import ChchImporter from './regions/nz-chc'
 import OtagoImporter from './regions/nz-otg'
-import CanberraImporter from './regions/au-cbr'
-import SyndeyImporter from './regions/au-syd'
 import WellingtonImporter from './regions/nz-wlg'
-import MelbourneImporter from './regions/au-mel'
-import ParisImporter from './regions/fr-par'
-import SEQImporter from './regions/au-seq'
-import SFRImporter from './regions/ch-sfr'
-import NYCImporter from './regions/us-nyc'
-import LAXImporter from './regions/us-lax'
-import SFOImporter from './regions/us-sfo'
-import BaseImporter from './BaseImporter'
-import LocalImporter from './LocalImporter'
-import PerthImporter from './regions/au-per'
-import ChicagoImporter from './regions/us-chi'
 import BostonImporter from './regions/us-bos'
+import ChicagoImporter from './regions/us-chi'
+import LAXImporter from './regions/us-lax'
+import NYCImporter from './regions/us-nyc'
+import SFOImporter from './regions/us-sfo'
 
 const log = logger(config.prefix, config.version)
 
@@ -70,7 +69,11 @@ class Importer {
     this.importer = new GtfsImport()
     this.storage = new Storage({})
     this.versions = null
-    if (keyvalue === 'dynamo' && keyvalueVersionTable && keyvalueRegion) {
+    if (
+      keyvalue === 'dynamo' &&
+      keyvalueVersionTable !== undefined &&
+      keyvalueRegion !== undefined
+    ) {
       this.versions = new KeyvalueDynamo({
         name: keyvalueVersionTable,
         region: keyvalueRegion,
@@ -78,7 +81,7 @@ class Importer {
     }
 
     this.current = null
-    if (config.localImport && config.localFile) {
+    if (config.localImport && config.localFile !== undefined) {
       this.current = new LocalImporter({
         zipname: config.localFile,
       })
@@ -158,7 +161,9 @@ class Importer {
   }
 
   download = async () => {
-    if (this.current) await this.current.download()
+    if (this.current) {
+      await this.current.download()
+    }
   }
 
   optimize = async () => {
@@ -167,15 +172,21 @@ class Importer {
   }
 
   unzip = async () => {
-    if (this.current) await this.current.unzip()
+    if (this.current) {
+      await this.current.unzip()
+    }
   }
 
   db = async () => {
-    if (this.current) await this.current.db(this.importer)
+    if (this.current) {
+      await this.current.db(this.importer)
+    }
   }
 
   shapes = async () => {
-    if (this.current) await this.current.shapes()
+    if (this.current) {
+      await this.current.shapes()
+    }
   }
 
   fullShapes = async () => {

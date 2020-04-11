@@ -39,7 +39,7 @@ const procs = [
 
 const create = async (filenames: string[]) => {
   await Promise.all(
-    filenames.map(filename => {
+    filenames.map((filename) => {
       return connection
         .get()
         .request()

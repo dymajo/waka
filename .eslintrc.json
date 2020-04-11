@@ -1,56 +1,60 @@
 {
   "parser": "@typescript-eslint/parser",
-  "env": {
-    "es6": true,
-    "node": true
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true
+    }
+    ,"project":"tsconfig.json"
   },
-  "extends": [
-    "airbnb-base",
-    "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
-  ],
-  "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
-  "plugins": ["@typescript-eslint", "promise"],
+  "plugins": ["@typescript-eslint"],
   "rules": {
-    "@typescript-eslint/member-delimiter-style": "off",
-    "@typescript-eslint/no-magic-numbers": 0,
-    "@typescript-eslint/explicit-member-accessibility": 0,
-    "@typescript-eslint/explicit-function-return-type": 0,
-    "@typescript-eslint/camelcase": 0,
-    "@typescript-eslint/no-explicit-any": 0,
-    "semi": "off",
-    "indent": "off",
-    "no-unused-vars": 0,
-    "linebreak-style": ["error", "unix"],
-    "quotes": "off",
-    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
-    "no-return-assign": 0,
-    "global-require": "off",
-    "no-constant-condition": [
+    "@typescript-eslint/await-thenable": "error",
+    "@typescript-eslint/consistent-type-assertions": [
       "error",
       {
-        "checkLoops": false
+        "assertionStyle": "as",
+        "objectLiteralTypeAssertions": "never"
       }
     ],
-    "no-underscore-dangle": 0,
-    "lines-between-class-members": 0,
-    "comma-dangle": ["error", "always-multiline"],
-    "no-shadow": "off",
-    "no-nested-ternary": 0,
-    "promise/prefer-await-to-then": "error",
-    "promise/prefer-await-to-callbacks": 0,
-    "class-methods-use-this": "off",
-    "import/no-dynamic-require": "off",
-    "no-restricted-syntax": "off",
-    "no-await-in-loop": "off",
-    "camelcase": "off"
-  },
-  "settings": {
-    "import/resolver": {
-      "node": {
-        "extensions": [".js", ".ts"]
+    "@typescript-eslint/no-empty-interface": "error",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-require-imports": "error",
+    "@typescript-eslint/no-unnecessary-condition": [
+      "error",
+      {
+        "allowConstantLoopConditions": true
       }
-    }
+    ],
+    "@typescript-eslint/no-unnecessary-type-assertion": "error",
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    "@typescript-eslint/prefer-optional-chain": "error",
+    "@typescript-eslint/prefer-readonly": "error",
+    "@typescript-eslint/return-await": ["error", "in-try-catch"],
+    "@typescript-eslint/strict-boolean-expressions": ["error", { "allowNullable": true, "allowSafe": true }],
+    "curly": ["error", "all"],
+    "eqeqeq": ["error", "smart"],
+    "no-caller": "error",
+    "no-console": "error",
+    "no-debugger": "error",
+    "no-eval": "error",
+    "no-new-wrappers": "error",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Identifier[name='Infinity']",
+        "message": "Infinity JSON encodes to null, so generally shouldn't be used."
+      }
+    ],
+    "no-sequences": "error",
+    "no-throw-literal": "error",
+    "no-unsafe-finally": "error",
+    "no-var": "error",
+    "object-shorthand": ["error", "always"],
+    "prefer-const": "error",
+    "radix": "error"
   }
+ 
 }

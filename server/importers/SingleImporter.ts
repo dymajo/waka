@@ -25,7 +25,7 @@ abstract class SingleImporter extends BaseImporter {
   url: string
 
   zipLocation: string
-  downloadOptions: { url: any }
+  downloadOptions: { url: string }
   constructor(props: SingleImporterProps) {
     super()
     const { zipname, url } = props
@@ -76,17 +76,8 @@ abstract class SingleImporter extends BaseImporter {
   unzip = async () => {
     log.info('Unzipping GTFS Data')
     const { zipLocation } = this
-    return new Promise((resolve, reject) => {
-      extract(
-        zipLocation,
-        {
-          dir: _resolve(`${zipLocation}unarchived`),
-        },
-        err => {
-          if (err) reject(err)
-          resolve()
-        },
-      )
+    await extract(zipLocation, {
+      dir: _resolve(`${zipLocation}unarchived`),
     })
   }
 
@@ -125,8 +116,10 @@ abstract class SingleImporter extends BaseImporter {
     // cleans up old import if exists
     if (existsSync(outputDir2)) {
       await new Promise<void>((resolve, reject) => {
-        rimraf(outputDir2, err => {
-          if (err) reject(err)
+        rimraf(outputDir2, (err) => {
+          if (err != null) {
+            reject(err)
+          }
           resolve()
         })
       })
@@ -140,7 +133,7 @@ abstract class SingleImporter extends BaseImporter {
       .replace('.', '-')
       .replace('_', '-')
     await creator.upload(
-      config.shapesContainer || containerName,
+      config.shapesContainer !== '' ? config.shapesContainer : containerName,
       _resolve(outputDir, config.version),
       config.prefix,
     )

@@ -1,7 +1,7 @@
-import SingleImporter from '../SingleImporter'
+import config from '../../config'
 import connection from '../../db/connection'
 import logger from '../../logger'
-import config from '../../config'
+import SingleImporter from '../SingleImporter'
 
 const log = logger(config.prefix, config.version)
 
@@ -17,7 +17,7 @@ class ChchImporter extends SingleImporter {
     // obtained from: http://www.metroinfo.co.nz/timetables/Pages/default.aspx
     // with Array.from(document.querySelectorAll('.routelistingnumber'))
     // .map((item) => ({route_short_name: item.innerText.trim(), color: item.style.backgroundColor}))
-    const sqlRequest = await connection.get().request()
+    const sqlRequest = connection.get().request()
     await sqlRequest.query(`
       UPDATE routes SET route_text_color = 'FFFFFF', route_color = '444444'
       UPDATE routes SET route_color = '3EBCED' WHERE route_short_name = 'B'
@@ -49,9 +49,7 @@ class ChchImporter extends SingleImporter {
       UPDATE routes SET route_color = '4D2094' WHERE route_short_name = 'CS'
       UPDATE routes SET route_color = '4D2094' WHERE route_short_name = 'SS'
     `)
-    log.info(
-      'Post Import: Set Colors',
-    )
+    log.info('Post Import: Set Colors')
   }
 }
 

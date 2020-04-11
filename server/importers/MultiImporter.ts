@@ -54,8 +54,8 @@ abstract class MultiImporter extends BaseImporter {
     this.authorization = authorization
     this.importer = new GtfsImport()
     this.storage = new Storage({})
-    this.downloadInterval = downloadInterval || 2000
-    this.batchSize = batchSize || 2
+    this.downloadInterval = downloadInterval ?? 2000
+    this.batchSize = batchSize ?? 2
     this.versions = null
     this.zipLocations = []
     this.rateLimiter = pRateLimit({
@@ -64,7 +64,11 @@ abstract class MultiImporter extends BaseImporter {
       concurrency: 5,
     })
 
-    if (keyvalue === 'dynamo' && keyvalueVersionTable && keyvalueRegion) {
+    if (
+      keyvalue === 'dynamo' &&
+      keyvalueVersionTable !== undefined &&
+      keyvalueRegion !== undefined
+    ) {
       this.versions = new KeyvalueDynamo({
         name: keyvalueVersionTable,
         region: keyvalueRegion,
@@ -77,7 +81,8 @@ abstract class MultiImporter extends BaseImporter {
     const { authorization } = this
     log.info(name, 'Starting download')
     try {
-      const headers = authorization ? { Authorization: authorization } : {}
+      const headers =
+        authorization !== undefined ? { Authorization: authorization } : {}
       const res = await axios.get(endpoint, {
         headers,
         responseType: 'stream',
@@ -145,19 +150,9 @@ abstract class MultiImporter extends BaseImporter {
   unzip = async () => {
     try {
       await Promise.all(
-        this.zipLocations.map(({ path, name }) => {
-          return new Promise((resolve, reject) => {
-            extract(
-              path,
-              {
-                dir: _resolve(`${path}unarchived`),
-              },
-              err => {
-                if (err) reject(err)
-                log.info(name, 'unzipped')
-                resolve()
-              },
-            )
+        this.zipLocations.map(async ({ path, name }) => {
+          await extract(path, {
+            dir: _resolve(`${path}unarchived`),
           })
         }),
       )
@@ -210,8 +205,10 @@ abstract class MultiImporter extends BaseImporter {
       // cleans up old import if exists
       if (existsSync(outputDir2)) {
         await new Promise<void>((resolve, reject) => {
-          rimraf(outputDir2, err => {
-            if (err) reject(err)
+          rimraf(outputDir2, (err) => {
+            if (err != null) {
+              reject(err)
+            }
             resolve()
           })
         })
@@ -225,7 +222,7 @@ abstract class MultiImporter extends BaseImporter {
         .replace('.', '-')
         .replace('_', '-')
       await creator.upload(
-        config.shapesContainer || containerName,
+        config.shapesContainer !== '' ? config.shapesContainer : containerName,
         _resolve(outputDir, config.version),
         name,
       )

@@ -1,17 +1,17 @@
 import 'dotenv/config'
 import 'source-map-support/register'
+import config from './config'
 import connection from './db/connection'
 import CreateDb from './db/create'
-import logger from './logger'
 import Importer from './importers'
-import config from './config'
+import logger from './logger'
 
 const log = logger(config.prefix, config.version)
 
 log.info('Importer Started')
 
 const sydney = config.prefix === 'au-syd'
-Object.keys(config).forEach(key => {
+Object.keys(config).forEach((key) => {
   if (config.tfnswApiKey === undefined && sydney) {
     throw new Error('no api key for sydney')
   }
@@ -58,6 +58,7 @@ const start = async () => {
   switch (mode) {
     case 'all':
       log.info('Started import of ALL')
+
       await importer.start(created)
       break
     case 'db':

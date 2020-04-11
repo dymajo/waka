@@ -10,7 +10,8 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel server --out-dir lib --extensions \".ts,.tsx\" --copy-files",
     "start": "node lib | bunyan -L -o short",
-    "bs": "npm run build:js && npm start"
+    "bs": "npm run build:js && npm start",
+    "lint": "eslint server --ext .ts --format visualstudio && prettier --write server"
   },
   "repository": {
     "type": "git",
@@ -37,16 +38,15 @@
   "homepage": "https://github.com/dymajo/waka-importer#readme",
   "dependencies": {
     "@types/bunyan": "^1.8.6",
-    "@types/extract-zip": "^1.6.2",
     "@types/mssql": "^6.0.0",
     "@types/node": "^13.1.1",
-    "@types/rimraf": "^2.0.3",
+    "@types/rimraf": "^3.0.0",
     "aws-sdk": "^2.596.0",
     "axios": "^0.19.0",
     "bunyan": "^1.8.12",
     "csv-parse": "^4.8.3",
     "dotenv": "^8.2.0",
-    "extract-zip": "^1.6.7",
+    "extract-zip": "^2.0.0",
     "form-data": "^3.0.0",
     "mssql": "^6.0.0",
     "p-ratelimit": "^0.11.0",
@@ -59,19 +59,15 @@
     "@babel/core": "^7.7.7",
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.7.7",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@babel/preset-env": "^7.7.7",
     "@babel/preset-typescript": "^7.7.7",
     "@typescript-eslint/eslint-plugin": "^2.13.0",
     "@typescript-eslint/parser": "^2.13.0",
-    "cross-env": "^6.0.3",
+    "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
-    "eslint-config": "^0.3.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-prettier": "^6.8.0",
-    "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-prettier": "^3.1.2",
-    "eslint-plugin-promise": "^4.2.1",
-    "prettier": "^1.19.1",
-    "typescript": "^3.7.4"
+    "prettier": "^2.0.0",
+    "typescript": "^3.8.3"
   }
 }
