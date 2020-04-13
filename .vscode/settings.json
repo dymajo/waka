@@ -6,5 +6,8 @@
   "eslint.validate": [
     "typescript",
   ],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "Waka"
+  ]
 }

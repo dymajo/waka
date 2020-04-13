@@ -5,27 +5,12 @@ import connection from './db/connection'
 import CreateDb from './db/create'
 import Importer from './importers'
 import logger from './logger'
+import { exhausted, ImportMode } from './types/codec'
 
 const log = logger(config.prefix, config.version)
 
 log.info('Importer Started')
 
-const sydney = config.prefix === 'au-syd'
-Object.keys(config).forEach((key) => {
-  if (config.tfnswApiKey === undefined && sydney) {
-    throw new Error('no api key for sydney')
-  }
-  if (
-    config[key] === undefined &&
-    key !== 'keyValue' &&
-    key !== 'keyValueVersionTable' &&
-    key !== 'keyValueRegion' &&
-    key !== 'tfnswApiKey'
-  ) {
-    throw new Error(`Variable ${key} was undefined.`)
-  }
-  return true
-})
 
 const checkCreated = async () => {
   const sqlRequest = connection.get().request()
@@ -56,37 +41,36 @@ const start = async () => {
   })
   const { mode } = config
   switch (mode) {
-    case 'all':
+    case ImportMode.all:
       log.info('Started import of ALL')
-
       await importer.start(created)
       break
-    case 'db':
+    case ImportMode.db:
       log.info('Started import of DB')
       await importer.db()
       break
-    case 'shapes':
+    case ImportMode.shapes:
       log.info('Started import of SHAPES')
       await importer.shapes()
       break
-    case 'unzip':
+    case ImportMode.unzip:
       log.info('Started UNZIP')
       await importer.unzip()
       break
-    case 'download':
+    case ImportMode.download:
       log.info('Started DOWNLOAD')
       await importer.download()
       break
-    case 'export':
+    case ImportMode.export:
       log.info('Started EXPORT')
       await importer.exportDb()
       break
-    case 'fullshapes':
+    case ImportMode.fullshapes:
       log.info('Started FULL SHAPES')
       await importer.fullShapes()
       break
     default:
-      break
+      throw exhausted(mode)
   }
   log.info(`Completed ${mode.toUpperCase()}`)
   process.exit(0)

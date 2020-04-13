@@ -40,7 +40,7 @@ const connection = {
   open: () => {
     connectMaster()
       .then(() => {
-        pool1 = new ConnectionPool(config.db, err => {
+        pool1 = new ConnectionPool(config.db, (err) => {
           if (err) {
             log.error(err)
             return creject()
@@ -49,7 +49,7 @@ const connection = {
         })
         return pool1
       })
-      .catch(err => {
+      .catch((err) => {
         throw err
       })
     return ready

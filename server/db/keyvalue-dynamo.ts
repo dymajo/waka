@@ -139,7 +139,6 @@ class KeyvalueDynamo extends BaseKeyvalue {
         }
         const response: { [key: string]: any } = {}
         if (data.Items) {
-
           data.Items.forEach((i) => {
             if (i.id?.S != null) {
               response[i.id.S] = this.flattenObject(i)

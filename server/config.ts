@@ -1,130 +1,79 @@
 import 'dotenv/config'
+import requireEnv from 'require-env'
+import { WakaConfig } from './types'
+import {
+  decodeOrNull,
+  decodeOrThrow,
+  ImportMode,
+  ImportModeCodec,
+  KeyValueCodec,
+  PrefixCodec,
+  StorageService,
+  StorageServiceCodec,
+} from './types/codec'
 
-export interface WakaConfig {
-  prefix: string
-  version: string
-  mode: 'all' | 'db' | 'shapes' | 'unzip' | 'download' | 'export' | 'fullshapes'
-  storageService: 'aws' | 'local'
-  shapesContainer: string
-  shapesRegion: string
-  shapesSkip: boolean
-  emulatedStorage: boolean
-  local?: boolean
-  keyValue?: 'dynamo'
-  keyValueVersionTable?: string
-  keyValueRegion?: string
-  tfnswApiKey?: string
-  extended: boolean
-  localImport?: boolean
-  localFile?: string
-  db: {
-    user: string
-    password: string
-    server: string
-    database: string
-    masterDatabase: string
-    transactionLimit: number
-    connectionTimeout: number
-    requestTimeout: number
-  }
-  [key: string]: unknown
-}
-
-declare const process: {
-  env: {
-    PREFIX: string
-    MODE?:
-      | 'all'
-      | 'db'
-      | 'shapes'
-      | 'unzip'
-      | 'download'
-      | 'export'
-      | 'fullshapes'
-    VERSION: string
-    KEYVALUE?: 'dynamo'
-    KEYVALUE_VERSION_TABLE?: string
-    KEYVALUE_REGION?: string
-    DB_DATABASE: string
-    DB_USER: string
-    DB_PASSWORD: string
-    DB_SERVER: string
-    DB_MASTER_DATABASE?: string
-    DB_TRANSACTION_LIMIT?: string
-    DB_CONNECTION_TIMEOUT?: string
-    DB_REQUEST_TIMEOUT?: string
-    STORAGE_SERVICE?: 'aws' | 'local'
-    SHAPES_CONTAINER?: string
-    SHAPES_REGION?: string
-    SHAPES_SKIP?: string
-    EMULATED_STORAGE?: string
-    TFNSW_API_KEY?: string
-    EXTENDED?: string
-    LOCAL_IMPORT?: string
-    LOCAL_FILE?: string
-  }
-}
-
-const {
-  PREFIX,
-  VERSION,
-  KEYVALUE,
-  KEYVALUE_VERSION_TABLE,
-  KEYVALUE_REGION,
-  DB_DATABASE,
-  DB_USER,
-  DB_PASSWORD,
-  DB_SERVER,
-  DB_MASTER_DATABASE,
-  DB_TRANSACTION_LIMIT,
-  DB_CONNECTION_TIMEOUT,
-  DB_REQUEST_TIMEOUT,
-  MODE,
-  STORAGE_SERVICE,
-  SHAPES_CONTAINER,
-  SHAPES_REGION,
-  SHAPES_SKIP,
-  EMULATED_STORAGE,
-  TFNSW_API_KEY,
-  EXTENDED,
-  LOCAL_FILE,
-  LOCAL_IMPORT,
-} = process.env
+const mode: ImportMode =
+  decodeOrNull(ImportModeCodec, process.env.MODE) ?? ImportMode.all
+const prefix = decodeOrThrow(PrefixCodec, process.env.PREFIX)
+const version = requireEnv.require('VERSION')
+const shapesContainer =
+  process.env.SHAPES_CONTAINER ?? 'shapes-us-west-2.waka.app'
+const shapesRegion = process.env.SHAPES_REGION ?? 'us-west-2'
+const shapesSkip = process.env.SHAPES_SKIP === 'true'
+const emulatedStorage = process.env.EMULATED_STORAGE === 'true'
+const keyValue = decodeOrNull(KeyValueCodec, process.env.KEYVALUE) ?? undefined
+const storageService: StorageService =
+  decodeOrNull(StorageServiceCodec, process.env.STORAGE_SERVICE) ??
+  StorageService.aws
+const keyValueVersionTable = process.env.KEYVALUE_VERSION_TABLE
+const keyValueRegion = process.env.KEYVALUE_REGION
+const tfnswApiKey = process.env.TFNSW_API_KEY
+const extended = process.env.EXTENDED === 'true'
+const localFile = process.env.LOCAL_FILE
+const localImport = process.env.LOCAL_IMPORT === 'true'
+const dbUser = requireEnv.require('DB_USER')
+const dbPassword = requireEnv.require('DB_PASSWORD')
+const dbServer = requireEnv.require('DB_SERVER')
+const dbDatabase = process.env.DB_DATABASE ?? `${prefix}_${version}`
+const dbMasterDatabase = process.env.DB_MASTER_DATABASE ?? 'master'
+const dbTransactionLimit =
+  process.env.DB_TRANSACTION_LIMIT !== undefined
+    ? parseInt(process.env.DB_TRANSACTION_LIMIT, 10)
+    : 50000
+const dbConnectionTimeout =
+  process.env.DB_CONNECTION_TIMEOUT !== undefined
+    ? parseInt(process.env.DB_CONNECTION_TIMEOUT, 10)
+    : 60000
+const dbRequestTimeout =
+  process.env.DB_REQUEST_TIMEOUT !== undefined
+    ? parseInt(process.env.DB_REQUEST_TIMEOUT, 10)
+    : 60000
 
 const config: WakaConfig = {
-  prefix: PREFIX,
-  version: VERSION,
-  mode: MODE ?? 'all',
-  storageService: STORAGE_SERVICE ?? 'aws',
-  shapesContainer: SHAPES_CONTAINER ?? 'shapes-us-west-2.waka.app',
-  shapesRegion: SHAPES_REGION ?? 'us-west-2',
-  shapesSkip: SHAPES_SKIP === 'true',
-  emulatedStorage: EMULATED_STORAGE === 'true',
-  keyValue: KEYVALUE,
-  keyValueVersionTable: KEYVALUE_VERSION_TABLE,
-  keyValueRegion: KEYVALUE_REGION,
-  tfnswApiKey: TFNSW_API_KEY,
-  extended: EXTENDED === 'true',
-  localFile: LOCAL_FILE ?? '',
-  localImport: LOCAL_IMPORT === 'true',
+  prefix,
+  version,
+  mode,
+  storageService,
+  shapesContainer,
+  shapesRegion,
+  shapesSkip,
+  emulatedStorage,
+  keyValue,
+  keyValueVersionTable,
+  keyValueRegion,
+  tfnswApiKey,
+  extended,
+  localFile,
+  localImport,
   db: {
-    user: DB_USER,
-    password: DB_PASSWORD,
-    server: DB_SERVER,
-    database: DB_DATABASE !== '' ? DB_DATABASE : `${PREFIX}_${VERSION}`,
-    masterDatabase: DB_MASTER_DATABASE ?? 'master',
-    transactionLimit:
-      DB_TRANSACTION_LIMIT !== undefined
-        ? parseInt(DB_TRANSACTION_LIMIT, 10)
-        : 50000,
-    connectionTimeout:
-      DB_CONNECTION_TIMEOUT !== undefined
-        ? parseInt(DB_CONNECTION_TIMEOUT, 10)
-        : 60000,
-    requestTimeout:
-      DB_REQUEST_TIMEOUT !== undefined
-        ? parseInt(DB_REQUEST_TIMEOUT, 10)
-        : 60000,
+    user: dbUser,
+    password: dbPassword,
+    server: dbServer,
+    database: dbDatabase,
+    masterDatabase: dbMasterDatabase,
+    transactionLimit: dbTransactionLimit,
+    connectionTimeout: dbConnectionTimeout,
+    requestTimeout: dbRequestTimeout,
   },
 }
 

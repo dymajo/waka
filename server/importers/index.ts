@@ -1,5 +1,4 @@
 import { VarChar } from 'mssql'
-import { join } from 'path'
 import config from '../config'
 import connection from '../db/connection'
 import GtfsImport from '../db/gtfs-import'
@@ -44,19 +43,12 @@ const regions = {
   'us-sfo': SFOImporter,
   'us-lax': LAXImporter,
   'us-nyc': NYCImporter,
-}
+} as const
 
 interface ImporterProps {
   keyvalue?: 'dynamo'
   keyvalueVersionTable?: string
   keyvalueRegion?: string
-}
-
-export function isKeyof<T extends object>(
-  obj: T,
-  possibleKey: keyof any,
-): possibleKey is keyof T {
-  return possibleKey in obj
 }
 
 class Importer {
@@ -86,18 +78,18 @@ class Importer {
         zipname: config.localFile,
       })
     } else {
-      try {
-        if (isKeyof(regions, config.prefix)) {
-          const Region = regions[config.prefix]
-          this.current = new Region()
-        }
-      } catch (err) {
-        log.error(
-          'fatal error',
-          'Could not find an importer in ',
-          join(__dirname, './regions', `${config.prefix}.ts`),
-        )
-      }
+      // try {
+      // if (isKeyof(regions, config.prefix)) {
+      const Region = regions[config.prefix]
+      this.current = new Region()
+      //   }
+      // } catch (err) {
+      //   log.error(
+      //     'fatal error',
+      //     'Could not find an importer in ',
+      //     join(__dirname, './regions', `${config.prefix}.ts`),
+      //   )
+      // }
     }
   }
 

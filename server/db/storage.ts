@@ -6,10 +6,11 @@ import { createReadStream } from 'fs'
 import { ServerResponse } from 'http'
 import config from '../config'
 import logger from '../logger'
+import { StorageService } from '../types/codec'
 
 const log = logger(config.prefix, config.version)
 interface StorageProps {
-  backing?: string
+  backing?: StorageService
   endpoint?: string
   region?: string
 }

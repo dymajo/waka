@@ -1,5 +1,4 @@
 import config from '../../config'
-import logger from '../../logger'
 import MultiImporter from '../MultiImporter'
 
 const locations = [
