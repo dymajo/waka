@@ -41,8 +41,8 @@ class ATUpdater {
         logger.info({ prefix, version: version.version }, 'Found version.')
 
         const now = moment().tz('Pacific/Auckland')
-        const start = moment(version.startdate).tz('Pacific/Auckland')
-        const end = moment(version.enddate).tz('Pacific/Auckland')
+        const start = moment.tz(version.startdate.replace('Z', ''), 'Pacific/Auckland')
+        const end = moment.tz(version.enddate.replace('Z', ''), 'Pacific/Auckland')
 
         // Only adjust the mapping if we're within the correct interval
         const adjustMapping = start < now && now < end
