@@ -1,0 +1,13 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": [
+    "source.organizeImports"
+  ],
+  "eslint.validate": [
+    "typescript",
+  ],
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "Waka"
+  ]
+}
