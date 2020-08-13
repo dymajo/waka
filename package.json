@@ -8,5 +8,8 @@
     "engines": {
         "node": ">=12.16.2"
     },
-    "version": "0.0.0"
+    "version": "0.0.0",
+    "dependencies": {
+        "typescript": "3.9.7"
+    }
 }
