@@ -4,7 +4,6 @@ import { Table } from 'mssql'
 import { resolve as _resolve } from 'path'
 import transform from 'stream-transform'
 import config from '../config'
-import { isKeyof } from '../importers'
 import logger from '../logger'
 import { badTfnsw, nzAklRouteColor } from './bad'
 import connection from './connection'
@@ -152,7 +151,7 @@ class GtfsImport {
           splitRow[0] %= 24
           if (column === 'arrival_time') {
             arrival_time_24 = true
-          } else if (column === 'departure_time') {
+          } else {
             departure_time_24 = true
           }
         }
@@ -174,7 +173,7 @@ class GtfsImport {
       if (column === 'import_package') {
         return endpoint
       }
-      return row[rowSchema[column]] || null
+      return row[rowSchema[column]] !== '' ? row[rowSchema[column]] : null
     })
   }
 
@@ -234,99 +233,90 @@ class GtfsImport {
           callback(null)
         } else {
           const processRow = async () => {
-            if (row && row.length > 1) {
-              const tableSchema = isKeyof(schemas, file.table)
-                ? schemas[file.table]
-                : null
-              if (!tableSchema) {
-                throw new Error()
-              }
-              if (tableSchema) {
-                const record = this.mapRowToRecord(
-                  row,
-                  headers,
-                  tableSchema,
-                  endpoint,
-                )
-                if (
-                  file.table === 'agency' &&
-                  !Object.keys(headers).some(
-                    (header) => header === 'agency_id',
-                  ) &&
-                  record[0] === null
-                ) {
-                  record[0] = record[1]
-                    .split(' ')
-                    .map((word) => word[0])
-                    .join('')
-                }
-                if (file.table === 'routes' && config.prefix === 'nz-akl') {
-                  if (!record[7]) {
-                    const { routeColor, textColor } = nzAklRouteColor(
-                      record[1],
-                      record[2],
-                    )
-                    record[7] = routeColor
-                    record[8] = textColor
-                  }
-                }
-                if (file.table === 'stops' && config.prefix === 'us-bos') {
-                  if (!record[5] || record[6]) {
-                    return
-                  }
-                }
-                if (
-                  file.table === 'trips' &&
-                  config.prefix === 'au-syd' &&
-                  endpoint === 'sydneytrains'
-                ) {
-                  const split = record[2].split('.')
+            if (row.length > 1) {
+              const tableSchema = schemas[file.table]
 
-                  if (split.length === 7) {
-                    const tripId = {
-                      tripName: split[0],
-                      timetableId: split[1],
-                      timetableVersionId: split[2],
-                      dopRef: split[3],
-                      setType: split[4],
-                      numberOfCars: split[5],
-                      tripInstance: split[6],
-                    }
-                    if (
-                      badTfnsw.some((e) => {
-                        return e.trip === tripId.tripName
-                      })
-                    ) {
-                      return
-                    }
-                    if (!record[4]) {
-                      record[4] = tripId.tripName
-                    }
-                    record[10] = tripId.numberOfCars
-                    record[11] = tripId.setType
-                  } else {
-                    // console.log(split)
-                  }
+              const record = this.mapRowToRecord(
+                row,
+                headers,
+                tableSchema,
+                endpoint,
+              )
+              if (
+                file.table === 'agency' &&
+                !Object.keys(headers).some(
+                  (header) => header === 'agency_id',
+                ) &&
+                record[0] === null
+              ) {
+                record[0] = record[1]
+                  .split(' ')
+                  .map((word) => word[0])
+                  .join('')
+              }
+              if (file.table === 'routes' && config.prefix === 'nz-akl') {
+                if (record[7] !== '') {
+                  const { routeColor, textColor } = nzAklRouteColor(
+                    record[1],
+                    record[2],
+                  )
+                  record[7] = routeColor
+                  record[8] = textColor
                 }
-                // check if the row is versioned, and whether to upload it
-                if (
-                  containsVersion &&
-                  record.join(',').match(version) === null
-                ) {
+              }
+              if (file.table === 'stops' && config.prefix === 'us-bos') {
+                if (record[5] !== '' || record[6] === '') {
                   return
                 }
-
-                table.rows.add(...record)
-
-                transactions += 1
-                totalTransactions += 1
               }
+              if (
+                file.table === 'trips' &&
+                config.prefix === 'au-syd' &&
+                endpoint === 'sydneytrains'
+              ) {
+                const split = record[2].split('.')
+
+                if (split.length === 7) {
+                  const tripId = {
+                    tripName: split[0],
+                    timetableId: split[1],
+                    timetableVersionId: split[2],
+                    dopRef: split[3],
+                    setType: split[4],
+                    numberOfCars: split[5],
+                    tripInstance: split[6],
+                  }
+                  if (
+                    badTfnsw.some((e) => {
+                      return e.trip === tripId.tripName
+                    })
+                  ) {
+                    return
+                  }
+                  if (record[4] !== '') {
+                    record[4] = tripId.tripName
+                  }
+                  record[10] = tripId.numberOfCars
+                  record[11] = tripId.setType
+                } else {
+                  // console.log(split)
+                }
+              }
+              // check if the row is versioned, and whether to upload it
+              if (containsVersion && record.join(',').match(version) === null) {
+                return
+              }
+
+              table.rows.add(...record)
+
+              transactions += 1
+              totalTransactions += 1
             }
           }
 
           // assembles our CSV into JSON
           if (transactions < config.db.transactionLimit) {
-            processRow()
+            await processRow()
             callback(null)
           } else {
             log.info(endpoint, logstr, `${totalTransactions / 1000}k Rows`)
@@ -336,7 +326,7 @@ class GtfsImport {
               transactions = 0
 
               table = this.getTable(file.table)
-              processRow()
+              await processRow()
               callback(null)
             } catch (err) {
               log.error(err)

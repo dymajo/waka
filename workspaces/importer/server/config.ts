@@ -27,7 +27,10 @@ const storageService: StorageService =
   StorageService.aws
 const keyValueVersionTable = process.env.KEYVALUE_VERSION_TABLE
 const keyValueRegion = process.env.KEYVALUE_REGION
-const tfnswApiKey = process.env.TFNSW_API_KEY
+const tfnswApiKey =
+  prefix === 'au-syd'
+    ? requireEnv.require('TFNSW_API_KEY')
+    : process.env.TFNSW_API_KEY
 const extended = process.env.EXTENDED === 'true'
 const localFile = process.env.LOCAL_FILE
 const localImport = process.env.LOCAL_IMPORT === 'true'
