@@ -1,0 +1,130 @@
+{
+  "name": "waka-server",
+  "version": "2.1.0",
+  "description": "The API that powers Waka.",
+  "main": "index.js",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --copy-files --source-maps true && git log -1 > v.txt || git rev-parse HEAD > v.txt",
+    "test": "mocha",
+    "coverage": "nyc mocha",
+    "start": "node lib/waka-orchestrator/standalone.js | bunyan -L -o short",
+    "start:realtime": "node lib/waka-realtime/standalone.js | bunyan -L -o short",
+    "bs": "npm run build:js && npm start",
+    "install:proxy": "go get -v ./src/waka-go-proxy",
+    "build:proxy": "go build -o ./lib/waka-go-proxy/waka-go-proxy.exe ./src/waka-go-proxy/",
+    "document": "apidoc -i src/waka-orchestrator -i src/waka-go-proxy -i src/waka-worker -o dist/docs",
+    "lint": "eslint src --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dymajo/waka-server.git"
+  },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "include": [
+      "src"
+    ],
+    "exclude": [
+      "lib",
+      "coverage",
+      "test",
+      "dist"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text-summary"
+    ],
+    "all": true
+  },
+  "apidoc": {
+    "name": "Waka",
+    "title": "Waka API",
+    "header": {
+      "filename": "dist/header.md"
+    },
+    "url": "https://waka.app/a",
+    "sampleUrl": "/a"
+  },
+  "keywords": [],
+  "author": "Dymajo Ltd.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dymajo/waka-server/issues"
+  },
+  "homepage": "https://github.com/dymajo/waka-server#readme",
+  "dependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@kubernetes/client-node": "^0.11.1",
+    "@types/body-parser": "^1.19.0",
+    "@types/bunyan": "^1.8.6",
+    "@types/express": "^4.17.3",
+    "@types/express-http-proxy": "^1.5.12",
+    "@types/ioredis": "^4.14.9",
+    "@types/mock-fs": "^4.10.0",
+    "@types/moment-timezone": "^0.5.13",
+    "@types/morgan": "^1.9.0",
+    "@types/mssql": "^6.0.0",
+    "@types/node": "^13.9.5",
+    "@types/redis": "^2.8.17",
+    "apidoc": "^0.19.1",
+    "aws-sdk": "^2.648.0",
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "bunyan": "^1.8.12",
+    "colors": "^1.4.0",
+    "csv-parse": "^4.8.8",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-http-proxy": "^1.6.0",
+    "extract-zip": "^1.7.0",
+    "ioredis": "^4.16.0",
+    "long": "^4.0.0",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.28",
+    "morgan": "^1.10.0",
+    "mssql": "^6.2.0",
+    "p-ratelimit": "^0.11.0",
+    "protobufjs": "^6.8.9",
+    "redis": "^2.8.0",
+    "rimraf": "^3.0.2",
+    "source-map-support": "^0.5.16",
+    "stream-transform": "^2.0.1",
+    "ts-optchain": "^0.1.8",
+    "waka-manager": "git+https://git@github.com/dymajo/waka-manager.git"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "7.7.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^5.2.7",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "chai": "^4.2.0",
+    "cross-env": "^6.0.3",
+    "eslint": "^6.8.0",
+    "eslint-config": "^0.3.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-promise": "^4.2.1",
+    "mocha": "^6.2.3",
+    "mock-fs": "^4.11.0",
+    "nyc": "^15.0.0",
+    "prettier": "^1.19.1",
+    "ts-mockito": "^2.5.0",
+    "ts-node": "^8.8.1",
+    "typescript": "^3.8.3"
+  }
+}

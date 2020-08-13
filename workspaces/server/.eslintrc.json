@@ -1,0 +1,56 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb-base",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
+  ],
+  "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
+  "plugins": ["@typescript-eslint", "promise"],
+  "rules": {
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/no-magic-numbers": 0,
+    "@typescript-eslint/explicit-member-accessibility": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/camelcase": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "semi": "off",
+    "indent": "off",
+    "no-unused-vars": 0,
+    "linebreak-style": ["error", "unix"],
+    "quotes": "off",
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "no-return-assign": 0,
+    "global-require": "off",
+    "no-constant-condition": [
+      "error",
+      {
+        "checkLoops": false
+      }
+    ],
+    "no-underscore-dangle": 0,
+    "lines-between-class-members": 0,
+    "comma-dangle": 0,
+    "no-shadow": "off",
+    "no-nested-ternary": 0,
+    "promise/prefer-await-to-then": "error",
+    "promise/prefer-await-to-callbacks": 0,
+    "class-methods-use-this": "off",
+    "import/no-dynamic-require": "off",
+    "no-restricted-syntax": "off",
+    "no-await-in-loop": "off",
+    "camelcase": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts"]
+      }
+    }
+  }
+}
