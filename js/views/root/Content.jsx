@@ -77,10 +77,10 @@ class RootContent extends React.Component {
       twitterAcc = (
         <Sidebar
           type="url"
-          url="https://twitter.com/AklTransport"
+          url="https://twitter.com/AT_TravelAlerts"
           icon="at.svg"
           name="Auckland Transport"
-          description={t('serviceAlerts.twitter', { account: 'AklTransport' })}
+          description={t('serviceAlerts.twitter', { account: 'AT_TravelAlerts' })}
         />
       )
     } else if (currentCity.prefix === 'nz-chc') {
