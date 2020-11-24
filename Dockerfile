@@ -1,9 +1,8 @@
-FROM node:lts-alpine as build-client
+FROM node:lts as build-client
 
 WORKDIR /app
 COPY /package.json ./
 COPY /package-lock.json ./
-RUN apk add --no-cache git
 RUN npm ci
 COPY / ./
 RUN npm run build
