@@ -40,12 +40,12 @@ object Build : BuildType({
         }
         script {
             name = "Upload Assets to S3 Test"
-            scriptContent = "s3 sync dist s3://test-assets-us-west-2.waka.app"
+            scriptContent = "aws s3 sync dist s3://test-assets-us-west-2.waka.app"
             dockerImage = "amazon/aws-cli"
         }
         script {
             name = "Upload Assets to S3 Prod"
-            scriptContent = "s3 sync dist s3://assets-us-west-2.waka.app"
+            scriptContent = "aws s3 sync dist s3://assets-us-west-2.waka.app"
             dockerImage = "amazon/aws-cli"
         }
     }
