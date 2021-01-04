@@ -191,11 +191,11 @@ class Station extends Component {
     routeId,
     routeShortName,
     directionId,
-    tripId = null
+    tripId = null,
+    stopId
   ) => {
     const { history, match } = this.props
     const url = ['/l', match.params.region, agencyId, routeShortName].join('/')
-    const stopId = match.params.station
     let tripIdParameter = ''
     if (tripId != null) {
       tripIdParameter = `&trip_id=${tripId}`
@@ -273,6 +273,7 @@ class Station extends Component {
                 route_id: routeId,
                 route_text_color: routeTextColor,
                 route_icon: routeIcon,
+                stop_id: stopId,
               } = item[0]
               return (
                 <TripItem
@@ -296,7 +297,8 @@ class Station extends Component {
                       routeId,
                       routeShortName,
                       directionId,
-                      tripId
+                      tripId,
+                      stopId
                     )
                   }
                 />

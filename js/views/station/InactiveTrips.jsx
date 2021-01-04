@@ -63,6 +63,7 @@ export const InactiveTrips = ({ routes, onClick, region }) => {
               direction_id: directionId,
               route_color: routeColor,
               route_text_color: routeTextColor,
+              stop_id: stopId,
             } = route
             return (
               <TripItem
@@ -79,7 +80,14 @@ export const InactiveTrips = ({ routes, onClick, region }) => {
                   },
                 ]}
                 onClick={() =>
-                  onClick(agencyId, routeId, routeShortName, directionId)
+                  onClick(
+                    agencyId,
+                    routeId,
+                    routeShortName,
+                    directionId,
+                    null,
+                    stopId
+                  )
                 }
               />
             )
