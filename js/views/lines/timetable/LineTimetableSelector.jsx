@@ -67,8 +67,12 @@ const LineTimetableSelector = ({
             const stop = service.realtimeStop
             scheduleRelationship = stop.scheduleRelationship.toLowerCase()
 
-            if (stop.scheduleRelationship === 'SCHEDULED') {
-              const estimate = stop.departure || stop.arrival
+            const estimate = stop.departure || stop.arrival
+            if (
+              stop.scheduleRelationship === 'SCHEDULED' &&
+              estimate != undefined &&
+              estimate.delay != undefined
+            ) {
               delay = estimate.delay
 
               const delayText = `(${Math.ceil(Math.abs(delay) / 60)}m)`
