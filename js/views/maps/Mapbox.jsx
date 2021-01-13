@@ -6,7 +6,7 @@ import local from '../../../local'
 import SettingsStore from '../../stores/SettingsStore.js'
 import StationStore from '../../stores/StationStore.js'
 
-import { getDist } from './util.jsx'
+import { getDist, getIconName } from './util.jsx'
 
 mapboxgl.accessToken = ''
 
@@ -55,6 +55,7 @@ class MapboxMap extends Component {
       'source': 'stops',
       'layout': {
         'icon-image': '{icon}',
+        'icon-size': 1,
         'icon-allow-overlap': true
       }
     })
@@ -106,7 +107,7 @@ class MapboxMap extends Component {
           stop_id: stop.stop_id,
           stop_name: stop.stop_name,
           route_type: stop.route_type,
-          icon: 'bus'
+          icon: getIconName(stop.stop_region, stop.route_type),
         },
         'geometry': {
           'type': 'Point',
