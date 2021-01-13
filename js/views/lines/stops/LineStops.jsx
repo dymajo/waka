@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native'
 
 import { vars } from '../../../styles.js'
 import SettingsStore from '../../../stores/SettingsStore.js'
-import Layer from '../../maps/Layer.jsx'
+import Layer from '../../maps/MapboxLayer.jsx'
 import Spinner from '../../reusable/Spinner.jsx'
 import { renderShape, renderStops } from '../lineCommon.jsx'
 import LineData from '../../../data/LineData.js'
@@ -17,7 +17,7 @@ export class LineStops extends Component {
 
     const { region } = this.props
     this.lineData = new LineData({ region })
-    this.pointsLayer = new Layer()
+    this.pointsLayer = new Layer('route-points')
     this.shapesLayer = null
     this.interpolatedShape = null
     this.isShapeLoaded = false
@@ -44,10 +44,8 @@ export class LineStops extends Component {
     // shapeslayer is nullable
     if (shapesLayer) {
       shapesLayer.hide(true, true)
-      shapesLayer.unmounted = true
     }
     pointsLayer.hide()
-    pointsLayer.unmounted = true
   }
 
   getStops = async () => {
@@ -64,6 +62,7 @@ export class LineStops extends Component {
       loading: false,
     })
 
+    pointsLayer.hide()
     renderStops(
       current,
       pointsLayer,

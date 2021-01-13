@@ -5,6 +5,7 @@ import { withRouter } from 'react-router'
 import local from '../../../local'
 import SettingsStore from '../../stores/SettingsStore.js'
 import StationStore from '../../stores/StationStore.js'
+import UiStore from '../../stores/UiStore.js'
 
 import { getDist, getIconName } from './util.jsx'
 
@@ -12,7 +13,7 @@ mapboxgl.accessToken = ''
 
 class MapboxMap extends Component {
 
-  zoom = 17
+  zoom = 16.5
 
   position = [...SettingsStore.getState().lastLocation, this.zoom]
 
@@ -25,8 +26,8 @@ class MapboxMap extends Component {
       center: SettingsStore.getState().lastLocation.reverse(),
       zoom: this.zoom,
     })
+    UiStore.state.basemap = this.map
     this.map.touchPitch.disable()
-    this.map.on('moveend', this.moveEnd)
 
     // waits for both data & map to load before adding to map
     const dataLoad = this.getData(...this.position)
@@ -55,8 +56,8 @@ class MapboxMap extends Component {
       'source': 'stops',
       'layout': {
         'icon-image': '{icon}',
-        'icon-size': 1,
-        'icon-allow-overlap': true
+        'icon-size': { "type": "identity", "property": "icon_size" },
+        'icon-ignore-placement': true,
       }
     })
     map.on('click', 'stops', (e) => {
@@ -68,6 +69,12 @@ class MapboxMap extends Component {
     })
     map.on('mouseleave', 'stops', () => {
       map.getCanvas().style.cursor = ''
+    })
+    map.on('moveend', () => {
+      const center = map.getCenter()
+      const zoom = map.getZoom()
+      this.getData(center.lat, center.lng, zoom)
+        .then(data => map.getSource('stops').setData(data))
     })
   }
 
@@ -108,6 +115,7 @@ class MapboxMap extends Component {
           stop_name: stop.stop_name,
           route_type: stop.route_type,
           icon: getIconName(stop.stop_region, stop.route_type),
+          icon_size: zoom >= 16 ? 1 : 0.75,
         },
         'geometry': {
           'type': 'Point',
@@ -121,13 +129,6 @@ class MapboxMap extends Component {
     } catch (error) {
       console.log(error)
     }
-  }
-
-  moveEnd = () => {
-    const center = this.map.getCenter()
-    const zoom = this.map.getZoom()
-    this.getData(center.lat, center.lng, zoom)
-      .then(data => this.map.getSource('stops').setData(data))
   }
 
   render() {

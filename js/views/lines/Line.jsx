@@ -10,7 +10,7 @@ import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 
-import Layer from '../maps/Layer.jsx'
+import Layer from '../maps/MapboxLayer.jsx'
 import LineData from '../../data/LineData.js'
 import { LineStops } from './stops/LineStops.jsx'
 import { LineTimetable } from './timetable/LineTimetable.jsx'
