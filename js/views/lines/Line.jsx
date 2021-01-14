@@ -74,7 +74,7 @@ class Line extends React.Component {
   }
 
   componentWillUnmount() {
-    this.liveLayer.hide()
+    this.liveLayer.hide(true, false)
     this.liveLayer.unmounted = true
 
     clearInterval(this.liveRefresh)
@@ -112,7 +112,7 @@ class Line extends React.Component {
     let busPositions = null
     try {
       const data = await this.lineData.getRealtime()
-      this.liveLayer.hide()
+      this.liveLayer.hide(true, true)
       this.liveLayer = new Layer('live-vehicles')
       busPositions = {
         type: 'MultiPoint',

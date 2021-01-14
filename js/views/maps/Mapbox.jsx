@@ -19,7 +19,13 @@ class MapboxMap extends Component {
 
   markers = []
 
+  hideStops = false
+
+  mapboxLoaded = false
+
   componentDidMount() {
+    UiStore.bind('stop-visibility', this.stopVisibility)
+
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
       style: 'mapbox://styles/consindo/ckjtsal580mwi19o1qyebauwv',
@@ -35,11 +41,36 @@ class MapboxMap extends Component {
     const mapLoad = new Promise((resolve, reject) => {
       this.map.on('load', () => {
         this.setupStops()
+        this.mapboxLoaded = true
         resolve()
       })  
     })
     Promise.all([dataLoad, mapLoad])
-      .then(data => this.map.getSource('stops').setData(data[0]))
+      .then(data => {
+        if (!this.hideStops) {
+          this.map.getSource('stops').setData(data[0])
+        }
+      })
+  }
+
+  componentWillUnmount() {
+    UiStore.unbind('stop-visibility', this.stopVisibility)
+  }
+
+  stopVisibility = state => {
+    if (this.hideStops !== state) {
+      const map = this.map
+      this.hideStops = state
+
+      // hide the layer
+      if (!this.mapboxLoaded) return
+      if (state === true) {
+        map.setLayoutProperty('stops', 'visibility', 'none')
+      } else {
+        map.setLayoutProperty('stops', 'visibility', 'visible')
+        this.loadStops()
+      }
+    }
   }
 
   setupStops = () => {
@@ -72,11 +103,19 @@ class MapboxMap extends Component {
       map.getCanvas().style.cursor = ''
     })
     map.on('moveend', () => {
-      const center = map.getCenter()
-      const zoom = map.getZoom()
-      this.getData(center.lat, center.lng, zoom)
-        .then(data => map.getSource('stops').setData(data))
+      this.loadStops()
     })
+  }
+
+  loadStops = async () => {
+    const map = this.map
+    const center = map.getCenter()
+    const zoom = map.getZoom()
+    if (this.hideStops) return
+    const data = await this.getData(center.lat, center.lng, zoom)
+    if (!this.hideStops) {
+      this.map.getSource('stops').setData(data)
+    }
   }
 
   loadImages = () => {

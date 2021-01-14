@@ -68,7 +68,7 @@ class MapboxLayer {
     }
   }
 
-  show(bounds = null, dispose = true, hideStops = true, maxZoom = -1) {
+  show(bounds = null, dispose = true, hideStops = true) {
     const map = UiStore.state.basemap
     if (bounds !== null) {
       const options = {
@@ -89,9 +89,6 @@ class MapboxLayer {
     }
 
     if (this.visible === true) return
-    if (maxZoom > -1 && dispose === true) {
-      console.log('maxZoomShow?', bounds, dispose, hideStops, maxZoom)
-    }
     map.setLayoutProperty(this.id, 'visibility', 'visible')
 
     if (hideStops) {
@@ -101,9 +98,6 @@ class MapboxLayer {
 
   hide(dispose = true, hideStops = false) {
     if (!this.mounted) return
-    if (this.maxZoom > -1 && dispose === true) {
-      console.log('hide maxZoom')
-    }
     
     const map = UiStore.state.basemap
     if (dispose === true) {
@@ -117,10 +111,6 @@ class MapboxLayer {
     if (!hideStops) {
       UiStore.stopVisibility(hideStops)
     }
-  }
-
-  toggleOnZoom = () => {
-    console.log('toggleOnZoom')
   }
 
 }
