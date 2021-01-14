@@ -30,6 +30,7 @@ class MapboxMap extends Component {
     this.map.touchPitch.disable()
 
     // waits for both data & map to load before adding to map
+    this.loadImages()
     const dataLoad = this.getData(...this.position)
     const mapLoad = new Promise((resolve, reject) => {
       this.map.on('load', () => {
@@ -75,6 +76,21 @@ class MapboxMap extends Component {
       const zoom = map.getZoom()
       this.getData(center.lat, center.lng, zoom)
         .then(data => map.getSource('stops').setData(data))
+    })
+  }
+
+  loadImages = () => {
+    const images = [
+      'vehicle-bus',
+      'vehicle-train',
+      'vehicle-ferry',
+      'vehicle-cablecar',
+    ]
+    images.forEach(id => {
+      this.map.loadImage(`/icons/normal/${id}.png`, (err, image) => {
+        if (err) return console.error(err)
+        this.map.addImage(`normal-${id}`, image, { pixelRatio: 2 })
+      })
     })
   }
 

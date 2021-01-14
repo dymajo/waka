@@ -28,7 +28,7 @@ export const renderStops = (
     stopsMap[[stop.stop_lat, stop.stop_lon].join(',')] = stop
   })
   pointsLayer.add('geojson', geojson, {
-    order: 'front',
+    orderBefore: 'live-vehicles',
     typeExtension: 'CircleMarker',
     typeExtensionOptions: {
       color: routeColor,

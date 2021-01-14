@@ -1,3 +1,4 @@
+import { getIconName } from './util.jsx'
 import UiStore from '../../stores/UiStore.js'
 import { vars } from '../../styles.js'
 
@@ -48,17 +49,21 @@ class MapboxLayer {
           "circle-radius": props.typeExtensionOptions.radius,
           "circle-stroke-color": props.typeExtensionOptions.color,
         }
+      } else if (props.typeExtension === 'VehicleMarker') {
+        layer.layout = {
+          'icon-image': getIconName(props.typeExtensionOptions.region, props.typeExtensionOptions.route_type, 'VehicleMarker'),
+          'icon-allow-overlap': true,
+        }
       } else {
         console.log('add', type, data, props)
       }
 
-      if (props.orderBefore) {
+      if (props.orderBefore && map.getLayer(props.orderBefore) != null) {
         map.addLayer(layer, props.orderBefore)
       } else {
         map.addLayer(layer)
       }
       
-
       this.mounted = true
     }
   }

@@ -16,24 +16,29 @@ export const getDist = (zoom) => {
   return dist
 }
 
-export const getIconName = (region, routeType) => {
+export const getIconName = (region, routeType, context) => {
   if (region === 'au-syd') {
     // TODO!
     return 'normal-default'
   }
 
+  let prefix = 'normal'
+  if (context === 'VehicleMarker') {
+    prefix = 'normal-vehicle'
+  }
+
   // the standard icons
   if (routeType === 2) {
-    return 'normal-train'
+    return `${prefix}-train`
   } else if (routeType === 3) {
-    return 'normal-bus'
+    return `${prefix}-bus`
   } else if (routeType === 4) {
-    return 'normal-ferry'
+    return `${prefix}-ferry`
   } else if (routeType === 5) {
-    return 'normal-cablecar'
+    return `${prefix}-cablecar`
   } else if (routeType === -1) {
-    return 'normal-parkingbuilding'
+    return `${prefix}-parkingbuilding`
   } else {
-    return 'normal-default'
+    return `${prefix}-default`
   }
 }

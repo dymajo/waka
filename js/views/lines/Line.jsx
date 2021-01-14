@@ -26,7 +26,7 @@ class Line extends React.Component {
     match: PropTypes.object.isRequired,
   }
 
-  liveLayer = new Layer()
+  liveLayer = new Layer('live-vehicles')
 
   tripStops = []
 
@@ -113,7 +113,7 @@ class Line extends React.Component {
     try {
       const data = await this.lineData.getRealtime()
       this.liveLayer.hide()
-      this.liveLayer = new Layer()
+      this.liveLayer = new Layer('live-vehicles')
       busPositions = {
         type: 'MultiPoint',
         coordinates: [],
@@ -138,7 +138,8 @@ class Line extends React.Component {
       this.liveLayer.add('geojson', busPositions, {
         typeExtension: 'VehicleMarker',
         typeExtensionOptions: {
-          icon: lineMetadata[0].route_type // TODO
+          region: this.lineData.region,
+          route_type: lineMetadata[0].route_type
         }
       })
       if (this.cancelCallbacks === true) return 'cancelled'
