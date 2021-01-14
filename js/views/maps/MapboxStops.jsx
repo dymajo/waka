@@ -1,5 +1,6 @@
 import local from '../../../local'
 import SettingsStore from '../../stores/SettingsStore.js'
+import StationStore from '../../stores/StationStore.js'
 import UiStore from '../../stores/UiStore.js'
 
 import { getDist, getIconName } from './util.jsx'
@@ -19,12 +20,15 @@ export default class MapboxStops {
   constructor(map, history) {
     this.map = map
     this.history = history
-    console.log(history)
 
     UiStore.bind('stop-visibility', this.stopVisibility)
 
     const dataLoad = this.getData(...this.position)
     const mapLoad = new Promise((resolve, reject) => {
+      // this is here so it handles the initial load race condition
+      map.on('moveend', () => {
+        this.loadStops()
+      })
       this.map.on('load', () => {
         this.setupStops()
         this.mapboxLoaded = true
@@ -48,7 +52,7 @@ export default class MapboxStops {
         'features': []
       }
     })
-    map.addLayer({
+    const layerData = {
       'id': 'stops',
       'type': 'symbol',
       'source': 'stops',
@@ -57,7 +61,12 @@ export default class MapboxStops {
         'icon-size': { "type": "identity", "property": "icon_size" },
         'icon-ignore-placement': true,
       }
-    })
+    }
+    if (map.getLayer('selected-stop') != null) {
+      map.addLayer(layerData, 'selected-stop')
+    } else {
+      map.addLayer(layerData)
+    }
     map.on('click', 'stops', (e) => {
       const { stop_region, stop_id } = e.features[0].properties
       this.viewServices(stop_region, stop_id)
@@ -67,9 +76,6 @@ export default class MapboxStops {
     })
     map.on('mouseleave', 'stops', () => {
       map.getCanvas().style.cursor = ''
-    })
-    map.on('moveend', () => {
-      this.loadStops()
     })
   }
 
@@ -95,7 +101,7 @@ export default class MapboxStops {
     const zoom = map.getZoom()
     if (this.hideStops) return
     const data = await this.getData(center.lat, center.lng, zoom)
-    if (!this.hideStops) {
+    if (!this.hideStops && this.mapboxLoaded) {
       this.map.getSource('stops').setData(data)
     }
   }
@@ -129,21 +135,24 @@ export default class MapboxStops {
         )}&lon=${lon.toFixed(4)}&distance=${dist}`
       )
       const data = await res.json()
-      const features = data.map(stop => ({
-        type: 'Feature',
-        properties: {
-          stop_region: stop.stop_region,
-          stop_id: stop.stop_id,
-          stop_name: stop.stop_name,
-          route_type: stop.route_type,
-          icon: getIconName(stop.stop_region, stop.route_type),
-          icon_size: zoom >= 16 ? 1 : 0.75,
-        },
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [stop.stop_lon, stop.stop_lat]
+      const features = data.map(stop => {
+        StationStore.stationCache[stop.stop_id] = stop
+        return {
+          type: 'Feature',
+          properties: {
+            stop_region: stop.stop_region,
+            stop_id: stop.stop_id,
+            stop_name: stop.stop_name,
+            route_type: stop.route_type,
+            icon: getIconName(stop.stop_region, stop.route_type),
+            icon_size: zoom >= 16 ? 1 : 0.75,
+          },
+          'geometry': {
+            'type': 'Point',
+            'coordinates': [stop.stop_lon, stop.stop_lat]
+          }
         }
-      }))
+      })
       return {
         'type': 'FeatureCollection',
         'features': features

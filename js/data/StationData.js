@@ -1,4 +1,5 @@
 import { endpoint } from '../../local'
+import StationStore from '../stores/StationStore.js'
 import { t } from '../stores/translationStore.js'
 
 class StationData {
@@ -26,6 +27,9 @@ class StationData {
       throw new Error(res.status.toString())
     }
     const data = await res.json()
+
+    // gross, shouldn't be here...
+    StationStore.stationCache[stopCode] = data
 
     const stopId = data.stop_id
     let name = data.stop_name

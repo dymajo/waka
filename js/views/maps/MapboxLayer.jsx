@@ -52,7 +52,8 @@ class MapboxLayer {
       } else if (props.typeExtension === 'VehicleMarker') {
         layer.layout = {
           'icon-image': getIconName(props.typeExtensionOptions.region, props.typeExtensionOptions.route_type, 'VehicleMarker'),
-          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+          'icon-size': props.typeExtensionOptions.size || 1,
         }
       } else {
         console.log('add', type, data, props)
@@ -65,6 +66,8 @@ class MapboxLayer {
       }
       
       this.mounted = true
+    } else {
+      console.log('add not geojson')
     }
   }
 
@@ -98,8 +101,10 @@ class MapboxLayer {
 
   hide(dispose = true, hideStops = false) {
     if (!this.mounted) return
-    
     const map = UiStore.state.basemap
+  
+    if (map.getLayer(this.id) === undefined) return
+    
     if (dispose === true) {
       map.removeLayer(this.id)
       map.removeSource(this.id)
