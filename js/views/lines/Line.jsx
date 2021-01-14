@@ -15,55 +15,9 @@ import LineData from '../../data/LineData.js'
 import { LineStops } from './stops/LineStops.jsx'
 import { LineTimetable } from './timetable/LineTimetable.jsx'
 import { LineErrorBoundary } from './LineErrorBoundary.jsx'
-import IconHelper from '../../helpers/icons/index.js'
 import TripInfo from './TripInfo.jsx'
 
 import LineIcon from '../../../dist/icons/linepicker.svg'
-
-const Icon = leaflet.icon
-const icons = new Map([
-  [
-    'train',
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    'subway',
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    'bus',
-    Icon({
-      iconUrl: '/icons/normal/bus-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    'cablecar',
-    Icon({
-      iconUrl: '/icons/normal/cablecar-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    4,
-    'ferry',
-    Icon({
-      iconUrl: '/icons/normal/ferry-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-])
 
 let styles = null
 
@@ -73,8 +27,6 @@ class Line extends React.Component {
   }
 
   liveLayer = new Layer()
-
-  iconHelper = new IconHelper()
 
   tripStops = []
 
@@ -183,11 +135,11 @@ class Line extends React.Component {
       await this.dataResolved
       const { lineMetadata } = this.state
       if (lineMetadata.length === 0) return 'cancelled' // this if it the line can't loa
-      const icon = icons.get(
-        this.iconHelper.getRouteType(lineMetadata[0].route_type)
-      )
       this.liveLayer.add('geojson', busPositions, {
-        icon,
+        typeExtension: 'VehicleMarker',
+        typeExtensionOptions: {
+          icon: lineMetadata[0].route_type // TODO
+        }
       })
       if (this.cancelCallbacks === true) return 'cancelled'
       this.liveLayer.show()

@@ -31,7 +31,6 @@ export const renderStops = (
     order: 'front',
     typeExtension: 'CircleMarker',
     typeExtensionOptions: {
-      className: 'metro-dot',
       color: routeColor,
       radius: 3,
     },
