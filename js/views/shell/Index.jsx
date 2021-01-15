@@ -6,7 +6,7 @@ import { vars } from '../../styles.js'
 import iOS from '../../helpers/ios.js'
 import UiStore from '../../stores/UiStore.js'
 
-import MapView from '../maps/index.jsx'
+import MapView from '../maps/Mapbox.jsx'
 import ContentView from './Content.jsx'
 
 // routes

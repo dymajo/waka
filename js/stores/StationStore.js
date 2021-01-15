@@ -2,12 +2,10 @@ import Events from './Events'
 import local from '../../local.js'
 import SettingsStore from './SettingsStore.js'
 import { t } from './translationStore.js'
-import IconHelper from '../helpers/icons/index.js'
+import { getIconName } from '../views/maps/util.jsx'
 
 class StationStore extends Events {
   stationCache = {}
-
-  iconHelper = new IconHelper()
 
   constructor(props) {
     super(props)
@@ -131,7 +129,7 @@ class StationStore extends Events {
     const dataCollection = await Promise.all(promises)
     dataCollection.forEach((data, key) => {
       const no = stopNumber.split('+')[key]
-      const icon = this.iconHelper.getRouteType(data.route_type)
+      const icon = getIconName(region, data.route_type, 'SavedStations')
       let description = t('savedStations.stop', {
         number: `${no} / ${data.stop_name}`,
       })

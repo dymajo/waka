@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { View, StyleSheet } from 'react-native'
-import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 

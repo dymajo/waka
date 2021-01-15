@@ -1,4 +1,4 @@
-export const getDist = (zoom) => {
+export const getDist = zoom => {
   let screensize = document.body.offsetWidth
   if (document.body.offsetHeight > screensize) {
     screensize = document.body.offsetHeight
@@ -22,18 +22,21 @@ export const getIconName = (region, routeType, context, stopName) => {
     return 'normal-default'
   }
 
-  let prefix = 'normal'
+  let prefix = 'normal-'
   if (context === 'VehicleMarker') {
-    prefix = 'normal-vehicle'
+    prefix = 'normal-vehicle-'
+  } else if (context === 'SavedStations') {
+    prefix = ''
   }
 
   // the standard icons
   if (routeType === 2) {
-    return `${prefix}-train`
-  } else if (routeType === 3) {
+    return `${prefix}train`
+  }
 
+  if (routeType === 3) {
     // dynamic bus icons
-    if (context !== 'VehicleMarker') {
+    if (context !== 'VehicleMarker' && context !== 'SavedStations') {
       const stopSplit = stopName.split('Stop')
       const platformSplit = stopName.split('Platform')
       let markericon = null
@@ -61,18 +64,21 @@ export const getIconName = (region, routeType, context, stopName) => {
         name = name.replace(/ /g, '').toUpperCase()
 
         if (['A', 'B', 'C', 'D', 'E', 'F'].includes(name)) {
-          return `${prefix}-bus-${name.toLowerCase()}`
+          return `${prefix}bus-${name.toLowerCase()}`
         }
       }
     }
-    return `${prefix}-bus`
-  } else if (routeType === 4) {
-    return `${prefix}-ferry`
-  } else if (routeType === 5) {
-    return `${prefix}-cablecar`
-  } else if (routeType === -1) {
-    return `${prefix}-parkingbuilding`
-  } else {
-    return `${prefix}-default`
+    return `${prefix}bus`
   }
+  if (routeType === 4) {
+    return `${prefix}ferry`
+  }
+  if (routeType === 5) {
+    return `${prefix}cablecar`
+  }
+  if (routeType === -1) {
+    return `${prefix}parkingbuilding`
+  }
+
+  return `${prefix}default`
 }
