@@ -25,9 +25,12 @@ export class LineStops extends Component {
     this.state = {
       loading: true,
     }
+
+    this.mounted = false
   }
 
   componentDidMount() {
+    this.mounted = true
     this.getStops()
   }
 
@@ -40,6 +43,7 @@ export class LineStops extends Component {
   }
 
   componentWillUnmount() {
+    this.mounted = false
     const { pointsLayer, shapesLayer } = this
     // shapeslayer is nullable
     if (shapesLayer) {
@@ -55,6 +59,7 @@ export class LineStops extends Component {
 
     this.lineData.trip_id = tripId
     const { current, next, routeInfo } = await this.lineData.getTripStops()
+    if (!this.mounted) return
     this.setState({
       current,
       next,
@@ -90,6 +95,7 @@ export class LineStops extends Component {
           this.shapesLayer.hide(true, true)
           this.shapesLayer = new Layer()
         }
+        if (!this.mounted) return
         return renderShape(shape, this.shapesLayer, color)
       })
       .catch(() => {
@@ -105,6 +111,7 @@ export class LineStops extends Component {
       type: 'LineString',
       coordinates: stops.map(stop => [stop.stop_lon, stop.stop_lat]),
     }
+    if (!this.mounted) return
     this.interpolatedShape = renderShape(
       { ...shape, ...this.lineData.getShapeBounds(shape) },
       shapesLayer,
