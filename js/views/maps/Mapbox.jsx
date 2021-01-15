@@ -22,8 +22,6 @@ class MapboxMap extends Component {
   selectedStopLayerVisible = false
 
   componentDidMount() {
-    CurrentLocation.bind('pinmove', this.pinmove)
-    CurrentLocation.bind('mapmove', this.mapmove)
     CurrentLocation.bind('mapmove-silent', this.mapmovesilent)
     UiStore.bind('station-data-available', this.stationDataAvailable)
 
@@ -60,8 +58,34 @@ class MapboxMap extends Component {
     this.renderSelectedStation()
   }
 
+  loadImages = () => {
+    const images = [
+      'vehicle-bus',
+      'vehicle-train',
+      'vehicle-ferry',
+      'vehicle-cablecar',
+      'vehicle-parkingbuilding',
+    ]
+    images.forEach(id => {
+      this.map.loadImage(`/icons/normal/${id}.png`, (err, image) => {
+        if (err) return console.error(err)
+        this.map.addImage(`normal-${id}`, image, { pixelRatio: 2 })
+      })
+    })
+  }
+
+  mapmovesilent = () => {
+    const position = CurrentLocation.state.position.slice().reverse()
+    this.map.jumpTo({
+      center: position,
+      zoom: 16.5,
+    })
+    this.renderSelectedStation()
+  }
+
   renderSelectedStation() {
-    const splitName = this.props.history.location.pathname.split('/')
+    const { history } = this.props
+    const splitName = history.location.pathname.split('/')
     if (splitName.length === 4 && splitName[1][0] === 's') {
       const currentStation = splitName[3]
       if (this.selectedStopLayerVisible === currentStation) return
@@ -71,10 +95,21 @@ class MapboxMap extends Component {
       this.selectedStopLayerVisible = currentStation
 
       const coordinates = [item.stop_lon, item.stop_lat]
+      const zoom = 17.25
+
+      // hacks...
+      this.stops.stopVisibility(false, false)
+      this.stops.loadStops(
+        {
+          lng: item.stop_lon,
+          lat: item.stop_lat,
+        },
+        zoom
+      )
 
       this.map.flyTo({
         center: coordinates,
-        zoom: 17.25,
+        zoom,
         padding: {
           bottom:
             document.documentElement.clientWidth <= desktopThreshold ? 350 : 0,
@@ -103,31 +138,6 @@ class MapboxMap extends Component {
       this.selectedStopLayerVisible = false
       this.selectedStopLayer.hide()
     }
-  }
-
-  mapmovesilent = () => {
-    const position = CurrentLocation.state.position.slice()
-    this.map.jumpTo({
-      center: position.reverse(),
-      zoom: 16.5,
-    })
-    this.renderSelectedStation()
-  }
-
-  loadImages = () => {
-    const images = [
-      'vehicle-bus',
-      'vehicle-train',
-      'vehicle-ferry',
-      'vehicle-cablecar',
-      'vehicle-parkingbuilding',
-    ]
-    images.forEach(id => {
-      this.map.loadImage(`/icons/normal/${id}.png`, (err, image) => {
-        if (err) return console.error(err)
-        this.map.addImage(`normal-${id}`, image, { pixelRatio: 2 })
-      })
-    })
   }
 
   render() {

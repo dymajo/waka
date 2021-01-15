@@ -6,7 +6,6 @@ import UiStore from '../../stores/UiStore.js'
 import { getDist, getIconName } from './util.jsx'
 
 export default class MapboxStops {
-
   map = null
 
   history = null
@@ -33,41 +32,40 @@ export default class MapboxStops {
         this.setupStops()
         this.mapboxLoaded = true
         resolve()
-      })  
-    })
-    Promise.all([dataLoad, mapLoad])
-      .then(data => {
-        if (!this.hideStops) {
-          this.map.getSource('stops').setData(data[0])
-        }
       })
+    })
+    Promise.all([dataLoad, mapLoad]).then(data => {
+      if (!this.hideStops) {
+        this.map.getSource('stops').setData(data[0])
+      }
+    })
   }
 
   setupStops = () => {
     const map = this.map
     map.addSource('stops', {
-      'type': 'geojson',
-      'data': {
-        'type': 'FeatureCollection',
-        'features': []
-      }
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [],
+      },
     })
     const layerData = {
-      'id': 'stops',
-      'type': 'symbol',
-      'source': 'stops',
-      'layout': {
+      id: 'stops',
+      type: 'symbol',
+      source: 'stops',
+      layout: {
         'icon-image': '{icon}',
-        'icon-size': { "type": "identity", "property": "icon_size" },
+        'icon-size': { type: 'identity', property: 'icon_size' },
         'icon-ignore-placement': true,
-      }
+      },
     }
     if (map.getLayer('selected-stop') != null) {
       map.addLayer(layerData, 'selected-stop')
     } else {
       map.addLayer(layerData)
     }
-    map.on('click', 'stops', (e) => {
+    map.on('click', 'stops', e => {
       const { stop_region, stop_id } = e.features[0].properties
       this.viewServices(stop_region, stop_id)
     })
@@ -79,7 +77,7 @@ export default class MapboxStops {
     })
   }
 
-  stopVisibility = state => {
+  stopVisibility = (state, load = true) => {
     if (this.hideStops !== state) {
       const map = this.map
       this.hideStops = state
@@ -90,15 +88,17 @@ export default class MapboxStops {
         map.setLayoutProperty('stops', 'visibility', 'none')
       } else {
         map.setLayoutProperty('stops', 'visibility', 'visible')
-        this.loadStops()
+        if (load) this.loadStops()
       }
     }
   }
 
-  loadStops = async () => {
+  loadStops = async (centerOverride, zoomOverride) => {
+    console.log(centerOverride, zoomOverride)
     const map = this.map
-    const center = map.getCenter()
-    const zoom = map.getZoom()
+    const center = centerOverride || map.getCenter()
+    const zoom = zoomOverride || map.getZoom()
+    console.log(center, zoom, this.hideStops)
     if (this.hideStops) return
     const data = await this.getData(center.lat, center.lng, zoom)
     if (!this.hideStops && this.mapboxLoaded) {
@@ -123,8 +123,8 @@ export default class MapboxStops {
 
     if (zoom <= 14) {
       return {
-        'type': 'FeatureCollection',
-        'features': []
+        type: 'FeatureCollection',
+        features: [],
       }
     }
 
@@ -144,18 +144,23 @@ export default class MapboxStops {
             stop_id: stop.stop_id,
             stop_name: stop.stop_name,
             route_type: stop.route_type,
-            icon: getIconName(stop.stop_region, stop.route_type, 'stops', stop.stop_name),
+            icon: getIconName(
+              stop.stop_region,
+              stop.route_type,
+              'stops',
+              stop.stop_name
+            ),
             icon_size: zoom >= 16 ? 1 : 0.75,
           },
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [stop.stop_lon, stop.stop_lat]
-          }
+          geometry: {
+            type: 'Point',
+            coordinates: [stop.stop_lon, stop.stop_lat],
+          },
         }
       })
       return {
-        'type': 'FeatureCollection',
-        'features': features
+        type: 'FeatureCollection',
+        features: features,
       }
     } catch (error) {
       console.log(error)
