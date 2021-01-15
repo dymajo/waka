@@ -13,15 +13,28 @@ import Layer from './MapboxLayer.jsx'
 
 const { desktopThreshold } = vars
 
-class MapboxMap extends Component {
+// this token can only be used for waka.app
+const token =
+  'pk.eyJ1IjoiY29uc2luZG8iLCJhIjoiY2tqeXZoMmowMDFpdjJ1cW0zcm90azFtcSJ9.WJ-oKBZImcOI9DagpVHh-Q'
+mapboxgl.accessToken = token
 
+class MapboxMap extends Component {
   zoom = 16.5
 
   selectedStopLayer = new Layer('selected-stop')
 
   selectedStopLayerVisible = false
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      online: window.navigator.onLine,
+    }
+  }
+
   componentDidMount() {
+    window.addEventListener('online', this.triggerRetry)
+    window.addEventListener('offline', this.triggerOffline)
     CurrentLocation.bind('mapmove-silent', this.mapmovesilent)
     UiStore.bind('station-data-available', this.stationDataAvailable)
 
@@ -83,6 +96,25 @@ class MapboxMap extends Component {
     this.renderSelectedStation()
   }
 
+  triggerRetry = () => {
+    this.setState({
+      online: window.navigator.onLine,
+    })
+    this.map.jumpTo({
+      center: SettingsStore.getState()
+        .lastLocation.slice()
+        .reverse(),
+      zoom: 16.5,
+    })
+    this.renderSelectedStation()
+  }
+
+  triggerOffline = () => {
+    this.setState({
+      online: false,
+    })
+  }
+
   renderSelectedStation() {
     const { history } = this.props
     const splitName = history.location.pathname.split('/')
@@ -141,9 +173,18 @@ class MapboxMap extends Component {
   }
 
   render() {
+    const { online } = this.state
     return (
       <div className="search">
         <div ref={el => (this.mapContainer = el)} />
+        {!online ? (
+          <div className="offline-container">
+            <p>You are not connected to the internet.</p>
+            <button className="nice-button primary" onClick={this.triggerRetry}>
+              Retry
+            </button>
+          </div>
+        ) : null}
       </div>
     )
   }
