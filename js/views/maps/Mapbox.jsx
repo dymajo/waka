@@ -35,6 +35,13 @@ class MapboxMap extends Component {
     })
     UiStore.state.basemap = this.map
     this.map.touchPitch.disable()
+    this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-left')
+    this.map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+      enableHighAccuracy: true
+    },
+      trackUserLocation: true
+    }))
 
     // waits for both data & map to load before adding to map
     this.loadImages()
@@ -89,13 +96,6 @@ class MapboxMap extends Component {
     }
   }
 
-  pinmove = () => {
-    console.log('pinmove')
-  }
-  mapmove = () => {
-    const position = CurrentLocation.state.position.slice()
-    console.log('mapmove', position)
-  }
   mapmovesilent = () => {
     const position = CurrentLocation.state.position.slice()
     this.map.jumpTo({

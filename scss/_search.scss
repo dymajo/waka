@@ -4,6 +4,10 @@
 }
 .search {
   height: 100%;
+
+  @media (max-width: $desktop-threshold) {
+    height: calc(100% - 58px);
+  }
 }
 .leaflet-marker-icon.currentSelectionIcon {
   background: $atblue;

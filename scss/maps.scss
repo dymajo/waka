@@ -6,3 +6,37 @@
 .mapboxgl-map {
   height: 100%;
 }
+.mapboxgl-ctrl-group:not(:empty) {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02)
+}
+.mapboxgl-ctrl button.mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon,
+.mapboxgl-ctrl button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-background .mapboxgl-ctrl-icon {
+  background-image: url(/icons/locate-2.svg);
+}
+.mapboxgl-ctrl button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-active .mapboxgl-ctrl-icon {
+  background-image: url(/icons/locate-2-fill.svg);
+}
+.mapboxgl-ctrl button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-waiting .mapboxgl-ctrl-icon {
+  animation: waka-mapbox-fade .75s ease infinite;
+}
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-geolocate {
+  width: 36px;
+  height: 52px;
+}
+@keyframes waka-mapbox-fade {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: $desktop-threshold) {
+  .mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right {
+    bottom: 8px;
+  }
+}
