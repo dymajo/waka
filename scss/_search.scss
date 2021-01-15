@@ -4,69 +4,9 @@
 }
 .search {
   height: 100%;
-}
-.leaflet-marker-icon.currentSelectionIcon {
-  background: $atblue;
-  padding: 7px;
-  border-radius: 50%;
-  z-index: 10000 !important;
-  margin-left: -19px !important;
-  margin-top: -31px !important;
-  box-shadow: 0 1px 2px rgba(#000, 0.25);
 
-  &.larger {
-    margin-left: -22px !important;
-    margin-top: -32px !important;
-    padding: 8px;
-  }
-}
-.top-button {
-  bottom: 82px;
-}
-.bottom-button {
-  bottom: 14px;
-}
-.blue-button {
-  background: $lightblue;
-
-  &:hover {
-    background: darken($lightblue, 5);
-  }
-  &:active {
-    background: darken($lightblue, 10);
-  }
-
-  svg {
-    fill: #fff;
-  }
-}
-@media (pointer: coarse) {
-  .leaflet-control-zoom {
-    display: none;
-  }
-}
-
-.bigCurrentLocationCircle {
-  stroke: none;
-  //opacity: 0.15;
-  fill: lighten($lightblue, 6);
-}
-
-.smallCurrentLocationCircle {
-  fill-opacity: 1;
-  fill: $current-location;
-  stroke: white;
-  stroke-width: 2;
-}
-
-.leaflet-marker-icon {
-  margin-top: -24px !important;
-}
-.leaflet-popup-content {
-  svg {
-    display: block;
-    position: relative !important;
-    margin: 0 auto;
+  @media (max-width: $desktop-threshold) {
+    height: calc(100% - 58px);
   }
 }
 .offline-container {
@@ -74,7 +14,8 @@
   box-sizing: border-box;
   left: 0;
   right: 0;
-  bottom: 0;
+  top: 0;
+  z-index: 5;
   background: rgba(#000, 0.85);
   color: #fff;
   text-align: center;

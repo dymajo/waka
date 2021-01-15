@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { View, StyleSheet } from 'react-native'
-import leaflet from 'leaflet'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 
@@ -10,60 +9,14 @@ import UiStore from '../../stores/UiStore.js'
 import Header from '../reusable/Header.jsx'
 import LinkedScroll from '../reusable/LinkedScroll.jsx'
 
-import Layer from '../maps/Layer.jsx'
+import Layer from '../maps/MapboxLayer.jsx'
 import LineData from '../../data/LineData.js'
 import { LineStops } from './stops/LineStops.jsx'
 import { LineTimetable } from './timetable/LineTimetable.jsx'
 import { LineErrorBoundary } from './LineErrorBoundary.jsx'
-import IconHelper from '../../helpers/icons/index.js'
 import TripInfo from './TripInfo.jsx'
 
 import LineIcon from '../../../dist/icons/linepicker.svg'
-
-const Icon = leaflet.icon
-const icons = new Map([
-  [
-    'train',
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    'subway',
-    Icon({
-      iconUrl: '/icons/normal/train-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    'bus',
-    Icon({
-      iconUrl: '/icons/normal/bus-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    'cablecar',
-    Icon({
-      iconUrl: '/icons/normal/cablecar-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-  [
-    4,
-    'ferry',
-    Icon({
-      iconUrl: '/icons/normal/ferry-fill.svg',
-      iconSize: [24, 24],
-      className: 'vehIcon',
-    }),
-  ],
-])
 
 let styles = null
 
@@ -72,9 +25,7 @@ class Line extends React.Component {
     match: PropTypes.object.isRequired,
   }
 
-  liveLayer = new Layer()
-
-  iconHelper = new IconHelper()
+  liveLayer = new Layer('live-vehicles')
 
   tripStops = []
 
@@ -122,7 +73,7 @@ class Line extends React.Component {
   }
 
   componentWillUnmount() {
-    this.liveLayer.hide()
+    this.liveLayer.hide(true, false)
     this.liveLayer.unmounted = true
 
     clearInterval(this.liveRefresh)
@@ -160,8 +111,8 @@ class Line extends React.Component {
     let busPositions = null
     try {
       const data = await this.lineData.getRealtime()
-      this.liveLayer.hide()
-      this.liveLayer = new Layer()
+      this.liveLayer.hide(true, true)
+      this.liveLayer = new Layer('live-vehicles')
       busPositions = {
         type: 'MultiPoint',
         coordinates: [],
@@ -183,11 +134,13 @@ class Line extends React.Component {
       await this.dataResolved
       const { lineMetadata } = this.state
       if (lineMetadata.length === 0) return 'cancelled' // this if it the line can't loa
-      const icon = icons.get(
-        this.iconHelper.getRouteType(lineMetadata[0].route_type)
-      )
       this.liveLayer.add('geojson', busPositions, {
-        icon,
+        orderBefore: 'route-points-popups',
+        typeExtension: 'VehicleMarker',
+        typeExtensionOptions: {
+          region: this.lineData.region,
+          route_type: lineMetadata[0].route_type,
+        },
       })
       if (this.cancelCallbacks === true) return 'cancelled'
       this.liveLayer.show()

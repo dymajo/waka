@@ -15,7 +15,7 @@ class UIStore extends Events {
 
       // base map stuff
       basemap: null,
-      basemapType: 'leaflet',
+      basemapType: 'mapbox',
 
       // root card positions
       oldCardPosition: 'default',

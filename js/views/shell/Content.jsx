@@ -21,7 +21,6 @@ import Settings from '../pages/Settings.jsx'
 import NoMatch from '../pages/NoMatch.jsx'
 
 import Wrapper from './Wrapper.jsx'
-import AllLines from '../lines/AllLines.jsx'
 
 const { desktopThreshold } = vars
 
@@ -101,7 +100,6 @@ class Content extends React.Component {
               render={wrapFn(Save)}
             />
             <Route path="/l/:region" exact render={wrapFn(LineList)} />
-            <Route path="/l/:region/all" exact render={wrapFn(AllLines)} />
             <Route
               path="/l/:region/:agency_id/:route_short_name"
               exact

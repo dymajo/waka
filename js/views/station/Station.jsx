@@ -82,6 +82,7 @@ class Station extends Component {
     const { region, station } = this.props.match.params
     try {
       const stationInfo = await this.stationData.getStationInfo(region, station)
+      UiStore.trigger('station-data-available')
       const { name, description, stopLat, stopLon } = stationInfo
       this.setState({ name, description })
 

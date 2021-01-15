@@ -88,7 +88,7 @@ class RootContent extends React.Component {
         <Sidebar
           type="url"
           url="https://twitter.com/MetroCanterbury"
-          icon="metro-canterbury.png"
+          icon="agencies/metro-canterbury.png"
           name="Metro"
           description={t('serviceAlerts.twitter', {
             account: 'MetroCanterbury',

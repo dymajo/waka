@@ -13,8 +13,8 @@ import TrainIcon from '../../../dist/icons/train.svg'
 import FerryIcon from '../../../dist/icons/ferry.svg'
 import BusIcon from '../../../dist/icons/bus.svg'
 import CablecarIcon from '../../../dist/icons/cablecar.svg'
-import ATIcon from '../../../dist/icons/at.svg'
-import MetlinkIcon from '../../../dist/icons/metlink.svg'
+import ATIcon from '../../../dist/icons/agencies/at.svg'
+import MetlinkIcon from '../../../dist/icons/agencies/metlink.svg'
 import DymajoIcon from '../../../dist/icons/dymajo.svg'
 import PatronIcon from '../../../dist/icons/patron.svg'
 import CityIcon from '../../../dist/icons/city.svg'
@@ -56,7 +56,7 @@ class Sidebar extends React.Component {
   }
 
   getIcon(icon) {
-    return iconMap[icon] || <img src={`/icons/normal/${icon}`} />
+    return iconMap[icon] || <img src={`/icons/${icon}`} />
   }
 
   triggerTap = () => {
