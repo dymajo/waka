@@ -12,6 +12,8 @@ export default class MapboxStops {
 
   hideStops = false
 
+  mapboxLoaded = false
+
   position = [...SettingsStore.getState().lastLocation, 16.5]
 
   constructor(map, history) {
@@ -28,6 +30,7 @@ export default class MapboxStops {
       })
       this.map.on('load', () => {
         this.setupStops()
+        this.mapboxLoaded = true
         resolve()
       })
     })
@@ -80,7 +83,7 @@ export default class MapboxStops {
       this.hideStops = state
 
       // hide the layer
-      if (!map.loaded()) return
+      if (!this.mapboxLoaded) return
       if (state === true) {
         map.setLayoutProperty('stops', 'visibility', 'none')
       } else {
@@ -96,7 +99,7 @@ export default class MapboxStops {
     const zoom = zoomOverride || map.getZoom()
     if (this.hideStops) return
     const data = await this.getData(center.lat, center.lng, zoom)
-    if (!this.hideStops && map.loaded()) {
+    if (!this.hideStops && this.mapboxLoaded) {
       this.map.getSource('stops').setData(data)
     }
   }
