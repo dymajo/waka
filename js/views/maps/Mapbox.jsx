@@ -30,18 +30,22 @@ class MapboxMap extends Component {
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
       style: 'mapbox://styles/consindo/ckjtsal580mwi19o1qyebauwv',
-      center: SettingsStore.getState().lastLocation.slice().reverse(),
+      center: SettingsStore.getState()
+        .lastLocation.slice()
+        .reverse(),
       zoom: this.zoom,
     })
     UiStore.state.basemap = this.map
     this.map.touchPitch.disable()
     this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-left')
-    this.map.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-      enableHighAccuracy: true
-    },
-      trackUserLocation: true
-    }))
+    this.map.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+      })
+    )
 
     // waits for both data & map to load before adding to map
     this.loadImages()
@@ -65,29 +69,34 @@ class MapboxMap extends Component {
       const item = StationStore.stationCache[currentStation]
       if (item === undefined) return
       this.selectedStopLayerVisible = currentStation
-    
+
       const coordinates = [item.stop_lon, item.stop_lat]
 
       this.map.flyTo({
         center: coordinates,
         zoom: 17.25,
         padding: {
-          bottom: document.documentElement.clientWidth <= desktopThreshold ? 350 : 0
-        }
+          bottom:
+            document.documentElement.clientWidth <= desktopThreshold ? 350 : 0,
+        },
       })
 
       this.selectedStopLayer.hide()
-      this.selectedStopLayer.add('geojson', {
-        type: 'Point',
-        coordinates,
-      }, {
-        typeExtension: 'VehicleMarker',
-        typeExtensionOptions: {
-          region: splitName[2],
-          route_type: item.route_type,
-          size: 1.2,
+      this.selectedStopLayer.add(
+        'geojson',
+        {
+          type: 'Point',
+          coordinates,
+        },
+        {
+          typeExtension: 'VehicleMarker',
+          typeExtensionOptions: {
+            region: splitName[2],
+            route_type: item.route_type,
+            size: 1.2,
+          },
         }
-      })
+      )
       this.selectedStopLayer.show(null, true, false)
     } else {
       if (!this.selectedStopLayerVisible) return
@@ -124,7 +133,7 @@ class MapboxMap extends Component {
   render() {
     return (
       <div className="search">
-        <div ref={el => this.mapContainer = el} />
+        <div ref={el => (this.mapContainer = el)} />
       </div>
     )
   }

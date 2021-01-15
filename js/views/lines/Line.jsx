@@ -136,11 +136,12 @@ class Line extends React.Component {
       const { lineMetadata } = this.state
       if (lineMetadata.length === 0) return 'cancelled' // this if it the line can't loa
       this.liveLayer.add('geojson', busPositions, {
+        orderBefore: 'route-points-popups',
         typeExtension: 'VehicleMarker',
         typeExtensionOptions: {
           region: this.lineData.region,
-          route_type: lineMetadata[0].route_type
-        }
+          route_type: lineMetadata[0].route_type,
+        },
       })
       if (this.cancelCallbacks === true) return 'cancelled'
       this.liveLayer.show()

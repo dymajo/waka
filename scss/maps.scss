@@ -1,23 +1,33 @@
-@import "_vars";
+@import '_vars';
 
-@import "_leaflet";
-@import "_mapbox";
+@import '_leaflet';
+@import '_mapbox';
 
 .mapboxgl-map {
   height: 100%;
 }
+
+// the zoom & locate controls on the map
 .mapboxgl-ctrl-group:not(:empty) {
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02)
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 -1px 0px rgba(0, 0, 0, 0.02);
 }
+
+// our custom icon for the geolocation button
 .mapboxgl-ctrl button.mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon,
-.mapboxgl-ctrl button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-background .mapboxgl-ctrl-icon {
+.mapboxgl-ctrl
+  button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-background
+  .mapboxgl-ctrl-icon {
   background-image: url(/icons/locate-2.svg);
 }
-.mapboxgl-ctrl button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-active .mapboxgl-ctrl-icon {
+.mapboxgl-ctrl
+  button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-active
+  .mapboxgl-ctrl-icon {
   background-image: url(/icons/locate-2-fill.svg);
 }
-.mapboxgl-ctrl button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-waiting .mapboxgl-ctrl-icon {
-  animation: waka-mapbox-fade .75s ease infinite;
+.mapboxgl-ctrl
+  button.mapboxgl-ctrl-geolocate.mapboxgl-ctrl-geolocate-waiting
+  .mapboxgl-ctrl-icon {
+  animation: waka-mapbox-fade 0.75s ease infinite;
 }
 .mapboxgl-ctrl-group button.mapboxgl-ctrl-geolocate {
   width: 36px;
@@ -35,8 +45,58 @@
   }
 }
 
+// stops it from overlapping with the bottom bar
 @media (max-width: $desktop-threshold) {
-  .mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right {
+  .mapboxgl-ctrl-bottom-left,
+  .mapboxgl-ctrl-bottom-right {
     bottom: 8px;
+  }
+}
+
+// stops popups
+.mapbox-stops-popup {
+  font-size: 13px;
+  font-family: 'Open Sans', sans-serif;
+
+  .mapboxgl-popup-tip {
+    border-top-color: $atblue;
+  }
+  .mapboxgl-popup-content {
+    background: $atblue;
+    color: #fff;
+    text-align: center;
+    width: 180px;
+    padding: 18px;
+
+    h2 {
+      line-height: 1.1;
+      margin: 0 0 5px;
+      letter-spacing: -0.5px;
+    }
+    h3 {
+      color: #ddd;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 1em;
+      letter-spacing: -0.5px;
+      margin: 0 0 10px;
+    }
+    button {
+      border: 0;
+      color: #fff;
+      width: 100%;
+      background: $lightblue;
+      box-sizing: border-box;
+      padding: 7px 10px;
+      font-size: 14px;
+      letter-spacing: -0.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      outline: 0;
+
+      &:active {
+        opacity: 0.7;
+      }
+    }
   }
 }
