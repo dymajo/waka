@@ -144,7 +144,7 @@ export default class MapboxStops {
             stop_id: stop.stop_id,
             stop_name: stop.stop_name,
             route_type: stop.route_type,
-            icon: getIconName(stop.stop_region, stop.route_type),
+            icon: getIconName(stop.stop_region, stop.route_type, 'stops', stop.stop_name),
             icon_size: zoom >= 16 ? 1 : 0.75,
           },
           'geometry': {
