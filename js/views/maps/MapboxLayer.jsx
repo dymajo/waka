@@ -119,7 +119,8 @@ class MapboxLayer {
         },
       }
       if (document.documentElement.clientWidth <= desktopThreshold) {
-        options.padding.bottom = 350
+        // Mapbox currently mega breaks when we use this on small screens
+        // options.padding.bottom = 350
       }
       map.fitBounds(
         [

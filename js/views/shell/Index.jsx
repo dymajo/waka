@@ -52,6 +52,9 @@ class Index extends React.Component {
         heightStr = `calc(${heightStr} - var(--bottom-inset))`
       }
       document.body.style.setProperty('--real-height', heightStr)
+      requestAnimationFrame(() => {
+        UiStore.state.basemap.resize()
+      })
     }
     resize()
     window.onresize = () => {
