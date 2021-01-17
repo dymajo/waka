@@ -119,7 +119,7 @@ export default class MapboxStops {
     const dist = getDist(zoom)
     this.position = [lat, lon, dist]
 
-    if (zoom <= 14) {
+    if (zoom <= 9.5) {
       return {
         type: 'FeatureCollection',
         features: [],
