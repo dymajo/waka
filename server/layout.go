@@ -56,7 +56,6 @@ func (l Layout) WrapFooter() map[string]interface{} {
 	return map[string]interface{}{
 		"VendorPath":    l.AssetPrefix + l.Assets["vendor.js"],
 		"MainPath":      l.AssetPrefix + l.Assets["app.js"],
-		"AnalyticsPath": l.AssetPrefix + l.Assets["analytics.js"],
 	}
 }
 

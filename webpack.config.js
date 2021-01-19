@@ -15,7 +15,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const config = {
   entry: {
     app: ['whatwg-fetch', './js/App.jsx', './scss/style.scss'],
-    analytics: ['autotrack'],
   },
   output: {
     path: `${__dirname}/dist/`,
@@ -29,11 +28,7 @@ const config = {
       {
         test: /\.(js|jsx)?$/,
         use: 'babel-loader',
-        include: [
-          path.resolve(`${__dirname}/js`),
-          path.resolve(__dirname, 'node_modules/autotrack'), // compat with autotrack, as it's published in es6
-          path.resolve(__dirname, 'node_modules/dom-utils'), // autotrack
-        ],
+        include: [path.resolve(`${__dirname}/js`)],
       },
       {
         test: /\.scss$/,

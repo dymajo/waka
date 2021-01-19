@@ -69,7 +69,6 @@
   },
   "dependencies": {
     "@babel/preset-react": "^7.8.3",
-    "autotrack": "^2.4.1",
     "clipboard": "^2.0.4",
     "css-loader": "^3.4.2",
     "history": "^4.10.1",
