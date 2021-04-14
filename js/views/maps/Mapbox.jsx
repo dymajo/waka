@@ -51,6 +51,9 @@ class MapboxMap extends Component {
     this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-left')
     this.map.addControl(
       new mapboxgl.GeolocateControl({
+        fitBoundsOptions: {
+          zoom: 16.5,
+        },
         positionOptions: {
           enableHighAccuracy: true,
         },
