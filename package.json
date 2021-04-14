@@ -72,7 +72,7 @@
     "clipboard": "^2.0.4",
     "css-loader": "^3.4.2",
     "history": "^4.10.1",
-    "http-proxy": "^1.18.0",
+    "http-proxy": "^1.18.1",
     "mapbox-gl": "^2.2.0",
     "mini-css-extract-plugin": "^0.9.0",
     "node-polyglot": "^2.4.0",
