@@ -86,7 +86,7 @@ class Sidebar extends React.Component {
 
   render() {
     const item = (
-      <TouchableOpacity opacity={75} onClick={this.triggerTap}>
+      <TouchableOpacity opacity={75} onPress={this.triggerTap}>
         <div className="touchable ss">
           <div className="icon">{this.getIcon(this.props.icon)}</div>
           <div className="text-wrapper">

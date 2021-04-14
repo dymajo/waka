@@ -109,7 +109,7 @@ class LinePicker extends Component {
                         ? [styles.lineVariant, styles.lineVariantFirstChild]
                         : styles.lineVariant
                     }
-                    onClick={() => {
+                    onPress={() => {
                       // TODO: Stop Id
                       // Make this a replace, not a push, depending on the referral page
                       UiStore.safePush(
@@ -138,7 +138,7 @@ class LinePicker extends Component {
               })}
             {filteredServicePatterns > 0 ? (
               <TouchableOpacity
-                onClick={() => this.setState({ showAll: true })}
+                onPress={() => this.setState({ showAll: true })}
                 style={styles.showAllWrapper}
               >
                 <View style={styles.showAllTextWrapper}>

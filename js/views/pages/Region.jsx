@@ -61,7 +61,7 @@ class Region extends React.Component {
         key={city}
         iOSHacks
         activeOpacity={75}
-        onClick={this.changeCity(city)}
+        onPress={this.changeCity(city)}
         style={[styles.region, { backgroundImage: `url(/photos/${city}.jpg)` }]}
       >
         <Text style={[styles.regionText, styles.regionTextHeader]}>

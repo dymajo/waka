@@ -81,7 +81,7 @@ const Settings = () => {
         <TouchableOpacity>
           <View
             style={styles.button}
-            onClick={() => window.open('https://dymajo.com')}
+            onPress={() => window.open('https://dymajo.com')}
           >
             <NewIcon />
             <Text style={styles.buttonText}>{t('settings.more.whatsnew')}</Text>
@@ -90,7 +90,7 @@ const Settings = () => {
         <TouchableOpacity>
           <View
             style={styles.button}
-            onClick={() => UiStore.safePush('/feedback')}
+            onPress={() => UiStore.safePush('/feedback')}
           >
             <FeedbackIcon />
             <Text style={styles.buttonText}>{t('settings.more.feedback')}</Text>
@@ -99,7 +99,7 @@ const Settings = () => {
         <TouchableOpacity>
           <View
             style={styles.button}
-            onClick={() => UiStore.safePush('/sponsor')}
+            onPress={() => UiStore.safePush('/sponsor')}
           >
             <SponsorIcon />
             <Text style={styles.buttonText}>{t('settings.more.sponsor')}</Text>
@@ -128,7 +128,7 @@ const Settings = () => {
             </Text>
           </View>
         ) : (
-          <TouchableOpacity onClick={() => setCredits(true)}>
+          <TouchableOpacity onPress={() => setCredits(true)}>
             <View style={styles.button}>
               <CreditsIcon />
               <Text style={styles.buttonText}>

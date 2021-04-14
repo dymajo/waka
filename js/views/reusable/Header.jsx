@@ -113,14 +113,14 @@ class Header extends React.Component {
       const style =
         this.props.hideClose === true ? styles.close : styles.secondary
       actionIcon = (
-        <TouchableOpacity style={style} onClick={this.props.actionFn}>
+        <TouchableOpacity style={style} onPress={this.props.actionFn}>
           <View style={styles.iconInner}>{this.props.actionIcon}</View>
         </TouchableOpacity>
       )
     }
     const closeIcon =
       this.props.hideClose === true ? null : (
-        <TouchableOpacity style={styles.close} onClick={this.triggerBack}>
+        <TouchableOpacity style={styles.close} onPress={this.triggerBack}>
           <View style={styles.iconInner}>
             <CloseIcon style={{ fill: vars.headerIconColor }} />
           </View>

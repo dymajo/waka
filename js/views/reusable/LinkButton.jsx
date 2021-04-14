@@ -63,7 +63,7 @@ class LinkButton extends React.Component {
         <TouchableOpacity
           iOSHacks
           activeOpacity={75}
-          onClick={this.triggerLink}
+          onPress={this.triggerLink}
         >
           {inner}
         </TouchableOpacity>
@@ -81,7 +81,7 @@ class LinkButton extends React.Component {
         </TouchableOpacity>
       )
     }
-    return <TouchableOpacity onClick={onClick}>{inner}</TouchableOpacity>
+    return <TouchableOpacity onPress={onClick}>{inner}</TouchableOpacity>
   }
 }
 styles = StyleSheet.create({

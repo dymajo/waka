@@ -90,7 +90,7 @@ export const TripItem = ({
     .slice(1, 3)
     .map(i => getTime(i.departureTime, isTwentyFourHour, false, region))
   return (
-    <TouchableOpacity activeOpacity={0.85} onClick={onClick}>
+    <TouchableOpacity activeOpacity={0.85} onPress={onClick}>
       <View style={[styles.wrapper, { backgroundColor: color }]}>
         <View style={styles.left}>
           {routeIcon ? (

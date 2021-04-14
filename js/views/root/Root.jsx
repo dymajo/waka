@@ -100,7 +100,7 @@ class Root extends React.Component {
           <View style={styles.headerWrapper} ref={this.wrapper}>
             <TouchableOpacity
               style={[styles.button, styles.rightBorder]}
-              onClick={this.toggleStations}
+              onPress={this.toggleStations}
             >
               <StationIcon style={{ margin: 'auto' }} />
               <Text style={styles.text}>{t('root.stationsLabel')}</Text>
@@ -111,7 +111,7 @@ class Root extends React.Component {
                   ? [styles.button, styles.rightBorder, styles.middle]
                   : styles.button
               }
-              onClick={this.triggerUrl('/l/')}
+              onPress={this.triggerUrl('/l/')}
             >
               <LinesIcon style={{ margin: 'auto' }} />
               <Text style={styles.text}>{t('root.linesLabel')}</Text>
@@ -119,7 +119,7 @@ class Root extends React.Component {
             {currentCity.prefix === 'nz-wlg' ? (
               <TouchableOpacity
                 style={styles.button}
-                onClick={this.triggerUrl('/guide/')}
+                onPress={this.triggerUrl('/guide/')}
               >
                 <GuidebookIcon style={{ margin: 'auto' }} />
                 <Text style={styles.text}>{t('root.guideLabel')}</Text>

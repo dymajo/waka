@@ -65,7 +65,7 @@ export const LineStopsRoute = ({
     <>
       {!showAll && selectedStopIndex > 0 ? (
         <TouchableOpacity
-          onClick={() => setShowAll(true)}
+          onPress={() => setShowAll(true)}
           style={styles.previousWrapper}
         >
           <View style={styles.previousDots} />
@@ -127,7 +127,7 @@ export const LineStopsRoute = ({
                     ? [styles.controls, { borderBottomWidth: 0 }]
                     : styles.controls
                 }
-                onClick={() => UiStore.safePush(`/s/${region}/${stop.stop_id}`)}
+                onPress={() => UiStore.safePush(`/s/${region}/${stop.stop_id}`)}
               >
                 <View style={styles.contentContainer}>
                   <Text style={styles.stopText}>{stop.stop_name}</Text>
@@ -154,7 +154,7 @@ export const LineStopsRoute = ({
           <View style={styles.bullet} />
           <TouchableOpacity
             style={[styles.controls]}
-            onClick={() =>
+            onPress={() =>
               UiStore.safePush(
                 `/l/${region}/${nextBlock.agency_id}/${nextBlock.route_short_name}?trip_id=${nextBlock.trip_id}&route_id=${nextBlock.route_id}&direction_id=${nextBlock.direction_id}`
               )

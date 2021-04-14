@@ -46,7 +46,7 @@ export const InactiveTrips = ({ routes, onClick, region }) => {
       {routes.length > 0 ? (
         <TouchableOpacity
           style={styles.header}
-          onClick={() => setExpanded(!isExpanded)}
+          onPress={() => setExpanded(!isExpanded)}
         >
           <Text style={styles.headerText}>Inactive Lines</Text>
           <View style={isExpanded ? styles.icon : null}>
