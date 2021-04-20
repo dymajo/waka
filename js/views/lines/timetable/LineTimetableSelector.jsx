@@ -54,16 +54,28 @@ const LineTimetableSelector = ({
         })
         .filter(service => {
           // ensures that services that start and finish at the same place with the same trip_id don't show up more than once
-          tripIds[service.trip_id] = (tripIds[service.trip_id] || 0) + 1
-          return service.visible === true && tripIds[service.trip_id] === 1
+          const uniqueKey = service.trip_id + service.dateOffset
+          tripIds[uniqueKey] = (tripIds[uniqueKey] || 0) + 1
+          return service.visible === true && tripIds[uniqueKey] === 1
         })
         .map(service => {
           let departureTextStyle = null
           let emotion = null
           let delay = 0
-          let scheduleRelationship = 'scheduled'
 
-          if (service.realtimeStop) {
+          let scheduleRelationship = 'scheduled'
+          if (service.dateOffset > 0) {
+            const dayOfWeek = new Date(
+              service.departure_time || service.arrival_time
+            ).toLocaleString('en', { weekday: 'long' })
+            scheduleRelationship = dayOfWeek
+          }
+
+          // assume that realtime is only valid for today's trip (i.e 18 hours from now)
+          const serviceDifference =
+            new Date(service.departure_time || service.arrival_time).getTime() -
+            new Date().getTime()
+          if (service.realtimeStop && serviceDifference < 64800000) {
             const stop = service.realtimeStop
             scheduleRelationship = stop.scheduleRelationship.toLowerCase()
 
@@ -93,7 +105,11 @@ const LineTimetableSelector = ({
           }
           return (
             <TouchableOpacity
-              key={[service.trip_id, service.departure_time].join()}
+              key={[
+                service.trip_id,
+                service.departure_time,
+                service.dateOffset,
+              ].join()}
               style={
                 currentTrip === service.trip_id
                   ? [styles.departure, styles.departureSelected]

@@ -111,7 +111,8 @@ class LineData {
       ].join('/')
     )
     const data = await res.json()
-    return data
+    const mapped = data.map(i => ({ dateOffset: offset, ...i }))
+    return mapped
   }
 
   async getRealtime() {

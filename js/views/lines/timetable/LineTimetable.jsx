@@ -91,34 +91,53 @@ export class LineTimetable extends Component {
     }
 
     try {
-      const timetableData = await this.lineData.getTimetable(0)
-      this.setState(getTimetableState(timetableData), async () => {
-        const { timetable } = this.state
-        setRealtimeTrips(timetable, true)
-
-        const tomorrowTimetableData = await this.lineData.getTimetable(1)
-        const newState = getTimetableState(
-          timetable.slice().concat(tomorrowTimetableData)
-        )
-
-        setRealtimeTrips(newState.timetable, false)
-
-        this.setState(newState, async () => {
-          if (newState.timetable.length > 0) return
-          // direction id 2 is the magical both directions
-          this.lineData.direction_id = 2
-          const widerTimetableData = await this.lineData.getTimetable(0)
-          if (widerTimetableData.length > 0) {
-            this.setState(getTimetableState(widerTimetableData))
-          } else {
-            this.setState(() => {
-              throw new Error(
-                'We didn’t find any services for this line within the next few days.'
-              )
-            })
-          }
+      const setStateAsync = state => {
+        return new Promise(resolve => {
+          this.setState(state, resolve)
         })
-      })
+      }
+
+      // load the static timetable for the first day, and then the realtime info
+      const timetableToday = await this.lineData.getTimetable(0)
+      const stateToday = getTimetableState(timetableToday)
+      await setStateAsync(stateToday)
+      setRealtimeTrips(stateToday.timetable, true)
+
+      // do the same for the next day
+      const timetableTomorrow = await this.lineData.getTimetable(1)
+      const stateTomorrow = getTimetableState(
+        stateToday.timetable.slice().concat(timetableTomorrow)
+      )
+      setRealtimeTrips(stateTomorrow.timetable, false)
+      await setStateAsync(stateTomorrow)
+
+      // do the same for the next week
+      const timetableWeek = await Promise.all([
+        this.lineData.getTimetable(2),
+        this.lineData.getTimetable(3),
+        this.lineData.getTimetable(4),
+        this.lineData.getTimetable(5),
+        this.lineData.getTimetable(6),
+      ])
+      const stateWeek = getTimetableState(
+        stateTomorrow.timetable.slice().concat(timetableWeek.flat())
+      )
+      // don't bother with realtime for these dates later...
+      await setStateAsync(stateWeek)
+
+      if (stateWeek.timetable.length > 0) return
+      // direction id 2 is the magical both directions
+      this.lineData.direction_id = 2
+      const widerTimetableData = await this.lineData.getTimetable(0)
+      if (widerTimetableData.length > 0) {
+        this.setState(getTimetableState(widerTimetableData))
+      } else {
+        this.setState(() => {
+          throw new Error(
+            'We didn’t find any services for this line within the next few days.'
+          )
+        })
+      }
     } catch (err) {
       // cannot get timetable, usually because the stop_id is undefined
       throw new Error(err.message)
