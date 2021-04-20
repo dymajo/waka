@@ -46,7 +46,7 @@ const LineTimetableSelector = ({
 
             if (stop.stopSequence) {
               service.visible =
-                stop.stopSequence < service.stop_sequence ||
+                stop.stopSequence <= service.stop_sequence ||
                 service.trip_id === currentTrip
             }
           }

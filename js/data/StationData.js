@@ -49,11 +49,11 @@ class StationData {
 
       // if we've used the name of the stop as the description
       // remove randomo words
-      name = name.replace(/(Interchange|Bus Station)/, ' -')
       name = name.replace(
-        /( |- )(Carpark|Train Station|Ferry Terminal|Cable Car Station)/,
+        /( |- )(Bus Interchange|Carpark|Train Station|Ferry Terminal|Cable Car Station)/,
         ''
       )
+      name = name.replace(/(Interchange|Bus Station)/, ' -')
     }
 
     return {
