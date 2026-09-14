@@ -1,9 +1,6 @@
 # Waka
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/bad16b4eb9cb4fcdb079/maintainability)](https://codeclimate.com/github/dymajo/waka)
-[![Dependency Status](https://david-dm.org/dymajo/waka.svg?theme=shields.io)](https://david-dm.org/dymajo/waka)
-[![devDependency Status](https://david-dm.org/dymajo/waka/dev-status.svg?theme=shields.io)](https://david-dm.org/dymajo/waka#info=devDependencies)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdymajo%2Fwaka.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdymajo%2Fwaka?ref=badge_shield)
+**This version of Waka is deprecated - please see <https://github.com/consindo/waka-next> for the latest version.**
 
 ![Waka Icon](https://raw.githubusercontent.com/dymajo/waka/master/dist/branding/launcher-icon-3x.png)
 
